@@ -22,15 +22,15 @@ page 53142 "DH Dashboard KPI Part"
                     ApplicationArea = All;
                     Caption = 'Data Health Score';
                     StyleExpr = DataScoreStyle;
-                    ToolTip = 'Bewertung der Datenqualität.';
+                    ToolTip = 'Assessment of data quality.';
                 }
 
                 /*field("Estimated Loss"; Rec."Estimated Loss (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Potenzieller Verlust';
+                    Caption = 'Potential Loss';
                     StyleExpr = EstimatedLossStyle;
-                    ToolTip = 'Geschätzter potenzieller Verlust durch schlechte Datenqualität.';
+                    ToolTip = 'Estimated potential loss caused by poor data quality.';
                 }*/
 
                 field("Checks Count"; Rec."Checks Count")
@@ -38,7 +38,7 @@ page 53142 "DH Dashboard KPI Part"
                     ApplicationArea = All;
                     Caption = 'Checks';
                     StyleExpr = ChecksStyle;
-                    ToolTip = 'Anzahl ausgeführter Prüfungen.';
+                    ToolTip = 'Number of checks run.';
                 }
 
                 field("Issues Count"; Rec."Issues Count")
@@ -46,7 +46,7 @@ page 53142 "DH Dashboard KPI Part"
                     ApplicationArea = All;
                     Caption = 'Different Issues';
                     StyleExpr = IssuesStyle;
-                    ToolTip = 'Anzahl gefundener Probleme.';
+                    ToolTip = 'Number of issues found.';
                 }
 
                 /*field("Affected Records"; Rec."Affected Records")
@@ -54,7 +54,7 @@ page 53142 "DH Dashboard KPI Part"
                     ApplicationArea = All;
                     Caption = 'Affected';
                     StyleExpr = IssuesStyle;
-                    ToolTip = 'Summe aller betroffenen Datensätze über alle Findings.';
+                    ToolTip = 'Total affected records across all findings.';
                 }*/
             }
         }

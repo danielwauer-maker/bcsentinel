@@ -45,7 +45,7 @@ page 53138 "DH Blocked Items Inv"
         {
             action(ExcludeFromIssue)
             {
-                Caption = 'Von Analyse ausnehmen';
+                Caption = 'Exclude from Analysis';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -53,13 +53,13 @@ page 53138 "DH Blocked Items Inv"
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'BLOCKED_ITEMS_WITH_INVENTORY', StrSubstNo('Manuell aus BLOCKED_ITEMS_WITH_INVENTORY ausgenommen.', 'BLOCKED_ITEMS_WITH_INVENTORY'));
+                    ExceptionMgt.AddItemException(Rec, 'BLOCKED_ITEMS_WITH_INVENTORY', StrSubstNo('Manually excluded from BLOCKED_ITEMS_WITH_INVENTORY.', 'BLOCKED_ITEMS_WITH_INVENTORY'));
                     CurrPage.Update(false);
                 end;
             }
             action(MarkCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -74,7 +74,7 @@ page 53138 "DH Blocked Items Inv"
 
             action(OpenItemCard)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
 

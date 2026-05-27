@@ -301,7 +301,7 @@ page 53100 "DH Setup"
                         Setup: Record "DH Setup";
                         ApiClient: Codeunit "DH API Client";
                         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                        ConfirmStartScanQst: Label 'Möchten Sie den Scan wirklich jetzt starten? Es kann zu performanten Beeinträchtigungen während des Livebetriebs kommen. Wir empfehlen den Scan nicht während der Arbeitszeit laufen zu lassen.';
+                        ConfirmStartScanQst: Label 'Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
                     begin
                         EnsureSetupExists();
                         Setup := Rec;

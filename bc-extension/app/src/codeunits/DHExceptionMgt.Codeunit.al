@@ -111,7 +111,7 @@ codeunit 53152 "DH Exception Mgt."
         IssueException."Deactivated By User" := CopyStr(UserId(), 1, MaxStrLen(IssueException."Deactivated By User"));
         IssueException."Deactivated At" := CurrentDateTime();
         IssueException.Modify(true);
-        InsertActionLog(IssueException."Table ID", IssueException."Record SystemId", IssueException."Record No.", IssueException."Record Caption", IssueException."Issue Code", 'INCLUDED', 'Prüfung manuell wieder aktiviert.');
+        InsertActionLog(IssueException."Table ID", IssueException."Record SystemId", IssueException."Record No.", IssueException."Record Caption", IssueException."Issue Code", 'INCLUDED', 'Check manually reactivated.');
     end;
 
     local procedure AddOrActivateException(TableId: Integer; RecordSystemId: Guid; RecordNo: Code[20]; RecordCaption: Text[100]; IssueCode: Code[50]; Reason: Text[250])

@@ -43,7 +43,7 @@ page 53156 "DH Customer Issue List"
         {
             action(OpenCustomerCard)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -53,7 +53,7 @@ page 53156 "DH Customer Issue List"
             }
             action(ExcludeFromIssue)
             {
-                Caption = 'Von Analyse ausnehmen';
+                Caption = 'Exclude from Analysis';
                 ApplicationArea = All;
                 Image = Cancel;
                 trigger OnAction()
@@ -62,13 +62,13 @@ page 53156 "DH Customer Issue List"
                 begin
                     if CurrentIssueCode = '' then
                         exit;
-                    ExceptionMgt.AddCustomerException(Rec, CurrentIssueCode, StrSubstNo('Manuell aus %1 ausgenommen.', CurrentIssueCode));
+                    ExceptionMgt.AddCustomerException(Rec, CurrentIssueCode, StrSubstNo('Manually excluded from %1.', CurrentIssueCode));
                     CurrPage.Update(false);
                 end;
             }
             action(MarkCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()

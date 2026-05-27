@@ -6,7 +6,7 @@ pageextension 53163 "DH Item List Ext" extends "Item List"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()

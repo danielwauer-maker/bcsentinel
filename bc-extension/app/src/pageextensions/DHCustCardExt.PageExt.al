@@ -23,7 +23,7 @@ pageextension 53158 "DH Cust Card Ext" extends "Customer Card"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()

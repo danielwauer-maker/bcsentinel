@@ -48,7 +48,7 @@ page 53137 "DH Item Missing Cost List"
         {
             action(ExcludeFromIssue)
             {
-                Caption = 'Von Analyse ausnehmen';
+                Caption = 'Exclude from Analysis';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -56,13 +56,13 @@ page 53137 "DH Item Missing Cost List"
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'ITEMS_WITHOUT_UNIT_COST', StrSubstNo('Manuell aus ITEMS_WITHOUT_UNIT_COST ausgenommen.', 'ITEMS_WITHOUT_UNIT_COST'));
+                    ExceptionMgt.AddItemException(Rec, 'ITEMS_WITHOUT_UNIT_COST', StrSubstNo('Manually excluded from ITEMS_WITHOUT_UNIT_COST.', 'ITEMS_WITHOUT_UNIT_COST'));
                     CurrPage.Update(false);
                 end;
             }
             action(MarkCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -77,7 +77,7 @@ page 53137 "DH Item Missing Cost List"
 
             action(OpenItemCard)
             {
-                Caption = 'Zur Liste';
+                Caption = 'Open List';
                 ApplicationArea = All;
                 Image = Card;
 

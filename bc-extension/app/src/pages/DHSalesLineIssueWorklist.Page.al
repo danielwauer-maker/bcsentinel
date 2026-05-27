@@ -87,7 +87,7 @@ page 53139 "DH Sales Line Issue Worklist"
         {
             action(MarkIssueCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -99,7 +99,7 @@ page 53139 "DH Sales Line Issue Worklist"
 
             action(OpenDocument)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -205,11 +205,11 @@ page 53139 "DH Sales Line Issue Worklist"
         ExceptionMgt: Codeunit "DH Exception Mgt.";
     begin
         if (Rec.Type = Rec.Type::Item) and (Rec."No." <> '') and Item.Get(Rec."No.") then begin
-            ExceptionMgt.MarkItemCorrected(Item, CurrentIssueCode, 'Korrektur aus Verkaufszeilen-Worklist dokumentiert.');
+            ExceptionMgt.MarkItemCorrected(Item, CurrentIssueCode, 'Correction documented from the sales line worklist.');
             exit;
         end;
 
-        Message('Korrektur wurde nicht protokolliert, da kein Stammdatensatz zugeordnet werden konnte.');
+        Message('The correction was not logged because no master data record could be assigned.');
     end;
 
 }

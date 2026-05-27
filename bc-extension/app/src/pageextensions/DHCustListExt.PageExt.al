@@ -6,7 +6,7 @@ pageextension 53161 "DH Cust List Ext" extends "Customer List"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()
