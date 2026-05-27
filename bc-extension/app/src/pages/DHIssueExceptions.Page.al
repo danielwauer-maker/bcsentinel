@@ -55,7 +55,7 @@ page 53153 "DH Issue Exceptions"
         {
             action(DeactivateException)
             {
-                Caption = 'Prüfung wieder aktivieren';
+                Caption = 'Reactivate Check';
                 ApplicationArea = All;
                 Image = Cancel;
 

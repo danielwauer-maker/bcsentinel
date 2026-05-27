@@ -1,0 +1,2159 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="BCSentinel">
+    <body>
+      <trans-unit id="BCS-57942647a2e09903" size-unit="char" translate="yes">
+        <source>The backend request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Backend-Anfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-342bb2ef4e9addc1" size-unit="char" translate="yes">
+        <source>Backend connection test failed. Status %1 - %2</source>
+        <target state="translated">Backend-Verbindungstest fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5e2acb478da75313" size-unit="char" translate="yes">
+        <source>BCSentinel backend reachable. Status: %1</source>
+        <target state="translated">BCSentinel-Backend erreichbar. Status: %1</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e49e161d3c32adc3" size-unit="char" translate="yes">
+        <source>Please enable Data Processing Consent first.</source>
+        <target state="translated">Bitte aktivieren Sie zuerst die Zustimmung zur Datenverarbeitung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5938274f24a555dd" size-unit="char" translate="yes">
+        <source>Tenant registration failed. Status %1 - %2</source>
+        <target state="translated">Mandantenregistrierung fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9a22c4d54b8e2e25" size-unit="char" translate="yes">
+        <source>The backend returned an invalid JSON response: %1</source>
+        <target state="translated">Das Backend hat eine ungültige JSON-Antwort zurückgegeben: %1</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9e055408e17948fb" size-unit="char" translate="yes">
+        <source>The backend response does not contain a tenant_id.</source>
+        <target state="translated">Die Backend-Antwort enthält keine tenant_id.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ff93e1a38bb658b6" size-unit="char" translate="yes">
+        <source>The backend response does not contain an api_token.</source>
+        <target state="translated">Die Backend-Antwort enthält keinen api_token.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-08b5862edbfd2a5b" size-unit="char" translate="yes">
+        <source>License status request failed. Status %1 - %2</source>
+        <target state="translated">Abfrage des Lizenzstatus fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-becb4cd74730da0c" size-unit="char" translate="yes">
+        <source>Quick scan failed. Status %1 - %2</source>
+        <target state="translated">Quick Scan fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3567991871ebd3b9" size-unit="char" translate="yes">
+        <source>History request failed. Status %1 - %2</source>
+        <target state="translated">Verlaufsabfrage fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-640a6cfe6dbac384" size-unit="char" translate="yes">
+        <source>Trend request failed. Status %1 - %2</source>
+        <target state="translated">Trendabfrage fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e1774004329a6735" size-unit="char" translate="yes">
+        <source>The backend sync request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Backend-Synchronisierungsanfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8425f62bfcded6d9" size-unit="char" translate="yes">
+        <source>Scan sync failed. Status %1 - %2</source>
+        <target state="translated">Scan-Synchronisierung fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-94d4c733e45c1535" size-unit="char" translate="yes">
+        <source>The backend delete request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Backend-Löschanfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1e1d0bcf9e4670cd" size-unit="char" translate="yes">
+        <source>Backend scan delete failed. Status %1 - %2</source>
+        <target state="translated">Löschen des Backend-Scans fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-eb4b19453a895c1e" size-unit="char" translate="yes">
+        <source>The backend reconcile request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Backend-Abgleichanfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7beac67f173b224d" size-unit="char" translate="yes">
+        <source>Backend reconcile failed. Status %1 - %2</source>
+        <target state="translated">Backend-Abgleich fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9bc5a1bd93845f1f" size-unit="char" translate="yes">
+        <source>The scan status request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Scanstatus-Anfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-70ad958a5906e089" size-unit="char" translate="yes">
+        <source>Scan status request failed. Status %1 - %2</source>
+        <target state="translated">Scanstatus-Anfrage fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-70221d07b658b803" size-unit="char" translate="yes">
+        <source>The scan status response is not valid JSON.</source>
+        <target state="translated">Die Scanstatus-Antwort ist kein gültiges JSON.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b86d514524e39cd1" size-unit="char" translate="yes">
+        <source>Please register the tenant first.</source>
+        <target state="translated">Bitte registrieren Sie zuerst den Mandanten.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1aca69c007797415" size-unit="char" translate="yes">
+        <source>The API token is missing. Please register the tenant again.</source>
+        <target state="translated">Das API-Token fehlt. Bitte registrieren Sie den Mandanten erneut.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-078a59337208673c" size-unit="char" translate="yes">
+        <source>The dashboard token service could not be reached.</source>
+        <target state="translated">Der Dashboard-Token-Service konnte nicht erreicht werden.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6b66a7f23b228b06" size-unit="char" translate="yes">
+        <source>The dashboard token service returned an error. Status: %1. Response: %2</source>
+        <target state="translated">Der Dashboard-Token-Service hat einen Fehler zurückgegeben. Status: %1. Antwort: %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-548f2946ee06bfef" size-unit="char" translate="yes">
+        <source>The dashboard token service returned invalid JSON: %1</source>
+        <target state="translated">Der Dashboard-Token-Service hat ungültiges JSON zurückgegeben: %1</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-007669d10c3bddfc" size-unit="char" translate="yes">
+        <source>The field "token" is missing in the dashboard token response.</source>
+        <target state="translated">Das Feld "token" fehlt in der Dashboard-Token-Antwort.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4404ce1cf5b11f89" size-unit="char" translate="yes">
+        <source>The billing checkout request could not be sent. Please verify the network connection.</source>
+        <target state="translated">Die Checkout-Anfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0f22e19aa04e9ff2" size-unit="char" translate="yes">
+        <source>Billing checkout session failed. Status %1 - %2</source>
+        <target state="translated">Checkout-Sitzung fehlgeschlagen. Status %1 - %2</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0e777d3306989bf6" size-unit="char" translate="yes">
+        <source>The billing checkout response is not valid JSON: %1</source>
+        <target state="translated">Die Checkout-Antwort ist kein gültiges JSON: %1</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2c1633972e5604a3" size-unit="char" translate="yes">
+        <source>The billing checkout response does not contain checkout_url.</source>
+        <target state="translated">Die Checkout-Antwort enthält keine checkout_url.</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7a85f4764bbd6daf" size-unit="char" translate="yes">
+        <source>ok</source>
+        <target state="translated">ok</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-93d5cdf0fbce4ae8" size-unit="char" translate="yes">
+        <source>SETUP</source>
+        <target state="translated">SETUP</target>
+        <note>app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-99a33b1eb5805161" size-unit="char" translate="yes">
+        <source>Deep scan failed</source>
+        <target state="translated">Deep scan fehlgeschlagen</target>
+        <note>app/src/codeunits/DHDeepScanFailure.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-944d285fd13f97bf" size-unit="char" translate="yes">
+        <source>Scan failed</source>
+        <target state="translated">Scan fehlgeschlagen</target>
+        <note>app/src/codeunits/DHDeepScanFailure.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9c07b37e69befd92" size-unit="char" translate="yes">
+        <source>Please enable at least one scan module on the BCSentinel setup page.</source>
+        <target state="translated">Bitte aktivieren Sie mindestens ein Scanmodul auf der BCSentinel-Einrichtungsseite.</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4f5a9dbffd187ae6" size-unit="char" translate="yes">
+        <source>Please configure API Base URL first.</source>
+        <target state="translated">Bitte konfigurieren Sie zuerst die API Base URL.</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1a7570f70a26e75a" size-unit="char" translate="yes">
+        <source>Deep scan queued</source>
+        <target state="translated">Deep scan queued</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6a599877d75384dd" size-unit="char" translate="yes">
+        <source>Queued</source>
+        <target state="translated">In Warteschlange</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-96f608c16cef16ca" size-unit="char" translate="yes">
+        <source>Pending</source>
+        <target state="translated">Pending</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-efcc77141dbfd3ab" size-unit="char" translate="yes">
+        <source>queued</source>
+        <target state="translated">queued</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0bc8a5b2435ac495" size-unit="char" translate="yes">
+        <source>Waiting to start</source>
+        <target state="translated">Wartet auf Start</target>
+        <note>app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2963fc6c01bd3ba7" size-unit="char" translate="yes">
+        <source>Multiple customers with the same email: %1</source>
+        <target state="translated">Mehrere Kunden mit gleicher E-Mail: %1</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bef31cf3ba5dc251" size-unit="char" translate="yes">
+        <source>Multiple vendors with the same email: %1</source>
+        <target state="translated">Mehrere Lieferanten mit gleicher E-Mail: %1</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3df76493d860613b" size-unit="char" translate="yes">
+        <source>Multiple customers with the same VAT registration no.: %1</source>
+        <target state="translated">Mehrere Kunden mit gleicher USt-IdNr.: %1</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8d5a77875883cce1" size-unit="char" translate="yes">
+        <source>Multiple vendors with the same VAT registration no.: %1</source>
+        <target state="translated">Mehrere Lieferanten mit gleicher USt-IdNr.: %1</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-07903661042570f9" size-unit="char" translate="yes">
+        <source>Multiple customers with the same name/post code/city: %1 | %2 %3</source>
+        <target state="translated">Mehrere Kunden mit gleichem Namen/Postleitzahl/Ort: %1 | %2 %3</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0add98a6b956ec0a" size-unit="char" translate="yes">
+        <source>Multiple vendors with the same name/post code/city: %1 | %2 %3</source>
+        <target state="translated">Mehrere Lieferanten mit gleichem Namen/Postleitzahl/Ort: %1 | %2 %3</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2bc976b8efea1d9e" size-unit="char" translate="yes">
+        <source>%1 checks started</source>
+        <target state="translated">%1 Prüfungen gestartet</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4710717762ef3c23" size-unit="char" translate="yes">
+        <source>%1 checks completed</source>
+        <target state="translated">%1 Prüfungen abgeschlossen</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f2a459f64f86e264" size-unit="char" translate="yes">
+        <source>%1 min remaining</source>
+        <target state="translated">%1 Min. verbleibend</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c434ee496c5efd90" size-unit="char" translate="yes">
+        <source>Could not parse decimal value from backend JSON: %1</source>
+        <target state="translated">Dezimalwert aus Backend-JSON konnte nicht gelesen werden: %1</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6c6a149957e80ef5" size-unit="char" translate="yes">
+        <source>Deep scan is running</source>
+        <target state="translated">Deep scan is running</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3ec2f2ac1394df86" size-unit="char" translate="yes">
+        <source>Initializing</source>
+        <target state="translated">Initializing</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f7a16dc7be128f2e" size-unit="char" translate="yes">
+        <source>Calculating...</source>
+        <target state="translated">Calculating...</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1798b3ba42ee08ea" size-unit="char" translate="yes">
+        <source>Completed</source>
+        <target state="translated">Abgeschlossen</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d428375c5c960670" size-unit="char" translate="yes">
+        <source>Finalizing</source>
+        <target state="translated">Wird abgeschlossen</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0535a74b920869a2" size-unit="char" translate="yes">
+        <source>Less than 1 minute</source>
+        <target state="translated">Less than 1 minute</target>
+        <note>app/src/codeunits/DHDeepScanRunner.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-48a74bbdf084fecb" size-unit="char" translate="yes">
+        <source>%1|%2|%3</source>
+        <target state="translated">%1|%2|%3</target>
+        <note>app/src/codeunits/DHDuplicateWorklistMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f661f675d1b5495d" size-unit="char" translate="yes">
+        <source>FÃ¼r den Issue-Code %1 ist aktuell noch keine direkte Bearbeitungsliste hinterlegt.</source>
+        <target state="translated">FÃ¼r den Problem-Code %1 ist aktuell noch keine direkte Bearbeitungsliste hinterlegt.</target>
+        <note>app/src/codeunits/DHIssueDrilldownDispatcher.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a5447f045e28f3d3" size-unit="char" translate="yes">
+        <source>&lt;-%1D&gt;</source>
+        <target state="translated">&lt;-%1D&gt;</target>
+        <note>app/src/codeunits/DHIssueDrilldownDispatcher.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-49300d93bc7eca94" size-unit="char" translate="yes">
+        <source>Setup not found.</source>
+        <target state="translated">Einrichtung wurde nicht gefunden.</target>
+        <note>app/src/codeunits/DHIssueDrilldownMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a38dc4fa915713e2" size-unit="char" translate="yes">
+        <source>Premium access is required.</source>
+        <target state="translated">Premium-Zugriff ist erforderlich.</target>
+        <note>app/src/codeunits/DHIssueDrilldownMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3bb2fe30ddc3bd12" size-unit="char" translate="yes">
+        <source>EntryNo parameter is missing.</source>
+        <target state="translated">Der Parameter EntryNo fehlt.</target>
+        <note>app/src/codeunits/DHMonitorRefreshTask.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-82567a8a3d781fbd" size-unit="char" translate="yes">
+        <source>EntryNo parameter is invalid.</source>
+        <target state="translated">Der Parameter EntryNo ist ungültig.</target>
+        <note>app/src/codeunits/DHMonitorRefreshTask.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f9fbccfef282c25b" size-unit="char" translate="yes">
+        <source>Invalid JSON response: %1</source>
+        <target state="translated">Ungültige JSON-Antwort: %1</target>
+        <note>app/src/codeunits/DHQuickScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f6c4d300ca086874" size-unit="char" translate="yes">
+        <source>DH License Plan</source>
+        <target state="translated">DH-Lizenztarif</target>
+        <note>app/src/enums/DHLicensePlan.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-75f527181b574f84" size-unit="char" translate="yes">
+        <source>Free</source>
+        <target state="translated">Kostenlos</target>
+        <note>app/src/enums/DHLicensePlan.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2dfa66079d9b7229" size-unit="char" translate="yes">
+        <source>Standard</source>
+        <target state="translated">Standard</target>
+        <note>app/src/enums/DHLicensePlan.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6c2f2888c561e02a" size-unit="char" translate="yes">
+        <source>Premium</source>
+        <target state="translated">Premium</target>
+        <note>app/src/enums/DHLicensePlan.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-59ccc02b4850da2d" size-unit="char" translate="yes">
+        <source>DH License Status</source>
+        <target state="translated">DH-Lizenzstatus</target>
+        <note>app/src/enums/DHLicenseStatus.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5f7537cf06ca663e" size-unit="char" translate="yes">
+        <source>Trial</source>
+        <target state="translated">Testphase</target>
+        <note>app/src/enums/DHLicenseStatus.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a733b809d2f12334" size-unit="char" translate="yes">
+        <source>Active</source>
+        <target state="translated">Aktiv</target>
+        <note>app/src/enums/DHLicenseStatus.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a689a999a5e62055" size-unit="char" translate="yes">
+        <source>Expired</source>
+        <target state="translated">Abgelaufen</target>
+        <note>app/src/enums/DHLicenseStatus.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-99613c74ce010d98" size-unit="char" translate="yes">
+        <source>Blocked</source>
+        <target state="translated">Gesperrt</target>
+        <note>app/src/enums/DHLicenseStatus.Enum.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f4682cb96656844e" size-unit="char" translate="yes">
+        <source>DH Exceptions</source>
+        <target state="translated">DH-Ausnahmen</target>
+        <note>app/src/pageextensions/DHCustCardExt.PageExt.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ed945708e9315c40" size-unit="char" translate="yes">
+        <source>DH Activity</source>
+        <target state="translated">DH-Aktivität</target>
+        <note>app/src/pages/DHActionLogFB.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c3448c49f1e570be" size-unit="char" translate="yes">
+        <source>DH Blocked Items With Inventory</source>
+        <target state="translated">DH Gesperrte Artikel mit Inventory</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c435ec170311b561" size-unit="char" translate="yes">
+        <source>Item No.</source>
+        <target state="translated">Artikel No.</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8eed339a1258aeba" size-unit="char" translate="yes">
+        <source>Exclude from Analysis</source>
+        <target state="translated">Von Analyse ausnehmen</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-26866c2eb9359f03" size-unit="char" translate="yes">
+        <source>Mark as Corrected</source>
+        <target state="translated">Als korrigiert markieren</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0528ce2ed8d4b896" size-unit="char" translate="yes">
+        <source>Correct Data</source>
+        <target state="translated">Daten korrigieren</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-14f84ef5ddbfac59" size-unit="char" translate="yes">
+        <source>Manually excluded from BLOCKED_ITEMS_WITH_INVENTORY.</source>
+        <target state="translated">Manuell aus BLOCKED_ITEMS_WITH_INVENTORY ausgenommen.</target>
+        <note>app/src/pages/DHBlockedItemsWithInventory.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-adf27ae094a20d0f" size-unit="char" translate="yes">
+        <source>DH Customer Issue List</source>
+        <target state="translated">DH Kunde Issue List</target>
+        <note>app/src/pages/DHCustomerIssueList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-099843bbf9130a7a" size-unit="char" translate="yes">
+        <source>Manually excluded from %1.</source>
+        <target state="translated">Manuell aus %1 ausgenommen.</target>
+        <note>app/src/pages/DHCustomerIssueList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-faac05891fe306cd" size-unit="char" translate="yes">
+        <source>BCSentinel Issues</source>
+        <target state="translated">BCSentinel-Probleme</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-66e12969c225cc6d" size-unit="char" translate="yes">
+        <source>Count</source>
+        <target state="translated">Anzahl</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9fe0b12e78027f23" size-unit="char" translate="yes">
+        <source>Impact €</source>
+        <target state="translated">Auswirkung €</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6422fcc967f45263" size-unit="char" translate="yes">
+        <source>Recommendation</source>
+        <target state="translated">Empfehlung</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2f81a22de0af5e9e" size-unit="char" translate="yes">
+        <source>Access</source>
+        <target state="translated">Zugriff</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a3ca8aa1e6982c4e" size-unit="char" translate="yes">
+        <source>Upgrade to Premium for detailed insights</source>
+        <target state="translated">Upgrade to Premium for detailed insights</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b3da702582963ef2" size-unit="char" translate="yes">
+        <source>Unlocked</source>
+        <target state="translated">Unlocked</target>
+        <note>app/src/pages/DHDashboardIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bc9eb67e64a7b9ad" size-unit="char" translate="yes">
+        <source>Impact â‚¬</source>
+        <target state="translated">Auswirkung €</target>
+        <note>app/src/pages/DHDashboardIssuesList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-27ac2e573f5d9fa8" size-unit="char" translate="yes">
+        <source>Key Metrics</source>
+        <target state="translated">Kennzahlen</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c472a8f91d809d90" size-unit="char" translate="yes">
+        <source>Data Health Score</source>
+        <target state="translated">Datenqualitätswert</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-736373ff17247c05" size-unit="char" translate="yes">
+        <source>Assessment of data quality.</source>
+        <target state="translated">Bewertung der Datenqualität.</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2d20c1405fbeb983" size-unit="char" translate="yes">
+        <source>Potential Loss</source>
+        <target state="translated">Potenzieller Verlust</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a17769e01ebff0e6" size-unit="char" translate="yes">
+        <source>Estimated potential loss caused by poor data quality.</source>
+        <target state="translated">Geschätzter potenzieller Verlust durch schlechte Datenqualität.</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5098dd1999a4d41d" size-unit="char" translate="yes">
+        <source>Checks</source>
+        <target state="translated">Prüfungen</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-97f54a070111f178" size-unit="char" translate="yes">
+        <source>Number of checks run.</source>
+        <target state="translated">Anzahl ausgeführter Prüfungen.</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-536d110b51d7e8e2" size-unit="char" translate="yes">
+        <source>Different Issues</source>
+        <target state="translated">Unterschiedliche Probleme</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-29c5327f14fc0049" size-unit="char" translate="yes">
+        <source>Number of issues found.</source>
+        <target state="translated">Anzahl gefundener Probleme.</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-01f6924e98df055d" size-unit="char" translate="yes">
+        <source>Affected</source>
+        <target state="translated">Betroffen</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a9347565fe69729d" size-unit="char" translate="yes">
+        <source>Total affected records across all findings.</source>
+        <target state="translated">Summe aller betroffenen Datensätze über alle Ergebnisse.</target>
+        <note>app/src/pages/DHDashboardKPIPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6fa7414583a666d6" size-unit="char" translate="yes">
+        <source>BCSentinel Dashboards</source>
+        <target state="translated">BCSentinel-Dashboards</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-79adb123c5c0db44" size-unit="char" translate="yes">
+        <source>Run ID</source>
+        <target state="translated">Lauf-ID</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9c91db7c874959a3" size-unit="char" translate="yes">
+        <source>Scan Date</source>
+        <target state="translated">Scandatum</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-489f4877244a2991" size-unit="char" translate="yes">
+        <source>Score</source>
+        <target state="translated">Wert</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a4ea1b9a557457b6" size-unit="char" translate="yes">
+        <source>Premium €/Month</source>
+        <target state="translated">Premium €/Monat</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c26d10b11c11b78f" size-unit="char" translate="yes">
+        <source>Loss €</source>
+        <target state="translated">Verlust €</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-afa9b93039047c5a" size-unit="char" translate="yes">
+        <source>ROI €</source>
+        <target state="translated">ROI €</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b9e922ebbb7df734" size-unit="char" translate="yes">
+        <source>Open Dashboard</source>
+        <target state="translated">Dashboard öffnen</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d86eaf32a4b21ee0" size-unit="char" translate="yes">
+        <source>Run Scan</source>
+        <target state="translated">Scan ausführen</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f5640705a6d26e0b" size-unit="char" translate="yes">
+        <source>Delete Selected Dashboard</source>
+        <target state="translated">Ausgewähltes Dashboard löschen</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e0ff2e82f836e41a" size-unit="char" translate="yes">
+        <source>Reconcile Scan History</source>
+        <target state="translated">Scanverlauf abstimmen</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0ddb208601aa0e12" size-unit="char" translate="yes">
+        <source>Open Setup</source>
+        <target state="translated">Offene Setup</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5996555973c64034" size-unit="char" translate="yes">
+        <source>Upgrade to Premium</source>
+        <target state="translated">Auf Premium upgraden</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6f8f383a85c493b5" size-unit="char" translate="yes">
+        <source>Open the secure BCSentinel checkout to activate Premium.</source>
+        <target state="translated">Öffnet den sicheren BCSentinel-Checkout zur Aktivierung von Premium.</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e83dacd3c14f8002" size-unit="char" translate="yes">
+        <source>Please select a dashboard entry first.</source>
+        <target state="translated">Bitte wählen Sie zuerst einen Dashboardeintrag aus.</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a67cdee969ccc4df" size-unit="char" translate="yes">
+        <source>Do you want to delete the selected dashboard from %1?</source>
+        <target state="translated">Möchten Sie das ausgewählte Dashboard vom %1 löschen?</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f47f70620441f3f9" size-unit="char" translate="yes">
+        <source>This will align the backend scan history with the current BC scan list and remove orphan backend scans. Continue?</source>
+        <target state="translated">Dadurch wird der Backend-Scanverlauf mit der aktuellen BC-Scanliste abgeglichen und verwaiste Backend-Scans werden entfernt. Fortfahren?</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6f24a0b5a1a0ffcf" size-unit="char" translate="yes">
+        <source>Scan history synchronized with backend.</source>
+        <target state="translated">Der Scanverlauf wurde mit dem Backend synchronisiert.</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a13e88fa7c10c49e" size-unit="char" translate="yes">
+        <source>Premium is already enabled.</source>
+        <target state="translated">Premium ist bereits aktiviert.</target>
+        <note>app/src/pages/DHDashboardList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8a11327f0f299db6" size-unit="char" translate="yes">
+        <source>Deep Scan Findings</source>
+        <target state="translated">Deep-Scan-Ergebnisse</target>
+        <note>app/src/pages/DHDeepScanFindings.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-78c4e0ed9631553a" size-unit="char" translate="yes">
+        <source>BCSentinel Scan Monitor</source>
+        <target state="translated">BCSentinel-Scanmonitor</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0efc2e6be4c23b9a" size-unit="char" translate="yes">
+        <source>Overview</source>
+        <target state="translated">Überblick</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5cc23401f9e8682c" size-unit="char" translate="yes">
+        <source>Scan Status</source>
+        <target state="translated">Scanstatus</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bae7d5be70820ed5" size-unit="char" translate="yes">
+        <source>Status</source>
+        <target state="translated">Status</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-adbf337e38e28118" size-unit="char" translate="yes">
+        <source>Current Step</source>
+        <target state="translated">Aktueller Schritt</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-366110ea62be8551" size-unit="char" translate="yes">
+        <source>Overall Progress</source>
+        <target state="translated">Gesamtfortschritt</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3044d4f6c43873c4" size-unit="char" translate="yes">
+        <source>ETA</source>
+        <target state="translated">Voraussichtliche Restzeit</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1b5e51fdd89cb574" size-unit="char" translate="yes">
+        <source>Last Heartbeat</source>
+        <target state="translated">Letzter Heartbeat</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1c4d5bfd0df12fe3" size-unit="char" translate="yes">
+        <source>Estimated Remaining Time</source>
+        <target state="translated">Geschätzte Restzeit</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7811bb45d4f2fec3" size-unit="char" translate="yes">
+        <source>Status Details</source>
+        <target state="translated">Statusdetails</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e9c45563358e813f" size-unit="char" translate="yes">
+        <source>Warning</source>
+        <target state="translated">Warnung</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7f2f6a15cf8da2b2" size-unit="char" translate="yes">
+        <source>Error</source>
+        <target state="translated">Fehler</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-979eeb37f6f92cda" size-unit="char" translate="yes">
+        <source>Recent Events</source>
+        <target state="translated">Aktuelle Ereignisse</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c3e839df60846914" size-unit="char" translate="yes">
+        <source>Online</source>
+        <target state="translated">Online</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-caec274e139019de" size-unit="char" translate="yes">
+        <source>External Dashboard</source>
+        <target state="translated">Externes Dashboard</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6211db2c58ab4de3" size-unit="char" translate="yes">
+        <source>Open the external BCSentinel dashboard for this scan.</source>
+        <target state="translated">Offene the external BCSentinel dashboard for this scan.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b4d22e83f9b9b2c6" size-unit="char" translate="yes">
+        <source>Scan Results</source>
+        <target state="translated">Scanergebnisse</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7430e7fb1e2044f3" size-unit="char" translate="yes">
+        <source>Scanned Records</source>
+        <target state="translated">Gescannte Datensätze</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-71c60e47d82cb956" size-unit="char" translate="yes">
+        <source>Affected Records</source>
+        <target state="translated">Betroffene Datensätze</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-412dd96caaf9197b" size-unit="char" translate="yes">
+        <source>Estimated Loss</source>
+        <target state="translated">Geschätzter Verlust</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-553dd096088d860a" size-unit="char" translate="yes">
+        <source>Potential Saving</source>
+        <target state="translated">Potenzielle Einsparung</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-eb031c5bfd183054" size-unit="char" translate="yes">
+        <source>Module Progress</source>
+        <target state="translated">Modulfortschritt</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bc0792d8dc81e8aa" size-unit="char" translate="yes">
+        <source>System</source>
+        <target state="translated">System</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1b48d3f014245f7c" size-unit="char" translate="yes">
+        <source>Finance</source>
+        <target state="translated">Finanzen</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d0edfb6e8c55c874" size-unit="char" translate="yes">
+        <source>Sales</source>
+        <target state="translated">Verkauf</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6e3d52434a58c861" size-unit="char" translate="yes">
+        <source>Purchasing</source>
+        <target state="translated">Einkauf</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-300d29fd5f327e8c" size-unit="char" translate="yes">
+        <source>Inventory</source>
+        <target state="translated">Lager</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2a13d05eafbca696" size-unit="char" translate="yes">
+        <source>CRM</source>
+        <target state="translated">CRM</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0471386edfe0bf05" size-unit="char" translate="yes">
+        <source>Manufacturing</source>
+        <target state="translated">Fertigung</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-329cb8b6ba8c427b" size-unit="char" translate="yes">
+        <source>Service</source>
+        <target state="translated">Service</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-437736fdb5bb707a" size-unit="char" translate="yes">
+        <source>Jobs</source>
+        <target state="translated">Projekte</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f187928fdb223e7f" size-unit="char" translate="yes">
+        <source>HR</source>
+        <target state="translated">Personal</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b5d81bcf172d52f9" size-unit="char" translate="yes">
+        <source>Module Scores</source>
+        <target state="translated">Modulwerte</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-30ce4cb25faae864" size-unit="char" translate="yes">
+        <source>Issues</source>
+        <target state="translated">Probleme</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-56e3badc4e6c5cc9" size-unit="char" translate="yes">
+        <source>Refresh</source>
+        <target state="translated">Aktualisieren</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6c604c15da660568" size-unit="char" translate="yes">
+        <source>Open Issues</source>
+        <target state="translated">Probleme öffnen</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8bee97575f6e2da4" size-unit="char" translate="yes">
+        <source>Open BCSentinel Dashboard</source>
+        <target state="translated">Offene BCSentinel Dashboard</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5f2f661a69ea68a8" size-unit="char" translate="yes">
+        <source>Open the external BCSentinel dashboard for the current scan.</source>
+        <target state="translated">Offene the external BCSentinel dashboard for the current scan.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-87f5d800bf6ada29" size-unit="char" translate="yes">
+        <source>Refresh License Status</source>
+        <target state="translated">Lizenzstatus aktualisieren</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-52b65ff70083b6b7" size-unit="char" translate="yes">
+        <source>Refresh current plan and license status from BCSentinel.</source>
+        <target state="translated">Aktualisiert aktuellen Tarif und Lizenzstatus von BCSentinel.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-385caadb60bd5b08" size-unit="char" translate="yes">
+        <source>No deep scan run is available.</source>
+        <target state="translated">Es ist kein Deep-Scan-Lauf verfügbar.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d481005b8d84a079" size-unit="char" translate="yes">
+        <source>License status refreshed.</source>
+        <target state="translated">Lizenzstatus wurde aktualisiert.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-daa33be62fb8798e" size-unit="char" translate="yes">
+        <source>%1  %2%  %3</source>
+        <target state="translated">%1  %2%  %3</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c01b3981f14b48eb" size-unit="char" translate="yes">
+        <source>No valid dashboard token was returned by the token service.</source>
+        <target state="translated">Der Token-Service hat kein gültiges Dashboard-Token zurückgegeben.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b6080b6df8f37ebe" size-unit="char" translate="yes">
+        <source>DH Setup was not found.</source>
+        <target state="translated">DH Setup wurde nicht gefunden.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f74ba0b7020df401" size-unit="char" translate="yes">
+        <source>Please enter the API Base URL in DH Setup first.</source>
+        <target state="translated">Bitte hinterlegen Sie zuerst die API Base URL im DH Setup.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8c0a82598cdd66d0" size-unit="char" translate="yes">
+        <source>Please register the tenant in DH Setup first.</source>
+        <target state="translated">Bitte registrieren Sie zuerst den Mandanten im DH Setup.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e13819c8d82b560a" size-unit="char" translate="yes">
+        <source>Please register the tenant in DH Setup first so that an API token is stored.</source>
+        <target state="translated">Bitte registrieren Sie zuerst den Mandanten im DH Setup, damit ein API-Token gespeichert wird.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8196135f669a943f" size-unit="char" translate="yes">
+        <source>The token service response is not valid JSON.</source>
+        <target state="translated">Die Antwort des Token-Service ist kein gültiges JSON.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a8a41264a76f2fc2" size-unit="char" translate="yes">
+        <source>The field "token" is missing in the token service response.</source>
+        <target state="translated">Das Feld "token" fehlt in der Antwort des Token-Service.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d2ea237bcca93802" size-unit="char" translate="yes">
+        <source>Scan status could not be refreshed from the backend.</source>
+        <target state="translated">Der Scanstatus konnte nicht vom Backend aktualisiert werden.</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c13a735b6e6f0d3f" size-unit="char" translate="yes">
+        <source>Unfavorable</source>
+        <target state="translated">Unfavorable</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-cf846870537119b7" size-unit="char" translate="yes">
+        <source>Strong</source>
+        <target state="translated">Strong</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c5db436d46fadb20" size-unit="char" translate="yes">
+        <source>Open Analytics-Dashboard</source>
+        <target state="translated">Open Analytics-Dashboard</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-be7a6a372dcbe136" size-unit="char" translate="yes">
+        <source>Deep</source>
+        <target state="translated">Deep</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f030bbbd32966cde" size-unit="char" translate="yes">
+        <source>GET</source>
+        <target state="translated">GET</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3f11ab1ecb484806" size-unit="char" translate="yes">
+        <source>Deep Scan</source>
+        <target state="translated">Deep Scan</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6872ff67b54b0d64" size-unit="char" translate="yes">
+        <source>Latest Scan</source>
+        <target state="translated">Letzter Scan</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b61b843771993d86" size-unit="char" translate="yes">
+        <source>Data Score</source>
+        <target state="translated">Datenwert</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6437b7bf65585490" size-unit="char" translate="yes">
+        <source>Rating</source>
+        <target state="translated">Bewertung</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f00f0a0d2a6584f0" size-unit="char" translate="yes">
+        <source>Requested At</source>
+        <target state="translated">Angefordert am</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b011d46e5316e1c0" size-unit="char" translate="yes">
+        <source>Finished At</source>
+        <target state="translated">Abgeschlossen am</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-442250df38e5e516" size-unit="char" translate="yes">
+        <source>Headline</source>
+        <target state="translated">Überschrift</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-501ab645bb96bf5e" size-unit="char" translate="yes">
+        <source>No deep scan yet</source>
+        <target state="translated">No deep scan yet</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ff1995f731a0ba14" size-unit="char" translate="yes">
+        <source>No deep scan has been requested yet.</source>
+        <target state="translated">No deep scan has been requested yet.</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ce3f2b71c9e9edc6" size-unit="char" translate="yes">
+        <source>Subordinate</source>
+        <target state="translated">Subordinate</target>
+        <note>app/src/pages/DHDeepScanPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fb0aedfa0653a941" size-unit="char" translate="yes">
+        <source>BCSentinel Scan History</source>
+        <target state="translated">BCSentinel-Scanverlauf</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1a753d363ef05478" size-unit="char" translate="yes">
+        <source>Open Scan</source>
+        <target state="translated">Scan öffnen</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fb85a0a16c12527d" size-unit="char" translate="yes">
+        <source>Open Deep Scan Monitor</source>
+        <target state="translated">Deep-Scan-Monitor öffnen</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-01176a28981a5f14" size-unit="char" translate="yes">
+        <source>Delete Selected Scan(s)</source>
+        <target state="translated">Ausgewählte Scans löschen</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-07621a53a45e4d64" size-unit="char" translate="yes">
+        <source>Delete This Scan</source>
+        <target state="translated">Diesen Scan löschen</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e1ed7a1b2807e5c2" size-unit="char" translate="yes">
+        <source>The monitor is only available for deep scans.</source>
+        <target state="translated">Der Monitor ist nur für Deep Scans verfügbar.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a9f17e3530524d42" size-unit="char" translate="yes">
+        <source>No deep scan run was found for %1.</source>
+        <target state="translated">Für %1 wurde kein Deep-Scan-Lauf gefunden.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d223b0cdf66eafbc" size-unit="char" translate="yes">
+        <source>Please select a scan first.</source>
+        <target state="translated">Bitte wählen Sie zuerst einen Scan aus.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-14b04728b788d370" size-unit="char" translate="yes">
+        <source>Do you want to delete scan %1?</source>
+        <target state="translated">Möchten Sie Scan %1 löschen?</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-87167c1ef1650df9" size-unit="char" translate="yes">
+        <source>Scan deleted.</source>
+        <target state="translated">Scan wurde gelöscht.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-cad15526b91fb860" size-unit="char" translate="yes">
+        <source>Scan history successfully synchronized with the backend.</source>
+        <target state="translated">Der Scanverlauf wurde erfolgreich mit dem Backend synchronisiert.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-196b5091acf8f11c" size-unit="char" translate="yes">
+        <source>Please select at least one scan.</source>
+        <target state="translated">Bitte wählen Sie mindestens einen Scan aus.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0e64ecf50fb9947c" size-unit="char" translate="yes">
+        <source>Do you want to delete %1 selected scans?</source>
+        <target state="translated">Möchten Sie %1 ausgewählte Scans löschen?</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ffd651234f05dcb7" size-unit="char" translate="yes">
+        <source>%1 scan(s) deleted.</source>
+        <target state="translated">%1 Scan(s) wurden gelöscht.</target>
+        <note>app/src/pages/DHDeepScanRuns.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1ba382c82c9f1f7d" size-unit="char" translate="yes">
+        <source>DH Duplicate Worklist</source>
+        <target state="translated">DH-Dublettenarbeitsliste</target>
+        <note>app/src/pages/DHDuplicateWorklist.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e16fb3114c0a532c" size-unit="char" translate="yes">
+        <source>DH Issue Drilldown Launch</source>
+        <target state="translated">DH-Problem-Drilldown starten</target>
+        <note>app/src/pages/DHIssueDrilldownLaunch.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7185125f418832fd" size-unit="char" translate="yes">
+        <source>Missing issue code for drilldown launch.</source>
+        <target state="translated">ohne issue code for drilldown launch.</target>
+        <note>app/src/pages/DHIssueDrilldownLaunch.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f46876614a5cad7f" size-unit="char" translate="yes">
+        <source>BCSentinel Issue Exceptions</source>
+        <target state="translated">BCSentinel-Problem-Ausnahmen</target>
+        <note>app/src/pages/DHIssueExceptions.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e92c6c0046ba57ad" size-unit="char" translate="yes">
+        <source>Reactivate Check</source>
+        <target state="translated">Prüfung wieder aktivieren</target>
+        <note>app/src/pages/DHIssueExceptions.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8043f6aeda026e4b" size-unit="char" translate="yes">
+        <source>Show All Issues</source>
+        <target state="translated">Alle Probleme anzeigen</target>
+        <note>app/src/pages/DHIssuesPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-eeb346d122878188" size-unit="char" translate="yes">
+        <source>DH Item Missing Cost List</source>
+        <target state="translated">DH Artikel ohne Kosten List</target>
+        <note>app/src/pages/DHItemMissingCostList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a0d48d7b970f84d8" size-unit="char" translate="yes">
+        <source>Open List</source>
+        <target state="translated">Liste öffnen</target>
+        <note>app/src/pages/DHItemMissingCostList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1f5711ab21fb62b1" size-unit="char" translate="yes">
+        <source>Manually excluded from ITEMS_WITHOUT_UNIT_COST.</source>
+        <target state="translated">Manuell aus ITEMS_WITHOUT_UNIT_COST ausgenommen.</target>
+        <note>app/src/pages/DHItemMissingCostList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0cdd90683da3f981" size-unit="char" translate="yes">
+        <source>DH Item Missing Price List</source>
+        <target state="translated">DH Artikel ohne Preis List</target>
+        <note>app/src/pages/DHItemMissingPriceList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-df0f0ed237839b3e" size-unit="char" translate="yes">
+        <source>Manually excluded from ITEMS_WITHOUT_UNIT_PRICE.</source>
+        <target state="translated">Manuell aus ITEMS_WITHOUT_UNIT_PRICE ausgenommen.</target>
+        <note>app/src/pages/DHItemMissingPriceList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-acbda0c91bb8d15e" size-unit="char" translate="yes">
+        <source>DH Item Negative Inventory List</source>
+        <target state="translated">DH Artikel Negative Inventory List</target>
+        <note>app/src/pages/DHItemNegativeInventoryList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9b9349ea981d7b12" size-unit="char" translate="yes">
+        <source>Optional FlowFilter to limit the view to one location.</source>
+        <target state="translated">Optionaler FlowFilter zur Eingrenzung auf einen Lagerort.</target>
+        <note>app/src/pages/DHItemNegativeInventoryList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0ad1a10b8ffad12b" size-unit="char" translate="yes">
+        <source>Show Issue</source>
+        <target state="translated">Problem anzeigen</target>
+        <note>app/src/pages/DHItemNegativeInventoryList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6be55a5bd3c9a63f" size-unit="char" translate="yes">
+        <source>Manually excluded from ITEMS_NEGATIVE_INVENTORY.</source>
+        <target state="translated">Manuell aus ITEMS_NEGATIVE_INVENTORY ausgenommen.</target>
+        <note>app/src/pages/DHItemNegativeInventoryList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e51c55255be9007d" size-unit="char" translate="yes">
+        <source>Records</source>
+        <target state="translated">Datensätze</target>
+        <note>app/src/pages/DHKeyMetricsPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fc2d8696c94b4da3" size-unit="char" translate="yes">
+        <source>Premium / Month</source>
+        <target state="translated">Premium / Monat</target>
+        <note>app/src/pages/DHKeyMetricsPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-07a6b7fb49dd63de" size-unit="char" translate="yes">
+        <source>ROI</source>
+        <target state="translated">ROI</target>
+        <note>app/src/pages/DHKeyMetricsPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-26dea5ff29c7b821" size-unit="char" translate="yes">
+        <source>StrongAccent</source>
+        <target state="translated">StrongAccent</target>
+        <note>app/src/pages/DHKeyMetricsPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e9a46a96e9e2d411" size-unit="char" translate="yes">
+        <source>Ambiguous</source>
+        <target state="translated">Ambiguous</target>
+        <note>app/src/pages/DHKeyMetricsPart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-30a8ab9fdd8116eb" size-unit="char" translate="yes">
+        <source>DHM Analytics</source>
+        <target state="translated">DHM Analytics</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-25bc96295797b537" size-unit="char" translate="yes">
+        <source>Analytics</source>
+        <target state="translated">Analytics</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-55f8ebc805e65b5b" size-unit="char" translate="yes">
+        <source>Description</source>
+        <target state="translated">Beschreibung</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-73eb5f512e1f73d7" size-unit="char" translate="yes">
+        <source>Open Analytics Dashboard</source>
+        <target state="translated">Analytics-Dashboard öffnen</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f46ce35b38e4c9a8" size-unit="char" translate="yes">
+        <source>Opens the external Data Health Management Analytics dashboard.</source>
+        <target state="translated">Öffnet das externe Data Health Management Analytics Dashboard.</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-60447bd6cf675132" size-unit="char" translate="yes">
+        <source>No valid token was found in the token service response.</source>
+        <target state="translated">In der Antwort des Token-Service wurde kein gültiges Token gefunden.</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d31fa2cd41830450" size-unit="char" translate="yes">
+        <source>Opens the Data Health Management Analytics dashboard in a new browser tab. Backend: %1</source>
+        <target state="translated">Öffnet das Data Health Management Analytics Dashboard in einem neuen Browser-Tab. Backend: %1</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c8f62b6b3b81d75e" size-unit="char" translate="yes">
+        <source>The token service could not be reached.</source>
+        <target state="translated">Der Token-Service konnte nicht erreicht werden.</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-44b508a61d9661c7" size-unit="char" translate="yes">
+        <source>The token service returned an error. Status: %1. Response: %2</source>
+        <target state="translated">Der Token-Service hat einen Fehler zurückgegeben. Status: %1. Antwort: %2</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ce41a8f2ae6f5a26" size-unit="char" translate="yes">
+        <source>Opens the Data Health Management Analytics dashboard in a new browser tab.</source>
+        <target state="translated">Opens the Data Health Management Analytics dashboard in a new browser tab.</target>
+        <note>app/src/pages/DHMAnalyticsPage.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0fee9395de5cfd9b" size-unit="char" translate="yes">
+        <source>DH Purchase Line Issue Worklist</source>
+        <target state="translated">DH Einkauf Line Issue Worklist</target>
+        <note>app/src/pages/DHPurchaseLineIssueWorklist.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4b1b66c27e808ca5" size-unit="char" translate="yes">
+        <source>The correction was not logged because no master data record could be assigned.</source>
+        <target state="translated">Die Korrektur wurde nicht protokolliert, da kein Stammdatensatz zugeordnet werden konnte.</target>
+        <note>app/src/pages/DHPurchaseLineIssueWorklist.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1de2838f139e40de" size-unit="char" translate="yes">
+        <source>DH Sales Line Issue Worklist</source>
+        <target state="translated">DH Verkauf Line Issue Worklist</target>
+        <note>app/src/pages/DHSalesLineIssueWorklist.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4bc9e99d145a654e" size-unit="char" translate="yes">
+        <source>Scan Issues</source>
+        <target state="translated">Scan Probleme</target>
+        <note>app/src/pages/DHScanIssues.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6c71c6b2aa0351d9" size-unit="char" translate="yes">
+        <source>Score Health</source>
+        <target state="translated">Wert Health</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-886541a339683fe2" size-unit="char" translate="yes">
+        <source>Health Overview</source>
+        <target state="translated">Zustandsübersicht</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-58832e7bf74c52d6" size-unit="char" translate="yes">
+        <source>Quick Score</source>
+        <target state="translated">Quick Wert</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9563e2c149f89421" size-unit="char" translate="yes">
+        <source>Deep Score</source>
+        <target state="translated">Deep Wert</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-df3f585e4797b6a0" size-unit="char" translate="yes">
+        <source>Overall Health Score</source>
+        <target state="translated">Overall Health Wert</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8418e3ed9c862f5a" size-unit="char" translate="yes">
+        <source>Backend Rating</source>
+        <target state="translated">Backend-Bewertung</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-dae07c6ee88cd0b9" size-unit="char" translate="yes">
+        <source>Trend</source>
+        <target state="translated">Trend</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fc418dd8b09ca31f" size-unit="char" translate="yes">
+        <source>Quick Score Gauge</source>
+        <target state="translated">Quick Wert Gauge</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-61b5af097b76945e" size-unit="char" translate="yes">
+        <source>Gauge</source>
+        <target state="translated">Messanzeige</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a29f0256272e79ca" size-unit="char" translate="yes">
+        <source>Scale</source>
+        <target state="translated">Skala</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-cf6bbe294327934d" size-unit="char" translate="yes">
+        <source>0 | 60 | 85 | 100</source>
+        <target state="translated">0 | 60 | 85 | 100</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-50f013532a9770a2" size-unit="char" translate="yes">
+        <source>n/a</source>
+        <target state="translated">n/a</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4aba448c560d68c8" size-unit="char" translate="yes">
+        <source>Deep scan snapshot</source>
+        <target state="translated">Deep scan snapshot</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f5babd392090de1a" size-unit="char" translate="yes">
+        <source>Very good</source>
+        <target state="translated">Very good</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-dbb509d58892ebb2" size-unit="char" translate="yes">
+        <source>Okay - improvements recommended</source>
+        <target state="translated">Okay - improvements recommended</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-96abe6b8e2233d3f" size-unit="char" translate="yes">
+        <source>Critical - action needed</source>
+        <target state="translated">Critical - action needed</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7429f0fd69af1b2d" size-unit="char" translate="yes">
+        <source>First recorded scan</source>
+        <target state="translated">First recorded scan</target>
+        <note>app/src/pages/DHScorePart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9106bfc8efce391d" size-unit="char" translate="yes">
+        <source>Score Trend</source>
+        <target state="translated">Wert Trend</target>
+        <note>app/src/pages/DHScoreTrendChart.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-38261b0469f8cc73" size-unit="char" translate="yes">
+        <source>BCSentinel Setup</source>
+        <target state="translated">BCSentinel-Einrichtung</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ad1e3628ec28e501" size-unit="char" translate="yes">
+        <source>Feature access</source>
+        <target state="translated">Funktionszugriff</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-74c1e729631d9c70" size-unit="char" translate="yes">
+        <source>Shows whether premium actions are unlocked.</source>
+        <target state="translated">Zeigt an, ob Premium-Aktionen freigeschaltet sind.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9239ee2cda84eca4" size-unit="char" translate="yes">
+        <source>General</source>
+        <target state="translated">Allgemein</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7c7fe93a4e87b8a3" size-unit="char" translate="yes">
+        <source>Base URL of the BCSentinel API. Default is production.</source>
+        <target state="translated">Basis-URL der BCSentinel-API. Standard ist Produktion.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ec895164e3f78ff4" size-unit="char" translate="yes">
+        <source>Must be enabled before tenant registration and scan synchronization.</source>
+        <target state="translated">Muss vor Mandantenregistrierung und Scan-Synchronisierung aktiviert sein.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3229609e15436ec5" size-unit="char" translate="yes">
+        <source>License</source>
+        <target state="translated">Lizenz</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a6f3f9543bbdb088" size-unit="char" translate="yes">
+        <source>Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.</source>
+        <target state="translated">Zeigt an, ob Premium-Empfehlungen, Drilldowns, Arbeitslisten und zugehörige Premiumdetails freigeschaltet sind.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6c4112660df7181a" size-unit="char" translate="yes">
+        <source>Enabled Scan Modules</source>
+        <target state="translated">Aktive Scanmodule</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2b584c2d19e64bc1" size-unit="char" translate="yes">
+        <source>Include system and setup checks in the deep scan.</source>
+        <target state="translated">System- und Einrichtungsprüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a293b2bfde8c56cc" size-unit="char" translate="yes">
+        <source>Include finance-related checks in the deep scan.</source>
+        <target state="translated">Finanzbezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8ed057f18cffc6ac" size-unit="char" translate="yes">
+        <source>Include sales-related checks in the deep scan.</source>
+        <target state="translated">Verkaufsbezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e3b7ee0c7b5376d9" size-unit="char" translate="yes">
+        <source>Include purchasing-related checks in the deep scan.</source>
+        <target state="translated">Einkaufsbezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b40bcb025e4d896e" size-unit="char" translate="yes">
+        <source>Include inventory-related checks in the deep scan.</source>
+        <target state="translated">Lagerbezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-52088c1d2d0b01f4" size-unit="char" translate="yes">
+        <source>Include CRM/contact-related checks in the deep scan.</source>
+        <target state="translated">CRM-/Kontaktprüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-62518f076b0af3a7" size-unit="char" translate="yes">
+        <source>Include manufacturing and production master data checks in the deep scan.</source>
+        <target state="translated">Fertigungs- und Produktionsstammdatenprüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c09e0d06c6066f34" size-unit="char" translate="yes">
+        <source>Include service-related checks in the deep scan.</source>
+        <target state="translated">Servicebezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-87fcb4f5d3777c15" size-unit="char" translate="yes">
+        <source>Include jobs and project-related checks in the deep scan.</source>
+        <target state="translated">Projektbezogene Prüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-62f61c4be9f978fd" size-unit="char" translate="yes">
+        <source>Include employee and resource-related checks in the deep scan.</source>
+        <target state="translated">Mitarbeiter- und Ressourcenprüfungen in den Deep Scan aufnehmen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e66816e56f808717" size-unit="char" translate="yes">
+        <source>Last Scan</source>
+        <target state="translated">Letzter Scan</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a95861f764e2a9f0" size-unit="char" translate="yes">
+        <source>Last Scan Date</source>
+        <target state="translated">Letztes Scandatum</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f1229697b2dc004c" size-unit="char" translate="yes">
+        <source>Test BCSentinel Connection</source>
+        <target state="translated">BCSentinel-Verbindung testen</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e7c6965ad1637e21" size-unit="char" translate="yes">
+        <source>Register with BCSentinel</source>
+        <target state="translated">Bei BCSentinel registrieren</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-28cba55d2aadf568" size-unit="char" translate="yes">
+        <source>Scan</source>
+        <target state="translated">Scan</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-542ef882f1671cf6" size-unit="char" translate="yes">
+        <source>Start Scan</source>
+        <target state="translated">Scan starten</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1d7891c2c3592e6f" size-unit="char" translate="yes">
+        <source>Scan History</source>
+        <target state="translated">Scanverlauf</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-629fa266cce5a10b" size-unit="char" translate="yes">
+        <source>Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
+        <target state="translated">Möchten Sie den Scan jetzt starten? Während des Livebetriebs kann die Performance beeinträchtigt werden. Wir empfehlen, den Scan außerhalb der Geschäftszeiten auszuführen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9778e139ad45468b" size-unit="char" translate="yes">
+        <source>BCSentinel tenant registration completed.</source>
+        <target state="translated">BCSentinel-Mandantenregistrierung wurde abgeschlossen.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6a6c31ee3af7a0fe" size-unit="char" translate="yes">
+        <source>BCSentinel tenant registration started.</source>
+        <target state="translated">BCSentinel-Mandantenregistrierung wurde gestartet.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0ba1662f53bd098b" size-unit="char" translate="yes">
+        <source>Please configure the API Base URL first.</source>
+        <target state="translated">Bitte konfigurieren Sie zuerst die API Base URL.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f88517b650bdbc71" size-unit="char" translate="yes">
+        <source>Tenant is not registered yet.</source>
+        <target state="translated">Der Mandant ist noch nicht registriert.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d0ad436c86f9b116" size-unit="char" translate="yes">
+        <source>The token response is not valid JSON.</source>
+        <target state="translated">Die Token-Antwort ist kein gültiges JSON.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1259ec48635a6bea" size-unit="char" translate="yes">
+        <source>The token field is missing in the response.</source>
+        <target state="translated">Das Token-Feld fehlt in der Antwort.</target>
+        <note>app/src/pages/DHSetup.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6cb1c4e37dfd2fe1" size-unit="char" translate="yes">
+        <source>DH Vendor Issue List</source>
+        <target state="translated">DH Lieferant Issue List</target>
+        <note>app/src/pages/DHVendorIssueList.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-183aac60bc68f99f" size-unit="char" translate="yes">
+        <source>DH Dashboard Issue</source>
+        <target state="translated">DH Dashboard Problem</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-869e35d7aa3ebe19" size-unit="char" translate="yes">
+        <source>Entry No.</source>
+        <target state="translated">Lfd. Nr.</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b06f7773e9436b21" size-unit="char" translate="yes">
+        <source>Dashboard Scan Entry No.</source>
+        <target state="translated">Dashboard-Scan-Lfd. Nr.</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f7d8c9b283c81dd6" size-unit="char" translate="yes">
+        <source>Source Type</source>
+        <target state="translated">Quelltyp</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bcddd58533e78fdc" size-unit="char" translate="yes">
+        <source>Source Entry No.</source>
+        <target state="translated">Quell-Lfd. Nr.</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d74b593915b5b6da" size-unit="char" translate="yes">
+        <source>Issue Code</source>
+        <target state="translated">Problem Code</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-768e0c1c69573fb5" size-unit="char" translate="yes">
+        <source>Title</source>
+        <target state="translated">Titel</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-de314fa0c9d9e359" size-unit="char" translate="yes">
+        <source>Severity</source>
+        <target state="translated">Schweregrad</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9eff81c545f0d208" size-unit="char" translate="yes">
+        <source>Affected Count</source>
+        <target state="translated">Anzahl Betroffene</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-969c650d97a1d750" size-unit="char" translate="yes">
+        <source>Recommendation Preview</source>
+        <target state="translated">Empfehlung Preview</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d6dc3568d5ff6d74" size-unit="char" translate="yes">
+        <source>Severity Sort Order</source>
+        <target state="translated">Sortierung Schweregrad</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9963367611d914fa" size-unit="char" translate="yes">
+        <source>Affected Count Sort Value</source>
+        <target state="translated">Sortierwert Anzahl Betroffene</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b3b4822e127b6ec8" size-unit="char" translate="yes">
+        <source>Estimated Impact (EUR)</source>
+        <target state="translated">Geschätzte Auswirkung (EUR)</target>
+        <note>app/src/tables/DHDashboardIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8befb98da7b2f993" size-unit="char" translate="yes">
+        <source>DH Deep Scan Finding</source>
+        <target state="translated">DH Deep Scan Ergebnis</target>
+        <note>app/src/tables/DHDeepScanFinding.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2c023cf4b8dbf519" size-unit="char" translate="yes">
+        <source>Deep Scan Entry No.</source>
+        <target state="translated">Deep-Scan-Lfd. Nr.</target>
+        <note>app/src/tables/DHDeepScanFinding.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a3c686e711e4720f" size-unit="char" translate="yes">
+        <source>Category</source>
+        <target state="translated">Kategorie</target>
+        <note>app/src/tables/DHDeepScanFinding.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c49ed449be7be622" size-unit="char" translate="yes">
+        <source>DH Deep Scan Run</source>
+        <target state="translated">DH Deep Scan Ausführen</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-343959a43709ac3f" size-unit="char" translate="yes">
+        <source>Requested By</source>
+        <target state="translated">Angefordert By</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ac70cb7d44af5b54" size-unit="char" translate="yes">
+        <source>Started At</source>
+        <target state="translated">Gestartet At</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-511f12409c6584c4" size-unit="char" translate="yes">
+        <source>Checks Count</source>
+        <target state="translated">Anzahl Prüfungen</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-449fe58fcc04b835" size-unit="char" translate="yes">
+        <source>Issues Count</source>
+        <target state="translated">Probleme Count</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-adf3b98e4dc17a2d" size-unit="char" translate="yes">
+        <source>Error Message</source>
+        <target state="translated">Fehlermeldung</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8599f5cc48ffccc0" size-unit="char" translate="yes">
+        <source>Company Name</source>
+        <target state="translated">Firmenname</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2145655f0ea67f60" size-unit="char" translate="yes">
+        <source>Backend Run Id</source>
+        <target state="translated">Backend Ausführen Id</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0491c6d47e2d27ca" size-unit="char" translate="yes">
+        <source>Task ID</source>
+        <target state="translated">Aufgaben-ID</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-afe9ecad4b5502cd" size-unit="char" translate="yes">
+        <source>Estimated Loss (EUR)</source>
+        <target state="translated">Geschätzter Verlust (EUR)</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-110ff88cb3abbffe" size-unit="char" translate="yes">
+        <source>Potential Saving (EUR)</source>
+        <target state="translated">Potenzielle Einsparung (EUR)</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2fba608bf8c3e57b" size-unit="char" translate="yes">
+        <source>Current Module</source>
+        <target state="translated">Aktuelles Modul</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0da45a691d78a367" size-unit="char" translate="yes">
+        <source>Progress %</source>
+        <target state="translated">Fortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-987b842eae28f1e0" size-unit="char" translate="yes">
+        <source>Completed Modules</source>
+        <target state="translated">Abgeschlossene Module</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-de2d22774277bbb6" size-unit="char" translate="yes">
+        <source>Total Modules</source>
+        <target state="translated">Module gesamt</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b36846efd1ecaa05" size-unit="char" translate="yes">
+        <source>System Progress %</source>
+        <target state="translated">Systemfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-10488156c3333f4a" size-unit="char" translate="yes">
+        <source>Finance Progress %</source>
+        <target state="translated">Finanzfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1812afd8656cebcb" size-unit="char" translate="yes">
+        <source>Sales Progress %</source>
+        <target state="translated">Verkaufsfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-afd378352b3e1285" size-unit="char" translate="yes">
+        <source>Purchasing Progress %</source>
+        <target state="translated">Einkaufsfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-eac0a517c606124e" size-unit="char" translate="yes">
+        <source>Inventory Progress %</source>
+        <target state="translated">Lagerfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9c887082e1293e03" size-unit="char" translate="yes">
+        <source>CRM Progress %</source>
+        <target state="translated">CRM-Fortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4b98c582f3b1a7d2" size-unit="char" translate="yes">
+        <source>Manufacturing Progress %</source>
+        <target state="translated">Fertigungsfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8f3f6e6d3f30a49f" size-unit="char" translate="yes">
+        <source>Service Progress %</source>
+        <target state="translated">Servicefortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c1e7c0cef47a3276" size-unit="char" translate="yes">
+        <source>Jobs Progress %</source>
+        <target state="translated">Projektfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-28ab0cec62c60849" size-unit="char" translate="yes">
+        <source>HR Progress %</source>
+        <target state="translated">Personalfortschritt %</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0ff88dcd818bf4d5" size-unit="char" translate="yes">
+        <source>System Score</source>
+        <target state="translated">Systemwert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9db6a5553a2c0c40" size-unit="char" translate="yes">
+        <source>Finance Score</source>
+        <target state="translated">Finanzwert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4ce76bfad8aed647" size-unit="char" translate="yes">
+        <source>Sales Score</source>
+        <target state="translated">Verkaufswert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f92a682db78a0534" size-unit="char" translate="yes">
+        <source>Purchasing Score</source>
+        <target state="translated">Einkaufswert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-712fdcb98a695cce" size-unit="char" translate="yes">
+        <source>Inventory Score</source>
+        <target state="translated">Lagerwert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-549574bbe6a2ce55" size-unit="char" translate="yes">
+        <source>CRM Score</source>
+        <target state="translated">CRM-Wert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bfb18c9a7a02fd50" size-unit="char" translate="yes">
+        <source>Manufacturing Score</source>
+        <target state="translated">Fertigungswert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-45666a6890a2bfe9" size-unit="char" translate="yes">
+        <source>Service Score</source>
+        <target state="translated">Servicewert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e84b83c33f657f53" size-unit="char" translate="yes">
+        <source>Jobs Score</source>
+        <target state="translated">Projektwert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e133e8c3c3317cde" size-unit="char" translate="yes">
+        <source>HR Score</source>
+        <target state="translated">Personalwert</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-27b219a622b5eace" size-unit="char" translate="yes">
+        <source>Total Records</source>
+        <target state="translated">Datensätze gesamt</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-aa84d27caef6ff82" size-unit="char" translate="yes">
+        <source>Backend Status</source>
+        <target state="translated">Backendstatus</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1269e7478c3041a5" size-unit="char" translate="yes">
+        <source>Warning Message</source>
+        <target state="translated">Warnmeldung</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c1c5a407900cf8bb" size-unit="char" translate="yes">
+        <source>Estimated Remaining Seconds</source>
+        <target state="translated">Geschätzte verbleibende Sekunden</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f00135e595ea55e1" size-unit="char" translate="yes">
+        <source>Failed Modules</source>
+        <target state="translated">Fehlgeschlagene Module</target>
+        <note>app/src/tables/DHDeepScanRun.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0e85749a6f40d461" size-unit="char" translate="yes">
+        <source>Customer</source>
+        <target state="translated">Kunde</target>
+        <note>app/src/tables/DHDuplicateBuffer.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-d96159ff30af16ea" size-unit="char" translate="yes">
+        <source>Vendor</source>
+        <target state="translated">Lieferant</target>
+        <note>app/src/tables/DHDuplicateBuffer.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e5833d85de7c46ad" size-unit="char" translate="yes">
+        <source>DH Duplicate Buffer</source>
+        <target state="translated">DH-Dublettenpuffer</target>
+        <note>app/src/tables/DHDuplicateBuffer.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-cbdb808d5ef5784a" size-unit="char" translate="yes">
+        <source>DH Issue Action Log</source>
+        <target state="translated">DH Problem Action Log</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c825b6edc69cefc7" size-unit="char" translate="yes">
+        <source>Table ID</source>
+        <target state="translated">Tabellen-ID</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b7bb3261f88f02ce" size-unit="char" translate="yes">
+        <source>Record SystemId</source>
+        <target state="translated">Datensatz-SystemId</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4b8646d408436e09" size-unit="char" translate="yes">
+        <source>Record No.</source>
+        <target state="translated">Datensatznr.</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-6089caec40861183" size-unit="char" translate="yes">
+        <source>Record Caption</source>
+        <target state="translated">Datensatzbezeichnung</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b35abdb27129dd9a" size-unit="char" translate="yes">
+        <source>Action Type</source>
+        <target state="translated">Aktionstyp</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-153d7a58b3a3e898" size-unit="char" translate="yes">
+        <source>Comment</source>
+        <target state="translated">Kommentar</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-eaccde1f146f47ec" size-unit="char" translate="yes">
+        <source>Action User</source>
+        <target state="translated">Aktionsbenutzer</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-dfc000e5a1105f22" size-unit="char" translate="yes">
+        <source>Action At</source>
+        <target state="translated">Aktion am</target>
+        <note>app/src/tables/DHIssueActionLog.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8218d81cadc46302" size-unit="char" translate="yes">
+        <source>DH Issue Exception</source>
+        <target state="translated">DH Problem Exception</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f219cc0614ae6860" size-unit="char" translate="yes">
+        <source>Reason</source>
+        <target state="translated">Grund</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-8c50228e92fbbac0" size-unit="char" translate="yes">
+        <source>Created By User</source>
+        <target state="translated">Erstellt von Benutzer</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-5db1542e683b0540" size-unit="char" translate="yes">
+        <source>Created At</source>
+        <target state="translated">Erstellt am</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9f448bf7c5ce865f" size-unit="char" translate="yes">
+        <source>Deactivated By User</source>
+        <target state="translated">Deaktiviert von Benutzer</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-732661abc89f6aa5" size-unit="char" translate="yes">
+        <source>Deactivated At</source>
+        <target state="translated">Deaktiviert am</target>
+        <note>app/src/tables/DHIssueException.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c1e0fe39de6e5989" size-unit="char" translate="yes">
+        <source>DH Scan Header</source>
+        <target state="translated">DH-Scankopf</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-cbb0126b704028e2" size-unit="char" translate="yes">
+        <source>Scan Type</source>
+        <target state="translated">Scantyp</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-88faefe45f9c9583" size-unit="char" translate="yes">
+        <source>Scan DateTime</source>
+        <target state="translated">Scanzeitpunkt</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9d007f0fddf1649f" size-unit="char" translate="yes">
+        <source>Backend Scan Id</source>
+        <target state="translated">Backend-Scan-ID</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2baeaa7dab553f43" size-unit="char" translate="yes">
+        <source>Premium Available</source>
+        <target state="translated">Premium verfügbar</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ca6b74eb45fa2a5c" size-unit="char" translate="yes">
+        <source>Estimated Loss €</source>
+        <target state="translated">Geschätzter Verlust €</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fae33e25905661a8" size-unit="char" translate="yes">
+        <source>Potential Saving €</source>
+        <target state="translated">Potenzielle Einsparung €</target>
+        <note>app/src/tables/DHScanHeader.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2799b9f24465791a" size-unit="char" translate="yes">
+        <source>DH Scan Issue</source>
+        <target state="translated">DH Scan Problem</target>
+        <note>app/src/tables/DHScanIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b35183902c1d3c5d" size-unit="char" translate="yes">
+        <source>Scan Entry No.</source>
+        <target state="translated">Scan-Lfd. Nr.</target>
+        <note>app/src/tables/DHScanIssue.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-99644d7ec02f13c6" size-unit="char" translate="yes">
+        <source>DH Setup</source>
+        <target state="translated">DH Einrichtung</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-69f98f62216cced8" size-unit="char" translate="yes">
+        <source>Primary Key</source>
+        <target state="translated">Primärschlüssel</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3422cdf696b9514a" size-unit="char" translate="yes">
+        <source>Tenant ID</source>
+        <target state="translated">Mandanten-ID</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-51cdd426b32b37e7" size-unit="char" translate="yes">
+        <source>API Base URL</source>
+        <target state="translated">API-Basis-URL</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-731c458c5b55d44c" size-unit="char" translate="yes">
+        <source>API Token</source>
+        <target state="translated">API-Token</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f5a026fd224fbc57" size-unit="char" translate="yes">
+        <source>Last Score</source>
+        <target state="translated">Letzter Wert</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ce2c6e3e1db2108a" size-unit="char" translate="yes">
+        <source>Premium Enabled</source>
+        <target state="translated">Premium aktiviert</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a844fcf834e7d026" size-unit="char" translate="yes">
+        <source>Registered</source>
+        <target state="translated">Registriert</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e68df6d34aea0b88" size-unit="char" translate="yes">
+        <source>Registration Date</source>
+        <target state="translated">Registrierungsdatum</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-440a9f2ca18e6b22" size-unit="char" translate="yes">
+        <source>Current Plan</source>
+        <target state="translated">Aktueller Tarif</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2b2af105337f8a6a" size-unit="char" translate="yes">
+        <source>License Status</source>
+        <target state="translated">Lizenzstatus</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-55c28b0a3d56ebc0" size-unit="char" translate="yes">
+        <source>Last License Check</source>
+        <target state="translated">Letzte Lizenzprüfung</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f25e89583f33b11e" size-unit="char" translate="yes">
+        <source>Data Processing Consent</source>
+        <target state="translated">Zustimmung zur Datenverarbeitung</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ed966829f848d825" size-unit="char" translate="yes">
+        <source>Last Run ID Date</source>
+        <target state="translated">Datum der letzten Lauf-ID</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-c0de10daaa668da2" size-unit="char" translate="yes">
+        <source>Last Run ID Counter</source>
+        <target state="translated">Zähler der letzten Lauf-ID</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-86a77c86aa9b99e4" size-unit="char" translate="yes">
+        <source>Scan System</source>
+        <target state="translated">System scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-407b235ffbf31e18" size-unit="char" translate="yes">
+        <source>Scan Finance</source>
+        <target state="translated">Finanzen scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-7e3bd681343d90b4" size-unit="char" translate="yes">
+        <source>Scan Sales</source>
+        <target state="translated">Scan Verkauf</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1f191459acb5432b" size-unit="char" translate="yes">
+        <source>Scan Purchasing</source>
+        <target state="translated">Einkauf scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-be61cd3695df0014" size-unit="char" translate="yes">
+        <source>Scan Inventory</source>
+        <target state="translated">Lager scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-16633d9d17422139" size-unit="char" translate="yes">
+        <source>Scan CRM</source>
+        <target state="translated">CRM scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-49730bccbd54aadb" size-unit="char" translate="yes">
+        <source>Scan Manufacturing</source>
+        <target state="translated">Fertigung scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-bae520dbfb5ec4a4" size-unit="char" translate="yes">
+        <source>Scan Service</source>
+        <target state="translated">Service scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-368679787b2cb73c" size-unit="char" translate="yes">
+        <source>Scan Jobs</source>
+        <target state="translated">Projekte scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3030627203c89a5f" size-unit="char" translate="yes">
+        <source>Scan HR</source>
+        <target state="translated">Personal scannen</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-ab502d7d4dd95a1f" size-unit="char" translate="yes">
+        <source>Issue Drilldown Code</source>
+        <target state="translated">Problem-Drilldown-Code</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f3f94f1da84d375e" size-unit="char" translate="yes">
+        <source>API Base URL must start with http:// or https://</source>
+        <target state="translated">Die API-Basis-URL muss mit http:// oder https:// beginnen.</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-819b044f9edea223" size-unit="char" translate="yes">
+        <source>API Base URL is too long.</source>
+        <target state="translated">Die API-Basis-URL ist zu lang.</target>
+        <note>app/src/tables/DHSetup.Table.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-1a5092c292349d50" size-unit="char" translate="yes">
+        <source>All modules completed</source>
+        <target state="translated">Alle Module abgeschlossen</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-fa8d95a23a38c722" size-unit="char" translate="yes">
+        <source>Failed during %1</source>
+        <target state="translated">Fehlgeschlagen w?hrend %1</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-9ce7e94809798599" size-unit="char" translate="yes">
+        <source>Waiting for backend status</source>
+        <target state="translated">Warten auf Backend-Status</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-13a76afbd79efcd8" size-unit="char" translate="yes">
+        <source>Preparing scan</source>
+        <target state="translated">Scan wird vorbereitet</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHApiClient.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-e0d8853145d511d5" size-unit="char" translate="yes">
+        <source>Scan started. Open the monitor to view progress. Run ID: %1</source>
+        <target state="translated">Scan gestartet. ?ffnen Sie den Monitor, um den Fortschritt anzuzeigen. Lauf-ID: %1</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-77a0e819a9dbf9c7" size-unit="char" translate="yes">
+        <source>Debug Build Marker</source>
+        <target state="translated">Debug-Build-Marker</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-3af2279f9e306acd" size-unit="char" translate="yes">
+        <source>Diagnostics</source>
+        <target state="translated">Diagnose</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-2979641362fbb98e" size-unit="char" translate="yes">
+        <source>Local Status Raw</source>
+        <target state="translated">Lokaler Status (Rohwert)</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f15ce9e3043cdc01" size-unit="char" translate="yes">
+        <source>Backend Status Raw</source>
+        <target state="translated">Backend-Status (Rohwert)</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-b12e65c132e0e98c" size-unit="char" translate="yes">
+        <source>Display Status</source>
+        <target state="translated">Anzeigestatus</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0d41147e399de467" size-unit="char" translate="yes">
+        <source>Display Progress</source>
+        <target state="translated">Anzeigefortschritt</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-f939b0c62d9482ab" size-unit="char" translate="yes">
+        <source>Last Refresh Source</source>
+        <target state="translated">Letzte Aktualisierungsquelle</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-0a6e0625a09bb154" size-unit="char" translate="yes">
+        <source>Last Refresh Error Count</source>
+        <target state="translated">Anzahl letzter Aktualisierungsfehler</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-28a0e95aff7f2ed4" size-unit="char" translate="yes">
+        <source>Refresh Status</source>
+        <target state="translated">Status aktualisieren</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-a759469e1096e333" size-unit="char" translate="yes">
+        <source>ScanMonitorFix v2</source>
+        <target state="translated">ScanMonitorFix v2</target>
+        <note>app/src/pages/DHDeepScanMonitor.Page.al; app/src/codeunits/DHDeepScanMgt.Codeunit.al</note>
+      </trans-unit>
+      <trans-unit id="BCS-4271627f4f0bef61" size-unit="char" translate="yes">
+        <source>City</source>
+        <target state="translated">Ort</target>
+      </trans-unit>
+      <trans-unit id="BCS-9e434c1328d2c54c" size-unit="char" translate="yes">
+        <source>Duplicate Count</source>
+        <target state="translated">Anzahl Duplikate</target>
+      </trans-unit>
+      <trans-unit id="BCS-9eeffe4b7b6e5e1e" size-unit="char" translate="yes">
+        <source>E-Mail</source>
+        <target state="translated">E-Mail</target>
+      </trans-unit>
+      <trans-unit id="BCS-f1cb86b67428f1d8" size-unit="char" translate="yes">
+        <source>Group Key</source>
+        <target state="translated">Gruppenschl?ssel</target>
+      </trans-unit>
+      <trans-unit id="BCS-709a23220f2c3d64" size-unit="char" translate="yes">
+        <source>Name</source>
+        <target state="translated">Name</target>
+      </trans-unit>
+      <trans-unit id="BCS-3dd7964cb554b877" size-unit="char" translate="yes">
+        <source>Post Code</source>
+        <target state="translated">PLZ</target>
+      </trans-unit>
+      <trans-unit id="BCS-f518e3420df02f88" size-unit="char" translate="yes">
+        <source>Source No.</source>
+        <target state="translated">Herkunftsnr.</target>
+      </trans-unit>
+      <trans-unit id="BCS-e366fb12c5ff133f" size-unit="char" translate="yes">
+        <source>VAT Registration No.</source>
+        <target state="translated">USt-IdNr.</target>
+      </trans-unit>
+      <trans-unit id="BCS-a4cbd21f4a3d17e8" size-unit="char" translate="yes">
+        <source>Delta</source>
+        <target state="translated">Delta</target>
+      </trans-unit>
+      <trans-unit id="BCS-c2dd6f53ff63bc6f" size-unit="char" translate="yes">
+        <source>Last Updated At</source>
+        <target state="translated">Zuletzt aktualisiert am</target>
+      </trans-unit>
+      <trans-unit id="BCS-14bfe934fce1d440" size-unit="char" translate="yes">
+        <source>Latest Scan ID</source>
+        <target state="translated">Neueste Scan-ID</target>
+      </trans-unit>
+      <trans-unit id="BCS-a9716e1baeac2002" size-unit="char" translate="yes">
+        <source>Latest Score</source>
+        <target state="translated">Neuester Wert</target>
+      </trans-unit>
+      <trans-unit id="BCS-e446e1e14d11a086" size-unit="char" translate="yes">
+        <source>Previous Scan ID</source>
+        <target state="translated">Vorherige Scan-ID</target>
+      </trans-unit>
+      <trans-unit id="BCS-c5b57a0bbc849f19" size-unit="char" translate="yes">
+        <source>Previous Score</source>
+        <target state="translated">Vorheriger Wert</target>
+      </trans-unit>
+      <trans-unit id="BCS-d4e7f65c03b5c292" size-unit="char" translate="yes">
+        <source>Last Refresh Error</source>
+        <target state="translated">Letzter Aktualisierungsfehler</target>
+      </trans-unit>
+      <trans-unit id="BCS-b5628f03d1508e5a" size-unit="char" translate="yes">
+        <source>Run ID Used</source>
+        <target state="translated">Verwendete Lauf-ID</target>
+      </trans-unit>
+      <trans-unit id="BCS-e524a790709ba8a0" size-unit="char" translate="yes">
+        <source>Status Endpoint</source>
+        <target state="translated">Status-Endpunkt</target>
+      </trans-unit>
+      <trans-unit id="BCS-2175fea5c9a11e50" size-unit="char" translate="yes">
+        <source>Tenant ID Used</source>
+        <target state="translated">Verwendete Mandanten-ID</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

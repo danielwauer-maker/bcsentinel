@@ -37,11 +37,9 @@ codeunit 53100 "DH API Client"
         if not Setup."Data Processing Consent" then
             Error('Please enable Data Processing Consent first.');
 
-        if Setup.Registered and (Setup."Tenant ID" <> '') and (Setup."API Token" <> '') then
-            exit;
-
-        RegisterTenant(Setup);
-        RefreshLicenseStatus(Setup);
+        // Nur wenn wirklich noch nichts existiert
+        if (Setup."Tenant ID" = '') or (Setup."API Token" = '') then
+            RegisterTenant(Setup);
     end;
 
     procedure RegisterTenant(var Setup: Record "DH Setup")
@@ -146,9 +144,8 @@ codeunit 53100 "DH API Client"
 
         if JsonResponse.Get('features', FeaturesToken) then begin
             Features := FeaturesToken.AsArray();
-            Setup."Premium Enabled" := JsonArrayContainsText(Features, 'deep_scan');
-        end else
-            Setup."Premium Enabled" := IsPremiumAllowed(Setup);
+            Setup."Premium Enabled" := HasPremiumActionFeatures(Features);
+        end;
 
         Setup.Modify(true);
     end;
@@ -424,6 +421,164 @@ codeunit 53100 "DH API Client"
             Error('Backend reconcile failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
     end;
 
+    procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
+    var
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        RequestText: Text;
+        ResponseText: Text;
+        JsonRequest: JsonObject;
+    begin
+        EnsureTenantAccessConfigured(Setup);
+
+        if DeepScanRun."Run ID" = '' then
+            exit;
+
+        JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('run_id', Format(DeepScanRun."Run ID"));
+        JsonRequest.Add('scan_mode', 'deep');
+        JsonRequest.Add('status', StatusValue);
+        JsonRequest.Add('progress_percent', DeepScanRun."Progress %");
+        JsonRequest.Add('current_module', DeepScanRun."Current Module");
+        JsonRequest.Add('current_step', CurrentStep);
+        JsonRequest.Add('event_message', EventMessage);
+        JsonRequest.Add('total_modules', DeepScanRun."Total Modules");
+        JsonRequest.Add('completed_modules', DeepScanRun."Completed Modules");
+        JsonRequest.Add('failed_modules', DeepScanRun."Failed Modules");
+        if DeepScanRun."Error Message" <> '' then
+            JsonRequest.Add('error_message', DeepScanRun."Error Message");
+        if DeepScanRun."Warning Message" <> '' then
+            JsonRequest.Add('warning_message', DeepScanRun."Warning Message");
+        JsonRequest.WriteTo(RequestText);
+
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+
+        RequestHeaders := Client.DefaultRequestHeaders();
+        if RequestHeaders.Contains('X-Tenant-Id') then
+            RequestHeaders.Remove('X-Tenant-Id');
+        if RequestHeaders.Contains('X-Api-Token') then
+            RequestHeaders.Remove('X-Api-Token');
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', Setup."API Token");
+
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/status/update'), Content, Response) then
+            Error('Scan status update could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
+                BuildUrl(Setup."API Base URL", '/scan/status/update'),
+                Format(DeepScanRun."Run ID"),
+                MaskTenantId(Setup."Tenant ID"));
+
+        Response.Content.ReadAs(ResponseText);
+        if Response.IsSuccessStatusCode() then
+            ParseScanStatusResponse(ResponseText, DeepScanRun)
+        else
+            Error('Scan status update failed. Endpoint: %1. Status: %2. Run ID: %3. Tenant: %4. Response: %5',
+                BuildUrl(Setup."API Base URL", '/scan/status/update'),
+                Response.HttpStatusCode(),
+                Format(DeepScanRun."Run ID"),
+                MaskTenantId(Setup."Tenant ID"),
+                CopyStr(ResponseText, 1, 250));
+    end;
+
+    procedure GetScanStatus(var Setup: Record "DH Setup"; RunId: Code[50]): Text
+    var
+        Client: HttpClient;
+        Response: HttpResponseMessage;
+        ResponseText: Text;
+        Headers: HttpHeaders;
+    begin
+        EnsureTenantAccessConfigured(Setup);
+
+        Headers := Client.DefaultRequestHeaders();
+        if Headers.Contains('X-Tenant-Id') then
+            Headers.Remove('X-Tenant-Id');
+        if Headers.Contains('X-Api-Token') then
+            Headers.Remove('X-Api-Token');
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', Setup."API Token");
+
+        if not Client.Get(BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)), Response) then
+            Error('The scan status request could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
+                BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)),
+                Format(RunId),
+                MaskTenantId(Setup."Tenant ID"));
+
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('Scan status request failed. Endpoint: %1. Status: %2. Run ID: %3. Tenant: %4. Response: %5',
+                BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)),
+                Response.HttpStatusCode(),
+                Format(RunId),
+                MaskTenantId(Setup."Tenant ID"),
+                CopyStr(ResponseText, 1, 250));
+
+        exit(ResponseText);
+    end;
+
+    procedure RefreshScanStatus(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        ResponseText: Text;
+    begin
+        if DeepScanRun."Run ID" = '' then
+            exit;
+
+        ResponseText := GetScanStatus(Setup, DeepScanRun."Run ID");
+        ParseScanStatusResponse(ResponseText, DeepScanRun);
+        DeepScanRun.Modify(true);
+    end;
+
+    procedure ParseScanStatusResponse(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        EventsToken: JsonToken;
+        BackendStatus: Text;
+    begin
+        if ResponseText = '' then
+            exit;
+
+        if not JsonResponse.ReadFrom(ResponseText) then
+            Error('The scan status response is not valid JSON.');
+
+        DeepScanRun."Warning Message" := '';
+        DeepScanRun."Error Message" := '';
+
+        if JsonResponse.Get('status', Token) then begin
+            BackendStatus := GetJsonTokenText(Token);
+            DeepScanRun."Backend Status" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Backend Status"));
+            ApplyBackendStatusToLocalRun(BackendStatus, DeepScanRun);
+        end;
+        if JsonResponse.Get('progress_percent', Token) then
+            DeepScanRun."Progress %" := GetJsonTokenInteger(Token, DeepScanRun."Progress %");
+        if JsonResponse.Get('current_module', Token) then
+            DeepScanRun."Current Module" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Current Module"));
+        if JsonResponse.Get('current_step', Token) then
+            DeepScanRun."Current Step" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Current Step"));
+        if JsonResponse.Get('heartbeat_at', Token) then
+            DeepScanRun."Last Heartbeat" := ParseJsonDateTime(GetJsonTokenText(Token));
+        if JsonResponse.Get('estimated_remaining_seconds', Token) then
+            DeepScanRun."Estimated Remaining Seconds" := GetJsonTokenInteger(Token, DeepScanRun."Estimated Remaining Seconds");
+        if JsonResponse.Get('total_modules', Token) then
+            DeepScanRun."Total Modules" := GetJsonTokenInteger(Token, DeepScanRun."Total Modules");
+        if JsonResponse.Get('completed_modules', Token) then
+            DeepScanRun."Completed Modules" := GetJsonTokenInteger(Token, DeepScanRun."Completed Modules");
+        if JsonResponse.Get('failed_modules', Token) then
+            DeepScanRun."Failed Modules" := GetJsonTokenInteger(Token, DeepScanRun."Failed Modules");
+        if JsonResponse.Get('error_message', Token) then
+            DeepScanRun."Error Message" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Error Message"));
+        if JsonResponse.Get('warning_message', Token) then
+            DeepScanRun."Warning Message" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Warning Message"));
+        if JsonResponse.Get('recent_events', EventsToken) then
+            DeepScanRun."Recent Events" := CopyStr(BuildRecentEventsText(EventsToken), 1, MaxStrLen(DeepScanRun."Recent Events"));
+
+        NormalizeParsedScanStatus(DeepScanRun);
+    end;
+
     procedure ParseScanResponse(ResponseText: Text; var ScanId: Code[50]; var DataScore: Integer; var IssuesCount: Integer; var GeneratedAtUtc: DateTime)
     var
         JsonResponse: JsonObject;
@@ -471,6 +626,9 @@ codeunit 53100 "DH API Client"
     end;
 
     local procedure EnsureSetupLoaded(var Setup: Record "DH Setup")
+    var
+        OriginalApiBaseUrl: Text[250];
+        NormalizedApiBaseUrl: Text[250];
     begin
         if not Setup.Get('SETUP') then begin
             Setup.Init();
@@ -478,8 +636,10 @@ codeunit 53100 "DH API Client"
             Setup.Insert(true);
         end;
 
-        if Setup."API Base URL" <> Setup.GetFixedApiBaseUrl() then begin
-            Setup."API Base URL" := Setup.GetFixedApiBaseUrl();
+        OriginalApiBaseUrl := Setup."API Base URL";
+        NormalizedApiBaseUrl := Setup.NormalizeApiBaseUrl(OriginalApiBaseUrl);
+        if OriginalApiBaseUrl <> NormalizedApiBaseUrl then begin
+            Setup."API Base URL" := NormalizedApiBaseUrl;
             Setup.Modify(true);
         end;
     end;
@@ -512,7 +672,8 @@ codeunit 53100 "DH API Client"
             '?company=' + EncodeUrlValue(CompanyName()) +
             '&environment=' + EncodeUrlValue('BC Cloud') +
             '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") +
-            '&scan_mode=' + EncodeUrlValue(GetAnalyticsScanMode(Setup));
+            '&scan_mode=' + EncodeUrlValue(GetAnalyticsScanMode(Setup)) +
+            '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl());
 
         Headers := Client.DefaultRequestHeaders();
         if Headers.Contains('X-Tenant-Id') then
@@ -542,12 +703,73 @@ codeunit 53100 "DH API Client"
         exit(TokenValue.AsValue().AsText());
     end;
 
+    procedure OpenPremiumCheckout(var Setup: Record "DH Setup")
+    var
+        CheckoutUrl: Text;
+    begin
+        CheckoutUrl := CreatePremiumCheckoutSession(Setup);
+        Hyperlink(CheckoutUrl);
+    end;
+
+    procedure CreatePremiumCheckoutSession(var Setup: Record "DH Setup"): Text
+    var
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        RequestText: Text;
+        ResponseText: Text;
+        JsonRequest: JsonObject;
+        JsonResponse: JsonObject;
+        TokenValue: JsonToken;
+        CheckoutUrl: Text;
+    begin
+        EnsureTenantAccessConfigured(Setup);
+
+        JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('plan_code', 'premium');
+        JsonRequest.WriteTo(RequestText);
+
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+
+        RequestHeaders := Client.DefaultRequestHeaders();
+        if RequestHeaders.Contains('X-Tenant-Id') then
+            RequestHeaders.Remove('X-Tenant-Id');
+        if RequestHeaders.Contains('X-Api-Token') then
+            RequestHeaders.Remove('X-Api-Token');
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', Setup."API Token");
+
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/billing/checkout/session'), Content, Response) then
+            Error('The billing checkout request could not be sent. Please verify the network connection.');
+
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('Billing checkout session failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+
+        if not JsonResponse.ReadFrom(ResponseText) then
+            Error('The billing checkout response is not valid JSON: %1', ResponseText);
+
+        if JsonResponse.Get('checkout_url', TokenValue) then
+            if not IsJsonNull(TokenValue) then
+                CheckoutUrl := TokenValue.AsValue().AsText();
+
+        if CheckoutUrl = '' then
+            Error('The billing checkout response does not contain checkout_url.');
+
+        exit(CheckoutUrl);
+    end;
+
     local procedure GetAnalyticsScanMode(var Setup: Record "DH Setup"): Text
     begin
         if Setup."Premium Enabled" then
             exit('premium_deep');
 
-        exit('free_quick');
+        exit('free_deep');
     end;
 
     local procedure EncodeUrlValue(Value: Text): Text
@@ -568,6 +790,19 @@ codeunit 53100 "DH API Client"
         exit(RemoveTrailingSlash(BaseUrl) + RelativePath);
     end;
 
+    local procedure MaskTenantId(TenantId: Text): Text
+    begin
+        if StrLen(TenantId) <= 8 then
+            exit('***');
+
+        exit(CopyStr(TenantId, 1, 4) + '...' + CopyStr(TenantId, StrLen(TenantId) - 3, 4));
+    end;
+
+    local procedure GetIssueDrilldownLaunchUrl(): Text
+    begin
+        exit(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"DH Issue Drilldown Launch"));
+    end;
+
     local procedure RemoveTrailingSlash(Value: Text): Text
     begin
         while (StrLen(Value) > 0) and (CopyStr(Value, StrLen(Value), 1) = '/') do
@@ -582,6 +817,148 @@ codeunit 53100 "DH API Client"
     begin
         JsonValueText := LowerCase(Format(Token));
         exit((JsonValueText = 'null') or (JsonValueText = ''));
+    end;
+
+    local procedure GetJsonTokenText(Token: JsonToken): Text
+    begin
+        if IsJsonNull(Token) then
+            exit('');
+
+        exit(Token.AsValue().AsText());
+    end;
+
+    local procedure GetJsonTokenInteger(Token: JsonToken; DefaultValue: Integer): Integer
+    var
+        ParsedValue: Integer;
+    begin
+        if IsJsonNull(Token) then
+            exit(DefaultValue);
+
+        if not Evaluate(ParsedValue, Token.AsValue().AsText()) then
+            exit(DefaultValue);
+
+        exit(ParsedValue);
+    end;
+
+    local procedure ApplyBackendStatusToLocalRun(StatusValue: Text; var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        if IsLocalTerminalStatus(DeepScanRun) then
+            case LowerCase(StatusValue) of
+                'queued', 'preparing', 'running', 'finalizing':
+                    exit;
+            end;
+
+        case LowerCase(StatusValue) of
+            'queued', 'preparing':
+                DeepScanRun.Status := DeepScanRun.Status::Queued;
+            'running', 'finalizing':
+                DeepScanRun.Status := DeepScanRun.Status::Running;
+            'completed':
+                DeepScanRun.Status := DeepScanRun.Status::Completed;
+            'failed', 'stalled':
+                DeepScanRun.Status := DeepScanRun.Status::Failed;
+            'cancelled', 'canceled':
+                DeepScanRun.Status := DeepScanRun.Status::Canceled;
+        end;
+    end;
+
+    local procedure IsLocalTerminalStatus(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    begin
+        exit(DeepScanRun.Status in [DeepScanRun.Status::Completed, DeepScanRun.Status::Failed, DeepScanRun.Status::Canceled]);
+    end;
+
+    local procedure NormalizeParsedScanStatus(var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        case LowerCase(DeepScanRun."Backend Status") of
+            'queued':
+                begin
+                    DeepScanRun."Progress %" := 0;
+                    if DeepScanRun."Current Module" = '' then
+                        DeepScanRun."Current Module" := 'Preparing';
+                    if DeepScanRun."Current Step" = '' then
+                        DeepScanRun."Current Step" := 'Waiting for backend status';
+                end;
+            'preparing':
+                begin
+                    if DeepScanRun."Progress %" < 0 then
+                        DeepScanRun."Progress %" := 0;
+                    if DeepScanRun."Current Module" = '' then
+                        DeepScanRun."Current Module" := 'Preparing';
+                    if DeepScanRun."Current Step" = '' then
+                        DeepScanRun."Current Step" := 'Preparing scan';
+                end;
+            'completed':
+                begin
+                    DeepScanRun."Progress %" := 100;
+                    DeepScanRun."Current Module" := 'All modules completed';
+                    DeepScanRun."Current Step" := 'Scan completed';
+                    DeepScanRun."Estimated Remaining Seconds" := 0;
+                    if DeepScanRun."Total Modules" > 0 then
+                        DeepScanRun."Completed Modules" := DeepScanRun."Total Modules";
+                end;
+            'failed':
+                begin
+                    if DeepScanRun."Current Module" = '' then
+                        DeepScanRun."Current Module" := 'Failed';
+                    if DeepScanRun."Current Step" = '' then
+                        DeepScanRun."Current Step" := 'Scan failed';
+                end;
+            'stalled':
+                begin
+                    if DeepScanRun."Current Step" = '' then
+                        DeepScanRun."Current Step" := 'Waiting for heartbeat';
+                end;
+        end;
+
+        if DeepScanRun."Progress %" < 0 then
+            DeepScanRun."Progress %" := 0;
+        if DeepScanRun."Progress %" > 100 then
+            DeepScanRun."Progress %" := 100;
+    end;
+
+    local procedure ParseJsonDateTime(Value: Text): DateTime
+    var
+        ParsedDateTime: DateTime;
+    begin
+        Value := Value.Replace('T', ' ');
+        Value := Value.Replace('Z', '');
+        if StrLen(Value) > 19 then
+            Value := CopyStr(Value, 1, 19);
+
+        if Evaluate(ParsedDateTime, Value) then
+            exit(ParsedDateTime);
+
+        exit(0DT);
+    end;
+
+    local procedure BuildRecentEventsText(EventsToken: JsonToken): Text
+    var
+        Events: JsonArray;
+        EventToken: JsonToken;
+        EventObj: JsonObject;
+        MessageToken: JsonToken;
+        Result: Text;
+        MessageText: Text;
+        i: Integer;
+    begin
+        if IsJsonNull(EventsToken) then
+            exit('');
+
+        Events := EventsToken.AsArray();
+        for i := 0 to Events.Count() - 1 do begin
+            Events.Get(i, EventToken);
+            EventObj := EventToken.AsObject();
+            if EventObj.Get('message', MessageToken) then begin
+                MessageText := GetJsonTokenText(MessageToken);
+                if MessageText <> '' then begin
+                    if Result <> '' then
+                        Result += ' | ';
+                    Result += MessageText;
+                end;
+            end;
+        end;
+
+        exit(Result);
     end;
 
     local procedure MapPlan(Value: Text): Enum "DH License Plan"
@@ -626,6 +1003,15 @@ codeunit 53100 "DH API Client"
         end;
 
         exit(false);
+    end;
+
+    local procedure HasPremiumActionFeatures(Values: JsonArray): Boolean
+    begin
+        exit(
+            JsonArrayContainsText(Values, 'recommendations') or
+            JsonArrayContainsText(Values, 'record_drilldown') or
+            JsonArrayContainsText(Values, 'correction_worklists') or
+            JsonArrayContainsText(Values, 'analytics_full'));
     end;
 
     local procedure GetEffectiveScanId(var ScanHeader: Record "DH Scan Header"): Code[50]

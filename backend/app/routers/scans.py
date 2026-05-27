@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord
+from app.models import Scan, ScanIssueRecord, ScanRunStatus
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -20,8 +22,17 @@ from app.services.impact_service import (
     calculate_scan_commercials,
     normalize_stored_commercials,
 )
+from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
+from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.scan_status_service import (
+    create_or_get_scan_run,
+    mark_stalled_scans,
+    serialize_scan_status,
+    update_scan_progress,
+)
 
 router = APIRouter(tags=["scans"])
+logger = logging.getLogger(__name__)
 
 
 class DataProfilePayload(BaseModel):
@@ -43,12 +54,26 @@ class DataProfilePayload(BaseModel):
 
 class ScanIssuePayload(BaseModel):
     code: str
+    category: Optional[str] = None
     title: str
     severity: str
     affected_count: int
     premium_only: bool = False
     recommendation_preview: Optional[str] = None
     estimated_impact_eur: float = 0.0
+
+
+class ModuleScoresPayload(BaseModel):
+    system: int = 100
+    finance: int = 100
+    sales: int = 100
+    purchasing: int = 100
+    inventory: int = 100
+    crm: int = 100
+    manufacturing: int = 100
+    service: int = 100
+    jobs: int = 100
+    hr: int = 100
 
 
 class ScanSyncPayload(BaseModel):
@@ -67,12 +92,32 @@ class ScanSyncPayload(BaseModel):
     potential_saving_eur: float = 0.0
     estimated_premium_price_monthly: float = 0.0
     roi_eur: float = 0.0
+    module_scores: ModuleScoresPayload = Field(default_factory=ModuleScoresPayload)
+    enabled_modules: List[str] = Field(default_factory=list)
     issues: List[ScanIssuePayload] = Field(default_factory=list)
 
 
 class ScanReconcilePayload(BaseModel):
     tenant_id: str
     scan_ids: List[str] = Field(default_factory=list)
+
+
+class ScanStatusUpdatePayload(BaseModel):
+    tenant_id: str
+    run_id: str
+    scan_mode: str = "deep"
+    status: str = "running"
+    progress_percent: int = 0
+    current_module: Optional[str] = None
+    current_step: Optional[str] = None
+    event_message: Optional[str] = None
+    event_level: str = "info"
+    total_modules: int = 0
+    completed_modules: int = 0
+    failed_modules: int = 0
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
+    warning_message: Optional[str] = None
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -94,6 +139,31 @@ def _normalize_scan_type(value: str | None) -> str:
     if normalized in {"deep", "premium_deep"}:
         return "deep"
     return "quick"
+
+
+def _normalize_enabled_modules(values: List[str]) -> str:
+    canonical_order = [
+        "System",
+        "Finance",
+        "Sales",
+        "Purchasing",
+        "Inventory",
+        "CRM",
+        "Manufacturing",
+        "Service",
+        "Jobs",
+        "HR",
+    ]
+    alias_map = {name.lower(): name for name in canonical_order}
+    normalized: list[str] = []
+
+    for value in values or []:
+        key = str(value or "").strip().lower()
+        canonical = alias_map.get(key)
+        if canonical and canonical not in normalized:
+            normalized.append(canonical)
+
+    return ",".join(normalized)
 
 
 def _normalize_utc(value: datetime) -> datetime:
@@ -131,6 +201,8 @@ def sync_scan(
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant_features = get_tenant_features(db, tenant)
+        require_tenant_feature(db, tenant, "scan_sync")
         commercials = _calculate_commercials(payload, db)
         recalculated_issues = list(commercials["issues"])
 
@@ -152,12 +224,21 @@ def sync_scan(
                 data_score=_safe_int(payload.data_score),
                 checks_count=_safe_int(payload.checks_count),
                 issues_count=_safe_int(payload.issues_count),
-                premium_available=bool(payload.premium_available),
+                premium_available=is_premium_actions_enabled(tenant_features),
                 summary_headline=payload.headline or "",
                 summary_rating=payload.rating or "",
+                enabled_modules=_normalize_enabled_modules(payload.enabled_modules),
             )
             db.add(scan)
             db.flush()
+            create_or_get_scan_run(
+                db,
+                run_id=payload.scan_id,
+                tenant_id=payload.tenant_id,
+                scan_mode=normalized_scan_type,
+                status="preparing",
+                total_modules=len(payload.enabled_modules or []),
+            )
         else:
             scan.tenant_id = payload.tenant_id
             scan.scan_type = normalized_scan_type
@@ -165,13 +246,25 @@ def sync_scan(
             scan.data_score = _safe_int(payload.data_score)
             scan.checks_count = _safe_int(payload.checks_count)
             scan.issues_count = _safe_int(payload.issues_count)
-            scan.premium_available = bool(payload.premium_available)
+            scan.premium_available = is_premium_actions_enabled(tenant_features)
             scan.summary_headline = payload.headline or ""
             scan.summary_rating = payload.rating or ""
+            scan.enabled_modules = _normalize_enabled_modules(payload.enabled_modules)
 
             db.query(ScanIssueRecord).filter(ScanIssueRecord.scan_id == payload.scan_id).delete()
 
         apply_commercials_to_scan(scan, commercials)
+
+        scan.system_score = _safe_int(payload.module_scores.system)
+        scan.finance_score = _safe_int(payload.module_scores.finance)
+        scan.sales_score = _safe_int(payload.module_scores.sales)
+        scan.purchasing_score = _safe_int(payload.module_scores.purchasing)
+        scan.inventory_score = _safe_int(payload.module_scores.inventory)
+        scan.crm_score = _safe_int(payload.module_scores.crm)
+        scan.manufacturing_score = _safe_int(payload.module_scores.manufacturing)
+        scan.service_score = _safe_int(payload.module_scores.service)
+        scan.jobs_score = _safe_int(payload.module_scores.jobs)
+        scan.hr_score = _safe_int(payload.module_scores.hr)
 
         scan.customers_count = _safe_int(payload.data_profile.customers)
         scan.vendors_count = _safe_int(payload.data_profile.vendors)
@@ -188,12 +281,26 @@ def sync_scan(
         scan.warehouse_entries_count = _safe_int(payload.data_profile.warehouse_entries)
 
         tenant.last_seen_at_utc = datetime.now(timezone.utc)
+        update_scan_progress(
+            db,
+            run_id=payload.scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode=normalized_scan_type,
+            status="completed",
+            progress_percent=100,
+            current_module="Finalizing",
+            current_step="Scan synchronized",
+            event_message="Scan completed",
+            total_modules=len(payload.enabled_modules or []),
+            completed_modules=len(payload.enabled_modules or []),
+        )
 
         for issue in recalculated_issues:
             db.add(
                 ScanIssueRecord(
                     scan_id=payload.scan_id,
                     code=str(issue["code"]),
+                    category=(str(issue.get("category")).strip() or None) if issue.get("category") is not None else None,
                     title=str(issue["title"]),
                     severity=str(issue["severity"]),
                     affected_count=_safe_int(issue["affected_count"]),
@@ -204,6 +311,16 @@ def sync_scan(
             )
 
         db.commit()
+
+    logger.info(
+        "Scan sync completed.",
+        extra={
+            "event": "scan_sync_completed",
+            "tenant_id": payload.tenant_id,
+            "scan_id": payload.scan_id,
+            "scan_type": normalized_scan_type,
+        },
+    )
 
     return JSONResponse(
         content={
@@ -232,7 +349,8 @@ def reconcile_scans(
     keep_ids = {scan_id.strip() for scan_id in payload.scan_ids if scan_id and scan_id.strip()}
 
     with SessionLocal() as db:
-        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
 
         scans = db.scalars(select(Scan).where(Scan.tenant_id == payload.tenant_id)).all()
         deleted_ids: list[str] = []
@@ -244,6 +362,16 @@ def reconcile_scans(
                 db.delete(scan)
 
         db.commit()
+
+    logger.info(
+        "Scan reconcile completed.",
+        extra={
+            "event": "scan_reconcile_completed",
+            "tenant_id": payload.tenant_id,
+            "deleted_count": len(deleted_ids),
+            "kept_count": len(keep_ids),
+        },
+    )
 
     return JSONResponse(
         content={
@@ -265,7 +393,8 @@ def delete_scan(
     enforce_tenant_match(tenant_id, header_tenant_id, "Path tenant_id")
 
     with SessionLocal() as db:
-        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
         scan = db.scalar(select(Scan).where(Scan.tenant_id == tenant_id, Scan.scan_id == scan_id))
 
         if scan is None:
@@ -275,4 +404,90 @@ def delete_scan(
         db.delete(scan)
         db.commit()
 
+    logger.info(
+        "Scan deleted.",
+        extra={"event": "scan_deleted", "tenant_id": tenant_id, "scan_id": scan_id},
+    )
+
     return JSONResponse(content={"status": "deleted", "scan_id": scan_id})
+
+
+@router.post("/scan/status/update")
+def update_status(
+    payload: ScanStatusUpdatePayload,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+    enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        run = update_scan_progress(
+            db,
+            run_id=payload.run_id,
+            tenant_id=payload.tenant_id,
+            scan_mode=payload.scan_mode,
+            status=payload.status,
+            progress_percent=payload.progress_percent,
+            current_module=payload.current_module,
+            current_step=payload.current_step,
+            event_message=payload.event_message,
+            event_level=payload.event_level,
+            total_modules=payload.total_modules,
+            completed_modules=payload.completed_modules,
+            failed_modules=payload.failed_modules,
+            error_code=payload.error_code,
+            error_message=payload.error_message,
+            warning_message=payload.warning_message,
+        )
+        db.commit()
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))
+
+
+@router.get("/scan/status/latest")
+def get_latest_scan_status(
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        mark_stalled_scans(db)
+        run = db.scalar(
+            select(ScanRunStatus)
+            .where(ScanRunStatus.tenant_id == tenant.tenant_id)
+            .order_by(ScanRunStatus.updated_at_utc.desc(), ScanRunStatus.id.desc())
+        )
+        db.commit()
+
+        if run is None:
+            raise HTTPException(status_code=404, detail="No scan status found.")
+
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))
+
+
+@router.get("/scan/status/{run_id}")
+def get_scan_status(
+    run_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        mark_stalled_scans(db)
+        run = db.scalar(
+            select(ScanRunStatus).where(
+                ScanRunStatus.run_id == run_id,
+                ScanRunStatus.tenant_id == tenant.tenant_id,
+            )
+        )
+        db.commit()
+
+        if run is None:
+            raise HTTPException(status_code=404, detail="Scan status not found.")
+
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))

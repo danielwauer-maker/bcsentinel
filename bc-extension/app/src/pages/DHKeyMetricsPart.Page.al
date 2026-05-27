@@ -25,14 +25,14 @@ page 53127 "DH Key Metrics Part"
                 field(TotalRecordsCue; Rec."Total Records")
                 {
                     ApplicationArea = All;
-                    Caption = 'Datensätze';
+                    Caption = 'Records';
                     StyleExpr = RecordsStyle;
                 }
 
                 field(PremiumPriceCue; Rec."Est. Premium Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium / Monat';
+                    Caption = 'Premium / Month';
                     AutoFormatType = 1;
                     StyleExpr = PremiumPriceStyle;
                 }
@@ -40,7 +40,7 @@ page 53127 "DH Key Metrics Part"
                 field(EstimatedLossCue; Rec."Estimated Loss (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Potenzieller Verlust';
+                    Caption = 'Potential Loss';
                     AutoFormatType = 1;
                     StyleExpr = LossStyle;
                 }

@@ -12,6 +12,7 @@ class Tenant(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     api_token: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     environment_name: Mapped[str] = mapped_column(String(100))
     app_version: Mapped[str] = mapped_column(String(30))
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -20,6 +21,22 @@ class Tenant(Base):
     license_status: Mapped[str] = mapped_column(String(20), default="trial")
 
     scans: Mapped[list["Scan"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+    subscriptions: Mapped[list["Subscription"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+    invoices: Mapped[list["Invoice"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+    partner_referral: Mapped["PartnerReferral | None"] = relationship(
+        back_populates="tenant",
+        uselist=False,
+    )
+    partner_commissions: Mapped[list["PartnerCommission"]] = relationship(
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
@@ -36,14 +53,25 @@ class Scan(Base):
     data_score: Mapped[int] = mapped_column(Integer)
     checks_count: Mapped[int] = mapped_column(Integer)
     issues_count: Mapped[int] = mapped_column(Integer)
-    premium_available: Mapped[bool] = mapped_column(Boolean, default=True)
+    premium_available: Mapped[bool] = mapped_column(Boolean, default=False)
     summary_headline: Mapped[str] = mapped_column(String(255))
     summary_rating: Mapped[str] = mapped_column(String(30))
+    enabled_modules: Mapped[str | None] = mapped_column(Text, nullable=True)
     total_records: Mapped[int] = mapped_column(Integer, default=0)
     estimated_loss_eur: Mapped[float] = mapped_column(Float, default=0.0)
     potential_saving_eur: Mapped[float] = mapped_column(Float, default=0.0)
     estimated_premium_price_monthly: Mapped[float] = mapped_column(Float, default=0.0)
     roi_eur: Mapped[float] = mapped_column(Float, default=0.0)
+    system_score: Mapped[int] = mapped_column(Integer, default=100)
+    finance_score: Mapped[int] = mapped_column(Integer, default=100)
+    sales_score: Mapped[int] = mapped_column(Integer, default=100)
+    purchasing_score: Mapped[int] = mapped_column(Integer, default=100)
+    inventory_score: Mapped[int] = mapped_column(Integer, default=100)
+    crm_score: Mapped[int] = mapped_column(Integer, default=100)
+    manufacturing_score: Mapped[int] = mapped_column(Integer, default=100)
+    service_score: Mapped[int] = mapped_column(Integer, default=100)
+    jobs_score: Mapped[int] = mapped_column(Integer, default=100)
+    hr_score: Mapped[int] = mapped_column(Integer, default=100)
     customers_count: Mapped[int] = mapped_column(Integer, default=0)
     vendors_count: Mapped[int] = mapped_column(Integer, default=0)
     items_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -71,6 +99,7 @@ class ScanIssueRecord(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id"), index=True)
     code: Mapped[str] = mapped_column(String(80), index=True)
+    category: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
     severity: Mapped[str] = mapped_column(String(20))
     affected_count: Mapped[int] = mapped_column(Integer)
@@ -79,6 +108,72 @@ class ScanIssueRecord(Base):
     estimated_impact_eur: Mapped[float] = mapped_column(Float, default=0.0)
 
     scan: Mapped["Scan"] = relationship(back_populates="issues")
+
+
+class ScanRunStatus(Base):
+    __tablename__ = "scan_run_statuses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    company_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    scan_mode: Mapped[str] = mapped_column(String(20), default="deep")
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    current_module: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    heartbeat_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    failed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    warning_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    estimated_remaining_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_modules: Mapped[int] = mapped_column(Integer, default=0)
+    completed_modules: Mapped[int] = mapped_column(Integer, default=0)
+    failed_modules: Mapped[int] = mapped_column(Integer, default=0)
+
+    modules: Mapped[list["ScanRunModule"]] = relationship(
+        back_populates="run",
+        cascade="all, delete-orphan",
+    )
+    events: Mapped[list["ScanRunEvent"]] = relationship(
+        back_populates="run",
+        cascade="all, delete-orphan",
+    )
+
+
+class ScanRunModule(Base):
+    __tablename__ = "scan_run_modules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
+    name: Mapped[str] = mapped_column(String(80), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="queued")
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    run: Mapped["ScanRunStatus"] = relationship(back_populates="modules")
+
+
+class ScanRunEvent(Base):
+    __tablename__ = "scan_run_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
+    timestamp_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    level: Mapped[str] = mapped_column(String(20), default="info")
+    module: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    message: Mapped[str] = mapped_column(String(255))
+
+    run: Mapped["ScanRunStatus"] = relationship(back_populates="events")
 
 
 class IssueCostConfig(Base):
@@ -119,3 +214,156 @@ class LicensePricingConfig(Base):
     included_records: Mapped[int] = mapped_column(Integer, default=0)
     additional_price_per_1000_records: Mapped[float] = mapped_column(Float, default=0.0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider_subscription_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    status: Mapped[str] = mapped_column(String(30), index=True, default="incomplete")
+    plan_code: Mapped[str] = mapped_column(String(20), default="premium")
+    currency: Mapped[str] = mapped_column(String(10), default="EUR")
+    amount_monthly: Mapped[float] = mapped_column(Float, default=0.0)
+    current_period_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_period_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+    canceled_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="subscriptions")
+
+
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider_invoice_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    provider_subscription_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(30), index=True, default="open")
+    currency: Mapped[str] = mapped_column(String(10), default="EUR")
+    amount_total: Mapped[float] = mapped_column(Float, default=0.0)
+    amount_paid: Mapped[float] = mapped_column(Float, default=0.0)
+    hosted_invoice_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    paid_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="invoices")
+
+
+class BillingWebhookEvent(Base):
+    __tablename__ = "billing_webhook_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    provider: Mapped[str] = mapped_column(String(30), index=True)
+    event_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    event_type: Mapped[str] = mapped_column(String(120), index=True)
+    payload_json: Mapped[str] = mapped_column(Text)
+    received_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    processed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Partner(Base):
+    __tablename__ = "partners"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    partner_code: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    contact_email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True, index=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="active", index=True)
+    default_commission_rate: Mapped[float] = mapped_column(Float, default=0.3)
+    last_login_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    referrals: Mapped[list["PartnerReferral"]] = relationship(
+        back_populates="partner",
+        cascade="all, delete-orphan",
+    )
+    commissions: Mapped[list["PartnerCommission"]] = relationship(
+        back_populates="partner",
+        cascade="all, delete-orphan",
+    )
+
+
+class PartnerApplication(Base):
+    __tablename__ = "partner_applications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    company_name: Mapped[str] = mapped_column(String(160))
+    contact_name: Mapped[str] = mapped_column(String(120))
+    contact_email: Mapped[str] = mapped_column(String(255), index=True)
+    phone: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    website: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_page: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="new", index=True)
+    mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    last_mail_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_mail_sent_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    reviewed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+
+
+class PartnerReferral(Base):
+    __tablename__ = "partner_referrals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    partner_id: Mapped[int] = mapped_column(ForeignKey("partners.id"), index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), unique=True, index=True)
+    referral_code: Mapped[str] = mapped_column(String(80), index=True)
+    attribution_source: Mapped[str] = mapped_column(String(80), default="manual")
+    attributed_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    partner: Mapped["Partner"] = relationship(back_populates="referrals")
+    tenant: Mapped["Tenant"] = relationship(back_populates="partner_referral")
+
+
+class PartnerCommission(Base):
+    __tablename__ = "partner_commissions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    partner_id: Mapped[int] = mapped_column(ForeignKey("partners.id"), index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    invoice_id: Mapped[int | None] = mapped_column(ForeignKey("invoices.id"), nullable=True, index=True)
+    provider_invoice_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    currency: Mapped[str] = mapped_column(String(10), default="EUR")
+    base_amount: Mapped[float] = mapped_column(Float, default=0.0)
+    commission_rate: Mapped[float] = mapped_column(Float, default=0.3)
+    commission_amount: Mapped[float] = mapped_column(Float, default=0.0)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    approved_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    paid_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    partner: Mapped["Partner"] = relationship(back_populates="commissions")
+    tenant: Mapped["Tenant"] = relationship(back_populates="partner_commissions")
+
+
+class AdminAuditEvent(Base):
+    __tablename__ = "admin_audit_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    admin_username: Mapped[str] = mapped_column(String(120), index=True)
+    action: Mapped[str] = mapped_column(String(80), index=True)
+    target_type: Mapped[str] = mapped_column(String(60), index=True)
+    target_id: Mapped[str] = mapped_column(String(120), index=True)
+    details_json: Mapped[str] = mapped_column(Text, default="{}")
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class AdminEmailTemplate(Base):
+    __tablename__ = "admin_email_templates"
+
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    subject_template: Mapped[str] = mapped_column(String(255))
+    html_template: Mapped[str] = mapped_column(Text)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)

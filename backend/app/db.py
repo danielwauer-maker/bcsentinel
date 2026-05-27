@@ -1,4 +1,5 @@
 import time
+import logging
 
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import OperationalError
@@ -6,18 +7,23 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.settings import settings
 
-REQUIRED_ALEMBIC_REVISION = "0002_commercials_and_pricing"
+REQUIRED_ALEMBIC_REVISION = "0013_scan_stability_layer"
+logger = logging.getLogger(__name__)
 
 
 class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(
-    settings.DATABASE_URL,
-    future=True,
-    pool_pre_ping=True,
-)
+engine_kwargs = {
+    "future": True,
+    "pool_pre_ping": True,
+}
+
+if settings.DATABASE_URL.startswith("sqlite"):
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -37,9 +43,14 @@ def wait_for_database(max_attempts: int = 30, delay_seconds: int = 2) -> None:
                 return
         except OperationalError as exc:
             last_error = exc
-            print(
-                f"Database not ready yet (attempt {attempt}/{max_attempts}). "
-                f"Retrying in {delay_seconds}s..."
+            logger.warning(
+                "Database not ready yet. Retrying.",
+                extra={
+                    "event": "database_wait_retry",
+                    "attempt": attempt,
+                    "max_attempts": max_attempts,
+                    "delay_seconds": delay_seconds,
+                },
             )
             time.sleep(delay_seconds)
 

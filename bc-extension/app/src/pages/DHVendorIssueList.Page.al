@@ -23,6 +23,10 @@ page 53157 "DH Vendor Issue List"
                 field("Phone No."; Rec."Phone No.") { ApplicationArea = All; }
                 field("Payment Terms Code"; Rec."Payment Terms Code") { ApplicationArea = All; }
                 field("Payment Method Code"; Rec."Payment Method Code") { ApplicationArea = All; }
+                field("Purchaser Code"; Rec."Purchaser Code") { ApplicationArea = All; }
+                field(Contact; Rec.Contact) { ApplicationArea = All; }
+                field("Home Page"; Rec."Home Page") { ApplicationArea = All; }
+                field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; }
                 field("Preferred Bank Account Code"; Rec."Preferred Bank Account Code") { ApplicationArea = All; }
                 field(Blocked; Rec.Blocked) { ApplicationArea = All; }
             }
@@ -35,7 +39,7 @@ page 53157 "DH Vendor Issue List"
         {
             action(OpenVendorCard)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -45,7 +49,7 @@ page 53157 "DH Vendor Issue List"
             }
             action(ExcludeFromIssue)
             {
-                Caption = 'Von Analyse ausnehmen';
+                Caption = 'Exclude from Analysis';
                 ApplicationArea = All;
                 Image = Cancel;
                 trigger OnAction()
@@ -54,13 +58,13 @@ page 53157 "DH Vendor Issue List"
                 begin
                     if CurrentIssueCode = '' then
                         exit;
-                    ExceptionMgt.AddVendorException(Rec, CurrentIssueCode, StrSubstNo('Manuell aus %1 ausgenommen.', CurrentIssueCode));
+                    ExceptionMgt.AddVendorException(Rec, CurrentIssueCode, StrSubstNo('Manually excluded from %1.', CurrentIssueCode));
                     CurrPage.Update(false);
                 end;
             }
             action(MarkCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -81,6 +85,8 @@ page 53157 "DH Vendor Issue List"
 
     trigger OnOpenPage()
     begin
+        if CurrentIssueCode = '' then
+            CurrentIssueCode := InferIssueCodeFromFilters();
         ApplyIssueFilter();
     end;
 
@@ -114,12 +120,64 @@ page 53157 "DH Vendor Issue List"
                 Rec.SetRange("Payment Method Code", '');
             'VENDORS_MISSING_POSTING_GROUP':
                 Rec.SetRange("Vendor Posting Group", '');
-            'VENDORS_MISSING_GEN_BUS_POSTING':
+            'VENDORS_MISSING_GEN_BUS_POSTING',
+            'SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING':
                 Rec.SetRange("Gen. Bus. Posting Group", '');
-            'VENDORS_MISSING_VAT_BUS_POSTING':
+            'VENDORS_MISSING_VAT_BUS_POSTING',
+            'SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING':
                 Rec.SetRange("VAT Bus. Posting Group", '');
             'VENDORS_MISSING_BANK_ACCOUNT':
                 Rec.SetRange("Preferred Bank Account Code", '');
+            'VENDORS_MISSING_VAT_REG_NO':
+                Rec.SetRange("VAT Registration No.", '');
+            'VENDORS_MISSING_PURCHASER':
+                Rec.SetRange("Purchaser Code", '');
+            'VENDORS_MISSING_CONTACT':
+                Rec.SetRange(Contact, '');
+            'VENDORS_MISSING_HOME_PAGE':
+                Rec.SetRange("Home Page", '');
         end;
+    end;
+
+    local procedure InferIssueCodeFromFilters(): Code[50]
+    begin
+        if Rec.GetFilter(Name) <> '' then
+            exit('VENDORS_MISSING_NAME');
+        if Rec.GetFilter("Search Name") <> '' then
+            exit('VENDORS_MISSING_SEARCH_NAME');
+        if Rec.GetFilter(Address) <> '' then
+            exit('VENDORS_MISSING_ADDRESS');
+        if Rec.GetFilter(City) <> '' then
+            exit('VENDORS_MISSING_CITY');
+        if Rec.GetFilter("Post Code") <> '' then
+            exit('VENDORS_MISSING_POST_CODE');
+        if Rec.GetFilter("Country/Region Code") <> '' then
+            exit('VENDORS_MISSING_COUNTRY');
+        if Rec.GetFilter("E-Mail") <> '' then
+            exit('VENDORS_MISSING_EMAIL');
+        if Rec.GetFilter("Phone No.") <> '' then
+            exit('VENDORS_MISSING_PHONE');
+        if Rec.GetFilter("Payment Terms Code") <> '' then
+            exit('VENDORS_MISSING_PAYMENT_TERMS');
+        if Rec.GetFilter("Payment Method Code") <> '' then
+            exit('VENDORS_MISSING_PAYMENT_METHOD');
+        if Rec.GetFilter("Vendor Posting Group") <> '' then
+            exit('VENDORS_MISSING_POSTING_GROUP');
+        if Rec.GetFilter("Gen. Bus. Posting Group") <> '' then
+            exit('VENDORS_MISSING_GEN_BUS_POSTING');
+        if Rec.GetFilter("VAT Bus. Posting Group") <> '' then
+            exit('VENDORS_MISSING_VAT_BUS_POSTING');
+        if Rec.GetFilter("VAT Registration No.") <> '' then
+            exit('VENDORS_MISSING_VAT_REG_NO');
+        if Rec.GetFilter("Purchaser Code") <> '' then
+            exit('VENDORS_MISSING_PURCHASER');
+        if Rec.GetFilter(Contact) <> '' then
+            exit('VENDORS_MISSING_CONTACT');
+        if Rec.GetFilter("Home Page") <> '' then
+            exit('VENDORS_MISSING_HOME_PAGE');
+        if Rec.GetFilter("Preferred Bank Account Code") <> '' then
+            exit('VENDORS_MISSING_BANK_ACCOUNT');
+
+        exit('');
     end;
 }

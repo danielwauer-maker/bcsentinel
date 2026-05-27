@@ -65,7 +65,7 @@ page 53145 "DH Duplicate Worklist"
         {
             action(OpenMasterData)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
 

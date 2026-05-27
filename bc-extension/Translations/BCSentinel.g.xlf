@@ -1,0 +1,2184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="BCSentinel">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 269943723 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Dashboard Issue</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Affected Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 2865135372 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count Sort Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Affected Count Sort Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 3180486748 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dashboard Scan Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Dashboard Scan Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Impact (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Issue Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Premium Only - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 33250709 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendation Preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Recommendation Preview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 3618771765 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Severity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 4269610945 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity Sort Order</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Severity Sort Order - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 3627141058 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Source Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 1753214751 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Source Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 269943723 - Field 329424276 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Deep Scan Finding</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Affected Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 2865135372 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count Sort Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Affected Count Sort Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 3702373668 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Category</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Category - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 2562936844 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Scan Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Deep Scan Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Impact (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Issue Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Premium Only - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 33250709 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendation Preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Recommendation Preview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 3618771765 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Severity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 4269610945 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity Sort Order</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Severity Sort Order - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1068438358 - Field 329424276 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Deep Scan Run</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Affected Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 143862140 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Run Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Backend Run Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1765988956 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Backend Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1926566482 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Checks Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Checks Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3997336476 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3652277272 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed Modules</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Completed Modules - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2324958624 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field CRM Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 168213328 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field CRM Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 678382053 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current Module</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Current Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 605439061 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current Step</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Current Step - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3926201496 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Deep Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2852966117 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Error Message - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium €/Month</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Est. Premium Price - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2790312758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Loss (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Estimated Loss (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3306425847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Remaining Seconds</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Estimated Remaining Seconds - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3450513199 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ETA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field ETA Text - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2046399590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed Modules</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Failed Modules - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2203387484 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Finance Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1564385708 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Finance Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1400640745 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Finished At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 4112444282 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3707921518 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field HR Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3851884622 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field HR Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 162028574 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Inventory Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2881460126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Inventory Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3788725523 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issues Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Issues Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3890448800 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Jobs Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 412833616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Jobs Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 4273901710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Heartbeat</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Last Heartbeat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 887440788 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Manufacturing Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3913412548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Manufacturing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3337727601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Potential Saving (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Potential Saving (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2265692604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2585232306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Purchasing Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3191358002 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Purchasing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2689469945 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Rating - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 405519768 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recent Events</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Recent Events - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 280799871 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requested At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Requested At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 79791429 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requested By</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Requested By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3239209616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ROI €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field ROI - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3239621828 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Sales Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1948991892 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Sales Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3582458335 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Service Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2067096583 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Service Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2014922888 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Started At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Started At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 513339096 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 4136542551 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System Progress %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field System Progress % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1774274399 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field System Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3958072724 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Task ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Task ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2970433157 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Modules</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Total Modules - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 4197613728 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Total Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 742971763 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Warning Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Warning Message - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Duplicate Buffer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 714791889 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>City</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field City - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 4126433584 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Duplicate Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Duplicate Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 1541011875 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>E-Mail</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field E-Mail - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 1570108100 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Group Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 3660300303 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Post Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 3369789712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reason</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Reason - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 1882905478 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Source No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 1753214751 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field Source Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3758608589 - Field 617267791 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Registration No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Duplicate Buffer - Field VAT Registration No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Issue Action Log</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 3455123445 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Action At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Action At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 1060207642 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Action Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Action Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 41510169 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Action User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Action User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 2790486453 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Comment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Comment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Issue Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 1860421093 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record Caption</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Record Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 485252710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Record No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 3793541599 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record SystemId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Record SystemId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3897358537 - Field 3135334477 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Action Log - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Issue Exception</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 1090351696 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Active - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 2570673311 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Created At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 207956542 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created By User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Created By User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 3242254995 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deactivated At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Deactivated At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 3590591530 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deactivated By User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Deactivated By User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Issue Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 3369789712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reason</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Reason - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 1860421093 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record Caption</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Record Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 485252710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Record No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 3793541599 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record SystemId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Record SystemId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3488400870 - Field 3135334477 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Issue Exception - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Scan Header</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Affected Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2060594842 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Scan Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Backend Scan Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1926566482 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Checks Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Checks Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 168213328 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field CRM Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2908063460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Data Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Loss €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Loss - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium €/Month</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Premium Price - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2790312758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Loss (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Estimated Loss (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1564385708 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Finance Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 4112444282 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3851884622 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field HR Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2881460126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Inventory Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3788725523 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issues Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Issues Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 412833616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Jobs Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3913412548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Manufacturing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 588157408 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Potential Saving €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3337727601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Potential Saving (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2071971934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium Available</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Premium Available - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3191358002 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Purchasing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2689469945 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Rating - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 3239209616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ROI €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field ROI - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1948991892 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Sales Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1605091794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan DateTime</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Scan DateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2813874409 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Scan Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 2067096583 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Service Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1774274399 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field System Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 4197613728 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Total Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Scan Issue</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Affected Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 2865135372 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Affected Count Sort Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Affected Count Sort Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Impact (EUR)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Issue Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Premium Only - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 33250709 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendation Preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Recommendation Preview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 2582767448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Scan Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 3618771765 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Severity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 4269610945 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Severity Sort Order</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Severity Sort Order - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4030804838 - Field 329424276 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 2526400892 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delta</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Delta - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 4270577822 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Updated At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Last Updated At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 1662640939 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Latest Scan ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Latest Scan ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 2926943725 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Latest Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Latest Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 3201041605 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Previous Scan ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Previous Scan ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 2594273779 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Previous Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Previous Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 1656975091 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tenant ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Tenant ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 486548694 - Field 739087355 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Trend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Trend - Field Trend - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 869913466 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Base URL</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Base URL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3166391077 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Token</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Token - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 648361014 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current Plan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Current Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 987915639 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Processing Consent</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Data Processing Consent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 246126243 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Drilldown Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Issue Drilldown Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1198226257 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last License Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last License Check - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1523359318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Run ID Counter</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last Run ID Counter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3305392142 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Run ID Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last Run ID Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 4276668411 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Scan Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last Scan Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 994816614 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1153499497 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field License Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3149302554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium Enabled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 856236780 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registered</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Registered - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 806367967 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registration Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Registration Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 2831026171 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan CRM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan CRM Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 368490735 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Finance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Finance Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3050136617 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan HR</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan HR Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 543617857 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Inventory Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3923256547 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Jobs</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Jobs Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 2574256087 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Manufacturing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Manufacturing Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 90491829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Purchasing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Purchasing Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 2120781063 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Sales Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1949943356 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Service</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Service Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1649085900 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan System</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan System Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1656975091 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tenant ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Tenant ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 1618803454 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan started. Open the monitor to view progress. Run ID: %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScan - NamedType ScanStartedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1112104590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Activity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Action Log FB - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2942830645 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Blocked Items With Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Blocked Items Inv - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2942830645 - Control 4200184881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Blocked Items Inv - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2942830645 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Blocked Items Inv - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2942830645 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Blocked Items Inv - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2942830645 - Action 1353021407 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Blocked Items Inv - Action OpenItemCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2948818381 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Customer Issue List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Customer Issue List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2948818381 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Customer Issue List - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2948818381 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Customer Issue List - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2948818381 - Action 1780135624 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Customer Issue List - Action OpenCustomerCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Control 1850829176 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Access - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Affected Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Control 1052890917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendation</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Recommendation Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Control 1850829176 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Access - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Affected Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact â‚¬</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Control 1052890917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendation</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Recommendation Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Metrics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 1926566482 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of checks run.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Checks Count - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 1926566482 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Checks</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Checks Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 2908063460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assessment of data quality.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Data Score - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 2908063460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Data Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 3788725523 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of issues found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Issues Count - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1090525127 - Control 3788725523 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Different Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Issues Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Dashboards</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 2908063460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Data Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 3699950554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control DisplayRunId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Loss €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium €/Month</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Premium Price - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 3239209616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ROI €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control ROI - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 1605091794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Scan DateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 2432767664 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete Selected Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action DeleteSelectedDashboard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 1986625216 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action OpenDashboardCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 4007289061 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action OpenSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 489835437 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reconcile Scan History</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action ReconcileScanHistory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 2161668349 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunQuickScan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout to activate Premium.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action UpgradeToPremium - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upgrade to Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action UpgradeToPremium - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 204865987 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Scan Findings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 204865987 - Control 1850829176 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Access - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 204865987 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Scan Findings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Control 1850829176 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Access - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Scan Monitor</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3052677768 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Diagnostics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Diagnostics - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1159380800 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Status Raw</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control BackendStatusRaw - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 936255969 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Progress</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control DisplayProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 261939402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control DisplayStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2018809561 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Refresh Error</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control LastRefreshError - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1818058696 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Refresh Error Count</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control LastRefreshErrorCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 461842646 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Refresh Source</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control LastRefreshSource - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1899190583 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Local Status Raw</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control LocalStatusRaw - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1773521173 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID Used</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control RunIdUsed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 318687057 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status Endpoint</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control StatusEndpoint - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 308615778 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tenant ID Used</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control TenantIdUsed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2430819985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Module Progress</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ModuleProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 806220099 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control CRMProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 264088151 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control FinanceProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1405574745 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control HRProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3363770633 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control InventoryProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2320518467 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control JobsProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 640050959 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ManufacturingProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3266272325 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control PurchasingProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2259992511 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control SalesProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3715478204 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ServiceProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 316470388 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control SystemProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1569464363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Module Scores</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ModuleScores - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 168213328 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control CRM Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1564385708 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Finance Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3851884622 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control HR Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2881460126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Inventory Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 412833616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Jobs Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3913412548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Manufacturing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3191358002 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Purchasing Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1948991892 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Sales Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2067096583 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Service Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1774274399 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control System Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 454275997 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Online</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control OnlineDashboard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1569997103 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the external BCSentinel dashboard for this scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control OpenExternalDashboardLink - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1569997103 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>External Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control OpenExternalDashboardLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 873771301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Overview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 605439061 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current Step</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Current Step - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 1635864775 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debug Build Marker</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control DebugBuildMarker - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3734163709 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Estimated Remaining Time</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Estimated Remaining Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 4029956924 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ETA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ETA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 4273901710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Heartbeat</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Last Heartbeat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 176162330 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overall Progress</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control OverallBar - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3865422733 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ScanStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 4023839458 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status Details</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control StatusDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2763291245 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control ErrorMessage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3681827688 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recent Events</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control RecentEvents - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2816835051 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Warning</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control WarningMessage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 2333456897 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenAllIssues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 2901648511 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the external BCSentinel dashboard for the current scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExternalDashboard - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 2901648511 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open BCSentinel Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExternalDashboard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh current plan and license status from BCSentinel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1949212398 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh License Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1321243612 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshProgress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout to activate Premium.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upgrade to Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 2380559548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Latest Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control DeepScanOverview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 2940471823 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Checks</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestChecksCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 4099272673 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestDeepScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 278542904 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finished At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestFinishedAt - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 544117503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestHeadline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 3650018302 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestIssuesCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 3288403856 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestRating - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 1985031866 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requested At</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestRequestedAt - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2139980684 - Control 1539190506 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Part - Control LatestRunStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Scan History</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 2908063460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Data Score - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3699950554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control DisplayRunId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Loss €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 1605091794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Scan DateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 1126870729 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete This Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteCurrentScan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 4075568953 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete Selected Scan(s)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteSelectedScan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 2333456897 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenAllIssues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 1042901874 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenDashboardAction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 3151516508 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Deep Scan Monitor</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 489835437 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reconcile Scan History</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action ReconcileScanHistory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 2026913255 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action Refresh - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1600091212 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Duplicate Worklist</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Duplicate Worklist - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1600091212 - Action 4099483940 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Duplicate Worklist - Action OpenMasterData - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1635629507 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Excp. FactBox - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2514064535 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Issue Drilldown Launch</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Drilldown Launch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2514064535 - Control 2444345320 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Drilldown Launch - Control StatusTxt - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Issue Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 1724552801 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reactivate Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action DeactivateException - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1900111907 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1900111907 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1900111907 - Action 2333456897 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show All Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Action OpenAllIssues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1359636104 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Item Missing Cost List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Cost List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1359636104 - Control 4200184881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Cost List - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1359636104 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Cost List - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1359636104 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Cost List - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1359636104 - Action 1353021407 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Cost List - Action OpenItemCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1974792566 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Item Missing Price List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Price List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1974792566 - Control 4200184881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Price List - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1974792566 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Price List - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1974792566 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Price List - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1974792566 - Action 1353021407 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Missing Price List - Action OpenItemCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Item Negative Inventory List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Control 4277715959 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Optional FlowFilter to limit the view to one location.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Control Location Filter - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Control 4200184881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Action 1353021407 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Action OpenItemCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 928783011 - Action 137971429 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Issue</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Item Neg. Inventory - Action OpenLedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Metrics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Control 1805169941 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control DataScoreCue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Control 1166195950 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Potential Loss</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control EstimatedLossCue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Control 1195313527 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium / Month</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control PremiumPriceCue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Control 1528855513 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ROI</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control ROICue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1886032213 - Control 206518689 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control TotalRecordsCue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 763429813 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Purchase Line Issue Worklist</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Purch. Line Worklist - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 763429813 - Action 2674551093 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Purch. Line Worklist - Action MarkIssueCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 763429813 - Action 4268418197 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Purch. Line Worklist - Action OpenDocument - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 499536044 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Sales Line Issue Worklist</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Sales Line Issue Worklist - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 499536044 - Action 2674551093 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Sales Line Issue Worklist - Action MarkIssueCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 499536044 - Action 4268418197 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Sales Line Issue Worklist - Action OpenDocument - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4215110451 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Issues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4215110451 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Impact €</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Estimated Impact (EUR) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score Health</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 2071048275 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quick Score Gauge</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control Gauge - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 1691982949 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Gauge</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control GaugeBarGreen - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 1120535724 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Gauge</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control GaugeBarOrange - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 336815261 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Gauge</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control GaugeBarRed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 1324368912 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scale</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control GaugeScaleText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 4019278081 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Health Overview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control HealthOverview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 2702427346 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Rating</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control BackendRatingText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 44548883 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deep Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control DeepScoreText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 377684343 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control HealthStatusText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 3541367898 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overall Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control OverallHealthScoreText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 3737230884 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quick Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control QuickScoreText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Control 1067116776 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Trend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Control TrendText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3641726371 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score Trend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Trend Chart - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 4206486325 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled Scan Modules</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Enabled Scan Modules - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2831026171 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include CRM/contact-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan CRM Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 368490735 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include finance-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Finance Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3050136617 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include employee and resource-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan HR Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 543617857 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include inventory-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Inventory Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3923256547 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include jobs and project-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Jobs Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2574256087 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include manufacturing and production master data checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Manufacturing Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 90491829 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include purchasing-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Purchasing Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2120781063 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include sales-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Sales Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1949943356 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include service-related checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Service Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1649085900 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include system and setup checks in the deep scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan System Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2445482498 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 869913466 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base URL of the BCSentinel API. Default is production.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control API Base URL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 987915639 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Must be enabled before tenant registration and scan synchronization.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Data Processing Consent - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3357837221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control License - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3149302554 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Premium Enabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 873771301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Overview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2699357852 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether premium actions are unlocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FeatureAccess - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2699357852 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Feature access</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FeatureAccess - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2099079889 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2080533181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Scan Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scan Date 2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh current plan and license status from BCSentinel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1949212398 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh License Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 424589911 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register with BCSentinel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 2807940096 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ScanMenu - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3559653129 - Method 1377591017 - NamedType 2583652021" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Method OnAction - NamedType ConfirmStartScanQst</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1159487516 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan History</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ViewScanHistory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 4263468516 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Test BCSentinel Connection</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action TestConnection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout to activate Premium.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action UpgradeToPremium - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upgrade to Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action UpgradeToPremium - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3336388517 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Vendor Issue List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Vendor Issue List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3336388517 - Action 786301067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exclude from Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Vendor Issue List - Action ExcludeFromIssue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3336388517 - Action 1638211262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark as Corrected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Vendor Issue List - Action MarkCorrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3336388517 - Action 1559486672 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Correct Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Vendor Issue List - Action OpenVendorCard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DHM Analytics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - Control 2445482498 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Analytics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - Control 1427565258 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Control DescriptionTxt - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - Action 1727984412 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the external Data Health Management Analytics dashboard.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Action OpenDashboard - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - Action 1727984412 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Analytics Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Action OpenDashboard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1285887476 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 523354100">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Cust Card Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1799008066 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 2901867346">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Cust List Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 837710720 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1434786627">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Item Card Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4250955190 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4178721393">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Item List Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 964310300 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4055858012">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Vend Card Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2743771658 - Action 3322663504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4194195770">
+          <source>DH Exceptions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension DH Vend List Ext - Action DHOpenExceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1871471434 - EnumValue 1994964448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH Duplicate Source Type - EnumValue Customer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1871471434 - EnumValue 1936001480 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH Duplicate Source Type - EnumValue Vendor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2189229792 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH License Plan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2189229792 - EnumValue 61828920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Free - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2189229792 - EnumValue 2049976461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Premium - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2189229792 - EnumValue 2672704373 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Standard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3534721661 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH License Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3534721661 - EnumValue 1090351696 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Active - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3534721661 - EnumValue 3543129988 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3534721661 - EnumValue 1481297009 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expired</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Expired - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3534721661 - EnumValue 1947800214 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Trial</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Trial - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

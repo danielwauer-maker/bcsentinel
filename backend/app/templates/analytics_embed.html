@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
-  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260409-3">
 </head>
-<body data-token="{{ token }}" class="dashboard-body">
+<body class="dashboard-body">
   <main class="page-shell">
     <header class="topbar">
       <div class="topbar-left">
         <div class="title-row">
           <h1 id="page-title">BCSentinel Analytics</h1>
           <span id="current-plan-badge" class="plan-badge is-free">Free</span>
-          </div>
+        </div>
         <p id="page-subtitle" class="page-subtitle">Loading...</p>
       </div>
       <div class="topbar-right">
@@ -28,6 +28,7 @@
     <section id="overview-tab" class="tab-panel is-active">
       <section class="hero-block">
         <div>
+          
           <div id="hero-eyebrow" class="hero-eyebrow">Insight is free. Action is Premium.</div>
           <h2 class="hero-title">
             <span id="hero-prefix">Your data health is</span>
@@ -35,21 +36,10 @@
             <span id="hero-suffix"></span>
           </h2>
         </div>
-                <ul id="hero-points" class="hero-points"></ul>
+        <ul id="hero-points" class="hero-points"></ul>
       </section>
 
       <section class="stats-grid">
-        <article class="hero-gauge-card panel">
-          <div class="hero-gauge-label">Data Health Score</div>
-          <div id="gauge-meter" class="gauge-wrap"></div>
-        </article>
-
-        <article class="stat-card panel">
-          <div class="stat-label">Data Health Score</div>
-          <div class="stat-value score-value" id="kpi-score">0</div>
-          <div class="stat-helper">Overall data quality rating</div>
-        </article>
-
         <article class="stat-card panel">
           <div class="stat-label">Scanned records</div>
           <div class="stat-value" id="kpi-records">0</div>
@@ -80,12 +70,6 @@
           <div class="stat-helper">Detected issue types</div>
         </article>
 
-        <article class="stat-card panel compact-stat">
-          <div class="stat-label">Premium / month</div>
-          <div class="stat-value" id="kpi-price">0 €</div>
-          <div class="stat-helper">Current premium price</div>
-        </article>
-
         <article class="stat-card panel accent-green">
           <div class="stat-label">ROI</div>
           <div class="stat-value roi-value" id="kpi-roi">0 €</div>
@@ -96,16 +80,24 @@
       <section class="overview-grid overview-grid-top">
         <article class="panel" id="profile-grid">
           <div class="panel-header">
-            <h3>Data Profile</h3>
-            <span class="muted">Relevant records</span>
+            <div class="panel-title-block">
+              
+              <h3>Data Scores by BC module</h3>
+            </div>
+            <span class="muted">Score per module · 0 to 100</span>
           </div>
           <div class="mini-grid" id="profile-cards"></div>
         </article>
 
         <article class="panel" id="issue-group-panel">
           <div class="panel-header">
-            <h3>Issues by area</h3>
-            <span class="muted">Affected counts</span>
+            <div class="panel-title-block">
+              
+              <h3 id="module-volume-title">Issues by BC module</h3>
+            </div>
+            <div class="panel-header-actions">
+              <span id="module-volume-subtitle" class="muted">Affected findings per module</span>
+            </div>
           </div>
           <div id="issue-groups" class="progress-list"></div>
         </article>
@@ -114,7 +106,10 @@
       <section id="premium-overview-panels" class="overview-grid premium-only-grid hidden">
         <article class="panel" id="scan-table-panel">
           <div class="panel-header">
-            <h3>Recent Scans</h3>
+            <div class="panel-title-block">
+              
+              <h3>Recent Scans</h3>
+            </div>
             <span class="muted">Click a scan to load it</span>
           </div>
           <div class="table-wrap">
@@ -135,7 +130,10 @@
         <div class="trend-stack">
           <article class="panel" id="score-trend-panel">
             <div class="panel-header">
-              <h3>Score Trend</h3>
+              <div class="panel-title-block">
+                
+                <h3>Score Trend</h3>
+              </div>
               <span class="muted">History of selected scans</span>
             </div>
             <div id="trend-chart" class="trend-chart"></div>
@@ -143,7 +141,10 @@
 
           <article class="panel" id="loss-trend-panel">
             <div class="panel-header">
-              <h3>Loss Trend</h3>
+              <div class="panel-title-block">
+              
+                <h3>Loss Trend</h3>
+              </div>
               <span class="muted">Estimated annual impact</span>
             </div>
             <div id="loss-chart" class="trend-chart"></div>
@@ -175,7 +176,7 @@
               <div class="pricing-breakdown-grid">
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Base price</div>
-                  <div id="preview-base-price" class="pricing-breakdown-value">€149.00</div>
+                  <div id="preview-base-price" class="pricing-breakdown-value">€0.00</div>
                 </div>
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Data volume add-on</div>
@@ -183,11 +184,11 @@
                 </div>
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Estimated Premium / month</div>
-                  <div id="preview-final-price" class="pricing-breakdown-value">€149.00</div>
+                  <div id="preview-final-price" class="pricing-breakdown-value">€0.00</div>
                 </div>
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Annual fixed plan</div>
-                  <div id="preview-annual-fixed" class="pricing-breakdown-value">€1,788.00</div>
+                  <div id="preview-annual-fixed" class="pricing-breakdown-value">€0.00</div>
                 </div>
               </div>
               <div id="preview-monthly-note" class="pricing-note"></div>
@@ -201,7 +202,10 @@
 
       <section id="premium-findings-panel" class="panel findings-panel hidden">
         <div class="panel-header">
-          <h3>Findings</h3>
+          <div class="panel-title-block">
+            
+            <h3>Findings</h3>
+          </div>
           <span class="muted">Visible in Premium, actionable in Business Central</span>
         </div>
         <div class="table-wrap">
@@ -218,7 +222,10 @@
     <section id="subscription-tab" class="tab-panel hidden">
       <article class="panel subscription-panel">
         <div class="panel-header">
-          <h3>Subscription</h3>
+          <div class="panel-title-block">
+            
+            <h3>Subscription</h3>
+          </div>
           <span id="subscription-plan-badge" class="plan-badge">Free</span>
         </div>
         <div class="subscription-grid">
@@ -238,38 +245,6 @@
             <div class="stat-helper">12 months projection</div>
           </div>
         </div>
-        <div class="subscription-pricing-box">
-          <div class="pricing-breakdown-title">Premium pricing breakdown</div>
-          <div class="pricing-breakdown-grid">
-            <div class="pricing-breakdown-item">
-              <div class="stat-label">Base price</div>
-              <div id="subscription-base-price" class="pricing-breakdown-value">€149.00</div>
-            </div>
-            <div class="pricing-breakdown-item">
-              <div class="stat-label">Data volume add-on</div>
-              <div id="subscription-variable-price" class="pricing-breakdown-value">€0.00</div>
-            </div>
-            <div class="pricing-breakdown-item">
-              <div class="stat-label">Estimated Premium / month</div>
-              <div id="subscription-final-price" class="pricing-breakdown-value">€149.00</div>
-            </div>
-            <div class="pricing-breakdown-item">
-              <div class="stat-label">Annual fixed plan</div>
-              <div id="subscription-annual-fixed" class="pricing-breakdown-value">€1,788.00</div>
-            </div>
-          </div>
-
-          <div class="billing-options-grid">
-            <div class="billing-option-card">
-              <div class="pricing-breakdown-title" id="subscription-monthly-label">Monthly billing</div>
-              <div id="subscription-monthly-note" class="pricing-note"></div>
-            </div>
-            <div class="billing-option-card">
-              <div class="pricing-breakdown-title" id="subscription-annual-label">Annual fixed plan</div>
-              <div id="subscription-annual-note" class="pricing-note"></div>
-            </div>
-          </div>
-        </div>
 
         <div class="subscription-cta-row">
           <button id="subscription-cta" type="button" class="primary-button">Upgrade to Premium</button>
@@ -277,6 +252,6 @@
       </article>
     </section>
   </main>
-  <script src="/static/js/analytics-dashboard.js"></script>
+  <script src="/static/js/analytics-dashboard.js?v=20260409-3"></script>
 </body>
 </html>

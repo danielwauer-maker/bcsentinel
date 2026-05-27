@@ -4,6 +4,7 @@ const translations = {
     nav_problem: "Problem",
     nav_solution: "Lösung",
     nav_pricing: "Preise",
+    nav_partners: "Partner",
     nav_security: "Sicherheit",
     nav_faq: "FAQ",
     nav_cta: "Kostenlosen Scan starten",
@@ -12,7 +13,7 @@ const translations = {
 
     hero_eyebrow: "Für Microsoft Dynamics 365 Business Central entwickelt",
     hero_title: "Deine Business-Central-Daten kosten dich Geld.",
-    hero_sub: "Erkenne Datenprobleme, quantifiziere finanzielle Auswirkungen und überwache die Gesundheit deines ERP kontinuierlich — bevor schlechte Daten Prozesse verlangsamen, Nacharbeit erzeugen und vermeidbare Verluste verursachen.",
+    hero_sub: "Erkenne Datenprobleme, quantifiziere finanzielle Auswirkungen und überwache die Gesundheit deines ERP kontinuierlich — mit einer ersten belastbaren Verlustsicht in wenigen Minuten.",
     hero_cta_primary: "Kostenlosen Scan starten",
     hero_cta_secondary: "So funktioniert es",
     hero_trust_1: "Tiefenscan deiner Business-Central-Daten",
@@ -28,19 +29,19 @@ const translations = {
 
     problem_eyebrow: "Das Problem",
     problem_title: "Die meisten Business-Central-Systeme enthalten versteckte Datenprobleme.",
-    problem_sub: "Fehlende Stammdaten, doppelte Datensätze, falsche Preise, unvollständige Buchungs-Setups und ungeklärte offene Belege erzeugen still und leise Reibung in Vertrieb, Einkauf, Finanzwesen und operativen Prozessen.",
-    problem_bullet_1: "Fehlende Kunden-, Lieferanten- oder Artikeldetails",
-    problem_bullet_2: "Falsche Preise, Rabatte oder Buchungs-Setups",
-    problem_bullet_3: "Doppelte oder inkonsistente Stammdaten",
-    problem_bullet_4: "Offene Belege und Ledger-Probleme blockieren Prozesse",
-    problem_card_1_title: "Fehlende Daten",
-    problem_card_1_text: "Unvollständige Stammdaten führen zu manueller Arbeit, Rückfragen und Verzögerungen.",
-    problem_card_2_title: "Falsche Preise",
-    problem_card_2_text: "Fehlerhafte Verkaufspreise und Einkaufsdaten beeinflussen direkt Marge und Vertrauen.",
-    problem_card_3_title: "Duplikate",
-    problem_card_3_text: "Mehrere inkonsistente Datensätze verursachen Reportingfehler und kaputte Workflows.",
-    problem_card_4_title: "Prozessreibung",
-    problem_card_4_text: "Offene Belege und Setup-Lücken bremsen Teams aus und verzögern Entscheidungen.",
+    problem_sub: "Schwache Datenqualität zeigt sich zuerst als kleine Störung und summiert sich dann zu operativen und finanziellen Risiken in Vertrieb, Einkauf, Finance und Operations.",
+    problem_bullet_1: "Fehlende Pflichtfelder in Stammdaten",
+    problem_bullet_2: "Preisanomalien und inkonsistente Rabatte",
+    problem_bullet_3: "Doppelte Geschäftsobjekte und Kontaktdaten",
+    problem_bullet_4: "Alte offene Belege und blockierte Ledger-Einträge",
+    problem_card_1_title: "Margenverlust",
+    problem_card_1_text: "Falsche Preise und Rabattfehler reduzieren still und leise den Deckungsbeitrag.",
+    problem_card_2_title: "Manuelle Nacharbeit",
+    problem_card_2_text: "Teams investieren wiederkehrend Zeit in Korrekturen, Rückfragen und Datenbereinigung.",
+    problem_card_3_title: "Operative Verzögerung",
+    problem_card_3_text: "Blockierte Vorgänge und offene Belege bremsen die Ausführung über mehrere Bereiche.",
+    problem_card_4_title: "Entscheidungsrisiko",
+    problem_card_4_text: "Schwache Datenqualität verzerrt KPIs, Forecasts und Management-Entscheidungen.",
 
     impact_eyebrow: "Warum das relevant ist",
     impact_title: "Schlechte Daten sind nicht nur nervig. Sie sind teuer.",
@@ -86,6 +87,7 @@ const translations = {
     value_eyebrow: "Value Preview",
     value_title: "Sieh, was schlechte Daten kosten — und was ihre Bereinigung sparen kann.",
     value_text: "Mache aus schwacher Datenqualität ein finanzielles Thema, das Priorisierung, Budgetentscheidungen und internen Buy-in unterstützt.",
+    value_proof: "Beispiel: 18 Preisfehler × 12 Monate × 15 Minuten Nacharbeit = 2.835 € vermeidbare Kosten pro Jahr.",
     value_stat_1_label: "Geschätzter Jahresverlust",
     value_stat_2_label: "Premium",
     value_stat_3_label: "Potenzielle Einsparung",
@@ -93,7 +95,7 @@ const translations = {
     pricing_eyebrow: "Preise",
     pricing_title: "Insight ist kostenlos. Action ist Premium.",
     pricing_sub: "Starte mit sofortiger Transparenz über deine Datenqualität und ihren Business Impact. Upgrade erst dann, wenn du tiefere Details, Priorisierung und direkte Aktionen willst.",
-    plan_free_badge: "Free",
+    plan_free_badge: "Kostenlos",
     plan_free_title: "Sichtbarkeit für deinen ersten Business Case.",
     price_month: "/ Monat",
     plan_free_1: "Vollständiger Systemscan",
@@ -102,15 +104,20 @@ const translations = {
     plan_free_4: "Geschätzter Jahresverlust",
     plan_free_5: "Dashboard-Überblick und Monitoring-Basis",
     plan_free_cta: "Kostenlosen Scan starten",
+    plan_free_fit: "Ideal für Teams, die Risiken zuerst sauber quantifizieren möchten.",
     plan_premium_badge: "Premium",
     plan_premium_title: "Mache aus Insight echte Umsetzung.",
-    plan_premium_price: "Ab € 49",
+    plan_premium_price: "…",
     plan_premium_1: "Alles aus Free",
     plan_premium_2: "Record-Level-Details",
     plan_premium_3: "Empfehlungen und Priorisierung",
     plan_premium_4: "Direkte Aktionen in Business Central",
     plan_premium_5: "Klarer Upgrade-Pfad von Insight zu Execution",
-    plan_premium_cta: "Premium-Demo anfragen",
+    plan_premium_cta: "Premium-Zugang direkt über Business Central freischalten",
+    plan_premium_fit: "Ideal für Teams, die schnell umsetzen und Einsparungen realisieren wollen.",
+    plan_guarantee_1: "Monatlich kündbar",
+    plan_guarantee_2: "Kein schweres Setup-Projekt nötig",
+    plan_guarantee_3: "Upgrade jederzeit aus Free möglich",
 
     security_eyebrow: "Sicherheit",
     security_title: "Entwickelt für datensensible Business-Central-Umgebungen.",
@@ -119,6 +126,24 @@ const translations = {
     security_2: "Hosting auf deutschem Server",
     security_3: "Privacy-first Architektur",
     security_4: "Klare Trennung zwischen Mandanten",
+    security_badge_1: "Hosting in Deutschland",
+    security_badge_2: "Mandantentrennung",
+    security_badge_3: "Auditierbare Admin-Aktionen",
+    partners_eyebrow: "Partnerprogramm",
+    partners_title: "Baue wiederkehrenden Umsatz als BCSentinel-Partner auf.",
+    partners_sub: "Empfiehl BCSentinel an Business-Central-Kunden und erhalte 30% Provision auf qualifizierte Premium-Umsaetze.",
+    partners_value_title: "Was Partner erhalten",
+    partners_value_1: "30% Provision auf qualifizierte Premium-Umsaetze",
+    partners_value_2: "Tenant-basierte Referral-Zuordnung und Tracking",
+    partners_value_3: "Klare Payout-Uebersicht mit Status-Transparenz",
+    partners_value_4: "Sales-ready Material fuer Demo und Onboarding",
+    partners_flow_title: "So funktioniert es",
+    partners_flow_1: "Partner-Code und Referral-Link erhalten",
+    partners_flow_2: "Empfohlene Tenants und Status im Portal verfolgen",
+    partners_flow_3: "Provisionen von pending ueber approved bis paid einsehen",
+    partners_cta_primary: "Partner werden",
+    partners_cta_secondary: "Partner-Login",
+    partners_note: "Im Portal siehst du Account-Daten, geworbene Kunden, Provisionsstatus und Auszahlungen.",
     security_card_title: "Deine Daten bleiben geschützt.",
     security_card_text: "Hosting in Deutschland, ausgelegt für datenschutzbewusste Unternehmen und gebaut mit Fokus auf sichere Verarbeitung, Mandantentrennung und möglichst geringe Exponierung sensibler ERP-Informationen.",
 
@@ -143,10 +168,11 @@ const translations = {
     footer_legal: "Impressum",
     footer_privacy: "Datenschutz",
     footer_contact: "Kontakt",
-value_stat_1_label: "Geschätzter Verlust",
-value_stat_1_sub: "Geschätzte finanzielle Auswirkung durch erkannte Datenqualitätsprobleme.",
-value_stat_3_label: "Potenzielle Einsparung",
-value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten Probleme."
+    value_stat_1_sub: "Geschätzte finanzielle Auswirkung durch erkannte Datenqualitätsprobleme.",
+    value_stat_1_link: "Wie wird das berechnet? 5 Beispiele ansehen",
+    value_stat_2_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten Probleme.",
+    value_stat_3_sub: "Jedes Issue nutzt betroffene Datensätze, Wahrscheinlichkeit, Aufwand, Stundensatz und Häufigkeit pro Jahr.",
+    pricing_premium_chip: "…"
   },
 
   en: {
@@ -154,6 +180,7 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
     nav_problem: "Problem",
     nav_solution: "Solution",
     nav_pricing: "Pricing",
+    nav_partners: "Partners",
     nav_security: "Security",
     nav_faq: "FAQ",
     nav_cta: "Start free scan",
@@ -162,7 +189,7 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
 
     hero_eyebrow: "Built for Microsoft Dynamics 365 Business Central",
     hero_title: "Your Business Central data is costing you money.",
-    hero_sub: "Detect data issues, quantify financial impact, and monitor your ERP health continuously — before poor data slows processes, creates rework, and drives avoidable losses.",
+    hero_sub: "Detect data issues, quantify financial impact, and monitor your ERP health continuously — with a first reliable loss baseline in just minutes.",
     hero_cta_primary: "Start free scan",
     hero_cta_secondary: "See how it works",
     hero_trust_1: "Deep scan of your Business Central data",
@@ -178,19 +205,19 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
 
     problem_eyebrow: "The problem",
     problem_title: "Most Business Central systems contain hidden data issues.",
-    problem_sub: "Missing master data, duplicate records, wrong prices, incomplete posting setups, and unresolved open documents quietly create friction across sales, purchasing, finance, and operations.",
-    problem_bullet_1: "Missing customer, vendor, or item details",
-    problem_bullet_2: "Incorrect prices, discounts, or posting setups",
-    problem_bullet_3: "Duplicate or inconsistent master data",
-    problem_bullet_4: "Open documents and ledger issues blocking processes",
-    problem_card_1_title: "Missing data",
-    problem_card_1_text: "Incomplete master data leads to manual work, follow-ups, and delays.",
-    problem_card_2_title: "Wrong prices",
-    problem_card_2_text: "Incorrect sales prices and purchase data directly affect margin and trust.",
-    problem_card_3_title: "Duplicates",
-    problem_card_3_text: "Multiple inconsistent records create reporting errors and broken workflows.",
-    problem_card_4_title: "Process friction",
-    problem_card_4_text: "Open documents and setup gaps slow teams down and delay decisions.",
+    problem_sub: "Weak data quality often starts as small friction and then accumulates into operational and financial risk across sales, purchasing, finance, and operations.",
+    problem_bullet_1: "Missing mandatory fields in master data",
+    problem_bullet_2: "Pricing anomalies and inconsistent discounts",
+    problem_bullet_3: "Duplicate business records and contacts",
+    problem_bullet_4: "Old open documents and blocked ledger entries",
+    problem_card_1_title: "Margin leakage",
+    problem_card_1_text: "Wrong prices and discount mismatches quietly reduce contribution margin.",
+    problem_card_2_title: "Manual rework load",
+    problem_card_2_text: "Teams spend recurring effort on corrections, follow-ups, and data cleanup.",
+    problem_card_3_title: "Operational delays",
+    problem_card_3_text: "Blocked transactions and unresolved documents slow execution across departments.",
+    problem_card_4_title: "Decision risk",
+    problem_card_4_text: "Low-quality data distorts KPIs, forecasts, and management decisions.",
 
     impact_eyebrow: "Why this matters",
     impact_title: "Bad data is not just annoying. It is expensive.",
@@ -236,6 +263,7 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
     value_eyebrow: "Value preview",
     value_title: "See what poor data costs — and what fixing it can save.",
     value_text: "Turn weak data quality into a financial conversation that supports prioritization, budget decisions, and internal buy-in.",
+    value_proof: "Example: 18 pricing issues × 12 months × 15 minutes rework = EUR 2,835 annual avoidable cost.",
     value_stat_1_label: "Estimated annual loss",
     value_stat_2_label: "Premium",
     value_stat_3_label: "Potential saving",
@@ -252,15 +280,20 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
     plan_free_4: "Estimated annual loss",
     plan_free_5: "Dashboard overview and monitoring basis",
     plan_free_cta: "Start free scan",
+    plan_free_fit: "Best for teams that want to quantify risk before changing processes.",
     plan_premium_badge: "Premium",
     plan_premium_title: "Turn insight into execution.",
-    plan_premium_price: "From € 49",
+    plan_premium_price: "…",
     plan_premium_1: "Everything in Free",
     plan_premium_2: "Record-level details",
     plan_premium_3: "Recommendations and prioritization",
     plan_premium_4: "Direct actions in Business Central",
     plan_premium_5: "Clear upgrade path from insight to execution",
-    plan_premium_cta: "Request Premium demo",
+    plan_premium_cta: "Get Premium Access",
+    plan_premium_fit: "Best for teams that want fast execution and measurable savings.",
+    plan_guarantee_1: "Monthly cancellable",
+    plan_guarantee_2: "No heavy setup project required",
+    plan_guarantee_3: "Upgrade anytime from Free",
 
     security_eyebrow: "Security",
     security_title: "Built for privacy-sensitive Business Central environments.",
@@ -269,6 +302,24 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
     security_2: "Hosted on a German server",
     security_3: "Privacy-first architecture",
     security_4: "Clear separation between tenants",
+    security_badge_1: "Hosting in Germany",
+    security_badge_2: "Tenant separation",
+    security_badge_3: "Audit-ready admin actions",
+    partners_eyebrow: "Partner Program",
+    partners_title: "Build recurring revenue as a BCSentinel partner.",
+    partners_sub: "Recommend BCSentinel to Business-Central customers and earn 30% commission on qualified Premium revenue.",
+    partners_value_title: "What partners get",
+    partners_value_1: "30% commission on qualified Premium revenue",
+    partners_value_2: "Tenant-based referral attribution and tracking",
+    partners_value_3: "Clear payout overview with status transparency",
+    partners_value_4: "Sales-ready material for demo and onboarding",
+    partners_flow_title: "How it works",
+    partners_flow_1: "Get your partner code and referral link",
+    partners_flow_2: "Track referred tenants and their status in your portal",
+    partners_flow_3: "See commissions move from pending to approved and paid",
+    partners_cta_primary: "Become a partner",
+    partners_cta_secondary: "Partner login",
+    partners_note: "Portal includes account details, referred customers, commission status, and payout history.",
     security_card_title: "Your data stays protected.",
     security_card_text: "Hosted in Germany, designed for GDPR-conscious businesses, and built with a focus on secure processing, tenant separation, and minimal exposure of sensitive ERP information.",
 
@@ -293,12 +344,110 @@ value_stat_3_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten 
     footer_legal: "Legal notice",
     footer_privacy: "Privacy",
     footer_contact: "Contact",
-value_stat_1_label: "Estimated Loss",
-value_stat_1_sub: "Estimated financial impact caused by detected data quality issues.",
-value_stat_3_label: "Potential Saving",
-value_stat_3_sub: "Realistic saving potential after resolving the most important issues first."
+    value_stat_1_sub: "Estimated financial impact caused by detected data quality issues.",
+    value_stat_1_link: "How is this calculated? See 5 examples",
+    value_stat_2_sub: "Realistic saving potential after resolving the most important issues first.",
+    value_stat_3_sub: "Each issue uses affected records, probability, effort, hourly rate, and yearly frequency.",
+    pricing_premium_chip: "…"
   }
 };
+
+/** Overlay list-price marketing strings from pricing-snapshot.js (generated from config/pricing_canonical.json). */
+function mergeCanonicalMarketingStrings() {
+  const snap = typeof window !== "undefined" && window.__BCS_MARKETING_STRINGS__;
+  if (!snap) return;
+  ["de", "en"].forEach((lang) => {
+    if (!translations[lang] || !snap[lang]) return;
+    const row = snap[lang];
+    if (row.plan_premium_price) translations[lang].plan_premium_price = row.plan_premium_price;
+    if (row.pricing_premium_chip) translations[lang].pricing_premium_chip = row.pricing_premium_chip;
+  });
+}
+mergeCanonicalMarketingStrings();
+
+function formatPricingAmount(lang, currency, value) {
+  const numericValue = Number(value || 0);
+  const fractionDigits = Number.isInteger(numericValue) ? 0 : 2;
+  return new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {
+    style: "currency",
+    currency: currency || "EUR",
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(numericValue);
+}
+
+function buildMarketingStringsFromPublicPricing(payload) {
+  const currency = payload?.currency || "EUR";
+  const basePrice = Number(payload?.base_price || 0);
+  return {
+    de: {
+      plan_premium_price: `Ab ${formatPricingAmount("de", currency, basePrice)}`,
+      pricing_premium_chip: `Ab ${formatPricingAmount("de", currency, basePrice)} / Monat`,
+    },
+    en: {
+      plan_premium_price: `From ${formatPricingAmount("en", currency, basePrice)}`,
+      pricing_premium_chip: `From ${formatPricingAmount("en", currency, basePrice)} / month`,
+    },
+  };
+}
+
+function mergePricingMarketingStrings(marketing) {
+  if (!marketing) return;
+  ["de", "en"].forEach((lang) => {
+    if (!translations[lang] || !marketing[lang]) return;
+    const row = marketing[lang];
+    if (row.plan_premium_price) translations[lang].plan_premium_price = row.plan_premium_price;
+    if (row.pricing_premium_chip) translations[lang].pricing_premium_chip = row.pricing_premium_chip;
+  });
+}
+
+function isValidPublicPricingPayload(payload) {
+  return Boolean(
+    payload &&
+    typeof payload === "object" &&
+    typeof payload.currency === "string" &&
+    typeof payload.plan_code === "string" &&
+    Number.isFinite(Number(payload.base_price)) &&
+    payload.marketing &&
+    payload.marketing.de &&
+    payload.marketing.en
+  );
+}
+
+function getPublicPricingApiBase() {
+  if (typeof window === "undefined" || !window.location) {
+    return "https://api.bcsentinel.com";
+  }
+
+  const hostname = (window.location.hostname || "").toLowerCase();
+  if (hostname.startsWith("dev.")) {
+    return "https://dev-api.bcsentinel.com";
+  }
+
+  return "https://api.bcsentinel.com";
+}
+
+async function loadPublicPricing() {
+  try {
+    const response = await fetch(`${getPublicPricingApiBase()}/public/pricing`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().includes("application/json")) {
+      throw new Error("Unexpected content type");
+    }
+    const payload = await response.json();
+    if (!isValidPublicPricingPayload(payload)) {
+      throw new Error("Invalid public pricing payload");
+    }
+    const marketing = payload?.marketing || buildMarketingStringsFromPublicPricing(payload);
+    mergePricingMarketingStrings(marketing);
+    applyTranslations(document.documentElement.getAttribute("lang") || getInitialLanguage());
+  } catch (error) {
+    // pricing-snapshot.js remains the static fallback
+  }
+}
 
 const STORAGE_KEY = "bcsentinel-lang";
 const html = document.documentElement;
@@ -404,3 +553,4 @@ document.querySelectorAll(".mobile-menu a").forEach((link) => {
 
 applyTheme(getInitialTheme());
 applyTranslations(getInitialLanguage());
+loadPublicPricing();

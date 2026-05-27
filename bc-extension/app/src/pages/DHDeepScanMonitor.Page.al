@@ -10,7 +10,7 @@ page 53158 "DH Deep Scan Monitor"
     InsertAllowed = false;
     DeleteAllowed = false;
     ModifyAllowed = false;
-    RefreshOnActivate = true;
+    RefreshOnActivate = false;
 
     layout
     {
@@ -20,20 +20,26 @@ page 53158 "DH Deep Scan Monitor"
             {
                 Caption = 'Overview';
 
+                field(DebugBuildMarker; DebugBuildMarkerTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Debug Build Marker';
+                }
                 field(ScanStatus; ScanStatusTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Scan Status';
                     StyleExpr = ScanStatusStyle;
                 }
-                field(Status; StatusTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Status';
-                }
                 field("Current Module"; CurrentModuleTxt)
                 {
                     ApplicationArea = All;
+                }
+                field("Current Step"; CurrentStepTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Current Step';
+                    MultiLine = true;
                 }
                 field(OverallBar; OverallBarTxt)
                 {
@@ -45,6 +51,16 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'ETA';
+                }
+                field("Last Heartbeat"; LastHeartbeatValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Heartbeat';
+                }
+                field("Estimated Remaining Time"; EstimatedRemainingTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Estimated Remaining Time';
                 }
                 field("Started At"; StartedAtValue)
                 {
@@ -60,11 +76,93 @@ page 53158 "DH Deep Scan Monitor"
                     MultiLine = true;
                 }
             }
-            part(KpiTiles; "DH Dashboard KPI Part")
+            group(StatusDetails)
+            {
+                Caption = 'Status Details';
+
+                field(WarningMessage; WarningMessageTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Warning';
+                    MultiLine = true;
+                    StyleExpr = WarningStyle;
+                }
+                field(ErrorMessage; ErrorMessageTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Error';
+                    MultiLine = true;
+                    StyleExpr = ErrorStyle;
+                }
+                field(RecentEvents; RecentEventsTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Recent Events';
+                    MultiLine = true;
+                }
+            }
+            group(Diagnostics)
+            {
+                Caption = 'Diagnostics';
+
+                field(LocalStatusRaw; LocalStatusRawTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Local Status Raw';
+                }
+                field(BackendStatusRaw; BackendStatusRawTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Backend Status Raw';
+                }
+                field(DisplayStatus; ScanStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Display Status';
+                }
+                field(DisplayProgress; ProgressPct)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Display Progress';
+                }
+                field(LastRefreshSource; LastRefreshSourceTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Refresh Source';
+                }
+                field(LastRefreshErrorCount; BackendRefreshFailures)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Refresh Error Count';
+                }
+                field(LastRefreshError; LastRefreshErrorTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Refresh Error';
+                    MultiLine = true;
+                }
+                field(StatusEndpoint; StatusEndpointTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Status Endpoint';
+                }
+                field(RunIdUsed; RunIdUsedTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Run ID Used';
+                }
+                field(TenantIdUsed; TenantIdUsedTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Tenant ID Used';
+                }
+            }
+            /*part(KpiTiles; "DH Dashboard KPI Part")
             {
                 ApplicationArea = All;
                 Caption = 'Key Metrics';
-            }
+                SubPageLink = "Entry No." = field("Entry No.");
+            }*/
 
             group(OnlineDashboard)
             {
@@ -86,7 +184,7 @@ page 53158 "DH Deep Scan Monitor"
                 }
             }
 
-            group(ScanResults)
+            /*group(ScanResults)
             {
                 Caption = 'Scan Results';
 
@@ -113,7 +211,7 @@ page 53158 "DH Deep Scan Monitor"
                     Caption = 'Potential Saving';
                     StyleExpr = PotentialSavingStyle;
                 }
-            }
+            }*/
 
 
 
@@ -269,12 +367,13 @@ page 53158 "DH Deep Scan Monitor"
                 }
             }
 
-            part(Findings; "DH Deep Scan Findings")
+            /*part(Findings; "DH Deep Scan Findings")
             {
                 ApplicationArea = All;
                 Caption = 'Issues';
                 UpdatePropagation = Both;
-            }
+                SubPageLink = "Deep Scan Entry No." = field("Entry No.");
+            }*/
         }
     }
 
@@ -284,13 +383,14 @@ page 53158 "DH Deep Scan Monitor"
         {
             action(RefreshProgress)
             {
-                Caption = 'Refresh';
+                Caption = 'Refresh Status';
                 ApplicationArea = All;
                 Image = Refresh;
 
                 trigger OnAction()
                 begin
                     ReloadMonitor();
+                    CurrPage.Update(false);
                 end;
             }
 
@@ -308,7 +408,7 @@ page 53158 "DH Deep Scan Monitor"
                         Error('No deep scan run is available.');
 
                     Finding.SetRange("Deep Scan Entry No.", Rec."Entry No.");
-                    Page.Run(Page::"DH Deep Scan Findings", Finding);
+                    Page.Run(Page::"DH Deep Scan Findings List", Finding);
                 end;
             }
 
@@ -325,12 +425,56 @@ page 53158 "DH Deep Scan Monitor"
                     OpenAnalyticsDashboardForCurrentScan();
                 end;
             }
+
+            action(UpgradeToPremium)
+            {
+                Caption = 'Upgrade to Premium';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+
+                trigger OnAction()
+                var
+                    Setup: Record "DH Setup";
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    LoadSetupOrError(Setup);
+
+                    if Setup."Premium Enabled" then begin
+                        Message('Premium is already enabled.');
+                        exit;
+                    end;
+
+                    ApiClient.OpenPremiumCheckout(Setup);
+                end;
+            }
+
+            action(RefreshLicenseStatus)
+            {
+                Caption = 'Refresh License Status';
+                ApplicationArea = All;
+                Image = Refresh;
+                ToolTip = 'Refresh current plan and license status from BCSentinel.';
+
+                trigger OnAction()
+                var
+                    Setup: Record "DH Setup";
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    LoadSetupOrError(Setup);
+                    ApiClient.RefreshLicenseStatus(Setup);
+                    Message('License status refreshed.');
+                end;
+            }
         }
     }
 
     trigger OnOpenPage()
     begin
-        ReloadMonitor();
+        LastRefreshSourceTxt := 'Local';
+        UpdateModuleVisibility();
+        ReloadDisplayValuesFromRec();
+        LoadDashboardValues();
     end;
 
     trigger OnAfterGetRecord()
@@ -340,45 +484,11 @@ page 53158 "DH Deep Scan Monitor"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ApplyIssuePartFilter();
-
-        if not AutoRefreshStarted then begin
-            AutoRefreshStarted := true;
-            QueueAutoRefresh();
-        end;
-    end;
-
-    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
-    begin
-        if TaskId <> RefreshTaskId then
-            exit;
-
-        RefreshTaskRunning := false;
-        ReloadMonitor();
-
-        if ShouldKeepRefreshing() then
-            QueueAutoRefresh();
-    end;
-
-    trigger OnPageBackgroundTaskError(TaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
-    begin
-        if TaskId <> RefreshTaskId then
-            exit;
-
-        RefreshTaskRunning := false;
-        IsHandled := true;
-
-        ReloadMonitor();
-
-        if ShouldKeepRefreshing() then
-            QueueAutoRefresh();
+        ReloadDisplayValuesFromRec();
     end;
 
     var
-        RefreshTaskId: Integer;
-        RefreshTaskRunning: Boolean;
-        AutoRefreshStarted: Boolean;
-        DashboardScanEntryNo: Integer;
+        BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;
         ShowSales: Boolean;
@@ -391,14 +501,19 @@ page 53158 "DH Deep Scan Monitor"
         ShowHR: Boolean;
 
         RunIdTxt: Code[50];
-        StatusTxt: Text[50];
         CurrentModuleTxt: Text[50];
+        CurrentStepTxt: Text[160];
         ProgressPct: Integer;
         OverallBarTxt: Text[50];
         ETATxt: Text[100];
+        LastHeartbeatValue: DateTime;
+        EstimatedRemainingTxt: Text[100];
         StartedAtValue: DateTime;
         FinishedAtValue: DateTime;
         HeadlineTxt: Text[250];
+        WarningMessageTxt: Text[250];
+        ErrorMessageTxt: Text[250];
+        RecentEventsTxt: Text[500];
         ScanDateTimeValue: DateTime;
         ScanTypeTxt: Text[30];
         RatingTxt: Text[30];
@@ -436,6 +551,8 @@ page 53158 "DH Deep Scan Monitor"
         ScanStatusTxt: Text[50];
         ScanStatusStyle: Text[30];
         ProgressStyle: Text[30];
+        WarningStyle: Text[30];
+        ErrorStyle: Text[30];
         ScoreStyle: Text[30];
         IssuesStyle: Text[30];
         RatingStyle: Text[30];
@@ -459,33 +576,81 @@ page 53158 "DH Deep Scan Monitor"
         ServiceProgressStyle: Text[30];
         JobsProgressStyle: Text[30];
         HRProgressStyle: Text[30];
+        DebugBuildMarkerTxt: Text[50];
+        LocalStatusRawTxt: Text[50];
+        BackendStatusRawTxt: Text[50];
+        LastRefreshSourceTxt: Text[80];
+        LastRefreshErrorTxt: Text[250];
+        StatusEndpointTxt: Text[250];
+        RunIdUsedTxt: Text[50];
+        TenantIdUsedTxt: Text[30];
 
     local procedure ReloadMonitor()
     var
         DeepScanRun: Record "DH Deep Scan Run";
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
     begin
         UpdateModuleVisibility();
 
         if DeepScanRun.Get(Rec."Entry No.") then begin
+            if Setup.Get('SETUP') then begin
+                StatusEndpointTxt := BuildUrl(Setup."API Base URL", '/scan/status/' + Format(DeepScanRun."Run ID"));
+                RunIdUsedTxt := Format(DeepScanRun."Run ID");
+                TenantIdUsedTxt := MaskTenantId(Setup."Tenant ID");
+                if DeepScanRun."Run ID" <> '' then
+                    if IsLocalTerminalStatus(DeepScanRun) and BackendStatusNeedsHealing(DeepScanRun) then
+                        if not TrySyncLocalTerminalStatus(ApiClient, Setup, DeepScanRun) then begin
+                            BackendRefreshFailures += 1;
+                            LastRefreshSourceTxt := 'Backend status sync failed';
+                            LastRefreshErrorTxt := CopyStr(GetLastErrorText(), 1, MaxStrLen(LastRefreshErrorTxt));
+                        end;
+
+                if DeepScanRun."Run ID" <> '' then
+                    if TryRefreshBackendStatus(ApiClient, Setup, DeepScanRun) then begin
+                        BackendRefreshFailures := 0;
+                        LastRefreshSourceTxt := 'Backend refresh successful';
+                        LastRefreshErrorTxt := '';
+                        Commit();
+                    end
+                    else begin
+                        BackendRefreshFailures += 1;
+                        LastRefreshSourceTxt := 'Backend refresh failed';
+                        LastRefreshErrorTxt := CopyStr(GetLastErrorText(), 1, MaxStrLen(LastRefreshErrorTxt));
+                        if BackendRefreshFailures >= 3 then begin
+                            DeepScanRun."Warning Message" := CopyStr(GetBackendRefreshWarning(DeepScanRun), 1, MaxStrLen(DeepScanRun."Warning Message"));
+                            DeepScanRun.Modify(true);
+                            Commit();
+                        end;
+                    end;
+            end;
             Rec := DeepScanRun;
+            if (BackendRefreshFailures > 0) and (BackendRefreshFailures < 3) and (Rec."Backend Status" = '') then
+                Rec."Current Step" := 'Waiting for backend status';
             ReloadDisplayValuesFromRec();
             LoadDashboardValues();
-            ApplyIssuePartFilter();
-            CurrPage.Update(false);
         end;
     end;
 
     local procedure ReloadDisplayValuesFromRec()
     begin
+        DebugBuildMarkerTxt := 'ScanMonitorFix v2';
+        LocalStatusRawTxt := Format(Rec.Status);
+        BackendStatusRawTxt := Rec."Backend Status";
         RunIdTxt := Rec."Run ID";
-        StatusTxt := Format(Rec.Status);
-        CurrentModuleTxt := Rec."Current Module";
-        ProgressPct := Rec."Progress %";
+        CurrentModuleTxt := GetCurrentModuleText();
+        CurrentStepTxt := GetCurrentStepText();
+        ProgressPct := GetDisplayProgressPercent();
         OverallBarTxt := BuildBar(ProgressPct);
-        ETATxt := Rec."ETA Text";
+        ETATxt := GetEtaText();
+        LastHeartbeatValue := Rec."Last Heartbeat";
+        EstimatedRemainingTxt := FormatRemainingSeconds(Rec."Estimated Remaining Seconds");
         StartedAtValue := Rec."Started At";
         FinishedAtValue := Rec."Finished At";
         HeadlineTxt := Rec.Headline;
+        WarningMessageTxt := GetDisplayWarningText();
+        ErrorMessageTxt := GetDisplayErrorText();
+        RecentEventsTxt := Rec."Recent Events";
 
         DeepScoreValue := Rec."Deep Score";
         ChecksCountValue := Rec."Checks Count";
@@ -517,6 +682,8 @@ page 53158 "DH Deep Scan Monitor"
         ScanStatusTxt := GetScanStatusText();
         ScanStatusStyle := GetScanStatusStyle();
         ProgressStyle := GetProgressStyle(ProgressPct);
+        WarningStyle := GetWarningStyle();
+        ErrorStyle := GetErrorStyle();
         ScoreStyle := GetScoreStyle(DeepScoreValue);
         IssuesStyle := GetIssuesStyle();
         EstimatedLossStyle := 'Unfavorable';
@@ -547,11 +714,36 @@ page 53158 "DH Deep Scan Monitor"
         HRProgressStyle := GetProgressStyle(Rec."HR Progress %");
     end;
 
-    local procedure LoadDashboardValues()
-    var
-        ScanHeader: Record "DH Scan Header";
+    [TryFunction]
+    local procedure TryRefreshBackendStatus(var ApiClient: Codeunit "DH API Client"; var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
     begin
-        DashboardScanEntryNo := 0;
+        ApiClient.RefreshScanStatus(Setup, DeepScanRun);
+    end;
+
+    [TryFunction]
+    local procedure TrySyncLocalTerminalStatus(var ApiClient: Codeunit "DH API Client"; var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        case DeepScanRun.Status of
+            DeepScanRun.Status::Completed:
+                begin
+                    DeepScanRun."Progress %" := 100;
+                    DeepScanRun."Current Module" := 'All modules completed';
+                    DeepScanRun."Current Step" := 'Scan completed';
+                    DeepScanRun."Warning Message" := '';
+                    DeepScanRun."Error Message" := '';
+                    ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
+                end;
+            DeepScanRun.Status::Failed:
+                begin
+                    if DeepScanRun."Current Step" = '' then
+                        DeepScanRun."Current Step" := 'Scan failed';
+                    ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed', 'Scan failed', 'Scan failed');
+                end;
+        end;
+    end;
+
+    local procedure LoadDashboardValues()
+    begin
         ScanDateTimeValue := 0DT;
         ScanTypeTxt := '';
         RatingTxt := '';
@@ -591,42 +783,6 @@ page 53158 "DH Deep Scan Monitor"
             IssuesCountValue := Rec."Issues Count";
         if (AffectedRecordsValue = 0) and (Rec."Affected Records" <> 0) then
             AffectedRecordsValue := Rec."Affected Records";
-
-        ScanHeader.SetRange("Run ID", Rec."Run ID");
-        if ScanHeader.FindFirst() then
-            DashboardScanEntryNo := ScanHeader."Entry No.";
-    end;
-
-    local procedure ApplyIssuePartFilter()
-    begin
-        if DashboardScanEntryNo <> 0 then begin
-            CurrPage.KpiTiles.Page.SetDeepScanRunEntryNo(Rec."Entry No.");
-            CurrPage.Findings.Page.SetDeepScanEntryNo(Rec."Entry No.");
-        end else begin
-            CurrPage.KpiTiles.Page.SetDeepScanRunEntryNo(-1);
-            CurrPage.Findings.Page.SetDeepScanEntryNo(-1);
-        end;
-    end;
-
-    local procedure QueueAutoRefresh()
-    var
-        Parameters: Dictionary of [Text, Text];
-    begin
-        if RefreshTaskRunning then
-            exit;
-
-        if not ShouldKeepRefreshing() then
-            exit;
-
-        Parameters.Add('EntryNo', Format(Rec."Entry No."));
-        Parameters.Add('WaitMs', '1500');
-        CurrPage.EnqueueBackgroundTask(RefreshTaskId, Codeunit::"DH Monitor Refresh Task", Parameters, 4000, PageBackgroundTaskErrorLevel::Ignore);
-        RefreshTaskRunning := true;
-    end;
-
-    local procedure ShouldKeepRefreshing(): Boolean
-    begin
-        exit((Rec.Status = Rec.Status::Queued) or (Rec.Status = Rec.Status::Running));
     end;
 
     local procedure UpdateModuleVisibility()
@@ -662,6 +818,120 @@ page 53158 "DH Deep Scan Monitor"
     local procedure BuildModuleText(ModuleName: Text; PercentValue: Integer): Text
     begin
         exit(StrSubstNo('%1  %2%  %3', ModuleName, PercentValue, BuildBar(PercentValue)));
+    end;
+
+    local procedure GetDisplayProgressPercent(): Integer
+    begin
+        if IsLocalCompleted() then
+            exit(100);
+
+        case LowerCase(Rec."Backend Status") of
+            'queued', 'preparing':
+                exit(0);
+            'completed':
+                exit(100);
+        end;
+
+        if Rec.Status = Rec.Status::Queued then
+            exit(0);
+        if Rec.Status = Rec.Status::Completed then
+            exit(100);
+
+        if Rec."Progress %" < 0 then
+            exit(0);
+        if Rec."Progress %" > 100 then
+            exit(100);
+        exit(Rec."Progress %");
+    end;
+
+    local procedure GetCurrentModuleText(): Text[50]
+    begin
+        if IsLocalCompleted() then
+            exit('All modules completed');
+
+        case LowerCase(Rec."Backend Status") of
+            'queued', 'preparing':
+                exit('Preparing');
+            'completed':
+                exit('All modules completed');
+            'failed':
+                begin
+                    if Rec."Current Module" <> '' then
+                        exit(CopyStr(StrSubstNo('Failed during %1', Rec."Current Module"), 1, 50));
+                    exit('Failed');
+                end;
+        end;
+
+        if Rec."Current Module" <> '' then
+            exit(Rec."Current Module");
+
+        exit('');
+    end;
+
+    local procedure GetCurrentStepText(): Text[160]
+    begin
+        if IsLocalCompleted() then
+            exit('Scan completed');
+
+        case LowerCase(Rec."Backend Status") of
+            'queued':
+                exit('Waiting for backend status');
+            'preparing':
+                exit('Preparing scan');
+            'completed':
+                exit('Scan completed');
+            'failed':
+                if Rec."Current Step" = '' then
+                    exit('Scan failed');
+        end;
+
+        if Rec."Current Step" <> '' then
+            exit(Rec."Current Step");
+
+        if Rec.Status = Rec.Status::Queued then
+            exit('Waiting for backend status');
+
+        exit('');
+    end;
+
+    local procedure GetEtaText(): Text[100]
+    begin
+        if IsLocalCompleted() then
+            exit('Completed');
+
+        case LowerCase(Rec."Backend Status") of
+            'completed':
+                exit('Completed');
+            'queued', 'preparing':
+                exit('');
+        end;
+
+        exit(Rec."ETA Text");
+    end;
+
+    local procedure GetDisplayWarningText(): Text[250]
+    begin
+        if IsLocalCompleted() and IsBackendNonTerminal() then
+            exit('Backend status is outdated. Local scan completed successfully.');
+
+        if (BackendRefreshFailures > 0) and IsLocalCompleted() then
+            exit('Backend status could not be refreshed. Local scan completed successfully.');
+
+        if LowerCase(Rec."Backend Status") = 'completed' then
+            exit('');
+
+        exit(Rec."Warning Message");
+    end;
+
+    local procedure GetDisplayErrorText(): Text[250]
+    begin
+        if IsLocalCompleted() then
+            exit('');
+
+        if LowerCase(Rec."Backend Status") = 'completed' then
+            exit('');
+
+        exit(Rec."Error Message");
     end;
 
     local procedure BuildBar(PercentValue: Integer): Text
@@ -737,23 +1007,69 @@ page 53158 "DH Deep Scan Monitor"
 
     local procedure GetScanStatusText(): Text
     begin
+        if IsLocalCompleted() then
+            exit('Completed');
+
+        if Rec.Status = Rec.Status::Failed then
+            exit('Failed');
+        if Rec.Status = Rec.Status::Canceled then
+            exit('Cancelled');
+
+        case LowerCase(Rec."Backend Status") of
+            'queued':
+                exit('Queued');
+            'preparing':
+                exit('Preparing');
+            'running':
+                exit('Running');
+            'finalizing':
+                exit('Finalizing');
+            'completed':
+                exit('Completed');
+            'failed':
+                exit('Failed');
+            'stalled':
+                exit('Possibly stalled');
+            'cancelled':
+                exit('Cancelled');
+        end;
+
         case Rec.Status of
             Rec.Status::Queued:
-                exit('Preparing scan...');
+                exit('Queued');
             Rec.Status::Running:
-                exit('Scanning data...');
+                exit('Running');
             Rec.Status::Completed:
-                exit('Scan completed');
+                exit('Completed');
             Rec.Status::Failed:
-                exit('Scan failed');
+                exit('Failed');
             Rec.Status::Canceled:
-                exit('Scan canceled');
+                exit('Cancelled');
         end;
         exit('Unknown');
     end;
 
     local procedure GetScanStatusStyle(): Text
     begin
+        if IsLocalCompleted() then
+            exit('Strong');
+
+        if Rec.Status = Rec.Status::Failed then
+            exit('Unfavorable');
+        if Rec.Status = Rec.Status::Canceled then
+            exit('Unfavorable');
+
+        case LowerCase(Rec."Backend Status") of
+            'queued', 'preparing', 'finalizing':
+                exit('Ambiguous');
+            'running':
+                exit('Favorable');
+            'completed':
+                exit('Strong');
+            'failed', 'stalled', 'cancelled':
+                exit('Unfavorable');
+        end;
+
         case Rec.Status of
             Rec.Status::Queued:
                 exit('Ambiguous');
@@ -765,6 +1081,75 @@ page 53158 "DH Deep Scan Monitor"
                 exit('Unfavorable');
         end;
         exit('Standard');
+    end;
+
+    local procedure FormatRemainingSeconds(RemainingSeconds: Integer): Text[100]
+    var
+        Minutes: Integer;
+    begin
+        if RemainingSeconds <= 0 then
+            exit('');
+
+        if RemainingSeconds < 60 then
+            exit('Less than 1 minute');
+
+        Minutes := (RemainingSeconds + 59) div 60;
+        exit(StrSubstNo('%1 min remaining', Minutes));
+    end;
+
+    local procedure GetWarningStyle(): Text[30]
+    begin
+        if WarningMessageTxt <> '' then
+            exit('Ambiguous');
+        exit('Standard');
+    end;
+
+    local procedure GetErrorStyle(): Text[30]
+    begin
+        if ErrorMessageTxt <> '' then
+            exit('Unfavorable');
+        exit('Standard');
+    end;
+
+    local procedure IsLocalCompleted(): Boolean
+    begin
+        exit((Rec.Status = Rec.Status::Completed) or (Rec."Finished At" <> 0DT));
+    end;
+
+    local procedure IsLocalTerminalStatus(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    begin
+        exit((DeepScanRun.Status = DeepScanRun.Status::Completed) or (DeepScanRun.Status = DeepScanRun.Status::Failed) or (DeepScanRun.Status = DeepScanRun.Status::Canceled));
+    end;
+
+    local procedure BackendStatusNeedsHealing(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    begin
+        case LowerCase(DeepScanRun."Backend Status") of
+            'completed', 'failed', 'cancelled', 'canceled':
+                exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure IsBackendNonTerminal(): Boolean
+    begin
+        case LowerCase(Rec."Backend Status") of
+            'queued', 'preparing', 'running', 'finalizing':
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure GetBackendRefreshWarning(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        if DeepScanRun.Status = DeepScanRun.Status::Completed then
+            exit('Backend status could not be refreshed. Local scan completed successfully.');
+
+        if DeepScanRun.Status = DeepScanRun.Status::Failed then
+            exit('Backend status could not be refreshed. Local scan failed.');
+
+        exit('Scan status could not be refreshed from the backend.');
     end;
 
     local procedure OpenAnalyticsDashboardForCurrentScan()
@@ -847,7 +1232,8 @@ page 53158 "DH Deep Scan Monitor"
           '?company=' + CompanyValue +
           '&environment=' + EnvironmentValue +
           '&tenant_id=' + TenantValue +
-          '&scan_mode=' + ScanModeValue);
+          '&scan_mode=' + ScanModeValue +
+          '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
 
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
@@ -856,6 +1242,11 @@ page 53158 "DH Deep Scan Monitor"
     begin
         BaseUrl := BuildUrl(Setup."API Base URL", '/analytics/embed');
         exit(BaseUrl + '?token=' + EncodeUrlValue(Token));
+    end;
+
+    local procedure GetIssueDrilldownLaunchUrl(): Text
+    begin
+        exit(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"DH Issue Drilldown Launch"));
     end;
 
     local procedure GetScanModeQueryValue(): Text
@@ -883,6 +1274,14 @@ page 53158 "DH Deep Scan Monitor"
     local procedure BuildUrl(BaseUrl: Text; RelativePath: Text): Text
     begin
         exit(RemoveTrailingSlash(BaseUrl) + RelativePath);
+    end;
+
+    local procedure MaskTenantId(TenantId: Text): Text
+    begin
+        if StrLen(TenantId) <= 8 then
+            exit('***');
+
+        exit(CopyStr(TenantId, 1, 4) + '...' + CopyStr(TenantId, StrLen(TenantId) - 3, 4));
     end;
 
     local procedure RemoveTrailingSlash(Value: Text): Text

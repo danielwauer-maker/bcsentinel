@@ -1,4 +1,7 @@
 let currentSelectedScanId = null;
+let recentScansPage = 1;
+const RECENT_SCANS_PAGE_SIZE = 12;
+let currentDashboardState = null;
 
 function byId(id) {
   return document.getElementById(id);
@@ -70,29 +73,6 @@ function renderPricingBreakdown(data) {
   setText("subscription-annual-note", billingOptions.annual_note || "");
 }
 
-
-function renderGauge(score) {
-  const host = byId('gauge-meter');
-  if (!host) return;
-
-  const safeScore = Math.max(0, Math.min(100, Number(score || 0)));
-  const severityClass = scoreBand(safeScore);
-  const radius = 74;
-  const circumference = Math.PI * radius;
-  const progress = circumference * (safeScore / 100);
-  const dashOffset = circumference - progress;
-
-  host.innerHTML = `
-    <svg viewBox="0 0 220 140" class="gauge-svg" role="img" aria-label="Data health gauge ${safeScore}">
-      <path d="M 36 110 A 74 74 0 0 1 184 110" class="gauge-track"></path>
-      <path d="M 36 110 A 74 74 0 0 1 184 110" class="gauge-progress ${severityClass}"
-            style="stroke-dasharray:${circumference};stroke-dashoffset:${dashOffset}"></path>
-      <text x="110" y="88" text-anchor="middle" class="gauge-score">${formatNumber(safeScore)}</text>
-      <text x="110" y="106" text-anchor="middle" class="gauge-caption">Data Health Score</text>
-    </svg>
-  `;
-}
-
 function renderHeroPoints(items) {
   const host = byId('hero-points');
   if (!host) return;
@@ -105,17 +85,41 @@ function renderHeroPoints(items) {
   host.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
 }
 
-function renderProfileCards(items) {
+function renderProfileCards(moduleScores, fallbackItems) {
   const host = byId('profile-cards');
   if (!host) return;
   host.innerHTML = '';
 
-  if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<div class="empty-state">No profile values available yet.</div>';
+  const scoreItems = Array.isArray(moduleScores) ? moduleScores.filter(Boolean) : [];
+  const fallback = Array.isArray(fallbackItems) ? fallbackItems.filter(Boolean) : [];
+
+  if (scoreItems.length > 0) {
+    scoreItems.forEach((item) => {
+      const score = Math.max(0, Math.min(100, Number(item?.score ?? item?.value ?? 0)));
+      const variant = item?.variant || scoreBand(score);
+      const label = item?.name || item?.label || '';
+      const badgeText = variant.charAt(0).toUpperCase() + variant.slice(1);
+
+      const card = document.createElement('div');
+      card.className = `mini-card score-card score-${variant}`;
+      card.innerHTML = `
+        <div class="mini-card-top">
+          <div class="mini-card-value">${formatNumber(score)}</div>
+          <div class="mini-score-badge score-${variant}">${escapeHtml(badgeText)}</div>
+        </div>
+        <div class="mini-card-label">${escapeHtml(label)}</div>
+      `;
+      host.appendChild(card);
+    });
     return;
   }
 
-  items.forEach((item) => {
+  if (fallback.length === 0) {
+    host.innerHTML = '<div class="empty-state">No module scores are available yet.</div>';
+    return;
+  }
+
+  fallback.forEach((item) => {
     const card = document.createElement('div');
     card.className = 'mini-card';
     card.innerHTML = `
@@ -126,19 +130,26 @@ function renderProfileCards(items) {
   });
 }
 
-function renderIssueGroups(items) {
+function renderIssueGroups(items, emptyMessage = 'No module data is available for this scan.') {
   const host = byId('issue-groups');
   if (!host) return;
   host.innerHTML = '';
 
-  if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<div class="empty-state">No grouped findings are available for this scan.</div>';
+  const normalizedItems = Array.isArray(items)
+    ? items.filter(Boolean).map((item) => ({
+        name: item?.name || item?.label || '',
+        count: Number(item?.count ?? item?.value ?? 0),
+      }))
+    : [];
+
+  if (normalizedItems.length === 0) {
+    host.innerHTML = `<div class="empty-state">${escapeHtml(emptyMessage)}</div>`;
     return;
   }
 
-  const maxValue = Math.max(...items.map((item) => Number(item?.count || 0)), 1);
+  const maxValue = Math.max(...normalizedItems.map((item) => Number(item?.count || 0)), 1);
 
-  items.forEach((item) => {
+  normalizedItems.forEach((item) => {
     const width = Math.max((Number(item?.count || 0) / maxValue) * 100, 2);
     const row = document.createElement('div');
     row.className = 'progress-row';
@@ -153,6 +164,11 @@ function renderIssueGroups(items) {
   });
 }
 
+function renderModuleVolume(data) {
+  const issueGroups = Array.isArray(data?.issue_groups) ? data.issue_groups : [];
+
+  renderIssueGroups(issueGroups, 'No module issue counts are available for this scan.');
+}
 function renderTrend(containerId, items, asCurrency = false) {
   const host = byId(containerId);
   if (!host) return;
@@ -173,7 +189,7 @@ function renderTrend(containerId, items, asCurrency = false) {
   const height = 220;
   const paddingX = 34;
   const paddingTop = 24;
-  const paddingBottom = 38;
+  const paddingBottom = 39;
   const usableWidth = width - paddingX * 2;
   const usableHeight = height - paddingTop - paddingBottom;
   const maxValue = Math.max(...safeItems.map((item) => item.value), 1);
@@ -238,6 +254,26 @@ function renderRecentScans(items) {
   `).join('');
 }
 
+function renderRecentScansPagination(pagination) {
+  const prevButton = byId('recent-scans-prev');
+  const nextButton = byId('recent-scans-next');
+  const pageInfo = byId('recent-scans-page-info');
+  const container = byId('recent-scans-pagination');
+  if (!prevButton || !nextButton || !pageInfo || !container) return;
+
+  const page = Math.max(1, Number(pagination?.page || 1));
+  const totalPages = Math.max(1, Number(pagination?.total_pages || 1));
+  const hasPrev = Boolean(pagination?.has_prev);
+  const hasNext = Boolean(pagination?.has_next);
+  const totalItems = Math.max(0, Number(pagination?.total_items || 0));
+
+  recentScansPage = page;
+  prevButton.disabled = !hasPrev;
+  nextButton.disabled = !hasNext;
+  pageInfo.textContent = `Page ${page} / ${totalPages}`;
+  container.classList.toggle('hidden', totalItems <= RECENT_SCANS_PAGE_SIZE);
+}
+
 function renderFindings(items, isPremium) {
   const host = byId('findings-body');
   if (!host) return;
@@ -250,6 +286,11 @@ function renderFindings(items, isPremium) {
   host.innerHTML = items.map((item) => {
     const accessClass = isPremium ? 'premium' : 'locked';
     const accessLabel = isPremium ? 'Open in BC' : 'Premium';
+    const openInBcUrl = String(item?.open_in_bc_url || '');
+    warnOnInvalidBcCompanyFormat(openInBcUrl);
+    const accessMarkup = isPremium && openInBcUrl
+      ? `<a href="${escapeHtml(openInBcUrl)}" class="access-chip ${accessClass}" target="_blank" rel="noopener noreferrer">${accessLabel}</a>`
+      : `<span class="access-chip ${accessClass}">${accessLabel}</span>`;
     return `
       <tr>
         <td><strong>${escapeHtml(item?.title)}</strong></td>
@@ -257,10 +298,20 @@ function renderFindings(items, isPremium) {
         <td><span class="severity severity-${escapeHtml(item?.severity)}">${escapeHtml(String(item?.severity || '').toUpperCase())}</span></td>
         <td>${formatNumber(item?.count)}</td>
         <td>${formatCurrency(item?.impact_eur)}</td>
-        <td><span class="access-chip ${accessClass}">${accessLabel}</span></td>
+        <td>${accessMarkup}</td>
       </tr>
     `;
   }).join('');
+}
+
+function warnOnInvalidBcCompanyFormat(url) {
+  const match = String(url || '').match(/[?&]company=([^&#]+)/i);
+  if (!match) return;
+
+  const companyValue = match[1];
+  if (companyValue.includes('+')) {
+    console.warn('Invalid company format detected:', companyValue);
+  }
 }
 
 function renderPremiumPreview(items) {
@@ -334,6 +385,36 @@ function renderSubscription(data) {
   setText('subscription-cta', data?.subscription?.cta_label || 'Upgrade to Premium');
 }
 
+async function triggerBillingAction(action) {
+  const endpoint = action === 'portal'
+    ? '/analytics/billing/portal'
+    : '/analytics/billing/checkout';
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+      console.error('Billing action failed:', response.status);
+      return;
+    }
+
+    const payload = await response.json();
+    const targetUrl = payload?.portal_url || payload?.checkout_url || '';
+    if (!targetUrl) {
+      console.error('Billing action did not return a target URL.');
+      return;
+    }
+
+    window.location.href = targetUrl;
+  } catch (error) {
+    console.error('Billing action failed:', error);
+  }
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.topnav-link').forEach((btn) => {
     btn.classList.toggle('is-active', btn.dataset.tab === tab);
@@ -345,12 +426,10 @@ function switchTab(tab) {
 }
 
 async function loadDashboard(scanId = null) {
-  const token = document.body?.dataset?.token;
-  if (!token) return;
-
   const url = new URL('/analytics/embed/data', window.location.origin);
-  url.searchParams.set('token', token);
   if (scanId) url.searchParams.set('scan_id', scanId);
+  url.searchParams.set('recent_scans_page', String(recentScansPage));
+  url.searchParams.set('recent_scans_page_size', String(RECENT_SCANS_PAGE_SIZE));
 
   try {
     const response = await fetch(url.toString());
@@ -360,6 +439,7 @@ async function loadDashboard(scanId = null) {
     }
 
     const data = await response.json();
+    currentDashboardState = data;
     currentSelectedScanId = data?.selected_scan_id || null;
 
     setText('page-title', data?.title || 'BCSentinel Analytics');
@@ -375,19 +455,17 @@ async function loadDashboard(scanId = null) {
       heroHighlight.className = `hero-highlight ${scoreBand(data?.kpis?.health_score)}`;
     }
 
-    setText('kpi-score', formatNumber(data?.kpis?.health_score));
     setText('kpi-records', formatNumber(data?.kpis?.total_records));
     setText('kpi-affected-records', formatNumber(data?.kpis?.affected_records));
     setText('kpi-checks', formatNumber(data?.kpis?.checks_run));
     setText('kpi-issues', formatNumber(data?.kpis?.issues_count));
-    setText('kpi-price', formatCurrency(data?.kpis?.estimated_premium_price_monthly));
     setText('kpi-loss', formatCurrency(data?.kpis?.estimated_loss_eur));
     setText('kpi-roi', formatCurrency(data?.kpis?.roi_eur));
 
-    renderGauge(data?.kpis?.health_score);
-    renderProfileCards(data?.profile_cards || []);
-    renderIssueGroups(data?.issue_groups || []);
+    renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
+    renderModuleVolume(data);
     renderRecentScans(data?.recent_scans || []);
+    renderRecentScansPagination(data?.recent_scans_pagination || {});
     renderTrend('trend-chart', data?.score_trend || []);
     renderTrend('loss-chart', data?.loss_trend || [], true);
     renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
@@ -423,13 +501,45 @@ function registerEvents() {
     });
   }
 
+  const prevButton = byId('recent-scans-prev');
+  if (prevButton) {
+    prevButton.addEventListener('click', async () => {
+      if (recentScansPage <= 1) return;
+      recentScansPage -= 1;
+      await loadDashboard(currentSelectedScanId);
+    });
+  }
+
+  const nextButton = byId('recent-scans-next');
+  if (nextButton) {
+    nextButton.addEventListener('click', async () => {
+      recentScansPage += 1;
+      await loadDashboard(currentSelectedScanId);
+    });
+  }
+
   document.querySelectorAll('.topnav-link').forEach((btn) => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab || 'overview'));
   });
+
+  const upgradeButton = byId('upgrade-button');
+  if (upgradeButton) {
+    upgradeButton.addEventListener('click', async () => {
+      await triggerBillingAction(currentDashboardState?.premium_unlock?.button_action || 'checkout');
+    });
+  }
+
+  const subscriptionButton = byId('subscription-cta');
+  if (subscriptionButton) {
+    subscriptionButton.addEventListener('click', async () => {
+      await triggerBillingAction(currentDashboardState?.subscription?.cta_action || 'checkout');
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   registerEvents();
   switchTab('overview');
+  recentScansPage = 1;
   loadDashboard();
 });

@@ -157,7 +157,7 @@
       border: 1px solid rgba(255,255,255,.08);
       background: rgba(255,255,255,.03);
     }
-    .issue-card { padding: 26px; }
+    .issue-card { padding: 26px; margin-bottom: 26px; }
     .issue-head {
       display: flex;
       align-items: flex-start;
@@ -278,7 +278,6 @@
       </a>
 
       <nav class="nav-links desktop-nav" aria-label="Primary navigation">
-        <a href="#summary" data-i18n="nav_summary">Overview</a>
         <a href="#formula" data-i18n="nav_formula">Formula</a>
         <a href="#top5" data-i18n="nav_top5">Top 5 Issues</a>
         <a href="#all-checks" data-i18n="nav_all">All checks</a>
@@ -298,87 +297,13 @@
   </header>
 
   <main id="top">
-    <section class="hero section">
-      <div class="container loss-hero-grid">
-        <div class="hero-copy">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span data-i18n="hero_eyebrow">Estimated Loss transparent explained</span>
-          </div>
-
-          <h1 data-i18n="hero_title">Make visible where poor ERP data quietly burns money.</h1>
-
-          <p class="hero-sub lead" data-i18n="hero_sub">
-            This page shows, in business language, how BCSentinel turns concrete data issues into a realistic annual loss estimate — clear enough for management, finance, operations, and IT.
-          </p>
-
-          <div class="btn-row">
-            <a class="btn btn-primary" href="contact.html" data-i18n="hero_cta_primary">Start free scan</a>
-            <a class="btn btn-secondary" href="#top5" data-i18n="hero_cta_secondary">See top examples</a>
-          </div>
-
-          <div class="trust-row">
-            <span class="trust-item" data-i18n="hero_trust_1">No black box scoring</span>
-            <span class="trust-item" data-i18n="hero_trust_2">Realistic process-based assumptions</span>
-            <span class="trust-item" data-i18n="hero_trust_3">Management-ready explanation in euros</span>
-          </div>
-        </div>
-
-        <div class="card card-strong section-shell section-shell-soft">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span data-i18n="value_eyebrow">Value preview</span>
-          </div>
-          <h2 data-i18n="value_title">A number only creates trust when customers can understand it.</h2>
-          <p class="lead-small" data-i18n="value_text">BCSentinel links each estimate to operational friction: rework, blocked transactions, delayed payments, wrong pricing, and avoidable follow-up work.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="summary" class="section">
-      <div class="container">
-        <div class="callout card card-highlight section-shell">
-          <div class="section-head" style="margin-bottom:18px;">
-            <div class="eyebrow">
-              <span class="eyebrow-dot"></span>
-              <span data-i18n="summary_eyebrow">Management summary</span>
-            </div>
-            <h2 data-i18n="summary_title">What poor data costs — and why the number is credible.</h2>
-            <p class="lead-small" data-i18n="summary_sub">The loss estimate is based on recurring operational effort. That means the value does not rely on theoretical penalties alone, but on time, delay, coordination, and avoidable process friction.</p>
-          </div>
-
-          <div class="loss-summary-grid">
-            <div class="value-stat-box loss">
-              <span class="value-stat-label" data-i18n="value_stat_1_label">Estimated Loss</span>
-              <strong class="value-stat-value">€ 10,492</strong>
-              <a class="calc-footnote" href="#formula" data-i18n="value_stat_1_link">* see how calculated</a>
-              <p class="value-stat-sub" data-i18n="value_stat_1_sub">Estimated financial impact caused by detected data quality issues.</p>
-            </div>
-
-            <div class="value-stat-box saving">
-              <span class="value-stat-label" data-i18n="value_stat_2_label">Potential Saving</span>
-              <strong class="value-stat-value">€ 7,344</strong>
-              <p class="value-stat-sub" data-i18n="value_stat_2_sub">Realistic saving potential after resolving the most important issues first.</p>
-            </div>
-
-            <div class="value-stat-box neutral">
-              <span class="value-stat-label" data-i18n="value_stat_3_label">Calculation principle</span>
-              <strong class="value-stat-value" style="font-size:clamp(1.25rem,2.5vw,2rem); line-height:1.15;">66<br><span style="font-size:.62em; font-weight:800;">Checks</span></strong>
-              <p class="value-stat-sub" data-i18n="value_stat_3_sub">Each issue uses affected records, probability, effort, hourly rate, and yearly frequency.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          
 
     <section id="formula" class="section">
       <div class="container">
         <div class="section-shell section-shell-soft">
           <div class="section-head">
-            <div class="eyebrow">
-              <span class="eyebrow-dot"></span>
-              <span data-i18n="formula_eyebrow">Calculation logic</span>
-            </div>
+            
             <h2 data-i18n="formula_title">Estimated Loss follows one transparent model.</h2>
             <p class="lead" data-i18n="formula_sub">BCSentinel does not invent a score out of thin air. It estimates what weak data does to daily business processes: how many records are affected, how often the issue really matters, and how much internal effort it creates.</p>
           </div>
@@ -402,10 +327,7 @@
     <section id="top5" class="section">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span data-i18n="top5_eyebrow">Top 5 issues in detail</span>
-          </div>
+          
           <h2 data-i18n="top5_title">Five concrete examples customers can immediately understand.</h2>
           <p class="lead" data-i18n="top5_sub">These examples make the value of BCSentinel tangible: where time is lost, where processes get blocked, and where money leaks out without anybody noticing it in time.</p>
         </div>
@@ -417,10 +339,7 @@
     <section id="all-checks" class="section">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span data-i18n="all_eyebrow">All remaining issues</span>
-          </div>
+          
           <h2 data-i18n="all_title">The rest of the checks in short form.</h2>
           <p class="lead" data-i18n="all_sub">Each of these issues may look small on its own. But in live systems they accumulate into avoidable manual work, delayed decisions, and repeated process friction.</p>
         </div>
@@ -432,14 +351,11 @@
     <section class="section final-section">
       <div class="container">
         <div class="final-cta card card-highlight section-shell final-center">
-          <div class="eyebrow center">
-            <span class="eyebrow-dot"></span>
-            <span data-i18n="cta_eyebrow">The core message</span>
-          </div>
+          
           <h2 data-i18n="cta_title">Poor ERP data rarely causes one dramatic loss. It drains money through constant small frictions.</h2>
           <p class="lead center-text" data-i18n="cta_sub">BCSentinel makes those frictions visible in euros. That is what turns data quality from a technical topic into a business case that management can justify and act on.</p>
           <div class="btn-row center-row">
-            <a class="btn btn-primary" href="contact.html" data-i18n="cta_primary">Start free scan</a>
+            <a class="btn btn-primary" href="contact.html" data-i18n="cta_primary">Start free ERP health scan</a>
             <a class="btn btn-secondary" href="index.html#pricing" data-i18n="cta_secondary">Compare plans</a>
           </div>
           <p class="mini-note" data-i18n="cta_note">Transparent logic. Realistic examples. Stronger customer trust.</p>
@@ -639,7 +555,7 @@
         hero_eyebrow: "Estimated Loss transparent erklärt",
         hero_title: "Mache sichtbar, wo schlechte ERP-Daten still und leise Geld verbrennen.",
         hero_sub: "Diese Seite erklärt in kaufmännischer Sprache, wie BCSentinel aus konkreten Datenproblemen einen realistischen Jahresverlust ableitet – verständlich für Management, Finance, Fachbereiche und IT.",
-        hero_cta_primary: "Kostenlosen Scan starten",
+        hero_cta_primary: "Kostenlosen ERP-Health-Scan starten",
         hero_cta_secondary: "Top-Beispiele ansehen",
         hero_trust_1: "Kein Black-Box-Scoring",
         hero_trust_2: "Realistische prozessbasierte Annahmen",
@@ -698,7 +614,7 @@
         cta_eyebrow: "Die Kernbotschaft",
         cta_title: "Schlechte ERP-Daten verursachen selten einen einzigen großen Schaden. Sie ziehen Geld über viele kleine Reibungsverluste aus dem Unternehmen.",
         cta_sub: "BCSentinel macht diese Reibungsverluste in Euro sichtbar. Genau dadurch wird Datenqualität von einem technischen Thema zu einem Business Case, den Management verstehen, rechtfertigen und priorisieren kann.",
-        cta_primary: "Kostenlosen Scan starten",
+        cta_primary: "Kostenlosen ERP-Health-Scan starten",
         cta_secondary: "Preise ansehen",
         cta_note: "Transparente Logik. Realistische Beispiele. Mehr Vertrauen beim Kunden.",
         footer_legal: "Impressum",
@@ -714,7 +630,7 @@
         hero_eyebrow: "Estimated Loss transparently explained",
         hero_title: "Make visible where poor ERP data quietly burns money.",
         hero_sub: "This page explains, in commercial terms, how BCSentinel turns concrete data issues into a realistic annual loss estimate — understandable for management, finance, business teams, and IT.",
-        hero_cta_primary: "Start free scan",
+        hero_cta_primary: "Start free ERP health scan",
         hero_cta_secondary: "See top examples",
         hero_trust_1: "No black-box scoring",
         hero_trust_2: "Realistic process-based assumptions",
@@ -773,7 +689,7 @@
         cta_eyebrow: "Core message",
         cta_title: "Poor ERP data rarely causes one dramatic loss. It drains money through many small friction losses.",
         cta_sub: "BCSentinel makes those friction losses visible in euros. That is what turns data quality from a technical topic into a business case management can understand, justify, and prioritize.",
-        cta_primary: "Start free scan",
+        cta_primary: "Start free ERP health scan",
         cta_secondary: "Compare plans",
         cta_note: "Transparent logic. Realistic examples. Stronger customer trust.",
         footer_legal: "Legal notice",
@@ -784,6 +700,8 @@
 
     const STORAGE_KEY = "bcsentinel-lang";
     const THEME_STORAGE_KEY = "bcsentinel-theme";
+    const LOSS_EXAMPLE_REFERENCE_RATE = 75;
+    let lossExampleConfig = { hourly_rate_eur: LOSS_EXAMPLE_REFERENCE_RATE, issues: {} };
     const html = document.documentElement;
     const langButtons = document.querySelectorAll('.lang-btn');
     const themeToggle = document.getElementById('themeToggle');
@@ -828,27 +746,88 @@
       return translations[currentLang][key] || key;
     }
 
+    function resolveApiBase() {
+      const meta = document.querySelector('meta[name="bcsentinel-api-base"]');
+      if (meta && meta.content) return meta.content.trim().replace(/\/$/, '');
+      if (window.__BCSENTINEL_API_BASE__) return String(window.__BCSENTINEL_API_BASE__).trim().replace(/\/$/, '');
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'bcsentinel.com' || host === 'www.bcsentinel.com') return 'https://api.bcsentinel.com';
+      if (host === 'dev.bcsentinel.com') return 'https://dev-api.bcsentinel.com';
+      return window.location.origin.replace(/\/$/, '');
+    }
+
+    function getConfiguredExampleMetrics(code, fallback) {
+      const configured = lossExampleConfig.issues?.[code] || {};
+      const count = Number(fallback.count || 0);
+      const probability = Number(configured.probability ?? fallback.prob ?? 0);
+      const minutes = Number(configured.minutes_per_occurrence ?? fallback.minutes ?? 0);
+      const frequency = Number(configured.frequency_per_year ?? fallback.freq ?? 0);
+      const hourlyRate = Number(lossExampleConfig.hourly_rate_eur || fallback.rate || LOSS_EXAMPLE_REFERENCE_RATE);
+      const effectiveHours = count * probability * (minutes / 60);
+      const annual = Math.round(effectiveHours * hourlyRate * frequency);
+      return {
+        count,
+        probability,
+        minutes,
+        frequency,
+        hourlyRate,
+        effectiveHours,
+        annual
+      };
+    }
+
+    function getShortExampleAnnual(fallbackAnnual) {
+      const hourlyRate = Number(lossExampleConfig.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE);
+      return Math.round(Number(fallbackAnnual || 0) * (hourlyRate / LOSS_EXAMPLE_REFERENCE_RATE));
+    }
+
+    function updateFormulaNote() {
+      const note = document.querySelector('[data-i18n="formula_note"]');
+      if (!note) return;
+      const rateLabel = currencyFormat().format(Number(lossExampleConfig.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE));
+      note.textContent = currentLang === 'de'
+        ? `Die Beispiele unten rechnen mit dem aktuell konfigurierten internen Stundensatz von ${rateLabel}. Die Werte sind bewusst konservativ angesetzt, damit Kunden einen belastbaren Business Case sehen und keine künstlich aufgeblähten Marketingzahlen.`
+        : `The examples below use the currently configured internal hourly rate of ${rateLabel}. The values are intentionally conservative so customers see a credible business case instead of inflated marketing numbers.`;
+    }
+
+    async function loadLossExampleConfig() {
+      try {
+        const response = await fetch(`${resolveApiBase()}/public/loss-examples-config`, {
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-store'
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        lossExampleConfig = {
+          hourly_rate_eur: Number(payload?.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE),
+          issues: payload?.issues || {}
+        };
+      } catch (error) {
+        console.warn('BCSentinel loss examples config could not be loaded.', error);
+      }
+    }
+
     function renderTop5() {
       const order = ['SALES_LINES_ZERO_PRICE','ITEMS_NEGATIVE_INVENTORY','CUSTOMERS_MISSING_PAYMENT_TERMS','CUSTOMER_LEDGER_OVERDUE_30','VENDORS_MISSING_BANK_ACCOUNT'];
       const container = document.getElementById('top5Container');
       const fmt = currencyFormat();
       container.innerHTML = order.map(code => {
         const item = top5[code];
+        const metrics = getConfiguredExampleMetrics(code, item);
         const title = currentLang === 'de' ? item.title_de : item.title_en;
         const why = currentLang === 'de' ? item.why_de : item.why_en;
         const impacts = currentLang === 'de' ? item.impacts_de : item.impacts_en;
-        const effectiveHours = (item.count * item.prob * item.minutes / 60).toFixed(1);
         return `
           <article class="card issue-card">
             <div class="issue-head">
               <div>
                 <div class="issue-badges" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
-                  <span class="issue-badge hot">${t('detail_badge')}</span>
-                  <span class="issue-badge">${t('impact_badge')}</span>
+                 <span class="issue-badge hot">${t('detail_badge')}</span>
+                  <h3>${title}</h3>
                 </div>
-                <h3>${title}</h3>
+                
               </div>
-              <span class="issue-code">${t('code_label')}: ${code}</span>
+              
             </div>
 
             <div class="loss-detail-layout">
@@ -870,19 +849,19 @@
                 <div class="issue-side-card">
                   <span class="overline"><strong>${t('assumptions_title')}</strong></span>
                   <div class="assumption-grid" style="margin-top:14px;">
-                    <div class="assumption-box"><span>${t('assumption_count')}</span><strong>${item.count}</strong></div>
-                    <div class="assumption-box"><span>${t('assumption_prob')}</span><strong>${Math.round(item.prob * 100)}%</strong></div>
-                    <div class="assumption-box"><span>${t('assumption_minutes')}</span><strong>${item.minutes}</strong></div>
-                    <div class="assumption-box"><span>${t('assumption_rate')}</span><strong>${fmt.format(item.rate)}</strong></div>
-                    <div class="assumption-box"><span>${t('assumption_freq')}</span><strong>${item.freq}</strong></div>
-                    <div class="assumption-box"><span>${t('assumption_hours')}</span><strong>${effectiveHours} h</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_count')}</span><strong>${metrics.count}</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_prob')}</span><strong>${Math.round(metrics.probability * 100)}%</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_minutes')}</span><strong>${metrics.minutes}</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_rate')}</span><strong>${fmt.format(metrics.hourlyRate)}</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_freq')}</span><strong>${metrics.frequency}</strong></div>
+                    <div class="assumption-box"><span>${t('assumption_hours')}</span><strong>${metrics.effectiveHours.toFixed(1)} h</strong></div>
                   </div>
                 </div>
 
                 <div class="issue-side-card final-card">
                   <span class="overline"><strong>${t('calc_title')}</strong></span>
-                  <span class="final-amount">${fmt.format(item.annual)}</span>
-                  <p class="final-note">${item.count} × ${Math.round(item.prob * 100)}% × ${item.minutes}/60 × ${fmt.format(item.rate)} × ${item.freq}</p>
+                  <span class="final-amount">${fmt.format(metrics.annual)}</span>
+                  <p class="final-note">${metrics.count} × ${Math.round(metrics.probability * 100)}% × ${metrics.minutes}/60 × ${fmt.format(metrics.hourlyRate)} × ${metrics.frequency}</p>
                   <p class="mini-note">${t('calc_note')}</p>
                 </div>
               </div>
@@ -895,7 +874,7 @@
       const groups = {};
       shortRows.forEach(([group, code, title_de, title_en, desc_de, desc_en, annual]) => {
         if (!groups[group]) groups[group] = [];
-        groups[group].push({ code, title_de, title_en, desc_de, desc_en, annual });
+        groups[group].push({ code, title_de, title_en, desc_de, desc_en, annual: getShortExampleAnnual(annual) });
       });
       const fmt = currencyFormat();
       document.getElementById('shortGroups').innerHTML = Object.keys(groupNames).map(group => `
@@ -911,7 +890,7 @@
                   </div>
                   <div class="loss-short-amount">${fmt.format(item.annual)}</div>
                 </div>
-                <div class="mini-note">${t('short_example')} · ${item.code}</div>
+                
               </div>
             `).join('')}
           </div>
@@ -929,6 +908,7 @@
       });
       langButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
       try { localStorage.setItem(STORAGE_KEY, currentLang); } catch (e) {}
+      updateFormulaNote();
       renderTop5();
       renderShortGroups();
     }
@@ -936,8 +916,13 @@
     langButtons.forEach(btn => btn.addEventListener('click', () => applyTranslations(btn.dataset.lang)));
     if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
 
-    applyTheme(getInitialTheme());
-    applyTranslations(getInitialLanguage());
+    async function bootstrapLossExamples() {
+      await loadLossExampleConfig();
+      applyTheme(getInitialTheme());
+      applyTranslations(getInitialLanguage());
+    }
+
+    bootstrapLossExamples();
   </script>
 </body>
 </html>

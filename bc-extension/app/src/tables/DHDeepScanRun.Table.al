@@ -199,6 +199,34 @@ table 53128 "DH Deep Scan Run"
             Caption = 'ROI €';
             DecimalPlaces = 0 : 2;
         }
+        field(48; "Backend Status"; Text[30])
+        {
+            Caption = 'Backend Status';
+        }
+        field(49; "Current Step"; Text[160])
+        {
+            Caption = 'Current Step';
+        }
+        field(50; "Last Heartbeat"; DateTime)
+        {
+            Caption = 'Last Heartbeat';
+        }
+        field(51; "Warning Message"; Text[250])
+        {
+            Caption = 'Warning Message';
+        }
+        field(52; "Estimated Remaining Seconds"; Integer)
+        {
+            Caption = 'Estimated Remaining Seconds';
+        }
+        field(53; "Failed Modules"; Integer)
+        {
+            Caption = 'Failed Modules';
+        }
+        field(54; "Recent Events"; Text[500])
+        {
+            Caption = 'Recent Events';
+        }
     }
     keys
     {

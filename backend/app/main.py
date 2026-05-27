@@ -1,20 +1,35 @@
 import os
+import logging
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 
-from app.core.settings import validate_settings
-from app.db import SessionLocal, ensure_schema_is_migrated, wait_for_database
+from app.core.observability import (
+    clear_request_id,
+    configure_logging,
+    generate_request_id,
+    log_event,
+    set_request_id,
+)
+from app.core.settings import settings, validate_settings
+from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
 from app.models import Scan, ScanIssueRecord, Tenant
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
+from app.routers.billing import router as billing_router
 from app.routers.license import router as license_router
+from app.routers.partners import router as partners_router
+from app.routers.public import router as public_router
 from app.routers.scans import router as scans_router
 from app.schemas.scan import (
     QuickScanRequest,
@@ -30,6 +45,7 @@ from app.security.tenant import (
     load_authenticated_tenant,
     require_tenant_headers,
 )
+from app.security.token_hash import hash_api_token
 from app.services.cost_service import ensure_default_issue_costs
 from app.services.impact_service import (
     apply_commercials_to_scan,
@@ -37,15 +53,48 @@ from app.services.impact_service import (
     ensure_default_impact_config,
     normalize_stored_commercials,
 )
+from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
+from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.email_template_service import ensure_default_email_templates
 from app.services.pricing_service import ensure_default_license_pricing
 from app.services.scoring_service import calculate_quick_scan_result
+from app.services.scan_status_service import create_or_get_scan_run, update_scan_progress
 from fastapi.responses import RedirectResponse
 
 BASE_DIR = Path(__file__).resolve().parent
+logger = logging.getLogger(__name__)
+
+DEFAULT_PUBLIC_FRONTEND_ORIGINS = [
+    "https://dev.bcsentinel.com",
+    "https://www.bcsentinel.com",
+    "https://bcsentinel.com",
+]
+
+
+def _public_frontend_origins() -> list[str]:
+    configured = (settings.CORS_ALLOW_ORIGINS or "").strip()
+    if not configured:
+        return DEFAULT_PUBLIC_FRONTEND_ORIGINS
+
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    return origins or DEFAULT_PUBLIC_FRONTEND_ORIGINS
+
+
+def _summarize_validation_errors(errors: list[dict]) -> list[dict[str, object]]:
+    return [
+        {
+            "loc": list(error.get("loc") or []),
+            "type": error.get("type"),
+            "message": error.get("msg"),
+        }
+        for error in errors
+    ]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    configure_logging()
+    log_event(logger, logging.INFO, "app_startup", "Application startup initiated.", environment=settings.ENV)
     validate_settings()
     wait_for_database()
     ensure_schema_is_migrated()
@@ -54,8 +103,10 @@ async def lifespan(app: FastAPI):
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
         ensure_default_license_pricing(db)
+        ensure_default_email_templates(db)
 
     yield
+    log_event(logger, logging.INFO, "app_shutdown", "Application shutdown completed.", environment=settings.ENV)
 
 
 app = FastAPI(
@@ -64,12 +115,121 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_public_frontend_origins(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Accept", "Authorization", "Content-Type"],
+)
+
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 app.include_router(admin_router)
 app.include_router(analytics_router)
+app.include_router(billing_router)
+app.include_router(partners_router)
+app.include_router(public_router)
 app.include_router(scans_router)
 app.include_router(license_router)
+
+
+@app.middleware("http")
+async def add_request_context(request: Request, call_next):
+    request_id = (request.headers.get("X-Request-Id") or "").strip() or generate_request_id()
+    request.state.request_id = request_id
+    set_request_id(request_id)
+    started_at = time.perf_counter()
+
+    tenant_id = (request.headers.get("X-Tenant-Id") or "").strip() or None
+    log_event(
+        logger,
+        logging.INFO,
+        "request_started",
+        "Request started.",
+        method=request.method,
+        path=request.url.path,
+        tenant_id=tenant_id,
+        client_ip=request.client.host if request.client else None,
+    )
+
+    try:
+        response = await call_next(request)
+    except Exception:
+        raise
+
+    duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
+    response.headers["X-Request-Id"] = request_id
+    log_event(
+        logger,
+        logging.INFO,
+        "request_completed",
+        "Request completed.",
+        method=request.method,
+        path=request.url.path,
+        status_code=response.status_code,
+        duration_ms=duration_ms,
+        tenant_id=tenant_id,
+    )
+    clear_request_id()
+    return response
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    request_id = getattr(request.state, "request_id", None)
+    log_event(
+        logger,
+        logging.WARNING if exc.status_code < 500 else logging.ERROR,
+        "http_exception",
+        "HTTP exception returned.",
+        method=request.method,
+        path=request.url.path,
+        status_code=exc.status_code,
+        detail=str(exc.detail),
+    )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail, "request_id": request_id},
+        headers=getattr(exc, "headers", None),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    request_id = getattr(request.state, "request_id", None)
+    log_event(
+        logger,
+        logging.WARNING,
+        "request_validation_error",
+        "Request validation failed.",
+        method=request.method,
+        path=request.url.path,
+        errors=_summarize_validation_errors(exc.errors()),
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "request_id": request_id},
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    request_id = getattr(request.state, "request_id", None)
+    logger.exception(
+        "Unhandled application error.",
+        extra={
+            "event": "unhandled_exception",
+            "method": request.method,
+            "path": request.url.path,
+            "request_id": request_id,
+        },
+    )
+    clear_request_id()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error.", "request_id": request_id},
+    )
 
 
 class TenantRegisterRequest(BaseModel):
@@ -84,7 +244,14 @@ class TenantRegisterResponse(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok"}
+    return {"status": "ok", "service": "BCSentinel API", "environment": settings.ENV}
+
+
+@app.get("/health/ready")
+def health_ready() -> dict:
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    return {"status": "ok", "checks": {"database": "ok"}}
 
 ENVIRONMENT = os.getenv("APP_ENV", "prod")
 
@@ -111,6 +278,7 @@ def register_tenant(payload: TenantRegisterRequest) -> TenantRegisterResponse:
         tenant = Tenant(
             tenant_id=tenant_id,
             api_token=api_token,
+            api_token_hash=hash_api_token(api_token),
             environment_name=payload.environment_name,
             app_version=payload.app_version,
             created_at_utc=now_utc,
@@ -137,6 +305,8 @@ def quick_scan(
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant_features = get_tenant_features(db, tenant)
+        require_tenant_feature(db, tenant, "quick_scan")
 
         data_score, checks_count, issues_count, summary, issues = calculate_quick_scan_result(
             payload.metrics
@@ -144,6 +314,26 @@ def quick_scan(
         scan_id = (payload.bc_run_id or "").strip() or f"scan_{uuid4().hex[:12]}"
         generated_at_utc = datetime.now(timezone.utc)
         total_records = int(payload.data_profile.total_records or 0)
+        create_or_get_scan_run(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="preparing",
+            total_modules=1,
+        )
+        update_scan_progress(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="running",
+            progress_percent=25,
+            current_module="Quick Scan",
+            current_step="Calculating data quality score",
+            event_message="Quick scan started",
+            total_modules=1,
+        )
 
         commercials = calculate_scan_commercials(
             db,
@@ -171,7 +361,7 @@ def quick_scan(
                 data_score=data_score,
                 checks_count=checks_count,
                 issues_count=issues_count,
-                premium_available=True,
+                premium_available=is_premium_actions_enabled(tenant_features),
                 summary_headline=summary.headline,
                 summary_rating=summary.rating,
                 customers_count=payload.data_profile.customers,
@@ -197,7 +387,7 @@ def quick_scan(
             scan.data_score = data_score
             scan.checks_count = checks_count
             scan.issues_count = issues_count
-            scan.premium_available = True
+            scan.premium_available = is_premium_actions_enabled(tenant_features)
             scan.summary_headline = summary.headline
             scan.summary_rating = summary.rating
             apply_commercials_to_scan(scan, commercials)
@@ -232,6 +422,19 @@ def quick_scan(
             )
 
         tenant.last_seen_at_utc = generated_at_utc
+        update_scan_progress(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="completed",
+            progress_percent=100,
+            current_module="Quick Scan",
+            current_step="Score calculation completed",
+            event_message="Scan completed",
+            total_modules=1,
+            completed_modules=1,
+        )
         db.commit()
 
         normalized_commercials = normalize_stored_commercials(
@@ -241,6 +444,17 @@ def quick_scan(
             estimated_premium_price_monthly=scan.estimated_premium_price_monthly,
         )
 
+    log_event(
+        logger,
+        logging.INFO,
+        "scan_quick_completed",
+        "Quick scan completed.",
+        tenant_id=payload.tenant_id,
+        scan_id=scan_id,
+        issues_count=issues_count,
+        data_score=data_score,
+    )
+
     return QuickScanResponse(
         scan_id=scan_id,
         bc_run_id=payload.bc_run_id,
@@ -249,7 +463,7 @@ def quick_scan(
         data_score=data_score,
         checks_count=checks_count,
         issues_count=issues_count,
-        premium_available=True,
+        premium_available=is_premium_actions_enabled(tenant_features),
         summary=summary,
         issues=enriched_issues,
         data_profile=payload.data_profile,
@@ -272,7 +486,8 @@ def get_scan_history(
     enforce_tenant_match(tenant_id, header_tenant_id, "Path tenant_id")
 
     with SessionLocal() as db:
-        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "quick_scan")
 
         scans = db.scalars(
             select(Scan)
@@ -363,7 +578,8 @@ def get_scan_trend(
     enforce_tenant_match(tenant_id, header_tenant_id, "Path tenant_id")
 
     with SessionLocal() as db:
-        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "quick_scan")
 
         scans = db.scalars(
             select(Scan)

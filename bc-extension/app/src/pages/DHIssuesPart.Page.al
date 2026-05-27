@@ -80,7 +80,7 @@ page 53121 "DH Issues Part"
                     DashboardIssue: Record "DH Dashboard Issue";
                 begin
                     DashboardIssue.SetRange("Dashboard Scan Entry No.", Rec."Dashboard Scan Entry No.");
-                    Page.Run(Page::"DH Dashboard Issues", DashboardIssue);
+                    Page.Run(Page::"DH Dashboard Issues List", DashboardIssue);
                 end;
             }
         }

@@ -55,7 +55,7 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Fixed production API URL.';
+                    ToolTip = 'Base URL of the BCSentinel API. Default is production.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -103,6 +103,7 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.';
                 }
             }
 
@@ -204,7 +205,7 @@ page 53100 "DH Setup"
                 end;
             }
 
-            action(RegisterTenant)
+            /*action(RegisterTenant)
             {
                 Caption = 'Register with BCSentinel';
                 ApplicationArea = All;
@@ -215,9 +216,72 @@ page 53100 "DH Setup"
                     ApiClient: Codeunit "DH API Client";
                 begin
                     ApiClient.EnsureTenantRegistered(Rec);
-                    RefreshLicenseSilently();
+                    //RefreshLicenseSilently();
                     CurrPage.Update(false);
                     Message('BCSentinel tenant registration completed.');
+                end;
+            }*/
+
+            action(RegisterTenant)
+            {
+                Caption = 'Register with BCSentinel';
+                ApplicationArea = All;
+                Image = Web;
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    Message('BCSentinel tenant registration started.');
+                    Rec."Tenant ID" := '';
+                    Rec."API Token" := '';
+                    Rec.Registered := false;
+                    Rec."Registration Date" := 0DT;
+                    Rec.Modify(true);
+
+                    ApiClient.RegisterTenant(Rec);
+                    CurrPage.Update(false);
+                    Message('BCSentinel tenant registration completed.');
+                end;
+            }
+
+            action(UpgradeToPremium)
+            {
+                Caption = 'Upgrade to Premium';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    if Rec."Premium Enabled" then begin
+                        Message('Premium is already enabled.');
+                        exit;
+                    end;
+
+                    ApiClient.OpenPremiumCheckout(Rec);
+                end;
+            }
+
+            action(RefreshLicenseStatus)
+            {
+                Caption = 'Refresh License Status';
+                ApplicationArea = All;
+                Image = Refresh;
+                ToolTip = 'Refresh current plan and license status from BCSentinel.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    if Rec."Tenant ID" = '' then
+                        Error('Please register the tenant first.');
+
+                    ApiClient.RefreshLicenseStatus(Rec);
+                    CurrPage.Update(false);
+                    Message('License status refreshed.');
                 end;
             }
 
@@ -237,21 +301,17 @@ page 53100 "DH Setup"
                         Setup: Record "DH Setup";
                         ApiClient: Codeunit "DH API Client";
                         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                        DeepScanRun: Record "DH Deep Scan Run";
-                        EntryNo: Integer;
+                        ConfirmStartScanQst: Label 'Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
                     begin
                         EnsureSetupExists();
                         Setup := Rec;
                         ApiClient.EnsureReadyForScan(Setup);
 
-                        EntryNo := DeepScanMgt.QueueDeepScan(Setup);
-                        CurrPage.Update(false);
+                        if not Confirm(ConfirmStartScanQst, false) then
+                            exit;
 
-                        if DeepScanRun.Get(EntryNo) then
-                            if Setup.IsPremiumLicenseActive() then
-                                Message('BCSentinel Premium deep scan queued.\Run ID: %1\Status: %2', DeepScanRun."Run ID", Format(DeepScanRun.Status))
-                            else
-                                Message('BCSentinel deep scan queued in Free mode.\Run ID: %1\Status: %2\Premium unlocks recommendations and correction actions.', DeepScanRun."Run ID", Format(DeepScanRun.Status));
+                        DeepScanMgt.QueueDeepScan(Setup);
+                        CurrPage.Update(false);
                     end;
                 }
 
@@ -273,7 +333,7 @@ page 53100 "DH Setup"
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
-        RefreshLicenseSilently();
+        //RefreshLicenseSilently();
         CurrPage.Update(false);
     end;
 
@@ -307,12 +367,12 @@ page 53100 "DH Setup"
         if Setup."Tenant ID" = '' then
             Error('Tenant is not registered yet.');
 
-        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/get-token?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue('BC Cloud') + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)));
+        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/get-token?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue('BC Cloud') + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
 
     local procedure GetScanMode(var Setup: Record "DH Setup"): Text
     begin
-        if Setup.IsPremiumLicenseActive() then
+        if Setup."Premium Enabled" then
             exit('premium_deep');
         exit('free_deep');
     end;
@@ -320,6 +380,11 @@ page 53100 "DH Setup"
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
     begin
         exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?token=' + EncodeUrlValue(Token));
+    end;
+
+    local procedure GetIssueDrilldownLaunchUrl(): Text
+    begin
+        exit(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"DH Issue Drilldown Launch"));
     end;
 
     local procedure ExtractTokenFromJson(JsonText: Text): Text

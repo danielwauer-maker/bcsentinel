@@ -26,7 +26,7 @@ page 53136 "DH Item Neg. Inventory"
                 field("Location Filter"; Rec."Location Filter")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Optionaler FlowFilter zur Eingrenzung auf einen Lagerort.';
+                    ToolTip = 'Optional FlowFilter to limit the view to one location.';
                 }
                 field(Inventory; Rec.Inventory)
                 {
@@ -46,7 +46,7 @@ page 53136 "DH Item Neg. Inventory"
         {
             action(ExcludeFromIssue)
             {
-                Caption = 'Von Analyse ausnehmen';
+                Caption = 'Exclude from Analysis';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -54,13 +54,13 @@ page 53136 "DH Item Neg. Inventory"
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'ITEMS_NEGATIVE_INVENTORY', StrSubstNo('Manuell aus ITEMS_NEGATIVE_INVENTORY ausgenommen.', 'ITEMS_NEGATIVE_INVENTORY'));
+                    ExceptionMgt.AddItemException(Rec, 'ITEMS_NEGATIVE_INVENTORY', StrSubstNo('Manually excluded from ITEMS_NEGATIVE_INVENTORY.', 'ITEMS_NEGATIVE_INVENTORY'));
                     CurrPage.Update(false);
                 end;
             }
             action(MarkCorrected)
             {
-                Caption = 'Als korrigiert markieren';
+                Caption = 'Mark as Corrected';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -75,7 +75,7 @@ page 53136 "DH Item Neg. Inventory"
 
             action(OpenItemCard)
             {
-                Caption = 'Daten korrigieren';
+                Caption = 'Correct Data';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -86,7 +86,7 @@ page 53136 "DH Item Neg. Inventory"
             }
             action(OpenLedgerEntries)
             {
-                Caption = 'Problem anzeigen';
+                Caption = 'Show Issue';
                 ApplicationArea = All;
                 Image = LedgerEntries;
 

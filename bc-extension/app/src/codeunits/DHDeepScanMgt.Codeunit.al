@@ -7,6 +7,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
+        ScanStartedMsg: Label 'Scan started. Open the monitor to view progress. Run ID: %1';
     begin
         EnsureDeepScanAllowed(Setup);
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
@@ -23,12 +24,17 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
         DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
         DeepScanRun."Headline" := 'Deep scan queued';
-        DeepScanRun."Current Module" := 'Queued';
+        DeepScanRun."Current Module" := 'Preparing';
         DeepScanRun."Progress %" := 0;
         DeepScanRun."Completed Modules" := 0;
         DeepScanRun."Total Modules" := TotalModules;
         DeepScanRun."ETA Text" := 'Pending';
+        DeepScanRun."Backend Status" := 'queued';
+        DeepScanRun."Current Step" := 'Waiting to start';
+        DeepScanRun."Last Heartbeat" := CurrentDateTime();
         DeepScanRun.Insert(true);
+        Commit();
+        TryUpdateBackendQueued(Setup, DeepScanRun);
 
         TaskId :=
             TaskScheduler.CreateTask(
@@ -41,11 +47,25 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         DeepScanRun."Task ID" := TaskId;
         DeepScanRun.Modify(true);
+        Commit();
 
-        Message('Deep scan %1 was queued and scheduled in the background.', DeepScanRun."Run ID");
-        Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+        Message(ScanStartedMsg, DeepScanRun."Run ID");
 
         exit(EntryNo);
+    end;
+
+    local procedure TryUpdateBackendQueued(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        if not SendBackendQueued(Setup, DeepScanRun) then;
+    end;
+
+    [TryFunction]
+    local procedure SendBackendQueued(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'queued', 'Waiting to start', 'Scan queued');
+        DeepScanRun.Modify(true);
     end;
 
     local procedure EnsureDeepScanAllowed(var Setup: Record "DH Setup")

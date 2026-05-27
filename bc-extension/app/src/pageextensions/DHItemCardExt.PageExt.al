@@ -23,7 +23,7 @@ pageextension 53160 "DH Item Card Ext" extends "Item Card"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()

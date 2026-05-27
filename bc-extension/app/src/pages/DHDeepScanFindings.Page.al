@@ -30,6 +30,13 @@ page 53131 "DH Deep Scan Findings"
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = All;
+
+                    trigger OnDrillDown()
+                    var
+                        IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
+                    begin
+                        IssueDrilldownMgt.OpenDeepScanFinding(Rec);
+                    end;
                 }
 
                 field(Severity; Rec.Severity)
@@ -41,6 +48,13 @@ page 53131 "DH Deep Scan Findings"
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
+
+                    trigger OnDrillDown()
+                    var
+                        IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
+                    begin
+                        IssueDrilldownMgt.OpenDeepScanFinding(Rec);
+                    end;
                 }
 
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
@@ -144,7 +158,7 @@ page 53131 "DH Deep Scan Findings"
         AccessText := 'Upgrade to Premium';
 
         if Setup.Get('SETUP') then
-            if Setup.IsPremiumLicenseActive() then begin
+            if Setup."Premium Enabled" then begin
                 ShowPremiumDetails := true;
                 AccessText := 'Unlocked';
             end;

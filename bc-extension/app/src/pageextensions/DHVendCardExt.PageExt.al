@@ -23,7 +23,7 @@ pageextension 53159 "DH Vend Card Ext" extends "Vendor Card"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()

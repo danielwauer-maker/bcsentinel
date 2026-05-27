@@ -16,7 +16,7 @@ page 53123 "DHM Analytics"
                 field(DescriptionTxt; DescriptionTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Beschreibung';
+                    Caption = 'Description';
                     Editable = false;
                     MultiLine = true;
                 }
@@ -31,9 +31,9 @@ page 53123 "DHM Analytics"
             action(OpenDashboard)
             {
                 ApplicationArea = All;
-                Caption = 'Analytics Dashboard öffnen';
+                Caption = 'Open Analytics Dashboard';
                 Image = View;
-                ToolTip = 'Öffnet das externe Data Health Management Analytics Dashboard.';
+                ToolTip = 'Opens the external Data Health Management Analytics dashboard.';
 
                 trigger OnAction()
                 var
@@ -46,7 +46,7 @@ page 53123 "DHM Analytics"
                     Token := ApiClient.GetAnalyticsDashboardToken(Setup);
 
                     if Token = '' then
-                        Error('In der Antwort des Token-Services wurde kein gültiger Token gefunden.');
+                        Error('No valid token was found in the token service response.');
 
                     Hyperlink(GetDashboardUrl(Setup, Token));
                 end;
@@ -62,13 +62,13 @@ page 53123 "DHM Analytics"
         Setup: Record "DH Setup";
         BaseUrl: Text;
     begin
-        DescriptionTxt := 'Öffnet das Data Health Management Analytics Dashboard in einem neuen Browser-Tab.';
+        DescriptionTxt := 'Opens the Data Health Management Analytics dashboard in a new browser tab.';
 
         if Setup.Get('SETUP') then begin
             BaseUrl := RemoveTrailingSlash(Setup."API Base URL");
             if BaseUrl <> '' then
                 DescriptionTxt := StrSubstNo(
-                    'Öffnet das Data Health Management Analytics Dashboard in einem neuen Browser-Tab. Backend: %1',
+                    'Opens the Data Health Management Analytics dashboard in a new browser tab. Backend: %1',
                     CopyStr(BaseUrl, 1, 180));
         end;
     end;
@@ -76,16 +76,16 @@ page 53123 "DHM Analytics"
     local procedure LoadSetupOrError(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then
-            Error('DH Setup wurde nicht gefunden.');
+            Error('DH Setup was not found.');
 
         if Setup."API Base URL" = '' then
-            Error('Bitte hinterlegen Sie zuerst die API Base URL im DH Setup.');
+            Error('Please enter the API Base URL in DH Setup first.');
 
         if Setup."Tenant ID" = '' then
-            Error('Bitte registrieren Sie zuerst den Tenant im DH Setup.');
+            Error('Please register the tenant in DH Setup first.');
 
         if Setup."API Token" = '' then
-            Error('Bitte registrieren Sie zuerst den Tenant im DH Setup, damit ein API-Token hinterlegt ist.');
+            Error('Please register the tenant in DH Setup first so that an API token is stored.');
     end;
 
     local procedure RequestDashboardToken(var Setup: Record "DH Setup"): Text
@@ -104,13 +104,13 @@ page 53123 "DHM Analytics"
         Headers.Add('X-Api-Token', Setup."API Token");
 
         if not Client.Send(Request, Response) then
-            Error('Der Token-Service konnte nicht erreicht werden.');
+            Error('The token service could not be reached.');
 
         Response.Content().ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
             Error(
-                'Der Token-Service hat einen Fehler zurückgegeben. Status: %1. Antwort: %2',
+                'The token service returned an error. Status: %1. Response: %2',
                 Response.HttpStatusCode(),
                 CopyStr(ResponseText, 1, 1024));
 
@@ -137,7 +137,8 @@ page 53123 "DHM Analytics"
             '?company=' + CompanyValue +
             '&environment=' + EnvironmentValue +
             '&tenant_id=' + TenantValue +
-            '&scan_mode=' + ScanModeValue);
+            '&scan_mode=' + ScanModeValue +
+            '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
 
 
@@ -146,7 +147,12 @@ page 53123 "DHM Analytics"
         if Setup."Premium Enabled" then
             exit('premium_deep');
 
-        exit('free_quick');
+        exit('free_deep');
+    end;
+
+    local procedure GetIssueDrilldownLaunchUrl(): Text
+    begin
+        exit(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"DH Issue Drilldown Launch"));
     end;
 
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
@@ -163,10 +169,10 @@ page 53123 "DHM Analytics"
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error('Die Antwort des Token-Services ist kein gültiges JSON.');
+            Error('The token service response is not valid JSON.');
 
         if not JsonObj.Get('token', JsonToken) then
-            Error('Das Feld "token" fehlt in der Antwort des Token-Services.');
+            Error('The field "token" is missing in the token service response.');
 
         exit(JsonToken.AsValue().AsText());
     end;

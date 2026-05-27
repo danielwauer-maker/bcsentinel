@@ -6,7 +6,7 @@ pageextension 53162 "DH Vend List Ext" extends "Vendor List"
         {
             action(DHOpenExceptions)
             {
-                Caption = 'DH-Ausnahmen';
+                Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
                 trigger OnAction()
