@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     BILLING_SUCCESS_URL: str | None = None
     BILLING_CANCEL_URL: str | None = None
     BILLING_PORTAL_RETURN_URL: str | None = None
+    SCAN_STALLED_AFTER_SECONDS: int = 180
+    SCAN_MAX_RUNTIME_SECONDS: int | None = None
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

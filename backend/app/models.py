@@ -110,6 +110,72 @@ class ScanIssueRecord(Base):
     scan: Mapped["Scan"] = relationship(back_populates="issues")
 
 
+class ScanRunStatus(Base):
+    __tablename__ = "scan_run_statuses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    company_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    scan_mode: Mapped[str] = mapped_column(String(20), default="deep")
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    current_module: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    heartbeat_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    failed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    warning_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    estimated_remaining_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_modules: Mapped[int] = mapped_column(Integer, default=0)
+    completed_modules: Mapped[int] = mapped_column(Integer, default=0)
+    failed_modules: Mapped[int] = mapped_column(Integer, default=0)
+
+    modules: Mapped[list["ScanRunModule"]] = relationship(
+        back_populates="run",
+        cascade="all, delete-orphan",
+    )
+    events: Mapped[list["ScanRunEvent"]] = relationship(
+        back_populates="run",
+        cascade="all, delete-orphan",
+    )
+
+
+class ScanRunModule(Base):
+    __tablename__ = "scan_run_modules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
+    name: Mapped[str] = mapped_column(String(80), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="queued")
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    run: Mapped["ScanRunStatus"] = relationship(back_populates="modules")
+
+
+class ScanRunEvent(Base):
+    __tablename__ = "scan_run_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
+    timestamp_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    level: Mapped[str] = mapped_column(String(20), default="info")
+    module: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    step: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    message: Mapped[str] = mapped_column(String(255))
+
+    run: Mapped["ScanRunStatus"] = relationship(back_populates="events")
+
+
 class IssueCostConfig(Base):
     __tablename__ = "issue_cost_config"
 

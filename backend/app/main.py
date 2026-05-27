@@ -58,6 +58,7 @@ from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.email_template_service import ensure_default_email_templates
 from app.services.pricing_service import ensure_default_license_pricing
 from app.services.scoring_service import calculate_quick_scan_result
+from app.services.scan_status_service import create_or_get_scan_run, update_scan_progress
 from fastapi.responses import RedirectResponse
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -313,6 +314,26 @@ def quick_scan(
         scan_id = (payload.bc_run_id or "").strip() or f"scan_{uuid4().hex[:12]}"
         generated_at_utc = datetime.now(timezone.utc)
         total_records = int(payload.data_profile.total_records or 0)
+        create_or_get_scan_run(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="preparing",
+            total_modules=1,
+        )
+        update_scan_progress(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="running",
+            progress_percent=25,
+            current_module="Quick Scan",
+            current_step="Calculating data quality score",
+            event_message="Quick scan started",
+            total_modules=1,
+        )
 
         commercials = calculate_scan_commercials(
             db,
@@ -401,6 +422,19 @@ def quick_scan(
             )
 
         tenant.last_seen_at_utc = generated_at_utc
+        update_scan_progress(
+            db,
+            run_id=scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode="quick",
+            status="completed",
+            progress_percent=100,
+            current_module="Quick Scan",
+            current_step="Score calculation completed",
+            event_message="Scan completed",
+            total_modules=1,
+            completed_modules=1,
+        )
         db.commit()
 
         normalized_commercials = normalize_stored_commercials(

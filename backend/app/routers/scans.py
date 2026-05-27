@@ -5,12 +5,13 @@ import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord
+from app.models import Scan, ScanIssueRecord, ScanRunStatus
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -23,6 +24,12 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.scan_status_service import (
+    create_or_get_scan_run,
+    mark_stalled_scans,
+    serialize_scan_status,
+    update_scan_progress,
+)
 
 router = APIRouter(tags=["scans"])
 logger = logging.getLogger(__name__)
@@ -93,6 +100,24 @@ class ScanSyncPayload(BaseModel):
 class ScanReconcilePayload(BaseModel):
     tenant_id: str
     scan_ids: List[str] = Field(default_factory=list)
+
+
+class ScanStatusUpdatePayload(BaseModel):
+    tenant_id: str
+    run_id: str
+    scan_mode: str = "deep"
+    status: str = "running"
+    progress_percent: int = 0
+    current_module: Optional[str] = None
+    current_step: Optional[str] = None
+    event_message: Optional[str] = None
+    event_level: str = "info"
+    total_modules: int = 0
+    completed_modules: int = 0
+    failed_modules: int = 0
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
+    warning_message: Optional[str] = None
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -206,6 +231,14 @@ def sync_scan(
             )
             db.add(scan)
             db.flush()
+            create_or_get_scan_run(
+                db,
+                run_id=payload.scan_id,
+                tenant_id=payload.tenant_id,
+                scan_mode=normalized_scan_type,
+                status="preparing",
+                total_modules=len(payload.enabled_modules or []),
+            )
         else:
             scan.tenant_id = payload.tenant_id
             scan.scan_type = normalized_scan_type
@@ -248,6 +281,19 @@ def sync_scan(
         scan.warehouse_entries_count = _safe_int(payload.data_profile.warehouse_entries)
 
         tenant.last_seen_at_utc = datetime.now(timezone.utc)
+        update_scan_progress(
+            db,
+            run_id=payload.scan_id,
+            tenant_id=payload.tenant_id,
+            scan_mode=normalized_scan_type,
+            status="completed",
+            progress_percent=100,
+            current_module="Finalizing",
+            current_step="Scan synchronized",
+            event_message="Scan completed",
+            total_modules=len(payload.enabled_modules or []),
+            completed_modules=len(payload.enabled_modules or []),
+        )
 
         for issue in recalculated_issues:
             db.add(
@@ -364,3 +410,84 @@ def delete_scan(
     )
 
     return JSONResponse(content={"status": "deleted", "scan_id": scan_id})
+
+
+@router.post("/scan/status/update")
+def update_status(
+    payload: ScanStatusUpdatePayload,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+    enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        run = update_scan_progress(
+            db,
+            run_id=payload.run_id,
+            tenant_id=payload.tenant_id,
+            scan_mode=payload.scan_mode,
+            status=payload.status,
+            progress_percent=payload.progress_percent,
+            current_module=payload.current_module,
+            current_step=payload.current_step,
+            event_message=payload.event_message,
+            event_level=payload.event_level,
+            total_modules=payload.total_modules,
+            completed_modules=payload.completed_modules,
+            failed_modules=payload.failed_modules,
+            error_code=payload.error_code,
+            error_message=payload.error_message,
+            warning_message=payload.warning_message,
+        )
+        db.commit()
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))
+
+
+@router.get("/scan/status/latest")
+def get_latest_scan_status(
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        mark_stalled_scans(db)
+        run = db.scalar(
+            select(ScanRunStatus)
+            .where(ScanRunStatus.tenant_id == tenant.tenant_id)
+            .order_by(ScanRunStatus.updated_at_utc.desc(), ScanRunStatus.id.desc())
+        )
+        db.commit()
+
+        if run is None:
+            raise HTTPException(status_code=404, detail="No scan status found.")
+
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))
+
+
+@router.get("/scan/status/{run_id}")
+def get_scan_status(
+    run_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        mark_stalled_scans(db)
+        run = db.scalar(
+            select(ScanRunStatus).where(
+                ScanRunStatus.run_id == run_id,
+                ScanRunStatus.tenant_id == tenant.tenant_id,
+            )
+        )
+        db.commit()
+
+        if run is None:
+            raise HTTPException(status_code=404, detail="Scan status not found.")
+
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))

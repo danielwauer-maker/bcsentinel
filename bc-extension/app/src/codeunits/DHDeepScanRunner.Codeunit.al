@@ -35,6 +35,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."ETA Text" := 'Calculating...';
         DeepScanRun.Modify(true);
         Commit();
+        TryUpdateBackendProgress(DeepScanRun, 'running', 'Preparing scan checks', 'Deep scan started');
 
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
 
@@ -63,6 +64,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Jobs Progress %" := 100;
         DeepScanRun."HR Progress %" := 100;
         DeepScanRun.Modify(true);
+        TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
 
         EnsureDashboardHeaderForDeepScan(DeepScanRun);
         Commit();
@@ -72,6 +74,7 @@ codeunit 53128 "DH Deep Scan Runner"
             SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
             ApplySyncCommercials(DeepScanRun, SyncResponseText);
             ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
+            TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
         end;
     end;
 
@@ -1622,6 +1625,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."HR Progress %" := 0;
         DeepScanRun.Modify(true);
         Commit();
+        TryUpdateBackendProgress(DeepScanRun, 'preparing', 'Initializing module progress', 'Scan preparation started');
     end;
 
     local procedure StartModule(var DeepScanRun: Record "DH Deep Scan Run"; ModuleName: Text[50]; ModuleNo: Integer)
@@ -1634,6 +1638,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."ETA Text" := GetEtaText(DeepScanRun, ModuleNo - 1);
         DeepScanRun.Modify(true);
         Commit();
+        TryUpdateBackendProgress(DeepScanRun, 'running', StrSubstNo('%1 checks started', ModuleName), StrSubstNo('%1 checks started', ModuleName));
     end;
 
     local procedure CompleteModule(var DeepScanRun: Record "DH Deep Scan Run"; ModuleName: Text[50]; ModuleNo: Integer)
@@ -1650,6 +1655,44 @@ codeunit 53128 "DH Deep Scan Runner"
             DeepScanRun."ETA Text" := GetEtaText(DeepScanRun, ModuleNo);
         DeepScanRun.Modify(true);
         Commit();
+        TryUpdateBackendProgress(DeepScanRun, 'running', StrSubstNo('%1 checks completed', ModuleName), StrSubstNo('%1 checks completed', ModuleName));
+    end;
+
+    local procedure TryUpdateBackendProgress(var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
+    begin
+        if not SendBackendProgress(DeepScanRun, StatusValue, CurrentStep, EventMessage) then;
+    end;
+
+    [TryFunction]
+    local procedure SendBackendProgress(var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if (Setup."Tenant ID" = '') or (Setup."API Token" = '') or (Setup."API Base URL" = '') then
+            exit;
+
+        if StatusValue = 'completed' then begin
+            DeepScanRun.Status := DeepScanRun.Status::Completed;
+            DeepScanRun."Progress %" := 100;
+            DeepScanRun."Current Module" := 'All modules completed';
+            DeepScanRun."Current Step" := 'Scan completed';
+            DeepScanRun."Warning Message" := '';
+            DeepScanRun."Error Message" := '';
+        end else
+            if StatusValue = 'failed' then begin
+                DeepScanRun.Status := DeepScanRun.Status::Failed;
+                DeepScanRun."Current Step" := 'Scan failed';
+            end;
+
+        DeepScanRun."Current Step" := CopyStr(CurrentStep, 1, MaxStrLen(DeepScanRun."Current Step"));
+        DeepScanRun."Last Heartbeat" := CurrentDateTime();
+        DeepScanRun.Modify(true);
+        ApiClient.UpdateScanProgress(Setup, DeepScanRun, StatusValue, CurrentStep, EventMessage);
+        DeepScanRun.Modify(true);
     end;
 
     local procedure SetModuleProgress(var DeepScanRun: Record "DH Deep Scan Run"; ModuleName: Text; PercentValue: Integer)
