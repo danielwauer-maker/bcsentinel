@@ -36,10 +36,17 @@ codeunit 53129 "DH Deep Scan Failure"
         if not Setup.Get('SETUP') then
             exit;
 
-        if (Setup."Tenant ID" = '') or (Setup."API Token" = '') or (Setup."API Base URL" = '') then
+        if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') or (Setup."API Base URL" = '') then
             exit;
 
         ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed', 'Scan failed', 'Scan failed');
         DeepScanRun.Modify(true);
+    end;
+
+    local procedure GetApiToken(var Setup: Record "DH Setup"): Text
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.GetApiToken(Setup));
     end;
 }

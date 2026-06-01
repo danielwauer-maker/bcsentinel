@@ -84,7 +84,7 @@ page 53123 "DHM Analytics"
         if Setup."Tenant ID" = '' then
             Error('Please register the tenant in DH Setup first.');
 
-        if Setup."API Token" = '' then
+        if GetApiToken(Setup) = '' then
             Error('Please register the tenant in DH Setup first so that an API token is stored.');
     end;
 
@@ -101,7 +101,7 @@ page 53123 "DHM Analytics"
         Request.GetHeaders(Headers);
         Headers.Clear();
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Send(Request, Response) then
             Error('The token service could not be reached.');
@@ -201,5 +201,12 @@ page 53123 "DHM Analytics"
         Value := Value.Replace('+', '%2B');
         Value := Value.Replace('/', '%2F');
         exit(Value);
+    end;
+
+    local procedure GetApiToken(var Setup: Record "DH Setup"): Text
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.GetApiToken(Setup));
     end;
 }

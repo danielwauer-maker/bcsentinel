@@ -17,8 +17,8 @@ from app.models import Scan, ScanIssueRecord, Tenant
 from app.routers.billing import (
     BillingPortalRequest,
     CheckoutSessionRequest,
-    create_billing_portal_session,
-    create_checkout_session,
+    create_billing_portal_session_for_tenant,
+    create_checkout_session_for_tenant,
 )
 from app.security.tenant import (
     enforce_tenant_match,
@@ -988,16 +988,13 @@ def analytics_billing_checkout(
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
 ):
     tenant = _load_analytics_tenant(token, analytics_cookie_token)
-    if not (tenant.api_token or "").strip():
-        raise HTTPException(status_code=400, detail="Tenant API token is missing.")
 
-    session = create_checkout_session(
+    session = create_checkout_session_for_tenant(
         CheckoutSessionRequest(
             tenant_id=tenant.tenant_id,
             plan_code="premium",
             billing_interval="monthly",
-        ),
-        tenant_auth=(tenant.tenant_id, tenant.api_token),
+        )
     )
     return JSONResponse(
         content={
@@ -1014,12 +1011,9 @@ def analytics_billing_portal(
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
 ):
     tenant = _load_analytics_tenant(token, analytics_cookie_token)
-    if not (tenant.api_token or "").strip():
-        raise HTTPException(status_code=400, detail="Tenant API token is missing.")
 
-    portal = create_billing_portal_session(
-        BillingPortalRequest(tenant_id=tenant.tenant_id),
-        tenant_auth=(tenant.tenant_id, tenant.api_token),
+    portal = create_billing_portal_session_for_tenant(
+        BillingPortalRequest(tenant_id=tenant.tenant_id)
     )
     return JSONResponse(
         content={

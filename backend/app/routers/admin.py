@@ -45,6 +45,7 @@ from app.services.email_template_service import (
 from app.services.partner_service import normalize_partner_code
 from app.security.token_hash import hash_api_token
 from app.security.token import create_token
+from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token
 
 router = APIRouter(tags=["admin"])
 security = HTTPBasic()
@@ -417,6 +418,7 @@ def _render_admin_page(
             "status": (request.query_params.get("email_template_status") or "").strip().lower(),
             "message": (request.query_params.get("email_template_message") or "").strip(),
         },
+        "csrf_token": create_csrf_token(settings.SECRET_KEY),
     }
 
     with SessionLocal() as db:
@@ -458,10 +460,19 @@ def _render_admin_page(
         elif active_section == "email_templates":
             context["email_templates"] = list_email_templates_for_admin(db)
 
-        return TEMPLATES.TemplateResponse(
+        response = TEMPLATES.TemplateResponse(
             name="admin_tenants.html",
             context=context,
         )
+        response.set_cookie(
+            CSRF_COOKIE_NAME,
+            context["csrf_token"],
+            httponly=True,
+            secure=settings.ENV.lower() == "prod",
+            samesite="strict",
+            path="/admin",
+        )
+        return response
 
 
 @router.get("/admin", response_class=HTMLResponse)
@@ -581,7 +592,8 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
             "—",
         )
 
-        return TEMPLATES.TemplateResponse(
+        csrf_token = create_csrf_token(settings.SECRET_KEY)
+        response = TEMPLATES.TemplateResponse(
             name="admin_tenant_detail.html",
             context={
                 "request": request,
@@ -606,8 +618,18 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
                 "commission_statuses": sorted(ALLOWED_COMMISSION_STATUSES),
                 "fmt_dt": _fmt_dt,
                 "fmt_money": _fmt_money,
+                "csrf_token": csrf_token,
             },
         )
+        response.set_cookie(
+            CSRF_COOKIE_NAME,
+            csrf_token,
+            httponly=True,
+            secure=settings.ENV.lower() == "prod",
+            samesite="strict",
+            path="/admin",
+        )
+        return response
 
 
 @router.post("/admin/tenants/{tenant_id}/license")

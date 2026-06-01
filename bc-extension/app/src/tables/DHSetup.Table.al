@@ -30,8 +30,11 @@ table 53100 "DH Setup"
 
         field(4; "API Token"; Text[250])
         {
-            Caption = 'API Token';
+            Caption = 'Legacy API Token';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'API tokens are stored in company-scoped isolated storage.';
+            ObsoleteTag = '1.0.3.0';
         }
 
         field(5; "Last Score"; Integer)
@@ -86,6 +89,11 @@ table 53100 "DH Setup"
         {
             Caption = 'Data Processing Consent';
             DataClassification = CustomerContent;
+        }
+        field(27; "Registration Invite Code"; Text[100])
+        {
+            Caption = 'Registration Invite Code';
+            DataClassification = SystemMetadata;
         }
 
         field(14; "Last Run ID Date"; Date)

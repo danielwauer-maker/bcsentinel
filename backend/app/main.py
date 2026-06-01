@@ -1,12 +1,14 @@
 import os
+import secrets
 import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qs
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -30,6 +32,7 @@ from app.routers.billing import router as billing_router
 from app.routers.license import router as license_router
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
+from app.routers.reports import router as reports_router
 from app.routers.scans import router as scans_router
 from app.schemas.scan import (
     QuickScanRequest,
@@ -46,6 +49,8 @@ from app.security.tenant import (
     require_tenant_headers,
 )
 from app.security.token_hash import hash_api_token
+from app.security.rate_limit import require_rate_limit
+from app.security.csrf import CSRF_COOKIE_NAME, CSRF_FORM_FIELD, verify_csrf_token
 from app.services.cost_service import ensure_default_issue_costs
 from app.services.impact_service import (
     apply_commercials_to_scan,
@@ -130,8 +135,26 @@ app.include_router(analytics_router)
 app.include_router(billing_router)
 app.include_router(partners_router)
 app.include_router(public_router)
+app.include_router(reports_router)
 app.include_router(scans_router)
 app.include_router(license_router)
+
+
+@app.middleware("http")
+async def enforce_admin_csrf(request: Request, call_next):
+    if request.method.upper() == "POST" and request.url.path.startswith("/admin/"):
+        body = await request.body()
+        form = parse_qs(body.decode("utf-8"), keep_blank_values=True)
+        csrf_cookie = request.cookies.get(CSRF_COOKIE_NAME)
+        csrf_value = (form.get(CSRF_FORM_FIELD) or [""])[0]
+        if not verify_csrf_token(settings.SECRET_KEY, csrf_cookie, csrf_value):
+            return JSONResponse(status_code=403, content={"detail": "Invalid CSRF token."})
+
+        async def receive():
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        request._receive = receive
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -172,6 +195,27 @@ async def add_request_context(request: Request, call_next):
         tenant_id=tenant_id,
     )
     clear_request_id()
+    return response
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    if request.url.path.startswith("/analytics/embed"):
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self' https://businesscentral.dynamics.com https://*.businesscentral.dynamics.com;",
+        )
+    else:
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self';",
+        )
+    if settings.ENV.lower() == "prod" and request.url.scheme == "https":
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     return response
 
 
@@ -235,6 +279,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 class TenantRegisterRequest(BaseModel):
     environment_name: str
     app_version: str
+    invite_code: str | None = None
 
 
 class TenantRegisterResponse(BaseModel):
@@ -268,8 +313,33 @@ def root():
     }
 
 
+def _validate_tenant_registration_invite(payload_invite: str | None, header_invite: str | None) -> None:
+    expected_invite = (settings.TENANT_REGISTRATION_INVITE_CODE or "").strip()
+    supplied_invite = (header_invite or payload_invite or "").strip()
+
+    if not expected_invite:
+        if settings.ENV.lower() == "prod":
+            raise HTTPException(status_code=503, detail="Tenant registration is not configured.")
+        return
+
+    if not supplied_invite or not secrets.compare_digest(supplied_invite, expected_invite):
+        raise HTTPException(status_code=403, detail="Invalid tenant registration invite.")
+
+
 @app.post("/tenant/register", response_model=TenantRegisterResponse)
-def register_tenant(payload: TenantRegisterRequest) -> TenantRegisterResponse:
+def register_tenant(
+    payload: TenantRegisterRequest,
+    request: Request,
+    x_registration_invite: str | None = Header(default=None, alias="X-Registration-Invite"),
+) -> TenantRegisterResponse:
+    require_rate_limit(
+        request,
+        action="tenant_register",
+        max_attempts=settings.TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS,
+        window_seconds=settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
+    )
+    _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
+
     tenant_id = f"ten_{uuid4().hex[:12]}"
     api_token = f"tok_{uuid4().hex}"
     now_utc = datetime.now(timezone.utc)
@@ -277,7 +347,7 @@ def register_tenant(payload: TenantRegisterRequest) -> TenantRegisterResponse:
     with SessionLocal() as db:
         tenant = Tenant(
             tenant_id=tenant_id,
-            api_token=api_token,
+            api_token=None,
             api_token_hash=hash_api_token(api_token),
             environment_name=payload.environment_name,
             app_version=payload.app_version,

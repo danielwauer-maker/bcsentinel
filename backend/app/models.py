@@ -11,7 +11,7 @@ class Tenant(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
-    api_token: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    api_token: Mapped[str | None] = mapped_column(String(80), unique=True, index=True, nullable=True)
     api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     environment_name: Mapped[str] = mapped_column(String(100))
     app_version: Mapped[str] = mapped_column(String(30))

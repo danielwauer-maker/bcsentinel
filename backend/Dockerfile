@@ -4,9 +4,12 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
 
-COPY app ./app
-COPY alembic.ini ./alembic.ini
-COPY alembic ./alembic
+COPY --chown=appuser:appuser app ./app
+COPY --chown=appuser:appuser alembic.ini ./alembic.ini
+COPY --chown=appuser:appuser alembic ./alembic
+
+USER appuser
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

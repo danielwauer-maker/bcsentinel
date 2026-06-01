@@ -23,6 +23,7 @@ from app.core.settings import settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402
 from app.models import Scan, ScanIssueRecord, Subscription, Tenant  # noqa: E402
 from app.security.token_hash import hash_api_token  # noqa: E402
+from app.security.rate_limit import clear_rate_limits  # noqa: E402
 import app.main as app_main  # noqa: E402
 
 
@@ -30,6 +31,7 @@ import app.main as app_main  # noqa: E402
 def reset_database():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    clear_rate_limits()
     yield
 
 
@@ -63,6 +65,9 @@ def settings_state(monkeypatch):
         "STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY": settings.STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY,
         "STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY": settings.STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY,
         "STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY": settings.STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY,
+        "TENANT_REGISTRATION_INVITE_CODE": settings.TENANT_REGISTRATION_INVITE_CODE,
+        "TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS": settings.TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS,
+        "TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS": settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
     }
 
     def apply(**overrides):

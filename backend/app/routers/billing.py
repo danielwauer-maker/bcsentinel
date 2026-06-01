@@ -397,10 +397,19 @@ def create_checkout_session(
 ) -> CheckoutSessionResponse:
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+    with SessionLocal() as db:
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+    return create_checkout_session_for_tenant(payload)
+
+
+def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> CheckoutSessionResponse:
+    """Create checkout for a tenant already authorized by the caller."""
 
     normalized_plan_code = _normalize_checkout_plan_code(payload.plan_code)
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
         require_tenant_feature(db, tenant, "billing_checkout")
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
@@ -487,9 +496,18 @@ def create_billing_portal_session(
 ) -> BillingPortalResponse:
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+    with SessionLocal() as db:
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+    return create_billing_portal_session_for_tenant(payload)
+
+
+def create_billing_portal_session_for_tenant(payload: BillingPortalRequest) -> BillingPortalResponse:
+    """Create a billing portal for a tenant already authorized by the caller."""
 
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
         require_tenant_feature(db, tenant, "billing_portal")
         subscription = get_latest_subscription_for_tenant(db, tenant.tenant_id)
 

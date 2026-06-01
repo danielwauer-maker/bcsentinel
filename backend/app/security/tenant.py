@@ -32,13 +32,17 @@ def load_authenticated_tenant(
     if tenant.api_token_hash:
         if not verify_api_token(header_api_token, tenant.api_token_hash):
             raise HTTPException(status_code=403, detail="Invalid API token.")
-    else:
+    elif tenant.api_token:
         # Legacy fallback for existing tenants created before token hashing.
         if not hmac.compare_digest(tenant.api_token or "", header_api_token):
             raise HTTPException(status_code=403, detail="Invalid API token.")
 
         tenant.api_token_hash = hash_api_token(header_api_token)
-        db.flush()
+        tenant.api_token = None
+        db.commit()
+        db.refresh(tenant)
+    else:
+        raise HTTPException(status_code=403, detail="Invalid API token.")
 
     return tenant
 

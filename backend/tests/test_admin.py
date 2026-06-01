@@ -13,6 +13,14 @@ def _admin_auth_header() -> dict[str, str]:
     return {"Authorization": f"Basic {token}"}
 
 
+def _admin_csrf(client, path: str = "/admin/config/issue-costs") -> dict[str, str]:
+    response = client.get(path, headers=_admin_auth_header())
+    assert response.status_code == 200
+    token = client.cookies.get("bcs_csrf")
+    assert token
+    return {"csrf_token": token}
+
+
 def test_admin_issue_cost_page_lists_estimated_loss_issue_inputs(client):
     response = client.get("/admin/config/issue-costs", headers=_admin_auth_header())
 
@@ -32,6 +40,7 @@ def test_admin_issue_cost_updates_change_estimated_loss_inputs(client):
         "/admin/config/issue-costs/CUSTOMERS_MISSING_ADDRESS",
         headers=_admin_auth_header(),
         data={
+            **_admin_csrf(client),
             "title": "Customers missing address",
             "minutes_per_occurrence": "12",
             "probability": "1.0",
@@ -44,7 +53,7 @@ def test_admin_issue_cost_updates_change_estimated_loss_inputs(client):
     hourly_response = client.post(
         "/admin/config/issue-costs/hourly-rate",
         headers=_admin_auth_header(),
-        data={"hourly_rate_eur": "60"},
+        data={**_admin_csrf(client), "hourly_rate_eur": "60"},
         follow_redirects=False,
     )
 
@@ -83,7 +92,7 @@ def test_admin_hourly_rate_changes_estimated_loss_and_potential_saving(client):
     hourly_response = client.post(
         "/admin/config/issue-costs/hourly-rate",
         headers=_admin_auth_header(),
-        data={"hourly_rate_eur": "60"},
+        data={**_admin_csrf(client), "hourly_rate_eur": "60"},
         follow_redirects=False,
     )
 
@@ -99,3 +108,14 @@ def test_admin_hourly_rate_changes_estimated_loss_and_potential_saving(client):
 
     assert after["estimated_loss_eur"] > before["estimated_loss_eur"]
     assert after["potential_saving_eur"] > before["potential_saving_eur"]
+
+
+def test_admin_post_without_csrf_is_rejected(client):
+    response = client.post(
+        "/admin/config/issue-costs/hourly-rate",
+        headers=_admin_auth_header(),
+        data={"hourly_rate_eur": "60"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 403

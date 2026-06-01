@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     TOKEN_EXPIRE_MINUTES: int = 60
     CORS_ALLOW_ORIGINS: str | None = None
     APP_BASE_URL: str | None = None
+    TENANT_REGISTRATION_INVITE_CODE: str | None = None
+    TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
+    TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
     PARTNER_RESET_URL_BASE: str | None = None
     SMTP_HOST: str | None = None
     SMTP_PORT: int = 587
@@ -145,6 +148,15 @@ def validate_settings() -> None:
     insecure_admin_password_values = {"changeme", "changeme-now", "admin", "password"}
 
     if settings.ENV.lower() == "prod":
+        configured_cors = (settings.CORS_ALLOW_ORIGINS or "").strip()
+        if configured_cors and "*" in {origin.strip() for origin in configured_cors.split(",")}:
+            raise RuntimeError("CORS_ALLOW_ORIGINS must not contain '*' in production.")
+
+        if not (settings.TENANT_REGISTRATION_INVITE_CODE or "").strip():
+            raise RuntimeError(
+                "TENANT_REGISTRATION_INVITE_CODE is required in production to prevent public tenant self-registration."
+            )
+
         if settings.SECRET_KEY in insecure_secret_values or len(settings.SECRET_KEY) < 32:
             raise RuntimeError(
                 "SECRET_KEY is insecure for production. Use a strong random value with at least 32 characters."

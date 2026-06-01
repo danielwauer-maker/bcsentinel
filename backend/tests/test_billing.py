@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from sqlalchemy import select
+
 from app.db import SessionLocal
 from app.models import Subscription, Tenant
 
@@ -251,6 +253,43 @@ def test_yearly_checkout_fails_cleanly_without_yearly_price_ids(
 
     assert response.status_code == 503
     assert "Yearly premium base billing is not configured." in response.json()["detail"]
+
+
+def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    settings_state,
+    monkeypatch,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    settings_state(
+        STRIPE_SECRET_KEY="sk_test",
+        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
+        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
+        BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
+        BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+
+    with SessionLocal() as db:
+        db_tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
+        assert db_tenant is not None
+        db_tenant.api_token = None
+        db.commit()
+
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.checkout.Session.create",
+        lambda **kwargs: SimpleNamespace(id="cs_analytics", url="https://stripe.example/session"),
+    )
+
+    response = client.post(f"/analytics/billing/checkout?token={analytics_token}")
+
+    assert response.status_code == 200
+    assert response.json()["checkout_url"] == "https://stripe.example/session"
 
 
 def test_billing_webhook_processes_valid_signed_event_and_is_idempotent(

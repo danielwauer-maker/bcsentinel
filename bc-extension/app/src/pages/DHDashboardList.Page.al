@@ -130,7 +130,7 @@ page 53124 "DH Dashboard List"
                         BackendDeleteId := GetBackendDeleteId();
 
                         if Setup.Get('SETUP') then
-                            if (Setup."Tenant ID" <> '') and (Setup."API Token" <> '') and (BackendDeleteId <> '') then
+                            if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
                                 ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
                         Rec.Delete(true);
@@ -230,5 +230,12 @@ page 53124 "DH Dashboard List"
             exit(Rec."Backend Scan Id");
 
         exit(Rec.GetDisplayRunId());
+    end;
+
+    local procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Setup));
     end;
 }

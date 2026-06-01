@@ -426,6 +426,32 @@ page 53158 "DH Deep Scan Monitor"
                 end;
             }
 
+            action(OpenExecutiveReport)
+            {
+                Caption = 'Executive Report';
+                ApplicationArea = All;
+                Image = Report;
+                ToolTip = 'Opens the executive management report for the completed scan.';
+
+                trigger OnAction()
+                begin
+                    OpenExecutiveReportForCurrentScan(false);
+                end;
+            }
+
+            action(OpenExecutivePdf)
+            {
+                Caption = 'Executive PDF';
+                ApplicationArea = All;
+                Image = Print;
+                ToolTip = 'Opens the executive PDF report for the completed scan.';
+
+                trigger OnAction()
+                begin
+                    OpenExecutiveReportForCurrentScan(true);
+                end;
+            }
+
             action(UpgradeToPremium)
             {
                 Caption = 'Upgrade to Premium';
@@ -1168,6 +1194,44 @@ page 53158 "DH Deep Scan Monitor"
         Hyperlink(GetDashboardUrl(Setup, Token));
     end;
 
+    local procedure OpenExecutiveReportForCurrentScan(OpenPdf: Boolean)
+    var
+        Setup: Record "DH Setup";
+        ReportUrl: Text;
+    begin
+        if not CanOpenExecutiveReport() then
+            exit;
+
+        LoadSetupOrError(Setup);
+
+        if OpenPdf then
+            ReportUrl := BuildExecutiveReportUrl(Setup, '/pdf')
+        else
+            ReportUrl := BuildExecutiveReportUrl(Setup, '/html');
+
+        Hyperlink(ReportUrl);
+    end;
+
+    local procedure CanOpenExecutiveReport(): Boolean
+    begin
+        if Rec."Entry No." = 0 then begin
+            Message('No deep scan run is available.');
+            exit(false);
+        end;
+
+        if Rec.Status <> Rec.Status::Completed then begin
+            Message('The executive report is available after the deep scan is completed.');
+            exit(false);
+        end;
+
+        if Rec."Run ID" = '' then begin
+            Message('The completed scan does not have a backend scan ID yet.');
+            exit(false);
+        end;
+
+        exit(true);
+    end;
+
     local procedure LoadSetupOrError(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then
@@ -1179,7 +1243,7 @@ page 53158 "DH Deep Scan Monitor"
         if Setup."Tenant ID" = '' then
             Error('Please register the tenant in DH Setup first.');
 
-        if Setup."API Token" = '' then
+        if GetApiToken(Setup) = '' then
             Error('Please register the tenant in DH Setup first so that an API token is stored.');
     end;
 
@@ -1196,7 +1260,7 @@ page 53158 "DH Deep Scan Monitor"
         Request.GetHeaders(Headers);
         Headers.Clear();
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Send(Request, Response) then
             Error('The dashboard token service could not be reached.');
@@ -1242,6 +1306,11 @@ page 53158 "DH Deep Scan Monitor"
     begin
         BaseUrl := BuildUrl(Setup."API Base URL", '/analytics/embed');
         exit(BaseUrl + '?token=' + EncodeUrlValue(Token));
+    end;
+
+    local procedure BuildExecutiveReportUrl(var Setup: Record "DH Setup"; ReportSuffix: Text): Text
+    begin
+        exit(BuildUrl(Setup."API Base URL", '/reports/executive/' + EncodeUrlValue(Format(Rec."Run ID")) + ReportSuffix));
     end;
 
     local procedure GetIssueDrilldownLaunchUrl(): Text
@@ -1303,5 +1372,12 @@ page 53158 "DH Deep Scan Monitor"
         Value := Value.Replace('+', '%2B');
         Value := Value.Replace('/', '%2F');
         exit(Value);
+    end;
+
+    local procedure GetApiToken(var Setup: Record "DH Setup"): Text
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.GetApiToken(Setup));
     end;
 }

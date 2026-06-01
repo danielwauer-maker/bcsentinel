@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.settings import settings
 
-REQUIRED_ALEMBIC_REVISION = "0013_scan_stability_layer"
+REQUIRED_ALEMBIC_REVISION = "0014_harden_tenant_token_storage"
 logger = logging.getLogger(__name__)
 
 

@@ -246,7 +246,7 @@ page 53130 "DH Deep Scan Runs"
         BackendDeleteId := GetBackendDeleteIdFor(ScanHeader);
 
         if Setup.Get('SETUP') then
-            if (Setup."Tenant ID" <> '') and (Setup."API Token" <> '') and (BackendDeleteId <> '') then
+            if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
                 ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
         DeleteLinkedDeepRunIfNeededFor(ScanHeader);
@@ -326,5 +326,12 @@ page 53130 "DH Deep Scan Runs"
     local procedure GetIsPremiumRun(): Boolean
     begin
         exit(Rec."Scan Type" = Rec."Scan Type"::Deep);
+    end;
+
+    local procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Setup));
     end;
 }

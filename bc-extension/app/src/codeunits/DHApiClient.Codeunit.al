@@ -38,7 +38,7 @@ codeunit 53100 "DH API Client"
             Error('Please enable Data Processing Consent first.');
 
         // Nur wenn wirklich noch nichts existiert
-        if (Setup."Tenant ID" = '') or (Setup."API Token" = '') then
+        if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') then
             RegisterTenant(Setup);
     end;
 
@@ -60,6 +60,7 @@ codeunit 53100 "DH API Client"
 
         JsonRequest.Add('environment_name', 'BC Cloud');
         JsonRequest.Add('app_version', '0.4.0');
+        JsonRequest.Add('invite_code', Setup."Registration Invite Code");
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);
@@ -93,7 +94,8 @@ codeunit 53100 "DH API Client"
             Error('The backend response does not contain an api_token.');
 
         Setup.Validate("Tenant ID", CopyStr(TenantId, 1, MaxStrLen(Setup."Tenant ID")));
-        Setup.Validate("API Token", CopyStr(ApiToken, 1, MaxStrLen(Setup."API Token")));
+        StoreApiToken(Setup, ApiToken);
+        Setup."Registration Invite Code" := '';
         Setup.Registered := true;
         Setup."Registration Date" := CurrentDateTime();
         Setup.Modify(true);
@@ -118,7 +120,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/license/status'), Response) then
             Error('The backend request could not be sent. Please verify the network connection.');
@@ -226,7 +228,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/quick'), Content, Response) then
             Error('The backend request could not be sent. Please verify the network connection.');
@@ -260,7 +262,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(Url, Response) then
             Error('The backend request could not be sent. Please verify the network connection.');
@@ -291,7 +293,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(Url, Response) then
             Error('The backend request could not be sent. Please verify the network connection.');
@@ -330,7 +332,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/sync'), Content, Response) then
             Error('The backend sync request could not be sent. Please verify the network connection.');
@@ -358,7 +360,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Delete(
             BuildUrl(Setup."API Base URL", '/scan/' + Setup."Tenant ID" + '/' + Format(ScanId)),
@@ -410,7 +412,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/reconcile'), Content, Response) then
             Error('The backend reconcile request could not be sent. Please verify the network connection.');
@@ -465,7 +467,7 @@ codeunit 53100 "DH API Client"
         if RequestHeaders.Contains('X-Api-Token') then
             RequestHeaders.Remove('X-Api-Token');
         RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
-        RequestHeaders.Add('X-Api-Token', Setup."API Token");
+        RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/status/update'), Content, Response) then
             Error('Scan status update could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
@@ -500,7 +502,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)), Response) then
             Error('The scan status request could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
@@ -651,8 +653,22 @@ codeunit 53100 "DH API Client"
         if Setup."Tenant ID" = '' then
             Error('Please register the tenant first.');
 
-        if Setup."API Token" = '' then
+        if GetApiToken(Setup) = '' then
             Error('The API token is missing. Please register the tenant again.');
+    end;
+
+    local procedure GetApiToken(var Setup: Record "DH Setup"): Text
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.GetApiToken(Setup));
+    end;
+
+    local procedure StoreApiToken(var Setup: Record "DH Setup"; ApiToken: Text)
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        SecretMgt.StoreApiToken(Setup, ApiToken);
     end;
 
     procedure GetAnalyticsDashboardToken(var Setup: Record "DH Setup"): Text
@@ -681,7 +697,7 @@ codeunit 53100 "DH API Client"
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', Setup."API Token");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(Url, Response) then
             Error('The dashboard token service could not be reached.');
@@ -742,7 +758,7 @@ codeunit 53100 "DH API Client"
         if RequestHeaders.Contains('X-Api-Token') then
             RequestHeaders.Remove('X-Api-Token');
         RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
-        RequestHeaders.Add('X-Api-Token', Setup."API Token");
+        RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/billing/checkout/session'), Content, Response) then
             Error('The billing checkout request could not be sent. Please verify the network connection.');

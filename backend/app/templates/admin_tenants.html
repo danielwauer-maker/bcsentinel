@@ -418,6 +418,16 @@
     </div>
   </div>
   <script>
+    const csrfToken = "{{ csrf_token }}";
+    document.querySelectorAll('form[method="post"], form[method="POST"]').forEach((form) => {
+      if (form.querySelector('input[name="csrf_token"]')) return;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "csrf_token";
+      input.value = csrfToken;
+      form.appendChild(input);
+    });
+
     function generatePassword(length) {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
       const size = Math.max(12, length || 16);

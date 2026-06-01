@@ -854,7 +854,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Base URL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3166391077 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>API Token</source>
+          <source>Legacy API Token</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Token - Property Caption</note>
         </trans-unit>
@@ -922,6 +922,11 @@
           <source>Registration Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Registration Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 2227119623 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registration Invite Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Registration Invite Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 2831026171 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan CRM</source>
@@ -1468,6 +1473,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenAllIssues - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1039885738 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the executive PDF report for the completed scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExecutivePdf - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1039885738 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executive PDF</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExecutivePdf - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1945779134 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the executive management report for the completed scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExecutiveReport - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Action 1945779134 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executive Report</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExecutiveReport - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - Action 2901648511 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the external BCSentinel dashboard for the current scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1958,10 +1983,25 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control API Base URL - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 847646385 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether the API token is stored securely for this company. The token itself is not displayed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfigured - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 847646385 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Token Configured</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfigured - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 987915639 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Must be enabled before tenant registration and scan synchronization.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Data Processing Consent - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2227119623 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pilot onboarding invite code provided by BCSentinel. Required for initial tenant registration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Registration Invite Code - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3357837221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>License</source>
@@ -2177,6 +2217,26 @@
           <source>Trial</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Trial - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 353692312 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Admin</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL ADMIN - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2687758128 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL SCAN - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 30613944 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL SETUP - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3208839755 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Viewer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
         </trans-unit>
       </group>
     </body>

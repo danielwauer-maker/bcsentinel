@@ -1672,7 +1672,7 @@ codeunit 53128 "DH Deep Scan Runner"
         if not Setup.Get('SETUP') then
             exit;
 
-        if (Setup."Tenant ID" = '') or (Setup."API Token" = '') or (Setup."API Base URL" = '') then
+        if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') or (Setup."API Base URL" = '') then
             exit;
 
         if StatusValue = 'completed' then begin
@@ -2338,6 +2338,13 @@ codeunit 53128 "DH Deep Scan Runner"
     begin
         JsonValueText := LowerCase(Format(Token));
         exit((JsonValueText = 'null') or (JsonValueText = '<null>'));
+    end;
+
+    local procedure GetApiToken(var Setup: Record "DH Setup"): Text
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.GetApiToken(Setup));
     end;
 
     local procedure BuildSyncPayload(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"): Text

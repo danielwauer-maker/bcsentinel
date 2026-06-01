@@ -64,10 +64,19 @@ page 53100 "DH Setup"
                     Editable = false;
                 }
 
-                field("API Token"; Rec."API Token")
+                field(ApiTokenConfigured; HasStoredApiToken())
                 {
                     ApplicationArea = All;
+                    Caption = 'API Token Configured';
                     Editable = false;
+                    ToolTip = 'Shows whether the API token is stored securely for this company. The token itself is not displayed.';
+                }
+
+                field("Registration Invite Code"; Rec."Registration Invite Code")
+                {
+                    ApplicationArea = All;
+                    ExtendedDatatype = Masked;
+                    ToolTip = 'Pilot onboarding invite code provided by BCSentinel. Required for initial tenant registration.';
                 }
 
                 field(Registered; Rec.Registered)
@@ -234,7 +243,7 @@ page 53100 "DH Setup"
                 begin
                     Message('BCSentinel tenant registration started.');
                     Rec."Tenant ID" := '';
-                    Rec."API Token" := '';
+                    ClearStoredApiToken();
                     Rec.Registered := false;
                     Rec."Registration Date" := 0DT;
                     Rec.Modify(true);
@@ -347,6 +356,20 @@ page 53100 "DH Setup"
 
         Rec.ApplyDefaults();
         Rec.Modify(true);
+    end;
+
+    local procedure HasStoredApiToken(): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Rec));
+    end;
+
+    local procedure ClearStoredApiToken()
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        SecretMgt.DeleteApiToken(Rec);
     end;
 
     local procedure RefreshLicenseSilently()
