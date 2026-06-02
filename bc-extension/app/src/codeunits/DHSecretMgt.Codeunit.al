@@ -6,10 +6,6 @@ codeunit 53136 "DH Secret Mgt."
             exit;
 
         IsolatedStorage.Set(GetApiTokenKey(), ApiToken, DataScope::Company);
-        if Setup."API Token" <> '' then begin
-            Setup."API Token" := '';
-            Setup.Modify(true);
-        end;
     end;
 
     procedure GetApiToken(var Setup: Record "DH Setup"): Text
@@ -19,12 +15,6 @@ codeunit 53136 "DH Secret Mgt."
         if IsolatedStorage.Get(GetApiTokenKey(), DataScope::Company, ApiToken) then
             exit(ApiToken);
 
-        if Setup."API Token" <> '' then begin
-            ApiToken := Setup."API Token";
-            StoreApiToken(Setup, ApiToken);
-            exit(ApiToken);
-        end;
-
         exit('');
     end;
 
@@ -32,11 +22,6 @@ codeunit 53136 "DH Secret Mgt."
     begin
         if IsolatedStorage.Contains(GetApiTokenKey(), DataScope::Company) then
             IsolatedStorage.Delete(GetApiTokenKey(), DataScope::Company);
-
-        if Setup."API Token" <> '' then begin
-            Setup."API Token" := '';
-            Setup.Modify(true);
-        end;
     end;
 
     procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
