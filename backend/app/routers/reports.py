@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -10,7 +12,7 @@ from app.security.tenant import load_authenticated_tenant, require_tenant_header
 from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
 
 router = APIRouter(prefix="/reports", tags=["reports"])
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
 
 
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:

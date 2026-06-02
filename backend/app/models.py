@@ -40,6 +40,18 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
+    product_purchases: Mapped[list["TenantProductPurchase"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+    scan_credits: Mapped[list["TenantScanCredit"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+    product_entitlements: Mapped[list["TenantProductEntitlement"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
 
 
 class Scan(Base):
@@ -254,6 +266,56 @@ class Invoice(Base):
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     tenant: Mapped["Tenant"] = relationship(back_populates="invoices")
+
+
+class TenantProductPurchase(Base):
+    __tablename__ = "tenant_product_purchases"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    product_code: Mapped[str] = mapped_column(String(50), index=True)
+    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider_checkout_session_id: Mapped[str | None] = mapped_column(String(120), unique=True, nullable=True, index=True)
+    provider_payment_intent_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(30), index=True, default="paid")
+    currency: Mapped[str] = mapped_column(String(10), default="EUR")
+    amount_total: Mapped[float] = mapped_column(Float, default=0.0)
+    source: Mapped[str] = mapped_column(String(40), default="checkout")
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="product_purchases")
+
+
+class TenantScanCredit(Base):
+    __tablename__ = "tenant_scan_credits"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    product_code: Mapped[str] = mapped_column(String(50), index=True)
+    status: Mapped[str] = mapped_column(String(20), index=True, default="available")
+    source: Mapped[str] = mapped_column(String(40), default="manual")
+    source_purchase_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_product_purchases.id"), nullable=True, index=True)
+    consumed_scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    consumed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="scan_credits")
+
+
+class TenantProductEntitlement(Base):
+    __tablename__ = "tenant_product_entitlements"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    product_code: Mapped[str] = mapped_column(String(50), index=True)
+    status: Mapped[str] = mapped_column(String(20), index=True, default="active")
+    source: Mapped[str] = mapped_column(String(40), default="manual")
+    valid_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="product_entitlements")
 
 
 class BillingWebhookEvent(Base):

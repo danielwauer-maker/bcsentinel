@@ -24,6 +24,7 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.product_license_service import consume_scan_credit_for_scan, scan_credit_count
 from app.services.scan_status_service import (
     create_or_get_scan_run,
     mark_stalled_scans,
@@ -214,6 +215,16 @@ def sync_scan(
         scan = existing_scan
         normalized_generated_at = _normalize_utc(payload.generated_at_utc)
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
+        if (
+            scan is None
+            and normalized_scan_type == "deep"
+            and "monitoring_active" not in tenant_features
+            and scan_credit_count(db, tenant.tenant_id) <= 0
+        ):
+            raise HTTPException(
+                status_code=402,
+                detail="A scan credit or active monitoring subscription is required for Deep Scan.",
+            )
 
         if scan is None:
             scan = Scan(
@@ -294,6 +305,8 @@ def sync_scan(
             total_modules=len(payload.enabled_modules or []),
             completed_modules=len(payload.enabled_modules or []),
         )
+        if normalized_scan_type == "deep" and "monitoring_active" not in tenant_features:
+            consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.scan_id)
 
         for issue in recalculated_issues:
             db.add(

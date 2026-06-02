@@ -454,10 +454,10 @@ page 53158 "DH Deep Scan Monitor"
 
             action(UpgradeToPremium)
             {
-                Caption = 'Upgrade to Premium';
+                Caption = 'Start Monitoring';
                 ApplicationArea = All;
                 Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+                ToolTip = 'Open the secure BCSentinel checkout for Monitoring Monthly.';
 
                 trigger OnAction()
                 var
@@ -467,11 +467,11 @@ page 53158 "DH Deep Scan Monitor"
                     LoadSetupOrError(Setup);
 
                     if Setup."Premium Enabled" then begin
-                        Message('Premium is already enabled.');
+                        Message('Paid scan access is already enabled.');
                         exit;
                     end;
 
-                    ApiClient.OpenPremiumCheckout(Setup);
+                    ApiClient.OpenProductCheckout(Setup, 'monitoring_monthly');
                 end;
             }
 

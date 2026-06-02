@@ -36,7 +36,7 @@ codeunit 53142 "DH Issue Drilldown Mgt."
             Error('Setup not found.');
 
         if not Setup."Premium Enabled" then begin
-            Message('Premium access is required.');
+            Message('Paid scan access is required.');
             exit(false);
         end;
 

@@ -43,7 +43,7 @@ page 53159 "DH Issue Drilldown Launch"
             Error('Setup not found.');
 
         if not Rec."Premium Enabled" then begin
-            Message('Premium access is required.');
+            Message('Paid scan access is required.');
             CurrPage.Close();
             exit;
         end;

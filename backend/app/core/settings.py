@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY: str | None = None
     STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY: str | None = None
     STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY: str | None = None
+    STRIPE_PRICE_ID_ASSESSMENT: str | None = None
+    STRIPE_PRICE_ID_VALIDATION_CHECK: str | None = None
+    STRIPE_PRICE_ID_MONITORING_MONTHLY: str | None = None
+    STRIPE_PRICE_ID_MONITORING_ANNUAL: str | None = None
     BILLING_SUCCESS_URL: str | None = None
     BILLING_CANCEL_URL: str | None = None
     BILLING_PORTAL_RETURN_URL: str | None = None

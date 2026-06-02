@@ -191,7 +191,7 @@ table 53128 "DH Deep Scan Run"
         }
         field(46; "Est. Premium Price"; Decimal)
         {
-            Caption = 'Premium €/Month';
+            Caption = 'Monitoring EUR/Month';
             DecimalPlaces = 0 : 2;
         }
         field(47; "ROI"; Decimal)

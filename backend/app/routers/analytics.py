@@ -407,7 +407,7 @@ def _build_trend_points(
 def _scan_mode_label(scan_type: str | None, fallback: str | None) -> str:
     normalized = (scan_type or fallback or "").strip().lower()
     if normalized in {"deep", "premium_deep"}:
-        return "Premium DeepScan"
+        return "Deep Scan"
     if normalized == "free_deep":
         return "Free DeepScan"
     return "Free QuickScan"
@@ -609,7 +609,7 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
             "show_upgrade_preview": True,
         },
         "hero": {
-            "eyebrow": "Insight is free. Action is Premium.",
+            "eyebrow": "Insight is free. Action requires paid scan access.",
             "headline_prefix": "Your data health is",
             "headline_highlight": "critical",
             "headline_suffix": "and requires immediate attention.",
@@ -643,9 +643,9 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "top_findings": [],
         "premium_preview_findings": [],
         "premium_unlock": {
-            "headline": "Premium unlocks record-level details and direct action.",
-            "body": "Upgrade to see affected records, recommendations, and Business Central actions for your highest-impact issues.",
-            "button_label": "Upgrade to Premium",
+            "headline": "Paid scan products unlock record-level details and direct action.",
+            "body": "Buy an Assessment, Validation Check, or Monitoring plan to see affected records, recommendations, and Business Central actions for your highest-impact issues.",
+            "button_label": "Buy Assessment",
             "button_action": "checkout",
             "highlights": [
                 "Affected records and issue details",
@@ -658,9 +658,9 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
             "plan_label": "Free",
             "price_monthly": 0.0,
             "annual_cost": 0.0,
-            "cta_label": "Upgrade to Premium",
+            "cta_label": "Buy Assessment",
             "cta_action": "checkout",
-            "plan_note": "Insight is free. Action is Premium.",
+            "plan_note": "Insight starts with an Assessment. Monitoring keeps it under control.",
             "pricing_breakdown": default_pricing,
             "billing_options": {
                 "monthly_label": "Monthly billing",
@@ -823,7 +823,7 @@ def _build_dashboard_payload(
             "show_upgrade_preview": not is_premium,
         },
         "hero": {
-            "eyebrow": "Insight is free. Action is Premium.",
+            "eyebrow": "Assessment first. Monitoring when data quality needs control.",
             **_hero_copy_for_score(_safe_int(active_scan.data_score)),
         },
         "kpis": {
@@ -864,8 +864,8 @@ def _build_dashboard_payload(
         "premium_preview_findings": premium_preview_findings,
         "premium_unlock": {
             "headline": "Do you want to keep losing money or start fixing the root causes?",
-            "body": "Premium reveals the exact affected records, explains what to fix, and prioritizes the work by business impact.",
-            "button_label": "Upgrade to Premium",
+            "body": "Paid scan products reveal the exact affected records, explain what to fix, and prioritize the work by business impact.",
+            "button_label": "Buy Assessment",
             "button_action": "checkout",
             "highlights": [
                 "Affected records in Business Central",
@@ -875,12 +875,12 @@ def _build_dashboard_payload(
         },
         "pricing_breakdown": pricing_breakdown,
         "subscription": {
-            "plan_label": "Premium" if is_premium else "Free",
+            "plan_label": "Monitoring" if is_premium else "Assessment needed",
             "price_monthly": current_plan_price_monthly if is_premium else 0.0,
             "annual_cost": round(current_plan_price_monthly * 12, 2) if is_premium else 0.0,
-            "cta_label": "Manage subscription" if is_premium else "Upgrade to Premium",
+            "cta_label": "Manage subscription" if is_premium else "Buy Assessment",
             "cta_action": "portal" if is_premium else "checkout",
-            "plan_note": "Current paying plan" if is_premium else "Free gives insight. Premium unlocks action.",
+            "plan_note": "Current monitoring access" if is_premium else "Assessment unlocks action. Monitoring keeps data quality visible.",
             "pricing_breakdown": pricing_breakdown,
             "billing_options": {
                 "monthly_label": "Monthly billing",
@@ -989,13 +989,21 @@ def analytics_billing_checkout(
 ):
     tenant = _load_analytics_tenant(token, analytics_cookie_token)
 
-    session = create_checkout_session_for_tenant(
-        CheckoutSessionRequest(
+    if (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip():
+        checkout_payload = CheckoutSessionRequest(
+            tenant_id=tenant.tenant_id,
+            product_code="assessment",
+            plan_code="assessment",
+            billing_interval="monthly",
+        )
+    else:
+        checkout_payload = CheckoutSessionRequest(
             tenant_id=tenant.tenant_id,
             plan_code="premium",
             billing_interval="monthly",
         )
-    )
+
+    session = create_checkout_session_for_tenant(checkout_payload)
     return JSONResponse(
         content={
             "action": "checkout",

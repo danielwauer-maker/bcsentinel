@@ -146,7 +146,7 @@ page 53161 "DH Dashboard Issues List"
         Setup: Record "DH Setup";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Upgrade to Premium for detailed insights';
+        AccessText := 'Buy Assessment for detailed insights';
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin

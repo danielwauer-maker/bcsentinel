@@ -75,7 +75,7 @@ page 53130 "DH Deep Scan Runs"
                 /*field("Premium"; GetIsPremiumRun())
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium';
+                    Caption = 'Paid Access';
                 }*/
             }
         }

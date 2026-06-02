@@ -51,7 +51,7 @@ table 53100 "DH Setup"
 
         field(7; "Premium Enabled"; Boolean)
         {
-            Caption = 'Premium Enabled';
+            Caption = 'Paid Features Enabled';
             DataClassification = SystemMetadata;
         }
 
@@ -263,17 +263,17 @@ table 53100 "DH Setup"
     procedure GetFeatureAccessText(): Text[100]
     begin
         if "Premium Enabled" then
-            exit('Premium actions unlocked');
+            exit('Paid scan actions unlocked');
 
-        exit('Deep scan basis available, premium actions locked');
+        exit('Register the tenant and buy or grant a scan product to unlock paid scan actions');
     end;
 
     procedure GetUpgradeHintText(): Text[250]
     begin
         if "Premium Enabled" then
-            exit('Premium recommendations and correction actions are available for this tenant.');
+            exit('Paid recommendations and scan actions are available for this tenant.');
 
-        exit('This scan already uses the full DeepScan data basis. Upgrade to Premium to unlock recommendations, drilldowns, and correction worklists.');
+        exit('Buy an Assessment, Validation Check, or Monitoring product to unlock recommendations, drilldowns, and scan actions.');
     end;
 
     procedure EnsureModuleDefaults()

@@ -720,14 +720,24 @@ codeunit 53100 "DH API Client"
     end;
 
     procedure OpenPremiumCheckout(var Setup: Record "DH Setup")
+    begin
+        OpenProductCheckout(Setup, 'monitoring_monthly');
+    end;
+
+    procedure OpenProductCheckout(var Setup: Record "DH Setup"; ProductCode: Text)
     var
         CheckoutUrl: Text;
     begin
-        CheckoutUrl := CreatePremiumCheckoutSession(Setup);
+        CheckoutUrl := CreateProductCheckoutSession(Setup, ProductCode);
         Hyperlink(CheckoutUrl);
     end;
 
     procedure CreatePremiumCheckoutSession(var Setup: Record "DH Setup"): Text
+    begin
+        exit(CreateProductCheckoutSession(Setup, 'monitoring_monthly'));
+    end;
+
+    procedure CreateProductCheckoutSession(var Setup: Record "DH Setup"; ProductCode: Text): Text
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -744,7 +754,7 @@ codeunit 53100 "DH API Client"
         EnsureTenantAccessConfigured(Setup);
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
-        JsonRequest.Add('plan_code', 'premium');
+        JsonRequest.Add('product_code', ProductCode);
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);

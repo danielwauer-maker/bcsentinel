@@ -112,7 +112,7 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.';
+                    ToolTip = 'Shows whether paid recommendations, drilldowns, worklists, and related scan details are unlocked.';
                 }
             }
 
@@ -254,23 +254,63 @@ page 53100 "DH Setup"
                 end;
             }
 
-            action(UpgradeToPremium)
+            action(BuyAssessment)
             {
-                Caption = 'Upgrade to Premium';
+                Caption = 'Buy Assessment';
                 ApplicationArea = All;
                 Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+                ToolTip = 'Open the secure BCSentinel checkout for the Assessment one-time scan.';
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
-                    if Rec."Premium Enabled" then begin
-                        Message('Premium is already enabled.');
-                        exit;
-                    end;
+                    ApiClient.OpenProductCheckout(Rec, 'assessment');
+                end;
+            }
 
-                    ApiClient.OpenPremiumCheckout(Rec);
+            action(BuyValidationCheck)
+            {
+                Caption = 'Buy Validation Check';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for a Validation Check follow-up scan.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'validation_check');
+                end;
+            }
+
+            action(StartMonitoringMonthly)
+            {
+                Caption = 'Start Monitoring Monthly';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for monthly monitoring.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'monitoring_monthly');
+                end;
+            }
+
+            action(StartMonitoringAnnual)
+            {
+                Caption = 'Start Monitoring Annual';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for annual monitoring.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'monitoring_annual');
                 end;
             }
 

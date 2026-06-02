@@ -5,11 +5,12 @@ from fastapi import HTTPException
 from app.models import Tenant
 from app.services.billing_service import resolve_effective_license
 from app.services.entitlement_service import resolve_features
+from app.services.product_license_service import resolve_product_features
 
 
 def get_tenant_features(db, tenant: Tenant) -> set[str]:
     plan, license_status = resolve_effective_license(db, tenant)
-    return set(resolve_features(plan, license_status))
+    return set(resolve_features(plan, license_status)).union(resolve_product_features(db, tenant))
 
 
 def require_tenant_feature(db, tenant: Tenant, feature: str) -> None:

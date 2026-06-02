@@ -102,7 +102,7 @@
         {% if active_section == "license_pricing" %}
         <section class="admin-grid">
           <article class="panel">
-            <div class="panel-header"><h2>License Pricing</h2><span class="muted">Free stays at EUR0. Premium = base price + price per step with friendly rounding.</span></div>
+            <div class="panel-header"><h2>License Pricing</h2><span class="muted">Free stays at EUR0. Legacy premium pricing remains available for existing tenants.</span></div>
             <div class="config-list">
               {% for row in license_prices if row.plan_code in ["free", "premium"] %}
               <form method="post" action="/admin/config/license-pricing/{{ row.plan_code }}" class="config-row">

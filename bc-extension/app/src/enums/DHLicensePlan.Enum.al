@@ -15,6 +15,6 @@ enum 53101 "DH License Plan"
 
     value(2; Premium)
     {
-        Caption = 'Premium';
+        Caption = 'Monitoring';
     }
 }

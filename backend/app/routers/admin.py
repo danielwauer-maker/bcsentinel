@@ -29,6 +29,9 @@ from app.models import (
     Scan,
     Subscription,
     Tenant,
+    TenantProductEntitlement,
+    TenantProductPurchase,
+    TenantScanCredit,
 )
 from app.services.cost_service import ensure_default_issue_costs
 from app.services.pricing_service import ensure_default_license_pricing
@@ -43,6 +46,18 @@ from app.services.email_template_service import (
     update_email_template,
 )
 from app.services.partner_service import normalize_partner_code
+from app.services.product_license_service import (
+    PRODUCT_ASSESSMENT,
+    PRODUCT_DISPLAY_NAMES,
+    PRODUCT_MONITORING_ANNUAL,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_VALIDATION_CHECK,
+    active_entitlement_product_codes,
+    grant_product_entitlement,
+    grant_scan_credit,
+    normalize_product_code,
+    scan_credit_count,
+)
 from app.security.token_hash import hash_api_token
 from app.security.token import create_token
 from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token
@@ -58,6 +73,12 @@ ALLOWED_LICENSE_STATUSES = {"trial", "active", "expired", "blocked"}
 ALLOWED_COMMISSION_STATUSES = {"pending", "approved", "paid", "rejected"}
 ALLOWED_PARTNER_STATUSES = {"active", "inactive"}
 ALLOWED_PARTNER_APPLICATION_STATUSES = {"new", "reviewed", "accepted", "rejected"}
+ALLOWED_PRODUCT_GRANTS = {
+    PRODUCT_ASSESSMENT,
+    PRODUCT_VALIDATION_CHECK,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_MONITORING_ANNUAL,
+}
 ADMIN_SECTION_META = {
     "tenants": {
         "label": "Tenants",
@@ -585,6 +606,24 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
             .order_by(PartnerCommission.created_at_utc.desc(), PartnerCommission.id.desc())
             .limit(20)
         ).all()
+        product_purchases = db.scalars(
+            select(TenantProductPurchase)
+            .where(TenantProductPurchase.tenant_id == tenant_id)
+            .order_by(TenantProductPurchase.created_at_utc.desc(), TenantProductPurchase.id.desc())
+            .limit(20)
+        ).all()
+        scan_credits = db.scalars(
+            select(TenantScanCredit)
+            .where(TenantScanCredit.tenant_id == tenant_id)
+            .order_by(TenantScanCredit.created_at_utc.desc(), TenantScanCredit.id.desc())
+            .limit(20)
+        ).all()
+        product_entitlements = db.scalars(
+            select(TenantProductEntitlement)
+            .where(TenantProductEntitlement.tenant_id == tenant_id)
+            .order_by(TenantProductEntitlement.created_at_utc.desc(), TenantProductEntitlement.id.desc())
+            .limit(20)
+        ).all()
 
         tenant_rows = _load_tenant_rows(db)
         tenant_no = next(
@@ -615,6 +654,20 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
                 "partner_referral": partner_referral,
                 "partner": partner,
                 "partner_commissions": partner_commissions,
+                "product_purchases": product_purchases,
+                "scan_credits": scan_credits,
+                "product_entitlements": product_entitlements,
+                "available_scan_credits": scan_credit_count(db, tenant_id),
+                "active_product_codes": active_entitlement_product_codes(db, tenant_id),
+                "product_grant_options": [
+                    {"code": code, "label": PRODUCT_DISPLAY_NAMES.get(code, code)}
+                    for code in [
+                        PRODUCT_ASSESSMENT,
+                        PRODUCT_VALIDATION_CHECK,
+                        PRODUCT_MONITORING_MONTHLY,
+                        PRODUCT_MONITORING_ANNUAL,
+                    ]
+                ],
                 "commission_statuses": sorted(ALLOWED_COMMISSION_STATUSES),
                 "fmt_dt": _fmt_dt,
                 "fmt_money": _fmt_money,
@@ -669,6 +722,56 @@ def update_tenant_license(
                 "before_license_status": before_license_status,
                 "after_license_status": normalized_license_status,
             },
+        )
+        db.commit()
+
+    return RedirectResponse(
+        url=f"/admin/tenants/{tenant_id}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/admin/tenants/{tenant_id}/product-grant")
+def grant_tenant_product(
+    tenant_id: str,
+    product_code: str = Form(...),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_product_code = normalize_product_code(product_code)
+    if normalized_product_code not in ALLOWED_PRODUCT_GRANTS:
+        raise HTTPException(status_code=400, detail="Invalid product_code.")
+
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
+
+        if normalized_product_code in {PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK}:
+            grant_scan_credit(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_manual",
+            )
+            action = "tenant.scan_credit.grant"
+        else:
+            grant_product_entitlement(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_manual",
+            )
+            tenant.current_plan = "premium"
+            tenant.license_status = "active"
+            action = "tenant.product_entitlement.grant"
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action=action,
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"product_code": normalized_product_code},
         )
         db.commit()
 

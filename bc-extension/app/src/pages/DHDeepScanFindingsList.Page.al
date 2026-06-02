@@ -155,7 +155,7 @@ page 53160 "DH Deep Scan Findings List"
         Setup: Record "DH Setup";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Upgrade to Premium';
+        AccessText := 'Buy Assessment';
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin

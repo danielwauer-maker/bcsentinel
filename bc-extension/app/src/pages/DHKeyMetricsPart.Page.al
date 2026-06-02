@@ -32,7 +32,7 @@ page 53127 "DH Key Metrics Part"
                 field(PremiumPriceCue; Rec."Est. Premium Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium / Month';
+                    Caption = 'Monitoring / Month';
                     AutoFormatType = 1;
                     StyleExpr = PremiumPriceStyle;
                 }

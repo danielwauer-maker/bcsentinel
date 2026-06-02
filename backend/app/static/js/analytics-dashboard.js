@@ -285,7 +285,7 @@ function renderFindings(items, isPremium) {
 
   host.innerHTML = items.map((item) => {
     const accessClass = isPremium ? 'premium' : 'locked';
-    const accessLabel = isPremium ? 'Open in BC' : 'Premium';
+    const accessLabel = isPremium ? 'Open in BC' : 'Paid Access';
     const openInBcUrl = String(item?.open_in_bc_url || '');
     warnOnInvalidBcCompanyFormat(openInBcUrl);
     const accessMarkup = isPremium && openInBcUrl
@@ -320,7 +320,7 @@ function renderPremiumPreview(items) {
   host.innerHTML = '';
 
   if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<div class="empty-state">The Premium preview will appear after the next scan.</div>';
+    host.innerHTML = '<div class="empty-state">The paid scan preview will appear after the next scan.</div>';
     return;
   }
 
@@ -343,9 +343,9 @@ function renderPremiumPreview(items) {
 }
 
 function renderUnlockPanel(data) {
-  setText('unlock-headline', data?.premium_unlock?.headline || 'Premium unlocks record-level details and direct action.');
+  setText('unlock-headline', data?.premium_unlock?.headline || 'Paid scan access unlocks record-level details and direct action.');
   setText('unlock-body', data?.premium_unlock?.body || 'Upgrade to see exact affected records and recommendations.');
-  setText('upgrade-button', data?.premium_unlock?.button_label || 'Upgrade to Premium');
+  setText('upgrade-button', data?.premium_unlock?.button_label || 'Buy Assessment');
 
   const host = byId('unlock-highlights');
   if (host) {
@@ -364,11 +364,11 @@ function applyPlanState(currentPlan, visibility) {
   const findingsPanel = byId('premium-findings-panel');
 
   if (planBadge) {
-    planBadge.textContent = isPremium ? 'Premium' : 'Free';
+    planBadge.textContent = isPremium ? 'Monitoring' : 'Assessment needed';
     planBadge.classList.toggle('is-free', !isPremium);
   }
   if (subBadge) {
-    subBadge.textContent = isPremium ? 'Premium' : 'Free';
+    subBadge.textContent = isPremium ? 'Monitoring' : 'Assessment needed';
     subBadge.classList.toggle('is-free', !isPremium);
   }
 
@@ -378,11 +378,11 @@ function applyPlanState(currentPlan, visibility) {
 }
 
 function renderSubscription(data) {
-  setText('subscription-plan', data?.subscription?.plan_label || 'Free');
+  setText('subscription-plan', data?.subscription?.plan_label || 'Assessment needed');
   setText('subscription-note', data?.subscription?.plan_note || '');
   setText('subscription-price', formatCurrency(data?.subscription?.price_monthly));
   setText('subscription-annual', formatCurrency(data?.subscription?.annual_cost));
-  setText('subscription-cta', data?.subscription?.cta_label || 'Upgrade to Premium');
+  setText('subscription-cta', data?.subscription?.cta_label || 'Buy Assessment');
 }
 
 async function triggerBillingAction(action) {
@@ -445,7 +445,7 @@ async function loadDashboard(scanId = null) {
     setText('page-title', data?.title || 'BCSentinel Analytics');
     setText('page-subtitle', data?.subtitle || '');
     setText('last-updated', `Last updated: ${data?.last_updated || '—'}`);
-    setText('hero-eyebrow', data?.hero?.eyebrow || 'Insight is free. Action is Premium.');
+    setText('hero-eyebrow', data?.hero?.eyebrow || 'Assessment first. Monitoring when data quality needs control.');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
     setText('hero-suffix', data?.hero?.headline_suffix || '');
