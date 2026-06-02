@@ -54,7 +54,7 @@ page 53100 "DH Setup"
                 field("API Base URL"; Rec."API Base URL")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
                     ToolTip = 'Base URL of the BCSentinel API. Default is production.';
                 }
 
