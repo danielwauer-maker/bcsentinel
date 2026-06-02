@@ -155,6 +155,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         select(TenantScanCredit).where(
             TenantScanCredit.tenant_id == tenant_id,
             TenantScanCredit.product_code == normalized_product,
+            TenantScanCredit.status.in_(["available", "consumed"]),
         )
     ).all()
     for credit in credits:
