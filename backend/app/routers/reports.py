@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -10,6 +10,7 @@ from app.db import SessionLocal
 from app.schemas.report import ExecutiveReport
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
+from app.services.product_license_service import build_product_access_snapshot
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -19,7 +20,14 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
-        return build_executive_report(db, tenant, scan_id)
+        report = build_executive_report(db, tenant, scan_id)
+        access = build_product_access_snapshot(db, tenant)
+        if not access["can_view_executive_report"]:
+            raise HTTPException(
+                status_code=402,
+                detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.",
+            )
+        return report
 
 
 @router.get("/executive/{scan_id}", response_model=ExecutiveReport)

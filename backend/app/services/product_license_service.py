@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -75,9 +75,33 @@ MONITORING_FEATURES = PAID_SCAN_FEATURES | {
     "billing_portal",
 }
 
+ONE_TIME_ACCESS_DAYS = 7
+
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _as_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def _iso(value: datetime | None) -> str | None:
+    normalized = _as_utc(value)
+    if normalized is None:
+        return None
+    return normalized.isoformat().replace("+00:00", "Z")
+
+
+def _max_datetime(values: list[datetime | None]) -> datetime | None:
+    normalized = [_as_utc(value) for value in values if value is not None]
+    if not normalized:
+        return None
+    return max(normalized)
 
 
 def normalize_product_code(value: str | None, *, billing_interval: str | None = None) -> str:
@@ -116,10 +140,117 @@ def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     ).all()
     product_codes = []
     for row in rows:
-        if row.valid_until_utc is not None and row.valid_until_utc < now:
+        valid_until = _as_utc(row.valid_until_utc)
+        if valid_until is not None and valid_until < now:
             continue
         product_codes.append(normalize_product_code(row.product_code))
     return sorted(set(product_codes))
+
+
+def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) -> datetime | None:
+    normalized_product = normalize_product_code(product_code)
+    access_until_values: list[datetime | None] = []
+
+    credits = db.scalars(
+        select(TenantScanCredit).where(
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.product_code == normalized_product,
+        )
+    ).all()
+    for credit in credits:
+        anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
+        anchor = _as_utc(anchor)
+        if anchor is not None:
+            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+
+    purchases = db.scalars(
+        select(TenantProductPurchase).where(
+            TenantProductPurchase.tenant_id == tenant_id,
+            TenantProductPurchase.product_code == normalized_product,
+            TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+        )
+    ).all()
+    for purchase in purchases:
+        anchor = _as_utc(purchase.created_at_utc)
+        if anchor is not None:
+            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+
+    entitlements = db.scalars(
+        select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant_id,
+            TenantProductEntitlement.product_code == normalized_product,
+            TenantProductEntitlement.status == "active",
+        )
+    ).all()
+    for entitlement in entitlements:
+        if entitlement.valid_until_utc is None:
+            access_until_values.append(utc_now() + timedelta(days=ONE_TIME_ACCESS_DAYS))
+        else:
+            access_until_values.append(entitlement.valid_until_utc)
+
+    return _max_datetime(access_until_values)
+
+
+def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
+    values: list[datetime | None] = []
+    subscriptions = db.scalars(
+        select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
+    ).all()
+    for subscription in subscriptions:
+        if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
+            continue
+        if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
+            values.append(subscription.current_period_end_utc)
+
+    entitlements = db.scalars(
+        select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant.tenant_id,
+            TenantProductEntitlement.status == "active",
+        )
+    ).all()
+    for entitlement in entitlements:
+        if normalize_product_code(entitlement.product_code) in MONITORING_PRODUCTS:
+            values.append(entitlement.valid_until_utc)
+
+    if has_active_monitoring_subscription(db, tenant) and not values:
+        return None
+    return _max_datetime(values)
+
+
+def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
+    now = utc_now()
+    assessment_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_ASSESSMENT)
+    validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
+    monitoring_active = has_active_monitoring_subscription(db, tenant) or bool(
+        set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
+    )
+    monitoring_until = _monitoring_access_until(db, tenant)
+
+    one_time_until = _max_datetime([assessment_until, validation_until])
+    paid_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
+    assessment_active = assessment_until is not None and assessment_until >= now
+    validation_active = validation_until is not None and validation_until >= now
+    one_time_active = assessment_active or validation_active
+    access_active = monitoring_active or one_time_active
+    credits_available = scan_credit_count(db, tenant.tenant_id)
+
+    return {
+        "assessment_access_active": assessment_active,
+        "validation_access_active": validation_active,
+        "monitoring_active": monitoring_active,
+        "dashboard_access_until": _iso(paid_access_until),
+        "issue_access_until": _iso(paid_access_until),
+        "report_access_until": _iso(paid_access_until),
+        "can_run_deep_scan": monitoring_active or credits_available > 0,
+        "can_view_dashboard": access_active,
+        "can_view_issue_details": access_active,
+        "can_view_executive_report": access_active,
+        "scan_credits_available": credits_available,
+        "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else "none"),
+        "assessment_access_until": _iso(assessment_until),
+        "validation_access_until": _iso(validation_until),
+        "monitoring_access_until": _iso(monitoring_until),
+    }
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
@@ -139,11 +270,12 @@ def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
 
 def resolve_product_features(db, tenant: Tenant) -> set[str]:
     features = set(BASE_FEATURES)
-    if scan_credit_count(db, tenant.tenant_id) > 0:
+    access = build_product_access_snapshot(db, tenant)
+    if access["can_run_deep_scan"] or access["can_view_dashboard"]:
         features.update(PAID_SCAN_FEATURES)
 
     product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))
-    if product_codes.intersection(MONITORING_PRODUCTS) or has_active_monitoring_subscription(db, tenant):
+    if product_codes.intersection(MONITORING_PRODUCTS) or access["monitoring_active"]:
         features.update(MONITORING_FEATURES)
     elif product_codes.intersection(ONE_TIME_PRODUCTS):
         features.update(PAID_SCAN_FEATURES)
@@ -271,14 +403,26 @@ def consume_scan_credit_for_scan(db, *, tenant_id: str, scan_id: str) -> TenantS
 def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     features = sorted(resolve_product_features(db, tenant))
     active_products = active_entitlement_product_codes(db, tenant.tenant_id)
+    access = build_product_access_snapshot(db, tenant)
+    if access["assessment_access_active"]:
+        active_products = sorted(set(active_products + [PRODUCT_ASSESSMENT]))
+    if access["validation_access_active"]:
+        active_products = sorted(set(active_products + [PRODUCT_VALIDATION_CHECK]))
     if has_active_monitoring_subscription(db, tenant):
         active_products = sorted(set(active_products + [PRODUCT_MONITORING_MONTHLY]))
-    credits_available = scan_credit_count(db, tenant.tenant_id)
     return {
         "features": features,
         "active_products": active_products,
-        "scan_credits_available": credits_available,
-        "monitoring_active": "monitoring_active" in features,
+        "scan_credits_available": access["scan_credits_available"],
+        "monitoring_active": access["monitoring_active"],
+        "product_access": access,
+        "assessment_access_active": access["assessment_access_active"],
+        "validation_access_active": access["validation_access_active"],
+        "dashboard_access_until": access["dashboard_access_until"],
+        "issue_access_until": access["issue_access_until"],
+        "can_run_deep_scan": access["can_run_deep_scan"],
+        "can_view_dashboard": access["can_view_dashboard"],
+        "can_view_issue_details": access["can_view_issue_details"],
         "products": [
             {
                 "product_code": code,

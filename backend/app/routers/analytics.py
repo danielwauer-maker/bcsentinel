@@ -29,6 +29,7 @@ from app.security.token import create_token, verify_token
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.impact_service import normalize_stored_commercials
+from app.services.product_license_service import build_product_access_snapshot
 from app.services.pricing_service import (
     build_embed_pricing_breakdown,
     calculate_monthly_price,
@@ -725,9 +726,11 @@ def _build_dashboard_payload(
     issues = _load_scan_issues(active_scan.scan_id)
     with SessionLocal() as db:
         tenant_features = get_tenant_features(db, tenant)
+        product_access = build_product_access_snapshot(db, tenant)
 
     current_plan = _normalize_plan(getattr(tenant, "current_plan", "free"))
-    is_premium = is_premium_actions_enabled(tenant_features)
+    is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["can_view_dashboard"])
+    monitoring_active = bool(product_access["monitoring_active"])
     can_view_recommendations = "recommendations" in tenant_features
 
     pricing_breakdown = _get_premium_pricing_breakdown(active_scan)
@@ -816,6 +819,7 @@ def _build_dashboard_payload(
         "last_updated": active_scan.generated_at_utc.strftime("%d.%m.%Y, %H:%M UTC"),
         "selected_scan_id": active_scan.scan_id,
         "current_plan": current_plan,
+        "product_access": product_access,
         "visibility": {
             "is_premium": is_premium,
             "show_findings": is_premium,
@@ -875,12 +879,12 @@ def _build_dashboard_payload(
         },
         "pricing_breakdown": pricing_breakdown,
         "subscription": {
-            "plan_label": "Monitoring" if is_premium else "Assessment needed",
-            "price_monthly": current_plan_price_monthly if is_premium else 0.0,
-            "annual_cost": round(current_plan_price_monthly * 12, 2) if is_premium else 0.0,
-            "cta_label": "Manage subscription" if is_premium else "Buy Assessment",
-            "cta_action": "portal" if is_premium else "checkout",
-            "plan_note": "Current monitoring access" if is_premium else "Assessment unlocks action. Monitoring keeps data quality visible.",
+            "plan_label": "Monitoring" if monitoring_active else ("Assessment / Validation access" if is_premium else "Validation Check needed"),
+            "price_monthly": current_plan_price_monthly if monitoring_active else 0.0,
+            "annual_cost": round(current_plan_price_monthly * 12, 2) if monitoring_active else 0.0,
+            "cta_label": "Manage subscription" if monitoring_active else ("Start Monitoring" if is_premium else "Buy Validation Check"),
+            "cta_action": "portal" if monitoring_active else "checkout",
+            "plan_note": "Current monitoring access" if monitoring_active else ("7-day scan access active" if is_premium else "Buy a Validation Check or start Monitoring to reopen details."),
             "pricing_breakdown": pricing_breakdown,
             "billing_options": {
                 "monthly_label": "Monthly billing",

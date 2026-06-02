@@ -111,6 +111,8 @@ codeunit 53100 "DH API Client"
         Token: JsonToken;
         FeaturesToken: JsonToken;
         Features: JsonArray;
+        ProductAccessToken: JsonToken;
+        ProductAccess: JsonObject;
     begin
         EnsureTenantAccessConfigured(Setup);
 
@@ -143,11 +145,55 @@ codeunit 53100 "DH API Client"
 
         Setup."Last License Check" := CurrentDateTime();
         Setup."Premium Enabled" := false;
+        Setup."Scan Credits Available" := 0;
+        Setup."Monitoring Active" := false;
+        Setup."Dashboard Access Until" := '';
+        Setup."Issue Access Until" := '';
+        Setup."Can Run Deep Scan" := false;
+        Setup."Can View Dashboard" := false;
+        Setup."Can View Issue Details" := false;
+        Setup."Product Access Model" := '';
 
         if JsonResponse.Get('features', FeaturesToken) then begin
             Features := FeaturesToken.AsArray();
             Setup."Premium Enabled" := HasPremiumActionFeatures(Features);
         end;
+
+        if JsonResponse.Get('scan_credits_available', Token) then
+            Setup."Scan Credits Available" := GetJsonTokenInteger(Token, 0);
+
+        if JsonResponse.Get('monitoring_active', Token) then
+            Setup."Monitoring Active" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('dashboard_access_until', Token) then
+            Setup."Dashboard Access Until" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Dashboard Access Until"));
+
+        if JsonResponse.Get('issue_access_until', Token) then
+            Setup."Issue Access Until" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Issue Access Until"));
+
+        if JsonResponse.Get('can_run_deep_scan', Token) then
+            Setup."Can Run Deep Scan" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('can_view_dashboard', Token) then
+            Setup."Can View Dashboard" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('can_view_issue_details', Token) then
+            Setup."Can View Issue Details" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('product_access', ProductAccessToken) then begin
+            ProductAccess := ProductAccessToken.AsObject();
+            if ProductAccess.Get('access_model', Token) then
+                Setup."Product Access Model" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Product Access Model"));
+        end;
+
+        if Setup."Product Access Model" = '' then
+            if Setup."Monitoring Active" then
+                Setup."Product Access Model" := 'monitoring'
+            else
+                if Setup."Scan Credits Available" > 0 then
+                    Setup."Product Access Model" := 'one_time'
+                else
+                    Setup."Product Access Model" := 'none';
 
         Setup.Modify(true);
     end;
@@ -156,6 +202,9 @@ codeunit 53100 "DH API Client"
     begin
         EnsureTenantRegistered(Setup);
         RefreshLicenseStatus(Setup);
+        if not Setup."Can Run Deep Scan" then
+            if not IsPremiumAllowed(Setup) then
+                Error('No scan credit or active monitoring available. Please buy an Assessment, Validation Check or start Monitoring.');
     end;
 
     procedure IsPremiumAllowed(Setup: Record "DH Setup"): Boolean
@@ -856,6 +905,19 @@ codeunit 53100 "DH API Client"
     local procedure GetJsonTokenInteger(Token: JsonToken; DefaultValue: Integer): Integer
     var
         ParsedValue: Integer;
+    begin
+        if IsJsonNull(Token) then
+            exit(DefaultValue);
+
+        if not Evaluate(ParsedValue, Token.AsValue().AsText()) then
+            exit(DefaultValue);
+
+        exit(ParsedValue);
+    end;
+
+    local procedure GetJsonTokenBoolean(Token: JsonToken; DefaultValue: Boolean): Boolean
+    var
+        ParsedValue: Boolean;
     begin
         if IsJsonNull(Token) then
             exit(DefaultValue);

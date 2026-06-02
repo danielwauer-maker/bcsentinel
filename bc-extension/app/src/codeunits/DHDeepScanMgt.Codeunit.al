@@ -69,6 +69,8 @@ codeunit 53124 "DH Deep Scan Mgt."
     end;
 
     local procedure EnsureDeepScanAllowed(var Setup: Record "DH Setup")
+    var
+        ApiClient: Codeunit "DH API Client";
     begin
         if Setup."API Base URL" = '' then
             Error('Please configure API Base URL first.');
@@ -76,6 +78,11 @@ codeunit 53124 "DH Deep Scan Mgt."
         if Setup."Tenant ID" = '' then
             Error('Please register the tenant first.');
 
+        ApiClient.RefreshLicenseStatus(Setup);
+
+        if not Setup."Can Run Deep Scan" then
+            if not Setup.IsPremiumLicenseActive() then
+                Error('No scan credit or active monitoring available. Please buy an Assessment, Validation Check or start Monitoring.');
     end;
 
     local procedure GetNextRunEntryNo(): Integer

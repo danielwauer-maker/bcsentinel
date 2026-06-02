@@ -39,7 +39,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 269943723 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium</source>
+          <source>Paid Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -114,7 +114,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1068438358 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium</source>
+          <source>Paid Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -209,7 +209,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Error Message - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium €/Month</source>
+          <source>Monitoring EUR/Month</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Est. Premium Price - Property Caption</note>
         </trans-unit>
@@ -634,7 +634,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Loss - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium €/Month</source>
+          <source>Monitoring EUR/Month</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Premium Price - Property Caption</note>
         </trans-unit>
@@ -689,7 +689,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2071971934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium Available</source>
+          <source>Paid Access Available</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Premium Available - Property Caption</note>
         </trans-unit>
@@ -774,7 +774,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4030804838 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium</source>
+          <source>Paid Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -904,7 +904,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field License Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3149302554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium Enabled</source>
+          <source>Paid Features Enabled</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Enabled - Property Caption</note>
         </trans-unit>
@@ -1144,7 +1144,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium €/Month</source>
+          <source>Monitoring EUR/Month</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Premium Price - Property Caption</note>
         </trans-unit>
@@ -1184,12 +1184,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunQuickScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout to activate Premium.</source>
+          <source>Open the secure BCSentinel checkout for Monitoring Monthly.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action UpgradeToPremium - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Upgrade to Premium</source>
+          <source>Start Monitoring</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action UpgradeToPremium - Property Caption</note>
         </trans-unit>
@@ -1519,12 +1519,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshProgress - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout to activate Premium.</source>
+          <source>Open the secure BCSentinel checkout for Monitoring Monthly.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Upgrade to Premium</source>
+          <source>Start Monitoring</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property Caption</note>
         </trans-unit>
@@ -1789,7 +1789,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control EstimatedLossCue - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1886032213 - Control 1195313527 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium / Month</source>
+          <source>Monitoring / Month</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control PremiumPriceCue - Property Caption</note>
         </trans-unit>
@@ -2009,7 +2009,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control License - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3149302554 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.</source>
+          <source>Shows whether paid recommendations, drilldowns, worklists, and related scan details are unlocked.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Premium Enabled - Property ToolTip</note>
         </trans-unit>
@@ -2037,6 +2037,26 @@
           <source>Last Scan Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scan Date 2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1690001900 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout for the Assessment one-time scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyAssessment - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1690001900 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Assessment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyAssessment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1396684237 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout for a Validation Check follow-up scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1396684237 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Validation Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh current plan and license status from BCSentinel.</source>
@@ -2073,20 +2093,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ViewScanHistory - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Action 2214515191 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout for annual monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringAnnual - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 2214515191 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Monitoring Annual</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringAnnual - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3745981011 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout for monthly monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringMonthly - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 3745981011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Monitoring Monthly</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringMonthly - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Action 4263468516 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Test BCSentinel Connection</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action TestConnection - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout to activate Premium.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action UpgradeToPremium - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Upgrade to Premium</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action UpgradeToPremium - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3336388517 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>DH Vendor Issue List</source>
@@ -2184,7 +2214,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Free - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2189229792 - EnumValue 2049976461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium</source>
+          <source>Monitoring</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Premium - Property Caption</note>
         </trans-unit>

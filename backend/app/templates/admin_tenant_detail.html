@@ -37,27 +37,27 @@
         </section>
 
         <section class="stats-grid compact-stats-grid">
-          <article class="stat-card emphasis"><div class="stat-label">Plan</div><div class="stat-value stat-value-small">{{ tenant.current_plan }}</div></article>
-          <article class="stat-card"><div class="stat-label">License</div><div class="stat-value stat-value-small">{{ tenant.license_status }}</div></article>
+          <article class="stat-card emphasis"><div class="stat-label">Product Access</div><div class="stat-value stat-value-small">{{ product_access.access_model }}</div></article>
+          <article class="stat-card"><div class="stat-label">Monitoring</div><div class="stat-value stat-value-small">{% if product_access.monitoring_active %}active{% else %}inactive{% endif %}</div></article>
           <article class="stat-card"><div class="stat-label">Scan Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
-          <article class="stat-card"><div class="stat-label">Created</div><div class="stat-helper stat-helper-strong">{{ created_at }}</div></article>
-          <article class="stat-card"><div class="stat-label">Last Seen</div><div class="stat-helper stat-helper-strong">{{ last_seen_at }}</div></article>
+          <article class="stat-card"><div class="stat-label">Dashboard Until</div><div class="stat-helper stat-helper-strong">{{ product_access.dashboard_access_until or '—' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Issue Until</div><div class="stat-helper stat-helper-strong">{{ product_access.issue_access_until or '—' }}</div></article>
         </section>
 
         <section class="content-grid admin-detail-grid">
           <article class="panel">
-            <div class="panel-header"><h2>License Management</h2><span class="muted">Plan und Status direkt ändern</span></div>
+            <div class="panel-header"><h2>Legacy / Compatibility</h2><span class="muted">free/premium compatibility status</span></div>
             <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/license" class="config-list">
               <div class="config-row two-col-grid no-border">
                 <label>
-                  <span class="field-label">Plan</span>
+                  <span class="field-label">Legacy Plan</span>
                   <select name="plan">
                     <option value="free" {% if tenant.current_plan == "free" %}selected{% endif %}>free</option>
                     <option value="premium" {% if tenant.current_plan == "premium" %}selected{% endif %}>legacy premium</option>
                   </select>
                 </label>
                 <label>
-                  <span class="field-label">License Status</span>
+                  <span class="field-label">Legacy License Status</span>
                   <select name="license_status">
                     <option value="trial" {% if tenant.license_status == "trial" %}selected{% endif %}>trial</option>
                     <option value="active" {% if tenant.license_status == "active" %}selected{% endif %}>active</option>
@@ -67,7 +67,7 @@
                 </label>
               </div>
               <div class="inline-form wrap-gap">
-                <button type="submit" class="btn btn-primary">Save License</button>
+                <button type="submit" class="btn btn-primary">Save Legacy Status</button>
               </div>
             </form>
             <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/delete" class="inline-form" onsubmit="return confirm('Tenant {{ tenant.tenant_id }} wirklich löschen?');">
@@ -139,6 +139,19 @@
         </section>
 
         <section class="content-grid admin-detail-grid">
+          <article class="panel">
+            <div class="panel-header"><h2>Product Access</h2><span class="muted">Pilot product entitlement status</span></div>
+            <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Active Products</div><div>{{ active_product_codes|join(', ') if active_product_codes else '—' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Assessment Access</div><div>{% if product_access.assessment_access_active %}active{% else %}inactive{% endif %} · {{ product_access.assessment_access_until or '—' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Validation Access</div><div>{% if product_access.validation_access_active %}active{% else %}inactive{% endif %} · {{ product_access.validation_access_until or '—' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Monitoring Status</div><div>{% if product_access.monitoring_active %}active{% else %}inactive{% endif %} · {{ product_access.monitoring_access_until or 'open-ended/manual' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can Run Deep Scan</div><div>{% if product_access.can_run_deep_scan %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can View Dashboard</div><div>{% if product_access.can_view_dashboard %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can View Issue Details</div><div>{% if product_access.can_view_issue_details %}yes{% else %}no{% endif %}</div></div>
+            </div>
+          </article>
+
           <article class="panel">
             <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Assessment und Validation Check Credits</span></div>
             <div class="table-wrap">

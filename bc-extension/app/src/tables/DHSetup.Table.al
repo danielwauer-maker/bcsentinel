@@ -182,6 +182,46 @@ table 53100 "DH Setup"
             Caption = 'Issue Drilldown Code';
             DataClassification = SystemMetadata;
         }
+        field(28; "Scan Credits Available"; Integer)
+        {
+            Caption = 'Scan Credits Available';
+            DataClassification = SystemMetadata;
+        }
+        field(29; "Monitoring Active"; Boolean)
+        {
+            Caption = 'Monitoring Active';
+            DataClassification = SystemMetadata;
+        }
+        field(30; "Dashboard Access Until"; Text[50])
+        {
+            Caption = 'Dashboard Access Until';
+            DataClassification = SystemMetadata;
+        }
+        field(31; "Issue Access Until"; Text[50])
+        {
+            Caption = 'Issue Access Until';
+            DataClassification = SystemMetadata;
+        }
+        field(32; "Can Run Deep Scan"; Boolean)
+        {
+            Caption = 'Can Run Deep Scan';
+            DataClassification = SystemMetadata;
+        }
+        field(33; "Can View Dashboard"; Boolean)
+        {
+            Caption = 'Can View Dashboard';
+            DataClassification = SystemMetadata;
+        }
+        field(34; "Can View Issue Details"; Boolean)
+        {
+            Caption = 'Can View Issue Details';
+            DataClassification = SystemMetadata;
+        }
+        field(35; "Product Access Model"; Text[30])
+        {
+            Caption = 'Product Access';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -262,14 +302,26 @@ table 53100 "DH Setup"
 
     procedure GetFeatureAccessText(): Text[100]
     begin
+        if "Monitoring Active" then
+            exit('Monitoring active');
+
+        if "Scan Credits Available" > 0 then
+            exit(StrSubstNo('%1 scan credit(s) available', "Scan Credits Available"));
+
         if "Premium Enabled" then
-            exit('Paid scan actions unlocked');
+            exit('Paid scan access active');
 
         exit('Register the tenant and buy or grant a scan product to unlock paid scan actions');
     end;
 
     procedure GetUpgradeHintText(): Text[250]
     begin
+        if "Monitoring Active" then
+            exit('Monitoring is active. Deep scans and dashboard details are available.');
+
+        if "Scan Credits Available" > 0 then
+            exit('A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.');
+
         if "Premium Enabled" then
             exit('Paid recommendations and scan actions are available for this tenant.');
 

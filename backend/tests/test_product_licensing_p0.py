@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -206,6 +206,11 @@ def test_license_status_exposes_scan_credits_and_product_entitlements(
     assert response.status_code == 200
     payload = response.json()
     assert payload["scan_credits_available"] == 1
+    assert payload["can_run_deep_scan"] is True
+    assert payload["can_view_dashboard"] is True
+    assert payload["can_view_issue_details"] is True
+    assert payload["validation_access_active"] is True
+    assert payload["dashboard_access_until"]
     assert "deep_scan" in payload["features"]
     assert "executive_report" in payload["features"]
 
@@ -224,6 +229,8 @@ def test_legacy_premium_tenant_still_gets_monitoring_features(
     assert payload["monitoring_active"] is True
     assert "monitoring_active" in payload["features"]
     assert "billing_portal" in payload["features"]
+    assert payload["can_run_deep_scan"] is True
+    assert payload["can_view_dashboard"] is True
 
 
 def test_deep_scan_without_credit_or_monitoring_is_blocked(
@@ -278,6 +285,15 @@ def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
         assert credits[0].status == "consumed"
         assert credits[0].consumed_scan_id == "RUN_WITH_CREDIT"
 
+    license_response = client.get("/license/status", headers=auth_header_factory(tenant))
+    assert license_response.status_code == 200
+    license_payload = license_response.json()
+    assert license_payload["scan_credits_available"] == 0
+    assert license_payload["can_run_deep_scan"] is False
+    assert license_payload["can_view_dashboard"] is True
+    assert license_payload["can_view_issue_details"] is True
+    assert license_payload["assessment_access_active"] is True
+
 
 def test_monitoring_tenant_can_run_repeated_deep_scans_without_consuming_credits(
     client,
@@ -308,3 +324,74 @@ def test_monitoring_tenant_can_run_repeated_deep_scans_without_consuming_credits
 
     assert first_response.status_code == 200
     assert second_response.status_code == 200
+
+
+def test_consumed_assessment_access_expires_after_seven_days(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "assessment",
+        },
+        follow_redirects=False,
+    )
+    response = client.post(
+        "/scan/sync",
+        headers=auth_header_factory(tenant),
+        json=_deep_scan_payload(tenant["tenant_id"], "RUN_EXPIRED_ACCESS"),
+    )
+    assert response.status_code == 200
+
+    expired_at = datetime.now(timezone.utc) - timedelta(days=8)
+    with SessionLocal() as db:
+        credit = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).one()
+        credit.consumed_at_utc = expired_at
+        db.commit()
+
+    license_response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert license_response.status_code == 200
+    payload = license_response.json()
+    assert payload["assessment_access_active"] is False
+    assert payload["can_run_deep_scan"] is False
+    assert payload["can_view_dashboard"] is False
+    assert payload["can_view_issue_details"] is False
+
+
+def test_executive_report_requires_active_product_access(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    scan_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="RUN_REPORT_LOCKED")
+
+    response = client.get(
+        "/reports/executive/RUN_REPORT_LOCKED",
+        headers=auth_header_factory(tenant),
+    )
+
+    assert response.status_code == 402
+
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "validation_check",
+        },
+        follow_redirects=False,
+    )
+
+    unlocked_response = client.get(
+        "/reports/executive/RUN_REPORT_LOCKED",
+        headers=auth_header_factory(tenant),
+    )
+    assert unlocked_response.status_code == 200

@@ -14,25 +14,44 @@ page 53100 "DH Setup"
             {
                 Caption = 'Overview';
 
-                field("Current Plan"; Rec."Current Plan")
+                field(ProductAccessModel; Rec."Product Access Model")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Product Access';
+                    Editable = false;
+                }
+
+                field("Scan Credits Available"; Rec."Scan Credits Available")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
 
-                field("License Status"; Rec."License Status")
+                field("Monitoring Active"; Rec."Monitoring Active")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
 
-                field("Last Scan Date"; Rec."Last Scan Date")
+                field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
 
-                field("Last Score"; Rec."Last Score")
+                field("Issue Access Until"; Rec."Issue Access Until")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("Can Run Deep Scan"; Rec."Can Run Deep Scan")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("Last License Check"; Rec."Last License Check")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -43,7 +62,7 @@ page 53100 "DH Setup"
                     ApplicationArea = All;
                     Caption = 'Feature access';
                     Editable = false;
-                    ToolTip = 'Shows whether premium actions are unlocked.';
+                    ToolTip = 'Shows whether paid scan access is available.';
                 }
             }
 
@@ -100,9 +119,15 @@ page 53100 "DH Setup"
 
             group(License)
             {
-                Caption = 'License';
+                Caption = 'Legacy / Compatibility';
 
-                field("Last License Check"; Rec."Last License Check")
+                field("Current Plan"; Rec."Current Plan")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("License Status"; Rec."License Status")
                 {
                     ApplicationArea = All;
                     Editable = false;

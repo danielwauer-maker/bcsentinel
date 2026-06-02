@@ -55,6 +55,7 @@ from app.services.product_license_service import (
     active_entitlement_product_codes,
     grant_product_entitlement,
     grant_scan_credit,
+    build_license_snapshot,
     normalize_product_code,
     scan_credit_count,
 )
@@ -632,6 +633,8 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
         )
 
         csrf_token = create_csrf_token(settings.SECRET_KEY)
+        license_snapshot = build_license_snapshot(db, tenant)
+        product_access = license_snapshot["product_access"]
         response = TEMPLATES.TemplateResponse(
             name="admin_tenant_detail.html",
             context={
@@ -659,6 +662,8 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
                 "product_entitlements": product_entitlements,
                 "available_scan_credits": scan_credit_count(db, tenant_id),
                 "active_product_codes": active_entitlement_product_codes(db, tenant_id),
+                "license_snapshot": license_snapshot,
+                "product_access": product_access,
                 "product_grant_options": [
                     {"code": code, "label": PRODUCT_DISPLAY_NAMES.get(code, code)}
                     for code in [
