@@ -1198,6 +1198,7 @@ page 53158 "DH Deep Scan Monitor"
     var
         Setup: Record "DH Setup";
         ReportUrl: Text;
+        ReportType: Text;
     begin
         if not CanOpenExecutiveReport() then
             exit;
@@ -1205,9 +1206,11 @@ page 53158 "DH Deep Scan Monitor"
         LoadSetupOrError(Setup);
 
         if OpenPdf then
-            ReportUrl := BuildExecutiveReportUrl(Setup, '/pdf')
+            ReportType := 'pdf'
         else
-            ReportUrl := BuildExecutiveReportUrl(Setup, '/html');
+            ReportType := 'html';
+
+        ReportUrl := GetExecutiveReportShareUrl(Setup, ReportType);
 
         Hyperlink(ReportUrl);
     end;
@@ -1308,9 +1311,69 @@ page 53158 "DH Deep Scan Monitor"
         exit(BaseUrl + '?token=' + EncodeUrlValue(Token));
     end;
 
-    local procedure BuildExecutiveReportUrl(var Setup: Record "DH Setup"; ReportSuffix: Text): Text
+    local procedure GetExecutiveReportShareUrl(var Setup: Record "DH Setup"; ReportType: Text): Text
+    var
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        RequestText: Text;
+        ResponseText: Text;
+        JsonRequest: JsonObject;
     begin
-        exit(BuildUrl(Setup."API Base URL", '/reports/executive/' + EncodeUrlValue(Format(Rec."Run ID")) + ReportSuffix));
+        JsonRequest.Add('report_type', ReportType);
+        JsonRequest.WriteTo(RequestText);
+
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+
+        RequestHeaders := Client.DefaultRequestHeaders();
+        if RequestHeaders.Contains('X-Tenant-Id') then
+            RequestHeaders.Remove('X-Tenant-Id');
+        if RequestHeaders.Contains('X-Api-Token') then
+            RequestHeaders.Remove('X-Api-Token');
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
+
+        if not Client.Post(BuildExecutiveShareLinkUrl(Setup), Content, Response) then
+            Error('The executive report link service could not be reached.');
+
+        Response.Content().ReadAs(ResponseText);
+
+        if not Response.IsSuccessStatusCode() then
+            Error(
+              'The executive report link service returned an error. Status: %1. Response: %2',
+              Response.HttpStatusCode(),
+              CopyStr(ResponseText, 1, 1024));
+
+        exit(ExtractUrlFromJson(ResponseText));
+    end;
+
+    local procedure BuildExecutiveShareLinkUrl(var Setup: Record "DH Setup"): Text
+    begin
+        exit(BuildUrl(Setup."API Base URL", '/reports/executive/' + EncodeUrlValue(Format(Rec."Run ID")) + '/share-link'));
+    end;
+
+    local procedure ExtractUrlFromJson(JsonText: Text): Text
+    var
+        JsonObj: JsonObject;
+        JsonToken: JsonToken;
+        Url: Text;
+    begin
+        if not JsonObj.ReadFrom(JsonText) then
+            Error('The executive report link response is not valid JSON.');
+
+        if not JsonObj.Get('url', JsonToken) then
+            Error('The executive report link response does not contain a url.');
+
+        Url := JsonToken.AsValue().AsText();
+        if Url = '' then
+            Error('The executive report link response contains an empty url.');
+
+        exit(Url);
     end;
 
     local procedure GetIssueDrilldownLaunchUrl(): Text
