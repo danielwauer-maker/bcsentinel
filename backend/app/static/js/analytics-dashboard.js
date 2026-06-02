@@ -21,6 +21,25 @@ function formatCurrency(value) {
   }).format(number);
 }
 
+function formatDateTime(value) {
+  const raw = String(value || '').trim();
+  if (!raw || raw === '—') return '—';
+
+  const isoLike = raw.includes('T') ? raw : raw.replace(/ UTC$/, 'Z').replace(', ', 'T');
+  const parsed = new Date(isoLike);
+  if (!Number.isNaN(parsed.getTime())) {
+    const pad = (part) => String(part).padStart(2, '0');
+    return `${pad(parsed.getDate())}.${pad(parsed.getMonth() + 1)}.${parsed.getFullYear()} ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}:${pad(parsed.getSeconds())}`;
+  }
+
+  const match = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})[,\s]+(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (match) {
+    return `${match[1]}.${match[2]}.${match[3]} ${match[4]}:${match[5]}:${match[6] || '00'}`;
+  }
+
+  return raw;
+}
+
 function escapeHtml(value) {
   return String(value || '')
     .replaceAll('&', '&amp;')
@@ -245,7 +264,7 @@ function renderRecentScans(items) {
 
   host.innerHTML = items.map((item) => `
     <tr class="scan-row${item?.is_selected ? ' is-selected' : ''}" data-scan-id="${escapeHtml(item?.scan_id)}" tabindex="0">
-      <td>${escapeHtml(item?.generated_at)}</td>
+      <td>${escapeHtml(formatDateTime(item?.generated_at))}</td>
       <td>${escapeHtml(item?.scan_type)}</td>
       <td>${formatNumber(item?.data_score)}</td>
       <td>${formatNumber(item?.issues_count)}</td>
@@ -284,7 +303,7 @@ function renderFindings(items, isPremium) {
   }
 
   host.innerHTML = items.map((item) => {
-    const accessClass = isPremium ? 'premium' : 'locked';
+    const accessClass = isPremium ? 'unlocked' : 'locked';
     const accessLabel = isPremium ? 'Open in BC' : 'Paid Access';
     const openInBcUrl = String(item?.open_in_bc_url || '');
     warnOnInvalidBcCompanyFormat(openInBcUrl);
@@ -315,7 +334,7 @@ function warnOnInvalidBcCompanyFormat(url) {
 }
 
 function renderPremiumPreview(items) {
-  const host = byId('premium-preview-findings');
+  const host = byId('access-preview-findings');
   if (!host) return;
   host.innerHTML = '';
 
@@ -355,43 +374,70 @@ function renderUnlockPanel(data) {
   renderPremiumPreview(data?.premium_preview_findings || []);
 }
 
-function applyPlanState(currentPlan, visibility) {
-  const isPremium = Boolean(visibility?.is_premium);
+function applyPlanState(data) {
+  const visibility = data?.visibility || {};
+  const productAccess = data?.product_access || {};
+  const hasPaidAccess = Boolean(visibility?.is_premium);
+  const monitoringActive = Boolean(productAccess?.monitoring_active);
   const planBadge = byId('current-plan-badge');
   const subBadge = byId('subscription-plan-badge');
-  const freeUnlock = byId('free-unlock-panel');
-  const premiumPanels = byId('premium-overview-panels');
-  const findingsPanel = byId('premium-findings-panel');
+  const accessUnlock = byId('access-unlock-panel');
+  const monitoringPanels = byId('monitoring-overview-panels');
+  const findingsPanel = byId('access-findings-panel');
+  const accessLabel = monitoringActive
+    ? 'Monitoring active'
+    : (hasPaidAccess ? 'Assessment / Validation active' : 'Credits needed');
 
   if (planBadge) {
-    planBadge.textContent = isPremium ? 'Monitoring' : 'Assessment needed';
-    planBadge.classList.toggle('is-free', !isPremium);
+    planBadge.textContent = accessLabel;
+    planBadge.classList.toggle('is-locked', !hasPaidAccess);
   }
   if (subBadge) {
-    subBadge.textContent = isPremium ? 'Monitoring' : 'Assessment needed';
-    subBadge.classList.toggle('is-free', !isPremium);
+    subBadge.textContent = accessLabel;
+    subBadge.classList.toggle('is-locked', !hasPaidAccess);
   }
 
-  if (freeUnlock) freeUnlock.classList.toggle('hidden', isPremium);
-  if (premiumPanels) premiumPanels.classList.toggle('hidden', !isPremium);
-  if (findingsPanel) findingsPanel.classList.toggle('hidden', !isPremium);
+  if (accessUnlock) accessUnlock.classList.toggle('hidden', hasPaidAccess);
+  if (monitoringPanels) monitoringPanels.classList.toggle('hidden', !monitoringActive);
+  if (findingsPanel) findingsPanel.classList.toggle('hidden', !hasPaidAccess);
 }
 
 function renderSubscription(data) {
+  const monitoringActive = Boolean(data?.product_access?.monitoring_active);
+  const hasPaidAccess = Boolean(data?.visibility?.is_premium);
+  const priceCard = byId('subscription-price-card');
+  const annualCard = byId('subscription-annual-card');
+  const buyMoreButton = byId('buy-more-credits-cta');
+
   setText('subscription-plan', data?.subscription?.plan_label || 'Assessment needed');
   setText('subscription-note', data?.subscription?.plan_note || '');
-  setText('subscription-price', formatCurrency(data?.subscription?.price_monthly));
-  setText('subscription-annual', formatCurrency(data?.subscription?.annual_cost));
   setText('subscription-cta', data?.subscription?.cta_label || 'Buy Assessment');
+  setText('subscription-scan-credits', formatNumber(data?.product_access?.scan_credits_available));
+  setText('subscription-dashboard-until', formatDateTime(data?.product_access?.dashboard_access_until));
+  setText('subscription-issue-until', formatDateTime(data?.product_access?.issue_access_until));
+
+  if (priceCard) priceCard.classList.toggle('hidden', !monitoringActive);
+  if (annualCard) annualCard.classList.toggle('hidden', !monitoringActive);
+  if (buyMoreButton) buyMoreButton.classList.toggle('hidden', monitoringActive || !hasPaidAccess);
+
+  if (monitoringActive) {
+    setText('subscription-price', formatCurrency(data?.subscription?.price_monthly));
+    setText('subscription-annual', formatCurrency(data?.subscription?.annual_cost));
+  } else {
+    setText('subscription-price', '');
+    setText('subscription-annual', '');
+  }
 }
 
-async function triggerBillingAction(action) {
-  const endpoint = action === 'portal'
+async function triggerBillingAction(action, productCode = null) {
+  const baseEndpoint = action === 'portal'
     ? '/analytics/billing/portal'
     : '/analytics/billing/checkout';
+  const endpoint = new URL(baseEndpoint, window.location.origin);
+  if (productCode) endpoint.searchParams.set('product_code', productCode);
 
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(endpoint.toString(), {
       method: 'POST',
       headers: { Accept: 'application/json' },
       credentials: 'same-origin',
@@ -444,7 +490,7 @@ async function loadDashboard(scanId = null) {
 
     setText('page-title', data?.title || 'BCSentinel Analytics');
     setText('page-subtitle', data?.subtitle || '');
-    setText('last-updated', `Last updated: ${data?.last_updated || '—'}`);
+    setText('last-updated', `Last updated: ${formatDateTime(data?.last_updated)}`);
     setText('hero-eyebrow', data?.hero?.eyebrow || 'Assessment first. Monitoring when data quality needs control.');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
@@ -472,7 +518,7 @@ async function loadDashboard(scanId = null) {
     renderUnlockPanel(data);
     renderSubscription(data);
     renderPricingBreakdown(data);
-    applyPlanState(data?.current_plan, data?.visibility);
+    applyPlanState(data);
   } catch (error) {
     console.error('loadDashboard failed:', error);
     setText('page-subtitle', 'The dashboard could not be loaded.');
@@ -532,7 +578,17 @@ function registerEvents() {
   const subscriptionButton = byId('subscription-cta');
   if (subscriptionButton) {
     subscriptionButton.addEventListener('click', async () => {
-      await triggerBillingAction(currentDashboardState?.subscription?.cta_action || 'checkout');
+      await triggerBillingAction(
+        currentDashboardState?.subscription?.cta_action || 'checkout',
+        currentDashboardState?.subscription?.cta_product_code || null,
+      );
+    });
+  }
+
+  const buyMoreButton = byId('buy-more-credits-cta');
+  if (buyMoreButton) {
+    buyMoreButton.addEventListener('click', async () => {
+      await triggerBillingAction('checkout', 'assessment');
     });
   }
 }

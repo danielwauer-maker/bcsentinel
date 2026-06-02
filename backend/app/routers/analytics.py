@@ -29,7 +29,13 @@ from app.security.token import create_token, verify_token
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.impact_service import normalize_stored_commercials
-from app.services.product_license_service import build_product_access_snapshot
+from app.services.product_license_service import (
+    build_product_access_snapshot,
+    PRODUCT_ASSESSMENT,
+    PRODUCT_MONITORING_ANNUAL,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_VALIDATION_CHECK,
+)
 from app.services.pricing_service import (
     build_embed_pricing_breakdown,
     calculate_monthly_price,
@@ -396,7 +402,7 @@ def _build_trend_points(
         {
             "scan_id": scan.scan_id,
             "label": scan.generated_at_utc.strftime("%d.%m"),
-            "timestamp": scan.generated_at_utc.strftime("%d.%m.%Y %H:%M"),
+            "timestamp": scan.generated_at_utc.strftime("%d.%m.%Y %H:%M:%S"),
             "value": round(_safe_float(getattr(scan, value_attr, 0)), 2),
             "scan_type": scan.scan_type,
             "is_selected": scan.scan_id == active_scan_id,
@@ -410,8 +416,8 @@ def _scan_mode_label(scan_type: str | None, fallback: str | None) -> str:
     if normalized in {"deep", "premium_deep"}:
         return "Deep Scan"
     if normalized == "free_deep":
-        return "Free DeepScan"
-    return "Free QuickScan"
+        return "Deep Scan"
+    return "Quick Scan"
 
 
 MODULE_SCORE_ORDER = [
@@ -600,7 +606,7 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "title": "BCSentinel Analytics",
         "subtitle": f"{company} · {environment}",
         "scan_mode_label": _scan_mode_label(None, scan_mode),
-        "last_updated": datetime.now(timezone.utc).strftime("%d.%m.%Y, %H:%M UTC"),
+        "last_updated": datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M:%S"),
         "selected_scan_id": None,
         "current_plan": "free",
         "visibility": {
@@ -610,7 +616,7 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
             "show_upgrade_preview": True,
         },
         "hero": {
-            "eyebrow": "Insight is free. Action requires paid scan access.",
+            "eyebrow": "Assessment first. Monitoring when data quality needs control.",
             "headline_prefix": "Your data health is",
             "headline_highlight": "critical",
             "headline_suffix": "and requires immediate attention.",
@@ -656,11 +662,12 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         },
         "pricing_breakdown": default_pricing,
         "subscription": {
-            "plan_label": "Free",
+            "plan_label": "Assessment needed",
             "price_monthly": 0.0,
             "annual_cost": 0.0,
             "cta_label": "Buy Assessment",
             "cta_action": "checkout",
+            "cta_product_code": PRODUCT_ASSESSMENT,
             "plan_note": "Insight starts with an Assessment. Monitoring keeps it under control.",
             "pricing_breakdown": default_pricing,
             "billing_options": {
@@ -775,7 +782,7 @@ def _build_dashboard_payload(
     recent_scans_payload = [
         {
             "scan_id": scan.scan_id,
-            "generated_at": scan.generated_at_utc.strftime("%d.%m.%Y %H:%M"),
+            "generated_at": scan.generated_at_utc.strftime("%d.%m.%Y %H:%M:%S"),
             "scan_type": scan.scan_type,
             "data_score": _safe_int(scan.data_score),
             "issues_count": _safe_int(scan.issues_count),
@@ -816,7 +823,7 @@ def _build_dashboard_payload(
         "title": "BCSentinel Analytics",
         "subtitle": f"{company} · {environment}",
         "scan_mode_label": _scan_mode_label(active_scan.scan_type, scan_mode),
-        "last_updated": active_scan.generated_at_utc.strftime("%d.%m.%Y, %H:%M UTC"),
+        "last_updated": active_scan.generated_at_utc.strftime("%d.%m.%Y %H:%M:%S"),
         "selected_scan_id": active_scan.scan_id,
         "current_plan": current_plan,
         "product_access": product_access,
@@ -882,8 +889,9 @@ def _build_dashboard_payload(
             "plan_label": "Monitoring" if monitoring_active else ("Assessment / Validation access" if is_premium else "Validation Check needed"),
             "price_monthly": current_plan_price_monthly if monitoring_active else 0.0,
             "annual_cost": round(current_plan_price_monthly * 12, 2) if monitoring_active else 0.0,
-            "cta_label": "Manage subscription" if monitoring_active else ("Start Monitoring" if is_premium else "Buy Validation Check"),
+            "cta_label": "Manage subscription" if monitoring_active else ("Start Monitoring" if is_premium else "Buy More Credits"),
             "cta_action": "portal" if monitoring_active else "checkout",
+            "cta_product_code": None if monitoring_active else (PRODUCT_MONITORING_MONTHLY if is_premium else PRODUCT_ASSESSMENT),
             "plan_note": "Current monitoring access" if monitoring_active else ("7-day scan access active" if is_premium else "Buy a Validation Check or start Monitoring to reopen details."),
             "pricing_breakdown": pricing_breakdown,
             "billing_options": {
@@ -990,14 +998,24 @@ def _load_analytics_tenant(token: str | None, analytics_cookie_token: str | None
 def analytics_billing_checkout(
     token: str | None = Query(default=None),
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
+    product_code: str | None = Query(default=None),
 ):
     tenant = _load_analytics_tenant(token, analytics_cookie_token)
+    requested_product = (product_code or PRODUCT_ASSESSMENT).strip().lower()
+    allowed_products = {
+        PRODUCT_ASSESSMENT,
+        PRODUCT_VALIDATION_CHECK,
+        PRODUCT_MONITORING_MONTHLY,
+        PRODUCT_MONITORING_ANNUAL,
+    }
+    if requested_product not in allowed_products:
+        raise HTTPException(status_code=400, detail="Unsupported product_code.")
 
     if (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip():
         checkout_payload = CheckoutSessionRequest(
             tenant_id=tenant.tenant_id,
-            product_code="assessment",
-            plan_code="assessment",
+            product_code=requested_product,
+            plan_code=requested_product,
             billing_interval="monthly",
         )
     else:

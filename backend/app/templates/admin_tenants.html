@@ -36,7 +36,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Nr.</th><th>Tenant ID</th><th>Environment</th><th>App Version</th><th>Created At</th><th>Last Seen</th><th>Plan</th><th>License</th><th>Billing Provider</th><th>Billing Status</th><th>Scans</th><th>Last Scan</th><th>Actions</th></tr>
+                <tr><th>Nr.</th><th>Tenant ID</th><th>Environment</th><th>App Version</th><th>Created At</th><th>Last Seen</th><th>Product Access</th><th>Monitoring</th><th>Scan Credits</th><th>Billing Provider</th><th>Billing Status</th><th>Scans</th><th>Last Scan</th><th>Actions</th></tr>
               </thead>
               <tbody>
               {% for tenant in tenants %}
@@ -47,8 +47,9 @@
                   <td>{{ tenant.app_version }}</td>
                   <td>{{ tenant.created_at }}</td>
                   <td>{{ tenant.last_seen_at }}</td>
-                  <td><span class="pill small-pill">{{ tenant.current_plan }}</span></td>
-                  <td><span class="pill small-pill success-pill">{{ tenant.license_status }}</span></td>
+                  <td><span class="pill small-pill">{{ tenant.product_access }}</span></td>
+                  <td><span class="pill small-pill{% if tenant.monitoring_status == 'active' %} success-pill{% endif %}">{{ tenant.monitoring_status }}</span></td>
+                  <td>{{ tenant.available_scan_credits }}</td>
                   <td>{{ tenant.billing_provider }}</td>
                   <td>{{ tenant.billing_status }}</td>
                   <td>{{ tenant.scan_count }}</td>
@@ -102,20 +103,8 @@
         {% if active_section == "license_pricing" %}
         <section class="admin-grid">
           <article class="panel">
-            <div class="panel-header"><h2>License Pricing</h2><span class="muted">Free stays at EUR0. Legacy premium pricing remains available for existing tenants.</span></div>
-            <div class="config-list">
-              {% for row in license_prices if row.plan_code in ["free", "premium"] %}
-              <form method="post" action="/admin/config/license-pricing/{{ row.plan_code }}" class="config-row">
-                <div class="config-title">{{ row.plan_code }}</div>
-                <input type="text" name="display_name" value="{{ row.display_name }}">
-                <input type="number" step="0.01" name="base_price_monthly" value="{{ row.base_price_monthly }}">
-                <input type="number" step="1" name="included_records" value="{{ row.included_records }}" title="Step records">
-                <input type="number" step="0.01" name="additional_price_per_1000_records" value="{{ row.additional_price_per_1000_records }}" title="Price per step">
-                <label class="checkbox-inline"><input type="checkbox" name="is_active" {% if row.is_active %}checked{% endif %}> aktiv</label>
-                <button type="submit" class="btn btn-primary">Save</button>
-              </form>
-              {% endfor %}
-            </div>
+            <div class="panel-header"><h2>Compatibility Pricing</h2><span class="muted">Hidden compatibility configuration for existing tenants.</span></div>
+            <p class="muted">Product access for pilots is managed through Product Grants, Scan Credits, and Stripe products.</p>
           </article>
         </section>
         {% endif %}

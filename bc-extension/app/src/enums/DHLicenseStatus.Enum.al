@@ -5,7 +5,7 @@ enum 53102 "DH License Status"
 
     value(0; Trial)
     {
-        Caption = 'Trial';
+        Caption = 'Compatibility Pending';
     }
 
     value(1; Active)

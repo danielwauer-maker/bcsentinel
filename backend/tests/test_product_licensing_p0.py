@@ -295,6 +295,47 @@ def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
     assert license_payload["assessment_access_active"] is True
 
 
+def test_assessment_dashboard_payload_separates_access_from_monitoring(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "assessment",
+        },
+        follow_redirects=False,
+    )
+    scan_response = client.post(
+        "/scan/sync",
+        headers=auth_header_factory(tenant),
+        json=_deep_scan_payload(tenant["tenant_id"], "RUN_ASSESSMENT_DASHBOARD"),
+    )
+    assert scan_response.status_code == 200
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+
+    response = client.get(f"/analytics/embed/data?token={analytics_token}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["visibility"]["is_premium"] is True
+    assert payload["product_access"]["monitoring_active"] is False
+    assert payload["subscription"]["plan_label"] == "Assessment / Validation access"
+    assert payload["subscription"]["price_monthly"] == 0.0
+    assert payload["subscription"]["annual_cost"] == 0.0
+    assert payload["subscription"]["cta_label"] == "Start Monitoring"
+    assert payload["subscription"]["cta_product_code"] == "monitoring_monthly"
+    assert payload["last_updated"][2] == "."
+    assert len(payload["last_updated"].split(" ")[1].split(":")) == 3
+
+
 def test_monitoring_tenant_can_run_repeated_deep_scans_without_consuming_credits(
     client,
     tenant_factory,

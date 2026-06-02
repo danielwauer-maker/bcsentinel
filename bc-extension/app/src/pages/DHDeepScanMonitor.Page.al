@@ -452,7 +452,7 @@ page 53158 "DH Deep Scan Monitor"
                 end;
             }
 
-            action(UpgradeToPremium)
+            action(StartMonitoring)
             {
                 Caption = 'Start Monitoring';
                 ApplicationArea = All;
@@ -466,8 +466,8 @@ page 53158 "DH Deep Scan Monitor"
                 begin
                     LoadSetupOrError(Setup);
 
-                    if Setup."Premium Enabled" then begin
-                        Message('Paid scan access is already enabled.');
+                    if Setup."Monitoring Active" then begin
+                        Message('Monitoring is already active.');
                         exit;
                     end;
 
@@ -477,10 +477,10 @@ page 53158 "DH Deep Scan Monitor"
 
             action(RefreshLicenseStatus)
             {
-                Caption = 'Refresh License Status';
+                Caption = 'Refresh Product Access';
                 ApplicationArea = All;
                 Image = Refresh;
-                ToolTip = 'Refresh current plan and license status from BCSentinel.';
+                ToolTip = 'Refresh scan credits, monitoring status, and product access from BCSentinel.';
 
                 trigger OnAction()
                 var
@@ -489,7 +489,7 @@ page 53158 "DH Deep Scan Monitor"
                 begin
                     LoadSetupOrError(Setup);
                     ApiClient.RefreshLicenseStatus(Setup);
-                    Message('License status refreshed.');
+                    Message('Product access refreshed.');
                 end;
             }
         }

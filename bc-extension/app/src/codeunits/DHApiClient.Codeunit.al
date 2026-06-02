@@ -166,10 +166,10 @@ codeunit 53100 "DH API Client"
             Setup."Monitoring Active" := GetJsonTokenBoolean(Token, false);
 
         if JsonResponse.Get('dashboard_access_until', Token) then
-            Setup."Dashboard Access Until" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
 
         if JsonResponse.Get('issue_access_until', Token) then
-            Setup."Issue Access Until" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Issue Access Until"));
+            Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
 
         if JsonResponse.Get('can_run_deep_scan', Token) then
             Setup."Can Run Deep Scan" := GetJsonTokenBoolean(Token, false);
@@ -1017,6 +1017,17 @@ codeunit 53100 "DH API Client"
             exit(ParsedDateTime);
 
         exit(0DT);
+    end;
+
+    local procedure FormatJsonDateTimeText(Value: Text): Text
+    begin
+        if StrLen(Value) < 19 then
+            exit(Value);
+
+        if (CopyStr(Value, 5, 1) <> '-') or (CopyStr(Value, 8, 1) <> '-') then
+            exit(Value);
+
+        exit(CopyStr(Value, 9, 2) + '.' + CopyStr(Value, 6, 2) + '.' + CopyStr(Value, 1, 4) + ' ' + CopyStr(Value, 12, 8));
     end;
 
     local procedure BuildRecentEventsText(EventsToken: JsonToken): Text

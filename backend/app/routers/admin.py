@@ -4,6 +4,7 @@ from io import StringIO
 from pathlib import Path
 from urllib.parse import quote_plus
 import csv
+from datetime import datetime
 from email.mime.text import MIMEText
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
@@ -92,9 +93,9 @@ ADMIN_SECTION_META = {
         "subtitle": "Estimated Loss & Potential Savings Konfiguration",
     },
     "license_pricing": {
-        "label": "License Pricing",
+        "label": "Compatibility Pricing",
         "href": "/admin/config/license-pricing",
-        "subtitle": "Planpreise und Freemium-Konfiguration",
+        "subtitle": "Hidden compatibility configuration for existing tenants",
     },
     "partners": {
         "label": "Partners",
@@ -130,7 +131,6 @@ ADMIN_SECTION_META = {
 ADMIN_NAV_ORDER = [
     "tenants",
     "issue_costs",
-    "license_pricing",
     "partners",
     "partner_commissions",
     "partner_applications",
@@ -160,7 +160,27 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)) -> str:
 def _fmt_dt(value) -> str:
     if value is None:
         return "—"
-    return value.strftime("%Y-%m-%d %H:%M:%S UTC")
+    return value.strftime("%d.%m.%Y %H:%M:%S")
+
+
+def _fmt_product_access_dates(product_access: dict) -> dict:
+    formatted = dict(product_access or {})
+    for key in [
+        "dashboard_access_until",
+        "issue_access_until",
+        "assessment_access_until",
+        "validation_access_until",
+        "monitoring_access_until",
+    ]:
+        raw = formatted.get(key)
+        if not raw:
+            continue
+        try:
+            parsed = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        formatted[key] = _fmt_dt(parsed)
+    return formatted
 
 
 def _fmt_money(value) -> str:
@@ -301,6 +321,8 @@ def _load_tenant_rows(db):
 
     for idx, tenant in enumerate(tenants, start=1):
         latest_subscription = latest_subscription_map.get(tenant.tenant_id)
+        license_snapshot = build_license_snapshot(db, tenant)
+        product_access = _fmt_product_access_dates(license_snapshot["product_access"])
         rows.append(
             {
                 "tenant_no": f"{idx:05d}",
@@ -309,8 +331,9 @@ def _load_tenant_rows(db):
                 "app_version": tenant.app_version,
                 "created_at": _fmt_dt(tenant.created_at_utc),
                 "last_seen_at": _fmt_dt(tenant.last_seen_at_utc),
-                "current_plan": tenant.current_plan,
-                "license_status": tenant.license_status,
+                "product_access": product_access["access_model"],
+                "monitoring_status": "active" if product_access["monitoring_active"] else "inactive",
+                "available_scan_credits": license_snapshot["scan_credits_available"],
                 "scan_count": scan_counts.get(tenant.tenant_id, 0),
                 "last_scan": _fmt_dt(last_scans.get(tenant.tenant_id)),
                 "billing_provider": latest_subscription.provider if latest_subscription else "—",
@@ -634,7 +657,7 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
 
         csrf_token = create_csrf_token(settings.SECRET_KEY)
         license_snapshot = build_license_snapshot(db, tenant)
-        product_access = license_snapshot["product_access"]
+        product_access = _fmt_product_access_dates(license_snapshot["product_access"])
         response = TEMPLATES.TemplateResponse(
             name="admin_tenant_detail.html",
             context={

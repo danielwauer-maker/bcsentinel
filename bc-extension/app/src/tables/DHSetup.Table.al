@@ -51,7 +51,7 @@ table 53100 "DH Setup"
 
         field(7; "Premium Enabled"; Boolean)
         {
-            Caption = 'Paid Features Enabled';
+            Caption = 'Product Access Active';
             DataClassification = SystemMetadata;
         }
 
@@ -69,19 +69,19 @@ table 53100 "DH Setup"
 
         field(10; "Current Plan"; Enum "DH License Plan")
         {
-            Caption = 'Current Plan';
+            Caption = 'Compatibility Plan';
             DataClassification = SystemMetadata;
         }
 
         field(11; "License Status"; Enum "DH License Status")
         {
-            Caption = 'License Status';
+            Caption = 'Compatibility Status';
             DataClassification = SystemMetadata;
         }
 
         field(12; "Last License Check"; DateTime)
         {
-            Caption = 'Last License Check';
+            Caption = 'Last Product Access Check';
             DataClassification = SystemMetadata;
         }
 

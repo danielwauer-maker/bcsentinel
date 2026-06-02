@@ -117,30 +117,6 @@ page 53100 "DH Setup"
                 }
             }
 
-            group(License)
-            {
-                Caption = 'Legacy / Compatibility';
-
-                field("Current Plan"; Rec."Current Plan")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-
-                field("License Status"; Rec."License Status")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-
-                field("Premium Enabled"; Rec."Premium Enabled")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ToolTip = 'Shows whether paid recommendations, drilldowns, worklists, and related scan details are unlocked.';
-                }
-            }
-
             group("Enabled Scan Modules")
             {
                 Caption = 'Enabled Scan Modules';
@@ -239,33 +215,23 @@ page 53100 "DH Setup"
                 end;
             }
 
-            /*action(RegisterTenant)
-            {
-                Caption = 'Register with BCSentinel';
-                ApplicationArea = All;
-                Image = Web;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.EnsureTenantRegistered(Rec);
-                    //RefreshLicenseSilently();
-                    CurrPage.Update(false);
-                    Message('BCSentinel tenant registration completed.');
-                end;
-            }*/
-
             action(RegisterTenant)
             {
                 Caption = 'Register with BCSentinel';
                 ApplicationArea = All;
                 Image = Web;
+                Enabled = CanRegisterTenant;
+                Visible = CanRegisterTenant;
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
+                    if Rec.Registered then begin
+                        Message('BCSentinel tenant is already registered.');
+                        exit;
+                    end;
+
                     Message('BCSentinel tenant registration started.');
                     Rec."Tenant ID" := '';
                     ClearStoredApiToken();
@@ -274,6 +240,7 @@ page 53100 "DH Setup"
                     Rec.Modify(true);
 
                     ApiClient.RegisterTenant(Rec);
+                    UpdateActionState();
                     CurrPage.Update(false);
                     Message('BCSentinel tenant registration completed.');
                 end;
@@ -341,10 +308,10 @@ page 53100 "DH Setup"
 
             action(RefreshLicenseStatus)
             {
-                Caption = 'Refresh License Status';
+                Caption = 'Refresh Product Access';
                 ApplicationArea = All;
                 Image = Refresh;
-                ToolTip = 'Refresh current plan and license status from BCSentinel.';
+                ToolTip = 'Refresh scan credits, monitoring status, and product access from BCSentinel.';
 
                 trigger OnAction()
                 var
@@ -355,7 +322,7 @@ page 53100 "DH Setup"
 
                     ApiClient.RefreshLicenseStatus(Rec);
                     CurrPage.Update(false);
-                    Message('License status refreshed.');
+                    Message('Product access refreshed.');
                 end;
             }
 
@@ -404,11 +371,20 @@ page 53100 "DH Setup"
         }
     }
 
+    var
+        CanRegisterTenant: Boolean;
+
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
+        UpdateActionState();
         //RefreshLicenseSilently();
         CurrPage.Update(false);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        UpdateActionState();
     end;
 
     local procedure EnsureSetupExists()
@@ -445,6 +421,11 @@ page 53100 "DH Setup"
             exit;
 
         ApiClient.RefreshLicenseStatus(Rec);
+    end;
+
+    local procedure UpdateActionState()
+    begin
+        CanRegisterTenant := not Rec.Registered;
     end;
 
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text

@@ -46,36 +46,6 @@
 
         <section class="content-grid admin-detail-grid">
           <article class="panel">
-            <div class="panel-header"><h2>Legacy / Compatibility</h2><span class="muted">free/premium compatibility status</span></div>
-            <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/license" class="config-list">
-              <div class="config-row two-col-grid no-border">
-                <label>
-                  <span class="field-label">Legacy Plan</span>
-                  <select name="plan">
-                    <option value="free" {% if tenant.current_plan == "free" %}selected{% endif %}>free</option>
-                    <option value="premium" {% if tenant.current_plan == "premium" %}selected{% endif %}>legacy premium</option>
-                  </select>
-                </label>
-                <label>
-                  <span class="field-label">Legacy License Status</span>
-                  <select name="license_status">
-                    <option value="trial" {% if tenant.license_status == "trial" %}selected{% endif %}>trial</option>
-                    <option value="active" {% if tenant.license_status == "active" %}selected{% endif %}>active</option>
-                    <option value="expired" {% if tenant.license_status == "expired" %}selected{% endif %}>expired</option>
-                    <option value="blocked" {% if tenant.license_status == "blocked" %}selected{% endif %}>blocked</option>
-                  </select>
-                </label>
-              </div>
-              <div class="inline-form wrap-gap">
-                <button type="submit" class="btn btn-primary">Save Legacy Status</button>
-              </div>
-            </form>
-            <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/delete" class="inline-form" onsubmit="return confirm('Tenant {{ tenant.tenant_id }} wirklich löschen?');">
-              <button type="submit" class="btn btn-danger">Delete Tenant</button>
-            </form>
-          </article>
-
-          <article class="panel">
             <div class="panel-header"><h2>Product Grants</h2><span class="muted">Pilot-Produkte und Scan-Credits manuell freischalten</span></div>
             <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/product-grant" class="config-list">
               <div class="config-row no-border">
@@ -103,7 +73,7 @@
                   {% for scan in scans %}
                   <tr>
                     <td>{{ scan.scan_id }}</td>
-                    <td>{{ scan.generated_at_utc.strftime('%Y-%m-%d %H:%M:%S UTC') }}</td>
+                    <td>{{ fmt_dt(scan.generated_at_utc) }}</td>
                     <td>{{ scan.scan_type }}</td>
                     <td>{{ scan.data_score }}</td>
                     <td>{{ scan.issues_count }}</td>
