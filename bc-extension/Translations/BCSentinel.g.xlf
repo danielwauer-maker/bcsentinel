@@ -874,7 +874,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Can View Issue Details - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 648361014 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Current Plan</source>
+          <source>Compatibility Plan</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Current Plan - Property Caption</note>
         </trans-unit>
@@ -899,7 +899,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Issue Drilldown Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1198226257 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Last License Check</source>
+          <source>Last Product Access Check</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last License Check - Property Caption</note>
         </trans-unit>
@@ -924,7 +924,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Last Score - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1153499497 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>License Status</source>
+          <source>Compatibility Status</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field License Status - Property Caption</note>
         </trans-unit>
@@ -934,7 +934,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Monitoring Active - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3149302554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid Features Enabled</source>
+          <source>Product Access Active</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Enabled - Property Caption</note>
         </trans-unit>
@@ -1544,12 +1544,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExternalDashboard - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh current plan and license status from BCSentinel.</source>
+          <source>Refresh scan credits, monitoring status, and product access from BCSentinel.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 1949212398 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh License Status</source>
+          <source>Refresh Product Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
@@ -1558,15 +1558,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshProgress - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2958763285 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 2958763285 - Action 1152685448 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the secure BCSentinel checkout for Monitoring Monthly.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action StartMonitoring - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2958763285 - Action 3893966460 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 2958763285 - Action 1152685448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Monitoring</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action UpgradeToPremium - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action StartMonitoring - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2139980684 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Deep Scan</source>
@@ -2043,16 +2043,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Registration Invite Code - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Control 3357837221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Legacy / Compatibility</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control License - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Control 3149302554 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows whether paid recommendations, drilldowns, worklists, and related scan details are unlocked.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Premium Enabled - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 392523509 - Control 873771301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overview</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2104,12 +2094,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh current plan and license status from BCSentinel.</source>
+          <source>Refresh scan credits, monitoring status, and product access from BCSentinel.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1949212398 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh License Status</source>
+          <source>Refresh Product Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
@@ -2254,12 +2244,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2189229792 - EnumValue 61828920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Free</source>
+          <source>Compatibility Base</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Free - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2189229792 - EnumValue 2049976461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Monitoring</source>
+          <source>Compatibility Monitoring</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Plan - EnumValue Premium - Property Caption</note>
         </trans-unit>
@@ -2289,7 +2279,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Expired - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3534721661 - EnumValue 1947800214 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Trial</source>
+          <source>Compatibility Pending</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH License Status - EnumValue Trial - Property Caption</note>
         </trans-unit>
