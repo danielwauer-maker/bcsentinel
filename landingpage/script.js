@@ -93,8 +93,28 @@ const translations = {
     value_stat_3_label: "Potenzielle Einsparung",
 
     pricing_eyebrow: "Preise",
-    pricing_title: "Insight ist kostenlos. Action ist Premium.",
-    pricing_sub: "Starte mit sofortiger Transparenz über deine Datenqualität und ihren Business Impact. Upgrade erst dann, wenn du tiefere Details, Priorisierung und direkte Aktionen willst.",
+    pricing_title: "Klare Produktpreise für Scan und Monitoring.",
+    pricing_sub: "Wähle den einmaligen Assessment-Start, eine Validierung nach der Bereinigung oder kontinuierliches Monitoring.",
+    price_one_time: "einmalig",
+    price_year: "/ Jahr",
+    product_cta: "In Business Central öffnen",
+    product_assessment_badge: "Assessment",
+    product_assessment_title: "Einmalige Data-Health-Analyse.",
+    product_assessment_1: "Deep Scan und Score",
+    product_assessment_2: "Business-Impact-Überblick",
+    product_assessment_3: "Dashboard-Zugriffsfenster",
+    product_validation_badge: "Validation Check",
+    product_validation_title: "Folgescan nach der Bereinigung.",
+    product_validation_1: "Validation-Scan-Credit",
+    product_validation_2: "Verbesserungsvergleich",
+    product_validation_3: "Aktualisierte Executive-Sicht",
+    product_monitoring_monthly_badge: "Monitoring Monthly",
+    product_monitoring_monthly_title: "Kontinuierliche Kontrolle, monatlich abgerechnet.",
+    product_monitoring_annual_badge: "Monitoring Annual",
+    product_monitoring_annual_title: "Jährliches Monitoring mit fixem Jahrespreis.",
+    product_monitoring_1: "Wiederkehrender Dashboard-Zugriff",
+    product_monitoring_2: "Issue-Details und Empfehlungen",
+    product_monitoring_3: "Business-Central-Aktionen",
     plan_free_badge: "Kostenlos",
     plan_free_title: "Sichtbarkeit für deinen ersten Business Case.",
     price_month: "/ Monat",
@@ -269,8 +289,28 @@ const translations = {
     value_stat_3_label: "Potential saving",
 
     pricing_eyebrow: "Pricing",
-    pricing_title: "Insight is free. Action is Premium.",
-    pricing_sub: "Start with immediate visibility into your data quality and business impact. Upgrade when you want deeper details, prioritization, and direct action.",
+    pricing_title: "Clear product prices for scan and monitoring.",
+    pricing_sub: "Choose a one-time assessment start, a cleanup validation, or continuous monitoring.",
+    price_one_time: "one-time",
+    price_year: "/ year",
+    product_cta: "Open in Business Central",
+    product_assessment_badge: "Assessment",
+    product_assessment_title: "One-time data health assessment.",
+    product_assessment_1: "Deep scan and score",
+    product_assessment_2: "Business impact overview",
+    product_assessment_3: "Dashboard access window",
+    product_validation_badge: "Validation Check",
+    product_validation_title: "Follow-up scan after cleanup.",
+    product_validation_1: "Validation scan credit",
+    product_validation_2: "Improvement comparison",
+    product_validation_3: "Fresh executive view",
+    product_monitoring_monthly_badge: "Monitoring Monthly",
+    product_monitoring_monthly_title: "Continuous control, monthly billed.",
+    product_monitoring_annual_badge: "Monitoring Annual",
+    product_monitoring_annual_title: "Annual monitoring with fixed yearly price.",
+    product_monitoring_1: "Recurring dashboard access",
+    product_monitoring_2: "Issue details and recommendations",
+    product_monitoring_3: "Business Central actions",
     plan_free_badge: "Free",
     plan_free_title: "Visibility for your first business case.",
     price_month: "/ month",
@@ -365,6 +405,8 @@ function mergeCanonicalMarketingStrings() {
 }
 mergeCanonicalMarketingStrings();
 
+let currentPublicProductPricing = null;
+
 function formatPricingAmount(lang, currency, value) {
   const numericValue = Number(value || 0);
   const fractionDigits = Number.isInteger(numericValue) ? 0 : 2;
@@ -406,12 +448,45 @@ function isValidPublicPricingPayload(payload) {
     payload &&
     typeof payload === "object" &&
     typeof payload.currency === "string" &&
-    typeof payload.plan_code === "string" &&
-    Number.isFinite(Number(payload.base_price)) &&
-    payload.marketing &&
-    payload.marketing.de &&
-    payload.marketing.en
+    Array.isArray(payload.products) &&
+    payload.products.every((product) =>
+      product &&
+      typeof product.product_key === "string" &&
+      Number.isFinite(Number(product.price_cents)) &&
+      typeof product.currency === "string" &&
+      typeof product.billing_interval === "string"
+    )
   );
+}
+
+function getFallbackProductPricing() {
+  const snap = typeof window !== "undefined" && window.__BCS_PRODUCT_PRICING__;
+  if (snap && isValidPublicPricingPayload(snap)) return snap;
+  return {
+    source: "fallback",
+    currency: "EUR",
+    products: [
+      { product_key: "assessment", display_name: "Assessment", price_cents: 7900, currency: "EUR", billing_interval: "one_time", is_active: true },
+      { product_key: "validation_check", display_name: "Validation Check", price_cents: 4900, currency: "EUR", billing_interval: "one_time", is_active: true },
+      { product_key: "monitoring_monthly", display_name: "Monitoring Monthly", price_cents: 9900, currency: "EUR", billing_interval: "month", is_active: true },
+      { product_key: "monitoring_annual", display_name: "Monitoring Annual", price_cents: 99000, currency: "EUR", billing_interval: "year", is_active: true },
+    ],
+  };
+}
+
+function renderProductPricing(payload) {
+  if (!isValidPublicPricingPayload(payload)) return;
+  currentPublicProductPricing = payload;
+  const selectedLang = document.documentElement.getAttribute("lang") || getInitialLanguage();
+  payload.products.forEach((product) => {
+    const priceNode = document.querySelector(`[data-product-price="${product.product_key}"]`);
+    if (!priceNode) return;
+    priceNode.textContent = formatPricingAmount(
+      selectedLang,
+      product.currency || payload.currency || "EUR",
+      Number(product.price_cents || 0) / 100
+    );
+  });
 }
 
 function getPublicPricingApiBase() {
@@ -429,7 +504,7 @@ function getPublicPricingApiBase() {
 
 async function loadPublicPricing() {
   try {
-    const response = await fetch(`${getPublicPricingApiBase()}/public/pricing`, {
+    const response = await fetch(`${getPublicPricingApiBase()}/pricing/public`, {
       headers: { Accept: "application/json" },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -441,11 +516,11 @@ async function loadPublicPricing() {
     if (!isValidPublicPricingPayload(payload)) {
       throw new Error("Invalid public pricing payload");
     }
-    const marketing = payload?.marketing || buildMarketingStringsFromPublicPricing(payload);
-    mergePricingMarketingStrings(marketing);
+    renderProductPricing(payload);
     applyTranslations(document.documentElement.getAttribute("lang") || getInitialLanguage());
   } catch (error) {
     // pricing-snapshot.js remains the static fallback
+    renderProductPricing(getFallbackProductPricing());
   }
 }
 
@@ -517,6 +592,7 @@ function applyTranslations(lang) {
   } catch (e) {}
 
   updateThemeToggleLabels(html.getAttribute("data-theme") || getInitialTheme());
+  if (currentPublicProductPricing) renderProductPricing(currentPublicProductPricing);
 }
 
 function getInitialLanguage() {

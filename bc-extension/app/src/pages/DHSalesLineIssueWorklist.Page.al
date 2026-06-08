@@ -1,4 +1,4 @@
-page 53139 "DH Sales Line Issue Worklist"
+﻿page 53139 "DH Sales Line Issue Worklist"
 {
     PageType = List;
     SourceTable = "Sales Line";
@@ -16,66 +16,82 @@ page 53139 "DH Sales Line Issue Worklist"
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Document Type.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Document No.';
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Line No.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Type.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies No.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Description.';
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Unit Price.';
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Shipment Date.';
                 }
                 field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Outstanding Quantity.';
                 }
                 field("Quantity Shipped"; Rec."Quantity Shipped")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity Shipped.';
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity Invoiced.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Line Discount %.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Location Code.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Shortcut Dimension 1 Code.';
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Shortcut Dimension 2 Code.';
                 }
             }
         }
@@ -88,6 +104,7 @@ page 53139 "DH Sales Line Issue Worklist"
             action(MarkIssueCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -100,6 +117,7 @@ page 53139 "DH Sales Line Issue Worklist"
             action(OpenDocument)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -213,3 +231,4 @@ page 53139 "DH Sales Line Issue Worklist"
     end;
 
 }
+

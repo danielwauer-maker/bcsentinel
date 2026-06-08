@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
@@ -36,16 +36,14 @@ from app.services.product_license_service import (
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
 )
-from app.services.pricing_service import (
-    build_embed_pricing_breakdown,
-    calculate_monthly_price,
-    get_license_pricing,
-)
+from app.services.product_pricing_service import build_monitoring_pricing_breakdown, get_public_product_pricing_payload
 
 router = APIRouter(tags=["analytics"])
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
 ANALYTICS_EMBED_COOKIE_NAME = "bcs_at"
 ANALYTICS_EMBED_COOKIE_MAX_AGE_SECONDS = 15 * 60
+ANALYTICS_EMBED_TOKEN_TYPE = "analytics_embed"
+ANALYTICS_EMBED_TOKEN_MINUTES = 5
 
 
 def _safe_int(value: Any, default: int = 0) -> int:
@@ -577,12 +575,9 @@ def _get_current_plan_price_monthly(tenant: Tenant | None, scan: Scan | None) ->
     if plan == "free":
         return 0.0
 
-    total_records = _safe_int(getattr(scan, "total_records", 0))
-
     try:
         with SessionLocal() as db:
-            pricing = get_license_pricing(db, plan)
-            return round(_safe_float(calculate_monthly_price(total_records, pricing)), 2)
+            return round(_safe_float(build_monitoring_pricing_breakdown(db).get("final_price_monthly")), 2)
     except Exception:
         if plan == "premium":
             return round(_safe_float(getattr(scan, "estimated_premium_price_monthly", 0.0)), 2)
@@ -590,16 +585,14 @@ def _get_current_plan_price_monthly(tenant: Tenant | None, scan: Scan | None) ->
 
 
 def _get_premium_pricing_breakdown(scan: Scan | None) -> dict[str, Any]:
-    total_records = _safe_int(getattr(scan, "total_records", 0)) if scan is not None else 0
     with SessionLocal() as db:
-        pricing = get_license_pricing(db, "premium")
-        return build_embed_pricing_breakdown(total_records, pricing)
+        return build_monitoring_pricing_breakdown(db)
 
 
 def _build_fallback_payload(company: str, environment: str, scan_mode: str | None) -> dict[str, Any]:
     with SessionLocal() as db:
-        pricing = get_license_pricing(db, "premium")
-        default_pricing = build_embed_pricing_breakdown(0, pricing)
+        default_pricing = build_monitoring_pricing_breakdown(db)
+        product_pricing = get_public_product_pricing_payload(db)
     fallback_monthly = _safe_float(default_pricing.get("final_price_monthly"), 0.0)
 
     return {
@@ -661,6 +654,7 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
             ],
         },
         "pricing_breakdown": default_pricing,
+        "product_pricing": product_pricing,
         "subscription": {
             "plan_label": "Assessment needed",
             "price_monthly": 0.0,
@@ -734,6 +728,7 @@ def _build_dashboard_payload(
     with SessionLocal() as db:
         tenant_features = get_tenant_features(db, tenant)
         product_access = build_product_access_snapshot(db, tenant)
+        product_pricing = get_public_product_pricing_payload(db)
 
     current_plan = _normalize_plan(getattr(tenant, "current_plan", "free"))
     is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["can_view_dashboard"])
@@ -885,6 +880,7 @@ def _build_dashboard_payload(
             ],
         },
         "pricing_breakdown": pricing_breakdown,
+        "product_pricing": product_pricing,
         "subscription": {
             "plan_label": "Monitoring" if monitoring_active else ("Assessment / Validation access" if is_premium else "Validation Check needed"),
             "price_monthly": current_plan_price_monthly if monitoring_active else 0.0,
@@ -921,37 +917,40 @@ def get_analytics_token(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
 
-    token = create_token(
-        {
-            "company": company,
-            "environment": environment,
-            "tenant_id": tenant.tenant_id,
-            "scan_mode": scan_mode,
-            "bc_issue_launch_url": bc_issue_launch_url,
+    token = _create_analytics_embed_token(
+        company=company,
+        environment=environment,
+        tenant_id=tenant.tenant_id,
+        scan_mode=scan_mode,
+        bc_issue_launch_url=bc_issue_launch_url,
+    )
+    return JSONResponse(
+        content={
+            "token": token,
+            "token_type": ANALYTICS_EMBED_TOKEN_TYPE,
+            "expires_in_seconds": ANALYTICS_EMBED_TOKEN_MINUTES * 60,
         }
     )
-    return JSONResponse(content={"token": token})
 
 
 @router.get("/analytics/embed/data", response_class=JSONResponse)
 def get_analytics_data(
     token: str | None = Query(default=None),
+    embed_token: str | None = Query(default=None),
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
     scan_id: str | None = Query(default=None),
     recent_scans_page: int = Query(default=1, ge=1),
     recent_scans_page_size: int = Query(default=10, ge=1, le=25),
 ):
-    effective_token = token or analytics_cookie_token
+    effective_token = embed_token or token or analytics_cookie_token
     if not effective_token:
-        raise HTTPException(status_code=401, detail="Missing analytics token.")
+        raise HTTPException(status_code=401, detail="Missing analytics embed token.")
 
-    payload = verify_token(effective_token)
-    if payload is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    payload = _verify_analytics_embed_payload(effective_token)
 
     tenant_id = str(payload.get("tenant_id") or "").strip()
     if not tenant_id:
-        raise HTTPException(status_code=401, detail="Token payload is missing tenant_id.")
+        raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -973,18 +972,20 @@ def get_analytics_data(
     )
 
 
-def _load_analytics_tenant(token: str | None, analytics_cookie_token: str | None) -> Tenant:
-    effective_token = token or analytics_cookie_token
+def _load_analytics_tenant(
+    token: str | None,
+    embed_token: str | None,
+    analytics_cookie_token: str | None,
+) -> Tenant:
+    effective_token = embed_token or token or analytics_cookie_token
     if not effective_token:
-        raise HTTPException(status_code=401, detail="Missing analytics token.")
+        raise HTTPException(status_code=401, detail="Missing analytics embed token.")
 
-    payload = verify_token(effective_token)
-    if payload is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    payload = _verify_analytics_embed_payload(effective_token)
 
     tenant_id = str(payload.get("tenant_id") or "").strip()
     if not tenant_id:
-        raise HTTPException(status_code=401, detail="Token payload is missing tenant_id.")
+        raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -997,10 +998,11 @@ def _load_analytics_tenant(token: str | None, analytics_cookie_token: str | None
 @router.post("/analytics/billing/checkout", response_class=JSONResponse)
 def analytics_billing_checkout(
     token: str | None = Query(default=None),
+    embed_token: str | None = Query(default=None),
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
     product_code: str | None = Query(default=None),
 ):
-    tenant = _load_analytics_tenant(token, analytics_cookie_token)
+    tenant = _load_analytics_tenant(token, embed_token, analytics_cookie_token)
     requested_product = (product_code or PRODUCT_ASSESSMENT).strip().lower()
     allowed_products = {
         PRODUCT_ASSESSMENT,
@@ -1038,13 +1040,54 @@ def analytics_billing_checkout(
 @router.post("/analytics/billing/portal", response_class=JSONResponse)
 def analytics_billing_portal(
     token: str | None = Query(default=None),
+    embed_token: str | None = Query(default=None),
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
 ):
-    tenant = _load_analytics_tenant(token, analytics_cookie_token)
+    tenant = _load_analytics_tenant(token, embed_token, analytics_cookie_token)
 
     portal = create_billing_portal_session_for_tenant(
         BillingPortalRequest(tenant_id=tenant.tenant_id)
     )
+
+
+def _create_analytics_embed_token(
+    *,
+    company: str,
+    environment: str,
+    tenant_id: str,
+    scan_mode: str | None,
+    bc_issue_launch_url: str | None,
+) -> str:
+    return create_token(
+        {
+            "type": ANALYTICS_EMBED_TOKEN_TYPE,
+            "company": company,
+            "environment": environment,
+            "tenant_id": tenant_id,
+            "scan_mode": scan_mode,
+            "bc_issue_launch_url": bc_issue_launch_url,
+            "scope": "analytics:embed",
+        },
+        expires_delta=timedelta(minutes=ANALYTICS_EMBED_TOKEN_MINUTES),
+    )
+
+
+def _verify_analytics_embed_payload(token: str) -> dict[str, Any]:
+    payload = verify_token(token)
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Invalid or expired analytics embed token.")
+
+    if str(payload.get("type") or "") != ANALYTICS_EMBED_TOKEN_TYPE:
+        raise HTTPException(status_code=401, detail="Invalid analytics embed token.")
+
+    if str(payload.get("scope") or "") != "analytics:embed":
+        raise HTTPException(status_code=401, detail="Invalid analytics embed token scope.")
+
+    tenant_id = str(payload.get("tenant_id") or "").strip()
+    if not tenant_id:
+        raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
+
+    return payload
     return JSONResponse(
         content={
             "action": "portal",
@@ -1058,16 +1101,16 @@ def analytics_billing_portal(
 def render_analytics_dashboard(
     request: Request,
     token: str | None = Query(default=None),
+    embed_token: str | None = Query(default=None),
     analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
 ):
-    if token:
-        payload = verify_token(token)
-        if payload is None:
-            raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    supplied_token = embed_token or token
+    if supplied_token:
+        payload = _verify_analytics_embed_payload(supplied_token)
 
         tenant_id = str(payload.get("tenant_id") or "").strip()
         if not tenant_id:
-            raise HTTPException(status_code=401, detail="Token payload is missing tenant_id.")
+            raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
 
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -1078,7 +1121,7 @@ def render_analytics_dashboard(
         response = RedirectResponse(url="/analytics/embed", status_code=303)
         response.set_cookie(
             key=ANALYTICS_EMBED_COOKIE_NAME,
-            value=token,
+            value=supplied_token,
             max_age=ANALYTICS_EMBED_COOKIE_MAX_AGE_SECONDS,
             httponly=True,
             secure=(settings.ENV.lower() == "prod"),
@@ -1088,15 +1131,13 @@ def render_analytics_dashboard(
         return response
 
     if not analytics_cookie_token:
-        raise HTTPException(status_code=401, detail="Missing analytics token.")
+        raise HTTPException(status_code=401, detail="Missing analytics embed token.")
 
-    payload = verify_token(analytics_cookie_token)
-    if payload is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    payload = _verify_analytics_embed_payload(analytics_cookie_token)
 
     tenant_id = str(payload.get("tenant_id") or "").strip()
     if not tenant_id:
-        raise HTTPException(status_code=401, detail="Token payload is missing tenant_id.")
+        raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))

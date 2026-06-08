@@ -74,15 +74,26 @@ DEFAULT_PUBLIC_FRONTEND_ORIGINS = [
     "https://www.bcsentinel.com",
     "https://bcsentinel.com",
 ]
+PROD_PUBLIC_FRONTEND_ORIGINS = [
+    "https://www.bcsentinel.com",
+    "https://bcsentinel.com",
+]
 
 
 def _public_frontend_origins() -> list[str]:
     configured = (settings.CORS_ALLOW_ORIGINS or "").strip()
     if not configured:
+        if settings.ENV.lower() == "prod":
+            return PROD_PUBLIC_FRONTEND_ORIGINS
         return DEFAULT_PUBLIC_FRONTEND_ORIGINS
 
     origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
-    return origins or DEFAULT_PUBLIC_FRONTEND_ORIGINS
+    if origins:
+        return origins
+
+    if settings.ENV.lower() == "prod":
+        return PROD_PUBLIC_FRONTEND_ORIGINS
+    return DEFAULT_PUBLIC_FRONTEND_ORIGINS
 
 
 def _summarize_validation_errors(errors: list[dict]) -> list[dict[str, object]]:

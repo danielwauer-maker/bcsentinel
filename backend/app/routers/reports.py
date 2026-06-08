@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 
-from app.core.settings import settings
+from app.core.settings import resolve_public_base_url, settings
 from app.db import SessionLocal
 from app.models import Tenant
 from app.schemas.report import ExecutiveReport
@@ -96,7 +96,7 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
 
 
 def _shared_report_url(request: Request, scan_id: str, report_type: str, token: str) -> str:
-    base_url = str(request.base_url).rstrip("/")
+    base_url = resolve_public_base_url() or str(request.base_url).rstrip("/")
     return f"{base_url}/reports/executive/{quote(scan_id)}/{report_type}/shared?token={quote(token)}"
 
 

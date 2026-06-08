@@ -1,4 +1,4 @@
-page 53159 "DH Issue Drilldown Launch"
+﻿page 53159 "DH Issue Drilldown Launch"
 {
     PageType = Card;
     SourceTable = "DH Setup";
@@ -20,6 +20,7 @@ page 53159 "DH Issue Drilldown Launch"
                 {
                     ApplicationArea = All;
                     Caption = 'Status';
+                    ToolTip = 'Specifies Status.';
                     Editable = false;
                 }
             }
@@ -66,3 +67,4 @@ page 53159 "DH Issue Drilldown Launch"
     var
         StatusTxt: Text[100];
 }
+

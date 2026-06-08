@@ -47,13 +47,6 @@ PRODUCT_DISPLAY_NAMES = {
     PRODUCT_LEGACY_PREMIUM: "Legacy Premium",
 }
 
-PRODUCT_PRICES_EUR = {
-    PRODUCT_ASSESSMENT: 79.0,
-    PRODUCT_VALIDATION_CHECK: 49.0,
-    PRODUCT_MONITORING_MONTHLY: 99.0,
-    PRODUCT_MONITORING_ANNUAL: 990.0,
-}
-
 BASE_FEATURES = {
     "scan_sync",
     "quick_scan",
@@ -402,8 +395,15 @@ def consume_scan_credit_for_scan(db, *, tenant_id: str, scan_id: str) -> TenantS
 
 
 def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
+    from app.services.product_pricing_service import ensure_default_product_pricing, list_product_pricing
+
     features = sorted(resolve_product_features(db, tenant))
     active_products = active_entitlement_product_codes(db, tenant.tenant_id)
+    ensure_default_product_pricing(db)
+    product_price_map = {
+        row.product_key: round(max(int(row.price_cents or 0), 0) / 100, 2)
+        for row in list_product_pricing(db)
+    }
     access = build_product_access_snapshot(db, tenant)
     if access["assessment_access_active"]:
         active_products = sorted(set(active_products + [PRODUCT_ASSESSMENT]))
@@ -428,7 +428,7 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
             {
                 "product_code": code,
                 "display_name": PRODUCT_DISPLAY_NAMES.get(code, code),
-                "price_eur": PRODUCT_PRICES_EUR.get(code, 0.0),
+                "price_eur": product_price_map.get(code, 0.0),
                 "active": code in active_products,
             }
             for code in [

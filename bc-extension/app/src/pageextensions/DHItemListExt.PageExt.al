@@ -9,6 +9,7 @@ pageextension 53163 "DH Item List Ext" extends "Item List"
                 Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
+                ToolTip = 'Opens active BCSentinel exceptions for the selected item.';
                 trigger OnAction()
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";

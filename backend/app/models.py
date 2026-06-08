@@ -228,6 +228,18 @@ class LicensePricingConfig(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
+class ProductPricingConfig(Base):
+    __tablename__ = "product_pricing_config"
+
+    product_key: Mapped[str] = mapped_column(String(50), primary_key=True)
+    display_name: Mapped[str] = mapped_column(String(120), default="")
+    price_cents: Mapped[int] = mapped_column(Integer, default=0)
+    currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    billing_interval: Mapped[str] = mapped_column(String(20), default="one_time")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class Subscription(Base):
     __tablename__ = "subscriptions"
 

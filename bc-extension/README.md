@@ -14,7 +14,7 @@ Additional manifests are kept for explicit non-default scenarios:
 
 - `app.cloud.json`
   - cloud development companion manifest
-  - keeps source/debug exposure enabled for intentional DEV builds only
+  - currently keeps the same hardened source/debug exposure policy as the release manifest
 - `app.onprem.bc19.json`
   - legacy on-prem BC19 companion manifest
   - hardened, not the default cloud release path
@@ -49,10 +49,22 @@ Additional manifests are kept for explicit non-default scenarios:
 
 - copies `app/` into a generated build workspace
 - copies the selected manifest into that workspace as `app.json`
+- copies `app.ruleset.json` into that workspace
+- copies `AppSourceCop.json` into that workspace
+- copies `.vscode/settings.json` so CodeCop, AppSourceCop and PerTenantExtensionCop are enabled when available
 - copies `.alpackages/` when present
 - copies `.vscode/launch.json` for the DEV cloud profile
 
 This keeps `bc-extension/app.json` as the release-safe default in the repo while making DEV and PROD packaging paths explicit.
+
+## AppSource readiness baseline
+
+- Analyzer activation is configured in `.vscode/settings.json`.
+- Analyzer execution uses `app.ruleset.json` through VS Code settings or the AL compiler `/ruleset` parameter.
+- `app.json` includes the current public product, privacy and help URLs.
+- Final AppSource submission still needs verified EULA/terms and logo assets before packaging.
+- The app id `8c7f0f9c-0c1a-4a4e-9c6f-111111111111` must be verified before marketplace submission because it looks placeholder-like.
+- Dashboard embed URLs currently use a short-lived dashboard token in the iframe URL. The token is no longer displayed in the ControlAddIn loading state; a tokenless/session-cookie embed flow remains the preferred follow-up.
 
 ## Release hygiene
 
@@ -60,6 +72,9 @@ The repo still contains dev/build artifacts that should not be treated as releas
 
 - `.alpackages/`
 - `.snapshots/`
+- `.vscode/launch.json` with sandbox tenant metadata
 - packaged `.app` files in the repo root
 
 They are already ignored in the root `.gitignore`, but existing tracked artifacts should be cleaned up separately to reduce the risk of shipping the wrong output.
+
+See `APP_SOURCE_READINESS.md` for the current P2.13 P0 baseline and remaining AppSource items.

@@ -27,6 +27,7 @@ from app.models import (
     PartnerApplication,
     PartnerCommission,
     PartnerReferral,
+    ProductPricingConfig,
     Scan,
     Subscription,
     Tenant,
@@ -36,6 +37,13 @@ from app.models import (
 )
 from app.services.cost_service import ensure_default_issue_costs
 from app.services.pricing_service import ensure_default_license_pricing
+from app.services.product_pricing_service import (
+    PRODUCT_PRICING_DEFAULTS,
+    ProductPricingValidationError,
+    ensure_default_product_pricing,
+    list_product_pricing,
+    validate_product_pricing_update,
+)
 from app.services.billing_service import utc_now
 from app.services.impact_service import ensure_default_impact_config, get_hourly_rate_eur
 from app.services.admin_audit_service import log_admin_event
@@ -96,9 +104,9 @@ ADMIN_SECTION_META = {
         "subtitle": "Estimated Loss & Potential Savings Konfiguration",
     },
     "license_pricing": {
-        "label": "Compatibility Pricing",
+        "label": "Product Pricing",
         "href": "/admin/config/license-pricing",
-        "subtitle": "Hidden compatibility configuration for existing tenants",
+        "subtitle": "License Pricing und Produktpreise",
     },
     "partners": {
         "label": "Partners",
@@ -587,6 +595,7 @@ def _render_admin_page(
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
         ensure_default_license_pricing(db)
+        ensure_default_product_pricing(db)
 
         if active_section == "tenants":
             context["tenants"] = _load_tenant_rows(db)
@@ -599,6 +608,8 @@ def _render_admin_page(
             context["license_prices"] = db.scalars(
                 select(LicensePricingConfig).order_by(LicensePricingConfig.plan_code.asc())
             ).all()
+            context["product_prices"] = list_product_pricing(db)
+            context["product_price_defaults"] = PRODUCT_PRICING_DEFAULTS
         elif active_section == "partners":
             context["partners"] = db.scalars(
                 select(Partner).order_by(Partner.created_at_utc.desc(), Partner.id.desc())
@@ -1341,6 +1352,73 @@ def update_license_pricing(
                     "base_price_monthly": float(row.base_price_monthly),
                     "included_records": int(row.included_records),
                     "additional_price_per_1000_records": float(row.additional_price_per_1000_records),
+                    "is_active": bool(row.is_active),
+                },
+            },
+        )
+        db.commit()
+
+    return RedirectResponse(url="/admin/config/license-pricing", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/admin/config/product-pricing/{product_key}")
+def update_product_pricing(
+    product_key: str,
+    display_name: str = Form(...),
+    price_cents: int = Form(...),
+    currency: str = Form(...),
+    billing_interval: str = Form(...),
+    is_active: str | None = Form(default=None),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_key = (product_key or "").strip().lower()
+    normalized_currency = (currency or "").strip().upper()
+    normalized_interval = (billing_interval or "").strip().lower()
+    normalized_display_name = (display_name or "").strip()
+    try:
+        validate_product_pricing_update(
+            product_key=normalized_key,
+            display_name=normalized_display_name,
+            price_cents=int(price_cents),
+            currency=normalized_currency,
+            billing_interval=normalized_interval,
+        )
+    except (TypeError, ValueError, ProductPricingValidationError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc) or "Invalid product pricing update.") from exc
+
+    with SessionLocal() as db:
+        ensure_default_product_pricing(db)
+        row = db.get(ProductPricingConfig, normalized_key)
+        if row is None:
+            row = ProductPricingConfig(product_key=normalized_key, updated_at_utc=utc_now())
+            db.add(row)
+
+        before = {
+            "display_name": row.display_name,
+            "price_cents": int(row.price_cents or 0),
+            "currency": row.currency,
+            "billing_interval": row.billing_interval,
+            "is_active": bool(row.is_active),
+        }
+        row.display_name = normalized_display_name
+        row.price_cents = int(price_cents)
+        row.currency = normalized_currency
+        row.billing_interval = normalized_interval
+        row.is_active = is_active == "on"
+        row.updated_at_utc = utc_now()
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="config.product_pricing.update",
+            target_type="product_pricing_config",
+            target_id=normalized_key,
+            details={
+                "before": before,
+                "after": {
+                    "display_name": row.display_name,
+                    "price_cents": int(row.price_cents),
+                    "currency": row.currency,
+                    "billing_interval": row.billing_interval,
                     "is_active": bool(row.is_active),
                 },
             },

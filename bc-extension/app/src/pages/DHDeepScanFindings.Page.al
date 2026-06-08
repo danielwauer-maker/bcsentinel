@@ -1,4 +1,4 @@
-page 53131 "DH Deep Scan Findings"
+﻿page 53131 "DH Deep Scan Findings"
 {
     PageType = ListPart;
     SourceTable = "DH Deep Scan Finding";
@@ -19,17 +19,20 @@ page 53131 "DH Deep Scan Findings"
                 field(Category; Rec.Category)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Category.';
                 }
 
                 field("Issue Code"; Rec."Issue Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Code.';
                     Visible = ShowPremiumDetails;
                 }
 
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Title.';
 
                     trigger OnDrillDown()
                     var
@@ -42,12 +45,14 @@ page 53131 "DH Deep Scan Findings"
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Severity.';
                     StyleExpr = SeverityStyle;
                 }
 
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Affected Count.';
 
                     trigger OnDrillDown()
                     var
@@ -60,12 +65,14 @@ page 53131 "DH Deep Scan Findings"
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact €';
+                    Caption = 'Impact â‚¬';
+                    ToolTip = 'Specifies Impact â‚¬.';
                 }
 
                 field("Recommendation Preview"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Recommendation Preview.';
                     Visible = ShowPremiumDetails;
                 }
 
@@ -73,6 +80,7 @@ page 53131 "DH Deep Scan Findings"
                 {
                     ApplicationArea = All;
                     Caption = 'Access';
+                    ToolTip = 'Specifies Access.';
                 }
             }
         }
@@ -175,3 +183,4 @@ page 53131 "DH Deep Scan Findings"
         CurrPage.Update(false);
     end;
 }
+

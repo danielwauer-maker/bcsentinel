@@ -286,7 +286,7 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
         lambda **kwargs: SimpleNamespace(id="cs_analytics", url="https://stripe.example/session"),
     )
 
-    response = client.post(f"/analytics/billing/checkout?token={analytics_token}")
+    response = client.post(f"/analytics/billing/checkout?embed_token={analytics_token}")
 
     assert response.status_code == 200
     assert response.json()["checkout_url"] == "https://stripe.example/session"

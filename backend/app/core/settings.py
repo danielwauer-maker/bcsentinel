@@ -88,6 +88,10 @@ def _resolve_base_url() -> str | None:
     return None
 
 
+def resolve_public_base_url() -> str | None:
+    return _resolve_base_url()
+
+
 def resolve_billing_url(setting_name: str) -> str:
     explicit_mapping = {
         "BILLING_SUCCESS_URL": settings.BILLING_SUCCESS_URL,
@@ -153,8 +157,16 @@ def validate_settings() -> None:
 
     if settings.ENV.lower() == "prod":
         configured_cors = (settings.CORS_ALLOW_ORIGINS or "").strip()
-        if configured_cors and "*" in {origin.strip() for origin in configured_cors.split(",")}:
+        if not configured_cors:
+            raise RuntimeError("CORS_ALLOW_ORIGINS is required in production.")
+        configured_origins = {origin.strip() for origin in configured_cors.split(",") if origin.strip()}
+        if "*" in configured_origins:
             raise RuntimeError("CORS_ALLOW_ORIGINS must not contain '*' in production.")
+        if "https://dev.bcsentinel.com" in configured_origins:
+            raise RuntimeError("CORS_ALLOW_ORIGINS must not contain dev origins in production.")
+
+        if not _resolve_base_url():
+            raise RuntimeError("APP_BASE_URL is required in production.")
 
         if not (settings.TENANT_REGISTRATION_INVITE_CODE or "").strip():
             raise RuntimeError(

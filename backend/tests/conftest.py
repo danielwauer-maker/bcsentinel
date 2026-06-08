@@ -53,6 +53,7 @@ def db_session():
 def settings_state(monkeypatch):
     original_values = {
         "ENV": settings.ENV,
+        "CORS_ALLOW_ORIGINS": settings.CORS_ALLOW_ORIGINS,
         "APP_BASE_URL": settings.APP_BASE_URL,
         "BILLING_SUCCESS_URL": settings.BILLING_SUCCESS_URL,
         "BILLING_CANCEL_URL": settings.BILLING_CANCEL_URL,

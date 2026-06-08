@@ -7,10 +7,10 @@ from app.core.settings import settings
 ALGORITHM = "HS256"
 
 
-def create_token(data: dict) -> str:
+def create_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.TOKEN_EXPIRE_MINUTES
+    expire = datetime.now(timezone.utc) + (
+        expires_delta if expires_delta is not None else timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
     )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)

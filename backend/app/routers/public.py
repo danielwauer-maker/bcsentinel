@@ -11,6 +11,7 @@ from app.services.impact_service import (
     get_impact_definition,
 )
 from app.services.pricing_service import get_public_pricing_payload
+from app.services.product_pricing_service import get_public_product_pricing_payload
 
 router = APIRouter(tags=["public"])
 
@@ -40,6 +41,23 @@ class PublicPricingResponse(BaseModel):
     marketing: PublicPricingMarketing
 
 
+class PublicProductPricingItemResponse(BaseModel):
+    product_key: str
+    display_name: str
+    price_cents: int
+    price_eur: float
+    currency: str
+    billing_interval: str
+    is_active: bool
+    updated_at: str | None = None
+
+
+class PublicProductPricingResponse(BaseModel):
+    source: str
+    currency: str
+    products: list[PublicProductPricingItemResponse]
+
+
 class PublicLossExampleIssueResponse(BaseModel):
     minutes_per_occurrence: float
     probability: float
@@ -55,6 +73,12 @@ class PublicLossExampleConfigResponse(BaseModel):
 def get_public_pricing() -> PublicPricingResponse:
     with SessionLocal() as db:
         return PublicPricingResponse.model_validate(get_public_pricing_payload(db, "premium"))
+
+
+@router.get("/pricing/public", response_model=PublicProductPricingResponse)
+def get_public_product_pricing() -> PublicProductPricingResponse:
+    with SessionLocal() as db:
+        return PublicProductPricingResponse.model_validate(get_public_product_pricing_payload(db))
 
 
 @router.get("/public/loss-examples-config", response_model=PublicLossExampleConfigResponse)

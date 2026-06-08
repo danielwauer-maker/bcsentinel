@@ -1,4 +1,4 @@
-page 53156 "DH Customer Issue List"
+﻿page 53156 "DH Customer Issue List"
 {
     PageType = List;
     SourceTable = Customer;
@@ -13,26 +13,26 @@ page 53156 "DH Customer Issue List"
         {
             repeater(General)
             {
-                field("No."; Rec."No.") { ApplicationArea = All; }
-                field(Name; Rec.Name) { ApplicationArea = All; }
-                field(Address; Rec.Address) { ApplicationArea = All; }
-                field(City; Rec.City) { ApplicationArea = All; }
-                field("Post Code"; Rec."Post Code") { ApplicationArea = All; }
-                field("Country/Region Code"; Rec."Country/Region Code") { ApplicationArea = All; }
-                field("E-Mail"; Rec."E-Mail") { ApplicationArea = All; }
-                field("Phone No."; Rec."Phone No.") { ApplicationArea = All; }
-                field("Payment Terms Code"; Rec."Payment Terms Code") { ApplicationArea = All; }
-                field("Payment Method Code"; Rec."Payment Method Code") { ApplicationArea = All; }
-                field("Salesperson Code"; Rec."Salesperson Code") { ApplicationArea = All; }
-                field("Customer Price Group"; Rec."Customer Price Group") { ApplicationArea = All; }
-                field("Customer Disc. Group"; Rec."Customer Disc. Group") { ApplicationArea = All; }
-                field("Reminder Terms Code"; Rec."Reminder Terms Code") { ApplicationArea = All; }
-                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code") { ApplicationArea = All; }
-                field(Contact; Rec.Contact) { ApplicationArea = All; }
-                field("Home Page"; Rec."Home Page") { ApplicationArea = All; }
-                field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; }
-                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)") { ApplicationArea = All; }
-                field(Blocked; Rec.Blocked) { ApplicationArea = All; }
+                field("No."; Rec."No.") { ApplicationArea = All; ToolTip = 'Specifies No.'; }
+                field(Name; Rec.Name) { ApplicationArea = All; ToolTip = 'Specifies Name.'; }
+                field(Address; Rec.Address) { ApplicationArea = All; ToolTip = 'Specifies Address.'; }
+                field(City; Rec.City) { ApplicationArea = All; ToolTip = 'Specifies City.'; }
+                field("Post Code"; Rec."Post Code") { ApplicationArea = All; ToolTip = 'Specifies Post Code.'; }
+                field("Country/Region Code"; Rec."Country/Region Code") { ApplicationArea = All; ToolTip = 'Specifies Country/Region Code.'; }
+                field("E-Mail"; Rec."E-Mail") { ApplicationArea = All; ToolTip = 'Specifies E-Mail.'; }
+                field("Phone No."; Rec."Phone No.") { ApplicationArea = All; ToolTip = 'Specifies Phone No.'; }
+                field("Payment Terms Code"; Rec."Payment Terms Code") { ApplicationArea = All; ToolTip = 'Specifies Payment Terms Code.'; }
+                field("Payment Method Code"; Rec."Payment Method Code") { ApplicationArea = All; ToolTip = 'Specifies Payment Method Code.'; }
+                field("Salesperson Code"; Rec."Salesperson Code") { ApplicationArea = All; ToolTip = 'Specifies Salesperson Code.'; }
+                field("Customer Price Group"; Rec."Customer Price Group") { ApplicationArea = All; ToolTip = 'Specifies Customer Price Group.'; }
+                field("Customer Disc. Group"; Rec."Customer Disc. Group") { ApplicationArea = All; ToolTip = 'Specifies Customer Disc. Group.'; }
+                field("Reminder Terms Code"; Rec."Reminder Terms Code") { ApplicationArea = All; ToolTip = 'Specifies Reminder Terms Code.'; }
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code") { ApplicationArea = All; ToolTip = 'Specifies Fin. Charge Terms Code.'; }
+                field(Contact; Rec.Contact) { ApplicationArea = All; ToolTip = 'Specifies Contact.'; }
+                field("Home Page"; Rec."Home Page") { ApplicationArea = All; ToolTip = 'Specifies Home Page.'; }
+                field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; ToolTip = 'Specifies VAT Registration No.'; }
+                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)") { ApplicationArea = All; ToolTip = 'Specifies Credit Limit (LCY).'; }
+                field(Blocked; Rec.Blocked) { ApplicationArea = All; ToolTip = 'Specifies Blocked.'; }
             }
         }
     }
@@ -44,6 +44,7 @@ page 53156 "DH Customer Issue List"
             action(OpenCustomerCard)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -54,6 +55,7 @@ page 53156 "DH Customer Issue List"
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
+                ToolTip = 'Runs Exclude from Analysis.';
                 ApplicationArea = All;
                 Image = Cancel;
                 trigger OnAction()
@@ -69,6 +71,7 @@ page 53156 "DH Customer Issue List"
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -201,3 +204,4 @@ page 53156 "DH Customer Issue List"
         exit('');
     end;
 }
+

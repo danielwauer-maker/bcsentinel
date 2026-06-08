@@ -89,6 +89,7 @@ permissionset 53192 "BCSENTINEL SETUP"
         tabledata "DH Setup" = RIMD,
         page "DH Setup" = X,
         codeunit "DH API Client" = X,
+        codeunit "DH Guided Experience" = X,
         codeunit "DH Secret Mgt." = X,
         codeunit "DH Run ID Mgt." = X;
 }
@@ -148,6 +149,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Run ID Mgt." = X,
         codeunit "DH Data Profiling Mgt." = X,
         codeunit "DH Dashboard Mgt." = X,
+        codeunit "DH Guided Experience" = X,
         codeunit "DH Exception Mgt." = X,
         codeunit "DH Duplicate Worklist Mgt." = X,
         codeunit "DH Issue Drilldown Mgt." = X,

@@ -1,4 +1,4 @@
-page 53137 "DH Item Missing Cost List"
+﻿page 53137 "DH Item Missing Cost List"
 {
     PageType = List;
     SourceTable = Item;
@@ -17,25 +17,30 @@ page 53137 "DH Item Missing Cost List"
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
+                    ToolTip = 'Specifies Item No..';
                     Editable = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Description.';
                     Editable = false;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Unit Cost.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Unit Price.';
                     Editable = false;
                 }
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Inventory.';
                     Editable = false;
                 }
             }
@@ -49,6 +54,7 @@ page 53137 "DH Item Missing Cost List"
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
+                ToolTip = 'Runs Exclude from Analysis.';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -63,6 +69,7 @@ page 53137 "DH Item Missing Cost List"
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -78,6 +85,7 @@ page 53137 "DH Item Missing Cost List"
             action(OpenItemCard)
             {
                 Caption = 'Open List';
+                ToolTip = 'Runs Open List.';
                 ApplicationArea = All;
                 Image = Card;
 
@@ -89,3 +97,4 @@ page 53137 "DH Item Missing Cost List"
         }
     }
 }
+

@@ -13,6 +13,13 @@ Erster MVP-Stand des Analyse-Backends.
 ## Start
 Ueber Docker Compose im Projekt-Root.
 
+## Production Deployment
+
+- Production deployment steps are documented in `docs/ops/production-deployment.md`.
+- Run `alembic upgrade head` before starting or restarting the API.
+- The API validates that the database is at the current Alembic head during startup.
+- In production, set `APP_BASE_URL` and explicit `CORS_ALLOW_ORIGINS`; do not include dev origins in production CORS.
+
 ## Entitlements (Session 2 Foundation)
 
 - Zentrale Feature-Aufloesung liegt in:

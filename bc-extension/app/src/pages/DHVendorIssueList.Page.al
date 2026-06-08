@@ -1,4 +1,4 @@
-page 53157 "DH Vendor Issue List"
+﻿page 53157 "DH Vendor Issue List"
 {
     PageType = List;
     SourceTable = Vendor;
@@ -13,22 +13,22 @@ page 53157 "DH Vendor Issue List"
         {
             repeater(General)
             {
-                field("No."; Rec."No.") { ApplicationArea = All; }
-                field(Name; Rec.Name) { ApplicationArea = All; }
-                field(Address; Rec.Address) { ApplicationArea = All; }
-                field(City; Rec.City) { ApplicationArea = All; }
-                field("Post Code"; Rec."Post Code") { ApplicationArea = All; }
-                field("Country/Region Code"; Rec."Country/Region Code") { ApplicationArea = All; }
-                field("E-Mail"; Rec."E-Mail") { ApplicationArea = All; }
-                field("Phone No."; Rec."Phone No.") { ApplicationArea = All; }
-                field("Payment Terms Code"; Rec."Payment Terms Code") { ApplicationArea = All; }
-                field("Payment Method Code"; Rec."Payment Method Code") { ApplicationArea = All; }
-                field("Purchaser Code"; Rec."Purchaser Code") { ApplicationArea = All; }
-                field(Contact; Rec.Contact) { ApplicationArea = All; }
-                field("Home Page"; Rec."Home Page") { ApplicationArea = All; }
-                field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; }
-                field("Preferred Bank Account Code"; Rec."Preferred Bank Account Code") { ApplicationArea = All; }
-                field(Blocked; Rec.Blocked) { ApplicationArea = All; }
+                field("No."; Rec."No.") { ApplicationArea = All; ToolTip = 'Specifies No.'; }
+                field(Name; Rec.Name) { ApplicationArea = All; ToolTip = 'Specifies Name.'; }
+                field(Address; Rec.Address) { ApplicationArea = All; ToolTip = 'Specifies Address.'; }
+                field(City; Rec.City) { ApplicationArea = All; ToolTip = 'Specifies City.'; }
+                field("Post Code"; Rec."Post Code") { ApplicationArea = All; ToolTip = 'Specifies Post Code.'; }
+                field("Country/Region Code"; Rec."Country/Region Code") { ApplicationArea = All; ToolTip = 'Specifies Country/Region Code.'; }
+                field("E-Mail"; Rec."E-Mail") { ApplicationArea = All; ToolTip = 'Specifies E-Mail.'; }
+                field("Phone No."; Rec."Phone No.") { ApplicationArea = All; ToolTip = 'Specifies Phone No.'; }
+                field("Payment Terms Code"; Rec."Payment Terms Code") { ApplicationArea = All; ToolTip = 'Specifies Payment Terms Code.'; }
+                field("Payment Method Code"; Rec."Payment Method Code") { ApplicationArea = All; ToolTip = 'Specifies Payment Method Code.'; }
+                field("Purchaser Code"; Rec."Purchaser Code") { ApplicationArea = All; ToolTip = 'Specifies Purchaser Code.'; }
+                field(Contact; Rec.Contact) { ApplicationArea = All; ToolTip = 'Specifies Contact.'; }
+                field("Home Page"; Rec."Home Page") { ApplicationArea = All; ToolTip = 'Specifies Home Page.'; }
+                field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; ToolTip = 'Specifies VAT Registration No.'; }
+                field("Preferred Bank Account Code"; Rec."Preferred Bank Account Code") { ApplicationArea = All; ToolTip = 'Specifies Preferred Bank Account Code.'; }
+                field(Blocked; Rec.Blocked) { ApplicationArea = All; ToolTip = 'Specifies Blocked.'; }
             }
         }
     }
@@ -40,6 +40,7 @@ page 53157 "DH Vendor Issue List"
             action(OpenVendorCard)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -50,6 +51,7 @@ page 53157 "DH Vendor Issue List"
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
+                ToolTip = 'Runs Exclude from Analysis.';
                 ApplicationArea = All;
                 Image = Cancel;
                 trigger OnAction()
@@ -65,6 +67,7 @@ page 53157 "DH Vendor Issue List"
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
                 trigger OnAction()
@@ -181,3 +184,4 @@ page 53157 "DH Vendor Issue List"
         exit('');
     end;
 }
+

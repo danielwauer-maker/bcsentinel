@@ -57,7 +57,7 @@ codeunit 53123 "DH QuickScan Mgt."
         EntryNo: Integer;
     begin
         if not JsonObj.ReadFrom(ResponseText) then
-            Error('Invalid JSON response: %1', ResponseText);
+            Error('The quick scan response is not valid JSON. Contact BCSentinel support if this continues.');
 
         EntryNo := GetNextHeaderEntryNo();
 

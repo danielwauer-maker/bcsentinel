@@ -151,7 +151,9 @@ curl -i <API_BASE>/analytics/get-token \
 
 Erwartet:
 
-- `200 OK` mit gueltigen Analytics-Daten
+- `200 OK` mit `token_type=analytics_embed`
+- `expires_in_seconds` ist kurz, aktuell `300`
+- Token ist ein Embed-Token, kein API Token
 - oder klarer Konfigurationsfehler
 - kein `500` mit internem Detail-Leak
 
@@ -159,14 +161,17 @@ Erwartet:
 
 Schritt:
 
-- Im Browser aufrufen:
-  - `<API_BASE>/analytics/embed?tenant_id=<TENANT_ID>`
+- Mit dem Embed-Token aus Schritt 8 im Browser aufrufen:
+  - `<API_BASE>/analytics/embed?embed_token=<EMBED_TOKEN>`
 
 Erwartet:
 
+- erster Aufruf antwortet mit Redirect auf `/analytics/embed`
+- `Set-Cookie` fuer die kurzlebige Analytics-Session ist `HttpOnly`
 - Seite laedt
 - kein leerer Embed
 - kein `500`
+- kein API Token und kein generischer `token=` Query-Parameter in der Dashboard-URL
 
 ### 10. DEV-API Gegenprobe
 

@@ -1,4 +1,19 @@
 services:
+  migration:
+    build: ./backend
+    container_name: dhm-migration
+    profiles:
+      - tools
+
+    env_file:
+      - .env.prod
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+
   backend:
     build: ./backend
     container_name: dhm-backend

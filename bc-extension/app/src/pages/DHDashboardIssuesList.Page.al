@@ -1,4 +1,4 @@
-page 53161 "DH Dashboard Issues List"
+﻿page 53161 "DH Dashboard Issues List"
 {
     PageType = List;
     SourceTable = "DH Dashboard Issue";
@@ -19,12 +19,14 @@ page 53161 "DH Dashboard Issues List"
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Severity.';
                     StyleExpr = SeverityStyle;
                 }
 
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Title.';
 
                     trigger OnDrillDown()
                     var
@@ -38,6 +40,7 @@ page 53161 "DH Dashboard Issues List"
                 {
                     ApplicationArea = All;
                     Caption = 'Count';
+                    ToolTip = 'Specifies Count.';
 
                     trigger OnDrillDown()
                     var
@@ -50,13 +53,15 @@ page 53161 "DH Dashboard Issues List"
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact â‚¬';
+                    Caption = 'Impact Ã¢â€šÂ¬';
+                    ToolTip = 'Specifies Impact Ã¢â€šÂ¬.';
                 }
 
                 field("Recommendation Review"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
                     Caption = 'Recommendation';
+                    ToolTip = 'Specifies Recommendation.';
                     Visible = ShowPremiumDetails;
                 }
 
@@ -64,6 +69,7 @@ page 53161 "DH Dashboard Issues List"
                 {
                     ApplicationArea = All;
                     Caption = 'Access';
+                    ToolTip = 'Specifies Access.';
                 }
             }
         }
@@ -155,3 +161,4 @@ page 53161 "DH Dashboard Issues List"
             end;
     end;
 }
+

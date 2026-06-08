@@ -1,4 +1,4 @@
-page 53158 "DH Deep Scan Monitor"
+﻿page 53158 "DH Deep Scan Monitor"
 {
     PageType = Card;
     SourceTable = "DH Deep Scan Run";
@@ -20,59 +20,64 @@ page 53158 "DH Deep Scan Monitor"
             {
                 Caption = 'Overview';
 
-                field(DebugBuildMarker; DebugBuildMarkerTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Debug Build Marker';
-                }
                 field(ScanStatus; ScanStatusTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Scan Status';
+                    ToolTip = 'Specifies Scan Status.';
                     StyleExpr = ScanStatusStyle;
                 }
                 field("Current Module"; CurrentModuleTxt)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Current Module.';
                 }
                 field("Current Step"; CurrentStepTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Current Step';
+                    ToolTip = 'Specifies Current Step.';
                     MultiLine = true;
                 }
                 field(OverallBar; OverallBarTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Overall Progress';
+                    ToolTip = 'Specifies Overall Progress.';
                     StyleExpr = ProgressStyle;
                 }
                 field(ETA; ETATxt)
                 {
                     ApplicationArea = All;
                     Caption = 'ETA';
+                    ToolTip = 'Specifies ETA.';
                 }
                 field("Last Heartbeat"; LastHeartbeatValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Last Heartbeat';
+                    ToolTip = 'Specifies Last Heartbeat.';
                 }
                 field("Estimated Remaining Time"; EstimatedRemainingTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Estimated Remaining Time';
+                    ToolTip = 'Specifies Estimated Remaining Time.';
                 }
                 field("Started At"; StartedAtValue)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Started At.';
                 }
                 field("Finished At"; FinishedAtValue)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Finished At.';
                 }
                 field(Headline; HeadlineTxt)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Headline.';
                     MultiLine = true;
                 }
             }
@@ -84,6 +89,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Warning';
+                    ToolTip = 'Specifies Warning.';
                     MultiLine = true;
                     StyleExpr = WarningStyle;
                 }
@@ -91,6 +97,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Error';
+                    ToolTip = 'Specifies Error.';
                     MultiLine = true;
                     StyleExpr = ErrorStyle;
                 }
@@ -98,63 +105,8 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Recent Events';
+                    ToolTip = 'Specifies Recent Events.';
                     MultiLine = true;
-                }
-            }
-            group(Diagnostics)
-            {
-                Caption = 'Diagnostics';
-
-                field(LocalStatusRaw; LocalStatusRawTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Local Status Raw';
-                }
-                field(BackendStatusRaw; BackendStatusRawTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Backend Status Raw';
-                }
-                field(DisplayStatus; ScanStatusTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Display Status';
-                }
-                field(DisplayProgress; ProgressPct)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Display Progress';
-                }
-                field(LastRefreshSource; LastRefreshSourceTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Last Refresh Source';
-                }
-                field(LastRefreshErrorCount; BackendRefreshFailures)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Last Refresh Error Count';
-                }
-                field(LastRefreshError; LastRefreshErrorTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Last Refresh Error';
-                    MultiLine = true;
-                }
-                field(StatusEndpoint; StatusEndpointTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Status Endpoint';
-                }
-                field(RunIdUsed; RunIdUsedTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Run ID Used';
-                }
-                field(TenantIdUsed; TenantIdUsedTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Tenant ID Used';
                 }
             }
             /*part(KpiTiles; "DH Dashboard KPI Part")
@@ -192,23 +144,27 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Scanned Records';
+                    ToolTip = 'Specifies Scanned Records.';
                 }
                 field("Affected Records Header"; AffectedRecordsValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Affected Records';
+                    ToolTip = 'Specifies Affected Records.';
                 }
 
                 field("Estimated Loss"; EstimatedLossValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Estimated Loss';
+                    ToolTip = 'Specifies Estimated Loss.';
                     StyleExpr = EstimatedLossStyle;
                 }
                 field("Potential Saving"; PotentialSavingValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Potential Saving';
+                    ToolTip = 'Specifies Potential Saving.';
                     StyleExpr = PotentialSavingStyle;
                 }
             }*/
@@ -223,6 +179,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'System';
+                    ToolTip = 'Specifies System.';
                     Visible = ShowSystem;
                     StyleExpr = SystemProgressStyle;
                 }
@@ -230,6 +187,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Finance';
+                    ToolTip = 'Specifies Finance.';
                     Visible = ShowFinance;
                     StyleExpr = FinanceProgressStyle;
                 }
@@ -237,6 +195,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Sales';
+                    ToolTip = 'Specifies Sales.';
                     Visible = ShowSales;
                     StyleExpr = SalesProgressStyle;
                 }
@@ -244,6 +203,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Purchasing';
+                    ToolTip = 'Specifies Purchasing.';
                     Visible = ShowPurchasing;
                     StyleExpr = PurchasingProgressStyle;
                 }
@@ -251,6 +211,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Inventory';
+                    ToolTip = 'Specifies Inventory.';
                     Visible = ShowInventory;
                     StyleExpr = InventoryProgressStyle;
                 }
@@ -258,6 +219,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'CRM';
+                    ToolTip = 'Specifies CRM.';
                     Visible = ShowCRM;
                     StyleExpr = CRMProgressStyle;
                 }
@@ -265,6 +227,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Manufacturing';
+                    ToolTip = 'Specifies Manufacturing.';
                     Visible = ShowManufacturing;
                     StyleExpr = ManufacturingProgressStyle;
                 }
@@ -272,6 +235,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Service';
+                    ToolTip = 'Specifies Service.';
                     Visible = ShowService;
                     StyleExpr = ServiceProgressStyle;
                 }
@@ -279,6 +243,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Jobs';
+                    ToolTip = 'Specifies Jobs.';
                     Visible = ShowJobs;
                     StyleExpr = JobsProgressStyle;
                 }
@@ -286,6 +251,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'HR';
+                    ToolTip = 'Specifies HR.';
                     Visible = ShowHR;
                     StyleExpr = HRProgressStyle;
                 }
@@ -299,6 +265,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'System';
+                    ToolTip = 'Specifies System.';
                     Visible = ShowSystem;
                     StyleExpr = SystemScoreStyle;
                 }
@@ -306,6 +273,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Finance';
+                    ToolTip = 'Specifies Finance.';
                     Visible = ShowFinance;
                     StyleExpr = FinanceScoreStyle;
                 }
@@ -313,6 +281,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Sales';
+                    ToolTip = 'Specifies Sales.';
                     Visible = ShowSales;
                     StyleExpr = SalesScoreStyle;
                 }
@@ -320,6 +289,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Purchasing';
+                    ToolTip = 'Specifies Purchasing.';
                     Visible = ShowPurchasing;
                     StyleExpr = PurchasingScoreStyle;
                 }
@@ -327,6 +297,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Inventory';
+                    ToolTip = 'Specifies Inventory.';
                     Visible = ShowInventory;
                     StyleExpr = InventoryScoreStyle;
                 }
@@ -334,6 +305,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'CRM';
+                    ToolTip = 'Specifies CRM.';
                     Visible = ShowCRM;
                     StyleExpr = CRMScoreStyle;
                 }
@@ -341,6 +313,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Manufacturing';
+                    ToolTip = 'Specifies Manufacturing.';
                     Visible = ShowManufacturing;
                     StyleExpr = ManufacturingScoreStyle;
                 }
@@ -348,6 +321,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Service';
+                    ToolTip = 'Specifies Service.';
                     Visible = ShowService;
                     StyleExpr = ServiceScoreStyle;
                 }
@@ -355,6 +329,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'Jobs';
+                    ToolTip = 'Specifies Jobs.';
                     Visible = ShowJobs;
                     StyleExpr = JobsScoreStyle;
                 }
@@ -362,6 +337,7 @@ page 53158 "DH Deep Scan Monitor"
                 {
                     ApplicationArea = All;
                     Caption = 'HR';
+                    ToolTip = 'Specifies HR.';
                     Visible = ShowHR;
                     StyleExpr = HRScoreStyle;
                 }
@@ -384,6 +360,7 @@ page 53158 "DH Deep Scan Monitor"
             action(RefreshProgress)
             {
                 Caption = 'Refresh Status';
+                ToolTip = 'Runs Refresh Status.';
                 ApplicationArea = All;
                 Image = Refresh;
 
@@ -397,6 +374,7 @@ page 53158 "DH Deep Scan Monitor"
             action(OpenAllIssues)
             {
                 Caption = 'Open Issues';
+                ToolTip = 'Runs Open Issues.';
                 ApplicationArea = All;
                 Image = List;
 
@@ -497,7 +475,6 @@ page 53158 "DH Deep Scan Monitor"
 
     trigger OnOpenPage()
     begin
-        LastRefreshSourceTxt := 'Local';
         UpdateModuleVisibility();
         ReloadDisplayValuesFromRec();
         LoadDashboardValues();
@@ -602,14 +579,6 @@ page 53158 "DH Deep Scan Monitor"
         ServiceProgressStyle: Text[30];
         JobsProgressStyle: Text[30];
         HRProgressStyle: Text[30];
-        DebugBuildMarkerTxt: Text[50];
-        LocalStatusRawTxt: Text[50];
-        BackendStatusRawTxt: Text[50];
-        LastRefreshSourceTxt: Text[80];
-        LastRefreshErrorTxt: Text[250];
-        StatusEndpointTxt: Text[250];
-        RunIdUsedTxt: Text[50];
-        TenantIdUsedTxt: Text[30];
 
     local procedure ReloadMonitor()
     var
@@ -621,28 +590,19 @@ page 53158 "DH Deep Scan Monitor"
 
         if DeepScanRun.Get(Rec."Entry No.") then begin
             if Setup.Get('SETUP') then begin
-                StatusEndpointTxt := BuildUrl(Setup."API Base URL", '/scan/status/' + Format(DeepScanRun."Run ID"));
-                RunIdUsedTxt := Format(DeepScanRun."Run ID");
-                TenantIdUsedTxt := MaskTenantId(Setup."Tenant ID");
                 if DeepScanRun."Run ID" <> '' then
                     if IsLocalTerminalStatus(DeepScanRun) and BackendStatusNeedsHealing(DeepScanRun) then
                         if not TrySyncLocalTerminalStatus(ApiClient, Setup, DeepScanRun) then begin
                             BackendRefreshFailures += 1;
-                            LastRefreshSourceTxt := 'Backend status sync failed';
-                            LastRefreshErrorTxt := CopyStr(GetLastErrorText(), 1, MaxStrLen(LastRefreshErrorTxt));
                         end;
 
                 if DeepScanRun."Run ID" <> '' then
                     if TryRefreshBackendStatus(ApiClient, Setup, DeepScanRun) then begin
                         BackendRefreshFailures := 0;
-                        LastRefreshSourceTxt := 'Backend refresh successful';
-                        LastRefreshErrorTxt := '';
                         Commit();
                     end
                     else begin
                         BackendRefreshFailures += 1;
-                        LastRefreshSourceTxt := 'Backend refresh failed';
-                        LastRefreshErrorTxt := CopyStr(GetLastErrorText(), 1, MaxStrLen(LastRefreshErrorTxt));
                         if BackendRefreshFailures >= 3 then begin
                             DeepScanRun."Warning Message" := CopyStr(GetBackendRefreshWarning(DeepScanRun), 1, MaxStrLen(DeepScanRun."Warning Message"));
                             DeepScanRun.Modify(true);
@@ -660,9 +620,6 @@ page 53158 "DH Deep Scan Monitor"
 
     local procedure ReloadDisplayValuesFromRec()
     begin
-        DebugBuildMarkerTxt := 'ScanMonitorFix v2';
-        LocalStatusRawTxt := Format(Rec.Status);
-        BackendStatusRawTxt := Rec."Backend Status";
         RunIdTxt := Rec."Run ID";
         CurrentModuleTxt := GetCurrentModuleText();
         CurrentStepTxt := GetCurrentStepText();
@@ -977,9 +934,9 @@ page 53158 "DH Deep Scan Monitor"
 
         for i := 1 to 10 do
             if i <= Filled then
-                BarTxt += '█'
+                BarTxt += 'â–ˆ'
             else
-                BarTxt += '░';
+                BarTxt += 'â–‘';
 
         exit(BarTxt);
     end;
@@ -1257,6 +1214,7 @@ page 53158 "DH Deep Scan Monitor"
         Headers: HttpHeaders;
         Response: HttpResponseMessage;
         ResponseText: Text;
+        ApiClient: Codeunit "DH API Client";
     begin
         Request.Method := 'GET';
         Request.SetRequestUri(GetTokenUrl(Setup));
@@ -1272,9 +1230,9 @@ page 53158 "DH Deep Scan Monitor"
 
         if not Response.IsSuccessStatusCode() then
             Error(
-              'The dashboard token service returned an error. Status: %1. Response: %2',
+              'The dashboard token service returned an error. Status: %1. %2',
               Response.HttpStatusCode(),
-              CopyStr(ResponseText, 1, 1024));
+              ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -1308,7 +1266,7 @@ page 53158 "DH Deep Scan Monitor"
         BaseUrl: Text;
     begin
         BaseUrl := BuildUrl(Setup."API Base URL", '/analytics/embed');
-        exit(BaseUrl + '?token=' + EncodeUrlValue(Token));
+        exit(BaseUrl + '?embed_token=' + EncodeUrlValue(Token));
     end;
 
     local procedure GetExecutiveReportShareUrl(var Setup: Record "DH Setup"; ReportType: Text): Text
@@ -1321,6 +1279,7 @@ page 53158 "DH Deep Scan Monitor"
         RequestText: Text;
         ResponseText: Text;
         JsonRequest: JsonObject;
+        ApiClient: Codeunit "DH API Client";
     begin
         JsonRequest.Add('report_type', ReportType);
         JsonRequest.WriteTo(RequestText);
@@ -1345,9 +1304,9 @@ page 53158 "DH Deep Scan Monitor"
 
         if not Response.IsSuccessStatusCode() then
             Error(
-              'The executive report link service returned an error. Status: %1. Response: %2',
+              'The executive report link service returned an error. Status: %1. %2',
               Response.HttpStatusCode(),
-              CopyStr(ResponseText, 1, 1024));
+              ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ExtractUrlFromJson(ResponseText));
     end;
@@ -1408,14 +1367,6 @@ page 53158 "DH Deep Scan Monitor"
         exit(RemoveTrailingSlash(BaseUrl) + RelativePath);
     end;
 
-    local procedure MaskTenantId(TenantId: Text): Text
-    begin
-        if StrLen(TenantId) <= 8 then
-            exit('***');
-
-        exit(CopyStr(TenantId, 1, 4) + '...' + CopyStr(TenantId, StrLen(TenantId) - 3, 4));
-    end;
-
     local procedure RemoveTrailingSlash(Value: Text): Text
     begin
         while (StrLen(Value) > 0) and (CopyStr(Value, StrLen(Value), 1) = '/') do
@@ -1444,3 +1395,4 @@ page 53158 "DH Deep Scan Monitor"
         exit(SecretMgt.GetApiToken(Setup));
     end;
 }
+

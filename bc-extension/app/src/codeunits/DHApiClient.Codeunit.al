@@ -17,7 +17,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend connection test failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Backend connection test failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if JsonResponse.ReadFrom(ResponseText) then
             if JsonResponse.Get('status', Token) then
@@ -28,6 +28,14 @@ codeunit 53100 "DH API Client"
             StatusText := 'ok';
 
         Message('BCSentinel backend reachable. Status: %1', StatusText);
+    end;
+
+    procedure GetSafeBackendErrorText(ResponseText: Text): Text
+    begin
+        if ResponseText = '' then
+            exit('No response body was returned. Contact BCSentinel support if this continues.');
+
+        exit('Backend returned a technical error. Contact BCSentinel support if this continues.');
     end;
 
     procedure EnsureTenantRegistered(var Setup: Record "DH Setup")
@@ -74,10 +82,10 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Tenant registration failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Tenant registration failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response: %1', ResponseText);
+            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
 
         if JsonResponse.Get('tenant_id', Token) then
             if not IsJsonNull(Token) then
@@ -130,10 +138,10 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('License status request failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('License status request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response: %1', ResponseText);
+            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
 
         if JsonResponse.Get('plan', Token) then
             if not IsJsonNull(Token) then
@@ -285,7 +293,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Quick scan failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Quick scan failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -319,7 +327,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('History request failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('History request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -350,7 +358,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Trend request failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Trend request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -389,7 +397,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Scan sync failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Scan sync failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -420,7 +428,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend scan delete failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Backend scan delete failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure ReconcileScansWithBackend(var Setup: Record "DH Setup")
@@ -469,7 +477,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend reconcile failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Backend reconcile failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
@@ -519,21 +527,16 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/status/update'), Content, Response) then
-            Error('Scan status update could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
-                BuildUrl(Setup."API Base URL", '/scan/status/update'),
-                Format(DeepScanRun."Run ID"),
-                MaskTenantId(Setup."Tenant ID"));
+            Error('Scan status update could not be sent. Run ID: %1.', Format(DeepScanRun."Run ID"));
 
         Response.Content.ReadAs(ResponseText);
         if Response.IsSuccessStatusCode() then
             ParseScanStatusResponse(ResponseText, DeepScanRun)
         else
-            Error('Scan status update failed. Endpoint: %1. Status: %2. Run ID: %3. Tenant: %4. Response: %5',
-                BuildUrl(Setup."API Base URL", '/scan/status/update'),
+            Error('Scan status update failed. Status: %1. Run ID: %2. %3',
                 Response.HttpStatusCode(),
                 Format(DeepScanRun."Run ID"),
-                MaskTenantId(Setup."Tenant ID"),
-                CopyStr(ResponseText, 1, 250));
+                GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure GetScanStatus(var Setup: Record "DH Setup"; RunId: Code[50]): Text
@@ -554,19 +557,14 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)), Response) then
-            Error('The scan status request could not be sent. Endpoint: %1. Run ID: %2. Tenant: %3',
-                BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)),
-                Format(RunId),
-                MaskTenantId(Setup."Tenant ID"));
+            Error('The scan status request could not be sent. Run ID: %1.', Format(RunId));
 
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
-            Error('Scan status request failed. Endpoint: %1. Status: %2. Run ID: %3. Tenant: %4. Response: %5',
-                BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)),
+            Error('Scan status request failed. Status: %1. Run ID: %2. %3',
                 Response.HttpStatusCode(),
                 Format(RunId),
-                MaskTenantId(Setup."Tenant ID"),
-                CopyStr(ResponseText, 1, 250));
+                GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -642,7 +640,7 @@ codeunit 53100 "DH API Client"
         Clear(GeneratedAtUtc);
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response: %1', ResponseText);
+            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
 
         if JsonResponse.Get('scan_id', Token) then
             if not IsJsonNull(Token) then
@@ -755,12 +753,12 @@ codeunit 53100 "DH API Client"
 
         if not Response.IsSuccessStatusCode() then
             Error(
-                'The dashboard token service returned an error. Status: %1. Response: %2',
+                'The dashboard token service returned an error. Status: %1. %2',
                 Response.HttpStatusCode(),
-                ResponseText);
+                GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The dashboard token service returned invalid JSON: %1', ResponseText);
+            Error('The dashboard token service returned invalid JSON. Contact BCSentinel support if this continues.');
 
         if not JsonResponse.Get('token', TokenValue) then
             Error('The field "token" is missing in the dashboard token response.');
@@ -824,10 +822,10 @@ codeunit 53100 "DH API Client"
 
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
-            Error('Billing checkout session failed. Status %1 - %2', Response.HttpStatusCode(), ResponseText);
+            Error('Billing checkout session failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The billing checkout response is not valid JSON: %1', ResponseText);
+            Error('The billing checkout response is not valid JSON. Contact BCSentinel support if this continues.');
 
         if JsonResponse.Get('checkout_url', TokenValue) then
             if not IsJsonNull(TokenValue) then

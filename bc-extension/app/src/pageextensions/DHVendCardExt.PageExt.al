@@ -26,6 +26,7 @@ pageextension 53159 "DH Vend Card Ext" extends "Vendor Card"
                 Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
+                ToolTip = 'Opens active BCSentinel exceptions for this vendor.';
                 trigger OnAction()
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";

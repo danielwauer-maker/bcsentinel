@@ -1,4 +1,4 @@
-page 53100 "DH Setup"
+﻿page 53100 "DH Setup"
 {
     PageType = Card;
     SourceTable = "DH Setup";
@@ -18,42 +18,49 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Caption = 'Product Access';
+                    ToolTip = 'Specifies Product Access.';
                     Editable = false;
                 }
 
                 field("Scan Credits Available"; Rec."Scan Credits Available")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Scan Credits Available.';
                     Editable = false;
                 }
 
                 field("Monitoring Active"; Rec."Monitoring Active")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Monitoring Active.';
                     Editable = false;
                 }
 
                 field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Dashboard Access Until.';
                     Editable = false;
                 }
 
                 field("Issue Access Until"; Rec."Issue Access Until")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Access Until.';
                     Editable = false;
                 }
 
                 field("Can Run Deep Scan"; Rec."Can Run Deep Scan")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Can Run Deep Scan.';
                     Editable = false;
                 }
 
                 field("Last License Check"; Rec."Last License Check")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Last License Check.';
                     Editable = false;
                 }
 
@@ -80,7 +87,9 @@ page 53100 "DH Setup"
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Tenant ID.';
                     Editable = false;
+                    Visible = false;
                 }
 
                 field(ApiTokenConfigured; HasStoredApiToken())
@@ -95,25 +104,45 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Pilot onboarding invite code provided by BCSentinel. Required for initial tenant registration.';
+                    ToolTip = 'Specifies the BCSentinel pilot invite code. Current backend registration requires this code; AppSource self-service signup is a follow-up backend task.';
                 }
 
                 field(Registered; Rec.Registered)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Registered.';
                     Editable = false;
                 }
 
                 field("Registration Date"; Rec."Registration Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Registration Date.';
                     Editable = false;
                 }
 
                 field("Data Processing Consent"; Rec."Data Processing Consent")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Must be enabled before tenant registration and scan synchronization.';
+                    ToolTip = 'Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+                }
+
+                field(DataProcessingNotice; DataProcessingNoticeTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Data Processing Notice';
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains which data BCSentinel sends to the backend and why consent is required.';
+                }
+
+                field(InviteNotice; InviteNoticeTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Onboarding Notice';
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains the current pilot invite requirement for tenant registration.';
                 }
             }
 
@@ -190,6 +219,7 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Caption = 'Last Scan Date';
+                    ToolTip = 'Specifies Last Scan Date.';
                     Editable = false;
                     Visible = false;
                 }
@@ -204,6 +234,7 @@ page 53100 "DH Setup"
             action(TestConnection)
             {
                 Caption = 'Test BCSentinel Connection';
+                ToolTip = 'Runs Test BCSentinel Connection.';
                 ApplicationArea = All;
                 Image = TestFile;
 
@@ -218,6 +249,7 @@ page 53100 "DH Setup"
             action(RegisterTenant)
             {
                 Caption = 'Register with BCSentinel';
+                ToolTip = 'Runs Register with BCSentinel.';
                 ApplicationArea = All;
                 Image = Web;
                 Enabled = CanRegisterTenant;
@@ -243,6 +275,19 @@ page 53100 "DH Setup"
                     UpdateActionState();
                     CurrPage.Update(false);
                     Message('BCSentinel tenant registration completed.');
+                end;
+            }
+
+            action(RequestAccess)
+            {
+                Caption = 'Request Access';
+                ToolTip = 'Opens the BCSentinel website to request onboarding access.';
+                ApplicationArea = All;
+                Image = LinkWeb;
+
+                trigger OnAction()
+                begin
+                    Hyperlink('https://bcsentinel.com');
                 end;
             }
 
@@ -334,6 +379,7 @@ page 53100 "DH Setup"
                 action(StartScan)
                 {
                     Caption = 'Start Scan';
+                    ToolTip = 'Runs Start Scan.';
                     Image = Start;
                     ApplicationArea = All;
 
@@ -359,6 +405,7 @@ page 53100 "DH Setup"
                 action(ViewScanHistory)
                 {
                     Caption = 'Scan History';
+                    ToolTip = 'Runs Scan History.';
                     Image = List;
                     ApplicationArea = All;
 
@@ -373,11 +420,14 @@ page 53100 "DH Setup"
 
     var
         CanRegisterTenant: Boolean;
+        DataProcessingNoticeTxt: Text[1024];
+        InviteNoticeTxt: Text[512];
 
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
         UpdateActionState();
+        UpdateNoticeTexts();
         //RefreshLicenseSilently();
         CurrPage.Update(false);
     end;
@@ -385,6 +435,7 @@ page 53100 "DH Setup"
     trigger OnAfterGetCurrRecord()
     begin
         UpdateActionState();
+        UpdateNoticeTexts();
     end;
 
     local procedure EnsureSetupExists()
@@ -428,6 +479,15 @@ page 53100 "DH Setup"
         CanRegisterTenant := not Rec.Registered;
     end;
 
+    local procedure UpdateNoticeTexts()
+    begin
+        DataProcessingNoticeTxt :=
+            'Before registration or scans, BCSentinel requires consent to send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel. The data is used for Data Health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+
+        InviteNoticeTxt :=
+            'Current pilot registration requires a BCSentinel invite code. AppSource self-service signup must be enabled in the backend before this field can be optional for marketplace customers.';
+    end;
+
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text
     begin
         if Setup."API Base URL" = '' then
@@ -448,7 +508,7 @@ page 53100 "DH Setup"
 
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
     begin
-        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?token=' + EncodeUrlValue(Token));
+        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?embed_token=' + EncodeUrlValue(Token));
     end;
 
     local procedure GetIssueDrilldownLaunchUrl(): Text
@@ -490,3 +550,4 @@ page 53100 "DH Setup"
         exit(Value);
     end;
 }
+

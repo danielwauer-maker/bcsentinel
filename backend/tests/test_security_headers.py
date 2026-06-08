@@ -16,7 +16,7 @@ def test_analytics_embed_keeps_business_central_frame_ancestor(client, tenant_fa
 
     assert token_response.status_code == 200
     token = token_response.json()["token"]
-    response = client.get(f"/analytics/embed?token={token}", follow_redirects=False)
+    response = client.get(f"/analytics/embed?embed_token={token}", follow_redirects=False)
 
     assert response.status_code == 303
     assert "businesscentral.dynamics.com" in response.headers["Content-Security-Policy"]

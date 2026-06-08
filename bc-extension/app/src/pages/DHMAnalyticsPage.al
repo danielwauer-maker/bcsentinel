@@ -1,4 +1,4 @@
-page 53123 "DHM Analytics"
+﻿page 53123 "DHM Analytics"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -17,6 +17,7 @@ page 53123 "DHM Analytics"
                 {
                     ApplicationArea = All;
                     Caption = 'Description';
+                    ToolTip = 'Specifies Description.';
                     Editable = false;
                     MultiLine = true;
                 }
@@ -95,6 +96,7 @@ page 53123 "DHM Analytics"
         Headers: HttpHeaders;
         Response: HttpResponseMessage;
         ResponseText: Text;
+        ApiClient: Codeunit "DH API Client";
     begin
         Request.Method := 'GET';
         Request.SetRequestUri(GetTokenUrl(Setup));
@@ -110,9 +112,9 @@ page 53123 "DHM Analytics"
 
         if not Response.IsSuccessStatusCode() then
             Error(
-                'The token service returned an error. Status: %1. Response: %2',
+                'The token service returned an error. Status: %1. %2',
                 Response.HttpStatusCode(),
-                CopyStr(ResponseText, 1, 1024));
+                ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -160,7 +162,7 @@ page 53123 "DHM Analytics"
         BaseUrl: Text;
     begin
         BaseUrl := BuildUrl(Setup."API Base URL", '/analytics/embed');
-        exit(BaseUrl + '?token=' + EncodeUrlValue(Token));
+        exit(BaseUrl + '?embed_token=' + EncodeUrlValue(Token));
     end;
 
     local procedure ExtractTokenFromJson(JsonText: Text): Text
@@ -210,3 +212,4 @@ page 53123 "DHM Analytics"
         exit(SecretMgt.GetApiToken(Setup));
     end;
 }
+

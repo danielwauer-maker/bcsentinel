@@ -321,7 +321,7 @@ def test_assessment_dashboard_payload_separates_access_from_monitoring(
     assert token_response.status_code == 200
     analytics_token = token_response.json()["token"]
 
-    response = client.get(f"/analytics/embed/data?token={analytics_token}")
+    response = client.get(f"/analytics/embed/data?embed_token={analytics_token}")
 
     assert response.status_code == 200
     payload = response.json()

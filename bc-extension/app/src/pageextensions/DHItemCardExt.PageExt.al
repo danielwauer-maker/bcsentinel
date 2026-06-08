@@ -26,6 +26,7 @@ pageextension 53160 "DH Item Card Ext" extends "Item Card"
                 Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
+                ToolTip = 'Opens active BCSentinel exceptions for this item.';
                 trigger OnAction()
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";

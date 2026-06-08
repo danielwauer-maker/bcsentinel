@@ -1,0 +1,5 @@
+{
+  "name": "BCSentinel AppSource baseline",
+  "description": "Baseline ruleset for CodeCop, AppSourceCop and PerTenantExtensionCop AppSource readiness checks. P2.13 P0 enables analyzers; warning cleanup is tracked separately.",
+  "rules": []
+}
