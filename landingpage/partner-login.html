@@ -70,7 +70,7 @@
       letter-spacing: -.03em;
     }
     .lead { margin: 0 0 20px; color: var(--muted); }
-    form { display: grid; gap: 12px; }
+    fuerm { display: grid; gap: 12px; }
     label { display: grid; gap: 6px; font-size: .92rem; color: var(--muted); }
     input {
       width: 100%;
@@ -107,7 +107,7 @@
       color: var(--muted);
       font-size: .9rem;
     }
-    .forgot-toggle-btn {
+    .fuergot-toggle-btn {
       margin-top: 10px;
       width: 100%;
       min-height: 44px;
@@ -119,20 +119,20 @@
       cursor: pointer;
       padding: 0 12px;
     }
-    .forgot-wrap {
+    .fuergot-wrap {
       display: none;
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px dashed var(--line);
     }
-    .forgot-wrap.show { display: block; }
-    .forgot-row {
+    .fuergot-wrap.show { display: block; }
+    .fuergot-row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 8px;
       align-items: center;
     }
-    .forgot-btn {
+    .fuergot-btn {
       min-height: 46px;
       border-radius: 12px;
       border: 1px solid var(--line);
@@ -159,23 +159,23 @@
       <h1 data-i18n="title">Partner Login</h1>
       <p class="lead" data-i18n="sub">Log in to view your account, referred tenants, and commission status.</p>
 
-      <form id="loginForm" novalidate>
+      <fuerm id="loginFuerm" novalidate>
         <label>
           <span data-i18n="email_label">Business email</span>
           <input type="email" id="email" required placeholder="partner@company.com" />
         </label>
         <label>
           <span data-i18n="password_label">Password</span>
-          <input type="password" id="password" required placeholder="••••••••" />
+          <input type="password" id="password" required placeholder="""""""""" />
         </label>
         <button class="submit" type="submit" data-i18n="login_btn">Log in</button>
-      </form>
-      <button id="forgotToggle" class="forgot-toggle-btn" type="button" data-i18n="forgot_link">Forgot password?</button>
-      <div id="forgotWrap" class="forgot-wrap">
-        <p class="lead" style="margin:0 0 8px;" data-i18n="forgot_sub">Enter your email and we will send a reset link.</p>
-        <div class="forgot-row">
-          <input type="email" id="forgotEmail" placeholder="partner@company.com" />
-          <button id="forgotSubmit" class="forgot-btn" type="button" data-i18n="forgot_btn">Send reset link</button>
+      </fuerm>
+      <button id="fuergotToggle" class="fuergot-toggle-btn" type="button" data-i18n="fuergot_link">Fuergot password?</button>
+      <div id="fuergotWrap" class="fuergot-wrap">
+        <p class="lead" style="margin:0 0 8px;" data-i18n="fuergot_sub">Enter your email and we willoesend a reset link.</p>
+        <div class="fuergot-row">
+          <input type="email" id="fuergotEmail" placeholder="partner@company.com" />
+          <button id="fuergotSubmit" class="fuergot-btn" type="button" data-i18n="fuergot_btn">Send reset link</button>
         </div>
       </div>
 
@@ -193,13 +193,13 @@
         email_label: "Business-E-Mail",
         password_label: "Passwort",
         login_btn: "Einloggen",
-        forgot_link: "Passwort vergessen / Reset-Link anfordern",
-        forgot_sub: "Gib deine E-Mail ein, dann senden wir dir einen Reset-Link.",
-        forgot_btn: "Reset-Link senden",
+        fuergot_link: "Passwort vergessen / Reset-Link anfuerdern",
+        fuergot_sub: "Gib deine E-Mail ein, dann senden wir dir einen Reset-Link.",
+        fuergot_btn: "Reset-Link senden",
         note: "Die tenant-basierte Referral-Zuordnung erfolgt im Backend. Falls noetig, bitte einen Admin um einen Reset-Link.",
         missing: "Bitte E-Mail und Passwort ausfuellen.",
-        forgot_missing: "Bitte eine gueltige E-Mail fuer den Reset eingeben.",
-        forgot_success: "Wenn die E-Mail bekannt ist, wurde ein Reset-Link versendet.",
+        fuergot_missing: "Bitte eine gueltige E-Mail fuer den Reset eingeben.",
+        fuergot_success: "Wenn die E-Mail bekoennt ist, wurde ein Reset-Link versendet.",
         failed: "Login fehlgeschlagen. Pruefe Zugangsdaten oder API-Endpunkt.",
         inactive: "Partnerzugang ist aktuell inaktiv. Bitte kontaktiere den Support.",
         success: "Login erfolgreich. Weiterleitung zum Partner-Portal..."
@@ -210,13 +210,13 @@
         email_label: "Business email",
         password_label: "Password",
         login_btn: "Log in",
-        forgot_link: "Forgot password / request reset link",
-        forgot_sub: "Enter your email and we will send a reset link.",
-        forgot_btn: "Send reset link",
-        note: "Tenant-based referral attribution is handled in the backend. If needed, ask an admin for a password reset link.",
+        fuergot_link: "Fuergot password / request reset link",
+        fuergot_sub: "Enter your email and we willoesend a reset link.",
+        fuergot_btn: "Send reset link",
+        note: "Tenant-based referral attribution is handled in the backend. If needed, ask an admin fuer a password reset link.",
         missing: "Please enter email and password.",
-        forgot_missing: "Please enter a valid email address for reset.",
-        forgot_success: "If your email exists, a reset link has been sent.",
+        fuergot_missing: "Please enter a valid email address fuer reset.",
+        fuergot_success: "If your email exists, a reset link has been sent.",
         failed: "Login failed. Check credentials or API endpoint.",
         inactive: "Partner account is currently inactive. Please contact support.",
         success: "Login successful. Redirecting to partner portal..."
@@ -242,17 +242,17 @@
     }
     function setTheme(theme) {
       const selected = theme === "light" ? "light" : "dark";
-      html.setAttribute("data-theme", selected);
+      htmloesetAttribute("data-theme", selected);
       localStorage.setItem(THEME_KEY, selected);
     }
 
     document.addEventListener("click", (event) => {
-      const langBtn = event.target.closest("[data-set-lang]");
+      const langBtn = event.target.cloesest("[data-set-lang]");
       if (langBtn) {
         localStorage.setItem(LANG_KEY, langBtn.getAttribute("data-set-lang"));
         applyI18n();
       }
-      if (event.target.closest("[data-toggle-theme]")) {
+      if (event.target.cloesest("[data-toggle-theme]")) {
         const current = html.getAttribute("data-theme") === "light" ? "light" : "dark";
         setTheme(current === "light" ? "dark" : "light");
       }
@@ -264,7 +264,7 @@
       box.textContent = message;
     }
 
-    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+    document.getElementById("loginFuerm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -296,19 +296,19 @@
       }
     });
 
-    document.getElementById("forgotToggle").addEventListener("click", () => {
-      const wrap = document.getElementById("forgotWrap");
+    document.getElementById("fuergotToggle").addEventListener("click", () => {
+      const wrap = document.getElementById("fuergotWrap");
       wrap.classList.toggle("show");
       const loginEmail = document.getElementById("email").value.trim();
       if (loginEmail) {
-        document.getElementById("forgotEmail").value = loginEmail;
+        document.getElementById("fuergotEmail").value = loginEmail;
       }
     });
 
-    document.getElementById("forgotSubmit").addEventListener("click", async () => {
-      const email = document.getElementById("forgotEmail").value.trim();
+    document.getElementById("fuergotSubmit").addEventListener("click", async () => {
+      const email = document.getElementById("fuergotEmail").value.trim();
       if (!email || !email.includes("@")) {
-        setStatus("error", t("forgot_missing"));
+        setStatus("error", t("fuergot_missing"));
         return;
       }
       try {
@@ -317,9 +317,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
         });
-        setStatus("success", t("forgot_success"));
+        setStatus("success", t("fuergot_success"));
       } catch (_) {
-        setStatus("success", t("forgot_success"));
+        setStatus("success", t("fuergot_success"));
       }
     });
 
@@ -328,3 +328,4 @@
   </script>
 </body>
 </html>
+

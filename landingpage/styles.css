@@ -222,7 +222,7 @@ button { font: inherit; }
   font-size: .82rem;
   font-weight: 800;
   letter-spacing: .08em;
-  text-transform: uppercase;
+  text-transferm: uppercase;
 }
 .eyebrow.center { justify-content: center; width: fit-content; margin-inline: auto; }
 .eyebrow-dot {
@@ -281,9 +281,9 @@ p {
   font-weight: 800;
   white-space: nowrap;
   border: 1px solid transparent;
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  transition: transferm .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.btn:hover { transform: translateY(-1px); }
+.btn:hover { transferm: translateY(-1px); }
 .btn-primary {
   color: #fff;
   background: linear-gradient(135deg, var(--orange), #ff7618);
@@ -546,7 +546,7 @@ p {
   color: #ff8f3d;
 }
 #solution .grid-4 > .card:nth-child(2) .icon-badge::before {
-  content: "€";
+  content: "EUR";
 }
 #solution .grid-4 > .card:nth-child(3) .icon-badge {
   background: linear-gradient(135deg, rgba(255,214,10,.22), rgba(255,143,61,.12));
@@ -761,7 +761,7 @@ p {
   border-color: rgba(255,143,61,.22);
 }
 
-/* 🔵 FREE (NEU – BLAU) */
+/* 🔵 FREE (NEU - BLAU) */
 .plan-badge-free {
   color: var(--blue);
   background: rgba(74,141,255,.15);
@@ -813,7 +813,7 @@ p {
   color: var(--orange-soft);
   font-size: 1.4rem;
 }
-.faq-item[open] summary::after { content: "–"; }
+.faq-item[open] summary::after { content: "-"; }
 .faq-item p {
   padding: 0 6px 20px;
 }
@@ -942,9 +942,9 @@ p {
   color: var(--text);
   cursor: pointer;
   font-weight: 700;
-  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  transition: transferm .18s ease, border-color .18s ease, background .18s ease;
 }
-.theme-toggle:hover { transform: translateY(-1px); }
+.theme-toggle:hover { transferm: translateY(-1px); }
 .theme-toggle-icon {
   display: inline-grid;
   place-items: center;

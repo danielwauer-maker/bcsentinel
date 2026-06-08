@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BCSentinel — Estimated Loss erklärt</title>
-  <meta name="description" content="BCSentinel erklärt transparent, wie der Estimated Loss aus Datenproblemen in Business Central berechnet wird – mit klaren Beispielen und verständlichen Business Cases." />
+  <title>BCSentinel - Estimated Loss erklaert</title>
+  <meta name="description" content="BCSentinel erklaert transparent, wie der Estimated Loss aus Datenproblemen in Business Centralueberechnet wird - mit klaren Beispielen und verstaendlichen Business Cases." />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,7 +129,7 @@
     }
     .calc-footnote:hover { color: var(--blue); }
 
-    .formula-box {
+    .fuermula-box {
       padding: 18px 20px;
       border-radius: 22px;
       background: linear-gradient(135deg, rgba(74,141,255,.12), rgba(255,143,61,.10));
@@ -139,7 +139,7 @@
       font-weight: 800;
       color: var(--text);
     }
-    .formula-list,
+    .fuermula-list,
     .issue-badges,
     .assumption-grid,
     .loss-short-list,
@@ -147,8 +147,8 @@
       display: grid;
       gap: 12px;
     }
-    .formula-list { margin-top: 18px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .formula-item,
+    .fuermula-list { margin-top: 18px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .fuermula-item,
     .assumption-box,
     .issue-side-card,
     .loss-short-item {
@@ -240,7 +240,7 @@
     html[data-theme="light"] .value-stat-box.loss,
     html[data-theme="light"] .value-stat-box.saving,
     html[data-theme="light"] .value-stat-box.neutral,
-    html[data-theme="light"] .formula-item,
+    html[data-theme="light"] .fuermula-item,
     html[data-theme="light"] .assumption-box,
     html[data-theme="light"] .issue-side-card,
     html[data-theme="light"] .loss-short-item {
@@ -251,7 +251,7 @@
     @media (max-width: 1080px) {
       .loss-summary-grid,
       .loss-groups,
-      .formula-list,
+      .fuermula-list,
       .assumption-grid { grid-template-columns: 1fr; }
       .loss-hero-grid,
       .loss-detail-layout { grid-template-columns: 1fr; }
@@ -278,19 +278,19 @@
       </a>
 
       <nav class="nav-links desktop-nav" aria-label="Primary navigation">
-        <a href="#formula" data-i18n="nav_formula">Formula</a>
+        <a href="#fuermula" data-i18n="nav_fuermula">Fuermula</a>
         <a href="#top5" data-i18n="nav_top5">Top 5 Issues</a>
         <a href="#all-checks" data-i18n="nav_all">All checks</a>
       </nav>
 
       <div class="nav-actions">
         <div class="lang-switch" aria-label="Language switcher">
-          <button class="lang-btn active" data-lang="de" type="button" aria-label="Switch to German" title="Deutsch">🇩🇪</button>
-          <button class="lang-btn" data-lang="en" type="button" aria-label="Switch to English" title="English">🇬🇧</button>
+          <button class="lang-btn active" data-lang="de" type="button" aria-label="Switch to German" title="Deutsch">DE</button>
+          <button class="lang-btn" data-lang="en" type="button" aria-label="Switch to English" title="English">DE</button>
         </div>
 
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
-          <span class="theme-toggle-icon" aria-hidden="true">☀</span>
+          <span class="theme-toggle-icon" aria-hidden="true">Dark</span>
         </button>
       </div>
     </div>
@@ -299,27 +299,27 @@
   <main id="top">
           
 
-    <section id="formula" class="section">
+    <section id="fuermula" class="section">
       <div class="container">
         <div class="section-shell section-shell-soft">
           <div class="section-head">
             
-            <h2 data-i18n="formula_title">Estimated Loss follows one transparent model.</h2>
-            <p class="lead" data-i18n="formula_sub">BCSentinel does not invent a score out of thin air. It estimates what weak data does to daily business processes: how many records are affected, how often the issue really matters, and how much internal effort it creates.</p>
+            <h2 data-i18n="fuermula_title">Estimated Loss follows one transparent model.</h2>
+            <p class="lead" data-i18n="fuermula_sub">BCSentinel does not invent a score out of thin air. It estimates what weak data does to daily business processes: how many records are affected, how often the issue really matters, and how much internal effort it creates.</p>
           </div>
 
-          <div class="formula-box" data-i18n="formula_box">Estimated Loss = Affected Records × Probability × Minutes × Hour Rate × Frequency</div>
+          <div class="fuermula-box" data-i18n="fuermula_box">Estimated Loss = Affected Records - Probability - Minutes - Hour Rate - Frequency</div>
 
-          <div class="formula-list">
-            <div class="formula-item"><strong data-i18n="formula_l1_title">Affected Records</strong><p data-i18n="formula_l1_text">How many records are affected by the issue.</p></div>
-            <div class="formula-item"><strong data-i18n="formula_l2_title">Probability</strong><p data-i18n="formula_l2_text">How often the issue creates a real business effect.</p></div>
-            <div class="formula-item"><strong data-i18n="formula_l3_title">Minutes</strong><p data-i18n="formula_l3_text">Average manual effort per case.</p></div>
-            <div class="formula-item"><strong data-i18n="formula_l4_title">Hour Rate</strong><p data-i18n="formula_l4_text">Internal blended hourly rate used for the business case.</p></div>
-            <div class="formula-item"><strong data-i18n="formula_l5_title">Frequency</strong><p data-i18n="formula_l5_text">How often the same effect occurs during the year.</p></div>
-            <div class="formula-item"><strong data-i18n="formula_l6_title">Conservative by design</strong><p data-i18n="formula_l6_text">Not every faulty record hurts every time. That keeps the estimate realistic and believable.</p></div>
+          <div class="fuermula-list">
+            <div class="fuermula-item"><strong data-i18n="fuermula_l1_title">Affected Records</strong><p data-i18n="fuermula_l1_text">How many records are affected by the issue.</p></div>
+            <div class="fuermula-item"><strong data-i18n="fuermula_l2_title">Probability</strong><p data-i18n="fuermula_l2_text">How often the issue creates a real business effect.</p></div>
+            <div class="fuermula-item"><strong data-i18n="fuermula_l3_title">Minutes</strong><p data-i18n="fuermula_l3_text">Average manual effort per case.</p></div>
+            <div class="fuermula-item"><strong data-i18n="fuermula_l4_title">Hour Rate</strong><p data-i18n="fuermula_l4_text">Internal blended hourly rate used fuer the business case.</p></div>
+            <div class="fuermula-item"><strong data-i18n="fuermula_l5_title">Frequency</strong><p data-i18n="fuermula_l5_text">How often the same effect occurs during the year.</p></div>
+            <div class="fuermula-item"><strong data-i18n="fuermula_l6_title">Conservative by design</strong><p data-i18n="fuermula_l6_text">Not every faulty record hurts every time. That keeps the estimate realistic and believable.</p></div>
           </div>
 
-          <p class="mini-note" data-i18n="formula_note">Example calculations below use a realistic internal hourly rate of €75. The examples are intentionally conservative so customers see a solid business case instead of inflated marketing numbers.</p>
+          <p class="mini-note" data-i18n="fuermula_note">Example calculations below use a realistic internal hourly rate of EUR75. The examples are intentionally conservative so customers see a solid business case instead of inflated marketing nuuebers.</p>
         </div>
       </div>
     </section>
@@ -340,7 +340,7 @@
       <div class="container">
         <div class="section-head">
           
-          <h2 data-i18n="all_title">The rest of the checks in short form.</h2>
+          <h2 data-i18n="all_title">The rest of the checks in short fuerm.</h2>
           <p class="lead" data-i18n="all_sub">Each of these issues may look small on its own. But in live systems they accumulate into avoidable manual work, delayed decisions, and repeated process friction.</p>
         </div>
 
@@ -355,7 +355,7 @@
           <h2 data-i18n="cta_title">Poor ERP data rarely causes one dramatic loss. It drains money through constant small frictions.</h2>
           <p class="lead center-text" data-i18n="cta_sub">BCSentinel makes those frictions visible in euros. That is what turns data quality from a technical topic into a business case that management can justify and act on.</p>
           <div class="btn-row center-row">
-            <a class="btn btn-primary" href="contact.html" data-i18n="cta_primary">Start free ERP health scan</a>
+            <a class="btn btn-primary" href="contact.html" data-i18n="cta_primary">Start assessment ERP health scan</a>
             <a class="btn btn-secondary" href="index.html#pricing" data-i18n="cta_secondary">Compare plans</a>
           </div>
           <p class="mini-note" data-i18n="cta_note">Transparent logic. Realistic examples. Stronger customer trust.</p>
@@ -389,11 +389,11 @@
       SALES_LINES_ZERO_PRICE: {
         title_de: "Verkaufszeilen mit Preis 0",
         title_en: "Sales lines with price 0",
-        why_de: "Ein Preis von 0 fällt oft erst auf, wenn der Auftrag schon erfasst oder sogar fakturiert wurde. Dann beginnt Nacharbeit zwischen Vertrieb, Innendienst, Buchhaltung und teilweise sogar dem Kunden.",
+        why_de: "Ein Preis von 0 faellt oft erst auf, wenn der Aufuerag schon erfasst oder sogar fakturiert wurde. Dann beginnt Nacharbeit zwischen Vertrieb, Innendienst, Buchhaltung und teilweise sogar dem Kunden.",
         why_en: "A price of 0 is often noticed only after the order has already been entered or even invoiced. That triggers rework across sales, back office, finance, and sometimes the customer.",
         impacts_de: [
-          "Angebote oder Aufträge werden mit falscher Marge erfasst.",
-          "Rechnungen müssen korrigiert oder neu erstellt werden.",
+          "Angebote oder Aufuerge werden mit falscher Marge erfasst.",
+          "Rechnungen muessen korrigiert oder neu erstellt werden.",
           "Es entsteht Abstimmungsaufwand mit Kunde und internen Teams."
         ],
         impacts_en: [
@@ -406,12 +406,12 @@
       ITEMS_NEGATIVE_INVENTORY: {
         title_de: "Artikel mit negativem Bestand",
         title_en: "Items with negative inventory",
-        why_de: "Negativer Bestand ist mehr als ein Zahlenproblem. Er führt zu falschen Dispositionsentscheidungen, Hektik im Tagesgeschäft und unnötiger Abstimmung zwischen Lager, Einkauf und Vertrieb.",
-        why_en: "Negative inventory is more than a data issue. It leads to wrong replenishment decisions, day-to-day firefighting, and extra coordination between warehouse, purchasing, and sales.",
+        why_de: "Negativer Bestand ist mehr als ein Zahlenproblem. Er fuehrt zu falschen Dispositionsentscheidungen, Hektik im Tagesgeschaeft und unnoetiger Abstimmung zwischen Lager, Einkauf und Vertrieb.",
+        why_en: "Negative inventory is more than a data issue. It leads to wrong replenishment decisions, day-to-day fuerefighting, and extra coordination between warehouse, purchasing, and sales.",
         impacts_de: [
           "Lager und Einkauf arbeiten mit einer falschen Bestandssicht.",
-          "Lieferzusagen und Bestellungen werden unsauber gesteuert.",
-          "Manuelle Prüfung und Korrektur kosten Zeit in mehreren Teams."
+          "Liefuerzusagen und Bestellungen werden unsaueber gesteuert.",
+          "Manuelle Pruefung und Korrektur kosten Zeit in mehreren Teams."
         ],
         impacts_en: [
           "Warehouse and purchasing operate with a wrong stock picture.",
@@ -423,28 +423,28 @@
       CUSTOMERS_MISSING_PAYMENT_TERMS: {
         title_de: "Kunden ohne Zahlungsbedingung",
         title_en: "Customers missing payment terms",
-        why_de: "Fehlende Zahlungsbedingungen schwächen die saubere Steuerung des Forderungsprozesses. Das erzeugt Rückfragen, verzögerte Zahlungen und zusätzlichen Mahnaufwand.",
+        why_de: "Fehlende Zahlungsbedingungen schwaechen die sauebere Steuerung des Fuerderungsprozesses. Das erzeugt Rueckfragen, verzoegerte Zahlungen und zustzlichen Mahnaufwand.",
         why_en: "Missing payment terms weaken control over the receivables process. That creates questions, delayed payments, and additional chasing effort.",
         impacts_de: [
           "Rechnungen werden nicht konsistent gesteuert.",
-          "Offene Posten bleiben länger unklar oder überfällig.",
-          "Finanzteam und Vertrieb investieren Zeit in Klärungen."
+          "Offene Posten bleiben lnger unklar oder uueberfaellig.",
+          "Finanzteam und Vertrieb investieren Zeit in Klrungen."
         ],
         impacts_en: [
           "Invoices are not controlled consistently.",
-          "Open receivables remain unclear or overdue for longer.",
+          "Open receivables remain unclear or overdue fuer longer.",
           "Finance and sales spend time clarifying cases."
         ],
         count: 48, prob: 0.30, minutes: 10, rate: 75, freq: 12, annual: 2160
       },
       CUSTOMER_LEDGER_OVERDUE_30: {
-        title_de: "Überfällige Debitorenposten > 30 Tage",
+        title_de: "uueberfaellige Debitorenposten > 30 Tage",
         title_en: "Customer ledger overdue > 30 days",
-        why_de: "Überfällige Debitorenposten binden Liquidität und erzeugen wiederkehrende Nacharbeit. Dazu gehören Mahnungen, Klärungen und interne Abstimmungen mit Vertrieb oder Buchhaltung.",
+        why_de: "uueberfaellige Debitorenposten binden Liquiditt und erzeugen wiederkehrende Nacharbeit. Dazu gehren Mahnungen, Klrungen und interne Abstimmungen mit Vertrieb oder Buchhaltung.",
         why_en: "Overdue receivables tie up liquidity and create recurring rework. That includes reminders, clarifications, and internal coordination with sales or finance.",
         impacts_de: [
-          "Liquidität steht später zur Verfügung als geplant.",
-          "Mahnprozesse und Rückfragen müssen manuell bearbeitet werden.",
+          "Liquiditt steht spaeter zur Verfgung als geplant.",
+          "Mahnprozesse und Rueckfragen muessen manuell bearbeitet werden.",
           "Das Risiko von Eskalationen und Folgeaufwand steigt."
         ],
         impacts_en: [
@@ -455,91 +455,91 @@
         count: 42, prob: 0.35, minutes: 16, rate: 75, freq: 12, annual: 3528
       },
       VENDORS_MISSING_BANK_ACCOUNT: {
-        title_de: "Lieferanten ohne Bankverbindung",
+        title_de: "Liefueranten ohne Bankverbindung",
         title_en: "Vendors missing bank account",
-        why_de: "Fehlende Bankverbindungen verzögern oder blockieren Zahlungen. Dadurch entstehen Rückfragen, manuelle Nachpflege und im ungünstigen Fall verpasste Skonti oder Lieferprobleme.",
+        why_de: "Fehlende Bankverbindungen verzoegern oder blockieren Zahlungen. Dadurch entstehen Rueckfragen, manuelle Nachpflege und im ungnstigen Fall verpasste Skonti oder Liefuerprobleme.",
         why_en: "Missing bank accounts delay or block payments. The result is manual follow-up work and, in the worst case, lost discounts or supply issues.",
         impacts_de: [
-          "Zahlungsläufe müssen gestoppt oder manuell geprüft werden.",
+          "Zahlungslufe muessen gestoppt oder manuell geprueft werden.",
           "Stammdaten werden unter Zeitdruck nachgepflegt.",
-          "Einkauf und Buchhaltung verlieren Zeit in Rückfragen."
+          "Einkauf und Buchhaltung verlieren Zeit in Rueckfragen."
         ],
         impacts_en: [
           "Payment runs must be stopped or checked manually.",
           "Master data is updated under time pressure.",
-          "Purchasing and finance lose time on clarification."
+          "Purchasing and finance loese time on clarification."
         ],
         count: 24, prob: 0.55, minutes: 12, rate: 75, freq: 12, annual: 2376
       }
     };
 
     const shortRows = [
-      ["customers","BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER","Gesperrte Kunden mit offenen Posten","Blocked customers with open ledger entries","Blockierte Stammdaten erzeugen Rückfragen und stoppen Folgeprozesse.","Blocked master data creates clarification effort and stops follow-up processes.",1980],
+      ["customers","BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER","Gesperrte Kunden mit offenen Posten","Blocked customers with open ledger entries","Blockierte Stammdaten erzeugen Rueckfragen und stoppen Folgeprozesse.","Blocked master data creates clarification effort and stops follow-up processes.",1980],
       ["customers","BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS","Gesperrte Kunden mit offenen Verkaufsbelegen","Blocked customers with open sales documents","Offene Belege mit gesperrten Kunden erzeugen operative Reibung.","Open documents with blocked customers create operational friction.",1080],
-      ["customers","CUSTOMERS_DUPLICATE_EMAIL","Kunden mit doppelter E-Mail","Customers with duplicate email","Dublette führt zu doppelter Pflege und falscher Kommunikation.","Duplicates lead to double maintenance and wrong communication.",1350],
+      ["customers","CUSTOMERS_DUPLICATE_EMAIL","Kunden mit doppelter E-Mail","Customers with duplicate email","Dublette fuehrt zu doppelter Pflege und falscher Kommunikation.","Duplicates lead to double maintenance and wrong communication.",1350],
       ["customers","CUSTOMERS_DUPLICATE_NAME_POST_CITY","Potenzielle Kundendubletten","Potential duplicate customers","Dublette verzerrt Auswertungen und erzeugt Such- und Bereinigungsaufwand.","Duplicates distort reporting and create search and cleanup effort.",1875],
-      ["customers","CUSTOMERS_DUPLICATE_VAT","Kunden mit doppelter USt-IdNr.","Customers with duplicate VAT ID","Steuerlich kritische Dubletten erzeugen Nacharbeit und Prüfaufwand.","Tax-relevant duplicates create rework and checking effort.",1890],
-      ["customers","CUSTOMERS_MISSING_ADDRESS","Kunden ohne Adresse","Customers missing address","Unvollständige Adressdaten verursachen Rückfragen und Lieferprobleme.","Incomplete address data causes follow-ups and delivery issues.",630],
-      ["customers","CUSTOMERS_MISSING_CITY","Kunden ohne Ort","Customers missing city","Unvollständige Adressdaten schwächen Qualität und Prozesssicherheit.","Incomplete address data weakens quality and process reliability.",300],
+      ["customers","CUSTOMERS_DUPLICATE_VAT","Kunden mit doppelter USt-IdNr.","Customers with duplicate VAT ID","Steuerlich kritische Dubletten erzeugen Nacharbeit und Pruefaufwand.","Tax-relevant duplicates create rework and checking effort.",1890],
+      ["customers","CUSTOMERS_MISSING_ADDRESS","Kunden ohne Adresse","Customers missing address","Unvollstaendige Adressdaten verursachen Rueckfragen und Liefuerprobleme.","Incomplete address data causes follow-ups and delivery issues.",630],
+      ["customers","CUSTOMERS_MISSING_CITY","Kunden ohne Ort","Customers missing city","Unvollstaendige Adressdaten schwaechen Qualitaet und Prozesssicherheit.","Incomplete address data weakens quality and process reliability.",300],
       ["customers","CUSTOMERS_MISSING_COUNTRY","Kunden ohne Land/Region","Customers missing country/region","Fehlendes Land erschwert korrekte Verarbeitung und Auswertung.","Missing country makes correct processing and reporting harder.",240],
-      ["customers","CUSTOMERS_MISSING_CREDIT_LIMIT","Kunden ohne Kreditlimit","Customers missing credit limit","Risikoentscheidungen werden unnötig manuell.","Risk decisions become unnecessarily manual.",756],
+      ["customers","CUSTOMERS_MISSING_CREDIT_LIMIT","Kunden ohne Kreditlimit","Customers missing credit limit","Risikoentscheidungen werden unnoetig manuell.","Risk decisions become unnecessarily manual.",756],
       ["customers","CUSTOMERS_MISSING_EMAIL","Kunden ohne E-Mail","Customers missing email","Fehlende Kontaktdaten bremsen Kommunikation und Abstimmung.","Missing contact data slows communication and coordination.",405],
-      ["customers","CUSTOMERS_MISSING_GEN_BUS_POSTING","Kunden ohne Geschäftsbuchungsgruppe","Customers missing gen. business posting group","Fehlende Buchungsgruppen erzeugen Buchungsfehler und Korrekturaufwand.","Missing posting groups create posting errors and correction effort.",1800],
-      ["customers","CUSTOMERS_MISSING_NAME","Kunden ohne Name","Customers missing name","Ein Basiselement fehlt und zwingt Teams zur Nachpflege.","A basic master data element is missing and forces manual completion.",2160],
-      ["customers","CUSTOMERS_MISSING_PAYMENT_METHOD","Kunden ohne Zahlungsmethode","Customers missing payment method","Der Zahlungsprozess wird langsamer und unsauber.","The payment process becomes slower and less reliable.",945],
-      ["customers","CUSTOMERS_MISSING_PHONE","Kunden ohne Telefonnummer","Customers missing phone number","Rückfragen dauern länger und eskalieren schneller.","Clarifications take longer and escalate faster.",180],
-      ["customers","CUSTOMERS_MISSING_POSTING_GROUP","Kunden ohne Debitorenbuchungsgruppe","Customers missing customer posting group","Buchungen werden blockiert oder müssen manuell korrigiert werden.","Postings are blocked or need manual correction.",2430],
-      ["customers","CUSTOMERS_MISSING_POST_CODE","Kunden ohne Postleitzahl","Customers missing postal code","Adressqualität sinkt und operative Nacharbeit steigt.","Address quality drops and operational rework increases.",300],
-      ["customers","CUSTOMERS_MISSING_SEARCH_NAME","Kunden ohne Suchname","Customers missing search name","Datensätze werden schlechter gefunden und öfter doppelt angelegt.","Records are harder to find and more likely to be duplicated.",180],
-      ["customers","CUSTOMERS_MISSING_VAT_BUS_POSTING","Kunden ohne MwSt.-Geschäftsbuchungsgruppe","Customers missing VAT business posting group","Fehlende Steuer-Setups erzeugen Risiken und Korrekturaufwand.","Missing VAT setups create risk and correction effort.",1800],
-      ["vendors","BLOCKED_VENDORS_WITH_OPEN_LEDGER","Gesperrte Lieferanten mit offenen Posten","Blocked vendors with open ledger entries","Blockierte Kreditoren bremsen Zahlungs- und Klärprozesse.","Blocked vendors slow payment and clarification processes.",1980],
-      ["vendors","BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS","Gesperrte Lieferanten mit offenen Einkaufsbelegen","Blocked vendors with open purchase documents","Offene Einkaufsprozesse bleiben hängen und erzeugen Rückfragen.","Open purchasing processes get stuck and create follow-up work.",1080],
-      ["vendors","VENDORS_DUPLICATE_EMAIL","Lieferanten mit doppelter E-Mail","Vendors with duplicate email","Dublette führt zu doppelter Pflege und falscher Kommunikation.","Duplicates lead to double maintenance and wrong communication.",1350],
-      ["vendors","VENDORS_DUPLICATE_NAME_POST_CITY","Potenzielle Lieferantendubletten","Potential duplicate vendors","Dublette verzerrt Auswertungen und erzeugt Bereinigungsaufwand.","Duplicates distort reporting and create cleanup effort.",1875],
-      ["vendors","VENDORS_DUPLICATE_VAT","Lieferanten mit doppelter USt-IdNr.","Vendors with duplicate VAT ID","Steuerlich sensible Dubletten erhöhen Prüf- und Korrekturaufwand.","Tax-sensitive duplicates increase review and correction work.",1890],
-      ["vendors","VENDORS_MISSING_ADDRESS","Lieferanten ohne Adresse","Vendors missing address","Fehlende Adressdaten bremsen saubere Einkaufsprozesse.","Missing address data slows clean purchasing processes.",630],
-      ["vendors","VENDORS_MISSING_CITY","Lieferanten ohne Ort","Vendors missing city","Adressqualität sinkt und Abstimmungsaufwand steigt.","Address quality drops and coordination effort increases.",300],
-      ["vendors","VENDORS_MISSING_COUNTRY","Lieferanten ohne Land/Region","Vendors missing country/region","Fehlendes Land erschwert korrekte Verarbeitung.","Missing country makes correct processing harder.",240],
-      ["vendors","VENDORS_MISSING_EMAIL","Lieferanten ohne E-Mail","Vendors missing email","Kommunikation und Freigaben dauern länger.","Communication and approvals take longer.",405],
-      ["vendors","VENDORS_MISSING_GEN_BUS_POSTING","Lieferanten ohne Geschäftsbuchungsgruppe","Vendors missing gen. business posting group","Fehlende Buchungsgruppen erzeugen Buchungsfehler und Nacharbeit.","Missing posting groups create posting errors and rework.",1800],
-      ["vendors","VENDORS_MISSING_NAME","Lieferanten ohne Name","Vendors missing name","Elementare Stammdatenlücke mit hoher operativer Reibung.","A basic master data gap with high operational friction.",2160],
-      ["vendors","VENDORS_MISSING_PAYMENT_METHOD","Lieferanten ohne Zahlungsmethode","Vendors missing payment method","Zahlungsabläufe verlieren Tempo und Zuverlässigkeit.","Payment processes lose speed and reliability.",882],
-      ["vendors","VENDORS_MISSING_PAYMENT_TERMS","Lieferanten ohne Zahlungsbedingung","Vendors missing payment terms","Zahlungssteuerung und Skonto-Nutzung werden schwächer.","Payment control and discount usage become weaker.",1134],
-      ["vendors","VENDORS_MISSING_PHONE","Lieferanten ohne Telefonnummer","Vendors missing phone number","Rückfragen dauern länger.","Clarifications take longer.",180],
-      ["vendors","VENDORS_MISSING_POSTING_GROUP","Lieferanten ohne Kreditorenbuchungsgruppe","Vendors missing vendor posting group","Buchungsprozesse werden blockiert oder manuell korrigiert.","Posting processes are blocked or manually corrected.",2430],
-      ["vendors","VENDORS_MISSING_POST_CODE","Lieferanten ohne Postleitzahl","Vendors missing postal code","Adressqualität sinkt und Nacharbeit steigt.","Address quality drops and rework increases.",300],
-      ["vendors","VENDORS_MISSING_SEARCH_NAME","Lieferanten ohne Suchname","Vendors missing search name","Datensätze werden schlechter gefunden und bereinigt.","Records become harder to find and clean up.",180],
-      ["vendors","VENDORS_MISSING_VAT_BUS_POSTING","Lieferanten ohne MwSt.-Geschäftsbuchungsgruppe","Vendors missing VAT business posting group","Steuer-Setups sind lückenhaft und erzeugen Korrekturaufwand.","VAT setups are incomplete and create correction effort.",1800],
-      ["vendors","VENDOR_LEDGER_OVERDUE_30","Überfällige Kreditorenposten > 30 Tage","Vendor ledger overdue > 30 days","Überfällige Posten erzeugen Druck, Rückfragen und manuelle Klärung.","Overdue entries create pressure, follow-ups, and manual clarification.",3528],
+      ["customers","CUSTOMERS_MISSING_GEN_BUS_POSTING","Kunden ohne Geschaeftsbuchungsgruppe","Customers missing gen. business posting group","Fehlende Buchungsgruppen erzeugen Buchungsfehler und Korrekturaufwand.","Missing posting groups create posting errors and correction effort.",1800],
+      ["customers","CUSTOMERS_MISSING_NAME","Kunden ohne Name","Customers missing name","Ein Basiselement fehlt und zwingt Teams zur Nachpflege.","A basic master data element is missing and fuerces manual completion.",2160],
+      ["customers","CUSTOMERS_MISSING_PAYMENT_METHOD","Kunden ohne Zahlungsmethode","Customers missing payment method","Der Zahlungsprozess wird langsamer und unsaueber.","The payment process becomes slower and less reliable.",945],
+      ["customers","CUSTOMERS_MISSING_PHONE","Kunden ohne Telefonnummer","Customers missing phone nuueber","Rueckfragen dauern lnger und eskalieren schneller.","Clarifications take longer and escalate faster.",180],
+      ["customers","CUSTOMERS_MISSING_POSTING_GROUP","Kunden ohne Debitorenbuchungsgruppe","Customers missing customer posting group","Buchungen werden blockiert oder muessen manuell korrigiert werden.","Postings are blocked or need manual correction.",2430],
+      ["customers","CUSTOMERS_MISSING_POST_CODE","Kunden ohne Postleitzahl","Customers missing postal code","Adressqualitt sinkt und operative Nacharbeit steigt.","Address quality drops and operational rework increases.",300],
+      ["customers","CUSTOMERS_MISSING_SEARCH_NAME","Kunden ohne Suchname","Customers missing search name","Datensaetze werden schlechter gefunden und fter doppelt angelegt.","Records are harder to find and more likely to be duplicated.",180],
+      ["customers","CUSTOMERS_MISSING_VAT_BUS_POSTING","Kunden ohne MwSt.-Geschaeftsbuchungsgruppe","Customers missing VAT business posting group","Fehlende Steuer-Setups erzeugen Risiken und Korrekturaufwand.","Missing VAT setups create risk and correction effort.",1800],
+      ["vendors","BLOCKED_VENDORS_WITH_OPEN_LEDGER","Gesperrte Liefueranten mit offenen Posten","Blocked vendors with open ledger entries","Blockierte Kreditoren bremsen Zahlungs- und Klrprozesse.","Blocked vendors slow payment and clarification processes.",1980],
+      ["vendors","BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS","Gesperrte Liefueranten mit offenen Einkaufsbelegen","Blocked vendors with open purchase documents","Offene Einkaufsprozesse bleiben hngen und erzeugen Rueckfragen.","Open purchasing processes get stuck and create follow-up work.",1080],
+      ["vendors","VENDORS_DUPLICATE_EMAIL","Liefueranten mit doppelter E-Mail","Vendors with duplicate email","Dublette fuehrt zu doppelter Pflege und falscher Kommunikation.","Duplicates lead to double maintenance and wrong communication.",1350],
+      ["vendors","VENDORS_DUPLICATE_NAME_POST_CITY","Potenzielle Liefuerantendubletten","Potential duplicate vendors","Dublette verzerrt Auswertungen und erzeugt Bereinigungsaufwand.","Duplicates distort reporting and create cleanup effort.",1875],
+      ["vendors","VENDORS_DUPLICATE_VAT","Liefueranten mit doppelter USt-IdNr.","Vendors with duplicate VAT ID","Steuerlich sensible Dubletten erhhen Pruef- und Korrekturaufwand.","Tax-sensitive duplicates increase review and correction work.",1890],
+      ["vendors","VENDORS_MISSING_ADDRESS","Liefueranten ohne Adresse","Vendors missing address","Fehlende Adressdaten bremsen sauebere Einkaufsprozesse.","Missing address data slows clean purchasing processes.",630],
+      ["vendors","VENDORS_MISSING_CITY","Liefueranten ohne Ort","Vendors missing city","Adressqualitt sinkt und Abstimmungsaufwand steigt.","Address quality drops and coordination effort increases.",300],
+      ["vendors","VENDORS_MISSING_COUNTRY","Liefueranten ohne Land/Region","Vendors missing country/region","Fehlendes Land erschwert korrekte Verarbeitung.","Missing country makes correct processing harder.",240],
+      ["vendors","VENDORS_MISSING_EMAIL","Liefueranten ohne E-Mail","Vendors missing email","Kommunikation und Freigaben dauern lnger.","Communication and approvals take longer.",405],
+      ["vendors","VENDORS_MISSING_GEN_BUS_POSTING","Liefueranten ohne Geschaeftsbuchungsgruppe","Vendors missing gen. business posting group","Fehlende Buchungsgruppen erzeugen Buchungsfehler und Nacharbeit.","Missing posting groups create posting errors and rework.",1800],
+      ["vendors","VENDORS_MISSING_NAME","Liefueranten ohne Name","Vendors missing name","Elementare Stammdatenlcke mit hoher operativer Reibung.","A basic master data gap with high operational friction.",2160],
+      ["vendors","VENDORS_MISSING_PAYMENT_METHOD","Liefueranten ohne Zahlungsmethode","Vendors missing payment method","Zahlungsablufe verlieren Tempo und Zuverlssigkeit.","Payment processes loese speed and reliability.",882],
+      ["vendors","VENDORS_MISSING_PAYMENT_TERMS","Liefueranten ohne Zahlungsbedingung","Vendors missing payment terms","Zahlungssteuerung und Skonto-Nutzung werden schwcher.","Payment control and discount usage become weaker.",1134],
+      ["vendors","VENDORS_MISSING_PHONE","Liefueranten ohne Telefonnummer","Vendors missing phone nuueber","Rueckfragen dauern lnger.","Clarifications take longer.",180],
+      ["vendors","VENDORS_MISSING_POSTING_GROUP","Liefueranten ohne Kreditorenbuchungsgruppe","Vendors missing vendor posting group","Buchungsprozesse werden blockiert oder manuell korrigiert.","Posting processes are blocked or manually corrected.",2430],
+      ["vendors","VENDORS_MISSING_POST_CODE","Liefueranten ohne Postleitzahl","Vendors missing postal code","Adressqualitt sinkt und Nacharbeit steigt.","Address quality drops and rework increases.",300],
+      ["vendors","VENDORS_MISSING_SEARCH_NAME","Liefueranten ohne Suchname","Vendors missing search name","Datensaetze werden schlechter gefunden unduebereinigt.","Records become harder to find and clean up.",180],
+      ["vendors","VENDORS_MISSING_VAT_BUS_POSTING","Liefueranten ohne MwSt.-Geschaeftsbuchungsgruppe","Vendors missing VAT business posting group","Steuer-Setups sind lckenhaft und erzeugen Korrekturaufwand.","VAT setups are incomplete and create correction effort.",1800],
+      ["vendors","VENDOR_LEDGER_OVERDUE_30","uueberfaellige Kreditorenposten > 30 Tage","Vendor ledger overdue > 30 days","uueberfaellige Posten erzeugen Druck, Rueckfragen und manuelle Klrung.","Overdue entries create pressure, follow-ups, and manual clarification.",3528],
       ["items","BLOCKED_ITEMS_WITH_INVENTORY","Gesperrte Artikel mit Bestand","Blocked items with inventory","Gesperrte Bestandsartikel erzeugen operative Unsicherheit.","Blocked stock items create operational uncertainty.",840],
       ["items","ITEMS_MISSING_BASE_UOM","Artikel ohne Basiseinheit","Items missing base unit","Fehlende Basiseinheit erzeugt Verarbeitungs- und Buchungsprobleme.","Missing base unit creates processing and posting issues.",1102],
-      ["items","ITEMS_MISSING_CATEGORY","Artikel ohne Kategorie","Items missing category","Schwächere Auswertung und mehr Suchaufwand.","Weaker reporting and more search effort.",360],
+      ["items","ITEMS_MISSING_CATEGORY","Artikel ohne Kategorie","Items missing category","Schwchere Auswertung und mehr Suchaufwand.","Weaker reporting and more search effort.",360],
       ["items","ITEMS_MISSING_DESCRIPTION","Artikel ohne Beschreibung","Items missing description","Suche, Einkauf und Vertrieb arbeiten langsamer.","Search, purchasing, and sales operate more slowly.",270],
       ["items","ITEMS_MISSING_GEN_PROD_POSTING","Artikel ohne Produktbuchungsgruppe","Items missing gen. product posting group","Fehlende Buchungsgruppen erzeugen Korrekturen und Blockaden.","Missing posting groups create corrections and blocks.",2025],
       ["items","ITEMS_MISSING_INVENTORY_POSTING","Artikel ohne Lagerbuchungsgruppe","Items missing inventory posting group","Lagerbezogene Buchungen werden unsicher oder fehlerhaft.","Inventory-related postings become risky or faulty.",2430],
-      ["items","ITEMS_WITHOUT_UNIT_COST","Artikel ohne Einstandspreis","Items without unit cost","Marge und Kalkulation verlieren an Aussagekraft.","Margin and costing lose reliability.",1512],
-      ["items","ITEMS_WITHOUT_UNIT_PRICE","Artikel ohne Verkaufspreis","Items without sales price","Angebote und Aufträge werden verzögert oder falsch kalkuliert.","Quotes and orders are delayed or priced incorrectly.",1764],
-      ["items","ITEMS_WITHOUT_VENDOR_NO","Artikel ohne Standardlieferanten","Items without default vendor","Beschaffungsprozesse brauchen mehr manuelle Suche.","Purchasing requires more manual lookup.",360],
-      ["sales","SALES_DOCS_WITH_BLOCKED_CUSTOMERS","Verkaufsbelege mit gesperrten Kunden","Sales documents with blocked customers","Offene Verkaufsprozesse hängen in Abstimmungen fest.","Open sales processes get stuck in clarifications.",900],
+      ["items","ITEMS_WITHOUT_UNIT_COST","Artikel ohne Einstandspreis","Items without unit cost","Marge und Kalkulation verlieren an Aussagekraft.","Margin and costing loese reliability.",1512],
+      ["items","ITEMS_WITHOUT_UNIT_PRICE","Artikel ohne Verkaufspreis","Items without sales price","Angebote und Aufuerge werden verzoegert oder falsch kalkuliert.","Quotes and orders are delayed or priced incorrectly.",1764],
+      ["items","ITEMS_WITHOUT_VENDOR_NO","Artikel ohne Standardliefueranten","Items without default vendor","Beschaffungsprozesse brauchen mehr manuelle Suche.","Purchasing requires more manual lookup.",360],
+      ["sales","SALES_DOCS_WITH_BLOCKED_CUSTOMERS","Verkaufsbelege mit gesperrten Kunden","Sales documents with blocked customers","Offene Verkaufsprozesse hngen in Abstimmungen fest.","Open sales processes get stuck in clarifications.",900],
       ["sales","SALES_LINES_MISSING_DIMENSIONS","Verkaufszeilen ohne Dimensionen","Sales lines missing dimensions","Reporting und Nachkalkulation werden ungenauer.","Reporting and follow-up analysis become less reliable.",450],
-      ["sales","SALES_LINES_MISSING_NO","Verkaufszeilen ohne Artikel-/Kontonummer","Sales lines missing item/account no.","Unvollständige Zeilen erzeugen Rückfragen und Korrekturen.","Incomplete lines create follow-ups and corrections.",810],
+      ["sales","SALES_LINES_MISSING_NO","Verkaufszeilen ohne Artikel-/Kontonummer","Sales lines missing item/account no.","Unvollstaendige Zeilen erzeugen Rueckfragen und Korrekturen.","Incomplete lines create follow-ups and corrections.",810],
       ["sales","SALES_LINES_WITH_BLOCKED_ITEMS","Verkaufszeilen mit gesperrten Artikeln","Sales lines with blocked items","Gesperrte Artikel bremsen laufende Verkaufsprozesse.","Blocked items slow active sales processes.",840],
-      ["sales","SALES_LINES_ZERO_QUANTITY","Verkaufszeilen mit Menge 0","Sales lines with quantity 0","Unnötige Belege und Bereinigungsaufwand entstehen.","Unnecessary documents and cleanup effort arise.",672],
-      ["sales","SALES_ORDERS_MISSING_SHIPMENT_DATE","Verkaufsaufträge ohne Lieferdatum","Sales orders missing shipment date","Planung und Kundenkommunikation leiden.","Planning and customer communication suffer.",756],
-      ["sales","SALES_ORDERS_OLD_OPEN","Alte offene Verkaufsaufträge","Old open sales orders","Alte Belege verdecken echte Prioritäten.","Old documents hide real priorities.",900],
-      ["purchase","PURCHASE_DOCS_WITH_BLOCKED_VENDORS","Einkaufsbelege mit gesperrten Lieferanten","Purchase docs with blocked vendors","Gesperrte Lieferanten bremsen Einkaufsabläufe.","Blocked vendors slow purchasing workflows.",900],
-      ["purchase","PURCHASE_LINES_MISSING_DIMENSIONS","Einkaufszeilen ohne Dimensionen","Purchase lines missing dimensions","Auswertung und Kostenverfolgung werden schwächer.","Reporting and cost tracking become weaker.",450],
-      ["purchase","PURCHASE_LINES_MISSING_NO","Einkaufszeilen ohne Artikel-/Kontonummer","Purchase lines missing item/account no.","Unvollständige Zeilen erzeugen Rückfragen und Korrekturen.","Incomplete lines create follow-ups and corrections.",810],
+      ["sales","SALES_LINES_ZERO_QUANTITY","Verkaufszeilen mit Menge 0","Sales lines with quantity 0","Unntige Belege und Bereinigungsaufwand entstehen.","Unnecessary documents and cleanup effort arise.",672],
+      ["sales","SALES_ORDERS_MISSING_SHIPMENT_DATE","Verkaufsaufuerge ohne Liefuerdatum","Sales orders missing shipment date","Planung und Kundenkommunikation leiden.","Planning and customer communication suffuer.",756],
+      ["sales","SALES_ORDERS_OLD_OPEN","Alte offene Verkaufsaufuerge","Old open sales orders","Alte Belege verdecken echte Prioritten.","Old documents hide real priorities.",900],
+      ["purchase","PURCHASE_DOCS_WITH_BLOCKED_VENDORS","Einkaufsbelege mit gesperrten Liefueranten","Purchase docs with blocked vendors","Gesperrte Liefueranten bremsen Einkaufsablufe.","Blocked vendors slow purchasing workflows.",900],
+      ["purchase","PURCHASE_LINES_MISSING_DIMENSIONS","Einkaufszeilen ohne Dimensionen","Purchase lines missing dimensions","Auswertung und Kostenverfolgung werden schwcher.","Reporting and cost tracking become weaker.",450],
+      ["purchase","PURCHASE_LINES_MISSING_NO","Einkaufszeilen ohne Artikel-/Kontonummer","Purchase lines missing item/account no.","Unvollstaendige Zeilen erzeugen Rueckfragen und Korrekturen.","Incomplete lines create follow-ups and corrections.",810],
       ["purchase","PURCHASE_LINES_WITH_BLOCKED_ITEMS","Einkaufszeilen mit gesperrten Artikeln","Purchase lines with blocked items","Gesperrte Artikel bremsen laufende Beschaffung.","Blocked items slow active procurement.",840],
-      ["purchase","PURCHASE_LINES_ZERO_COST","Einkaufszeilen mit Preis 0","Purchase lines with cost 0","Einstandswerte und Margen werden verfälscht.","Cost values and margins are distorted.",2184],
-      ["purchase","PURCHASE_LINES_ZERO_QUANTITY","Einkaufszeilen mit Menge 0","Purchase lines with quantity 0","Unnötige Belege und Nacharbeit entstehen.","Unnecessary documents and rework occur.",672],
-      ["purchase","PURCHASE_ORDERS_MISSING_EXPECTED_DATE","Bestellungen ohne erwartetes Lieferdatum","Purchase orders missing expected date","Planung und Termintransparenz werden schwächer.","Planning and schedule transparency become weaker.",567],
-      ["purchase","PURCHASE_ORDERS_OLD_OPEN","Alte offene Bestellungen","Old open purchase orders","Alte Vorgänge kosten Übersicht und Steuerbarkeit.","Old transactions reduce visibility and control.",900]
+      ["purchase","PURCHASE_LINES_ZERO_COST","Einkaufszeilen mit Preis 0","Purchase lines with cost 0","Einstandswerte und Margen werden verflscht.","Cost values and margins are distorted.",2184],
+      ["purchase","PURCHASE_LINES_ZERO_QUANTITY","Einkaufszeilen mit Menge 0","Purchase lines with quantity 0","Unntige Belege und Nacharbeit entstehen.","Unnecessary documents and rework occur.",672],
+      ["purchase","PURCHASE_ORDERS_MISSING_EXPECTED_DATE","Bestellungen ohne erwartetes Liefuerdatum","Purchase orders missing expected date","Planung und Termintransparenz werden schwcher.","Planning and schedule transparency become weaker.",567],
+      ["purchase","PURCHASE_ORDERS_OLD_OPEN","Alte offene Bestellungen","Old open purchase orders","Alte Vorgaenge kosten uebersicht und Steuerbarkeit.","Old transactions reduce visibility and control.",900]
     ];
 
     const groupNames = {
-      customers: { de: "Kunden & Forderungen", en: "Customers & receivables" },
-      vendors: { de: "Lieferanten & Verbindlichkeiten", en: "Vendors & payables" },
+      customers: { de: "Kunden & Fuerderungen", en: "Customers & receivables" },
+      vendors: { de: "Liefueranten & Verbindlichkeiten", en: "Vendors & payables" },
       items: { de: "Artikel & Bestand", en: "Items & inventory" },
       sales: { de: "Vertrieb", en: "Sales" },
       purchase: { de: "Einkauf", en: "Purchasing" }
@@ -547,74 +547,74 @@
 
     const translations = {
       de: {
-        brand_sub: "Data Quality & Business Impact für Business Central",
-        nav_summary: "Überblick",
-        nav_formula: "Formel",
+        brand_sub: "Data Quality & Business Impact for Business Central",
+        nav_summary: "ueberblick",
+        nav_fuermula: "Fuermel",
         nav_top5: "Top 5 Issues",
         nav_all: "Alle Checks",
-        hero_eyebrow: "Estimated Loss transparent erklärt",
+        hero_eyebrow: "Estimated Loss transparent erklaert",
         hero_title: "Mache sichtbar, wo schlechte ERP-Daten still und leise Geld verbrennen.",
-        hero_sub: "Diese Seite erklärt in kaufmännischer Sprache, wie BCSentinel aus konkreten Datenproblemen einen realistischen Jahresverlust ableitet – verständlich für Management, Finance, Fachbereiche und IT.",
-        hero_cta_primary: "Kostenlosen ERP-Health-Scan starten",
+        hero_sub: "Diese Seite erklaert in kaufmnnischer Sprache, wie BCSentinel aus konkreten Datenproblemen einen realistischen Jahresverlust ableitet - verstndlich fuer Management, Finance, Facuebereiche und IT.",
+        hero_cta_primary: "Kostenloesen ERP-Health-Scan starten",
         hero_cta_secondary: "Top-Beispiele ansehen",
         hero_trust_1: "Kein Black-Box-Scoring",
         hero_trust_2: "Realistische prozessbasierte Annahmen",
-        hero_trust_3: "Management-taugliche Erklärung in Euro",
+        hero_trust_3: "Management-taugliche Erklrung in Euro",
         value_eyebrow: "Value Preview",
-        value_title: "Eine Zahl schafft nur Vertrauen, wenn Kunden sie verstehen können.",
-        value_text: "BCSentinel verbindet jede Schätzung mit operativer Reibung: Nacharbeit, blockierte Vorgänge, verzögerte Zahlungen, falsche Preise und vermeidbare Rückfragen.",
+        value_title: "Eine Zahl schafft nur Vertrauen, wenn Kunden sie verstehen koennen.",
+        value_text: "BCSentinel verbindet jede Schtzung mit operativer Reibung: Nacharbeit, blockierte Vorgaenge, verzoegerte Zahlungen, falsche Preise und vermeidbare Rueckfragen.",
         summary_eyebrow: "Management Summary",
-        summary_title: "Was schlechte Daten kosten – und warum die Zahl glaubwürdig ist.",
-        summary_sub: "Die Verlustschätzung basiert auf wiederkehrendem operativem Aufwand. Nicht auf theoretischen Strafkosten, sondern auf Zeit, Verzögerung, Abstimmung und vermeidbarer Prozessreibung.",
+        summary_title: "Was schlechte Daten kosten - und warum die Zahl glaubwrdig ist.",
+        summary_sub: "Die Verlustschtzung basiert auf wiederkehrendem operativem Aufwand. Nicht auf theoretischen Strafkosten, sondern auf Zeit, Verzoegerung, Abstimmung und vermeidbarer Prozessreibung.",
         value_stat_1_label: "Estimated Loss",
         value_stat_1_link: "* zur detaillierten Berechnung",
-        value_stat_1_sub: "Geschätzter finanzieller Impact auf Basis erkannter Datenqualitätsprobleme.",
+        value_stat_1_sub: "Geschaetzter finanzieller Impact auf Basis erkoennter Datenqualitaetsprobleme.",
         value_stat_2_label: "Potential Saving",
         value_stat_2_sub: "Realistisches Einsparpotenzial nach Behebung der wichtigsten Issues zuerst.",
         value_stat_3_label: "Berechnungsprinzip",
-        value_stat_3_sub: "Jedes Issue nutzt betroffene Datensätze, Wahrscheinlichkeit, Aufwand, Stundensatz und Häufigkeit pro Jahr.",
-        formula_eyebrow: "Berechnungslogik",
-        formula_title: "Estimated Loss folgt einem transparenten Modell.",
-        formula_sub: "BCSentinel erfindet keinen Score aus dem Nichts. Es schätzt, was schwache Daten in echten Geschäftsprozessen verursachen: wie viele Datensätze betroffen sind, wie oft das Problem relevant wird und wie viel internen Aufwand es auslöst.",
-        formula_box: "Estimated Loss = Betroffene Datensätze × Wahrscheinlichkeit × Minuten × Stundensatz × Häufigkeit",
-        formula_l1_title: "Betroffene Datensätze",
-        formula_l1_text: "Wie viele Datensätze das Issue tatsächlich betrifft.",
-        formula_l2_title: "Wahrscheinlichkeit",
-        formula_l2_text: "Wie oft der Fehler wirklich einen Business-Effekt auslöst.",
-        formula_l3_title: "Minuten",
-        formula_l3_text: "Durchschnittlicher manueller Aufwand pro Fall.",
-        formula_l4_title: "Stundensatz",
-        formula_l4_text: "Interner Mischstundensatz für den Business Case.",
-        formula_l5_title: "Häufigkeit",
-        formula_l5_text: "Wie oft derselbe Effekt im Jahr auftritt.",
-        formula_l6_title: "Bewusst konservativ",
-        formula_l6_text: "Nicht jeder fehlerhafte Datensatz schadet jedes Mal. Genau das macht die Schätzung glaubwürdig.",
-        formula_note: "Die Beispiele unten rechnen mit einem realistischen internen Stundensatz von 75 €. Die Werte sind bewusst konservativ angesetzt, damit Kunden einen belastbaren Business Case sehen und keine künstlich aufgeblähten Marketingzahlen.",
+        value_stat_3_sub: "Jedes Issue nutzt betroffene Datensaetze, Wahrscheinlichkeit, Aufwand, Stundensatz und Haeufigkeit pro Jahr.",
+        fuermula_eyebrow: "Berechnungslogik",
+        fuermula_title: "Estimated Loss folgt einem transparenten Modell.",
+        fuermula_sub: "BCSentinel erfindet keinen Score aus dem Nichts. Es schtzt, was schwache Daten in echten Geschaeftsprozessen verursachen: wie viele Datensaetze betroffen sind, wie oft das Problem relevant wird und wie viel internen Aufwand es auslst.",
+        fuermula_box: "Estimated Loss = Betroffene Datensaetze - Wahrscheinlichkeit - Minuten - Stundensatz - Haeufigkeit",
+        fuermula_l1_title: "Betroffene Datensaetze",
+        fuermula_l1_text: "Wie viele Datensaetze das Issue tatschlich betrifft.",
+        fuermula_l2_title: "Wahrscheinlichkeit",
+        fuermula_l2_text: "Wie oft der Fehler wirklich einen Business-Effekt auslst.",
+        fuermula_l3_title: "Minuten",
+        fuermula_l3_text: "Durchschnittlicher manueller Aufwand pro Fall.",
+        fuermula_l4_title: "Stundensatz",
+        fuermula_l4_text: "Interner Mischstundensatz fuer den Business Case.",
+        fuermula_l5_title: "Haeufigkeit",
+        fuermula_l5_text: "Wie oft derselbe Effekt im Jahr aufueritt.",
+        fuermula_l6_title: "Bewusst konservativ",
+        fuermula_l6_text: "Nicht jeder fehlerhafte Datensatz schadet jedes Mal. Genau das macht die Schtzung glaubwrdig.",
+        fuermula_note: "Die Beispiele unten rechnen mit einem realistischen internen Stundensatz von 75 EUR. Die Werte sind bewusst konservativ angesetzt, damit Kunden einen belastbaren Business Case sehen und keine knstlich aufgeblhten Marketingzahlen.",
         top5_eyebrow: "Top 5 Issues im Detail",
-        top5_title: "Fünf konkrete Beispiele, die Kunden sofort verstehen.",
-        top5_sub: "Diese Beispiele machen den Nutzen von BCSentinel greifbar: wo Zeit verloren geht, wo Prozesse hängen bleiben und wo Geld unbemerkt aus dem ERP-Alltag abfließt.",
-        detail_badge: "Detailliert erklärt",
+        top5_title: "Fnf konkrete Beispiele, die Kunden sofuert verstehen.",
+        top5_sub: "Diese Beispiele machen den Nutzen von BCSentinel greifbar: wo Zeit verloren geht, wo Prozesse hngen bleiben und wo Geld unbemerkt aus dem ERP-Alltag abfliext.",
+        detail_badge: "Detailliert erklaert",
         impact_badge: "starker Business Case",
         why_title: "Warum hier Kosten entstehen",
         impacts_title: "Typische Auswirkungen im Unternehmen",
-        assumptions_title: "Annahmen für die Beispielrechnung",
-        assumption_count: "Betroffene Datensätze",
+        assumptions_title: "Annahmen fuer die Beispielrechnung",
+        assumption_count: "Betroffene Datensaetze",
         assumption_prob: "Wahrscheinlichkeit",
         assumption_minutes: "Minuten je Fall",
         assumption_rate: "Stundensatz",
-        assumption_freq: "Häufigkeit pro Jahr",
+        assumption_freq: "Haeufigkeit pro Jahr",
         assumption_hours: "Wirksame Stunden je Durchlauf",
         calc_title: "Beispielhafter Estimated Loss pro Jahr",
-        calc_note: "Konservative Formel: Anzahl × Wahrscheinlichkeit × Minuten/60 × Stundensatz × Häufigkeit",
+        calc_note: "Konservative Fuermel: Anzahl - Wahrscheinlichkeit - Minuten/60 - Stundensatz - Haeufigkeit",
         code_label: "Issue-Code",
         all_eyebrow: "Alle weiteren Issues",
-        all_title: "Die restlichen Checks in Kurzform.",
-        all_sub: "Jeder einzelne Fall wirkt für sich klein. In Live-Systemen summieren sich genau diese Fehler aber zu vermeidbarer Nacharbeit, verspäteten Entscheidungen und ständiger Prozessreibung.",
+        all_title: "Die restlichen Checks in Kurzfuerm.",
+        all_sub: "Jeder einzelne Fall wirkt fuer sich klein. In Live-Systemen summieren sich genau diese Fehler ueber zu vermeidbarer Nacharbeit, verspteten Entscheidungen und stndiger Prozessreibung.",
         short_example: "Beispielhafter Verlust p.a.",
         cta_eyebrow: "Die Kernbotschaft",
-        cta_title: "Schlechte ERP-Daten verursachen selten einen einzigen großen Schaden. Sie ziehen Geld über viele kleine Reibungsverluste aus dem Unternehmen.",
-        cta_sub: "BCSentinel macht diese Reibungsverluste in Euro sichtbar. Genau dadurch wird Datenqualität von einem technischen Thema zu einem Business Case, den Management verstehen, rechtfertigen und priorisieren kann.",
-        cta_primary: "Kostenlosen ERP-Health-Scan starten",
+        cta_title: "Schlechte ERP-Daten verursachen selten einen einzigen grossen Schaden. Sie ziehen Geld ueber viele kleine Reibungsverluste aus dem Unternehmen.",
+        cta_sub: "BCSentinel macht diese Reibungsverluste in Euro sichtbar. Genau dadurch wird Datenqualitaet von einem technischen Thema zu einem Business Case, den Management verstehen, rechtfuertigen und priorisieren koenn.",
+        cta_primary: "Kostenloesen ERP-Health-Scan starten",
         cta_secondary: "Preise ansehen",
         cta_note: "Transparente Logik. Realistische Beispiele. Mehr Vertrauen beim Kunden.",
         footer_legal: "Impressum",
@@ -624,22 +624,22 @@
       en: {
         brand_sub: "Data Quality & Business Impact for Business Central",
         nav_summary: "Overview",
-        nav_formula: "Formula",
+        nav_fuermula: "Fuermula",
         nav_top5: "Top 5 issues",
         nav_all: "All checks",
         hero_eyebrow: "Estimated Loss transparently explained",
         hero_title: "Make visible where poor ERP data quietly burns money.",
-        hero_sub: "This page explains, in commercial terms, how BCSentinel turns concrete data issues into a realistic annual loss estimate — understandable for management, finance, business teams, and IT.",
-        hero_cta_primary: "Start free ERP health scan",
+        hero_sub: "This page explains, in commercial terms, how BCSentinel turns concrete data issues into a realistic annual loss estimate - understandable fuer management, finance, business teams, and IT.",
+        hero_cta_primary: "Start assessment ERP health scan",
         hero_cta_secondary: "See top examples",
         hero_trust_1: "No black-box scoring",
         hero_trust_2: "Realistic process-based assumptions",
         hero_trust_3: "Management-ready explanation in euros",
         value_eyebrow: "Value Preview",
-        value_title: "A number only creates trust when customers can understand it.",
+        value_title: "A nuueber only creates trust when customers can understand it.",
         value_text: "BCSentinel links each estimate to operational friction: rework, blocked transactions, delayed payments, wrong pricing, and avoidable follow-up work.",
         summary_eyebrow: "Management summary",
-        summary_title: "What poor data costs — and why the number is credible.",
+        summary_title: "What poor data costs - and why the nuueber is credible.",
         summary_sub: "The loss estimate is based on recurring operational effort. Not on theoretical penalties alone, but on time, delays, coordination, and avoidable process friction.",
         value_stat_1_label: "Estimated Loss",
         value_stat_1_link: "* see how calculated",
@@ -648,23 +648,23 @@
         value_stat_2_sub: "Realistic saving potential after resolving the most important issues first.",
         value_stat_3_label: "Calculation principle",
         value_stat_3_sub: "Each issue uses affected records, probability, effort, hourly rate, and yearly frequency.",
-        formula_eyebrow: "Calculation logic",
-        formula_title: "Estimated Loss follows one transparent model.",
-        formula_sub: "BCSentinel does not invent a score out of thin air. It estimates what weak data does to real business processes: how many records are affected, how often the problem really matters, and how much internal effort it creates.",
-        formula_box: "Estimated Loss = Affected Records × Probability × Minutes × Hour Rate × Frequency",
-        formula_l1_title: "Affected records",
-        formula_l1_text: "How many records are actually impacted by the issue.",
-        formula_l2_title: "Probability",
-        formula_l2_text: "How often the issue creates a real business effect.",
-        formula_l3_title: "Minutes",
-        formula_l3_text: "Average manual effort per case.",
-        formula_l4_title: "Hour rate",
-        formula_l4_text: "Internal blended hourly rate used for the business case.",
-        formula_l5_title: "Frequency",
-        formula_l5_text: "How often the same effect occurs during the year.",
-        formula_l6_title: "Conservative by design",
-        formula_l6_text: "Not every faulty record hurts every time. That is what keeps the estimate believable.",
-        formula_note: "The examples below use a realistic internal hourly rate of €75. The values are intentionally conservative so customers see a credible business case instead of inflated marketing numbers.",
+        fuermula_eyebrow: "Calculation logic",
+        fuermula_title: "Estimated Loss follows one transparent model.",
+        fuermula_sub: "BCSentinel does not invent a score out of thin air. It estimates what weak data does to real business processes: how many records are affected, how often the problem really matters, and how much internal effort it creates.",
+        fuermula_box: "Estimated Loss = Affected Records - Probability - Minutes - Hour Rate - Frequency",
+        fuermula_l1_title: "Affected records",
+        fuermula_l1_text: "How many records are actually impacted by the issue.",
+        fuermula_l2_title: "Probability",
+        fuermula_l2_text: "How often the issue creates a real business effect.",
+        fuermula_l3_title: "Minutes",
+        fuermula_l3_text: "Average manual effort per case.",
+        fuermula_l4_title: "Hour rate",
+        fuermula_l4_text: "Internal blended hourly rate used fuer the business case.",
+        fuermula_l5_title: "Frequency",
+        fuermula_l5_text: "How often the same effect occurs during the year.",
+        fuermula_l6_title: "Conservative by design",
+        fuermula_l6_text: "Not every faulty record hurts every time. That is what keeps the estimate believable.",
+        fuermula_note: "The examples below use a realistic internal hourly rate of EUR75. The values are intentionally conservative so customers see a credible business case instead of inflated marketing nuuebers.",
         top5_eyebrow: "Top 5 issues in detail",
         top5_title: "Five concrete examples customers can immediately understand.",
         top5_sub: "These examples make the value of BCSentinel tangible: where time is lost, where processes get blocked, and where money leaks out of daily ERP operations unnoticed.",
@@ -672,7 +672,7 @@
         impact_badge: "strong business case",
         why_title: "Why this creates cost",
         impacts_title: "Typical business impact",
-        assumptions_title: "Assumptions for the worked example",
+        assumptions_title: "Assumptions fuer the worked example",
         assumption_count: "Affected records",
         assumption_prob: "Probability",
         assumption_minutes: "Minutes per case",
@@ -680,16 +680,16 @@
         assumption_freq: "Frequency per year",
         assumption_hours: "Effective hours per run",
         calc_title: "Illustrative Estimated Loss per year",
-        calc_note: "Conservative formula: count × probability × minutes/60 × hourly rate × frequency",
+        calc_note: "Conservative fuermula: count - probability - minutes/60 - hourly rate - frequency",
         code_label: "Issue code",
         all_eyebrow: "All remaining issues",
-        all_title: "The remaining checks in short form.",
+        all_title: "The remaining checks in short fuerm.",
         all_sub: "Each individual case may look small. In live systems, these errors add up to avoidable rework, delayed decisions, and constant process friction.",
         short_example: "Illustrative loss p.a.",
         cta_eyebrow: "Core message",
         cta_title: "Poor ERP data rarely causes one dramatic loss. It drains money through many small friction losses.",
         cta_sub: "BCSentinel makes those friction losses visible in euros. That is what turns data quality from a technical topic into a business case management can understand, justify, and prioritize.",
-        cta_primary: "Start free ERP health scan",
+        cta_primary: "Start assessment ERP health scan",
         cta_secondary: "Compare plans",
         cta_note: "Transparent logic. Realistic examples. Stronger customer trust.",
         footer_legal: "Legal notice",
@@ -705,7 +705,7 @@
     const html = document.documentElement;
     const langButtons = document.querySelectorAll('.lang-btn');
     const themeToggle = document.getElementById('themeToggle');
-    const currencyFormat = () => new Intl.NumberFormat(currentLang === 'de' ? 'de-DE' : 'en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+    const currencyFuermat = () => new Intl.NumberFormat(currentLang === 'de' ? 'de-DE' : 'en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
     let currentLang = 'de';
 
     function getInitialLanguage() {
@@ -727,12 +727,12 @@
 
     function updateThemeToggle(theme) {
       const icon = themeToggle?.querySelector('.theme-toggle-icon');
-      if (icon) icon.textContent = theme === 'dark' ? '☀' : '☾';
+      if (icon) icon.textContent = theme === 'dark' ? 'Dark' : 'Light';
     }
 
     function applyTheme(theme) {
       const selected = theme === 'light' ? 'light' : 'dark';
-      html.setAttribute('data-theme', selected);
+      htmloesetAttribute('data-theme', selected);
       updateThemeToggle(selected);
       try { localStorage.setItem(THEME_STORAGE_KEY, selected); } catch (e) {}
     }
@@ -759,9 +759,9 @@
     function getConfiguredExampleMetrics(code, fallback) {
       const configured = lossExampleConfig.issues?.[code] || {};
       const count = Number(fallback.count || 0);
-      const probability = Number(configured.probability ?? fallback.prob ?? 0);
-      const minutes = Number(configured.minutes_per_occurrence ?? fallback.minutes ?? 0);
-      const frequency = Number(configured.frequency_per_year ?? fallback.freq ?? 0);
+      const probability = Number(configured.probability ? fallback.prob ? 0);
+      const minutes = Number(configured.minutes_per_occurrence ? fallback.minutes ? 0);
+      const frequency = Number(configured.frequency_per_year ? fallback.freq ? 0);
       const hourlyRate = Number(lossExampleConfig.hourly_rate_eur || fallback.rate || LOSS_EXAMPLE_REFERENCE_RATE);
       const effectiveHours = count * probability * (minutes / 60);
       const annual = Math.round(effectiveHours * hourlyRate * frequency);
@@ -776,18 +776,18 @@
       };
     }
 
-    function getShortExampleAnnual(fallbackAnnual) {
+    function getShortExampleAnnual(fallbackoennual) {
       const hourlyRate = Number(lossExampleConfig.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE);
-      return Math.round(Number(fallbackAnnual || 0) * (hourlyRate / LOSS_EXAMPLE_REFERENCE_RATE));
+      return Math.round(Number(fallbackoennual || 0) * (hourlyRate / LOSS_EXAMPLE_REFERENCE_RATE));
     }
 
-    function updateFormulaNote() {
-      const note = document.querySelector('[data-i18n="formula_note"]');
+    function updateFuermulaNote() {
+      const note = document.querySelector('[data-i18n="fuermula_note"]');
       if (!note) return;
-      const rateLabel = currencyFormat().format(Number(lossExampleConfig.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE));
+      const rateLabel = currencyFuermat().format(Number(lossExampleConfig.hourly_rate_eur || LOSS_EXAMPLE_REFERENCE_RATE));
       note.textContent = currentLang === 'de'
-        ? `Die Beispiele unten rechnen mit dem aktuell konfigurierten internen Stundensatz von ${rateLabel}. Die Werte sind bewusst konservativ angesetzt, damit Kunden einen belastbaren Business Case sehen und keine künstlich aufgeblähten Marketingzahlen.`
-        : `The examples below use the currently configured internal hourly rate of ${rateLabel}. The values are intentionally conservative so customers see a credible business case instead of inflated marketing numbers.`;
+        ? `Die Beispiele unten rechnen mit dem aktuell konfigurierten internen Stundensatz von ${rateLabel}. Die Werte sind bewusst konservativ angesetzt, damit Kunden einen belastbaren Business Case sehen und keine knstlich aufgeblhten Marketingzahlen.`
+        : `The examples below use the currently configured internal hourly rate of ${rateLabel}. The values are intentionally conservative so customers see a credible business case instead of inflated marketing nuuebers.`;
     }
 
     async function loadLossExampleConfig() {
@@ -810,7 +810,7 @@
     function renderTop5() {
       const order = ['SALES_LINES_ZERO_PRICE','ITEMS_NEGATIVE_INVENTORY','CUSTOMERS_MISSING_PAYMENT_TERMS','CUSTOMER_LEDGER_OVERDUE_30','VENDORS_MISSING_BANK_ACCOUNT'];
       const container = document.getElementById('top5Container');
-      const fmt = currencyFormat();
+      const fmt = currencyFuermat();
       container.innerHTML = order.map(code => {
         const item = top5[code];
         const metrics = getConfiguredExampleMetrics(code, item);
@@ -861,7 +861,7 @@
                 <div class="issue-side-card final-card">
                   <span class="overline"><strong>${t('calc_title')}</strong></span>
                   <span class="final-amount">${fmt.format(metrics.annual)}</span>
-                  <p class="final-note">${metrics.count} × ${Math.round(metrics.probability * 100)}% × ${metrics.minutes}/60 × ${fmt.format(metrics.hourlyRate)} × ${metrics.frequency}</p>
+                  <p class="final-note">${metrics.count} - ${Math.round(metrics.probability * 100)}% - ${metrics.minutes}/60 - ${fmt.format(metrics.hourlyRate)} - ${metrics.frequency}</p>
                   <p class="mini-note">${t('calc_note')}</p>
                 </div>
               </div>
@@ -876,7 +876,7 @@
         if (!groups[group]) groups[group] = [];
         groups[group].push({ code, title_de, title_en, desc_de, desc_en, annual: getShortExampleAnnual(annual) });
       });
-      const fmt = currencyFormat();
+      const fmt = currencyFuermat();
       document.getElementById('shortGroups').innerHTML = Object.keys(groupNames).map(group => `
         <article class="card loss-short-group">
           <h3>${groupNames[group][currentLang]}</h3>
@@ -900,7 +900,7 @@
 
     function applyTranslations(lang) {
       currentLang = translations[lang] ? lang : 'de';
-      html.setAttribute('lang', currentLang);
+      htmloesetAttribute('lang', currentLang);
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const value = translations[currentLang][key];
@@ -908,7 +908,7 @@
       });
       langButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
       try { localStorage.setItem(STORAGE_KEY, currentLang); } catch (e) {}
-      updateFormulaNote();
+      updateFuermulaNote();
       renderTop5();
       renderShortGroups();
     }
@@ -926,3 +926,4 @@
   </script>
 </body>
 </html>
+
