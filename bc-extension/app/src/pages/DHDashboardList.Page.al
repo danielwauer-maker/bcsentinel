@@ -66,15 +66,15 @@
                 field("Est. Loss"; Rec."Estimated Loss (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Loss â‚¬';
-                    ToolTip = 'Specifies Loss â‚¬.';
+                    Caption = 'Loss EUR';
+                    ToolTip = 'Specifies Loss EUR.';
                 }
 
                 field("ROI"; Rec."ROI")
                 {
                     ApplicationArea = All;
-                    Caption = 'ROI â‚¬';
-                    ToolTip = 'Specifies ROI â‚¬.';
+                    Caption = 'ROI EUR';
+                    ToolTip = 'Specifies ROI EUR.';
                 }
 
                 field("Headline"; Rec."Headline")

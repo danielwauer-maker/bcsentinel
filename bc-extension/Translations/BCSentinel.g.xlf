@@ -1284,12 +1284,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Affected Count - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3003571318 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact â‚¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3003571318 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact â‚¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
@@ -1339,12 +1339,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Affected Count - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3740536628 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact Ã¢â€šÂ¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3740536628 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact Ã¢â€šÂ¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
@@ -1434,12 +1434,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control DisplayRunId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 524832041 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Loss â‚¬.</source>
+          <source>Specifies Loss EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Loss â‚¬</source>
+          <source>Loss EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property Caption</note>
         </trans-unit>
@@ -1464,12 +1464,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Issues Count - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 3239209616 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies ROI â‚¬.</source>
+          <source>Specifies ROI EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control ROI - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 3239209616 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ROI â‚¬</source>
+          <source>ROI EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control ROI - Property Caption</note>
         </trans-unit>
@@ -1574,12 +1574,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Category - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 204865987 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact â‚¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 204865987 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact â‚¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
@@ -1629,12 +1629,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Category - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 177555053 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact â‚¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 177555053 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact â‚¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
@@ -2199,12 +2199,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control DisplayRunId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 524832041 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Loss â‚¬.</source>
+          <source>Specifies Loss EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Loss â‚¬</source>
+          <source>Loss EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property Caption</note>
         </trans-unit>
@@ -2464,12 +2464,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Affected Count - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1900111907 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact â‚¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1900111907 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact â‚¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
@@ -2984,12 +2984,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Affected Count - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4215110451 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact â‚¬.</source>
+          <source>Specifies Impact EUR.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Estimated Impact (EUR) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4215110451 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact â‚¬</source>
+          <source>Impact EUR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>

@@ -99,7 +99,9 @@ def test_executive_report_share_links_open_without_headers(
     tenant_factory,
     auth_header_factory,
     scan_factory,
+    settings_state,
 ):
+    settings_state(APP_BASE_URL="https://app.bcsentinel.com")
     tenant = tenant_factory(plan="premium", license_status="active")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_shared")
 
@@ -120,6 +122,10 @@ def test_executive_report_share_links_open_without_headers(
     pdf_url = pdf_link_response.json()["url"]
     assert "X-Api-Token" not in html_url
     assert "api_token" not in html_url.lower()
+    assert html_url.startswith("https://app.bcsentinel.com/reports/")
+    assert pdf_url.startswith("https://app.bcsentinel.com/reports/")
+    assert "localhost" not in html_url
+    assert "localhost" not in pdf_url
     assert "/reports/executive/scan_exec_shared/html/shared?token=" in html_url
     assert "/reports/executive/scan_exec_shared/pdf/shared?token=" in pdf_url
 

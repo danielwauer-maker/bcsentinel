@@ -588,7 +588,7 @@ function updateThemeToggleLabels(theme) {
 
 function applyTheme(theme) {
   const selected = theme === "light" ? "light" : "dark";
-  htmloesetAttribute("data-theme", selected);
+  html.setAttribute("data-theme", selected);
   updateThemeToggleLabels(selected);
   try {
     localStorage.setItem(THEME_STORAGE_KEY, selected);
@@ -603,7 +603,7 @@ function toggleTheme() {
 
 function applyTranslations(lang) {
   const selected = translations[lang] ? lang : "de";
-  htmloesetAttribute("lang", selected);
+  html.setAttribute("lang", selected);
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");

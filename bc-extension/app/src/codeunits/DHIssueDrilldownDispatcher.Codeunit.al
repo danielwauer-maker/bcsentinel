@@ -296,7 +296,7 @@ codeunit 53143 "DH Issue Drilldown Dispatcher"
                                                                                         Page.Run(0, MachineCenter)
                                                                                     else
                                                                                         Message(
-                                                                                          'FÃ¼r den Issue-Code %1 ist aktuell noch keine direkte Bearbeitungsliste hinterlegt.',
+                                                                                          'For issue code %1, no direct edit list is currently available.',
                                                                                           IssueCode);
         end;
     end;

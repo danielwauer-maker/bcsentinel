@@ -934,9 +934,9 @@
 
         for i := 1 to 10 do
             if i <= Filled then
-                BarTxt += 'â–ˆ'
+                BarTxt += '#'
             else
-                BarTxt += 'â–‘';
+                BarTxt += '-';
 
         exit(BarTxt);
     end;

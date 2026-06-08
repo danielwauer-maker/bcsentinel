@@ -53,8 +53,8 @@
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact Ã¢â€šÂ¬';
-                    ToolTip = 'Specifies Impact Ã¢â€šÂ¬.';
+                    Caption = 'Impact EUR';
+                    ToolTip = 'Specifies Impact EUR.';
                 }
 
                 field("Recommendation Review"; Rec."Recommendation Preview")
