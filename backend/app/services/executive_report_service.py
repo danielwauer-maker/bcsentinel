@@ -19,6 +19,7 @@ from app.schemas.report import (
     ReportPriorityItem,
 )
 from app.services.impact_service import normalize_stored_commercials
+from app.services.localization_service import tenant_language
 
 
 MODULES = [
@@ -53,24 +54,28 @@ def _safe_float(value: object, default: float = 0.0) -> float:
         return default
 
 
-def _money(value: float) -> str:
-    return f"{round(_safe_float(value), 2):,.2f} EUR".replace(",", "X").replace(".", ",").replace("X", ".")
+def _money(value: float, language: str = "en") -> str:
+    amount = round(_safe_float(value), 2)
+    if language == "de":
+        return f"{amount:,.2f} EUR".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"EUR {amount:,.2f}"
 
 
-def _number(value: int) -> str:
-    return f"{_safe_int(value):,}".replace(",", ".")
+def _number(value: int, language: str = "en") -> str:
+    text = f"{_safe_int(value):,}"
+    return text.replace(",", ".") if language == "de" else text
 
 
-def score_status(score: int) -> str:
+def score_status(score: int, language: str = "en") -> str:
     if score < 60:
-        return "Critical"
+        return "Kritisch" if language == "de" else "Critical"
     if score < 75:
-        return "Needs attention"
+        return "Braucht Aufmerksamkeit" if language == "de" else "Needs attention"
     if score < 85:
-        return "Stable with risks"
+        return "Stabil mit Risiken" if language == "de" else "Stable with risks"
     if score < 95:
-        return "Good"
-    return "Excellent"
+        return "Gut" if language == "de" else "Good"
+    return "Exzellent" if language == "de" else "Excellent"
 
 
 def _normalize_category(category: str | None, code: str) -> str:
@@ -108,11 +113,21 @@ def _normalize_category(category: str | None, code: str) -> str:
     return "System"
 
 
-def _recommendation(issue: ScanIssueRecord) -> str:
+def _recommendation(issue: ScanIssueRecord, language: str = "en") -> str:
     preview = str(issue.recommendation_preview or "").strip()
     if preview:
         return preview
     category = _normalize_category(issue.category, issue.code)
+    if language == "de":
+        if category == "Finance":
+            return "Priorisiere Abstimmung und Buchungs-Setup, um Reporting-Risiken zu reduzieren."
+        if category == "Inventory":
+            return "Bereinige Artikel- und Lager-Setup vor dem naechsten Planungs- oder Bewertungszyklus."
+        if category == "CRM":
+            return "Vervollstaendige Kundenstammdaten, bevor sie Abrechnung, Lieferung oder Service verzoegern."
+        if category == "Purchasing":
+            return "Vervollstaendige Lieferanten- und Einkaufs-Setup, um manuelle Nacharbeit zu reduzieren."
+        return "Pruefe die betroffenen Datensaetze und schliesse die zugrunde liegende Business-Central-Setup-Luecke."
     if category == "Finance":
         return "Prioritize reconciliation and posting setup to reduce financial reporting risk."
     if category == "Inventory":
@@ -124,7 +139,7 @@ def _recommendation(issue: ScanIssueRecord) -> str:
     return "Review the affected records and close the underlying Business Central setup gap."
 
 
-def _finding(rank: int, issue: ScanIssueRecord) -> ReportFinding:
+def _finding(rank: int, issue: ScanIssueRecord, language: str = "en") -> ReportFinding:
     return ReportFinding(
         rank=rank,
         code=issue.code,
@@ -133,7 +148,7 @@ def _finding(rank: int, issue: ScanIssueRecord) -> ReportFinding:
         severity=str(issue.severity or "low").lower(),
         affected_count=max(0, _safe_int(issue.affected_count)),
         estimated_impact_eur=round(_safe_float(issue.estimated_impact_eur), 2),
-        recommendation=_recommendation(issue),
+        recommendation=_recommendation(issue, language),
     )
 
 
@@ -149,7 +164,7 @@ def _sorted_issues(issues: list[ScanIssueRecord]) -> list[ScanIssueRecord]:
     )
 
 
-def _category_scores(scan: Scan, findings: list[ReportFinding]) -> list[ReportCategoryScore]:
+def _category_scores(scan: Scan, findings: list[ReportFinding], language: str = "en") -> list[ReportCategoryScore]:
     by_category: dict[str, dict[str, int]] = {}
     for finding in findings:
         bucket = by_category.setdefault(finding.category, {"issues": 0, "affected": 0})
@@ -165,7 +180,7 @@ def _category_scores(scan: Scan, findings: list[ReportFinding]) -> list[ReportCa
                 ReportCategoryScore(
                     name=name,
                     score=score,
-                    status=score_status(score),
+                    status=score_status(score, language),
                     issue_count=bucket["issues"],
                     affected_count=bucket["affected"],
                 )
@@ -173,23 +188,58 @@ def _category_scores(scan: Scan, findings: list[ReportFinding]) -> list[ReportCa
     return sorted(rows, key=lambda row: (row.score, -row.affected_count, row.name))
 
 
-def _build_summary(scan: Scan, estimated_loss_eur: float, potential_saving_eur: float, critical_count: int) -> str:
+def _build_summary(scan: Scan, estimated_loss_eur: float, potential_saving_eur: float, critical_count: int, language: str = "en") -> str:
     score = _safe_int(scan.data_score)
+    if language == "de":
+        if critical_count > 0 or score < 75:
+            return (
+                f"Der aktuelle BCSentinel-Scan zeigt einen Data Health Score von {score}/100. "
+                f"Das aktuelle Datenqualitaetsprofil erzeugt einen geschaetzten Jahresimpact von {_money(estimated_loss_eur, language)}. "
+                "Management-Aufmerksamkeit wird empfohlen, weil die wichtigsten Findings in operativ relevanten Business-Central-Bereichen konzentriert sind."
+            )
+        return (
+            f"Der aktuelle BCSentinel-Scan zeigt einen Data Health Score von {score}/100. "
+            f"Die Datenqualitaet ist insgesamt stabil, aber der Scan zeigt weiterhin {_money(potential_saving_eur, language)} potenziellen jaehrlichen Verbesserungswert."
+        )
     if critical_count > 0 or score < 75:
         return (
             f"The latest BCSentinel scan shows a Data Health Score of {score}/100. "
-            f"The current data quality profile creates an estimated annual business impact of {_money(estimated_loss_eur)}. "
+            f"The current data quality profile creates an estimated annual business impact of {_money(estimated_loss_eur, language)}. "
             f"Management attention is recommended because the highest-impact findings are concentrated in operationally relevant Business Central areas."
         )
     return (
         f"The latest BCSentinel scan shows a Data Health Score of {score}/100. "
-        f"Data quality is broadly stable, but the scan still identifies {_money(potential_saving_eur)} in potential annual improvement value."
+        f"Data quality is broadly stable, but the scan still identifies {_money(potential_saving_eur, language)} in potential annual improvement value."
     )
 
 
-def _priority_matrix(top_risks: list[ReportFinding], quick_wins: list[ReportFinding]) -> list[ReportPriorityItem]:
+def _priority_matrix(top_risks: list[ReportFinding], quick_wins: list[ReportFinding], language: str = "en") -> list[ReportPriorityItem]:
     first_risk = top_risks[0] if top_risks else None
     first_quick_win = quick_wins[0] if quick_wins else first_risk
+    if language == "de":
+        return [
+            ReportPriorityItem(
+                priority="P1",
+                focus="Hoher Impact / niedriger Aufwand",
+                impact="Sofortiger operativer Nutzen",
+                effort="Niedrig",
+                recommendation=first_quick_win.recommendation if first_quick_win else "Starte mit den groessten Stammdatenluecken.",
+            ),
+            ReportPriorityItem(
+                priority="P2",
+                focus="Hoher Impact / hoeherer Aufwand",
+                impact="Spuerbare Risikoreduktion",
+                effort="Mittel",
+                recommendation=first_risk.recommendation if first_risk else "Benenne Verantwortliche fuer Finance, Lager und Kundenstammdaten.",
+            ),
+            ReportPriorityItem(
+                priority="P3",
+                focus="Governance und Praevention",
+                impact="Nachhaltige Score-Verbesserung",
+                effort="Mittel",
+                recommendation="Definiere wiederkehrende Data-Quality-Verantwortung und wiederhole BCSentinel nach der Bereinigung.",
+            ),
+        ]
     return [
         ReportPriorityItem(
             priority="P1",
@@ -216,6 +266,7 @@ def _priority_matrix(top_risks: list[ReportFinding], quick_wins: list[ReportFind
 
 
 def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> ExecutiveReport:
+    language = tenant_language(tenant)
     scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id))
     if scan is None:
         raise HTTPException(status_code=404, detail="Scan not found.")
@@ -223,7 +274,7 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         raise HTTPException(status_code=403, detail="Scan does not belong to authenticated tenant.")
 
     issues = db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all()
-    findings = [_finding(index + 1, issue) for index, issue in enumerate(_sorted_issues(list(issues)))]
+    findings = [_finding(index + 1, issue, language) for index, issue in enumerate(_sorted_issues(list(issues)))]
     affected_records = sum(finding.affected_count for finding in findings)
 
     commercials = normalize_stored_commercials(
@@ -242,34 +293,48 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         if finding.severity in {"low", "medium"} and finding.affected_count > 0
     ][:5]
     financial = [finding for finding in findings if finding.category in FINANCIAL_CATEGORIES][:8]
-    category_scores = _category_scores(scan, findings)
+    category_scores = _category_scores(scan, findings, language)
     master_data = [row for row in category_scores if row.name in MASTER_DATA_MODULES]
 
-    recommended_actions = [
-        "Assign one accountable owner per high-impact finding category.",
-        "Resolve the top quick wins first to show visible progress in the next scan.",
-        "Review finance, inventory, customer, and vendor setup before the next reporting cycle.",
-        "Rerun BCSentinel after remediation and compare score, affected records, and estimated impact.",
-    ]
-
-    next_steps = [
-        "Review this report in the next management or steering meeting.",
-        "Confirm the remediation owner and due date for each P1 item.",
-        "Start with the top 10 findings and validate fixes directly in Business Central.",
-        "Run a follow-up scan and share the delta report internally.",
-    ]
+    if language == "de":
+        recommended_actions = [
+            "Benenne je High-Impact-Finding-Kategorie eine verantwortliche Person.",
+            "Loese die wichtigsten Quick Wins zuerst, um im naechsten Scan sichtbaren Fortschritt zu zeigen.",
+            "Pruefe Finance-, Lager-, Kunden- und Lieferanten-Setup vor dem naechsten Reporting-Zyklus.",
+            "Fuehre nach der Bereinigung einen Folgescan aus und vergleiche Score, betroffene Datensaetze und geschaetzten Impact.",
+        ]
+        next_steps = [
+            "Besprich diesen Report im naechsten Management- oder Steering-Termin.",
+            "Bestaetige Owner und Faelligkeit fuer jedes P1-Element.",
+            "Starte mit den Top-10-Findings und validiere Korrekturen direkt in Business Central.",
+            "Fuehre einen Folgescan aus und teile den Delta-Report intern.",
+        ]
+    else:
+        recommended_actions = [
+            "Assign one accountable owner per high-impact finding category.",
+            "Resolve the top quick wins first to show visible progress in the next scan.",
+            "Review finance, inventory, customer, and vendor setup before the next reporting cycle.",
+            "Rerun BCSentinel after remediation and compare score, affected records, and estimated impact.",
+        ]
+        next_steps = [
+            "Review this report in the next management or steering meeting.",
+            "Confirm the remediation owner and due date for each P1 item.",
+            "Start with the top 10 findings and validate fixes directly in Business Central.",
+            "Run a follow-up scan and share the delta report internally.",
+        ]
 
     return ExecutiveReport(
         report_id=f"exec-{scan.scan_id}",
         tenant_id=tenant.tenant_id,
+        language=language,
         scan_id=scan.scan_id,
         generated_at_utc=datetime.now(timezone.utc),
         scan_generated_at_utc=scan.generated_at_utc,
         company_label=tenant.tenant_id,
         environment_label=tenant.environment_name,
-        executive_summary=_build_summary(scan, estimated_loss, potential_saving, len(critical)),
+        executive_summary=_build_summary(scan, estimated_loss, potential_saving, len(critical), language),
         data_health_score=max(0, min(100, _safe_int(scan.data_score))),
-        score_status=score_status(_safe_int(scan.data_score)),
+        score_status=score_status(_safe_int(scan.data_score), language),
         total_records=max(0, _safe_int(scan.total_records)),
         checks_count=max(0, _safe_int(scan.checks_count)),
         issues_count=max(0, _safe_int(scan.issues_count)),
@@ -281,10 +346,10 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         headline=scan.summary_headline,
         rating=scan.summary_rating,
         kpis=[
-            ReportKpi(label="Data Health Score", value=f"{_safe_int(scan.data_score)}/100", note=score_status(_safe_int(scan.data_score))),
-            ReportKpi(label="Estimated Business Impact", value=_money(estimated_loss), note="Annualized estimate"),
-            ReportKpi(label="Potential Saving", value=_money(potential_saving), note="Recoverable improvement potential"),
-            ReportKpi(label="Affected Records", value=_number(affected_records), note=f"Across {_safe_int(scan.issues_count)} findings"),
+            ReportKpi(label="Data Health Score", value=f"{_safe_int(scan.data_score)}/100", note=score_status(_safe_int(scan.data_score), language)),
+            ReportKpi(label="Geschaetzter Business Impact" if language == "de" else "Estimated Business Impact", value=_money(estimated_loss, language), note="Jahreswert" if language == "de" else "Annualized estimate"),
+            ReportKpi(label="Potenzielle Einsparung" if language == "de" else "Potential Saving", value=_money(potential_saving, language), note="Realisierbares Verbesserungspotenzial" if language == "de" else "Recoverable improvement potential"),
+            ReportKpi(label="Betroffene Datensaetze" if language == "de" else "Affected Records", value=_number(affected_records, language), note=f"Ueber {_safe_int(scan.issues_count)} Findings" if language == "de" else f"Across {_safe_int(scan.issues_count)} findings"),
         ],
         top_risks=findings[:10],
         quick_wins=quick_wins,
@@ -293,34 +358,35 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         master_data_quality=master_data,
         financial_risks=financial,
         recommended_actions=recommended_actions,
-        priority_matrix=_priority_matrix(findings[:10], quick_wins),
+        priority_matrix=_priority_matrix(findings[:10], quick_wins, language),
         next_steps=next_steps,
     )
 
 
 def render_executive_report_pdf(report: ExecutiveReport) -> bytes:
+    language = getattr(report, "language", "en")
     lines = [
-        "BCSentinel Executive Management Report",
+        "BCSentinel Executive Management Report" if language == "en" else "BCSentinel Executive Management Report",
         f"Scan: {report.scan_id}",
         f"Environment: {report.environment_label}",
         f"Generated: {report.generated_at_utc.strftime('%Y-%m-%d %H:%M UTC')}",
         "",
-        "Executive Summary",
+        "Executive Summary" if language == "en" else "Management-Zusammenfassung",
         report.executive_summary,
         "",
         f"Data Health Score: {report.data_health_score}/100 ({report.score_status})",
-        f"Business Impact: {_money(report.estimated_loss_eur)}",
-        f"Potential Saving: {_money(report.potential_saving_eur)}",
-        f"Affected Records: {_number(report.affected_records)}",
+        f"{'Business Impact' if language == 'en' else 'Business Impact'}: {_money(report.estimated_loss_eur, language)}",
+        f"{'Potential Saving' if language == 'en' else 'Potenzielle Einsparung'}: {_money(report.potential_saving_eur, language)}",
+        f"{'Affected Records' if language == 'en' else 'Betroffene Datensaetze'}: {_number(report.affected_records, language)}",
         "",
-        "Top 10 Risks",
+        "Top 10 Risks" if language == "en" else "Top-10-Risiken",
     ]
     for finding in report.top_risks:
         lines.append(
             f"{finding.rank}. {finding.title} | {finding.category} | {finding.severity.upper()} | "
-            f"{_number(finding.affected_count)} records | {_money(finding.estimated_impact_eur)}"
+            f"{_number(finding.affected_count, language)} {'records' if language == 'en' else 'Datensaetze'} | {_money(finding.estimated_impact_eur, language)}"
         )
-    lines.extend(["", "Recommended Next Steps"])
+    lines.extend(["", "Recommended Next Steps" if language == "en" else "Empfohlene naechste Schritte"])
     lines.extend(f"- {step}" for step in report.next_steps)
     return _simple_pdf(lines)
 

@@ -2,23 +2,80 @@ let currentSelectedScanId = null;
 let recentScansPage = 1;
 const RECENT_SCANS_PAGE_SIZE = 12;
 let currentDashboardState = null;
+let currentDashboardLanguage = 'en';
+let currentDashboardUi = {};
 
 function byId(id) {
   return document.getElementById(id);
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat('en-US').format(Number(value || 0));
+  return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US').format(Number(value || 0));
 }
 
 function formatCurrency(value) {
   const number = Number(value || 0);
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US', {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(number);
+}
+
+function t(key, fallback) {
+  return currentDashboardUi?.[key] || fallback || key;
+}
+
+function setTextContent(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = value;
+}
+
+function applyDashboardUi(ui, language) {
+  currentDashboardLanguage = language === 'de' ? 'de' : 'en';
+  currentDashboardUi = ui || {};
+  document.documentElement.lang = currentDashboardLanguage;
+
+  setTextContent('[data-tab="overview"]', t('overview', 'Overview'));
+  setTextContent('[data-tab="subscription"]', t('subscription', 'Subscription'));
+  setTextContent('#current-plan-badge', t('credits_needed', 'Credits needed'));
+  setTextContent('#subscription-plan-badge', t('credits_needed', 'Credits needed'));
+  setTextContent('#page-subtitle', t('loading', 'Loading...'));
+
+  const statLabels = document.querySelectorAll('.stats-grid .stat-label');
+  const statHelpers = document.querySelectorAll('.stats-grid .stat-helper');
+  const statLabelKeys = ['scanned_records', 'affected_records', 'estimated_annual_loss', 'checks_run', 'issues_found', 'roi'];
+  const statHelperKeys = ['scanned_records_helper', 'affected_records_helper', 'estimated_annual_loss_helper', 'checks_run_helper', 'issues_found_helper', 'roi_helper'];
+  statLabels.forEach((el, index) => { if (statLabelKeys[index]) el.textContent = t(statLabelKeys[index], el.textContent); });
+  statHelpers.forEach((el, index) => { if (statHelperKeys[index]) el.textContent = t(statHelperKeys[index], el.textContent); });
+
+  setTextContent('#profile-grid h3', t('module_scores', 'Data Scores by BC module'));
+  setTextContent('#profile-grid .muted', t('module_scores_helper', 'Score per module - 0 to 100'));
+  setTextContent('#module-volume-title', t('issues_by_module', 'Issues by BC module'));
+  setTextContent('#module-volume-subtitle', t('issues_by_module_helper', 'Affected findings per module'));
+  setTextContent('#scan-table-panel h3', t('recent_scans', 'Recent Scans'));
+  setTextContent('#scan-table-panel .muted', t('recent_scans_helper', 'Click a scan to load it'));
+  setTextContent('#recent-scans-prev', t('previous', 'Previous'));
+  setTextContent('#recent-scans-next', t('next', 'Next'));
+  setTextContent('#score-trend-panel h3', t('score_trend', 'Score Trend'));
+  setTextContent('#score-trend-panel .muted', t('score_trend_helper', 'History of selected scans'));
+  setTextContent('#loss-trend-panel h3', t('loss_trend', 'Loss Trend'));
+  setTextContent('#loss-trend-panel .muted', t('loss_trend_helper', 'Estimated annual impact'));
+  setTextContent('#access-unlock-panel h3', t('paid_scan_access', 'Paid scan access'));
+  setTextContent('.preview-title', t('scan_preview', 'Scan preview'));
+  setTextContent('.preview-title-row .muted', t('scan_preview_helper', 'Record details, recommendations, actions'));
+  setTextContent('.pricing-breakdown-title', t('estimated_monitoring_pricing', 'Estimated monitoring pricing'));
+  setTextContent('#access-findings-panel h3', t('findings', 'Findings'));
+  setTextContent('#access-findings-panel .muted', t('findings_helper', 'Visible with paid scan access, actionable in Business Central'));
+  setTextContent('#subscription-tab h3', t('subscription', 'Subscription'));
+
+  const subscriptionLabels = document.querySelectorAll('.subscription-card .stat-label');
+  const subscriptionHelpers = document.querySelectorAll('.subscription-card .stat-helper');
+  const subscriptionLabelKeys = ['product_access', 'scan_credits', 'dashboard_access_until', 'issue_access_until', 'monthly_price', 'annual_cost'];
+  const subscriptionHelperKeys = ['','scan_credits_helper', 'dashboard_access_helper', 'issue_access_helper', 'monthly_price_helper', 'annual_cost_helper'];
+  subscriptionLabels.forEach((el, index) => { if (subscriptionLabelKeys[index]) el.textContent = t(subscriptionLabelKeys[index], el.textContent); });
+  subscriptionHelpers.forEach((el, index) => { if (subscriptionHelperKeys[index]) el.textContent = t(subscriptionHelperKeys[index], el.textContent); });
 }
 
 function formatDateTime(value) {
@@ -134,7 +191,7 @@ function renderProfileCards(moduleScores, fallbackItems) {
   }
 
   if (fallback.length === 0) {
-    host.innerHTML = '<div class="empty-state">No module scores are available yet.</div>';
+    host.innerHTML = `<div class="empty-state">${escapeHtml(t('no_module_scores', 'No module scores are available yet.'))}</div>`;
     return;
   }
 
@@ -149,7 +206,7 @@ function renderProfileCards(moduleScores, fallbackItems) {
   });
 }
 
-function renderIssueGroups(items, emptyMessage = 'No module data is available for this scan.') {
+function renderIssueGroups(items, emptyMessage = t('no_module_data', 'No module data is available for this scan.')) {
   const host = byId('issue-groups');
   if (!host) return;
   host.innerHTML = '';
@@ -186,7 +243,7 @@ function renderIssueGroups(items, emptyMessage = 'No module data is available fo
 function renderModuleVolume(data) {
   const issueGroups = Array.isArray(data?.issue_groups) ? data.issue_groups : [];
 
-  renderIssueGroups(issueGroups, 'No module issue counts are available for this scan.');
+  renderIssueGroups(issueGroups, t('no_module_data', 'No module issue counts are available for this scan.'));
 }
 function renderTrend(containerId, items, asCurrency = false) {
   const host = byId(containerId);
@@ -194,7 +251,7 @@ function renderTrend(containerId, items, asCurrency = false) {
   host.innerHTML = '';
 
   if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<div class="empty-state">No trend data available yet.</div>';
+    host.innerHTML = `<div class="empty-state">${escapeHtml(t('no_trend_data', 'No trend data available yet.'))}</div>`;
     return;
   }
 
@@ -258,7 +315,7 @@ function renderRecentScans(items) {
   if (!host) return;
 
   if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<tr><td colspan="5" class="table-empty">No scans available yet.</td></tr>';
+    host.innerHTML = `<tr><td colspan="5" class="table-empty">${escapeHtml(t('no_scans', 'No scans available yet.'))}</td></tr>`;
     return;
   }
 
@@ -289,7 +346,7 @@ function renderRecentScansPagination(pagination) {
   recentScansPage = page;
   prevButton.disabled = !hasPrev;
   nextButton.disabled = !hasNext;
-  pageInfo.textContent = `Page ${page} / ${totalPages}`;
+  pageInfo.textContent = `${t('page', 'Page')} ${page} / ${totalPages}`;
   container.classList.toggle('hidden', totalItems <= RECENT_SCANS_PAGE_SIZE);
 }
 
@@ -298,13 +355,13 @@ function renderFindings(items, isPremium) {
   if (!host) return;
 
   if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<tr><td colspan="6" class="table-empty">No findings are available for this scan.</td></tr>';
+    host.innerHTML = `<tr><td colspan="6" class="table-empty">${escapeHtml(t('no_findings', 'No findings are available for this scan.'))}</td></tr>`;
     return;
   }
 
   host.innerHTML = items.map((item) => {
     const accessClass = isPremium ? 'unlocked' : 'locked';
-    const accessLabel = isPremium ? 'Open in BC' : 'Paid Access';
+    const accessLabel = isPremium ? t('open_in_bc', 'Open in BC') : t('paid_access', 'Paid Access');
     const openInBcUrl = String(item?.open_in_bc_url || '');
     warnOnInvalidBcCompanyFormat(openInBcUrl);
     const accessMarkup = isPremium && openInBcUrl
@@ -314,7 +371,7 @@ function renderFindings(items, isPremium) {
       <tr>
         <td><strong>${escapeHtml(item?.title)}</strong></td>
         <td>${escapeHtml(item?.group)}</td>
-        <td><span class="severity severity-${escapeHtml(item?.severity)}">${escapeHtml(String(item?.severity || '').toUpperCase())}</span></td>
+        <td><span class="severity severity-${escapeHtml(item?.severity)}">${escapeHtml(item?.severity_label || String(item?.severity || '').toUpperCase())}</span></td>
         <td>${formatNumber(item?.count)}</td>
         <td>${formatCurrency(item?.impact_eur)}</td>
         <td>${accessMarkup}</td>
@@ -339,7 +396,7 @@ function renderPremiumPreview(items) {
   host.innerHTML = '';
 
   if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = '<div class="empty-state">The paid scan preview will appear after the next scan.</div>';
+    host.innerHTML = `<div class="empty-state">${escapeHtml(t('preview_after_scan', 'The paid scan preview will appear after the next scan.'))}</div>`;
     return;
   }
 
@@ -353,8 +410,8 @@ function renderPremiumPreview(items) {
         <div class="preview-impact">${formatCurrency(item?.impact_eur)}</div>
       </div>
       <div class="preview-metrics">
-        <span>${formatNumber(item?.count)} affected</span>
-        <span>Recommendations available</span>
+        <span>${formatNumber(item?.count)} ${escapeHtml(t('affected', 'affected'))}</span>
+        <span>${escapeHtml(t('recommendations_available', 'Recommendations available'))}</span>
       </div>
       <p class="muted">${escapeHtml(item?.recommendation_preview || '')}</p>
     </article>
@@ -385,8 +442,8 @@ function applyPlanState(data) {
   const monitoringPanels = byId('monitoring-overview-panels');
   const findingsPanel = byId('access-findings-panel');
   const accessLabel = monitoringActive
-    ? 'Monitoring active'
-    : (hasPaidAccess ? 'Assessment / Validation active' : 'Credits needed');
+    ? t('monitoring_active', 'Monitoring active')
+    : (hasPaidAccess ? t('assessment_validation_active', 'Assessment / Validation active') : t('credits_needed', 'Credits needed'));
 
   if (planBadge) {
     planBadge.textContent = accessLabel;
@@ -409,9 +466,9 @@ function renderSubscription(data) {
   const annualCard = byId('subscription-annual-card');
   const buyMoreButton = byId('buy-more-credits-cta');
 
-  setText('subscription-plan', data?.subscription?.plan_label || 'Assessment needed');
+  setText('subscription-plan', data?.subscription?.plan_label || t('assessment_needed', 'Assessment needed'));
   setText('subscription-note', data?.subscription?.plan_note || '');
-  setText('subscription-cta', data?.subscription?.cta_label || 'Buy Assessment');
+  setText('subscription-cta', data?.subscription?.cta_label || t('buy_assessment', 'Buy Assessment'));
   setText('subscription-scan-credits', formatNumber(data?.product_access?.scan_credits_available));
   setText('subscription-dashboard-until', formatDateTime(data?.product_access?.dashboard_access_until));
   setText('subscription-issue-until', formatDateTime(data?.product_access?.issue_access_until));
@@ -480,17 +537,18 @@ async function loadDashboard(scanId = null) {
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      setText('page-subtitle', 'The dashboard could not be loaded.');
+      setText('page-subtitle', t('dashboard_load_error', 'The dashboard could not be loaded.'));
       return;
     }
 
     const data = await response.json();
     currentDashboardState = data;
+    applyDashboardUi(data?.ui || {}, data?.language || 'en');
     currentSelectedScanId = data?.selected_scan_id || null;
 
     setText('page-title', data?.title || 'BCSentinel Analytics');
     setText('page-subtitle', data?.subtitle || '');
-    setText('last-updated', `Last updated: ${formatDateTime(data?.last_updated)}`);
+    setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
     setText('hero-eyebrow', data?.hero?.eyebrow || 'Assessment first. Monitoring when data quality needs control.');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
@@ -521,7 +579,7 @@ async function loadDashboard(scanId = null) {
     applyPlanState(data);
   } catch (error) {
     console.error('loadDashboard failed:', error);
-    setText('page-subtitle', 'The dashboard could not be loaded.');
+    setText('page-subtitle', t('dashboard_load_error', 'The dashboard could not be loaded.'));
   }
 }
 

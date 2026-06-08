@@ -40,6 +40,7 @@ class ReportPriorityItem(BaseModel):
 class ExecutiveReport(BaseModel):
     report_id: str
     tenant_id: str
+    language: str = "en"
     scan_id: str
     generated_at_utc: datetime
     scan_generated_at_utc: datetime

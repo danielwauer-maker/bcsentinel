@@ -110,6 +110,7 @@ codeunit 53123 "DH QuickScan Mgt."
         RequestText: Text;
     begin
         Payload.Add('tenant_id', Setup."Tenant ID");
+        Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(Header."Backend Scan Id"));
         Payload.Add('scan_type', 'quick');
         Payload.Add('generated_at_utc', Format(Header."Scan DateTime", 0, 9));
@@ -138,6 +139,20 @@ codeunit 53123 "DH QuickScan Mgt."
         Payload.Add('issues', IssuesArray);
         Payload.WriteTo(RequestText);
         exit(RequestText);
+    end;
+
+    local procedure GetPreferredLanguage(): Text
+    var
+        LanguageId: Integer;
+    begin
+        LanguageId := GlobalLanguage();
+
+        case LanguageId of
+            1031, 2055, 3079, 4103, 5127:
+                exit('de');
+            else
+                exit('en');
+        end;
     end;
 
     local procedure ReadSummary(var JsonObj: JsonObject; var Header: Record "DH Scan Header")

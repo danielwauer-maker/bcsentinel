@@ -2366,6 +2366,7 @@ codeunit 53128 "DH Deep Scan Runner"
             ScanDateTime := DeepScanRun."Requested At";
 
         Payload.Add('tenant_id', Setup."Tenant ID");
+        Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
         Payload.Add('scan_type', 'deep');
@@ -2412,6 +2413,20 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('issues', IssuesArray);
         Payload.WriteTo(RequestText);
         exit(RequestText);
+    end;
+
+    local procedure GetPreferredLanguage(): Text
+    var
+        LanguageId: Integer;
+    begin
+        LanguageId := GlobalLanguage();
+
+        case LanguageId of
+            1031, 2055, 3079, 4103, 5127:
+                exit('de');
+            else
+                exit('en');
+        end;
     end;
 
     local procedure AddEnabledModules(var Setup: Record "DH Setup"; var EnabledModules: JsonArray)

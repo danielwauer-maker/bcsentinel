@@ -14,7 +14,7 @@ class DummyRequest:
 
 
 def test_required_alembic_revision_uses_current_head():
-    assert get_required_alembic_revision() == "0016_product_pricing_config"
+    assert get_required_alembic_revision() == "0017_tenant_preferred_language"
 
 
 def test_schema_check_accepts_current_alembic_head():

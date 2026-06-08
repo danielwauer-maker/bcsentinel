@@ -68,6 +68,7 @@ codeunit 53100 "DH API Client"
 
         JsonRequest.Add('environment_name', 'BC Cloud');
         JsonRequest.Add('app_version', '0.4.0');
+        JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('invite_code', Setup."Registration Invite Code");
         JsonRequest.WriteTo(RequestText);
 
@@ -129,8 +130,11 @@ codeunit 53100 "DH API Client"
             Headers.Remove('X-Tenant-Id');
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
+        if Headers.Contains('X-Preferred-Language') then
+            Headers.Remove('X-Preferred-Language');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
         Headers.Add('X-Api-Token', GetApiToken(Setup));
+        Headers.Add('X-Preferred-Language', GetPreferredLanguage());
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/license/status'), Response) then
             Error('The backend request could not be sent. Please verify the network connection.');
@@ -266,6 +270,7 @@ codeunit 53100 "DH API Client"
         EnsureReadyForScan(Setup);
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('bc_run_id', Format(QuickRunId));
         AddCustomerMetrics(JsonMetrics);
         AddVendorMetrics(JsonMetrics);
@@ -497,6 +502,7 @@ codeunit 53100 "DH API Client"
             exit;
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('run_id', Format(DeepScanRun."Run ID"));
         JsonRequest.Add('scan_mode', 'deep');
         JsonRequest.Add('status', StatusValue);
@@ -735,6 +741,7 @@ codeunit 53100 "DH API Client"
             '?company=' + EncodeUrlValue(CompanyName()) +
             '&environment=' + EncodeUrlValue('BC Cloud') +
             '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") +
+            '&preferred_language=' + EncodeUrlValue(GetPreferredLanguage()) +
             '&scan_mode=' + EncodeUrlValue(GetAnalyticsScanMode(Setup)) +
             '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl());
 
@@ -743,8 +750,11 @@ codeunit 53100 "DH API Client"
             Headers.Remove('X-Tenant-Id');
         if Headers.Contains('X-Api-Token') then
             Headers.Remove('X-Api-Token');
+        if Headers.Contains('X-Preferred-Language') then
+            Headers.Remove('X-Preferred-Language');
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
         Headers.Add('X-Api-Token', GetApiToken(Setup));
+        Headers.Add('X-Preferred-Language', GetPreferredLanguage());
 
         if not Client.Get(Url, Response) then
             Error('The dashboard token service could not be reached.');
@@ -801,6 +811,7 @@ codeunit 53100 "DH API Client"
         EnsureTenantAccessConfigured(Setup);
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('product_code', ProductCode);
         JsonRequest.WriteTo(RequestText);
 
@@ -843,6 +854,24 @@ codeunit 53100 "DH API Client"
             exit('premium_deep');
 
         exit('free_deep');
+    end;
+
+    local procedure GetPreferredLanguage(): Text
+    var
+        LanguageId: Integer;
+    begin
+        LanguageId := GlobalLanguage();
+
+        case LanguageId of
+            1031, // German - Germany
+            2055, // German - Switzerland
+            3079, // German - Austria
+            4103, // German - Luxembourg
+            5127: // German - Liechtenstein
+                exit('de');
+            else
+                exit('en');
+        end;
     end;
 
     local procedure EncodeUrlValue(Value: Text): Text

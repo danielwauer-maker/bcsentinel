@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
 from app.db import SessionLocal
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.billing_service import resolve_effective_license
 from app.services.entitlement_service import resolve_features
 from app.services.entitlement_guard_service import get_tenant_features
+from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
 
 router = APIRouter(tags=["license"])
@@ -34,16 +35,19 @@ class LicenseStatusResponse(BaseModel):
 @router.get("/license/status", response_model=LicenseStatusResponse)
 def get_license_status(
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+    x_preferred_language: str | None = Header(default=None, alias="X-Preferred-Language"),
 ) -> LicenseStatusResponse:
     header_tenant_id, header_api_token = tenant_auth
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        if update_tenant_language(tenant, x_preferred_language):
+            db.flush()
         normalized_plan, normalized_license_status = resolve_effective_license(db, tenant)
         features = sorted(get_tenant_features(db, tenant))
         snapshot = build_license_snapshot(db, tenant)
 
-        return LicenseStatusResponse(
+        response = LicenseStatusResponse(
             tenant_id=tenant.tenant_id,
             plan=normalized_plan,
             license_status=normalized_license_status,
@@ -63,3 +67,5 @@ def get_license_status(
             can_view_issue_details=snapshot["can_view_issue_details"],
             products=snapshot["products"],
         )
+        db.commit()
+        return response

@@ -24,6 +24,7 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import consume_scan_credit_for_scan, scan_credit_count
 from app.services.scan_status_service import (
     create_or_get_scan_run,
@@ -79,6 +80,7 @@ class ModuleScoresPayload(BaseModel):
 
 class ScanSyncPayload(BaseModel):
     tenant_id: str
+    preferred_language: Optional[str] = None
     scan_id: str
     scan_type: str
     generated_at_utc: datetime
@@ -105,6 +107,7 @@ class ScanReconcilePayload(BaseModel):
 
 class ScanStatusUpdatePayload(BaseModel):
     tenant_id: str
+    preferred_language: Optional[str] = None
     run_id: str
     scan_mode: str = "deep"
     status: str = "running"
@@ -202,6 +205,7 @@ def sync_scan(
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        update_tenant_language(tenant, payload.preferred_language)
         tenant_features = get_tenant_features(db, tenant)
         require_tenant_feature(db, tenant, "scan_sync")
         commercials = _calculate_commercials(payload, db)

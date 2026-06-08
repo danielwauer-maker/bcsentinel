@@ -61,6 +61,7 @@ from app.services.impact_service import (
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.email_template_service import ensure_default_email_templates
+from app.services.localization_service import normalize_language, update_tenant_language
 from app.services.pricing_service import ensure_default_license_pricing
 from app.services.scoring_service import calculate_quick_scan_result
 from app.services.scan_status_service import create_or_get_scan_run, update_scan_progress
@@ -291,6 +292,7 @@ class TenantRegisterRequest(BaseModel):
     environment_name: str
     app_version: str
     invite_code: str | None = None
+    preferred_language: str | None = None
 
 
 class TenantRegisterResponse(BaseModel):
@@ -362,6 +364,7 @@ def register_tenant(
             api_token_hash=hash_api_token(api_token),
             environment_name=payload.environment_name,
             app_version=payload.app_version,
+            preferred_language=normalize_language(payload.preferred_language),
             created_at_utc=now_utc,
             last_seen_at_utc=now_utc,
             current_plan="free",
@@ -386,6 +389,7 @@ def quick_scan(
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        update_tenant_language(tenant, payload.preferred_language)
         tenant_features = get_tenant_features(db, tenant)
         require_tenant_feature(db, tenant, "quick_scan")
 

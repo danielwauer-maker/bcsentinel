@@ -65,7 +65,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert html_response.status_code == 200
     assert "BCSentinel Executive Management Report" in html_response.text
     assert "Top 10 Risks" in html_response.text
-    assert "42.000,00 EUR" in html_response.text
+    assert "EUR 42,000.00" in html_response.text
 
     pdf_response = client.get("/reports/executive/scan_exec_1/pdf", headers=auth_header_factory(tenant))
 

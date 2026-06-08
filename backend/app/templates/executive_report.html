@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ report.language }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -199,24 +199,24 @@
   <div class="page">
     <header>
       <div class="eyebrow">BCSentinel Executive Management Report</div>
-      <h1>Data Health, Business Impact, and Recommended Action</h1>
+      <h1>{{ 'Data Health, Business Impact, and Recommended Action' if report.language == 'en' else 'Data Health, Business Impact und empfohlene Aktionen' }}</h1>
       <div class="meta">
         <span>Tenant: {{ report.company_label }}</span>
         <span>Environment: {{ report.environment_label }}</span>
         <span>Scan: {{ report.scan_id }}</span>
-        <span>Generated: {{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span>
+        <span>{{ 'Generated' if report.language == 'en' else 'Erstellt' }}: {{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span>
       </div>
     </header>
 
     <main>
       <section class="summary-grid">
         <div class="summary-box">
-          <h2>Executive Summary</h2>
+          <h2>{{ 'Executive Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2>
           <p>{{ report.executive_summary }}</p>
           <p class="muted">{{ report.headline }} · {{ report.rating }}</p>
         </div>
         <div class="score-box">
-          <div class="muted">Overall Data Health Score</div>
+          <div class="muted">{{ 'Overall Data Health Score' if report.language == 'en' else 'Gesamter Data Health Score' }}</div>
           <div class="score">{{ report.data_health_score }}<span>/100</span></div>
           <strong>{{ report.score_status }}</strong>
         </div>
@@ -233,15 +233,15 @@
       </section>
 
       <section>
-        <h2>Top 10 Risks</h2>
+        <h2>{{ 'Top 10 Risks' if report.language == 'en' else 'Top-10-Risiken' }}</h2>
         <table>
           <thead>
             <tr>
               <th>#</th>
-              <th>Risk</th>
-              <th>Area</th>
-              <th>Severity</th>
-              <th>Affected</th>
+              <th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th>
+              <th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th>
+              <th>{{ 'Severity' if report.language == 'en' else 'Schweregrad' }}</th>
+              <th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th>
               <th>Impact</th>
             </tr>
           </thead>
@@ -264,7 +264,7 @@
         <div>
           <h2>Quick Wins</h2>
           <table>
-            <thead><tr><th>Finding</th><th>Affected</th><th>Action</th></tr></thead>
+            <thead><tr><th>Finding</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Action' if report.language == 'en' else 'Aktion' }}</th></tr></thead>
             <tbody>
               {% for item in report.quick_wins %}
               <tr>
@@ -277,9 +277,9 @@
           </table>
         </div>
         <div>
-          <h2>Critical Findings</h2>
+          <h2>{{ 'Critical Findings' if report.language == 'en' else 'Kritische Findings' }}</h2>
           <table>
-            <thead><tr><th>Finding</th><th>Area</th><th>Impact</th></tr></thead>
+            <thead><tr><th>Finding</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Impact</th></tr></thead>
             <tbody>
               {% for item in report.critical_findings %}
               <tr>
@@ -288,7 +288,7 @@
                 <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
               </tr>
               {% else %}
-              <tr><td colspan="3">No high-severity findings in this scan.</td></tr>
+              <tr><td colspan="3">{{ 'No high-severity findings in this scan.' if report.language == 'en' else 'Keine Findings mit hohem Schweregrad in diesem Scan.' }}</td></tr>
               {% endfor %}
             </tbody>
           </table>
@@ -297,9 +297,9 @@
 
       <section class="columns">
         <div>
-          <h2>Data Quality Analysis</h2>
+          <h2>{{ 'Data Quality Analysis' if report.language == 'en' else 'Datenqualitaetsanalyse' }}</h2>
           <table>
-            <thead><tr><th>Area</th><th>Score</th><th>Status</th><th>Affected</th></tr></thead>
+            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Status</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
             <tbody>
               {% for row in report.data_quality %}
               <tr>
@@ -313,9 +313,9 @@
           </table>
         </div>
         <div>
-          <h2>Master Data Quality</h2>
+          <h2>{{ 'Master Data Quality' if report.language == 'en' else 'Stammdatenqualitaet' }}</h2>
           <table>
-            <thead><tr><th>Area</th><th>Score</th><th>Issues</th><th>Affected</th></tr></thead>
+            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Issues</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
             <tbody>
               {% for row in report.master_data_quality %}
               <tr>
@@ -331,9 +331,9 @@
       </section>
 
       <section>
-        <h2>Financial Risks</h2>
+        <h2>{{ 'Financial Risks' if report.language == 'en' else 'Finanzielle Risiken' }}</h2>
         <table>
-          <thead><tr><th>Risk</th><th>Area</th><th>Affected</th><th>Estimated Impact</th><th>Recommendation</th></tr></thead>
+          <thead><tr><th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Estimated Impact' if report.language == 'en' else 'Geschaetzter Impact' }}</th><th>{{ 'Recommendation' if report.language == 'en' else 'Empfehlung' }}</th></tr></thead>
           <tbody>
             {% for item in report.financial_risks %}
             <tr>
@@ -349,7 +349,7 @@
       </section>
 
       <section>
-        <h2>Recommended Measures</h2>
+        <h2>{{ 'Recommended Measures' if report.language == 'en' else 'Empfohlene Massnahmen' }}</h2>
         <ol class="actions">
           {% for action in report.recommended_actions %}
           <li>{{ action }}</li>
@@ -358,14 +358,14 @@
       </section>
 
       <section>
-        <h2>Priority Matrix</h2>
+        <h2>{{ 'Priority Matrix' if report.language == 'en' else 'Prioritaetenmatrix' }}</h2>
         <div class="matrix">
           {% for item in report.priority_matrix %}
           <div class="matrix-item">
             <div class="priority">{{ item.priority }}</div>
             <h3>{{ item.focus }}</h3>
             <p><strong>Impact:</strong> {{ item.impact }}</p>
-            <p><strong>Effort:</strong> {{ item.effort }}</p>
+            <p><strong>{{ 'Effort' if report.language == 'en' else 'Aufwand' }}:</strong> {{ item.effort }}</p>
             <p>{{ item.recommendation }}</p>
           </div>
           {% endfor %}
@@ -373,7 +373,7 @@
       </section>
 
       <section>
-        <h2>Next Steps</h2>
+        <h2>{{ 'Next Steps' if report.language == 'en' else 'Naechste Schritte' }}</h2>
         <ol class="next-steps">
           {% for step in report.next_steps %}
           <li>{{ step }}</li>
@@ -383,7 +383,7 @@
     </main>
 
     <footer>
-      BCSentinel report generated from Business Central scan results. Estimates are directional management indicators and should be validated with process owners.
+      {{ 'BCSentinel report generated from Business Central scan results. Estimates are directional management indicators and should be validated with process owners.' if report.language == 'en' else 'BCSentinel Report aus Business-Central-Scan-Ergebnissen. Schaetzungen sind Management-Indikatoren und sollten mit Prozessverantwortlichen validiert werden.' }}
     </footer>
   </div>
 </body>

@@ -15,6 +15,7 @@ class Tenant(Base):
     api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     environment_name: Mapped[str] = mapped_column(String(100))
     app_version: Mapped[str] = mapped_column(String(30))
+    preferred_language: Mapped[str] = mapped_column(String(2), default="en")
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     last_seen_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     current_plan: Mapped[str] = mapped_column(String(20), default="free")
