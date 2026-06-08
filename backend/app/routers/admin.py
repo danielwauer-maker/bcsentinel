@@ -142,6 +142,7 @@ ADMIN_SECTION_META = {
 ADMIN_NAV_ORDER = [
     "tenants",
     "issue_costs",
+    "license_pricing",
     "partners",
     "partner_commissions",
     "partner_applications",
