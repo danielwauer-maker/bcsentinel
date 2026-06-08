@@ -4,6 +4,7 @@ codeunit 53124 "DH Deep Scan Mgt."
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
+        ApiClient: Codeunit "DH API Client";
         TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
@@ -32,6 +33,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Backend Status" := 'queued';
         DeepScanRun."Current Step" := 'Waiting to start';
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
+        ApiClient.StartDeepScan(Setup, DeepScanRun."Run ID", TotalModules);
         DeepScanRun.Insert(true);
         Commit();
         TryUpdateBackendQueued(Setup, DeepScanRun);

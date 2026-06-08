@@ -485,6 +485,52 @@ codeunit 53100 "DH API Client"
             Error('Backend reconcile failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
+    procedure StartDeepScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
+    var
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        RequestText: Text;
+        ResponseText: Text;
+        JsonRequest: JsonObject;
+    begin
+        EnsureTenantAccessConfigured(Setup);
+
+        if RunId = '' then
+            Error('Deep scan could not be started because the run id is empty.');
+
+        JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('preferred_language', GetPreferredLanguage());
+        JsonRequest.Add('run_id', Format(RunId));
+        JsonRequest.Add('scan_mode', 'deep');
+        JsonRequest.Add('total_modules', TotalModules);
+        JsonRequest.Add('company_name', CompanyName());
+        JsonRequest.Add('environment_name', 'BC Cloud');
+        JsonRequest.WriteTo(RequestText);
+
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+
+        RequestHeaders := Client.DefaultRequestHeaders();
+        if RequestHeaders.Contains('X-Tenant-Id') then
+            RequestHeaders.Remove('X-Tenant-Id');
+        if RequestHeaders.Contains('X-Api-Token') then
+            RequestHeaders.Remove('X-Api-Token');
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
+
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/start'), Content, Response) then
+            Error('Deep scan start could not be sent. Please verify the network connection.');
+
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('Deep scan start failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+    end;
+
     procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
     var
         Client: HttpClient;

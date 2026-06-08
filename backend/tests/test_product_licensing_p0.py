@@ -250,6 +250,77 @@ def test_deep_scan_without_credit_or_monitoring_is_blocked(
     assert "scan credit" in response.json()["detail"].lower()
 
 
+def test_deep_scan_start_without_credit_or_monitoring_is_blocked(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+
+    response = client.post(
+        "/scan/start",
+        headers=auth_header_factory(tenant),
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": "RUN_START_NO_CREDIT",
+            "scan_mode": "deep",
+            "total_modules": 3,
+        },
+    )
+
+    assert response.status_code == 402
+    assert "scan credit" in response.json()["detail"].lower()
+
+
+def test_deep_scan_start_consumes_credit_and_creates_history_entry(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "assessment",
+        },
+        follow_redirects=False,
+    )
+
+    response = client.post(
+        "/scan/start",
+        headers=auth_header_factory(tenant),
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": "RUN_START_WITH_CREDIT",
+            "scan_mode": "deep",
+            "total_modules": 3,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "queued"
+    assert response.json()["credit_consumed"] is True
+
+    history_response = client.get(f"/scan/history/{tenant['tenant_id']}", headers=auth_header_factory(tenant))
+    assert history_response.status_code == 200
+    assert history_response.json()["scans"][0]["scan_id"] == "RUN_START_WITH_CREDIT"
+
+    sync_response = client.post(
+        "/scan/sync",
+        headers=auth_header_factory(tenant),
+        json=_deep_scan_payload(tenant["tenant_id"], "RUN_START_WITH_CREDIT"),
+    )
+    assert sync_response.status_code == 200
+
+    with SessionLocal() as db:
+        credits = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).all()
+        assert len(credits) == 1
+        assert credits[0].status == "consumed"
+        assert credits[0].consumed_scan_id == "RUN_START_WITH_CREDIT"
+
+
 def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
     client,
     tenant_factory,

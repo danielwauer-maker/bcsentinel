@@ -100,6 +100,16 @@ class ScanSyncPayload(BaseModel):
     issues: List[ScanIssuePayload] = Field(default_factory=list)
 
 
+class ScanStartPayload(BaseModel):
+    tenant_id: str
+    preferred_language: Optional[str] = None
+    run_id: str
+    scan_mode: str = "deep"
+    total_modules: int = 0
+    company_name: Optional[str] = None
+    environment_name: Optional[str] = None
+
+
 class ScanReconcilePayload(BaseModel):
     tenant_id: str
     scan_ids: List[str] = Field(default_factory=list)
@@ -193,6 +203,83 @@ def _calculate_commercials(payload: ScanSyncPayload, db) -> dict[str, object]:
         "roi_eur": float(commercials["roi_eur"]),
         "issues": list(commercials["issues"]),
     }
+
+
+@router.post("/scan/start")
+def start_scan(
+    payload: ScanStartPayload,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+):
+    header_tenant_id, header_api_token = tenant_auth
+    enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+
+    normalized_scan_mode = _normalize_scan_type(payload.scan_mode)
+    if normalized_scan_mode != "deep":
+        raise HTTPException(status_code=400, detail="Only Deep Scan starts are supported.")
+
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        update_tenant_language(tenant, payload.preferred_language)
+        tenant_features = get_tenant_features(db, tenant)
+        require_tenant_feature(db, tenant, "scan_sync")
+
+        existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.run_id))
+        if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
+            raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
+
+        is_monitoring = "monitoring_active" in tenant_features
+        if existing_scan is None and not is_monitoring and scan_credit_count(db, tenant.tenant_id) <= 0:
+            raise HTTPException(
+                status_code=402,
+                detail="A scan credit or active monitoring subscription is required for Deep Scan.",
+            )
+
+        run = create_or_get_scan_run(
+            db,
+            run_id=payload.run_id,
+            tenant_id=payload.tenant_id,
+            scan_mode=normalized_scan_mode,
+            status="queued",
+            total_modules=max(int(payload.total_modules or 0), 0),
+        )
+        run.company_name = payload.company_name or run.company_name
+        run.environment_name = payload.environment_name or run.environment_name
+        run.current_module = run.current_module or "Preparing"
+        run.current_step = "Waiting to start"
+
+        if existing_scan is None:
+            scan = Scan(
+                scan_id=payload.run_id,
+                tenant_id=payload.tenant_id,
+                scan_type=normalized_scan_mode,
+                generated_at_utc=datetime.now(timezone.utc),
+                data_score=0,
+                checks_count=0,
+                issues_count=0,
+                premium_available=is_premium_actions_enabled(tenant_features),
+                summary_headline="Deep scan queued",
+                summary_rating="Pending",
+                enabled_modules=None,
+            )
+            db.add(scan)
+            if not is_monitoring:
+                consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.run_id)
+
+        tenant.last_seen_at_utc = datetime.now(timezone.utc)
+        db.commit()
+
+    logger.info(
+        "Deep scan start accepted.",
+        extra={"event": "scan_start_accepted", "tenant_id": payload.tenant_id, "scan_id": payload.run_id},
+    )
+    return JSONResponse(
+        content={
+            "status": "queued",
+            "scan_id": payload.run_id,
+            "scan_mode": normalized_scan_mode,
+            "credit_consumed": not is_monitoring and existing_scan is None,
+        }
+    )
 
 
 @router.post("/scan/sync")
