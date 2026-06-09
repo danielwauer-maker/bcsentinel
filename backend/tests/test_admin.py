@@ -367,3 +367,19 @@ def test_admin_site_translations_rejects_unknown_key_without_write(client, tmp_p
     assert response.status_code == 303
     assert "site_translation_status=error" in response.headers["location"]
     assert de_path.read_text(encoding="utf-8") == before
+
+
+def test_landingpage_html_i18n_keys_exist_in_de_and_en_json():
+    from app.services.site_translation_service import (
+        DE_TRANSLATIONS_PATH,
+        EN_TRANSLATIONS_PATH,
+        discover_landingpage_i18n_keys,
+        load_site_translation_json,
+    )
+
+    html_keys = discover_landingpage_i18n_keys()
+    de_keys = set(load_site_translation_json(DE_TRANSLATIONS_PATH))
+    en_keys = set(load_site_translation_json(EN_TRANSLATIONS_PATH))
+
+    assert html_keys - de_keys == set()
+    assert html_keys - en_keys == set()
