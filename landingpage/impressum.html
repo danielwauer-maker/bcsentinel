@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Impressum | BCSentinel</title>
-  <meta name="description" content="Legal notice / Impressum fuer BCSentinel" />
+  <meta name="description" content="Legal notice / Impressum for BCSentinel" />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,17 +129,8 @@
       transition: all .2s ease;
     }
     .theme-toggle:hover {
-      transferm: translateY(-1px);
+      transform: translateY(-1px);
       box-shadow: 0 10px 24px rgba(0,0,0,.12);
-    }
-    .theme-toggle-icon {
-      display: inline-grid;
-      place-items: center;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(74,141,255,.18), rgba(255,143,61,.18));
-      font-size: .88rem;
     }
 
     .lang-switch {
@@ -179,7 +170,7 @@
     .eyebrow {
       display: inline-flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 14px; border-radius: 999px;
       background: var(--surface-toggle); border: 1px solid var(--brand-border); color: var(--orange-soft);
-      font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transferm: uppercase;
+      font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
       transition: background .25s ease, border-color .25s ease;
     }
     .eyebrow::before {
@@ -211,7 +202,7 @@
     }
     .section-block + .section-block { margin-top: 18px; }
     .label {
-      display: inline-block; margin-bottom: 10px; color: var(--orange-soft); font-size: .82rem; font-weight: 800; letter-spacing: .06em; text-transferm: uppercase;
+      display: inline-block; margin-bottom: 10px; color: var(--orange-soft); font-size: .82rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
     }
     .placeholder {
       display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--placeholder-bg);
@@ -262,11 +253,11 @@
       </nav>
 
       <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Designmodus umschalten">🌓</button>
         <div class="lang-switch" aria-label="Language switcher">
-          <button class="lang-btn active" data-lang="de" type="button" aria-label="Switch to German" title="Deutsch">DE</button>
-          <button class="lang-btn" data-lang="en" type="button" aria-label="Switch to English" title="English">DE</button>
+          <button class="lang-btn active" data-lang="de" type="button" aria-label="Switch to German" title="Deutsch">🇩🇪</button>
+          <button class="lang-btn" data-lang="en" type="button" aria-label="Switch to English" title="English">🇬🇧</button>
         </div>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span aria-hidden="true" class="theme-toggle-icon">Dark</span></button>
       </div>
     </div>
   </header>
@@ -274,8 +265,8 @@
   <main>
     <section class="hero">
       <div class="container">
-        
-        <h1 data-i18n="title">Impressum</h1>
+        <div class="eyebrow" data-i18n="eyebrow">Rechtliche Angaben</div>
+        <!--<h1 data-i18n="title">Impressum</h1>-->
         
       </div>
     </section>
@@ -285,7 +276,7 @@
         <div class="legal-card">
           <div class="grid">
             <section class="section-block">
-              <span class="label" data-i18n="sec1_label">Angaben gemaess  5 TMG</span>
+              <span class="label" data-i18n="sec1_label">Angaben gemäß § 5 TMG</span>
               <div class="stack">
                 <p><strong><span class="placeholder">Daniel Wauer</span></strong></p>
                 <p><span class="placeholder">Niederwambacher Str. 6</span></p>
@@ -311,9 +302,9 @@
 
           <section class="section-block">
             <h2 data-i18n="register_title">Registereintrag</h2>
-            <p data-i18n="register_text">Eintragung im Handelsregister, Vereinsregister, Partnerschaftsregister oder Genossenschaftsregister, sofuern vorhanden:</p>
+            <p data-i18n="register_text">Eintragung im Handelsregister, Vereinsregister, Partnerschaftsregister oder Genossenschaftsregister, sofern vorhanden:</p>
             <ul>
-              <li><span data-i18n="register_court">Registergericht</span>: <span class="placeholder">[zustaendiges Registergericht]</span></li>
+              <li><span data-i18n="register_court">Registergericht</span>: <span class="placeholder">[zuständiges Registergericht]</span></li>
               <li><span data-i18n="register_no">Registernummer</span>: <span class="placeholder">[Registernummer]</span></li>
             </ul>
           </section>
@@ -321,13 +312,13 @@
           <section class="section-block">
             <h2 data-i18n="vat_title">Umsatzsteuer-ID</h2>
             <p data-i18n="vat_text">
-              Umsatzsteuer-Identifikationsnummer gemaess  27 a Umsatzsteuergesetz:
+              Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:
             </p>
             <p style="margin-top:8px;"><span class="placeholder">[USt-IdNr.]</span></p>
           </section>
 
           <section class="section-block">
-            <h2 data-i18n="editor_title">Verantwortlich fuer den Inhalt nach  18 Abs. 2 MStV</h2>
+            <h2 data-i18n="editor_title">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
             <div class="stack">
               <p><span class="placeholder">Daniel Wauer</span></p>
               <p><span class="placeholder">Niederwambacher Str. 6</span></p>
@@ -338,33 +329,33 @@
           <section class="section-block">
             <h2 data-i18n="eu_title">EU-Streitschlichtung</h2>
             <p data-i18n="eu_text">
-              Die Europaeische Kommission stellt eine Plattfuerm zur Online-Streitbeilegung (OS)uebereit:
+              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
             </p>
             <p style="margin-top:8px;">
-              <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener norefuerrer">https://ec.europa.eu/consumers/odr/</a>
+              <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a>
             </p>
             <p style="margin-top:8px;" data-i18n="eu_text_2">Unsere E-Mail-Adresse findest du oben im Impressum.</p>
           </section>
 
           <section class="section-block">
             <h2 data-i18n="consumer_title">Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
-            <p><span class="placeholder">[Beispiel: Wir sind nichtuebereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.]</span></p>
+            <p><span class="placeholder">[Beispiel: Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.]</span></p>
           </section>
 
           <section class="section-block">
-            <h2 data-i18n="pruefessional_title">Hinweis zurueberuflichen / gewerblichen Taetigkeit</h2>
-            <p data-i18n="pruefessional_text">
-              Falls fuer deine Taetigkeit besondereueberufuerechtliche Regelungen, Zulassungen oder Aufsichtsbehrden relevant sind, ergaenze diesen Abschnitt um die erfuerderlichen Angaben.
+            <h2 data-i18n="professional_title">Hinweis zur beruflichen / gewerblichen Tätigkeit</h2>
+            <p data-i18n="professional_text">
+              Falls für deine Tätigkeit besondere berufsrechtliche Regelungen, Zulassungen oder Aufsichtsbehörden relevant sind, ergänze diesen Abschnitt um die erforderlichen Angaben.
             </p>
           </section>
 
           <section class="section-block">
-            <h2 data-i18n="tips_title">Praktische Hinweise zum Ausfllen</h2>
+            <h2 data-i18n="tips_title">Praktische Hinweise zum Ausfüllen</h2>
             <ul>
-              <li data-i18n="tips_1">Wenn du als Einzelunternehmer aufuerittst, verwende deinen buergerlichen Namen und ggf. den Geschaeftsbezeichner.</li>
-              <li data-i18n="tips_2">Wenn du eine Ltd., GmbH oder UG verwendest, muessen Fuermenname, Rechtsfuerm und Vertretungueberechtigung saueber genannt sein.</li>
+              <li data-i18n="tips_1">Wenn du als Einzelunternehmer auftrittst, verwende deinen bürgerlichen Namen und ggf. den Geschäftsbezeichner.</li>
+              <li data-i18n="tips_2">Wenn du eine Ltd., GmbH oder UG verwendest, müssen Firmenname, Rechtsform und Vertretungsberechtigung sauber genannt sein.</li>
               <li data-i18n="tips_3">Wenn du noch keine USt-IdNr. hast, nimm den Abschnitt erst live, sobald du die Nummer wirklich vorliegen hast.</li>
-              <li data-i18n="tips_4">Die Schlichtungsfuermulierung sollte zu deinem tatsaechlichen Vorgehen passen.</li>
+              <li data-i18n="tips_4">Die Schlichtungsformulierung sollte zu deinem tatsächlichen Vorgehen passen.</li>
             </ul>
           </section>
         </div>
@@ -395,37 +386,37 @@
   <script>
     const translations = {
       de: {
-        brand_sub: "Data Quality & Business Impact for Business Central",
+        brand_sub: "Data Quality & Business Impact für Business Central",
         nav_home: "Startseite",
         nav_privacy: "Datenschutz",
         nav_contact: "Kontakt",
         nav_legal: "Impressum",
         eyebrow: "Rechtliche Angaben",
         title: "Impressum",
-        lead: "Diese Seite ist im Stil deiner Landingpage aufgebaut und enthlt eine sauebere Impressumsstruktur fuer Deutschland. Die markierten Platzhalter musst du noch mit deinen echten Unternehmensdaten ersetzen.",
-        notice: "Dieses Muster ist eine solide technische und inhaltliche Basis, ueber keine Rechtueberatung. Gerade bei Unternehmensfuerm, Vertretungueberechtigung, Registerdaten, Umsatzsteuer-ID und redaktioneller Verantwortung solltest du die finalen Angaben kurz rechtlich pruefen lassen.",
-        sec1_label: "Angaben gemaess  5 TMG",
+        lead: "Diese Seite ist im Stil deiner Landingpage aufgebaut und enthält eine saubere Impressumsstruktur für Deutschland. Die markierten Platzhalter musst du noch mit deinen echten Unternehmensdaten ersetzen.",
+        notice: "Dieses Muster ist eine solide technische und inhaltliche Basis, aber keine Rechtsberatung. Gerade bei Unternehmensform, Vertretungsberechtigung, Registerdaten, Umsatzsteuer-ID und redaktioneller Verantwortung solltest du die finalen Angaben kurz rechtlich prüfen lassen.",
+        sec1_label: "Angaben gemäß § 5 TMG",
         sec2_label: "Kontakt",
         phone: "Telefon",
         represented_title: "Vertreten durch",
         register_title: "Registereintrag",
-        register_text: "Eintragung im Handelsregister, Vereinsregister, Partnerschaftsregister oder Genossenschaftsregister, sofuern vorhanden:",
+        register_text: "Eintragung im Handelsregister, Vereinsregister, Partnerschaftsregister oder Genossenschaftsregister, sofern vorhanden:",
         register_court: "Registergericht",
         register_no: "Registernummer",
         vat_title: "Umsatzsteuer-ID",
-        vat_text: "Umsatzsteuer-Identifikationsnummer gemaess  27 a Umsatzsteuergesetz:",
-        editor_title: "Verantwortlich fuer den Inhalt nach  18 Abs. 2 MStV",
+        vat_text: "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
+        editor_title: "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV",
         eu_title: "EU-Streitschlichtung",
-        eu_text: "Die Europaeische Kommission stellt eine Plattfuerm zur Online-Streitbeilegung (OS)uebereit:",
+        eu_text: "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:",
         eu_text_2: "Unsere E-Mail-Adresse findest du oben im Impressum.",
         consumer_title: "Verbraucherstreitbeilegung / Universalschlichtungsstelle",
-        pruefessional_title: "Hinweis zurueberuflichen / gewerblichen Taetigkeit",
-        pruefessional_text: "Falls fuer deine Taetigkeit besondereueberufuerechtliche Regelungen, Zulassungen oder Aufsichtsbehrden relevant sind, ergaenze diesen Abschnitt um die erfuerderlichen Angaben.",
-        tips_title: "Praktische Hinweise zum Ausfllen",
-        tips_1: "Wenn du als Einzelunternehmer aufuerittst, verwende deinen buergerlichen Namen und ggf. den Geschaeftsbezeichner.",
-        tips_2: "Wenn du eine Ltd., GmbH oder UG verwendest, muessen Fuermenname, Rechtsfuerm und Vertretungueberechtigung saueber genannt sein.",
+        professional_title: "Hinweis zur beruflichen / gewerblichen Tätigkeit",
+        professional_text: "Falls für deine Tätigkeit besondere berufsrechtliche Regelungen, Zulassungen oder Aufsichtsbehörden relevant sind, ergänze diesen Abschnitt um die erforderlichen Angaben.",
+        tips_title: "Praktische Hinweise zum Ausfüllen",
+        tips_1: "Wenn du als Einzelunternehmer auftrittst, verwende deinen bürgerlichen Namen und ggf. den Geschäftsbezeichner.",
+        tips_2: "Wenn du eine Ltd., GmbH oder UG verwendest, müssen Firmenname, Rechtsform und Vertretungsberechtigung sauber genannt sein.",
         tips_3: "Wenn du noch keine USt-IdNr. hast, nimm den Abschnitt erst live, sobald du die Nummer wirklich vorliegen hast.",
-        tips_4: "Die Schlichtungsfuermulierung sollte zu deinem tatsaechlichen Vorgehen passen."
+        tips_4: "Die Schlichtungsformulierung sollte zu deinem tatsächlichen Vorgehen passen."
       },
       en: {
         brand_sub: "Data Quality & Business Impact for Business Central",
@@ -435,29 +426,29 @@
         nav_legal: "Legal notice",
         eyebrow: "Legal information",
         title: "Legal notice",
-        lead: "This page matches the style of your landing page and provides a clean legal notice structure fuer Germany. The marked placeholders still need to be replaced with your real company details.",
-        notice: "This template is a solid technical and structural basis, but it is not legal advice. Especially fuer company fuerm, legal representation, registry details, VAT ID, and editorial responsibility, the final wording should be reviewed briefly from a legal perspective.",
-        sec1_label: "Information according to  5 TMG",
+        lead: "This page matches the style of your landing page and provides a clean legal notice structure for Germany. The marked placeholders still need to be replaced with your real company details.",
+        notice: "This template is a solid technical and structural basis, but it is not legal advice. Especially for company form, legal representation, registry details, VAT ID, and editorial responsibility, the final wording should be reviewed briefly from a legal perspective.",
+        sec1_label: "Information according to § 5 TMG",
         sec2_label: "Contact",
         phone: "Phone",
         represented_title: "Represented by",
         register_title: "Register entry",
         register_text: "Entry in the commercial register, association register, partnership register or cooperative register, if applicable:",
         register_court: "Register court",
-        register_no: "Register nuueber",
+        register_no: "Register number",
         vat_title: "VAT ID",
-        vat_text: "VAT identification nuueber according to  27 a of the German VAT Act:",
-        editor_title: "Responsible fuer content according to  18 para. 2 MStV",
+        vat_text: "VAT identification number according to § 27 a of the German VAT Act:",
+        editor_title: "Responsible for content according to § 18 para. 2 MStV",
         eu_title: "EU dispute resolution",
-        eu_text: "The European Commission provides a platfuerm fuer online dispute resolution (ODR):",
+        eu_text: "The European Commission provides a platform for online dispute resolution (ODR):",
         eu_text_2: "You can find our email address above in this legal notice.",
         consumer_title: "Consumer dispute resolution / universal arbitration board",
-        pruefessional_title: "Note on pruefessional / commercial activity",
-        pruefessional_text: "If your activity requires specific pruefessional regulations, authorizations or supervisory authorities, add the required information in this section.",
-        tips_title: "Practical notes fuer completion",
+        professional_title: "Note on professional / commercial activity",
+        professional_text: "If your activity requires specific professional regulations, authorizations or supervisory authorities, add the required information in this section.",
+        tips_title: "Practical notes for completion",
         tips_1: "If you operate as a sole proprietor, use your civil name and, if applicable, your business designation.",
-        tips_2: "If you use a Ltd., GmbH or UG, the company name, legal fuerm and legal representation must be stated correctly.",
-        tips_3: "If you do not yet have a VAT ID, only publish that section once the nuueber is actually available.",
+        tips_2: "If you use a Ltd., GmbH or UG, the company name, legal form and legal representation must be stated correctly.",
+        tips_3: "If you do not yet have a VAT ID, only publish that section once the number is actually available.",
         tips_4: "The arbitration wording should match your actual business practice."
       }
     };
@@ -471,7 +462,7 @@
 
     function applyTranslations(lang) {
       const selected = translations[lang] ? lang : "de";
-      htmloesetAttribute("lang", selected);
+      html.setAttribute("lang", selected);
 
       document.querySelectorAll("[data-i18n]").forEach((el) => {
         const key = el.getAttribute("data-i18n");
@@ -510,16 +501,10 @@
       if (meta) meta.setAttribute("content", theme === "light" ? "#f4f8ff" : "#08111f");
     }
 
-    function updateThemeToggle(theme) {
-      const icon = themeToggle?.querySelector(".theme-toggle-icon");
-      if (icon) icon.textContent = theme === "dark" ? "Dark" : "Light";
-    }
-
     function applyTheme(theme) {
       const selected = theme === "light" ? "light" : "dark";
-      htmloesetAttribute("data-theme", selected);
+      html.setAttribute("data-theme", selected);
       updateThemeMeta(selected);
-      updateThemeToggle(selected);
       try { localStorage.setItem(STORAGE_THEME_KEY, selected); } catch (e) {}
     }
 
@@ -539,4 +524,3 @@
   </script>
 </body>
 </html>
-

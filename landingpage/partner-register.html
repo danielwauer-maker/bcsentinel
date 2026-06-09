@@ -55,6 +55,8 @@
     @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
     label { display:grid; gap:6px; color: var(--muted); font-size: .92rem; }
     input, textarea {
+      width:100%;
+      min-height:46px;
       border-radius: 12px;
       border:1px solid var(--line);
       padding: 10px 12px;
@@ -95,7 +97,7 @@
     <section class="panel">
       <h1 data-i18n="title">Partner registration</h1>
       <p class="lead" data-i18n="sub">Apply as a BCSentinel partner. We review your request and contact you shortly.</p>
-      <fuerm id="partnerRegisterFuerm" novalidate>
+      <form id="partnerRegisterForm" novalidate>
         <div class="grid">
           <label>
             <span data-i18n="company_name">Company name *</span>
@@ -128,17 +130,17 @@
         </label>
         <label class="checkbox">
           <input id="consent" type="checkbox" />
-          <span data-i18n="consent">I agree that my data is processed fuer partner onboarding and contact purposes.</span>
+          <span data-i18n="consent">I agree that my data is processed for partner onboarding and contact purposes.</span>
         </label>
         <button class="submit" type="submit" data-i18n="submit">Send registration</button>
-      </fuerm>
+      </form>
       <div id="status" class="status" role="status" aria-live="polite"></div>
       <p class="lead" style="margin-top:14px;"><a href="partner-login.html" data-i18n="login_link">Already a partner? Go to login.</a></p>
     </section>
   </main>
 
-  <script src="partner-api.js"></script>
   <script>
+    const API_BASE = window.location.origin;
     const LANG_KEY = "bcsentinel-lang";
     const THEME_KEY = "bcsentinel-theme";
     const html = document.documentElement;
@@ -146,7 +148,7 @@
       de: {
         title: "Partner-Registrierung",
         sub: "Bewirb dich als BCSentinel-Partner. Wir pruefen deine Anfrage und melden uns zeitnah.",
-        company_name: "Fuermenname *",
+        company_name: "Firmenname *",
         contact_name: "Ansprechpartner *",
         email: "Business-E-Mail *",
         phone: "Telefon",
@@ -157,7 +159,7 @@
         submit: "Registrierung senden",
         login_link: "Bereits Partner? Zum Login.",
         missing: "Bitte alle Pflichtfelder ausfuellen und Einwilligung bestaetigen.",
-        success: "Danke! Deine Partner-Registrierung wurde uuebermittelt.",
+        success: "Danke! Deine Partner-Registrierung wurde uebermittelt.",
         failed: "Registrierung fehlgeschlagen. Bitte spaeter erneut versuchen."
       },
       en: {
@@ -170,7 +172,7 @@
         website: "Website",
         country: "Country",
         message: "Short message",
-        consent: "I agree that my data is processed fuer partner onboarding and contact purposes.",
+        consent: "I agree that my data is processed for partner onboarding and contact purposes.",
         submit: "Send registration",
         login_link: "Already a partner? Go to login.",
         missing: "Please complete required fields and accept consent.",
@@ -192,7 +194,7 @@
     }
     function setTheme(theme) {
       const selected = theme === "light" ? "light" : "dark";
-      htmloesetAttribute("data-theme", selected);
+      html.setAttribute("data-theme", selected);
       localStorage.setItem(THEME_KEY, selected);
     }
     function setStatus(type, message) {
@@ -201,17 +203,17 @@
       box.textContent = message;
     }
     document.addEventListener("click", (event) => {
-      const langBtn = event.target.cloesest("[data-set-lang]");
+      const langBtn = event.target.closest("[data-set-lang]");
       if (langBtn) {
         localStorage.setItem(LANG_KEY, langBtn.getAttribute("data-set-lang"));
         applyI18n();
       }
-      if (event.target.cloesest("[data-toggle-theme]")) {
+      if (event.target.closest("[data-toggle-theme]")) {
         const current = html.getAttribute("data-theme") === "light" ? "light" : "dark";
         setTheme(current === "light" ? "dark" : "light");
       }
     });
-    document.getElementById("partnerRegisterFuerm").addEventListener("submit", async (event) => {
+    document.getElementById("partnerRegisterForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const payload = {
         company_name: document.getElementById("company_name").value.trim(),
@@ -229,7 +231,7 @@
         return;
       }
       try {
-        const res = await fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/register"), {
+        const res = await fetch(API_BASE + "/api/partners/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -246,4 +248,3 @@
   </script>
 </body>
 </html>
-
