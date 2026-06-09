@@ -21,7 +21,6 @@
       ["#loss-cta", "nav_cta_short"],
     ],
     "docs": [
-      ["#overview", "nav_overview"],
       ["#getting-started", "nav_getting_started"],
       ["#setup", "nav_setup"],
       ["#screenshots", "nav_screenshots"],
@@ -30,7 +29,6 @@
       ["#docs-faq", "nav_faq"],
     ],
     "security": [
-      ["#overview", "nav_overview"],
       ["#privacy-principles", "nav_privacy_principles"],
       ["#tokens-access", "nav_tokens_access"],
       ["#tenant-isolation", "nav_tenant_isolation"],
@@ -38,7 +36,6 @@
       ["#responsible-disclosure", "nav_responsible_disclosure"],
     ],
     "terms": [
-      ["#overview", "nav_overview"],
       ["#usage", "nav_usage"],
       ["#licenses", "nav_licenses"],
       ["#payments", "nav_payments"],
@@ -47,34 +44,14 @@
       ["#termination", "nav_termination"],
     ],
     "privacy": [
-      ["#overview", "nav_overview"],
-      ["#processed-data", "nav_processed_data"],
-      ["#purposes", "nav_purposes"],
-      ["#legal-basis", "nav_legal_basis"],
-      ["#retention", "nav_retention"],
-      ["#rights", "nav_rights"],
-      ["#contact", "nav_contact"],
     ],
     "contact": [
-      ["#contact-form", "nav_contact_form"],
-      ["#direct-contact", "nav_direct_contact"],
-      ["#topics", "nav_topics"],
-      ["#response-times", "nav_response_times"],
     ],
     "impressum": [
-      ["#provider", "nav_provider"],
-      ["#contact", "nav_contact"],
-      ["#legal-info", "nav_legal_info"],
     ],
     "help": [
-      ["#overview", "nav_overview"],
-      ["#docs-link", "footer_docs"],
-      ["#support-link", "footer_contact"],
     ],
     "support": [
-      ["#overview", "nav_overview"],
-      ["#contact-link", "footer_contact"],
-      ["#docs-link", "footer_docs"],
     ],
     "partner-login": [
       ["#partner-login", "partner_login_nav"],
