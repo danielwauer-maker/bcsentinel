@@ -153,7 +153,7 @@
       html[data-theme="light"] .site-header .brand-copy strong{color:#10213d!important}
       html[data-theme="light"] .site-header .brand-copy span{color:#55709f!important}
       .site-header .desktop-nav,.site-header .nav-actions{display:flex!important;align-items:center!important}
-      .site-header .desktop-nav{justify-content:center!important;gap:20px!important;flex-wrap:nowrap!important}
+      .site-header .desktop-nav{justify-content:flex-end!important;gap:20px!important;flex-wrap:nowrap!important}
       .site-header .nav-actions{justify-content:flex-end!important;gap:12px!important}
       .site-header .desktop-nav a{color:var(--muted,#aebbd7)!important;font-size:.92rem!important;font-weight:600!important;line-height:1!important;white-space:nowrap!important;text-decoration:none!important;transition:color .18s ease!important}
       html[data-theme="light"] .site-header .desktop-nav a{color:#31486f!important}
@@ -186,7 +186,7 @@
       .site-footer .footer-links{display:flex!important;gap:18px!important;flex-wrap:wrap!important}
       .site-footer .footer-links a{color:var(--muted-2,#7f91b3)!important;font-size:.94rem!important;text-decoration:none!important;white-space:nowrap!important}
       .site-footer .footer-links a:hover{color:var(--text,#eff4ff)!important;text-decoration:none!important}
-      @media(max-width:1160px){.site-header .nav{grid-template-columns:minmax(0,1fr) auto!important}.site-header .desktop-nav{display:none!important}.site-header .nav-toggle{display:inline-block!important}.site-header .nav-actions{margin-left:auto!important}}
+      @media(max-width:1160px){.site-header .nav{grid-template-columns:auto 1fr auto !important}.site-header .desktop-nav{display:none!important}.site-header .nav-toggle{display:inline-block!important}.site-header .nav-actions{margin-left:auto!important}}
       @media(max-width:680px){.site-header .nav{min-height:62px!important}.site-header .brand-copy span{display:none!important}.site-header .lang-switch{gap:9px!important}.site-header .lang-btn{font-size:.8rem!important}.site-header .theme-toggle,.site-header .nav-toggle{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.site-footer .footer-inner{align-items:flex-start!important;flex-direction:column!important}}
     `;
     document.head.appendChild(style);
