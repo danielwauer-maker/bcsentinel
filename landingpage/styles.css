@@ -74,10 +74,10 @@ button { font: inherit; }
 
 .nav {
   min-height: 82px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) auto minmax(190px, 1fr);
   align-items: center;
-  gap: 20px;
-  justify-content: space-between;
+  gap: 22px;
 }
 
 .brand {
@@ -127,12 +127,23 @@ button { font: inherit; }
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+}
+
+.desktop-nav {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nav-actions {
+  justify-content: flex-end;
 }
 
 .desktop-nav a {
   color: var(--muted);
   font-size: .95rem;
+  line-height: 1;
+  white-space: nowrap;
   transition: color .18s ease;
 }
 .desktop-nav a:hover { color: var(--text); }
@@ -150,11 +161,37 @@ button { font: inherit; }
   border: 0;
   background: transparent;
   color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 10px;
   border-radius: 999px;
   cursor: pointer;
   font-weight: 700;
-  min-width: 44px;
+  min-width: 58px;
+}
+.lang-flag {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.12);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.flag-de {
+  background: linear-gradient(180deg, #111 0 33%, #d00 33% 66%, #ffce00 66% 100%);
+}
+.flag-en {
+  background:
+    linear-gradient(90deg, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(0deg, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(90deg, transparent 46%, #c8102e 46% 54%, transparent 54%),
+    linear-gradient(0deg, transparent 46%, #c8102e 46% 54%, transparent 54%),
+    linear-gradient(135deg, transparent 0 42%, #fff 42% 49%, #c8102e 49% 53%, #fff 53% 60%, transparent 60%),
+    linear-gradient(45deg, transparent 0 42%, #fff 42% 49%, #c8102e 49% 53%, #fff 53% 60%, transparent 60%),
+    #012169;
 }
 .lang-btn.active {
   color: #fff;
@@ -933,18 +970,19 @@ p {
 .theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
   min-height: 46px;
-  padding: 10px 14px;
+  min-width: 46px;
+  padding: 10px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
   background: rgba(255,255,255,.03);
   color: var(--text);
   cursor: pointer;
   font-weight: 700;
-  transition: transferm .18s ease, border-color .18s ease, background .18s ease;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
-.theme-toggle:hover { transferm: translateY(-1px); }
+.theme-toggle:hover { transform: translateY(-1px); }
 .theme-toggle-icon {
   display: inline-grid;
   place-items: center;

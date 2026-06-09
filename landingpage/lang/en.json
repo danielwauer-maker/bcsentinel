@@ -185,7 +185,7 @@
   "footer_privacy": "Privacy",
   "footer_help": "Help",
   "footer_docs": "Docs",
-  "footer_terms": "Terms",
+  "footer_terms": "Terms / EULA",
   "footer_security": "Security",
   "footer_support": "Support",
   "footer_contact": "Contact",
@@ -459,8 +459,8 @@
   "footer_partner_login": "Partner Portal",
   "lang_de_title": "German",
   "lang_en_title": "English",
-  "lang_de_label": "Switch to German",
-  "lang_en_label": "Switch to English",
+  "lang_de_label": "Switch language to German",
+  "lang_en_label": "Switch language to English",
   "theme_toggle_aria": "Toggle theme",
   "nav_overview": "Overview",
   "nav_getting_started": "Getting started",
@@ -743,5 +743,8 @@
   "product_title": "Product Title",
   "product_text": "Product Text",
   "updates_title": "Updates Title",
-  "updates_text": "Updates Text"
+  "updates_text": "Updates Text",
+  "brand_header_claim": "Data Health Monitoring For Business Central 365",
+  "footer_claim": "Data quality and business impact for Business Central",
+  "nav_free_vs_premium": "Free vs Premium"
 }

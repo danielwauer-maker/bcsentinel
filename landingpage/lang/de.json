@@ -185,8 +185,8 @@
   "footer_privacy": "Datenschutz",
   "footer_help": "Hilfe",
   "footer_docs": "Dokumentation",
-  "footer_terms": "Terms",
-  "footer_security": "Security",
+  "footer_terms": "Terms / EULA",
+  "footer_security": "Sicherheit",
   "footer_support": "Support",
   "footer_contact": "Kontakt",
   "value_stat_1_sub": "Geschaetzte finanzielle Auswirkung durch erkannte Datenqualitaetsprobleme.",
@@ -459,9 +459,9 @@
   "footer_partner_login": "Partner Portal",
   "lang_de_title": "Deutsch",
   "lang_en_title": "Englisch",
-  "lang_de_label": "Auf Deutsch wechseln",
-  "lang_en_label": "Auf Englisch wechseln",
-  "theme_toggle_aria": "Theme wechseln",
+  "lang_de_label": "Sprache auf Deutsch umschalten",
+  "lang_en_label": "Sprache auf Englisch umschalten",
+  "theme_toggle_aria": "Darstellung umschalten",
   "nav_overview": "Ueberblick",
   "nav_getting_started": "Erste Schritte",
   "nav_setup": "Einrichtung",
@@ -743,5 +743,8 @@
   "product_title": "Product Title",
   "product_text": "Product Text",
   "updates_title": "Updates Title",
-  "updates_text": "Updates Text"
+  "updates_text": "Updates Text",
+  "brand_header_claim": "Data Health Monitoring For Business Central 365",
+  "footer_claim": "Data quality and business impact for Business Central",
+  "nav_free_vs_premium": "Free vs Premium"
 }

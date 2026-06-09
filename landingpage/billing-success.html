@@ -35,21 +35,7 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="index.html">
-        <span class="brand-mark"><img src="logo-bcsentinel.png" alt="BCSentinel Logo"></span>
-        <span class="brand-copy"><strong>BCSentinel</strong><span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span></span>
-      </a>
-      <div class="nav-actions">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">Theme</button>
-        <div class="lang-switch" aria-label="Language switcher">
-          <button class="lang-btn active" data-lang="de" type="button" aria-label="Deutsch" title="Deutsch">DE</button>
-          <button class="lang-btn" data-lang="en" type="button" aria-label="English" title="English">DE</button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <header class="site-header"></header>
 
   <main class="wrap">
     <div class="container">
@@ -151,6 +137,7 @@
     themeToggle.addEventListener('click', ()=>applyTheme(getTheme()==='light' ? 'dark' : 'light'));
     applyTheme(getTheme()); applyTranslations(); syncCheckoutStatus();
   </script>
+<footer class="site-footer"></footer>
 <script src="js/site-shell.js"></script>
 </body>
 </html>
