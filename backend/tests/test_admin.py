@@ -383,3 +383,32 @@ def test_landingpage_html_i18n_keys_exist_in_de_and_en_json():
 
     assert html_keys - de_keys == set()
     assert html_keys - en_keys == set()
+
+
+def test_admin_site_translations_uses_configured_env_path(client, tmp_path, monkeypatch):
+    landingpage_dir = tmp_path / "landingpage"
+    lang_dir = landingpage_dir / "lang"
+    lang_dir.mkdir(parents=True)
+    (lang_dir / "de.json").write_text(json.dumps({"brand_sub": "Claim DE"}), encoding="utf-8")
+    (lang_dir / "en.json").write_text(json.dumps({"brand_sub": "Claim EN"}), encoding="utf-8")
+    (landingpage_dir / "index.html").write_text('<span data-i18n="brand_sub"></span>', encoding="utf-8")
+    monkeypatch.setenv("SITE_TRANSLATIONS_PATH", str(lang_dir))
+
+    response = client.get("/admin/config/site-translations", headers=_admin_auth_header())
+
+    assert response.status_code == 200
+    assert "Claim DE" in response.text
+    assert "Claim EN" in response.text
+
+
+def test_admin_site_translations_missing_files_returns_structured_page(client, tmp_path, monkeypatch):
+    missing_dir = tmp_path / "missing-lang"
+    monkeypatch.setenv("SITE_TRANSLATIONS_PATH", str(missing_dir))
+
+    response = client.get("/admin/config/site-translations", headers=_admin_auth_header())
+
+    assert response.status_code == 200
+    assert "Landingpage translation files are not available." in response.text
+    assert "configured_path" in response.text
+    assert str(missing_dir) in response.text
+    assert "missing_files" in response.text

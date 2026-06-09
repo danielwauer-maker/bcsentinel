@@ -449,6 +449,16 @@
           </div>
           {% endif %}
           <p class="muted">Diese Texte werden auf bcsentinel.com und den Landingpage-Unterseiten verwendet. Aenderungen werden nach dem naechsten Seiten-Refresh sichtbar.</p>
+          {% if site_translation_error %}
+          <div class="pill" style="margin:12px 0; white-space:normal; display:block; line-height:1.5;">
+            <strong>{{ site_translation_error.message }}</strong>
+            <div class="muted" style="margin-top:6px;">
+              {% for key, value in site_translation_error.details.items() %}
+                <div><code>{{ key }}</code>: {{ value }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
           <div class="inline-form wrap-gap" style="margin:12px 0;">
             <input id="siteTranslationSearch" type="search" placeholder="Key, Deutsch oder Englisch suchen" style="min-width:320px;">
             <button class="btn btn-secondary" type="button" id="siteTranslationClear">Reset</button>
@@ -487,6 +497,7 @@
               <a class="btn btn-secondary" href="/admin/config/site-translations">Reload</a>
             </div>
           </form>
+          {% endif %}
         </section>
         {% endif %}
       </main>

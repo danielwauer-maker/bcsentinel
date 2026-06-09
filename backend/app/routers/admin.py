@@ -45,6 +45,7 @@ from app.services.product_pricing_service import (
     validate_product_pricing_update,
 )
 from app.services.site_translation_service import (
+    SiteTranslationConfigError,
     load_site_translation_groups,
     update_site_translations,
 )
@@ -648,7 +649,14 @@ def _render_admin_page(
         elif active_section == "email_templates":
             context["email_templates"] = list_email_templates_for_admin(db)
         elif active_section == "site_translations":
-            context["site_translation_groups"] = load_site_translation_groups()
+            try:
+                context["site_translation_groups"] = load_site_translation_groups()
+            except SiteTranslationConfigError as exc:
+                context["site_translation_groups"] = []
+                context["site_translation_error"] = {
+                    "message": str(exc),
+                    "details": exc.details,
+                }
 
         response = TEMPLATES.TemplateResponse(
             name="admin_tenants.html",
@@ -1495,10 +1503,14 @@ def update_admin_site_translations(
 ):
     try:
         result = update_site_translations(keys, de_values, en_values)
-    except ValueError as exc:
+    except (SiteTranslationConfigError, ValueError) as exc:
+        details = getattr(exc, "details", None)
+        message = str(exc)
+        if details:
+            message = f"{message} {details}"
         return RedirectResponse(
             url="/admin/config/site-translations?site_translation_status=error&site_translation_message="
-            + quote_plus(str(exc)),
+            + quote_plus(message),
             status_code=status.HTTP_303_SEE_OTHER,
         )
 

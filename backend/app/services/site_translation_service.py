@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -8,9 +9,10 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-LANDINGPAGE_DIR = REPO_ROOT / "landingpage"
-DE_TRANSLATIONS_PATH = LANDINGPAGE_DIR / "lang" / "de.json"
-EN_TRANSLATIONS_PATH = LANDINGPAGE_DIR / "lang" / "en.json"
+DEFAULT_LANDINGPAGE_DIR = REPO_ROOT / "landingpage"
+LANDINGPAGE_DIR = DEFAULT_LANDINGPAGE_DIR
+DE_TRANSLATIONS_PATH = DEFAULT_LANDINGPAGE_DIR / "lang" / "de.json"
+EN_TRANSLATIONS_PATH = DEFAULT_LANDINGPAGE_DIR / "lang" / "en.json"
 
 GROUP_ORDER = [
     "home",
@@ -124,6 +126,57 @@ class SiteTranslationRow:
     group: str
 
 
+class SiteTranslationConfigError(ValueError):
+    def __init__(self, message: str, *, details: dict[str, str | list[str]]):
+        super().__init__(message)
+        self.details = details
+
+
+def _translations_dir() -> Path:
+    configured = (os.getenv("SITE_TRANSLATIONS_PATH") or "").strip()
+    if configured:
+        path = Path(configured).expanduser()
+        if not path.is_absolute():
+            path = REPO_ROOT / path
+        return path
+    return DEFAULT_LANDINGPAGE_DIR / "lang"
+
+
+def _translation_paths() -> tuple[Path, Path]:
+    # Test suites may monkeypatch the historical path constants directly.
+    if DE_TRANSLATIONS_PATH != DEFAULT_LANDINGPAGE_DIR / "lang" / "de.json":
+        return DE_TRANSLATIONS_PATH, EN_TRANSLATIONS_PATH
+    translations_dir = _translations_dir()
+    return translations_dir / "de.json", translations_dir / "en.json"
+
+
+def _landingpage_dir() -> Path:
+    if LANDINGPAGE_DIR != DEFAULT_LANDINGPAGE_DIR:
+        return LANDINGPAGE_DIR
+    translations_dir = _translations_dir()
+    if translations_dir.name == "lang":
+        return translations_dir.parent
+    return DEFAULT_LANDINGPAGE_DIR
+
+
+def _ensure_translation_files() -> tuple[Path, Path]:
+    de_path, en_path = _translation_paths()
+    missing = [str(path) for path in (de_path, en_path) if not path.exists()]
+    if missing:
+        existing = [str(path) for path in (de_path, en_path) if path.exists()]
+        raise SiteTranslationConfigError(
+            "Landingpage translation files are not available.",
+            details={
+                "configured_path": str(_translations_dir()),
+                "resolved_de_path": str(de_path),
+                "resolved_en_path": str(en_path),
+                "missing_files": missing,
+                "existing_files": existing,
+            },
+        )
+    return de_path, en_path
+
+
 def load_site_translation_json(path: Path) -> OrderedDict[str, str]:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=OrderedDict)
@@ -148,7 +201,7 @@ def load_site_translation_json(path: Path) -> OrderedDict[str, str]:
 
 def discover_landingpage_i18n_keys() -> set[str]:
     keys: set[str] = set()
-    for path in LANDINGPAGE_DIR.glob("*.html"):
+    for path in _landingpage_dir().glob("*.html"):
         text = path.read_text(encoding="utf-8", errors="ignore")
         keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
     return keys
@@ -199,8 +252,9 @@ def _status_for_row(key: str, de_value: str, en_value: str) -> str:
 
 
 def load_site_translation_groups() -> list[dict]:
-    de_translations = load_site_translation_json(DE_TRANSLATIONS_PATH)
-    en_translations = load_site_translation_json(EN_TRANSLATIONS_PATH)
+    de_path, en_path = _ensure_translation_files()
+    de_translations = load_site_translation_json(de_path)
+    en_translations = load_site_translation_json(en_path)
     discovered_keys = discover_landingpage_i18n_keys()
     keys = ordered_translation_keys(de_translations, en_translations, discovered_keys)
 
@@ -243,8 +297,9 @@ def update_site_translations(
     if not (len(keys) == len(de_values) == len(en_values)):
         raise ValueError("Translation form payload is incomplete.")
 
-    current_de = load_site_translation_json(DE_TRANSLATIONS_PATH)
-    current_en = load_site_translation_json(EN_TRANSLATIONS_PATH)
+    de_path, en_path = _ensure_translation_files()
+    current_de = load_site_translation_json(de_path)
+    current_en = load_site_translation_json(en_path)
     allowed_keys = set(ordered_translation_keys(current_de, current_en, discover_landingpage_i18n_keys()))
 
     updates_de: OrderedDict[str, str] = OrderedDict()
@@ -270,12 +325,12 @@ def update_site_translations(
         if current_de.get(key, "") != de_value or current_en.get(key, "") != en_value:
             changed_keys.append(key)
 
-    _write_translation_json(DE_TRANSLATIONS_PATH, next_de)
-    _write_translation_json(EN_TRANSLATIONS_PATH, next_en)
+    _write_translation_json(de_path, next_de)
+    _write_translation_json(en_path, next_en)
 
     # Parse again after writing so failed writes or invalid encoding cannot pass silently.
-    load_site_translation_json(DE_TRANSLATIONS_PATH)
-    load_site_translation_json(EN_TRANSLATIONS_PATH)
+    load_site_translation_json(de_path)
+    load_site_translation_json(en_path)
 
     return {
         "changed_count": len(changed_keys),

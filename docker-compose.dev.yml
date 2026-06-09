@@ -6,10 +6,15 @@ services:
 
     env_file:
       - .env.dev
+    environment:
+      SITE_TRANSLATIONS_PATH: /app/landingpage/lang
 
     depends_on:
       postgres:
         condition: service_healthy
+
+    volumes:
+      - ./landingpage/lang:/app/landingpage/lang
 
     ports:
       - "127.0.0.1:8001:8000"
