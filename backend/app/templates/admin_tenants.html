@@ -436,6 +436,59 @@
           </div>
         </section>
         {% endif %}
+
+        {% if active_section == "site_translations" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <h2>Uebersetzungen - bcsentinel.com</h2>
+            <span class="muted">Landingpage- und Unterseiten-Texte in Deutsch und Englisch</span>
+          </div>
+          {% if site_translation_flash and site_translation_flash.message %}
+          <div class="pill {% if site_translation_flash.status == 'success' %}success-pill{% endif %}" style="margin-bottom:12px;">
+            {{ site_translation_flash.message }}
+          </div>
+          {% endif %}
+          <p class="muted">Diese Texte werden auf bcsentinel.com und den Landingpage-Unterseiten verwendet. Aenderungen werden nach dem naechsten Seiten-Refresh sichtbar.</p>
+          <div class="inline-form wrap-gap" style="margin:12px 0;">
+            <input id="siteTranslationSearch" type="search" placeholder="Key, Deutsch oder Englisch suchen" style="min-width:320px;">
+            <button class="btn btn-secondary" type="button" id="siteTranslationClear">Reset</button>
+          </div>
+          <form method="post" action="/admin/config/site-translations" id="siteTranslationsForm">
+            <div style="display:grid; gap:18px;">
+              {% for group in site_translation_groups %}
+              <article class="panel" style="margin:0;">
+                <div class="panel-header">
+                  <h2>{{ group.label }}</h2>
+                  <span class="muted">{{ group.rows|length }} Keys</span>
+                </div>
+                <div class="table-wrap">
+                  <table class="site-translations-table">
+                    <thead><tr><th style="width:22%;">Key</th><th style="width:34%;">Deutsch</th><th style="width:34%;">Englisch</th><th>Status / Hinweis</th></tr></thead>
+                    <tbody>
+                      {% for row in group.rows %}
+                      <tr class="site-translation-row" data-search="{{ row.key }} {{ row.de }} {{ row.en }}">
+                        <td>
+                          <code>{{ row.key }}</code>
+                          <input type="hidden" name="keys" value="{{ row.key }}">
+                        </td>
+                        <td><textarea name="de_values" rows="{% if row.de|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.de }}</textarea></td>
+                        <td><textarea name="en_values" rows="{% if row.en|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.en }}</textarea></td>
+                        <td><span class="pill small-pill{% if row.status == 'OK' %} success-pill{% endif %}">{{ row.status }}</span></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+              <button type="submit" class="btn btn-primary">Speichern</button>
+              <a class="btn btn-secondary" href="/admin/config/site-translations">Reload</a>
+            </div>
+          </form>
+        </section>
+        {% endif %}
       </main>
     </div>
   </div>
@@ -473,6 +526,24 @@
       input.focus();
       input.select();
     });
+
+    const siteTranslationSearch = document.getElementById("siteTranslationSearch");
+    const siteTranslationClear = document.getElementById("siteTranslationClear");
+    if (siteTranslationSearch) {
+      siteTranslationSearch.addEventListener("input", () => {
+        const query = siteTranslationSearch.value.trim().toLowerCase();
+        document.querySelectorAll(".site-translation-row").forEach((row) => {
+          const haystack = (row.dataset.search || "").toLowerCase();
+          row.style.display = !query || haystack.includes(query) ? "" : "none";
+        });
+      });
+    }
+    if (siteTranslationClear && siteTranslationSearch) {
+      siteTranslationClear.addEventListener("click", () => {
+        siteTranslationSearch.value = "";
+        siteTranslationSearch.dispatchEvent(new Event("input"));
+      });
+    }
   </script>
 </body>
 </html>

@@ -44,6 +44,10 @@ from app.services.product_pricing_service import (
     list_product_pricing,
     validate_product_pricing_update,
 )
+from app.services.site_translation_service import (
+    load_site_translation_groups,
+    update_site_translations,
+)
 from app.services.billing_service import utc_now
 from app.services.impact_service import ensure_default_impact_config, get_hourly_rate_eur
 from app.services.admin_audit_service import log_admin_event
@@ -138,6 +142,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/email-templates",
         "subtitle": "Partner-Mails direkt im Admin anpassen",
     },
+    "site_translations": {
+        "label": "Uebersetzungen - bcsentinel.com",
+        "href": "/admin/config/site-translations",
+        "subtitle": "Landingpage- und Shared-Texte in DE/EN pflegen",
+    },
 }
 ADMIN_NAV_ORDER = [
     "tenants",
@@ -149,6 +158,7 @@ ADMIN_NAV_ORDER = [
     "payouts",
     "audit",
     "email_templates",
+    "site_translations",
 ]
 
 
@@ -589,6 +599,10 @@ def _render_admin_page(
             "status": (request.query_params.get("email_template_status") or "").strip().lower(),
             "message": (request.query_params.get("email_template_message") or "").strip(),
         },
+        "site_translation_flash": {
+            "status": (request.query_params.get("site_translation_status") or "").strip().lower(),
+            "message": (request.query_params.get("site_translation_message") or "").strip(),
+        },
         "csrf_token": create_csrf_token(settings.SECRET_KEY),
     }
 
@@ -633,6 +647,8 @@ def _render_admin_page(
             ).all()
         elif active_section == "email_templates":
             context["email_templates"] = list_email_templates_for_admin(db)
+        elif active_section == "site_translations":
+            context["site_translation_groups"] = load_site_translation_groups()
 
         response = TEMPLATES.TemplateResponse(
             name="admin_tenants.html",
@@ -706,6 +722,12 @@ def admin_audit(request: Request, _: str = Depends(require_admin)):
 @router.get("/admin/config/email-templates/", response_class=HTMLResponse)
 def admin_email_templates(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="email_templates")
+
+
+@router.get("/admin/config/site-translations", response_class=HTMLResponse)
+@router.get("/admin/config/site-translations/", response_class=HTMLResponse)
+def admin_site_translations(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="site_translations")
 
 
 @router.get("/admin/tenants/{tenant_id}", response_class=HTMLResponse)
@@ -1462,6 +1484,46 @@ def update_admin_email_template(
         db.commit()
 
     return RedirectResponse(url="/admin/config/email-templates", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/admin/config/site-translations")
+def update_admin_site_translations(
+    keys: list[str] = Form(default=[]),
+    de_values: list[str] = Form(default=[]),
+    en_values: list[str] = Form(default=[]),
+    admin_username: str = Depends(require_admin),
+):
+    try:
+        result = update_site_translations(keys, de_values, en_values)
+    except ValueError as exc:
+        return RedirectResponse(
+            url="/admin/config/site-translations?site_translation_status=error&site_translation_message="
+            + quote_plus(str(exc)),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    changed_keys = result["changed_keys"]
+    with SessionLocal() as db:
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="update_site_translation",
+            target_type="site_translation",
+            target_id="bcsentinel.com",
+            details={
+                "changed_count": result["changed_count"],
+                "changed_keys": changed_keys[:100],
+                "truncated": len(changed_keys) > 100,
+            },
+        )
+        db.commit()
+
+    message = f"{result['changed_count']} Translation Keys gespeichert."
+    return RedirectResponse(
+        url="/admin/config/site-translations?site_translation_status=success&site_translation_message="
+        + quote_plus(message),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.post("/admin/config/email-templates/{template_key}/test-send")

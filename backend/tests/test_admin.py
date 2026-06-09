@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 from types import SimpleNamespace
 
 from app.db import SessionLocal
@@ -263,3 +264,106 @@ def test_admin_reset_registration_is_blocked_in_production(client, tenant_factor
     response = _post_tenant_action(client, tenant["tenant_id"], "reset-registration")
 
     assert response.status_code == 403
+
+
+def _site_translation_fixture(tmp_path, monkeypatch):
+    import app.services.site_translation_service as site_translation_service
+
+    landingpage_dir = tmp_path / "landingpage"
+    lang_dir = landingpage_dir / "lang"
+    lang_dir.mkdir(parents=True)
+    de_path = lang_dir / "de.json"
+    en_path = lang_dir / "en.json"
+    de_path.write_text(
+        json.dumps(
+            {
+                "brand_sub": "Data Quality & Business Impact for Business Central",
+                "hero_title": "Deutscher Hero",
+                "help_title": "Hilfe",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    en_path.write_text(
+        json.dumps(
+            {
+                "brand_sub": "Data Quality & Business Impact for Business Central",
+                "hero_title": "English hero",
+                "help_title": "Help",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (landingpage_dir / "index.html").write_text(
+        '<span data-i18n="brand_sub"></span><button data-i18n="shared_status_text"></button>',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(site_translation_service, "LANDINGPAGE_DIR", landingpage_dir)
+    monkeypatch.setattr(site_translation_service, "DE_TRANSLATIONS_PATH", de_path)
+    monkeypatch.setattr(site_translation_service, "EN_TRANSLATIONS_PATH", en_path)
+    return de_path, en_path
+
+
+def test_admin_site_translations_page_lists_json_and_common_shared_keys(client, tmp_path, monkeypatch):
+    _site_translation_fixture(tmp_path, monkeypatch)
+
+    response = client.get("/admin/config/site-translations", headers=_admin_auth_header())
+
+    assert response.status_code == 200
+    assert "Uebersetzungen - bcsentinel.com" in response.text
+    assert "Common / Shared" in response.text
+    assert "brand_sub" in response.text
+    assert "hero_title" in response.text
+    assert "shared_status_text" in response.text
+
+
+def test_admin_site_translations_post_updates_de_en_json_and_audits(client, tmp_path, monkeypatch):
+    de_path, en_path = _site_translation_fixture(tmp_path, monkeypatch)
+
+    response = client.post(
+        "/admin/config/site-translations",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, "/admin/config/site-translations"),
+            "keys": ["brand_sub", "hero_title", "help_title"],
+            "de_values": ["Claim DE", "Hero DE neu", "Hilfe"],
+            "en_values": ["Claim EN", "Hero EN new", "Help"],
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert json.loads(de_path.read_text(encoding="utf-8"))["hero_title"] == "Hero DE neu"
+    assert json.loads(en_path.read_text(encoding="utf-8"))["hero_title"] == "Hero EN new"
+
+    with SessionLocal() as db:
+        event = db.query(AdminAuditEvent).filter(AdminAuditEvent.action == "update_site_translation").one()
+        assert event.admin_username == "admin-test"
+        assert "hero_title" in event.details_json
+
+
+def test_admin_site_translations_rejects_unknown_key_without_write(client, tmp_path, monkeypatch):
+    de_path, _ = _site_translation_fixture(tmp_path, monkeypatch)
+    before = de_path.read_text(encoding="utf-8")
+
+    response = client.post(
+        "/admin/config/site-translations",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, "/admin/config/site-translations"),
+            "keys": ["unknown_key"],
+            "de_values": ["x"],
+            "en_values": ["y"],
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert "site_translation_status=error" in response.headers["location"]
+    assert de_path.read_text(encoding="utf-8") == before
