@@ -1,6 +1,8 @@
 services:
   migration:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: dhm-migration
     profiles:
       - tools
@@ -15,7 +17,9 @@ services:
     command: ["python", "-m", "alembic", "upgrade", "head"]
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: dhm-backend
     restart: unless-stopped
 
