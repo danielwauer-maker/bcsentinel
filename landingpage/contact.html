@@ -323,7 +323,7 @@
   </header>
 
   <main>
-    <section class="hero">
+    <section id="direct-contact" class="hero">
       <div class="container">
         <div class="eyebrow" data-i18n="eyebrow">Kontakt</div>
         <h1 data-i18n="title">Lass uns über BCSentinel sprechen.</h1>
@@ -331,7 +331,7 @@
       </div>
     </section>
 
-    <section class="content-wrap">
+    <section id="contact-form" class="content-wrap">
       <div class="container grid">
         <section class="card">
           <h2 data-i18n="form_title">Nachricht senden</h2>
@@ -394,11 +394,11 @@
           </form>
         </section>
 
-        <aside class="card">
+        <aside id="topics" class="card">
           <h2 data-i18n="promise_title">Warum jetzt anfragen?</h2>
           <div class="promise-grid">
             <div class="promise-item">
-              <strong data-i18n="promise_1_title">Schnelle Rückmeldung</strong>
+              <strong id="response-times" data-i18n="promise_1_title">Schnelle Rückmeldung</strong>
               <span data-i18n="promise_1_text">In der Regel innerhalb von 24 Stunden.</span>
             </div>
             <div class="promise-item">
@@ -641,5 +641,6 @@
   applyTheme(getStoredTheme());
   applyTranslations(getCurrentLanguage());
   </script>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

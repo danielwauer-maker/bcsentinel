@@ -145,6 +145,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <a href="index.html"><strong>BCSentinel Partner</strong></a>
     <div class="actions">
@@ -154,7 +155,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="partner-login" class="container">
     <section class="panel">
       <h1 data-i18n="title">Partner Login</h1>
       <p class="lead" data-i18n="sub">Log in to view your account, referred tenants, and commission status.</p>
@@ -326,5 +327,7 @@
     setTheme(localStorage.getItem(THEME_KEY) || "dark");
     applyI18n();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

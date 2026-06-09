@@ -303,7 +303,7 @@
 </header>
 
 <main>
-  <section class="hero">
+  <section id="overview" class="hero">
     <div class="container">
       <div class="eyebrow" data-i18n="eyebrow">Datenschutz</div>
       <!--<h1 data-i18n="title">Datenschutzerklärung</h1>-->
@@ -311,7 +311,7 @@
     </div>
   </section>
 
-  <section class="content-wrap">
+  <section id="processed-data" class="content-wrap">
     <div class="container">
       <div class="legal-card">
 
@@ -342,7 +342,7 @@
           <p style="margin-top:10px;" data-i18n="fonts_legal">Die Nutzung erfolgt im Interesse einer einheitlichen und ansprechenden Darstellung der Website. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO, sofern keine Einwilligungslösung eingesetzt wird.</p>
         </section>
 
-        <section class="section-block">
+        <section id="contact" class="section-block">
           <h2 data-i18n="contact_title">4. Kontaktformular und E-Mail-Kontakt</h2>
           <p data-i18n="contact_text">Wenn du uns per Formular oder E-Mail kontaktierst, verarbeiten wir die von dir übermittelten Angaben zur Bearbeitung deiner Anfrage und für mögliche Anschlussfragen. Dazu gehören typischerweise Name, E-Mail-Adresse, Unternehmen, Thema und Nachrichteninhalt.</p>
           <p style="margin-top:10px;" data-i18n="contact_legal">Die Verarbeitung erfolgt in der Regel auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, soweit es um vorvertragliche Maßnahmen oder vertragsbezogene Anfragen geht, ansonsten auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO wegen unseres berechtigten Interesses an einer effizienten Bearbeitung von Anfragen.</p>
@@ -360,7 +360,8 @@
           <p style="margin-top:10px;" data-i18n="spam_legal">Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in der Abwehr von Spam, Missbrauch und automatisierten Formularangriffen.</p>
         </section>
 
-        <section class="section-block">
+        <section id="purposes" class="section-block">
+          <span id="legal-basis" aria-hidden="true"></span>
           <h2 data-i18n="purposes_title">7. Zwecke und Rechtsgrundlagen</h2>
           <ul>
             <li data-i18n="purposes_1">Art. 6 Abs. 1 lit. a DSGVO – Einwilligung, soweit erforderlich</li>
@@ -375,12 +376,12 @@
           <p data-i18n="recipients_text">Personenbezogene Daten werden nur an Dritte übermittelt, wenn dies zur technischen Bereitstellung, zur Bearbeitung deiner Anfrage, zur Vertragserfüllung, aufgrund gesetzlicher Pflichten oder auf Grundlage einer sonstigen Rechtsgrundlage erforderlich ist. Externe Empfänger können insbesondere Hosting-Dienstleister, E-Mail-Dienstleister und Formulardienstleister sein.</p>
         </section>
 
-        <section class="section-block">
+        <section id="retention" class="section-block">
           <h2 data-i18n="retention_title">9. Speicherdauer</h2>
           <p data-i18n="retention_text">Wir speichern personenbezogene Daten nur so lange, wie dies für die jeweiligen Verarbeitungszwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Danach werden die Daten gelöscht, sofern keine weitere Rechtsgrundlage für die Speicherung besteht.</p>
         </section>
 
-        <section class="section-block">
+        <section id="rights" class="section-block">
           <h2 data-i18n="rights_title">10. Deine Rechte</h2>
           <p data-i18n="rights_text">Du hast im Rahmen der gesetzlichen Vorgaben insbesondere folgende Rechte:</p>
           <ul>
@@ -605,5 +606,6 @@ themeToggle.addEventListener("click",toggleTheme);
 applyTheme(getStoredTheme());
 applyTranslations(getInitialLanguage());
 </script>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

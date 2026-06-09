@@ -114,7 +114,7 @@ ALLOWED_IDENTICAL_TEXTS = {
     "EUR",
 }
 
-I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z]+)?=["']([^"']+)["']""")
+I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z-]+)?=["']([^"']+)["']""")
 
 
 @dataclass(frozen=True)

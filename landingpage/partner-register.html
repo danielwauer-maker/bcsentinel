@@ -84,6 +84,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <a href="index.html"><strong>BCSentinel Partner</strong></a>
     <div class="actions">
@@ -93,7 +94,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="partner-register" class="container">
     <section class="panel">
       <h1 data-i18n="title">Partner registration</h1>
       <p class="lead" data-i18n="sub">Apply as a BCSentinel partner. We review your request and contact you shortly.</p>
@@ -246,5 +247,7 @@
     setTheme(localStorage.getItem(THEME_KEY) || "dark");
     applyI18n();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 
   function getInitialLanguage() {
     const url = new URL(window.location.href);
-    const fromQuery = urloesearchParams.get('lang');
+    const fromQuery = url.searchParams.get('lang');
     if (SUPPORTED_LANGS.includes(fromQuery)) return fromQuery;
 
     const saved = localStorage.getItem('bcsentinel_lang');
@@ -27,7 +27,7 @@
     localStorage.setItem('bcsentinel_lang', lang);
 
     const url = new URL(window.location.href);
-    urloesearchParams.set('lang', lang);
+    url.searchParams.set('lang', lang);
     window.history.replaceState({}, '', url);
   }
 
@@ -42,14 +42,14 @@
     document.querySelectorAll('[data-i18n-alt]').forEach((el) => {
       const key = el.getAttribute('data-i18n-alt');
       if (translations[key] !== undefined) {
-        eloesetAttribute('alt', translations[key]);
+        el.setAttribute('alt', translations[key]);
       }
     });
 
     document.querySelectorAll('[data-i18n-content]').forEach((el) => {
       const key = el.getAttribute('data-i18n-content');
       if (translations[key] !== undefined) {
-        eloesetAttribute('content', translations[key]);
+        el.setAttribute('content', translations[key]);
       }
     });
 
@@ -66,7 +66,7 @@
   }
 
   document.addEventListener('click', (event) => {
-    const button = event.target.cloesest('.lang-btn');
+    const button = event.target.closest('.lang-btn');
     if (!button) return;
     loadLanguage(button.dataset.lang).catch(console.error);
   });

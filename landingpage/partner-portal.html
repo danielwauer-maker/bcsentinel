@@ -173,6 +173,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <strong data-i18n="portal_brand">BCSentinel Partner Portal</strong>
     <div class="actions">
@@ -183,7 +184,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="overview" class="container">
     <h1 data-i18n="title">Partner account overview</h1>
     <p class="lead" data-i18n="sub">Track tenant-based referrals, subscription status, and commission lifecycle in one place.</p>
 
@@ -264,7 +265,7 @@
     </section>
     </section>
 
-    <section class="card section panel-view" data-panel="profile">
+    <section id="profile" class="card section panel-view" data-panel="profile">
       <div class="toolbar">
         <strong data-i18n="profile_title">Profile settings</strong>
       </div>
@@ -608,5 +609,7 @@
     refreshPasswordToggleLabel();
     loadData();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

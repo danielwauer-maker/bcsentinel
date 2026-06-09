@@ -263,7 +263,7 @@
   </header>
 
   <main>
-    <section class="hero">
+    <section id="provider" class="hero">
       <div class="container">
         <div class="eyebrow" data-i18n="eyebrow">Rechtliche Angaben</div>
         <!--<h1 data-i18n="title">Impressum</h1>-->
@@ -273,8 +273,8 @@
 
     <section class="content-wrap">
       <div class="container">
-        <div class="legal-card">
-          <div class="grid">
+        <div id="legal-info" class="legal-card">
+          <div id="contact" class="grid">
             <section class="section-block">
               <span class="label" data-i18n="sec1_label">Angaben gemäß § 5 TMG</span>
               <div class="stack">
@@ -522,5 +522,6 @@
     applyTheme(getStoredTheme());
     applyTranslations(getInitialLanguage());
   </script>
+<script src="js/site-shell.js"></script>
 </body>
 </html>
