@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner Portal | BCSentinel</title>
+  <title data-i18n="partner_portal_meta_title">Partner Portal | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -285,14 +285,14 @@
         <label>
           <span data-i18n="profile_new_password">New password (optional)</span>
           <div class="password-row">
-            <input id="profileNewPassword" type="password" minlength="8" placeholder="********" />
+            <input id="profileNewPassword" type="password" minlength="8" placeholder="********" data-i18n-placeholder="partner_confirm_password_placeholder" data-i18n-placeholder="partner_new_password_placeholder" />
             <button type="button" class="toggle-pw-btn" id="togglePwBtn" data-i18n="profile_toggle_pw">Show</button>
           </div>
           <div class="pw-strength" id="passwordStrength" data-i18n="profile_pw_strength_idle">Password strength: not set</div>
         </label>
         <label>
           <span data-i18n="profile_confirm_password">Confirm new password</span>
-          <input id="profileConfirmPassword" type="password" minlength="8" placeholder="********" />
+          <input id="profileConfirmPassword" type="password" minlength="8" placeholder="********" data-i18n-placeholder="partner_confirm_password_placeholder" />
         </label>
       </form>
       <button class="btn" id="saveProfileBtn" style="margin-top:10px;" data-i18n="profile_save_btn">Save profile</button>

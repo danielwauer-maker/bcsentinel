@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Datenschutz | BCSentinel</title>
-  <meta name="description" content="Privacy Policy / Datenschutzerklärung for BCSentinel" />
+  <title data-i18n="privacy_meta_title">Datenschutz | BCSentinel</title>
+  <meta name="description" data-i18n-content="privacy_meta_description" content="Privacy Policy / Datenschutzerklaerung for BCSentinel" />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -561,7 +561,7 @@ function toggleTheme(){
 }
 
 langButtons.forEach((btn)=>btn.addEventListener("click",()=>applyTranslations(btn.dataset.lang)));
-themeToggle.addEventListener("click",toggleTheme);
+if(themeToggle) themeToggle.addEventListener("click",toggleTheme);
 
 applyTheme(getStoredTheme());
 applyTranslations(getInitialLanguage());

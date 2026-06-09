@@ -110,6 +110,14 @@
     return (translations[lang] && translations[lang][key]) || key;
   }
 
+  function exposeI18n() {
+    window.BCSentinelI18n = {
+      lang: () => document.documentElement.lang || currentLang(),
+      t: (key) => t(key),
+      translations,
+    };
+  }
+
   function injectShellStyles() {
     if (document.getElementById("site-shell-styles")) return;
     const style = document.createElement("style");
@@ -256,6 +264,7 @@
       btn.setAttribute("aria-pressed", active ? "true" : "false");
     });
     try { localStorage.setItem(LANG_KEY, selected); } catch (_) {}
+    exposeI18n();
     updateThemeToggle();
   }
 
@@ -285,6 +294,7 @@
       )
     );
     translations = { de, en };
+    exposeI18n();
   }
 
   function bindControls() {

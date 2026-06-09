@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment cancelled | BCSentinel</title>
+  <title data-i18n="billing_cancel_meta_title">Payment cancelled | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,9 +86,9 @@
     function getLang(){ try { return localStorage.getItem(LANG_KEY)==='en' ? 'en' : 'de'; } catch(e){ return 'de'; } }
     function applyTranslations(lang){ const selected = tr[lang] ? lang : 'de'; html.lang = selected; document.querySelectorAll('[data-i18n]').forEach((el)=>{ const key=el.getAttribute('data-i18n'); if (tr[selected][key]) el.textContent = tr[selected][key]; }); langButtons.forEach((btn)=>btn.classList.toggle('active', btn.dataset.lang===selected)); document.title = selected==='de' ? 'Zahlung abgebrochen - BCSentinel' : 'Payment cancelled - BCSentinel'; try { localStorage.setItem(LANG_KEY, selected); } catch(e){} }
     function getTheme(){ try { const saved = localStorage.getItem(THEME_KEY); return saved === 'light' || saved === 'dark' ? saved : 'dark'; } catch(e){ return 'dark'; } }
-    function applyTheme(theme){ const selected = theme === 'light' ? 'light' : 'dark'; htmloesetAttribute('data-theme', selected); themeToggle.textContent = selected === 'dark' ? 'Dark' : 'Light'; try { localStorage.setItem(THEME_KEY, selected); } catch(e){} }
+    function applyTheme(theme){ const selected = theme === 'light' ? 'light' : 'dark'; html.setAttribute('data-theme', selected); if (themeToggle) themeToggle.textContent = selected === 'dark' ? '?' : '?'; try { localStorage.setItem(THEME_KEY, selected); } catch(e){} }
     langButtons.forEach((btn)=>btn.addEventListener('click', ()=>applyTranslations(btn.dataset.lang)));
-    themeToggle.addEventListener('click', ()=>applyTheme(getTheme()==='light' ? 'dark' : 'light'));
+    if (themeToggle) themeToggle.addEventListener('click', ()=>applyTheme(getTheme()==='light' ? 'dark' : 'light'));
     applyTheme(getTheme()); applyTranslations(getLang());
   </script>
 <footer class="site-footer"></footer>

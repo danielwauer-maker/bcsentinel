@@ -15,35 +15,45 @@ DE_TRANSLATIONS_PATH = DEFAULT_LANDINGPAGE_DIR / "lang" / "de.json"
 EN_TRANSLATIONS_PATH = DEFAULT_LANDINGPAGE_DIR / "lang" / "en.json"
 
 GROUP_ORDER = [
-    "home",
-    "help",
+    "common",
+    "home_hero",
+    "home_problem",
+    "home_business_impact",
+    "home_solution",
+    "home_flow",
+    "pricing_products",
+    "security",
     "docs",
     "privacy",
     "terms",
-    "support",
-    "security",
-    "billing",
     "contact",
     "impressum",
-    "partner",
     "loss_examples",
-    "common",
+    "partner",
+    "billing",
+    "help",
+    "support",
 ]
 
 GROUP_LABELS = {
-    "home": "Home / Landingpage",
-    "help": "Help",
-    "docs": "Docs",
-    "privacy": "Privacy",
+    "common": "Global / Header / Footer",
+    "home_hero": "Startseite / Hero",
+    "home_problem": "Startseite / Problem",
+    "home_business_impact": "Startseite / Business Impact",
+    "home_solution": "Startseite / Loesung",
+    "home_flow": "Startseite / Ablauf",
+    "pricing_products": "Preise / Produkte",
+    "security": "Sicherheit",
+    "docs": "Dokumentation",
+    "privacy": "Datenschutz",
     "terms": "Terms / EULA",
-    "support": "Support",
-    "security": "Security",
-    "billing": "Billing",
-    "contact": "Contact",
+    "contact": "Kontakt",
     "impressum": "Impressum",
-    "partner": "Partner",
     "loss_examples": "Loss Examples",
-    "common": "Common / Shared",
+    "partner": "Partner",
+    "billing": "Billing",
+    "help": "Help",
+    "support": "Support",
 }
 
 COMMON_PREFIXES = (
@@ -52,12 +62,6 @@ COMMON_PREFIXES = (
     "footer_",
     "theme_",
     "cta_",
-    "price_",
-    "pricing_",
-    "product_",
-    "plan_",
-    "faq_",
-    "trust_",
     "mockup_",
     "status_",
     "error_",
@@ -84,14 +88,6 @@ PAGE_PREFIXES = {
 HOME_PREFIXES = (
     "hero_",
     "metric_",
-    "problem_",
-    "impact_",
-    "demo_",
-    "solution_",
-    "how_",
-    "step_",
-    "value_",
-    "security_card_",
 )
 
 ALLOWED_IDENTICAL_TEXTS = {
@@ -115,6 +111,9 @@ ALLOWED_IDENTICAL_TEXTS = {
 }
 
 I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z-]+)?=["']([^"']+)["']""")
+JS_T_CALL_RE = re.compile(r"""\bt\(["']([A-Za-z0-9_]+)["']\)""")
+JS_TRANSLATION_MEMBER_RE = re.compile(r"""translations\[[^\]]+\]\.([A-Za-z0-9_]+)""")
+JS_NAV_PAIR_RE = re.compile(r"""\[[^\[\]]+,\s*["']([A-Za-z0-9_]+)["']\]""")
 
 
 @dataclass(frozen=True)
@@ -204,6 +203,15 @@ def discover_landingpage_i18n_keys() -> set[str]:
     for path in _landingpage_dir().glob("*.html"):
         text = path.read_text(encoding="utf-8", errors="ignore")
         keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
+
+    for path in (_landingpage_dir() / "js").glob("*.js"):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in JS_NAV_PAIR_RE.findall(text) if match.strip())
     return keys
 
 
@@ -225,11 +233,29 @@ def ordered_translation_keys(
 def group_translation_key(key: str) -> str:
     if key.startswith(COMMON_PREFIXES):
         return "common"
+    if key.startswith(("price_", "pricing_", "product_", "plan_", "checkout_", "billing_cta_")):
+        return "pricing_products"
+    if key.startswith(("loss_", "summary_", "formula_", "fuermula_", "top5_", "all_", "check_", "scenario_", "category_", "table_")):
+        return "loss_examples"
+    if key.startswith(("provider_", "register_", "tax_", "vat_", "dispute_", "liability_", "legal_", "phone_")):
+        return "impressum"
+    if key.startswith(("faq_", "trust_")):
+        return "common"
+    if key.startswith(("problem_",)):
+        return "home_problem"
+    if key.startswith(("impact_", "demo_", "value_", "management_", "summary_")):
+        return "home_business_impact"
+    if key.startswith(("solution_",)):
+        return "home_solution"
+    if key.startswith(("how_", "step_", "assessment_", "cleanup_", "validation_", "monitoring_")):
+        return "home_flow"
+    if key.startswith(("hero_", "metric_")):
+        return "home_hero"
+    if key.startswith(("security_card_",)):
+        return "security"
     for prefix, group in PAGE_PREFIXES.items():
         if key.startswith(prefix):
             return group
-    if key.startswith(HOME_PREFIXES):
-        return "home"
     return "common"
 
 
@@ -273,15 +299,24 @@ def load_site_translation_groups() -> list[dict]:
             )
         )
 
-    return [
-        {
-            "key": group,
-            "label": GROUP_LABELS[group],
-            "rows": grouped[group],
-        }
-        for group in GROUP_ORDER
-        if grouped[group] or group == "common"
-    ]
+    result: list[dict] = []
+    for group in GROUP_ORDER:
+        rows = grouped[group]
+        if not rows and group != "common":
+            continue
+        missing_count = sum(1 for row in rows if not row.de.strip() or not row.en.strip())
+        warning_count = sum(1 for row in rows if row.status != "OK")
+        result.append(
+            {
+                "key": group,
+                "label": GROUP_LABELS[group],
+                "rows": rows,
+                "key_count": len(rows),
+                "missing_count": missing_count,
+                "warning_count": warning_count,
+            }
+        )
+    return result
 
 
 def _write_translation_json(path: Path, values: OrderedDict[str, str]) -> None:

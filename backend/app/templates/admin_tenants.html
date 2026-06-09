@@ -459,24 +459,32 @@
             </div>
           </div>
           {% else %}
-          <div class="inline-form wrap-gap" style="margin:12px 0;">
+          <div class="inline-form wrap-gap" style="margin:12px 0; align-items:center;">
             <input id="siteTranslationSearch" type="search" placeholder="Key, Deutsch oder Englisch suchen" style="min-width:320px;">
+            <label class="muted" style="display:inline-flex; align-items:center; gap:8px;">
+              <input id="siteTranslationMissingOnly" type="checkbox">
+              Nur fehlende / Warnungen
+            </label>
             <button class="btn btn-secondary" type="button" id="siteTranslationClear">Reset</button>
           </div>
           <form method="post" action="/admin/config/site-translations" id="siteTranslationsForm">
             <div style="display:grid; gap:18px;">
               {% for group in site_translation_groups %}
-              <article class="panel" style="margin:0;">
-                <div class="panel-header">
+              <details class="panel site-translation-group" style="margin:0;" data-group="{{ group.key }}" {% if loop.first %}open{% endif %}>
+                <summary class="panel-header" style="cursor:pointer;">
                   <h2>{{ group.label }}</h2>
-                  <span class="muted">{{ group.rows|length }} Keys</span>
-                </div>
-                <div class="table-wrap">
+                  <span class="muted">
+                    {{ group.key_count }} Keys
+                    {% if group.missing_count %} · {{ group.missing_count }} fehlend{% endif %}
+                    {% if group.warning_count %} · {{ group.warning_count }} Hinweise{% endif %}
+                  </span>
+                </summary>
+                <div class="table-wrap" style="margin-top:12px;">
                   <table class="site-translations-table">
                     <thead><tr><th style="width:22%;">Key</th><th style="width:34%;">Deutsch</th><th style="width:34%;">Englisch</th><th>Status / Hinweis</th></tr></thead>
                     <tbody>
                       {% for row in group.rows %}
-                      <tr class="site-translation-row" data-search="{{ row.key }} {{ row.de }} {{ row.en }}">
+                      <tr class="site-translation-row" data-status="{{ row.status }}" data-search="{{ row.key }} {{ row.de }} {{ row.en }}">
                         <td>
                           <code>{{ row.key }}</code>
                           <input type="hidden" name="keys" value="{{ row.key }}">
@@ -489,12 +497,13 @@
                     </tbody>
                   </table>
                 </div>
-              </article>
+              </details>
               {% endfor %}
             </div>
             <div style="display:flex; gap:10px; align-items:center; margin-top:16px;">
-              <button type="submit" class="btn btn-primary">Speichern</button>
+              <button type="submit" class="btn btn-primary">Save all</button>
               <a class="btn btn-secondary" href="/admin/config/site-translations">Reload</a>
+              <span id="siteTranslationClientStatus" class="muted"></span>
             </div>
           </form>
           {% endif %}
@@ -540,19 +549,56 @@
 
     const siteTranslationSearch = document.getElementById("siteTranslationSearch");
     const siteTranslationClear = document.getElementById("siteTranslationClear");
-    if (siteTranslationSearch) {
-      siteTranslationSearch.addEventListener("input", () => {
+    const siteTranslationMissingOnly = document.getElementById("siteTranslationMissingOnly");
+    const siteTranslationsForm = document.getElementById("siteTranslationsForm");
+    const siteTranslationClientStatus = document.getElementById("siteTranslationClientStatus");
+    function applySiteTranslationFilter() {
+      if (!siteTranslationSearch) return;
         const query = siteTranslationSearch.value.trim().toLowerCase();
+        const missingOnly = Boolean(siteTranslationMissingOnly && siteTranslationMissingOnly.checked);
         document.querySelectorAll(".site-translation-row").forEach((row) => {
           const haystack = (row.dataset.search || "").toLowerCase();
-          row.style.display = !query || haystack.includes(query) ? "" : "none";
+          const status = row.dataset.status || "";
+          const matchesQuery = !query || haystack.includes(query);
+          const matchesMissing = !missingOnly || status !== "OK";
+          row.style.display = matchesQuery && matchesMissing ? "" : "none";
         });
-      });
+        document.querySelectorAll(".site-translation-group").forEach((group) => {
+          const visibleRows = Array.from(group.querySelectorAll(".site-translation-row")).filter((row) => row.style.display !== "none");
+          group.style.display = visibleRows.length ? "" : "none";
+          if ((query || missingOnly) && visibleRows.length) group.open = true;
+        });
+    }
+    if (siteTranslationSearch) {
+      siteTranslationSearch.addEventListener("input", applySiteTranslationFilter);
+    }
+    if (siteTranslationMissingOnly) {
+      siteTranslationMissingOnly.addEventListener("change", applySiteTranslationFilter);
     }
     if (siteTranslationClear && siteTranslationSearch) {
       siteTranslationClear.addEventListener("click", () => {
         siteTranslationSearch.value = "";
-        siteTranslationSearch.dispatchEvent(new Event("input"));
+        if (siteTranslationMissingOnly) siteTranslationMissingOnly.checked = false;
+        applySiteTranslationFilter();
+      });
+    }
+    if (siteTranslationsForm) {
+      siteTranslationsForm.addEventListener("submit", (event) => {
+        const suspicious = [];
+        siteTranslationsForm.querySelectorAll("textarea[name='de_values'], textarea[name='en_values']").forEach((field) => {
+          const value = field.value.trim();
+          if (!value || /^(TODO|undefined|null)$/i.test(value) || /^[a-z0-9_]+$/i.test(value)) {
+            const row = field.closest(".site-translation-row");
+            suspicious.push(row ? row.querySelector("code").textContent : field.name);
+          }
+        });
+        if (suspicious.length) {
+          const message = "Bitte pruefen: leere oder platzhalterartige Texte bei " + suspicious.slice(0, 8).join(", ");
+          if (siteTranslationClientStatus) siteTranslationClientStatus.textContent = message;
+          if (!confirm(message + ". Trotzdem speichern?")) {
+            event.preventDefault();
+          }
+        }
       });
     }
   </script>

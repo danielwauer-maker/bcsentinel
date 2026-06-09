@@ -317,7 +317,7 @@ def test_admin_site_translations_page_lists_json_and_common_shared_keys(client, 
 
     assert response.status_code == 200
     assert "Uebersetzungen - bcsentinel.com" in response.text
-    assert "Common / Shared" in response.text
+    assert "Global / Header / Footer" in response.text
     assert "brand_sub" in response.text
     assert "hero_title" in response.text
     assert "shared_status_text" in response.text

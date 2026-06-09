@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impressum | BCSentinel</title>
-  <meta name="description" content="Legal notice / Impressum for BCSentinel" />
+  <title data-i18n="impressum_meta_title">Impressum | BCSentinel</title>
+  <meta name="description" data-i18n-content="impressum_meta_description" content="Legal notice / Impressum for BCSentinel" />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -472,7 +472,7 @@
       btn.addEventListener("click", () => applyTranslations(btn.dataset.lang));
     });
 
-    themeToggle.addEventListener("click", toggleTheme);
+    if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
 
     applyTheme(getStoredTheme());
     applyTranslations(getInitialLanguage());

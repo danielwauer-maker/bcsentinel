@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kontakt | BCSentinel</title>
-  <meta name="description" content="Kontaktseite / Contact page for BCSentinel" />
+  <title data-i18n="contact_meta_title">Kontakt | BCSentinel</title>
+  <meta name="description" data-i18n-content="contact_meta_description" content="Kontaktseite / Contact page for BCSentinel" />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -327,18 +327,18 @@
             <div class="field-row">
               <label>
                 <span data-i18n="field_name">Name *</span>
-                <input type="text" id="name" name="name" required placeholder="Max Mustermann">
+                <input type="text" id="name" name="name" required placeholder="Max Mustermann" data-i18n-placeholder="contact_placeholder_name">
               </label>
               <label>
                 <span data-i18n="field_email">E-Mail *</span>
-                <input type="email" id="email" name="email" required placeholder="name@unternehmen.de">
+                <input type="email" id="email" name="email" required placeholder="name@unternehmen.de" data-i18n-placeholder="contact_placeholder_email">
               </label>
             </div>
 
             <div class="field-row">
               <label>
                 <span data-i18n="field_company">Unternehmen</span>
-                <input type="text" id="company" name="company" placeholder="BCSentinel GmbH">
+                <input type="text" id="company" name="company" placeholder="BCSentinel GmbH" data-i18n-placeholder="contact_placeholder_company">
               </label>
               <label>
                 <span data-i18n="field_topic">Thema</span>
@@ -353,7 +353,7 @@
 
             <label>
               <span data-i18n="field_message">Nachricht *</span>
-              <textarea id="message" name="message" required placeholder="Wie kann BCSentinel euch helfen?"></textarea>
+              <textarea id="message" name="message" required placeholder="Wie kann BCSentinel euch helfen?" data-i18n-placeholder="contact_placeholder_message"></textarea>
             </label>
 
             <label>
@@ -551,8 +551,16 @@
     statusBox.textContent=message;
   }
 
+  function tStatus(key, lang){
+    if(window.BCSentinelI18n && typeof window.BCSentinelI18n.t==="function"){
+      const value=window.BCSentinelI18n.t(key);
+      if(value&&value!==key) return value;
+    }
+    return translations[lang][key];
+  }
+
   langButtons.forEach((btn)=>btn.addEventListener("click",()=>applyTranslations(btn.dataset.lang)));
-  themeToggle.addEventListener("click",toggleTheme);
+  if(themeToggle) themeToggle.addEventListener("click",toggleTheme);
   emailInput.addEventListener("input",()=>{replyMirror.value=emailInput.value});
 
   form.addEventListener("submit",async(event)=>{
@@ -560,7 +568,7 @@
     const lang=getCurrentLanguage();
 
     if(!form.checkValidity()){
-      showStatus("error",translations[lang].status_invalid);
+      showStatus("error",tStatus("status_invalid",lang));
       form.reportValidity();
       return;
     }
@@ -586,12 +594,12 @@
       if(result&&(result.success==="true"||result.success===true||result.message)){
         form.reset();
         replyMirror.value="";
-        showStatus("success",translations[lang].status_success);
+        showStatus("success",tStatus("status_success",lang));
       }else{
         throw new Error("Unexpected response");
       }
     }catch(error){
-      showStatus("error",translations[lang].status_error);
+      showStatus("error",tStatus("status_error",lang));
     }finally{
       submitBtn.disabled=false;
     }
