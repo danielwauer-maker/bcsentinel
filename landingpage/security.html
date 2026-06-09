@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#08111f" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link href="styles.css" rel="stylesheet" />
+<title data-i18n="security_meta_title">Security</title>
+<meta name="description" data-i18n-content="security_meta_description" content="Security for BCSentinel Business Central Data Health Management." />
+</head>
+<body>
+<header class="site-header"></header>
+<div class="site-bg"></div>
+<main id="top">
+  <section id="overview" class="hero section">
+    <div class="container card card-highlight hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow" data-i18n="security_eyebrow">Security</span>
+        <h1 data-i18n="security_title">Security</h1>
+        <p class="hero-sub lead" data-i18n="security_lead">Security for BCSentinel Business Central Data Health Management.</p>
+      </div>
+      <div class="hero-visual card card-strong"><div class="hero-browser"><div class="browser-bar"><span></span><span></span><span></span></div><div class="hero-image-wrap"><img class="hero-image" src="dashboard-preview.png" alt="BCSentinel dashboard mockup" /></div></div><p class="mini-note" data-i18n="mockup_note">Screenshot/mockup for AppSource preparation.</p></div>
+    </div>
+  </section>
+  <section id="privacy-principles" class="section">
+    <div class="container">
+      <div class="section-shell section-shell-soft">
+        <div class="section-head"><h2 data-i18n="security_privacy_principles_title">security_privacy_principles_title</h2><p class="lead" data-i18n="security_privacy_principles_lead">security_privacy_principles_lead</p></div>
+        <div class="grid grid-3">
+          <article class="card"><h3 data-i18n="security_principle_1_title">Data minimization</h3><p data-i18n="security_principle_1_text">Only data needed for scans, dashboards, reports and licensing is processed.</p></article>
+          <article class="card"><h3 data-i18n="security_principle_2_title">Consent first</h3><p data-i18n="security_principle_2_text">Data Processing Consent is required before registration and scans.</p></article>
+          <article class="card"><h3 data-i18n="security_principle_3_title">Cloud compatible</h3><p data-i18n="security_principle_3_text">Business Central Cloud does not require direct database access.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="tokens-access" class="section">
+    <div class="container">
+      <div class="section-shell section-shell-soft">
+        <div class="section-head"><h2 data-i18n="security_tokens_title">security_tokens_title</h2><p class="lead" data-i18n="security_tokens_lead">security_tokens_lead</p></div>
+        <div class="grid grid-3">
+          <article class="card"><h3 data-i18n="security_token_1_title">API tokens</h3><p data-i18n="security_token_1_text">API tokens are stored in Business Central IsolatedStorage.</p></article>
+          <article class="card"><h3 data-i18n="security_token_2_title">Embed tokens</h3><p data-i18n="security_token_2_text">Analytics embeds use short-lived purpose-bound tokens.</p></article>
+          <article class="card"><h3 data-i18n="security_token_3_title">Report links</h3><p data-i18n="security_token_3_text">Report share links are time-limited and separate from API tokens.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="tenant-isolation" class="section">
+    <div class="container">
+      <div class="section-shell section-shell-soft">
+        <div class="section-head"><h2 data-i18n="security_tenant_title">security_tenant_title</h2><p class="lead" data-i18n="security_tenant_lead">security_tenant_lead</p></div>
+        <div class="grid grid-3">
+          <article class="card"><h3 data-i18n="security_tenant_1_title">Tenant separation</h3><p data-i18n="security_tenant_1_text">Requests and data are scoped to the authenticated tenant.</p></article>
+          <article class="card"><h3 data-i18n="security_tenant_2_title">Role concept</h3><p data-i18n="security_tenant_2_text">Admin and partner access use separated authentication flows.</p></article>
+          <article class="card"><h3 data-i18n="security_tenant_3_title">Transport security</h3><p data-i18n="security_tenant_3_text">Production deployment should use HTTPS/TLS behind the reverse proxy.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="audit-monitoring" class="section">
+    <div class="container">
+      <div class="section-shell section-shell-soft">
+        <div class="section-head"><h2 data-i18n="security_audit_title">security_audit_title</h2><p class="lead" data-i18n="security_audit_lead">security_audit_lead</p></div>
+        <div class="grid grid-3">
+          <article class="card"><h3 data-i18n="security_audit_1_title">Admin audit log</h3><p data-i18n="security_audit_1_text">Admin changes are logged where audit logging is available.</p></article>
+          <article class="card"><h3 data-i18n="security_audit_2_title">Operational monitoring</h3><p data-i18n="security_audit_2_text">Health and readiness endpoints support operations checks.</p></article>
+          <article class="card"><h3 data-i18n="security_audit_3_title">Backup and restore</h3><p data-i18n="security_audit_3_text">Production operations should follow the documented backup and restore runbook.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="responsible-disclosure" class="section">
+    <div class="container">
+      <div class="section-shell section-shell-soft">
+        <div class="section-head"><h2 data-i18n="security_disclosure_title">security_disclosure_title</h2><p class="lead" data-i18n="security_disclosure_lead">security_disclosure_lead</p></div>
+        <div class="grid grid-3">
+          <article class="card"><h3 data-i18n="security_disclosure_1_title">Report issues</h3><p data-i18n="security_disclosure_1_text">Security findings can be reported through the contact channel.</p></article>
+          <article class="card"><h3 data-i18n="security_disclosure_2_title">No exaggerated claims</h3><p data-i18n="security_disclosure_2_text">This page avoids claims of certification unless formally achieved.</p></article>
+          <article class="card"><h3 data-i18n="security_disclosure_3_title">Continuous improvement</h3><p data-i18n="security_disclosure_3_text">Security documentation will evolve with production readiness.</p></article>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
+</body>
+</html>
