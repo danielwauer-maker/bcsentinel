@@ -22,7 +22,6 @@ from app.models import (
     Invoice,
     IssueCostConfig,
     IssueImpactConfig,
-    LicensePricingConfig,
     Partner,
     PartnerApplication,
     PartnerCommission,
@@ -36,7 +35,6 @@ from app.models import (
     TenantScanCredit,
 )
 from app.services.cost_service import ensure_default_issue_costs
-from app.services.pricing_service import ensure_default_license_pricing
 from app.services.product_pricing_service import (
     PRODUCT_PRICING_DEFAULTS,
     ProductPricingValidationError,
@@ -111,7 +109,7 @@ ADMIN_SECTION_META = {
     "license_pricing": {
         "label": "Product Pricing",
         "href": "/admin/config/license-pricing",
-        "subtitle": "License Pricing und Produktpreise",
+        "subtitle": "Zentrale Produktpreise",
     },
     "partners": {
         "label": "Partners",
@@ -610,7 +608,6 @@ def _render_admin_page(
     with SessionLocal() as db:
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
-        ensure_default_license_pricing(db)
         ensure_default_product_pricing(db)
 
         if active_section == "tenants":
@@ -621,9 +618,6 @@ def _render_admin_page(
                 select(IssueImpactConfig).order_by(IssueImpactConfig.code.asc())
             ).all()
         elif active_section == "license_pricing":
-            context["license_prices"] = db.scalars(
-                select(LicensePricingConfig).order_by(LicensePricingConfig.plan_code.asc())
-            ).all()
             context["product_prices"] = list_product_pricing(db)
             context["product_price_defaults"] = PRODUCT_PRICING_DEFAULTS
         elif active_section == "partners":
@@ -1338,58 +1332,6 @@ def update_issue_cost(
         db.commit()
 
     return RedirectResponse(url="/admin/config/issue-costs", status_code=status.HTTP_303_SEE_OTHER)
-
-
-@router.post("/admin/config/license-pricing/{plan_code}")
-def update_license_pricing(
-    plan_code: str,
-    display_name: str = Form(...),
-    base_price_monthly: float = Form(...),
-    included_records: int = Form(...),
-    additional_price_per_1000_records: float = Form(...),
-    is_active: str | None = Form(default=None),
-    admin_username: str = Depends(require_admin),
-):
-    with SessionLocal() as db:
-        ensure_default_license_pricing(db)
-
-        row = db.get(LicensePricingConfig, plan_code)
-        if row is None:
-            row = LicensePricingConfig(plan_code=plan_code)
-            db.add(row)
-
-        before = {
-            "display_name": row.display_name,
-            "base_price_monthly": float(row.base_price_monthly or 0.0),
-            "included_records": int(row.included_records or 0),
-            "additional_price_per_1000_records": float(row.additional_price_per_1000_records or 0.0),
-            "is_active": bool(row.is_active),
-        }
-        row.display_name = display_name.strip()
-        row.base_price_monthly = float(base_price_monthly)
-        row.included_records = int(included_records)
-        row.additional_price_per_1000_records = float(additional_price_per_1000_records)
-        row.is_active = is_active == "on"
-        log_admin_event(
-            db,
-            admin_username=admin_username,
-            action="config.license_pricing.update",
-            target_type="license_pricing_config",
-            target_id=plan_code,
-            details={
-                "before": before,
-                "after": {
-                    "display_name": row.display_name,
-                    "base_price_monthly": float(row.base_price_monthly),
-                    "included_records": int(row.included_records),
-                    "additional_price_per_1000_records": float(row.additional_price_per_1000_records),
-                    "is_active": bool(row.is_active),
-                },
-            },
-        )
-        db.commit()
-
-    return RedirectResponse(url="/admin/config/license-pricing", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/admin/config/product-pricing/{product_key}")

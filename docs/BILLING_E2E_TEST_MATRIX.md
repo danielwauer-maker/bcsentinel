@@ -2,90 +2,119 @@
 
 Datum: 2026-06-10
 
-Status: PREPARED / PARTIAL CODE EVIDENCE / NOT EXECUTED live.
+Status: CODE VERIFIED / LIVE E2E NOT EXECUTED.
 
-Diese Matrix dokumentiert die erforderlichen E2E-Tests fuer die vier aktuellen Produkte. In dieser Umgebung konnten Stripe, Backend Runtime und Webhooks nicht live ausgefuehrt werden.
+Diese Matrix beschreibt den Go-Live-relevanten Billing-E2E-Stand fuer die aktuelle Produktstruktur. Stripe wurde in dieser Umgebung nicht live ausgefuehrt, weil `python`, `pytest`, `docker`, `alembic` und Stripe CLI nicht verfuegbar waren.
 
-## Produkte
+## Aktuelle Preisquelle
 
-| Produkt | product_code | Typ | Erwartung |
-|---|---|---|---|
-| Assessment | `assessment` | one-time | 1 Scan Credit, 7 Tage Access Window |
-| Validation Check | `validation_check` | one-time | 1 Scan Credit, 7 Tage Access Window |
-| Monitoring Monthly | `monitoring_monthly` | subscription/month | Monitoring aktiv, wiederholte Scans moeglich |
-| Monitoring Annual | `monitoring_annual` | subscription/year | Monitoring aktiv, Jahresabo |
+Zentrale Quelle ist Product Pricing:
 
-## Code-Befund
+- Admin UI: `/admin/config/license-pricing` zeigt Product Pricing.
+- API: `GET /pricing/public`
+- Model: `ProductPricingConfig`
+- Defaults/Seed: `backend/app/services/product_pricing_service.py` und Alembic `0016_product_pricing_config.py`
+- Landingpage: laedt `GET /pricing/public`, Fallback in `landingpage/script.js` und `landingpage/pricing-snapshot.js`
+- Dashboard: nutzt Monitoring Pricing Breakdown aus Product Pricing.
 
-PASS:
+Alte License-Pricing-/Plan-Pricing-Strecken werden nicht mehr fuer neue Billing-Flows verwendet.
 
-- Vier Produktcodes sind in `backend/app/services/product_license_service.py` definiert.
-- Checkout verarbeitet `product_code` in `backend/app/routers/billing.py`.
-- Stripe Price IDs bleiben ENV-basiert.
-- Webhook-Verarbeitung unterscheidet one-time Produkte und Monitoring-Produkte.
-- Tests in `backend/tests/test_product_licensing_p0.py` decken Checkout-Mode, one-time Credits und Monitoring-Aktivierung ab.
+## Produkte und Zielpreise
 
-WARN:
+| Produkt | product_code | Preis | Intervall | Stripe ENV | Checkout Mode | Status |
+|---|---|---:|---|---|---|---|
+| Assessment | `assessment` | EUR 79 | one_time | `STRIPE_PRICE_ID_ASSESSMENT` | payment | CODE VERIFIED |
+| Validation Check | `validation_check` | EUR 49 | one_time | `STRIPE_PRICE_ID_VALIDATION_CHECK` | payment | CODE VERIFIED |
+| Monitoring Monthly | `monitoring_monthly` | EUR 99 / Monat | month | `STRIPE_PRICE_ID_MONITORING_MONTHLY` | subscription | CODE VERIFIED |
+| Monitoring Annual | `monitoring_annual` | EUR 990 / Jahr | year | `STRIPE_PRICE_ID_MONITORING_ANNUAL` | subscription | CODE VERIFIED |
 
-- Legacy `premium` bleibt intern als Kompatibilitaetsalias aktiv.
-- Alte Tests und interne Services enthalten noch Free/Premium-Begriffe.
-- Sichtbare Landingpage-Reste wurden in diesem Block bereinigt; BC-Extension-Altbegriffe koennen wegen bestehender AL-Objekte/Enums noch sichtbar sein und muessen separat im BC-Client verifiziert werden.
+Hinweis: Stripe Price IDs bleiben in ENV. Wenn Stripe-Prices andere Betraege enthalten, muss Stripe manuell angepasst werden. Der Code zeigt weiterhin die Product-Pricing-Preise aus DB/API an.
 
-## Matrix
+## Checkout Tests
 
 | Check | Assessment | Validation Check | Monitoring Monthly | Monitoring Annual |
 |---|---|---|---|---|
-| Checkout Session | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Request nutzt `product_code` | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Alter `plan_code` Checkout-Fallback entfernt | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Stripe Price ID aus ENV | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Checkout Mode | CODE VERIFIED payment | CODE VERIFIED payment | CODE VERIFIED subscription | CODE VERIFIED subscription |
+| Metadata enthaelt Tenant | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Metadata enthaelt Product | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Success URL | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert |
+| Cancel URL | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert | CODE VERIFIED config-basiert |
 | Stripe Redirect Success | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Stripe Redirect Cancel | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Webhook-Verarbeitung | NOT EXECUTED live; unit coverage vorhanden | NOT EXECUTED live; unit coverage vorhanden | NOT EXECUTED live; unit coverage vorhanden | NOT EXECUTED live; unit coverage vorhanden |
-| License Status nach Kauf | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Scan Credits | Erwartet: +1 | Erwartet: +1 | Erwartet: Monitoring statt Einzelcredit | Erwartet: Monitoring statt Einzelcredit |
-| Dashboard Access Window | Erwartet: 7 Tage | Erwartet: 7 Tage | Erwartet: aktiv solange Subscription aktiv | Erwartet: aktiv solange Subscription aktiv |
-| Issue Access Window | Erwartet: 7 Tage | Erwartet: 7 Tage | Erwartet: aktiv solange Subscription aktiv | Erwartet: aktiv solange Subscription aktiv |
-| Monitoring Access | Nein | Nein | Ja | Ja |
-| Customer Portal | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Subscription Cancel | Nicht relevant | Nicht relevant | NOT EXECUTED | NOT EXECUTED |
-| Ablauf/Expired | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Admin-Anzeige | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| BC Setup Anzeige | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-## Manuelle Testschritte fuer DEV
+## Webhook Tests
 
-1. DEV starten und Migrationen ausfuehren.
+| Check | Assessment | Validation Check | Monitoring Monthly | Monitoring Annual |
+|---|---|---|---|---|
+| `checkout.session.completed` erkannt | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| One-time Purchase gespeichert | CODE VERIFIED | CODE VERIFIED | Nicht relevant | Nicht relevant |
+| Scan Credit erzeugt | CODE VERIFIED +1 | CODE VERIFIED +1 | Nicht relevant | Nicht relevant |
+| Subscription gespeichert | Nicht relevant | Nicht relevant | CODE VERIFIED | CODE VERIFIED |
+| Monitoring Entitlement aktiv | Nicht relevant | Nicht relevant | CODE VERIFIED | CODE VERIFIED |
+| Duplicate Webhook Schutz | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Stripe Signaturpruefung | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED | CODE VERIFIED |
+| Live Stripe Webhook | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+
+## Erwartete DB-/License-Auswirkungen
+
+| Produkt | Erwartete DB-Auswirkung | Erwartete License API |
+|---|---|---|
+| Assessment | `TenantProductPurchase`, `TenantScanCredit` +1, Access Window 7 Tage | `scan_credits_available >= 1`, `assessment_access_active`, Dashboard/Issue/Report Access |
+| Validation Check | `TenantProductPurchase`, `TenantScanCredit` +1, Access Window 7 Tage | `scan_credits_available >= 1`, `validation_access_active`, Dashboard/Issue/Report Access |
+| Monitoring Monthly | `Subscription`, `TenantProductEntitlement`, Monitoring aktiv | `monitoring_active=true`, wiederholte Scans, Dashboard/Issue/Report Access |
+| Monitoring Annual | `Subscription`, `TenantProductEntitlement`, Monitoring aktiv | `monitoring_active=true`, wiederholte Scans, Dashboard/Issue/Report Access |
+
+Status: CODE VERIFIED, live DB-Pruefung NOT EXECUTED.
+
+## Erwartete Anzeige
+
+| UI | Assessment | Validation Check | Monitoring Monthly | Monitoring Annual | Status |
+|---|---|---|---|---|---|
+| Admin Product Pricing | sichtbar/editierbar | sichtbar/editierbar | sichtbar/editierbar | sichtbar/editierbar | CODE VERIFIED |
+| Admin Audit | Preisupdate loggt vorher/nachher | Preisupdate loggt vorher/nachher | Preisupdate loggt vorher/nachher | Preisupdate loggt vorher/nachher | CODE VERIFIED |
+| Public Pricing API | EUR 79 | EUR 49 | EUR 99 | EUR 990 | CODE VERIFIED |
+| Landingpage Pricing Cards | API-first, Fallback korrekt | API-first, Fallback korrekt | API-first, Fallback korrekt | API-first, Fallback korrekt | CODE VERIFIED |
+| Billing Success | produktneutral | produktneutral | produktneutral | produktneutral | CODE VERIFIED |
+| Billing Cancel | produktneutral | produktneutral | produktneutral | produktneutral | CODE VERIFIED |
+| Dashboard | Buy Assessment / Credits | Buy Assessment / Credits | Start/Manage Monitoring | Start/Manage Monitoring | CODE VERIFIED |
+| BC Setup | Checkout Actions vorhanden | Checkout Actions vorhanden | Checkout Action vorhanden | Checkout Action vorhanden | CODE VERIFIED, AL compile NOT EXECUTED |
+
+## Manuelle Live-Testschritte pro Produkt
+
+1. DEV sauber starten und Migrationen auf Head bringen.
 2. Testtenant registrieren.
-3. Pro Produkt `POST /billing/checkout/session` mit `product_code` ausfuehren.
-4. Success-URL oeffnen und Status-Sync pruefen.
-5. Cancel-URL oeffnen und neutrale Produkttexte pruefen.
-6. Stripe CLI Webhook senden:
+3. Product Pricing im Admin pruefen.
+4. `GET /pricing/public` pruefen.
+5. Checkout Session mit `product_code` starten.
+6. Stripe Checkout Success testen.
+7. Stripe Checkout Cancel testen.
+8. Stripe Webhook an `/billing/webhook` senden.
+9. License Status in Backend und BC Setup refreshen.
+10. Dashboard/Issue/Report Access pruefen.
+11. Admin Audit pruefen.
+12. Bei Monitoring: Customer Portal und Subscription Cancel pruefen.
 
-```bash
-stripe listen --forward-to https://dev-api.bcsentinel.com/billing/webhook
-```
+## Aktueller Befund zu alten Begriffen
 
-7. Fuer one-time Produkte pruefen:
-   - `TenantScanCredit` wurde erzeugt.
-   - Deep Scan verbraucht Credit erst bei erfolgreichem Start.
-   - Access Window ist gesetzt.
-8. Fuer Monitoring pruefen:
-   - `TenantProductEntitlement` aktiv.
-   - Subscription-Status aktiv.
-   - Dashboard zeigt Monitoring-Panels.
-   - Wiederholte Scans sind erlaubt.
-9. Customer Portal erzeugen und Subscription kuendigen.
-10. Webhook nach Kuendigung pruefen.
+CODE VERIFIED:
 
-## Legacy-Regel
+- Neuer Checkout benoetigt `product_code`.
+- Alter `plan_code` Checkout-Fallback wurde entfernt.
+- Alte Stripe ENV-Fallbacks fuer Monitoring wurden entfernt.
+- Alte `/public/pricing` Plan-Pricing API wurde entfernt; gueltig ist `/pricing/public`.
+- Admin zeigt keine Compatibility-Pricing-Box mehr.
 
-- Legacy Free/Premium darf nicht mehr in Kundentexten erscheinen.
-- Interner Legacy-Code darf kurzfristig bleiben, wenn er Kompatibilitaet fuer alte Tenants/Webhooks sichert.
-- Jede interne Legacy-Stelle muss bei sichtbarer Ausgabe auf aktuelle Produktnamen mappen.
+NOT FULLY REMOVED:
+
+- BC Extension enthaelt weiterhin alte AL-Feld-/Enum-/Objektnamen fuer das fruehere Planmodell.
+- Einige Backend-Modelle und alte Tests nutzen noch `current_plan`, `license_status` und alte Testdaten.
+- Vollstaendige Entfernung benoetigt einen separaten Schema-/AL-Migrationsblock.
 
 ## Go/No-Go
 
-No-Go fuer ersten zahlenden Kunden, bis mindestens ein vollstaendiger Stripe-Testlauf pro Produkttyp dokumentiert ist:
+Billing Code Readiness: GO nach Code Review, aber Tests muessen in einer Python/Docker-Umgebung laufen.
 
-- one-time: Assessment oder Validation Check
-- subscription: Monitoring Monthly oder Monitoring Annual
-
-Fuer handgefuehrten Pilot ist Go moeglich, wenn Kauf/Lizenz alternativ manuell ueber Admin vergeben und auditiert wird.
+Billing Live E2E: NO-GO bis Stripe Checkout und Webhooks mindestens fuer ein one-time Produkt und ein Monitoring-Produkt live getestet sind.

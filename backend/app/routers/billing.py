@@ -71,9 +71,8 @@ SUPPORTED_STRIPE_EVENTS = {
 
 class CheckoutSessionRequest(BaseModel):
     tenant_id: str
-    plan_code: str = "premium"
     billing_interval: str = "monthly"
-    product_code: str | None = None
+    product_code: str
 
 
 class CheckoutSessionResponse(BaseModel):
@@ -255,24 +254,8 @@ def _normalize_billing_interval(value: str | None) -> str:
     raise HTTPException(status_code=400, detail="billing_interval must be 'monthly' or 'yearly'.")
 
 
-def _normalize_checkout_plan_code(value: str | None) -> str:
-    normalized = (value or "premium").strip().lower()
-    if normalized == "premium":
-        return normalized
-    raise HTTPException(status_code=400, detail="plan_code must be 'premium' for checkout.")
-
-
 def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
-    if payload.product_code:
-        product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
-    else:
-        # Backward-compatible path for existing BC extension and tests.
-        _normalize_checkout_plan_code(payload.plan_code)
-        product_code = (
-            PRODUCT_MONITORING_ANNUAL
-            if _normalize_billing_interval(payload.billing_interval) == "yearly"
-            else PRODUCT_MONITORING_MONTHLY
-        )
+    product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
     if product_code not in {
         PRODUCT_ASSESSMENT,
         PRODUCT_VALIDATION_CHECK,
@@ -303,31 +286,17 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
             raise HTTPException(status_code=503, detail="Validation Check checkout is not configured.")
         return price_id
     if product_code == PRODUCT_MONITORING_ANNUAL:
-        price_id = (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or settings.STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY or "").strip()
+        price_id = (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or "").strip()
         if not price_id:
             raise HTTPException(status_code=503, detail="Monitoring annual checkout is not configured.")
         return price_id
     if product_code == PRODUCT_MONITORING_MONTHLY:
-        price_id = (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or settings.STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY or "").strip()
+        price_id = (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or "").strip()
         if not price_id:
             raise HTTPException(status_code=503, detail="Monitoring monthly checkout is not configured.")
         return price_id
     raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
 
-
-def _resolve_stripe_checkout_price_ids(billing_interval: str) -> tuple[str, str]:
-    if billing_interval == "yearly":
-        base_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY or "").strip()
-        pack_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY or "").strip()
-        if not base_price_id:
-            raise HTTPException(status_code=503, detail="Yearly premium base billing is not configured.")
-        return base_price_id, pack_price_id
-
-    base_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY or "").strip()
-    pack_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY or "").strip()
-    if not base_price_id:
-        raise HTTPException(status_code=503, detail="Monthly premium base billing is not configured.")
-    return base_price_id, pack_price_id
 
 
 def _find_tenant_for_invoice(db, explicit_tenant_id: str | None, provider_subscription_id: str | None) -> Tenant | None:
@@ -404,7 +373,7 @@ def _process_normalized_webhook(
             provider=provider,
             provider_subscription_id=provider_subscription_id,
             status=str(subscription_data.get("status") or "active").lower(),
-            plan_code=str(subscription_data.get("product_code") or subscription_data.get("plan_code") or "premium").lower(),
+            plan_code=str(subscription_data.get("product_code") or subscription_data.get("plan_code") or "").lower(),
             currency=str(subscription_data.get("currency") or "EUR"),
             amount_monthly=float(subscription_data.get("amount_monthly") or 0.0),
             current_period_start_utc=occurred_at_utc,
@@ -510,8 +479,7 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
     """Create checkout for a tenant already authorized by the caller."""
 
     product_code = _normalize_checkout_product_code(payload)
-    legacy_premium_checkout = not bool((payload.product_code or "").strip())
-    normalized_plan_code = "premium" if is_monitoring_product(product_code) else product_code
+    normalized_plan_code = product_code
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
         if tenant is None:
@@ -544,20 +512,8 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     stripe.api_key = _require_stripe_secret_key()
-    if legacy_premium_checkout:
-        base_price_id, pack_price_id = _resolve_stripe_checkout_price_ids(billing_interval)
-        line_items = [{"price": base_price_id, "quantity": 1}]
-        if package_count > 0:
-            if not pack_price_id:
-                raise HTTPException(
-                    status_code=503,
-                    detail="Stripe record package billing is not configured for the tenant's data volume.",
-                )
-            line_items.append({"price": pack_price_id, "quantity": package_count})
-        checkout_mode = "subscription"
-    else:
-        line_items = [{"price": _resolve_product_price_id(product_code, billing_interval), "quantity": 1}]
-        checkout_mode = "payment" if is_one_time_product(product_code) else "subscription"
+    line_items = [{"price": _resolve_product_price_id(product_code, billing_interval), "quantity": 1}]
+    checkout_mode = "payment" if is_one_time_product(product_code) else "subscription"
 
     try:
         session_kwargs = {
@@ -773,7 +729,7 @@ def sync_checkout_session_status(
             provider="stripe",
             provider_subscription_id=provider_subscription_id,
             status=str(subscription_obj.get("status") or "incomplete").lower(),
-            plan_code=str((subscription_obj.get("metadata", {}) or {}).get("product_code") or (subscription_obj.get("metadata", {}) or {}).get("plan_code") or "premium").lower(),
+            plan_code=str((subscription_obj.get("metadata", {}) or {}).get("product_code") or (subscription_obj.get("metadata", {}) or {}).get("plan_code") or "").lower(),
             currency=str(subscription_obj.get("currency") or "EUR").upper(),
             amount_monthly=float(_extract_subscription_monthly_amount(subscription_obj)),
             current_period_start_utc=_dt_from_unix(subscription_obj.get("current_period_start")),
@@ -912,7 +868,7 @@ async def process_billing_webhook(
             subscription_data = {
                 "id": data_object.get("id"),
                 "status": data_object.get("status"),
-                "plan_code": (data_object.get("metadata", {}) or {}).get("plan_code", "premium"),
+                "plan_code": (data_object.get("metadata", {}) or {}).get("plan_code"),
                 "product_code": (data_object.get("metadata", {}) or {}).get("product_code"),
                 "currency": (data_object.get("currency") or "EUR").upper(),
                 "amount_monthly": float(_extract_subscription_monthly_amount(data_object)),

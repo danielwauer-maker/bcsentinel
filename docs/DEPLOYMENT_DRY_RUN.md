@@ -27,7 +27,7 @@ Umgebung: lokale Repository-Pruefung auf Windows/Codex-Arbeitsplatz. Docker, Pyt
 | Alembic Versionen inventarisiert | `Get-ChildItem backend/alembic/versions` | PASS: Head-Datei `0017_tenant_preferred_language.py` vorhanden |
 | Landingpage JSON parse | `node -e "...JSON.parse..."` | PASS: `de.json` und `en.json` jeweils 775 Keys, 0 leere Werte |
 | Landingpage JS Syntax | `node --check landingpage/script.js`; `node --check landingpage/js/site-shell.js` | PASS |
-| Legacy/Mojibake Landingpage | `rg "Start free|Free vs Premium|free ERP|Trial|Premium|premium|Unbekoennt|perfuermed|cloesed|uuebersprungen|sofuert|Ã|â|�" landingpage` | PASS fuer sichtbare Werte; nur alter Key-Name `nav_free_vs_premium` bleibt mit Wert `Produkte/Products` |
+| Legacy/Mojibake Landingpage | `rg` nach alten sichtbaren Produktbegriffen und Mojibake-Mustern in `landingpage` | PASS fuer sichtbare Werte |
 
 ## Nicht ausgefuehrte Runtime-Checks
 
@@ -70,9 +70,9 @@ FAIL / offen:
 
 ## Fixes in diesem Block
 
-- Sichtbare Landingpage-Legacy-CTAs auf `loss-examples.html` entfernt.
+- Sichtbare alte Landingpage-CTAs auf `loss-examples.html` entfernt.
 - Sichtbare Encoding-/Textfehler auf Billing Success/Cancel bereinigt.
-- Landingpage i18n-Wert `nav_free_vs_premium` auf `Produkte/Products` gesetzt, Key-Name aus Kompatibilitaetsgruenden belassen.
+- Landingpage i18n-Wert des alten Produktvergleich-Keys auf `Produkte/Products` gesetzt; Key-Name aus Kompatibilitaetsgruenden belassen.
 
 ## Rollback
 

@@ -17,34 +17,22 @@ PRODUCT_ASSESSMENT = "assessment"
 PRODUCT_VALIDATION_CHECK = "validation_check"
 PRODUCT_MONITORING_MONTHLY = "monitoring_monthly"
 PRODUCT_MONITORING_ANNUAL = "monitoring_annual"
-PRODUCT_LEGACY_PREMIUM = "premium"
 
 PRODUCT_ALIASES = {
-    "data_health_check": PRODUCT_ASSESSMENT,
-    "bcsentinel_assessment": PRODUCT_ASSESSMENT,
     "assessment": PRODUCT_ASSESSMENT,
-    "follow_up_scan": PRODUCT_VALIDATION_CHECK,
-    "validation": PRODUCT_VALIDATION_CHECK,
     "validation_check": PRODUCT_VALIDATION_CHECK,
-    "bcsentinel_validation_check": PRODUCT_VALIDATION_CHECK,
-    "monitoring": PRODUCT_MONITORING_MONTHLY,
     "monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
-    "bcsentinel_monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
     "monitoring_annual": PRODUCT_MONITORING_ANNUAL,
-    "monitoring_yearly": PRODUCT_MONITORING_ANNUAL,
-    "bcsentinel_monitoring_annual": PRODUCT_MONITORING_ANNUAL,
-    "premium": PRODUCT_MONITORING_MONTHLY,
 }
 
 ONE_TIME_PRODUCTS = {PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK}
-MONITORING_PRODUCTS = {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL, PRODUCT_LEGACY_PREMIUM}
+MONITORING_PRODUCTS = {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
 
 PRODUCT_DISPLAY_NAMES = {
     PRODUCT_ASSESSMENT: "BCSentinel Assessment",
     PRODUCT_VALIDATION_CHECK: "BCSentinel Validation Check",
     PRODUCT_MONITORING_MONTHLY: "BCSentinel Monitoring Monthly",
     PRODUCT_MONITORING_ANNUAL: "BCSentinel Monitoring Annual",
-    PRODUCT_LEGACY_PREMIUM: "Legacy Premium",
 }
 
 BASE_FEATURES = {
@@ -100,7 +88,7 @@ def _max_datetime(values: list[datetime | None]) -> datetime | None:
 def normalize_product_code(value: str | None, *, billing_interval: str | None = None) -> str:
     normalized = (value or "").strip().lower()
     if not normalized:
-        normalized = PRODUCT_MONITORING_ANNUAL if (billing_interval or "").strip().lower() == "yearly" else PRODUCT_ASSESSMENT
+        return ""
     resolved = PRODUCT_ALIASES.get(normalized)
     if resolved:
         return resolved
@@ -248,9 +236,6 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
-    if (tenant.current_plan or "").strip().lower() == "premium" and (tenant.license_status or "").strip().lower() in {"trial", "active"}:
-        return True
-
     subscriptions = db.scalars(
         select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
     ).all()

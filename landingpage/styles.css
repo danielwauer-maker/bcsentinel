@@ -798,8 +798,8 @@ p {
   border-color: rgba(255,143,61,.22);
 }
 
-/* 🔵 FREE (NEU - BLAU) */
-.plan-badge-free {
+/* Secondary product badge */
+.plan-badge-secondary {
   color: var(--blue);
   background: rgba(74,141,255,.15);
   border-color: rgba(74,141,255,.15);

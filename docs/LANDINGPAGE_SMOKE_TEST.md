@@ -34,7 +34,7 @@ Zusatzdateien gefunden, aber nicht Teil der Pflichtliste:
 | `node --check landingpage/js/site-shell.js` | PASS |
 | `landingpage/lang/de.json` parse | PASS: 775 Keys, 0 leere Werte |
 | `landingpage/lang/en.json` parse | PASS: 775 Keys, 0 leere Werte |
-| Suche sichtbare Legacy/Mojibake | PASS fuer sichtbare Werte; alter Key-Name `nav_free_vs_premium` bleibt mit aktuellem Wert |
+| Suche sichtbare Legacy/Mojibake | PASS fuer sichtbare Werte; ein alter interner Produktvergleich-Key bleibt mit aktuellem Wert |
 | Link-Inventar per `rg href=/src=` | PASS inventarisiert, kein automatischer HTTP-Linkcheck |
 
 ## Befund
@@ -43,9 +43,9 @@ PASS:
 
 - Zentrale Header/Footer-Logik ueber `landingpage/js/site-shell.js` ist eingebunden.
 - DE/EN JSON-Dateien sind valide.
-- Sichtbare `Start free ERP health scan` CTAs wurden entfernt.
+- Alte freie Scan-CTAs wurden entfernt.
 - Billing Success/Cancel enthalten keine bekannten kaputten Texte wie `Unbekoennt`, `perfuermed`, `cloesed`.
-- `Free vs Premium` ist als sichtbarer Wert entfernt; der alte Key-Name bleibt aus Kompatibilitaetsgruenden.
+- Alte Produktvergleich-Begriffe sind als sichtbare Werte entfernt; ein alter Key-Name bleibt aus Kompatibilitaetsgruenden.
 
 WARN:
 
@@ -70,7 +70,7 @@ Go fuer handgefuehrten Pilot, wenn auf DEV live bestaetigt:
 3. Sprachumschalter funktioniert auf jeder Seite.
 4. Theme Toggle zeigt keinen Text `Light`/`Dark`, sondern nur Icon/Button.
 5. Keine sichtbaren i18n-Keys oder `undefined`.
-6. Kein sichtbares Free/Trial/Premium in Landingpage, Dashboard, Admin oder BC Setup.
+6. Keine sichtbaren alten Produkt-/Planbegriffe in Landingpage, Dashboard, Admin oder BC Setup.
 
 ## Offene Aufgabe vor zahlendem Kunden
 
