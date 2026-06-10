@@ -10,9 +10,9 @@
   <div class="admin-shell">
     <header class="page-header admin-header">
       <div>
-        <a class="tenant-back-link" href="/admin/tenants">â† ZurÃ¼ck zur Tenant-Liste</a>
+        <a class="tenant-back-link" href="/admin/tenants">&larr; Zurueck zur Tenant-Liste</a>
         <h1>{{ tenant.tenant_id }}</h1>
-        <p class="muted">{{ tenant.environment_name }} Â· {{ tenant.app_version }}</p>
+        <p class="muted">{{ tenant.environment_name }} - {{ tenant.app_version }}</p>
       </div>
       <div class="header-badges">
         <span class="pill">Nr. {{ tenant_no }}</span>
@@ -40,8 +40,8 @@
           <article class="stat-card emphasis"><div class="stat-label">Product Access</div><div class="stat-value stat-value-small">{{ product_access.access_model }}</div></article>
           <article class="stat-card"><div class="stat-label">Monitoring</div><div class="stat-value stat-value-small">{% if product_access.monitoring_active %}active{% else %}inactive{% endif %}</div></article>
           <article class="stat-card"><div class="stat-label">Scan Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
-          <article class="stat-card"><div class="stat-label">Dashboard Until</div><div class="stat-helper stat-helper-strong">{{ product_access.dashboard_access_until or 'â€”' }}</div></article>
-          <article class="stat-card"><div class="stat-label">Issue Until</div><div class="stat-helper stat-helper-strong">{{ product_access.issue_access_until or 'â€”' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Dashboard Until</div><div class="stat-helper stat-helper-strong">{{ product_access.dashboard_access_until or '-' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Issue Until</div><div class="stat-helper stat-helper-strong">{{ product_access.issue_access_until or '-' }}</div></article>
         </section>
 
         <section class="content-grid admin-detail-grid">
@@ -184,10 +184,10 @@
           <article class="panel">
             <div class="panel-header"><h2>Product Access</h2><span class="muted">Pilot product entitlement status</span></div>
             <div class="config-list">
-              <div class="config-row no-border"><div class="config-title">Active Products</div><div>{{ active_product_codes|join(', ') if active_product_codes else 'â€”' }}</div></div>
-              <div class="config-row no-border"><div class="config-title">Assessment Access</div><div>{% if product_access.assessment_access_active %}active{% else %}inactive{% endif %} Â· {{ product_access.assessment_access_until or 'â€”' }}</div></div>
-              <div class="config-row no-border"><div class="config-title">Validation Access</div><div>{% if product_access.validation_access_active %}active{% else %}inactive{% endif %} Â· {{ product_access.validation_access_until or 'â€”' }}</div></div>
-              <div class="config-row no-border"><div class="config-title">Monitoring Status</div><div>{% if product_access.monitoring_active %}active{% else %}inactive{% endif %} Â· {{ product_access.monitoring_access_until or 'open-ended/manual' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Active Products</div><div>{{ active_product_codes|join(', ') if active_product_codes else '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Assessment Access</div><div>{% if product_access.assessment_access_active %}active{% else %}inactive{% endif %} - {{ product_access.assessment_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Validation Access</div><div>{% if product_access.validation_access_active %}active{% else %}inactive{% endif %} - {{ product_access.validation_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Monitoring Status</div><div>{% if product_access.monitoring_active %}active{% else %}inactive{% endif %} - {{ product_access.monitoring_access_until or 'open-ended/manual' }}</div></div>
               <div class="config-row no-border"><div class="config-title">Can Run Deep Scan</div><div>{% if product_access.can_run_deep_scan %}yes{% else %}no{% endif %}</div></div>
               <div class="config-row no-border"><div class="config-title">Can View Dashboard</div><div>{% if product_access.can_view_dashboard %}yes{% else %}no{% endif %}</div></div>
               <div class="config-row no-border"><div class="config-title">Can View Issue Details</div><div>{% if product_access.can_view_issue_details %}yes{% else %}no{% endif %}</div></div>
@@ -206,7 +206,7 @@
                     <td>{{ credit.product_code }}</td>
                     <td>{{ credit.status }}</td>
                     <td>{{ credit.source }}</td>
-                    <td>{{ credit.consumed_scan_id or 'â€”' }}</td>
+                    <td>{{ credit.consumed_scan_id or '-' }}</td>
                     <td>{{ fmt_dt(credit.created_at_utc) }}</td>
                   </tr>
                   {% endfor %}
@@ -219,7 +219,7 @@
           </article>
 
           <article class="panel">
-            <div class="panel-header"><h2>Product Purchases</h2><span class="muted">letzte ProduktkÃ¤ufe</span></div>
+            <div class="panel-header"><h2>Product Purchases</h2><span class="muted">letzte Produktkaeufe</span></div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Created</th><th>Product</th><th>Status</th><th>Total</th><th>Provider Session</th></tr></thead>
@@ -230,11 +230,11 @@
                     <td>{{ purchase.product_code }}</td>
                     <td>{{ purchase.status }}</td>
                     <td>{{ fmt_money(purchase.amount_total) }} {{ purchase.currency }}</td>
-                    <td>{{ purchase.provider_checkout_session_id or 'â€”' }}</td>
+                    <td>{{ purchase.provider_checkout_session_id or '-' }}</td>
                   </tr>
                   {% endfor %}
                   {% if not product_purchases %}
-                  <tr><td colspan="5">Noch keine ProduktkÃ¤ufe vorhanden.</td></tr>
+                  <tr><td colspan="5">Noch keine Produktkaeufe vorhanden.</td></tr>
                   {% endif %}
                 </tbody>
               </table>
@@ -255,12 +255,12 @@
                   <td>{{ invoice.status }}</td>
                   <td>{{ fmt_money(invoice.amount_total) }} {{ invoice.currency }}</td>
                   <td>{{ fmt_money(invoice.amount_paid) }} {{ invoice.currency }}</td>
-                  <td>{{ invoice.provider_subscription_id or 'â€”' }}</td>
+                  <td>{{ invoice.provider_subscription_id or '-' }}</td>
                   <td>
                     {% if invoice.hosted_invoice_url %}
                     <a class="tenant-link" href="{{ invoice.hosted_invoice_url }}" target="_blank" rel="noopener">open</a>
                     {% else %}
-                    â€”
+                    -
                     {% endif %}
                   </td>
                 </tr>
