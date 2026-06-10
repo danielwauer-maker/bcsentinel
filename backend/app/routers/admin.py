@@ -61,7 +61,6 @@ from app.services.partner_service import normalize_partner_code
 from app.services.product_license_service import (
     PRODUCT_ASSESSMENT,
     PRODUCT_DISPLAY_NAMES,
-    PRODUCT_LEGACY_PREMIUM,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
@@ -448,7 +447,7 @@ def _disable_monitoring_sources(db, tenant: Tenant) -> dict[str, int]:
             subscription.updated_at_utc = now
             subscriptions_changed += 1
 
-    if normalize_product_code(tenant.current_plan) in monitoring_products or tenant.current_plan == PRODUCT_LEGACY_PREMIUM:
+    if normalize_product_code(tenant.current_plan) in monitoring_products:
         tenant.current_plan = "free"
         tenant.license_status = "expired"
 
