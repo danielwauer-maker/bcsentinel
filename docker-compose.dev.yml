@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      target: runtime
     container_name: dhm-dev-backend
     restart: unless-stopped
 
@@ -27,6 +28,21 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+
+  backend-tests:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: test
+    profiles:
+      - tools
+
+    env_file:
+      - .env.dev
+    environment:
+      SITE_TRANSLATIONS_PATH: /app/landingpage/lang
+
+    command: ["python", "-m", "pytest", "-p", "no:cacheprovider", "tests"]
 
   postgres:
     image: postgres:15

@@ -8,6 +8,7 @@ __pycache__/
 *.pyd
 *.so
 .pytest_cache/
+backend/tests/.pytest.sqlite3
 .mypy_cache/
 
 .venv/

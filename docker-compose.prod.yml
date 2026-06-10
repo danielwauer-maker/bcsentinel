@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      target: production
     container_name: dhm-migration
     profiles:
       - tools
@@ -20,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      target: production
     container_name: dhm-backend
     restart: unless-stopped
 

@@ -28,6 +28,7 @@ Umgebung: lokale Repository-Pruefung auf Windows/Codex-Arbeitsplatz. Docker, Pyt
 | Landingpage JSON parse | `node -e "...JSON.parse..."` | PASS: `de.json` und `en.json` jeweils 775 Keys, 0 leere Werte |
 | Landingpage JS Syntax | `node --check landingpage/script.js`; `node --check landingpage/js/site-shell.js` | PASS |
 | Legacy/Mojibake Landingpage | `rg` nach alten sichtbaren Produktbegriffen und Mojibake-Mustern in `landingpage` | PASS fuer sichtbare Werte |
+| Backend Test Packaging | `backend/Dockerfile`, `.dockerignore`, `docker-compose.dev.yml`, `docker-compose.prod.yml` geprueft | PASS: Runtime/Production Images bleiben ohne Tests; DEV hat separaten `backend-tests` Service |
 
 ## Nicht ausgefuehrte Runtime-Checks
 
@@ -43,6 +44,10 @@ Umgebung: lokale Repository-Pruefung auf Windows/Codex-Arbeitsplatz. Docker, Pyt
 | Dashboard Smoke | `GET /analytics/embed?...` | NOT EXECUTED | benoetigt Tenant/API-Kontext |
 | Report HTML Smoke | `GET /reports/executive/{scan_id}/html` | NOT EXECUTED | benoetigt Tenant/API-Kontext |
 | Report PDF Smoke | `GET /reports/executive/{scan_id}/pdf` | NOT EXECUTED | benoetigt Tenant/API-Kontext |
+| Product Licensing Tests im Container | `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_product_licensing_p0.py` | NOT EXECUTED | `docker` nicht verfuegbar in dieser Umgebung |
+| Billing Tests im Container | `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_billing.py` | NOT EXECUTED | `docker` nicht verfuegbar in dieser Umgebung |
+| Executive Report Tests im Container | `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_executive_report.py` | NOT EXECUTED | `docker` nicht verfuegbar in dieser Umgebung |
+| Localization Tests im Container | `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_localization.py` | NOT EXECUTED | `docker` nicht verfuegbar in dieser Umgebung |
 
 ## Befund
 
@@ -55,12 +60,16 @@ PASS:
 - PROD enthaelt einen separaten `migration` Service mit `python -m alembic upgrade head`.
 - Nginx liefert `/docs` und `/docs.html` statisch aus `docs.html` aus und proxyt Backend-Routen getrennt.
 - PROD bindet Backend nur auf `127.0.0.1:8000`.
+- `backend/tests/` existiert im Repository, wird aber nur in den Dockerfile-Target `test` kopiert.
+- `docker-compose.dev.yml` enthaelt den DEV-only Service `backend-tests`.
+- `docker-compose.prod.yml` baut explizit den testfreien Target `production`.
 
 WARN:
 
 - DEV Compose hat keinen expliziten Migration-Service. DEV-Runbook sollte vor API-Start `alembic upgrade head` ausfuehren.
 - Admin Translation Fix braucht einen echten Image-Rebuild/Container-Restart, weil Dockerfile und Compose geaendert wurden.
 - `.env.example` enthaelt `APP_BASE_URL=http://localhost:3000` als Beispielwert; fuer PROD muss `APP_BASE_URL` zwingend oeffentlich gesetzt sein.
+- `backend/tests/test_billing.py` enthaelt noch alte Testannahmen aus dem frueheren Planmodell und muss nach dem Product-Code-Checkout-Fix erwartbar angepasst werden.
 
 FAIL / offen:
 
@@ -122,5 +131,7 @@ Go fuer handgefuehrten Pilot erst nach erfolgreichem realem Dry Run auf DEV:
 4. `/health/ready` gruen
 5. Admin Translation Seite kann `landingpage/lang/de.json` und `en.json` lesen
 6. Landingpage-Unterseiten liefern 200
+7. `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_product_licensing_p0.py`
+8. `docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_billing.py tests/test_executive_report.py tests/test_localization.py`
 
 Aktueller Status dieses Dokuments: PREPARED, aber Runtime-Dry-Run NOT EXECUTED.

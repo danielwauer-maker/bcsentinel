@@ -4,7 +4,7 @@ Datum: 2026-06-10
 
 Status: CODE VERIFIED / LIVE E2E NOT EXECUTED.
 
-Diese Matrix beschreibt den Go-Live-relevanten Billing-E2E-Stand fuer die aktuelle Produktstruktur. Stripe wurde in dieser Umgebung nicht live ausgefuehrt, weil `python`, `pytest`, `docker`, `alembic` und Stripe CLI nicht verfuegbar waren.
+Diese Matrix beschreibt den Go-Live-relevanten Billing-E2E-Stand fuer die aktuelle Produktstruktur. Stripe und pytest wurden in dieser Umgebung nicht live ausgefuehrt, weil `python`, `pytest`, `docker`, `alembic` und Stripe CLI nicht verfuegbar waren.
 
 ## Aktuelle Preisquelle
 
@@ -29,6 +29,8 @@ Alte License-Pricing-/Plan-Pricing-Strecken werden nicht mehr fuer neue Billing-
 | Monitoring Annual | `monitoring_annual` | EUR 990 / Jahr | year | `STRIPE_PRICE_ID_MONITORING_ANNUAL` | subscription | CODE VERIFIED |
 
 Hinweis: Stripe Price IDs bleiben in ENV. Wenn Stripe-Prices andere Betraege enthalten, muss Stripe manuell angepasst werden. Der Code zeigt weiterhin die Product-Pricing-Preise aus DB/API an.
+
+Wenn genau ein Produkt mit HTTP 503 fehlschlaegt, ist in DEV/PROD sehr wahrscheinlich die zugehoerige Stripe Price ID nicht gesetzt. Beispiel: Assessment braucht `STRIPE_PRICE_ID_ASSESSMENT`. Nach ENV-Aenderungen muss der Backend-Container neu gestartet werden.
 
 ## Checkout Tests
 
@@ -96,6 +98,34 @@ Status: CODE VERIFIED, live DB-Pruefung NOT EXECUTED.
 10. Dashboard/Issue/Report Access pruefen.
 11. Admin Audit pruefen.
 12. Bei Monitoring: Customer Portal und Subscription Cancel pruefen.
+
+## Container-Teststrategie
+
+Production Images sollen keine Tests enthalten. Deshalb gibt es im Dockerfile getrennte Targets:
+
+- `runtime`: API Runtime ohne Tests.
+- `test`: basiert auf Runtime und kopiert `backend/tests` nach `/app/tests`.
+- `production`: testfreier Default-/PROD-Target.
+
+DEV Compose stellt dafuer den Service `backend-tests` bereit.
+
+Pflichtbefehle auf DEV:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_product_licensing_p0.py
+docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_billing.py
+docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_executive_report.py
+docker compose --env-file .env.dev -f docker-compose.dev.yml run --rm backend-tests python -m pytest -p no:cacheprovider tests/test_localization.py
+```
+
+Aktueller Status:
+
+| Testdatei | Status | Hinweis |
+|---|---|---|
+| `tests/test_product_licensing_p0.py` | NOT EXECUTED | Container-Testservice vorbereitet |
+| `tests/test_billing.py` | NOT EXECUTED | Enthaelt noch alte Planmodell-Testannahmen und muss ggf. auf `product_code` aktualisiert werden |
+| `tests/test_executive_report.py` | NOT EXECUTED | Container-Testservice vorbereitet |
+| `tests/test_localization.py` | NOT EXECUTED | Container-Testservice vorbereitet |
 
 ## Aktueller Befund zu alten Begriffen
 

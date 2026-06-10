@@ -31,11 +31,40 @@ codeunit 53100 "DH API Client"
     end;
 
     procedure GetSafeBackendErrorText(ResponseText: Text): Text
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        Detail: Text;
     begin
         if ResponseText = '' then
             exit('No response body was returned. Contact BCSentinel support if this continues.');
 
+        if JsonResponse.ReadFrom(ResponseText) then
+            if JsonResponse.Get('detail', Token) then
+                if not IsJsonNull(Token) then begin
+                    Detail := Token.AsValue().AsText();
+                    if IsSafeBackendDetail(Detail) then
+                        exit(Detail);
+                end;
+
         exit('Backend returned a technical error. Contact BCSentinel support if this continues.');
+    end;
+
+    local procedure IsSafeBackendDetail(Detail: Text): Boolean
+    begin
+        if Detail = '' then
+            exit(false);
+
+        if StrPos(Detail, 'checkout is not configured') > 0 then
+            exit(true);
+        if StrPos(Detail, 'Stripe is not configured') > 0 then
+            exit(true);
+        if StrPos(Detail, 'BILLING_SUCCESS_URL') > 0 then
+            exit(true);
+        if StrPos(Detail, 'BILLING_CANCEL_URL') > 0 then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure EnsureTenantRegistered(var Setup: Record "DH Setup")
