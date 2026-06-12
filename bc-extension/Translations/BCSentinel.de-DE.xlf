@@ -4049,13 +4049,13 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action ResetRegistration - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
-          <target state="translated">Loescht nur den lokalen BCSentinel-Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht geloescht.</target>
+          <target state="translated">Löscht nur den lokalen BCSentinel-Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht gelöscht.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action ResetRegistration - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
-          <target state="translated">Registrierung zuruecksetzen</target>
+          <target state="translated">Registrierung zurücksetzen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit>

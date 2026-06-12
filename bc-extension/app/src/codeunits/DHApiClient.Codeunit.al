@@ -77,6 +77,25 @@ codeunit 53100 "DH API Client"
         exit(false);
     end;
 
+    local procedure IsTenantNotFoundResponse(ResponseText: Text): Boolean
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        Detail: Text;
+        ResponseTextLower: Text;
+    begin
+        if JsonResponse.ReadFrom(ResponseText) then
+            if JsonResponse.Get('detail', Token) then
+                if not IsJsonNull(Token) then begin
+                    Detail := LowerCase(Token.AsValue().AsText());
+                    if StrPos(Detail, 'tenant not found') > 0 then
+                        exit(true);
+                end;
+
+        ResponseTextLower := LowerCase(ResponseText);
+        exit(StrPos(ResponseTextLower, 'tenant not found') > 0);
+    end;
+
     local procedure GetBackendErrorMessage(OperationName: Text; StatusCode: Integer; ResponseText: Text): Text
     var
         SafeDetail: Text;
@@ -85,11 +104,11 @@ codeunit 53100 "DH API Client"
 
         case StatusCode of
             401:
-                exit(StrSubstNo('%1 failed. Status 401. The backend did not accept the credentials. Register the tenant again or contact BCSentinel support.', OperationName));
+                exit(StrSubstNo('%1 failed. Status 401. The backend did not accept the credentials or invite code. Please check the invite code and register again.', OperationName));
             403:
-                exit(StrSubstNo('%1 failed. Status 403. The tenant is not allowed to use this operation. Check the invite code, tenant access, or product access in BCSentinel.', OperationName));
+                exit(StrSubstNo('%1 failed. Status 403. The invite code or tenant access was rejected by BCSentinel. Please check the invite code or contact BCSentinel support.', OperationName));
             404:
-                exit(StrSubstNo('%1 failed. Status 404. Tenant not found in backend. Please register again.', OperationName));
+                exit(StrSubstNo('%1 failed. Status 404. Tenant not found in backend. Please reset registration and register again.', OperationName));
             422:
                 exit(StrSubstNo('%1 failed. Status 422. The submitted registration data was not accepted. Check the invite code and API Base URL. %2', OperationName, SafeDetail));
             500:
@@ -207,8 +226,12 @@ codeunit 53100 "DH API Client"
 
         Response.Content.ReadAs(ResponseText);
 
-        if not Response.IsSuccessStatusCode() then
+        if not Response.IsSuccessStatusCode() then begin
+            if (Response.HttpStatusCode() = 404) and IsTenantNotFoundResponse(ResponseText) then
+                Error('Tenant was not found in BCSentinel. Please reset registration and register again.');
+
             Error(GetBackendErrorMessage('License status request', Response.HttpStatusCode(), ResponseText));
+        end;
 
         if not JsonResponse.ReadFrom(ResponseText) then
             Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');

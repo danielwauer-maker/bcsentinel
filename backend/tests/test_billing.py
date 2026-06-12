@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 from sqlalchemy import select
@@ -355,6 +356,101 @@ def test_billing_webhook_processes_valid_signed_event_and_is_idempotent(
         assert tenant_row.current_plan == "premium"
         assert tenant_row.license_status == "active"
         assert subscription.status == "active"
+
+
+def test_subscription_created_cannot_downgrade_active_monitoring_annual(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    annual_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_annual_order")
+    monthly_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_monthly_regression")
+    period_end = datetime(2027, 1, 15, 12, 0, tzinfo=timezone.utc)
+
+    annual_updated = client.post(
+        "/billing/webhook",
+        json={
+            "provider": "manual",
+            "event_id": "evt_annual_updated_active",
+            "event_type": "subscription.updated",
+            "tenant_id": annual_tenant["tenant_id"],
+            "occurred_at_utc": "2026-01-15T12:00:00Z",
+            "subscription": {
+                "id": "sub_annual_order",
+                "product_code": "monitoring_annual",
+                "status": "active",
+                "currency": "EUR",
+                "amount_monthly": 82.5,
+                "current_period_end_utc": period_end.isoformat(),
+            },
+        },
+    )
+    monthly_response = client.post(
+        "/billing/webhook",
+        json={
+            "provider": "manual",
+            "event_id": "evt_monthly_active_regression",
+            "event_type": "subscription.updated",
+            "tenant_id": monthly_tenant["tenant_id"],
+            "subscription": {
+                "id": "sub_monthly_regression",
+                "product_code": "monitoring_monthly",
+                "status": "active",
+                "currency": "EUR",
+                "amount_monthly": 99.0,
+                "current_period_end_utc": "2026-02-15T12:00:00Z",
+            },
+        },
+    )
+    annual_created_late = client.post(
+        "/billing/webhook",
+        json={
+            "provider": "manual",
+            "event_id": "evt_annual_created_late_incomplete",
+            "event_type": "subscription.created",
+            "tenant_id": annual_tenant["tenant_id"],
+            "occurred_at_utc": "2026-01-15T12:01:00Z",
+            "subscription": {
+                "id": "sub_annual_order",
+                "product_code": "monitoring_annual",
+                "status": "incomplete",
+                "currency": "EUR",
+                "amount_monthly": 82.5,
+                "current_period_end_utc": period_end.isoformat(),
+            },
+        },
+    )
+
+    assert annual_updated.status_code == 200
+    assert monthly_response.status_code == 200
+    assert annual_created_late.status_code == 200
+
+    annual_license = client.get("/license/status", headers=auth_header_factory(annual_tenant))
+    monthly_license = client.get("/license/status", headers=auth_header_factory(monthly_tenant))
+
+    assert annual_license.status_code == 200
+    assert monthly_license.status_code == 200
+    annual_payload = annual_license.json()
+    monthly_payload = monthly_license.json()
+    assert annual_payload["monitoring_active"] is True
+    assert "monitoring_annual" in annual_payload["active_products"]
+    assert annual_payload["dashboard_access_until"]
+    assert annual_payload["issue_access_until"]
+    assert monthly_payload["monitoring_active"] is True
+    assert "monitoring_monthly" in monthly_payload["active_products"]
+
+    with SessionLocal() as db:
+        annual_subscription = db.query(Subscription).filter(
+            Subscription.provider_subscription_id == "sub_annual_order"
+        ).one()
+        monthly_subscription = db.query(Subscription).filter(
+            Subscription.provider_subscription_id == "sub_monthly_regression"
+        ).one()
+        assert annual_subscription.status == "active"
+        assert annual_subscription.plan_code == "monitoring_annual"
+        assert annual_subscription.current_period_end_utc is not None
+        assert monthly_subscription.status == "active"
+        assert monthly_subscription.plan_code == "monitoring_monthly"
 
 
 def test_billing_webhook_rejects_invalid_signature(

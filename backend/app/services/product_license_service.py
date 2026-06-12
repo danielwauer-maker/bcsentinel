@@ -247,6 +247,20 @@ def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
     return False
 
 
+def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str]:
+    product_codes: list[str] = []
+    subscriptions = db.scalars(
+        select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
+    ).all()
+    for subscription in subscriptions:
+        if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
+            continue
+        product_code = normalize_product_code(subscription.plan_code)
+        if product_code in MONITORING_PRODUCTS:
+            product_codes.append(product_code)
+    return sorted(set(product_codes))
+
+
 def resolve_product_features(db, tenant: Tenant) -> set[str]:
     features = set(BASE_FEATURES)
     access = build_product_access_snapshot(db, tenant)
@@ -394,8 +408,7 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         active_products = sorted(set(active_products + [PRODUCT_ASSESSMENT]))
     if access["validation_access_active"]:
         active_products = sorted(set(active_products + [PRODUCT_VALIDATION_CHECK]))
-    if has_active_monitoring_subscription(db, tenant):
-        active_products = sorted(set(active_products + [PRODUCT_MONITORING_MONTHLY]))
+    active_products = sorted(set(active_products + active_monitoring_subscription_product_codes(db, tenant)))
     return {
         "features": features,
         "active_products": active_products,
