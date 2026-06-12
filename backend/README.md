@@ -13,6 +13,13 @@ Erster MVP-Stand des Analyse-Backends.
 ## Start
 Ueber Docker Compose im Projekt-Root.
 
+## Production Deployment
+
+- Production deployment steps are documented in `docs/ops/production-deployment.md`.
+- Run `alembic upgrade head` before starting or restarting the API.
+- The API validates that the database is at the current Alembic head during startup.
+- In production, set `APP_BASE_URL` and explicit `CORS_ALLOW_ORIGINS`; do not include dev origins in production CORS.
+
 ## Entitlements (Session 2 Foundation)
 
 - Zentrale Feature-Aufloesung liegt in:
@@ -39,12 +46,10 @@ Erwartetes Ergebnis:
 ### Benoetigte ENV Variablen
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_ID_PREMIUM`
-- optional: `STRIPE_PRICE_ID_PREMIUM_YEARLY`
-- `STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY`
-- `STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY`
-- `STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY`
-- `STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY`
+- `STRIPE_PRICE_ID_ASSESSMENT`
+- `STRIPE_PRICE_ID_VALIDATION_CHECK`
+- `STRIPE_PRICE_ID_MONITORING_MONTHLY`
+- `STRIPE_PRICE_ID_MONITORING_ANNUAL`
 - `APP_BASE_URL` oder alle drei expliziten Billing-URLs
 - optional explizit: `BILLING_SUCCESS_URL`
 - optional explizit: `BILLING_CANCEL_URL`
@@ -58,19 +63,20 @@ Erwartetes Ergebnis:
 
 ### Listenpreis aendern (Marketing, App-Berechnung, Stripe)
 
-Die interne Berechnung und Marketing-Defaults folgen `config/pricing_canonical.json` bzw. der Tabelle `license_pricing_config` (siehe `docs/product/pricing-canonical.md`). Die Landingpage liest oeffentliche Preisinfos zuerst ueber `GET /public/pricing` und faellt nur bei Fehlern auf `pricing-snapshot.js` zurueck. **Stripe** arbeitet mit **Price IDs**, nicht mit dem Betrag im Code: Wenn sich der veroeffentlichte Monats- oder Jahrespreis aendert, legt ihr in Stripe Dashboard neue **Prices** an (oder dupliziert bestehende und passt Betrag/Intervall an), traegt die neuen IDs in die Umgebung ein:
+Die interne Berechnung und Marketing-Defaults folgen `config/pricing_canonical.json` bzw. der Tabelle `product_pricing_config` (siehe `docs/product/pricing-canonical.md`). Die Landingpage liest oeffentliche Preisinfos zuerst ueber `GET /public/pricing` und faellt nur bei Fehlern auf `pricing-snapshot.js` zurueck. **Stripe** arbeitet mit **Price IDs**, nicht mit dem Betrag im Code: Wenn sich ein veroeffentlichter Produktpreis aendert, legt ihr im Stripe Dashboard neue aktive **Prices** an und tragt die neuen IDs in die Umgebung ein:
 
-- `STRIPE_PRICE_ID_PREMIUM` (monatlich)
-- `STRIPE_PRICE_ID_PREMIUM_YEARLY` (jaehrlich, optional)
+- `STRIPE_PRICE_ID_ASSESSMENT`
+- `STRIPE_PRICE_ID_VALIDATION_CHECK`
+- `STRIPE_PRICE_ID_MONITORING_MONTHLY`
+- `STRIPE_PRICE_ID_MONITORING_ANNUAL`
 
 Danach Deploy/Restart, damit Checkout die neuen IDs nutzt. Abgleich: Listenpreis in canonical/DB sollte zum abgerechneten Stripe-Betrag passen; bestehende Abonnements behalten ihre gebuchte Price-Version, bis ihr sie in Stripe migriert.
 
 ### API Endpunkte
 - `POST /billing/checkout/session`
-  - erstellt eine Stripe Checkout Session fuer Premium
-  - unterstuetzt `billing_interval` = `monthly` | `yearly`
-  - nutzt Base + optionales Records-Pack anhand des letzten Deep Scans des Tenants
-  - Fallback ohne Deep Scan: `record_count = 0`, damit nur der Base Price abgerechnet wird
+  - erstellt eine Stripe Checkout Session fuer `product_code`
+  - unterstuetzt `assessment`, `validation_check`, `monitoring_monthly`, `monitoring_annual`
+  - nutzt genau eine aktive Stripe Price ID pro Produkt
 - `GET /billing/subscription/status`
   - liefert den aktuellen Abo-Status des Tenants
 - `GET /billing/checkout/session/status?session_id=...`

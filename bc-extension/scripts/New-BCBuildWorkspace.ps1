@@ -30,7 +30,7 @@ $repoRootFull = [System.IO.Path]::GetFullPath($repoRoot)
 
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 
-foreach ($path in @("app", ".alpackages", ".vscode", "app.json")) {
+foreach ($path in @("app", ".alpackages", ".vscode", "app.json", "app.ruleset.json", "AppSourceCop.json")) {
     $generatedPath = Join-Path $outputRoot $path
     if ((Test-Path -LiteralPath $generatedPath) -and $outputRoot.StartsWith($repoRootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
         Remove-Item -LiteralPath $generatedPath -Recurse -Force
@@ -39,6 +39,16 @@ foreach ($path in @("app", ".alpackages", ".vscode", "app.json")) {
 
 Copy-Item -LiteralPath (Join-Path $repoRoot "app") -Destination (Join-Path $outputRoot "app") -Recurse -Force
 Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $outputRoot "app.json") -Force
+
+$rulesetPath = Join-Path $repoRoot "app.ruleset.json"
+if (Test-Path -LiteralPath $rulesetPath) {
+    Copy-Item -LiteralPath $rulesetPath -Destination (Join-Path $outputRoot "app.ruleset.json") -Force
+}
+
+$appSourceCopPath = Join-Path $repoRoot "AppSourceCop.json"
+if (Test-Path -LiteralPath $appSourceCopPath) {
+    Copy-Item -LiteralPath $appSourceCopPath -Destination (Join-Path $outputRoot "AppSourceCop.json") -Force
+}
 
 $packageCachePath = Join-Path $repoRoot ".alpackages"
 if (Test-Path -LiteralPath $packageCachePath) {
@@ -49,6 +59,12 @@ $launchPath = Join-Path $repoRoot ".vscode\launch.json"
 if ($Profile -eq "DevCloud" -and (Test-Path -LiteralPath $launchPath)) {
     New-Item -ItemType Directory -Path (Join-Path $outputRoot ".vscode") -Force | Out-Null
     Copy-Item -LiteralPath $launchPath -Destination (Join-Path $outputRoot ".vscode\launch.json") -Force
+}
+
+$settingsPath = Join-Path $repoRoot ".vscode\settings.json"
+if (Test-Path -LiteralPath $settingsPath) {
+    New-Item -ItemType Directory -Path (Join-Path $outputRoot ".vscode") -Force | Out-Null
+    Copy-Item -LiteralPath $settingsPath -Destination (Join-Path $outputRoot ".vscode\settings.json") -Force
 }
 
 Write-Host "Prepared build workspace:"

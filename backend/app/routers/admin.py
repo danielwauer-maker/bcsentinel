@@ -4,6 +4,7 @@ from io import StringIO
 from pathlib import Path
 from urllib.parse import quote_plus
 import csv
+from datetime import datetime, timedelta, timezone
 from email.mime.text import MIMEText
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
@@ -21,17 +22,31 @@ from app.models import (
     Invoice,
     IssueCostConfig,
     IssueImpactConfig,
-    LicensePricingConfig,
     Partner,
     PartnerApplication,
     PartnerCommission,
     PartnerReferral,
+    ProductPricingConfig,
     Scan,
     Subscription,
     Tenant,
+    TenantProductEntitlement,
+    TenantProductPurchase,
+    TenantScanCredit,
 )
 from app.services.cost_service import ensure_default_issue_costs
-from app.services.pricing_service import ensure_default_license_pricing
+from app.services.product_pricing_service import (
+    PRODUCT_PRICING_DEFAULTS,
+    ProductPricingValidationError,
+    ensure_default_product_pricing,
+    list_product_pricing,
+    validate_product_pricing_update,
+)
+from app.services.site_translation_service import (
+    SiteTranslationConfigError,
+    load_site_translation_groups,
+    update_site_translations,
+)
 from app.services.billing_service import utc_now
 from app.services.impact_service import ensure_default_impact_config, get_hourly_rate_eur
 from app.services.admin_audit_service import log_admin_event
@@ -43,8 +58,24 @@ from app.services.email_template_service import (
     update_email_template,
 )
 from app.services.partner_service import normalize_partner_code
+from app.services.product_license_service import (
+    PRODUCT_ASSESSMENT,
+    PRODUCT_DISPLAY_NAMES,
+    PRODUCT_MONITORING_ANNUAL,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_VALIDATION_CHECK,
+    MONITORING_PRODUCTS,
+    ONE_TIME_PRODUCTS,
+    active_entitlement_product_codes,
+    grant_product_entitlement,
+    grant_scan_credit,
+    build_license_snapshot,
+    normalize_product_code,
+    scan_credit_count,
+)
 from app.security.token_hash import hash_api_token
 from app.security.token import create_token
+from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token
 
 router = APIRouter(tags=["admin"])
 security = HTTPBasic()
@@ -57,6 +88,12 @@ ALLOWED_LICENSE_STATUSES = {"trial", "active", "expired", "blocked"}
 ALLOWED_COMMISSION_STATUSES = {"pending", "approved", "paid", "rejected"}
 ALLOWED_PARTNER_STATUSES = {"active", "inactive"}
 ALLOWED_PARTNER_APPLICATION_STATUSES = {"new", "reviewed", "accepted", "rejected"}
+ALLOWED_PRODUCT_GRANTS = {
+    PRODUCT_ASSESSMENT,
+    PRODUCT_VALIDATION_CHECK,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_MONITORING_ANNUAL,
+}
 ADMIN_SECTION_META = {
     "tenants": {
         "label": "Tenants",
@@ -69,9 +106,9 @@ ADMIN_SECTION_META = {
         "subtitle": "Estimated Loss & Potential Savings Konfiguration",
     },
     "license_pricing": {
-        "label": "License Pricing",
+        "label": "Product Pricing",
         "href": "/admin/config/license-pricing",
-        "subtitle": "Planpreise und Freemium-Konfiguration",
+        "subtitle": "Zentrale Produktpreise",
     },
     "partners": {
         "label": "Partners",
@@ -103,6 +140,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/email-templates",
         "subtitle": "Partner-Mails direkt im Admin anpassen",
     },
+    "site_translations": {
+        "label": "Uebersetzungen - bcsentinel.com",
+        "href": "/admin/config/site-translations",
+        "subtitle": "Landingpage- und Shared-Texte in DE/EN pflegen",
+    },
 }
 ADMIN_NAV_ORDER = [
     "tenants",
@@ -114,6 +156,7 @@ ADMIN_NAV_ORDER = [
     "payouts",
     "audit",
     "email_templates",
+    "site_translations",
 ]
 
 
@@ -137,7 +180,27 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)) -> str:
 def _fmt_dt(value) -> str:
     if value is None:
         return "—"
-    return value.strftime("%Y-%m-%d %H:%M:%S UTC")
+    return value.strftime("%d.%m.%Y %H:%M:%S")
+
+
+def _fmt_product_access_dates(product_access: dict) -> dict:
+    formatted = dict(product_access or {})
+    for key in [
+        "dashboard_access_until",
+        "issue_access_until",
+        "assessment_access_until",
+        "validation_access_until",
+        "monitoring_access_until",
+    ]:
+        raw = formatted.get(key)
+        if not raw:
+            continue
+        try:
+            parsed = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        formatted[key] = _fmt_dt(parsed)
+    return formatted
 
 
 def _fmt_money(value) -> str:
@@ -278,6 +341,8 @@ def _load_tenant_rows(db):
 
     for idx, tenant in enumerate(tenants, start=1):
         latest_subscription = latest_subscription_map.get(tenant.tenant_id)
+        license_snapshot = build_license_snapshot(db, tenant)
+        product_access = _fmt_product_access_dates(license_snapshot["product_access"])
         rows.append(
             {
                 "tenant_no": f"{idx:05d}",
@@ -286,8 +351,9 @@ def _load_tenant_rows(db):
                 "app_version": tenant.app_version,
                 "created_at": _fmt_dt(tenant.created_at_utc),
                 "last_seen_at": _fmt_dt(tenant.last_seen_at_utc),
-                "current_plan": tenant.current_plan,
-                "license_status": tenant.license_status,
+                "product_access": product_access["access_model"],
+                "monitoring_status": "active" if product_access["monitoring_active"] else "inactive",
+                "available_scan_credits": license_snapshot["scan_credits_available"],
                 "scan_count": scan_counts.get(tenant.tenant_id, 0),
                 "last_scan": _fmt_dt(last_scans.get(tenant.tenant_id)),
                 "billing_provider": latest_subscription.provider if latest_subscription else "—",
@@ -295,6 +361,120 @@ def _load_tenant_rows(db):
             }
         )
     return rows
+
+
+def _admin_tenant_redirect(tenant_id: str) -> RedirectResponse:
+    return RedirectResponse(
+        url=f"/admin/tenants/{tenant_id}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+def _load_tenant_or_404(db, tenant_id: str) -> Tenant:
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="Tenant not found.")
+    return tenant
+
+
+def _deactivate_entitlements(db, tenant_id: str, product_codes: set[str]) -> int:
+    now = utc_now()
+    rows = db.scalars(
+        select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant_id,
+            TenantProductEntitlement.status == "active",
+        )
+    ).all()
+    changed = 0
+    for row in rows:
+        if normalize_product_code(row.product_code) not in product_codes:
+            continue
+        row.status = "revoked"
+        row.valid_until_utc = now - timedelta(seconds=1)
+        row.updated_at_utc = now
+        changed += 1
+    return changed
+
+
+def _expire_one_time_sources(db, tenant_id: str, product_codes: set[str]) -> dict[str, int]:
+    now = utc_now()
+    expired_anchor = now - timedelta(days=8)
+    credit_count = 0
+    purchase_count = 0
+
+    credits = db.scalars(
+        select(TenantScanCredit).where(TenantScanCredit.tenant_id == tenant_id)
+    ).all()
+    for credit in credits:
+        if normalize_product_code(credit.product_code) not in product_codes:
+            continue
+        if credit.status == "available":
+            credit.status = "revoked"
+        credit.created_at_utc = expired_anchor
+        if credit.consumed_at_utc is not None:
+            credit.consumed_at_utc = expired_anchor
+        credit_count += 1
+
+    purchases = db.scalars(
+        select(TenantProductPurchase).where(TenantProductPurchase.tenant_id == tenant_id)
+    ).all()
+    for purchase in purchases:
+        if normalize_product_code(purchase.product_code) not in product_codes:
+            continue
+        if purchase.status in {"paid", "complete", "completed"}:
+            purchase.status = "expired"
+            purchase.updated_at_utc = now
+            purchase_count += 1
+
+    return {"credits": credit_count, "purchases": purchase_count}
+
+
+def _disable_monitoring_sources(db, tenant: Tenant) -> dict[str, int]:
+    now = utc_now()
+    monitoring_products = set(MONITORING_PRODUCTS)
+    entitlements = _deactivate_entitlements(db, tenant.tenant_id, monitoring_products)
+    subscriptions_changed = 0
+    subscriptions = db.scalars(
+        select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
+    ).all()
+    for subscription in subscriptions:
+        if normalize_product_code(subscription.plan_code) not in monitoring_products:
+            continue
+        if (subscription.status or "").strip().lower() in {"trialing", "active"}:
+            subscription.status = "canceled"
+            subscription.cancel_at_period_end = True
+            subscription.canceled_at_utc = now
+            subscription.updated_at_utc = now
+            subscriptions_changed += 1
+
+    if normalize_product_code(tenant.current_plan) in monitoring_products:
+        tenant.current_plan = "free"
+        tenant.license_status = "expired"
+
+    return {"entitlements": entitlements, "subscriptions": subscriptions_changed}
+
+
+def _grant_monitoring(db, tenant: Tenant, product_code: str) -> TenantProductEntitlement:
+    entitlement = grant_product_entitlement(
+        db,
+        tenant_id=tenant.tenant_id,
+        product_code=product_code,
+        source="admin_manual",
+    )
+    tenant.current_plan = "premium"
+    tenant.license_status = "active"
+    return entitlement
+
+
+def _extend_one_time_access(db, tenant_id: str, days: int) -> TenantProductEntitlement:
+    now = utc_now()
+    return grant_product_entitlement(
+        db,
+        tenant_id=tenant_id,
+        product_code=PRODUCT_ASSESSMENT,
+        source="admin_access_window",
+        valid_until_utc=now + timedelta(days=days),
+    )
 
 
 def _load_partner_payout_rows(db):
@@ -417,12 +597,17 @@ def _render_admin_page(
             "status": (request.query_params.get("email_template_status") or "").strip().lower(),
             "message": (request.query_params.get("email_template_message") or "").strip(),
         },
+        "site_translation_flash": {
+            "status": (request.query_params.get("site_translation_status") or "").strip().lower(),
+            "message": (request.query_params.get("site_translation_message") or "").strip(),
+        },
+        "csrf_token": create_csrf_token(settings.SECRET_KEY),
     }
 
     with SessionLocal() as db:
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
-        ensure_default_license_pricing(db)
+        ensure_default_product_pricing(db)
 
         if active_section == "tenants":
             context["tenants"] = _load_tenant_rows(db)
@@ -432,9 +617,8 @@ def _render_admin_page(
                 select(IssueImpactConfig).order_by(IssueImpactConfig.code.asc())
             ).all()
         elif active_section == "license_pricing":
-            context["license_prices"] = db.scalars(
-                select(LicensePricingConfig).order_by(LicensePricingConfig.plan_code.asc())
-            ).all()
+            context["product_prices"] = list_product_pricing(db)
+            context["product_price_defaults"] = PRODUCT_PRICING_DEFAULTS
         elif active_section == "partners":
             context["partners"] = db.scalars(
                 select(Partner).order_by(Partner.created_at_utc.desc(), Partner.id.desc())
@@ -457,11 +641,29 @@ def _render_admin_page(
             ).all()
         elif active_section == "email_templates":
             context["email_templates"] = list_email_templates_for_admin(db)
+        elif active_section == "site_translations":
+            try:
+                context["site_translation_groups"] = load_site_translation_groups()
+            except SiteTranslationConfigError as exc:
+                context["site_translation_groups"] = []
+                context["site_translation_error"] = {
+                    "message": str(exc),
+                    "details": exc.details,
+                }
 
-        return TEMPLATES.TemplateResponse(
+        response = TEMPLATES.TemplateResponse(
             name="admin_tenants.html",
             context=context,
         )
+        response.set_cookie(
+            CSRF_COOKIE_NAME,
+            context["csrf_token"],
+            httponly=True,
+            secure=settings.ENV.lower() == "prod",
+            samesite="strict",
+            path="/admin",
+        )
+        return response
 
 
 @router.get("/admin", response_class=HTMLResponse)
@@ -523,6 +725,12 @@ def admin_email_templates(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="email_templates")
 
 
+@router.get("/admin/config/site-translations", response_class=HTMLResponse)
+@router.get("/admin/config/site-translations/", response_class=HTMLResponse)
+def admin_site_translations(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="site_translations")
+
+
 @router.get("/admin/tenants/{tenant_id}", response_class=HTMLResponse)
 @router.get("/admin/tenants/{tenant_id}/", response_class=HTMLResponse)
 def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(require_admin)):
@@ -574,6 +782,24 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
             .order_by(PartnerCommission.created_at_utc.desc(), PartnerCommission.id.desc())
             .limit(20)
         ).all()
+        product_purchases = db.scalars(
+            select(TenantProductPurchase)
+            .where(TenantProductPurchase.tenant_id == tenant_id)
+            .order_by(TenantProductPurchase.created_at_utc.desc(), TenantProductPurchase.id.desc())
+            .limit(20)
+        ).all()
+        scan_credits = db.scalars(
+            select(TenantScanCredit)
+            .where(TenantScanCredit.tenant_id == tenant_id)
+            .order_by(TenantScanCredit.created_at_utc.desc(), TenantScanCredit.id.desc())
+            .limit(20)
+        ).all()
+        product_entitlements = db.scalars(
+            select(TenantProductEntitlement)
+            .where(TenantProductEntitlement.tenant_id == tenant_id)
+            .order_by(TenantProductEntitlement.created_at_utc.desc(), TenantProductEntitlement.id.desc())
+            .limit(20)
+        ).all()
 
         tenant_rows = _load_tenant_rows(db)
         tenant_no = next(
@@ -581,7 +807,17 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
             "—",
         )
 
-        return TEMPLATES.TemplateResponse(
+        csrf_token = create_csrf_token(settings.SECRET_KEY)
+        license_snapshot = build_license_snapshot(db, tenant)
+        product_access = _fmt_product_access_dates(license_snapshot["product_access"])
+        active_product_codes = active_entitlement_product_codes(db, tenant_id)
+        if product_access["assessment_access_active"]:
+            active_product_codes = sorted(set(active_product_codes + [PRODUCT_ASSESSMENT]))
+        if product_access["validation_access_active"]:
+            active_product_codes = sorted(set(active_product_codes + [PRODUCT_VALIDATION_CHECK]))
+        if product_access["monitoring_active"] and not set(active_product_codes).intersection(MONITORING_PRODUCTS):
+            active_product_codes = sorted(set(active_product_codes + [PRODUCT_MONITORING_MONTHLY]))
+        response = TEMPLATES.TemplateResponse(
             name="admin_tenant_detail.html",
             context={
                 "request": request,
@@ -603,11 +839,42 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
                 "partner_referral": partner_referral,
                 "partner": partner,
                 "partner_commissions": partner_commissions,
+                "product_purchases": product_purchases,
+                "scan_credits": scan_credits,
+                "product_entitlements": product_entitlements,
+                "available_scan_credits": scan_credit_count(db, tenant_id),
+                "active_product_codes": active_product_codes,
+                "active_products_for_admin": [
+                    {"code": code, "label": PRODUCT_DISPLAY_NAMES.get(code, code)}
+                    for code in active_product_codes
+                ],
+                "license_snapshot": license_snapshot,
+                "product_access": product_access,
+                "is_dev_environment": (settings.ENV or "").strip().lower() != "prod",
+                "product_grant_options": [
+                    {"code": code, "label": PRODUCT_DISPLAY_NAMES.get(code, code)}
+                    for code in [
+                        PRODUCT_ASSESSMENT,
+                        PRODUCT_VALIDATION_CHECK,
+                        PRODUCT_MONITORING_MONTHLY,
+                        PRODUCT_MONITORING_ANNUAL,
+                    ]
+                ],
                 "commission_statuses": sorted(ALLOWED_COMMISSION_STATUSES),
                 "fmt_dt": _fmt_dt,
                 "fmt_money": _fmt_money,
+                "csrf_token": csrf_token,
             },
         )
+        response.set_cookie(
+            CSRF_COOKIE_NAME,
+            csrf_token,
+            httponly=True,
+            secure=settings.ENV.lower() == "prod",
+            samesite="strict",
+            path="/admin",
+        )
+        return response
 
 
 @router.post("/admin/tenants/{tenant_id}/license")
@@ -654,6 +921,309 @@ def update_tenant_license(
         url=f"/admin/tenants/{tenant_id}",
         status_code=status.HTTP_303_SEE_OTHER,
     )
+
+
+@router.post("/admin/tenant/{tenant_id}/grant-product")
+@router.post("/admin/tenants/{tenant_id}/product-grant")
+def grant_tenant_product(
+    tenant_id: str,
+    product_code: str = Form(...),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_product_code = normalize_product_code(product_code)
+    if normalized_product_code not in ALLOWED_PRODUCT_GRANTS:
+        raise HTTPException(status_code=400, detail="Invalid product_code.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+
+        if normalized_product_code in {PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK}:
+            grant_scan_credit(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_manual",
+            )
+            action = "tenant.scan_credit.grant"
+        else:
+            _grant_monitoring(db, tenant, normalized_product_code)
+            action = "tenant.product_entitlement.grant"
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action=action,
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"product_code": normalized_product_code},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/revoke-product")
+def revoke_tenant_product(
+    tenant_id: str,
+    product_code: str = Form(...),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_product_code = normalize_product_code(product_code)
+    if normalized_product_code not in ALLOWED_PRODUCT_GRANTS:
+        raise HTTPException(status_code=400, detail="Invalid product_code.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        details = {"product_code": normalized_product_code}
+
+        if normalized_product_code in ONE_TIME_PRODUCTS:
+            details.update(_expire_one_time_sources(db, tenant.tenant_id, {normalized_product_code}))
+            details["entitlements"] = _deactivate_entitlements(db, tenant.tenant_id, {normalized_product_code})
+        else:
+            details.update(_disable_monitoring_sources(db, tenant))
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.product.revoke",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details=details,
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/add-credit")
+def add_tenant_scan_credit(
+    tenant_id: str,
+    count: int = Form(1),
+    product_code: str = Form(PRODUCT_ASSESSMENT),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_count = max(1, min(int(count or 1), 100))
+    normalized_product_code = normalize_product_code(product_code)
+    if normalized_product_code not in ONE_TIME_PRODUCTS:
+        raise HTTPException(status_code=400, detail="Credits require assessment or validation_check product_code.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        for _ in range(normalized_count):
+            grant_scan_credit(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_credit_adjustment",
+            )
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.scan_credit.add",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"count": normalized_count, "product_code": normalized_product_code},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/remove-credit")
+def remove_tenant_scan_credit(
+    tenant_id: str,
+    count: int = Form(1),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_count = max(1, min(int(count or 1), 100))
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        credits = db.scalars(
+            select(TenantScanCredit)
+            .where(TenantScanCredit.tenant_id == tenant.tenant_id, TenantScanCredit.status == "available")
+            .order_by(TenantScanCredit.created_at_utc.desc(), TenantScanCredit.id.desc())
+            .limit(normalized_count)
+        ).all()
+        removed = 0
+        for credit in credits:
+            credit.status = "revoked"
+            removed += 1
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.scan_credit.remove",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"requested": normalized_count, "removed": removed},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/reset-credits")
+def reset_tenant_scan_credits(tenant_id: str, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        credits = db.scalars(
+            select(TenantScanCredit).where(
+                TenantScanCredit.tenant_id == tenant.tenant_id,
+                TenantScanCredit.status == "available",
+            )
+        ).all()
+        for credit in credits:
+            credit.status = "revoked"
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.scan_credit.reset",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"revoked": len(credits)},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/extend-access")
+def extend_tenant_access(
+    tenant_id: str,
+    days: int = Form(7),
+    action_value: str | None = Form(default=None),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_action = (action_value or "").strip().lower()
+    normalized_days = max(1, min(int(days or 7), 365))
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        if normalized_action == "expire":
+            details = _expire_one_time_sources(db, tenant.tenant_id, set(ONE_TIME_PRODUCTS))
+            details["entitlements"] = _deactivate_entitlements(db, tenant.tenant_id, set(ONE_TIME_PRODUCTS))
+            action_name = "tenant.access.expire"
+        else:
+            entitlement = _extend_one_time_access(db, tenant.tenant_id, normalized_days)
+            details = {
+                "days": normalized_days,
+                "valid_until_utc": entitlement.valid_until_utc.isoformat() if entitlement.valid_until_utc else None,
+            }
+            action_name = "tenant.access.extend"
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action=action_name,
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details=details,
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/enable-monitoring")
+def enable_tenant_monitoring(
+    tenant_id: str,
+    product_code: str = Form(PRODUCT_MONITORING_MONTHLY),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_product_code = normalize_product_code(product_code)
+    if normalized_product_code not in {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}:
+        raise HTTPException(status_code=400, detail="Invalid monitoring product_code.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        _grant_monitoring(db, tenant, normalized_product_code)
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.monitoring.enable",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"product_code": normalized_product_code},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/disable-monitoring")
+def disable_tenant_monitoring(tenant_id: str, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        details = _disable_monitoring_sources(db, tenant)
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.monitoring.disable",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details=details,
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/reset-licensing")
+def reset_tenant_licensing(tenant_id: str, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        one_time_details = _expire_one_time_sources(db, tenant.tenant_id, set(ONE_TIME_PRODUCTS))
+        monitoring_details = _disable_monitoring_sources(db, tenant)
+        entitlements = db.scalars(
+            select(TenantProductEntitlement).where(
+                TenantProductEntitlement.tenant_id == tenant.tenant_id,
+                TenantProductEntitlement.status == "active",
+            )
+        ).all()
+        now = utc_now()
+        for entitlement in entitlements:
+            entitlement.status = "revoked"
+            entitlement.valid_until_utc = now - timedelta(seconds=1)
+            entitlement.updated_at_utc = now
+        tenant.current_plan = "free"
+        tenant.license_status = "expired"
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.product_licensing.reset",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={
+                "one_time": one_time_details,
+                "monitoring": monitoring_details,
+                "entitlements": len(entitlements),
+            },
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
+
+
+@router.post("/admin/tenant/{tenant_id}/reset-registration")
+def reset_tenant_registration(tenant_id: str, admin_username: str = Depends(require_admin)):
+    if (settings.ENV or "").strip().lower() == "prod":
+        raise HTTPException(status_code=403, detail="Reset registration is disabled in production.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        tenant.api_token = None
+        tenant.api_token_hash = None
+        tenant.last_seen_at_utc = None
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="tenant.registration.reset",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={"env": settings.ENV},
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
 
 
 @router.post("/admin/tenants/{tenant_id}/delete")
@@ -763,49 +1333,64 @@ def update_issue_cost(
     return RedirectResponse(url="/admin/config/issue-costs", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.post("/admin/config/license-pricing/{plan_code}")
-def update_license_pricing(
-    plan_code: str,
+@router.post("/admin/config/product-pricing/{product_key}")
+def update_product_pricing(
+    product_key: str,
     display_name: str = Form(...),
-    base_price_monthly: float = Form(...),
-    included_records: int = Form(...),
-    additional_price_per_1000_records: float = Form(...),
+    price_cents: int = Form(...),
+    currency: str = Form(...),
+    billing_interval: str = Form(...),
     is_active: str | None = Form(default=None),
     admin_username: str = Depends(require_admin),
 ):
-    with SessionLocal() as db:
-        ensure_default_license_pricing(db)
+    normalized_key = (product_key or "").strip().lower()
+    normalized_currency = (currency or "").strip().upper()
+    normalized_interval = (billing_interval or "").strip().lower()
+    normalized_display_name = (display_name or "").strip()
+    try:
+        validate_product_pricing_update(
+            product_key=normalized_key,
+            display_name=normalized_display_name,
+            price_cents=int(price_cents),
+            currency=normalized_currency,
+            billing_interval=normalized_interval,
+        )
+    except (TypeError, ValueError, ProductPricingValidationError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc) or "Invalid product pricing update.") from exc
 
-        row = db.get(LicensePricingConfig, plan_code)
+    with SessionLocal() as db:
+        ensure_default_product_pricing(db)
+        row = db.get(ProductPricingConfig, normalized_key)
         if row is None:
-            row = LicensePricingConfig(plan_code=plan_code)
+            row = ProductPricingConfig(product_key=normalized_key, updated_at_utc=utc_now())
             db.add(row)
 
         before = {
             "display_name": row.display_name,
-            "base_price_monthly": float(row.base_price_monthly or 0.0),
-            "included_records": int(row.included_records or 0),
-            "additional_price_per_1000_records": float(row.additional_price_per_1000_records or 0.0),
+            "price_cents": int(row.price_cents or 0),
+            "currency": row.currency,
+            "billing_interval": row.billing_interval,
             "is_active": bool(row.is_active),
         }
-        row.display_name = display_name.strip()
-        row.base_price_monthly = float(base_price_monthly)
-        row.included_records = int(included_records)
-        row.additional_price_per_1000_records = float(additional_price_per_1000_records)
+        row.display_name = normalized_display_name
+        row.price_cents = int(price_cents)
+        row.currency = normalized_currency
+        row.billing_interval = normalized_interval
         row.is_active = is_active == "on"
+        row.updated_at_utc = utc_now()
         log_admin_event(
             db,
             admin_username=admin_username,
-            action="config.license_pricing.update",
-            target_type="license_pricing_config",
-            target_id=plan_code,
+            action="config.product_pricing.update",
+            target_type="product_pricing_config",
+            target_id=normalized_key,
             details={
                 "before": before,
                 "after": {
                     "display_name": row.display_name,
-                    "base_price_monthly": float(row.base_price_monthly),
-                    "included_records": int(row.included_records),
-                    "additional_price_per_1000_records": float(row.additional_price_per_1000_records),
+                    "price_cents": int(row.price_cents),
+                    "currency": row.currency,
+                    "billing_interval": row.billing_interval,
                     "is_active": bool(row.is_active),
                 },
             },
@@ -848,6 +1433,50 @@ def update_admin_email_template(
         db.commit()
 
     return RedirectResponse(url="/admin/config/email-templates", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/admin/config/site-translations")
+def update_admin_site_translations(
+    keys: list[str] = Form(default=[]),
+    de_values: list[str] = Form(default=[]),
+    en_values: list[str] = Form(default=[]),
+    admin_username: str = Depends(require_admin),
+):
+    try:
+        result = update_site_translations(keys, de_values, en_values)
+    except (SiteTranslationConfigError, ValueError) as exc:
+        details = getattr(exc, "details", None)
+        message = str(exc)
+        if details:
+            message = f"{message} {details}"
+        return RedirectResponse(
+            url="/admin/config/site-translations?site_translation_status=error&site_translation_message="
+            + quote_plus(message),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    changed_keys = result["changed_keys"]
+    with SessionLocal() as db:
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="update_site_translation",
+            target_type="site_translation",
+            target_id="bcsentinel.com",
+            details={
+                "changed_count": result["changed_count"],
+                "changed_keys": changed_keys[:100],
+                "truncated": len(changed_keys) > 100,
+            },
+        )
+        db.commit()
+
+    message = f"{result['changed_count']} Translation Keys gespeichert."
+    return RedirectResponse(
+        url="/admin/config/site-translations?site_translation_status=success&site_translation_message="
+        + quote_plus(message),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.post("/admin/config/email-templates/{template_key}/test-send")

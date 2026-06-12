@@ -1,4 +1,4 @@
-page 53138 "DH Blocked Items Inv"
+﻿page 53138 "DH Blocked Items Inv"
 {
     PageType = List;
     SourceTable = Item;
@@ -18,22 +18,27 @@ page 53138 "DH Blocked Items Inv"
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
+                    ToolTip = 'Specifies Item No..';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Description.';
                 }
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Inventory.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Blocked.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Unit Cost.';
                 }
             }
         }
@@ -46,6 +51,7 @@ page 53138 "DH Blocked Items Inv"
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
+                ToolTip = 'Runs Exclude from Analysis.';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -60,6 +66,7 @@ page 53138 "DH Blocked Items Inv"
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -75,6 +82,7 @@ page 53138 "DH Blocked Items Inv"
             action(OpenItemCard)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -86,3 +94,4 @@ page 53138 "DH Blocked Items Inv"
         }
     }
 }
+

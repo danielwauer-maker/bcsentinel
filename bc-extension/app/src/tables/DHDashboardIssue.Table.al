@@ -44,7 +44,7 @@ table 53133 "DH Dashboard Issue"
         }
         field(10; "Premium Only"; Boolean)
         {
-            Caption = 'Premium';
+            Caption = 'Paid Access';
         }
         field(11; "Severity Sort Order"; Integer)
         {

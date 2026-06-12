@@ -1,4 +1,4 @@
-page 53124 "DH Dashboard List"
+﻿page 53124 "DH Dashboard List"
 {
     PageType = List;
     SourceTable = "DH Scan Header";
@@ -21,56 +21,66 @@ page 53124 "DH Dashboard List"
                 {
                     ApplicationArea = All;
                     Caption = 'Run ID';
+                    ToolTip = 'Specifies Run ID.';
                 }
 
                 field("Scan Type"; Rec."Scan Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Scan Type.';
                 }
 
                 field("Scan DateTime"; Rec."Scan DateTime")
                 {
                     ApplicationArea = All;
                     Caption = 'Scan Date';
+                    ToolTip = 'Specifies Scan Date.';
                 }
 
                 field("Data Score"; Rec."Data Score")
                 {
                     ApplicationArea = All;
                     Caption = 'Score';
+                    ToolTip = 'Specifies Score.';
                 }
 
                 field("Checks Count"; Rec."Checks Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Checks Count.';
                 }
 
                 field("Issues Count"; Rec."Issues Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issues Count.';
                 }
 
                 field("Est. Premium Price"; Rec."Est. Premium Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium €/Month';
+                    Caption = 'Monitoring EUR/Month';
+                    ToolTip = 'Specifies Monitoring EUR/Month.';
                 }
 
                 field("Est. Loss"; Rec."Estimated Loss (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Loss €';
+                    Caption = 'Loss EUR';
+                    ToolTip = 'Specifies Loss EUR.';
                 }
 
                 field("ROI"; Rec."ROI")
                 {
                     ApplicationArea = All;
-                    Caption = 'ROI €';
+                    Caption = 'ROI EUR';
+                    ToolTip = 'Specifies ROI EUR.';
                 }
 
                 field("Headline"; Rec."Headline")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Headline.';
                 }
             }
         }
@@ -83,6 +93,7 @@ page 53124 "DH Dashboard List"
             action(OpenDashboardCard)
             {
                 Caption = 'Open Dashboard';
+                ToolTip = 'Runs Open Dashboard.';
                 ApplicationArea = All;
                 Image = Navigate;
 
@@ -95,6 +106,7 @@ page 53124 "DH Dashboard List"
             action(RunQuickScan)
             {
                 Caption = 'Run Scan';
+                ToolTip = 'Runs Run Scan.';
                 ApplicationArea = All;
                 Image = Calculate;
 
@@ -114,6 +126,7 @@ page 53124 "DH Dashboard List"
             action(DeleteSelectedDashboard)
             {
                 Caption = 'Delete Selected Dashboard';
+                ToolTip = 'Runs Delete Selected Dashboard.';
                 ApplicationArea = All;
                 Image = Delete;
 
@@ -130,7 +143,7 @@ page 53124 "DH Dashboard List"
                         BackendDeleteId := GetBackendDeleteId();
 
                         if Setup.Get('SETUP') then
-                            if (Setup."Tenant ID" <> '') and (Setup."API Token" <> '') and (BackendDeleteId <> '') then
+                            if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
                                 ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
                         Rec.Delete(true);
@@ -142,6 +155,7 @@ page 53124 "DH Dashboard List"
             action(ReconcileScanHistory)
             {
                 Caption = 'Reconcile Scan History';
+                ToolTip = 'Runs Reconcile Scan History.';
                 ApplicationArea = All;
                 Image = RefreshLines;
 
@@ -165,6 +179,7 @@ page 53124 "DH Dashboard List"
             action(OpenSetup)
             {
                 Caption = 'Open Setup';
+                ToolTip = 'Runs Open Setup.';
                 ApplicationArea = All;
                 Image = Setup;
                 RunObject = page "DH Setup";
@@ -172,10 +187,10 @@ page 53124 "DH Dashboard List"
 
             action(UpgradeToPremium)
             {
-                Caption = 'Upgrade to Premium';
+                Caption = 'Start Monitoring';
                 ApplicationArea = All;
                 Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+                ToolTip = 'Open the secure BCSentinel checkout for Monitoring Monthly.';
 
                 trigger OnAction()
                 var
@@ -186,11 +201,11 @@ page 53124 "DH Dashboard List"
                         Error('Setup not found.');
 
                     if Setup."Premium Enabled" then begin
-                        Message('Premium is already enabled.');
+                        Message('Paid scan access is already enabled.');
                         exit;
                     end;
 
-                    ApiClient.OpenPremiumCheckout(Setup);
+                    ApiClient.OpenProductCheckout(Setup, 'monitoring_monthly');
                 end;
             }
         }
@@ -231,4 +246,12 @@ page 53124 "DH Dashboard List"
 
         exit(Rec.GetDisplayRunId());
     end;
+
+    local procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Setup));
+    end;
 }
+

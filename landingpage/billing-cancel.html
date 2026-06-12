@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment cancelled | BCSentinel</title>
+  <title data-i18n="billing_cancel_meta_title">Payment cancelled | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,37 +52,23 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="index.html">
-        <span class="brand-mark"><img src="logo-bcsentinel.png" alt="BCSentinel Logo"></span>
-        <span class="brand-copy"><strong>BCSentinel</strong><span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span></span>
-      </a>
-      <div class="nav-actions">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">🌓</button>
-        <div class="lang-switch" aria-label="Language switcher">
-          <button class="lang-btn active" data-lang="de" type="button" aria-label="Deutsch" title="Deutsch">🇩🇪</button>
-          <button class="lang-btn" data-lang="en" type="button" aria-label="English" title="English">🇬🇧</button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <header class="site-header"></header>
 
   <main class="wrap">
     <div class="container">
       <div class="card">
-        <div class="icon">⚠</div>
+        <div class="icon">EUR</div>
         <h1 data-i18n="title">Zahlung abgebrochen</h1>
-        <p data-i18n="lead">Deine Zahlung wurde nicht abgeschlossen – das ist aber kein Problem. Dein Account bleibt bestehen und du kannst jederzeit erneut upgraden.</p>
+        <p data-i18n="lead">Deine Zahlung wurde nicht abgeschlossen - das ist kein Problem. Dein Account bleibt bestehen und du kannst jederzeit erneut kaufen.</p>
         <div class="box">
-          <strong data-i18n="box_title">Warum könnte das passiert sein?</strong>
-          <p style="margin-top:10px;" data-i18n="box_text">Die Zahlung wurde abgebrochen, die Kartenprüfung ist fehlgeschlagen oder das Checkout-Fenster wurde geschlossen. Du kannst den Vorgang jederzeit erneut starten.</p>
+          <strong data-i18n="box_title">Warum koennte das passiert sein?</strong>
+          <p style="margin-top:10px;" data-i18n="box_text">Die Zahlung wurde abgebrochen, die Kartenpruefung ist fehlgeschlagen oder das Checkout-Fenster wurde geschlossen. Du koennst den Vorgang jederzeit erneut starten.</p>
         </div>
         <div class="actions">
           <a href="/#pricing" class="btn btn-primary" data-i18n="retry_btn">Erneut versuchen</a>
           <a href="/" class="btn btn-secondary" data-i18n="home_btn">Zur Startseite</a>
         </div>
-        <div class="hint" data-i18n="hint">Tipp: Deine bisherigen Scans bleiben erhalten – du kannst jederzeit später upgraden.</div>
+        <div class="hint" data-i18n="hint">Tipp: Deine bisherigen Scans bleiben erhalten - du kannst jederzeit spaeter kaufen.</div>
       </div>
     </div>
   </main>
@@ -92,18 +78,21 @@
     const THEME_KEY = 'bcsentinel-theme';
     const html = document.documentElement;
     const tr = {
-      de: {brand_sub:'Data Quality & Business Impact für Business Central', title:'Zahlung abgebrochen', lead:'Deine Zahlung wurde nicht abgeschlossen – das ist aber kein Problem. Dein Account bleibt bestehen und du kannst jederzeit erneut upgraden.', box_title:'Warum könnte das passiert sein?', box_text:'Die Zahlung wurde abgebrochen, die Kartenprüfung ist fehlgeschlagen oder das Checkout-Fenster wurde geschlossen. Du kannst den Vorgang jederzeit erneut starten.', retry_btn:'Erneut versuchen', home_btn:'Zur Startseite', hint:'Tipp: Deine bisherigen Scans bleiben erhalten – du kannst jederzeit später upgraden.'},
-      en: {brand_sub:'Data Quality & Business Impact for Business Central', title:'Payment cancelled', lead:'Your payment was not completed — but that is no problem. Your account remains available and you can upgrade again at any time.', box_title:'Why could this have happened?', box_text:'The payment was cancelled, card verification failed, or the checkout window was closed. You can start the upgrade again whenever you want.', retry_btn:'Try again', home_btn:'Back to homepage', hint:'Tip: Your previous scans remain available — you can upgrade later at any time.'}
+      de: {brand_sub:'Data Quality & Business Impact for Business Central', title:'Zahlung abgebrochen', lead:'Deine Zahlung wurde nicht abgeschlossen - das ist kein Problem. Dein Account bleibt bestehen und du kannst jederzeit erneut kaufen.', box_title:'Warum koennte das passiert sein?', box_text:'Die Zahlung wurde abgebrochen, die Kartenpruefung ist fehlgeschlagen oder das Checkout-Fenster wurde geschlossen. Du kannst den Vorgang jederzeit erneut starten.', retry_btn:'Erneut versuchen', home_btn:'Zur Startseite', hint:'Tipp: Deine bisherigen Scans bleiben erhalten - du kannst jederzeit spaeter kaufen.'},
+      en: {brand_sub:'Data Quality & Business Impact for Business Central', title:'Payment cancelled', lead:'Your payment was not completed - but that is no problem. Your account remains available and you can purchase again at any time.', box_title:'Why could this have happened?', box_text:'The payment was cancelled, card verification failed, or the checkout window was closed. You can start the purchase again whenever you want.', retry_btn:'Try again', home_btn:'Back to homepage', hint:'Tip: Your previous scans remain available - you can purchase later at any time.'}
     };
     const langButtons = document.querySelectorAll('.lang-btn');
     const themeToggle = document.getElementById('themeToggle');
     function getLang(){ try { return localStorage.getItem(LANG_KEY)==='en' ? 'en' : 'de'; } catch(e){ return 'de'; } }
-    function applyTranslations(lang){ const selected = tr[lang] ? lang : 'de'; html.lang = selected; document.querySelectorAll('[data-i18n]').forEach((el)=>{ const key=el.getAttribute('data-i18n'); if (tr[selected][key]) el.textContent = tr[selected][key]; }); langButtons.forEach((btn)=>btn.classList.toggle('active', btn.dataset.lang===selected)); document.title = selected==='de' ? 'Zahlung abgebrochen – BCSentinel' : 'Payment cancelled – BCSentinel'; try { localStorage.setItem(LANG_KEY, selected); } catch(e){} }
+    function applyTranslations(lang){ const selected = tr[lang] ? lang : 'de'; html.lang = selected; document.querySelectorAll('[data-i18n]').forEach((el)=>{ const key=el.getAttribute('data-i18n'); if (tr[selected][key]) el.textContent = tr[selected][key]; }); langButtons.forEach((btn)=>btn.classList.toggle('active', btn.dataset.lang===selected)); document.title = selected==='de' ? 'Zahlung abgebrochen - BCSentinel' : 'Payment cancelled - BCSentinel'; try { localStorage.setItem(LANG_KEY, selected); } catch(e){} }
     function getTheme(){ try { const saved = localStorage.getItem(THEME_KEY); return saved === 'light' || saved === 'dark' ? saved : 'dark'; } catch(e){ return 'dark'; } }
-    function applyTheme(theme){ const selected = theme === 'light' ? 'light' : 'dark'; html.setAttribute('data-theme', selected); themeToggle.textContent = selected === 'dark' ? '☀' : '☾'; try { localStorage.setItem(THEME_KEY, selected); } catch(e){} }
+    function applyTheme(theme){ const selected = theme === 'light' ? 'light' : 'dark'; html.setAttribute('data-theme', selected); if (themeToggle) themeToggle.textContent = selected === 'dark' ? '?' : '?'; try { localStorage.setItem(THEME_KEY, selected); } catch(e){} }
     langButtons.forEach((btn)=>btn.addEventListener('click', ()=>applyTranslations(btn.dataset.lang)));
-    themeToggle.addEventListener('click', ()=>applyTheme(getTheme()==='light' ? 'dark' : 'light'));
+    if (themeToggle) themeToggle.addEventListener('click', ()=>applyTheme(getTheme()==='light' ? 'dark' : 'light'));
     applyTheme(getTheme()); applyTranslations(getLang());
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>
+

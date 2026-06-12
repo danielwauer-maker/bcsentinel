@@ -1,4 +1,4 @@
-page 53135 "DH Dashboard Issues"
+﻿page 53135 "DH Dashboard Issues"
 {
     PageType = ListPart;
     SourceTable = "DH Dashboard Issue";
@@ -23,12 +23,14 @@ page 53135 "DH Dashboard Issues"
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Severity.';
                     StyleExpr = SeverityStyle;
                 }
 
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Title.';
 
                     trigger OnDrillDown()
                     var
@@ -42,6 +44,7 @@ page 53135 "DH Dashboard Issues"
                 {
                     ApplicationArea = All;
                     Caption = 'Count';
+                    ToolTip = 'Specifies Count.';
 
                     trigger OnDrillDown()
                     var
@@ -54,13 +57,15 @@ page 53135 "DH Dashboard Issues"
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact €';
+                    Caption = 'Impact EUR';
+                    ToolTip = 'Specifies Impact EUR.';
                 }
 
                 field("Recommendation Review"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
                     Caption = 'Recommendation';
+                    ToolTip = 'Specifies Recommendation.';
                     Visible = ShowPremiumDetails;
                 }
 
@@ -68,6 +73,7 @@ page 53135 "DH Dashboard Issues"
                 {
                     ApplicationArea = All;
                     Caption = 'Access';
+                    ToolTip = 'Specifies Access.';
                 }
 
                 /*field("Issue Code"; Rec."Issue Code")
@@ -156,7 +162,7 @@ page 53135 "DH Dashboard Issues"
         Setup: Record "DH Setup";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Upgrade to Premium for detailed insights';
+        AccessText := 'Buy Assessment for detailed insights';
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
@@ -176,3 +182,4 @@ page 53135 "DH Dashboard Issues"
         CurrPage.Update(false);
     end;
 }
+

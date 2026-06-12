@@ -117,7 +117,7 @@
                 emptyState.innerHTML = `
                     <div class="dhm-analytics-empty-box">
                         <div class="dhm-analytics-empty-title">Keine Analytics-URL konfiguriert</div>
-                        <div class="dhm-analytics-empty-text">Bitte prüfe die BaseUrl in der AL-Page.</div>
+                        <div class="dhm-analytics-empty-text">Please check the analytics setup.</div>
                     </div>
                 `;
                 return;
@@ -127,7 +127,7 @@
             emptyState.innerHTML = `
                 <div class="dhm-analytics-empty-box">
                     <div class="dhm-analytics-empty-title">Dashboard wird geladen ...</div>
-                    <div class="dhm-analytics-empty-text">${escapeHtml(pendingUrl)}</div>
+                    <div class="dhm-analytics-empty-text">Preparing secure dashboard session.</div>
                 </div>
             `;
 

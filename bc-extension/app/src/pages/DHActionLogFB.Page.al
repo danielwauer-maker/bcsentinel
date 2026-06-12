@@ -1,4 +1,4 @@
-page 53155 "DH Action Log FB"
+﻿page 53155 "DH Action Log FB"
 {
     PageType = ListPart;
     SourceTable = "DH Issue Action Log";
@@ -16,20 +16,25 @@ page 53155 "DH Action Log FB"
                 field("Action At"; Rec."Action At")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Action At.';
                 }
                 field("Action Type"; Rec."Action Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Action Type.';
                 }
                 field("Issue Code"; Rec."Issue Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Code.';
                 }
                 field("Action User"; Rec."Action User")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Action User.';
                 }
             }
         }
     }
 }
+

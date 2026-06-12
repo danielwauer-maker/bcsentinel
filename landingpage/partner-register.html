@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner Registration | BCSentinel</title>
+  <title data-i18n="partner_register_meta_title">Partner Registration | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <style>
     :root {
@@ -55,6 +55,8 @@
     @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
     label { display:grid; gap:6px; color: var(--muted); font-size: .92rem; }
     input, textarea {
+      width:100%;
+      min-height:46px;
       border-radius: 12px;
       border:1px solid var(--line);
       padding: 10px 12px;
@@ -82,6 +84,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <a href="index.html"><strong>BCSentinel Partner</strong></a>
     <div class="actions">
@@ -91,7 +94,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="partner-register" class="container">
     <section class="panel">
       <h1 data-i18n="title">Partner registration</h1>
       <p class="lead" data-i18n="sub">Apply as a BCSentinel partner. We review your request and contact you shortly.</p>
@@ -115,7 +118,7 @@
           </label>
           <label>
             <span data-i18n="website">Website</span>
-            <input id="website" placeholder="https://..." />
+            <input id="website" placeholder="https://..." data-i18n-placeholder="partner_website_placeholder" />
           </label>
           <label>
             <span data-i18n="country">Country</span>
@@ -137,8 +140,8 @@
     </section>
   </main>
 
-  <script src="partner-api.js"></script>
   <script>
+    const API_BASE = window.location.origin;
     const LANG_KEY = "bcsentinel-lang";
     const THEME_KEY = "bcsentinel-theme";
     const html = document.documentElement;
@@ -229,7 +232,7 @@
         return;
       }
       try {
-        const res = await fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/register"), {
+        const res = await fetch(API_BASE + "/api/partners/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -244,5 +247,7 @@
     setTheme(localStorage.getItem(THEME_KEY) || "dark");
     applyI18n();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

@@ -26,6 +26,7 @@ pageextension 53158 "DH Cust Card Ext" extends "Customer Card"
                 Caption = 'DH Exceptions';
                 ApplicationArea = All;
                 Image = View;
+                ToolTip = 'Opens active BCSentinel exceptions for this customer.';
                 trigger OnAction()
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";

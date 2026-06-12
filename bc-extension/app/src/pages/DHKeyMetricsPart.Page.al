@@ -1,4 +1,4 @@
-page 53127 "DH Key Metrics Part"
+﻿page 53127 "DH Key Metrics Part"
 {
     PageType = CardPart;
     SourceTable = "DH Scan Header";
@@ -19,6 +19,7 @@ page 53127 "DH Key Metrics Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Data Score';
+                    ToolTip = 'Specifies Data Score.';
                     StyleExpr = DataScoreStyle;
                 }
 
@@ -26,13 +27,15 @@ page 53127 "DH Key Metrics Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Records';
+                    ToolTip = 'Specifies Records.';
                     StyleExpr = RecordsStyle;
                 }
 
                 field(PremiumPriceCue; Rec."Est. Premium Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium / Month';
+                    Caption = 'Monitoring / Month';
+                    ToolTip = 'Specifies Monitoring / Month.';
                     AutoFormatType = 1;
                     StyleExpr = PremiumPriceStyle;
                 }
@@ -41,6 +44,7 @@ page 53127 "DH Key Metrics Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Potential Loss';
+                    ToolTip = 'Specifies Potential Loss.';
                     AutoFormatType = 1;
                     StyleExpr = LossStyle;
                 }
@@ -49,6 +53,7 @@ page 53127 "DH Key Metrics Part"
                 {
                     ApplicationArea = All;
                     Caption = 'ROI';
+                    ToolTip = 'Specifies ROI.';
                     AutoFormatType = 1;
                     StyleExpr = ROIStyle;
                 }
@@ -100,3 +105,4 @@ page 53127 "DH Key Metrics Part"
         exit('Standard');
     end;
 }
+

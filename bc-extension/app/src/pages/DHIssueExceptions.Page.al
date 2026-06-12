@@ -1,4 +1,4 @@
-page 53153 "DH Issue Exceptions"
+﻿page 53153 "DH Issue Exceptions"
 {
     PageType = List;
     SourceTable = "DH Issue Exception";
@@ -16,33 +16,40 @@ page 53153 "DH Issue Exceptions"
                 field(Active; Rec.Active)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Active.';
                 }
                 field("Issue Code"; Rec."Issue Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Code.';
                 }
                 field(Reason; Rec.Reason)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Reason.';
                 }
                 field("Created By User"; Rec."Created By User")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Created By User.';
                     Editable = false;
                 }
                 field("Created At"; Rec."Created At")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Created At.';
                     Editable = false;
                 }
                 field("Deactivated By User"; Rec."Deactivated By User")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Deactivated By User.';
                     Editable = false;
                 }
                 field("Deactivated At"; Rec."Deactivated At")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Deactivated At.';
                     Editable = false;
                 }
             }
@@ -56,6 +63,7 @@ page 53153 "DH Issue Exceptions"
             action(DeactivateException)
             {
                 Caption = 'Reactivate Check';
+                ToolTip = 'Runs Reactivate Check.';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -100,3 +108,4 @@ page 53153 "DH Issue Exceptions"
         ContextRecordCaption := RecordCaption;
     end;
 }
+

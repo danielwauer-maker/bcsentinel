@@ -44,7 +44,7 @@ table 53120 "DH Scan Header"
         }
         field(10; "Premium Available"; Boolean)
         {
-            Caption = 'Premium Available';
+            Caption = 'Paid Access Available';
         }
         field(11; "Run ID"; Code[50])
         {
@@ -66,7 +66,7 @@ table 53120 "DH Scan Header"
         }
         field(21; "Est. Premium Price"; Decimal)
         {
-            Caption = 'Premium €/Month';
+            Caption = 'Monitoring EUR/Month';
         }
         field(22; "Est. Loss"; Decimal)
         {

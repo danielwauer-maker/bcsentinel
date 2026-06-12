@@ -31,6 +31,9 @@ dist/
 # IDE
 .vscode/
 .idea/
+!bc-extension/.vscode/
+!bc-extension/.vscode/settings.json
+bc-extension/.vscode/launch.json
 
 # OS
 .DS_Store

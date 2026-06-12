@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -10,9 +10,9 @@
   <div class="admin-shell">
     <header class="page-header admin-header">
       <div>
-        <a class="tenant-back-link" href="/admin/tenants">← Zurück zur Tenant-Liste</a>
+        <a class="tenant-back-link" href="/admin/tenants">&larr; Zurueck zur Tenant-Liste</a>
         <h1>{{ tenant.tenant_id }}</h1>
-        <p class="muted">{{ tenant.environment_name }} · {{ tenant.app_version }}</p>
+        <p class="muted">{{ tenant.environment_name }} - {{ tenant.app_version }}</p>
       </div>
       <div class="header-badges">
         <span class="pill">Nr. {{ tenant_no }}</span>
@@ -37,41 +37,103 @@
         </section>
 
         <section class="stats-grid compact-stats-grid">
-          <article class="stat-card emphasis"><div class="stat-label">Plan</div><div class="stat-value stat-value-small">{{ tenant.current_plan }}</div></article>
-          <article class="stat-card"><div class="stat-label">License</div><div class="stat-value stat-value-small">{{ tenant.license_status }}</div></article>
-          <article class="stat-card"><div class="stat-label">Created</div><div class="stat-helper stat-helper-strong">{{ created_at }}</div></article>
-          <article class="stat-card"><div class="stat-label">Last Seen</div><div class="stat-helper stat-helper-strong">{{ last_seen_at }}</div></article>
+          <article class="stat-card emphasis"><div class="stat-label">Product Access</div><div class="stat-value stat-value-small">{{ product_access.access_model }}</div></article>
+          <article class="stat-card"><div class="stat-label">Monitoring</div><div class="stat-value stat-value-small">{% if product_access.monitoring_active %}active{% else %}inactive{% endif %}</div></article>
+          <article class="stat-card"><div class="stat-label">Scan Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
+          <article class="stat-card"><div class="stat-label">Dashboard Until</div><div class="stat-helper stat-helper-strong">{{ product_access.dashboard_access_until or '-' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Issue Until</div><div class="stat-helper stat-helper-strong">{{ product_access.issue_access_until or '-' }}</div></article>
         </section>
 
         <section class="content-grid admin-detail-grid">
           <article class="panel">
-            <div class="panel-header"><h2>License Management</h2><span class="muted">Plan und Status direkt ändern</span></div>
-            <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/license" class="config-list">
-              <div class="config-row two-col-grid no-border">
-                <label>
-                  <span class="field-label">Plan</span>
-                  <select name="plan">
-                    <option value="free" {% if tenant.current_plan == "free" %}selected{% endif %}>free</option>
-                    <option value="premium" {% if tenant.current_plan == "premium" %}selected{% endif %}>premium</option>
-                  </select>
-                </label>
-                <label>
-                  <span class="field-label">License Status</span>
-                  <select name="license_status">
-                    <option value="trial" {% if tenant.license_status == "trial" %}selected{% endif %}>trial</option>
-                    <option value="active" {% if tenant.license_status == "active" %}selected{% endif %}>active</option>
-                    <option value="expired" {% if tenant.license_status == "expired" %}selected{% endif %}>expired</option>
-                    <option value="blocked" {% if tenant.license_status == "blocked" %}selected{% endif %}>blocked</option>
-                  </select>
-                </label>
-              </div>
-              <div class="inline-form wrap-gap">
-                <button type="submit" class="btn btn-primary">Save License</button>
+            <div class="panel-header"><h2>Product Management</h2><span class="muted">Active products verwalten</span></div>
+            <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="config-list">
+              <div class="config-row no-border">
+                <div class="config-title">Grant Product</div>
+                <select name="product_code">
+                  {% for item in product_grant_options %}
+                  <option value="{{ item.code }}">{{ item.label }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Grant</button>
               </div>
             </form>
-            <form method="post" action="/admin/tenants/{{ tenant.tenant_id }}/delete" class="inline-form" onsubmit="return confirm('Tenant {{ tenant.tenant_id }} wirklich löschen?');">
-              <button type="submit" class="btn btn-danger">Delete Tenant</button>
-            </form>
+            <div class="config-list">
+              {% for item in active_products_for_admin %}
+              <div class="config-row no-border">
+                <div class="config-title">{{ item.label }}</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/revoke-product" class="inline-form" onsubmit="return confirm('Revoke {{ item.label }} for this tenant?');">
+                  <input type="hidden" name="product_code" value="{{ item.code }}">
+                  <button type="submit" class="btn btn-danger">Revoke</button>
+                </form>
+              </div>
+              {% endfor %}
+              {% if not active_products_for_admin %}
+              <div class="config-row no-border"><div class="config-title">Active Products</div><div>-</div></div>
+              {% endif %}
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Backend ist Quelle der Wahrheit</span></div>
+            <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Available Scan Credits</div><div>{{ available_scan_credits }}</div></div>
+              <div class="config-row no-border">
+                <div class="config-title">Adjust Credits</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/add-credit" class="inline-form"><input type="hidden" name="count" value="1"><button type="submit" class="btn btn-secondary">+1 Credit</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/add-credit" class="inline-form"><input type="hidden" name="count" value="5"><button type="submit" class="btn btn-secondary">+5 Credits</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/remove-credit" class="inline-form"><input type="hidden" name="count" value="1"><button type="submit" class="btn btn-secondary">-1 Credit</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/reset-credits" class="inline-form" onsubmit="return confirm('Reset all available scan credits?');"><button type="submit" class="btn btn-danger">Reset Credits</button></form>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Access Management</h2><span class="muted">Dashboard und Issue Access Window</span></div>
+            <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Dashboard Access Until</div><div>{{ product_access.dashboard_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Issue Access Until</div><div>{{ product_access.issue_access_until or '-' }}</div></div>
+              <div class="config-row no-border">
+                <div class="config-title">Access Actions</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/extend-access" class="inline-form"><input type="hidden" name="days" value="7"><button type="submit" class="btn btn-secondary">Extend 7 Days</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/extend-access" class="inline-form"><input type="hidden" name="days" value="30"><button type="submit" class="btn btn-secondary">Extend 30 Days</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/extend-access" class="inline-form" onsubmit="return confirm('Expire Dashboard and Issue access now?');"><input type="hidden" name="action_value" value="expire"><button type="submit" class="btn btn-danger">Expire Now</button></form>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Monitoring</h2><span class="muted">Monitoring Status verwalten</span></div>
+            <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Monitoring Active</div><div>{% if product_access.monitoring_active %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Monitoring Type</div><div>{{ product_access.access_model }}</div></div>
+              <div class="config-row no-border">
+                <div class="config-title">Monitoring Actions</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_monthly"><button type="submit" class="btn btn-secondary">Enable Monthly</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_annual"><button type="submit" class="btn btn-secondary">Enable Annual</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/disable-monitoring" class="inline-form" onsubmit="return confirm('Disable monitoring for this tenant?');"><button type="submit" class="btn btn-danger">Disable Monitoring</button></form>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Developer / QA Tools</h2><span class="muted">Nur Admin-Testwerkzeuge</span></div>
+            <div class="config-list">
+              <div class="config-row no-border">
+                <div class="config-title">Simulate Products</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="inline-form"><input type="hidden" name="product_code" value="assessment"><button type="submit" class="btn btn-secondary">Simulate Assessment</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="inline-form"><input type="hidden" name="product_code" value="validation_check"><button type="submit" class="btn btn-secondary">Simulate Validation</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_monthly"><button type="submit" class="btn btn-secondary">Simulate Monitoring Monthly</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_annual"><button type="submit" class="btn btn-secondary">Simulate Monitoring Annual</button></form>
+              </div>
+              <div class="config-row no-border">
+                <div class="config-title">Danger Zone</div>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/reset-licensing" class="inline-form" onsubmit="return confirm('Reset all product licensing for this tenant?');"><button type="submit" class="btn btn-danger">Reset Product Licensing</button></form>
+                {% if is_dev_environment %}
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/reset-registration" class="inline-form" onsubmit="return confirm('Reset registration credentials for DEV testing?');"><button type="submit" class="btn btn-danger">Reset Registration</button></form>
+                {% endif %}
+              </div>
+            </div>
           </article>
 
           <article class="panel panel-large">
@@ -83,7 +145,7 @@
                   {% for scan in scans %}
                   <tr>
                     <td>{{ scan.scan_id }}</td>
-                    <td>{{ scan.generated_at_utc.strftime('%Y-%m-%d %H:%M:%S UTC') }}</td>
+                    <td>{{ fmt_dt(scan.generated_at_utc) }}</td>
                     <td>{{ scan.scan_type }}</td>
                     <td>{{ scan.data_score }}</td>
                     <td>{{ scan.issues_count }}</td>
@@ -118,6 +180,68 @@
           </article>
         </section>
 
+        <section class="content-grid admin-detail-grid">
+          <article class="panel">
+            <div class="panel-header"><h2>Product Access</h2><span class="muted">Pilot product entitlement status</span></div>
+            <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Active Products</div><div>{{ active_product_codes|join(', ') if active_product_codes else '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Assessment Access</div><div>{% if product_access.assessment_access_active %}active{% else %}inactive{% endif %} - {{ product_access.assessment_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Validation Access</div><div>{% if product_access.validation_access_active %}active{% else %}inactive{% endif %} - {{ product_access.validation_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Monitoring Status</div><div>{% if product_access.monitoring_active %}active{% else %}inactive{% endif %} - {{ product_access.monitoring_access_until or 'open-ended/manual' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can Run Deep Scan</div><div>{% if product_access.can_run_deep_scan %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can View Dashboard</div><div>{% if product_access.can_view_dashboard %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can View Issue Details</div><div>{% if product_access.can_view_issue_details %}yes{% else %}no{% endif %}</div></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Assessment und Validation Check Credits</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Product</th><th>Status</th><th>Source</th><th>Consumed Scan</th><th>Created</th></tr></thead>
+                <tbody>
+                  {% for credit in scan_credits %}
+                  <tr>
+                    <td>{{ credit.id }}</td>
+                    <td>{{ credit.product_code }}</td>
+                    <td>{{ credit.status }}</td>
+                    <td>{{ credit.source }}</td>
+                    <td>{{ credit.consumed_scan_id or '-' }}</td>
+                    <td>{{ fmt_dt(credit.created_at_utc) }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% if not scan_credits %}
+                  <tr><td colspan="6">Noch keine Scan Credits vorhanden.</td></tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><h2>Product Purchases</h2><span class="muted">letzte Produktkaeufe</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Created</th><th>Product</th><th>Status</th><th>Total</th><th>Provider Session</th></tr></thead>
+                <tbody>
+                  {% for purchase in product_purchases %}
+                  <tr>
+                    <td>{{ fmt_dt(purchase.created_at_utc) }}</td>
+                    <td>{{ purchase.product_code }}</td>
+                    <td>{{ purchase.status }}</td>
+                    <td>{{ fmt_money(purchase.amount_total) }} {{ purchase.currency }}</td>
+                    <td>{{ purchase.provider_checkout_session_id or '-' }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% if not product_purchases %}
+                  <tr><td colspan="5">Noch keine Produktkaeufe vorhanden.</td></tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
         <section class="panel panel-large">
           <div class="panel-header"><h2>Invoices</h2><span class="muted">letzte 10 Rechnungen</span></div>
           <div class="table-wrap">
@@ -131,12 +255,12 @@
                   <td>{{ invoice.status }}</td>
                   <td>{{ fmt_money(invoice.amount_total) }} {{ invoice.currency }}</td>
                   <td>{{ fmt_money(invoice.amount_paid) }} {{ invoice.currency }}</td>
-                  <td>{{ invoice.provider_subscription_id or '—' }}</td>
+                  <td>{{ invoice.provider_subscription_id or '-' }}</td>
                   <td>
                     {% if invoice.hosted_invoice_url %}
                     <a class="tenant-link" href="{{ invoice.hosted_invoice_url }}" target="_blank" rel="noopener">open</a>
                     {% else %}
-                    —
+                    -
                     {% endif %}
                   </td>
                 </tr>
@@ -232,5 +356,16 @@
       </main>
     </div>
   </div>
+  <script>
+    const csrfToken = "{{ csrf_token }}";
+    document.querySelectorAll('form[method="post"], form[method="POST"]').forEach((form) => {
+      if (form.querySelector('input[name="csrf_token"]')) return;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "csrf_token";
+      input.value = csrfToken;
+      form.appendChild(input);
+    });
+  </script>
 </body>
 </html>

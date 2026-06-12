@@ -5,7 +5,7 @@ enum 53101 "DH License Plan"
 
     value(0; Free)
     {
-        Caption = 'Free';
+        Caption = 'Compatibility Base';
     }
 
     value(1; Standard)
@@ -15,6 +15,6 @@ enum 53101 "DH License Plan"
 
     value(2; Premium)
     {
-        Caption = 'Premium';
+        Caption = 'Compatibility Monitoring';
     }
 }

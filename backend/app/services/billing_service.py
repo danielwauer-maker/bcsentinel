@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import BillingWebhookEvent, Invoice, Subscription, Tenant
 
 ACTIVE_SUBSCRIPTION_STATUSES = {"trialing", "active"}
+PENDING_SUBSCRIPTION_STATUSES = {"incomplete"}
 
 
 def utc_now() -> datetime:
@@ -53,6 +54,24 @@ def resolve_effective_license(db, tenant: Tenant) -> tuple[str, str]:
     if status not in {"trial", "active", "expired", "blocked"}:
         status = "trial"
     return plan, status
+
+
+def _normalize_subscription_status(value: str | None) -> str:
+    return (value or "incomplete").strip().lower()
+
+
+def _resolve_subscription_status_update(current_status: str | None, incoming_status: str | None) -> str:
+    normalized_current = _normalize_subscription_status(current_status)
+    normalized_incoming = _normalize_subscription_status(incoming_status)
+
+    if normalized_current in ACTIVE_SUBSCRIPTION_STATUSES and normalized_incoming in PENDING_SUBSCRIPTION_STATUSES:
+        return normalized_current
+
+    return normalized_incoming
+
+
+def _normalize_plan_code(value: str | None) -> str:
+    return (value or "").strip().lower()
 
 
 def ensure_webhook_event_once(db, *, provider: str, event_id: str, event_type: str, payload_json: str) -> tuple[BillingWebhookEvent, bool]:
@@ -105,6 +124,8 @@ def upsert_subscription_from_payload(
     cancel_at_period_end: bool = False,
     canceled_at_utc: datetime | None = None,
 ) -> Subscription:
+    normalized_status = _normalize_subscription_status(status)
+    normalized_plan_code = _normalize_plan_code(plan_code)
     subscription = db.scalar(
         select(Subscription).where(Subscription.provider_subscription_id == provider_subscription_id)
     )
@@ -114,8 +135,8 @@ def upsert_subscription_from_payload(
             tenant_id=tenant_id,
             provider=provider,
             provider_subscription_id=provider_subscription_id,
-            status=status,
-            plan_code=plan_code,
+            status=normalized_status,
+            plan_code=normalized_plan_code or "premium",
             currency=currency,
             amount_monthly=float(amount_monthly or 0.0),
             current_period_start_utc=current_period_start_utc,
@@ -131,12 +152,15 @@ def upsert_subscription_from_payload(
 
     subscription.tenant_id = tenant_id
     subscription.provider = provider
-    subscription.status = status
-    subscription.plan_code = plan_code
-    subscription.currency = currency
+    subscription.status = _resolve_subscription_status_update(subscription.status, normalized_status)
+    if normalized_plan_code:
+        subscription.plan_code = normalized_plan_code
+    subscription.currency = (currency or subscription.currency or "EUR").upper()
     subscription.amount_monthly = float(amount_monthly or 0.0)
-    subscription.current_period_start_utc = current_period_start_utc
-    subscription.current_period_end_utc = current_period_end_utc
+    if current_period_start_utc is not None:
+        subscription.current_period_start_utc = current_period_start_utc
+    if current_period_end_utc is not None:
+        subscription.current_period_end_utc = current_period_end_utc
     subscription.cancel_at_period_end = bool(cancel_at_period_end)
     subscription.canceled_at_utc = canceled_at_utc
     subscription.updated_at_utc = now

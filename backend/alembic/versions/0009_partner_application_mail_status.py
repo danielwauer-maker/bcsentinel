@@ -40,7 +40,8 @@ def upgrade() -> None:
         ["last_mail_sent_at_utc"],
         unique=False,
     )
-    op.alter_column("partner_applications", "mail_status", server_default=None)
+    with op.batch_alter_table("partner_applications") as batch_op:
+        batch_op.alter_column("mail_status", server_default=None)
 
 
 def downgrade() -> None:

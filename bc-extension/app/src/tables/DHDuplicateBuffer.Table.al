@@ -21,46 +21,57 @@ table 53149 "DH Duplicate Buffer"
     {
         field(1; "Entry No."; Integer)
         {
+            Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
         field(2; "Source Type"; Enum "DH Duplicate Source Type")
         {
+            Caption = 'Source Type';
             DataClassification = CustomerContent;
         }
         field(3; "Source No."; Code[20])
         {
+            Caption = 'Source No.';
             DataClassification = CustomerContent;
         }
         field(4; Name; Text[100])
         {
+            Caption = 'Name';
             DataClassification = CustomerContent;
         }
         field(5; City; Text[30])
         {
+            Caption = 'City';
             DataClassification = CustomerContent;
         }
         field(6; "Post Code"; Code[20])
         {
+            Caption = 'Post Code';
             DataClassification = CustomerContent;
         }
         field(7; "E-Mail"; Text[80])
         {
+            Caption = 'E-Mail';
             DataClassification = CustomerContent;
         }
         field(8; "VAT Registration No."; Text[20])
         {
+            Caption = 'VAT Registration No.';
             DataClassification = CustomerContent;
         }
         field(9; "Group Key"; Text[250])
         {
+            Caption = 'Group Key';
             DataClassification = CustomerContent;
         }
         field(10; Reason; Text[100])
         {
+            Caption = 'Reason';
             DataClassification = CustomerContent;
         }
         field(11; "Duplicate Count"; Integer)
         {
+            Caption = 'Duplicate Count';
             DataClassification = CustomerContent;
         }
     }

@@ -23,6 +23,7 @@ from app.core.settings import settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402
 from app.models import Scan, ScanIssueRecord, Subscription, Tenant  # noqa: E402
 from app.security.token_hash import hash_api_token  # noqa: E402
+from app.security.rate_limit import clear_rate_limits  # noqa: E402
 import app.main as app_main  # noqa: E402
 
 
@@ -30,6 +31,7 @@ import app.main as app_main  # noqa: E402
 def reset_database():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    clear_rate_limits()
     yield
 
 
@@ -51,18 +53,20 @@ def db_session():
 def settings_state(monkeypatch):
     original_values = {
         "ENV": settings.ENV,
+        "CORS_ALLOW_ORIGINS": settings.CORS_ALLOW_ORIGINS,
         "APP_BASE_URL": settings.APP_BASE_URL,
         "BILLING_SUCCESS_URL": settings.BILLING_SUCCESS_URL,
         "BILLING_CANCEL_URL": settings.BILLING_CANCEL_URL,
         "BILLING_PORTAL_RETURN_URL": settings.BILLING_PORTAL_RETURN_URL,
         "STRIPE_SECRET_KEY": settings.STRIPE_SECRET_KEY,
         "STRIPE_WEBHOOK_SECRET": settings.STRIPE_WEBHOOK_SECRET,
-        "STRIPE_PRICE_ID_PREMIUM": settings.STRIPE_PRICE_ID_PREMIUM,
-        "STRIPE_PRICE_ID_PREMIUM_YEARLY": settings.STRIPE_PRICE_ID_PREMIUM_YEARLY,
-        "STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY": settings.STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY,
-        "STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY": settings.STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY,
-        "STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY": settings.STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY,
-        "STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY": settings.STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY,
+        "STRIPE_PRICE_ID_ASSESSMENT": settings.STRIPE_PRICE_ID_ASSESSMENT,
+        "STRIPE_PRICE_ID_VALIDATION_CHECK": settings.STRIPE_PRICE_ID_VALIDATION_CHECK,
+        "STRIPE_PRICE_ID_MONITORING_MONTHLY": settings.STRIPE_PRICE_ID_MONITORING_MONTHLY,
+        "STRIPE_PRICE_ID_MONITORING_ANNUAL": settings.STRIPE_PRICE_ID_MONITORING_ANNUAL,
+        "TENANT_REGISTRATION_INVITE_CODE": settings.TENANT_REGISTRATION_INVITE_CODE,
+        "TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS": settings.TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS,
+        "TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS": settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
     }
 
     def apply(**overrides):

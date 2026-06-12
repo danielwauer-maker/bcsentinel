@@ -24,6 +24,7 @@ class DataProfile(BaseModel):
 class QuickScanRequest(BaseModel):
     tenant_id: str
     bc_run_id: Optional[str] = None
+    preferred_language: Optional[str] = None
     metrics: Dict[str, int] = Field(default_factory=dict)
     data_profile: DataProfile = Field(default_factory=DataProfile)
 

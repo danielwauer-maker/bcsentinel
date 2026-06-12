@@ -75,3 +75,4 @@
     loadLanguage(getInitialLanguage()).catch(console.error);
   });
 })();
+

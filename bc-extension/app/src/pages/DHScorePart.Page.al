@@ -1,4 +1,4 @@
-page 53122 "DH Score Part"
+﻿page 53122 "DH Score Part"
 {
     PageType = CardPart;
     SourceTable = "DH Scan Header";
@@ -19,6 +19,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Quick Score';
+                    ToolTip = 'Specifies Quick Score.';
                     StyleExpr = QuickScoreStyle;
                 }
 
@@ -26,6 +27,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Deep Score';
+                    ToolTip = 'Specifies Deep Score.';
                     StyleExpr = DeepScoreStyle;
                 }
 
@@ -33,6 +35,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Overall Health Score';
+                    ToolTip = 'Specifies Overall Health Score.';
                     StyleExpr = OverallHealthScoreStyle;
                 }
 
@@ -40,6 +43,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Status';
+                    ToolTip = 'Specifies Status.';
                     Style = Strong;
                     StyleExpr = true;
                 }
@@ -48,6 +52,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Backend Rating';
+                    ToolTip = 'Specifies Backend Rating.';
                     StyleExpr = BackendRatingStyle;
                 }
 
@@ -55,6 +60,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Trend';
+                    ToolTip = 'Specifies Trend.';
                     StyleExpr = TrendStyle;
                 }
             }
@@ -67,6 +73,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Gauge';
+                    ToolTip = 'Specifies Gauge.';
                     MultiLine = true;
                     Style = Unfavorable;
                     StyleExpr = ShowRed;
@@ -77,6 +84,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Gauge';
+                    ToolTip = 'Specifies Gauge.';
                     MultiLine = true;
                     Style = Ambiguous;
                     StyleExpr = ShowOrange;
@@ -87,6 +95,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Gauge';
+                    ToolTip = 'Specifies Gauge.';
                     MultiLine = true;
                     Style = Favorable;
                     StyleExpr = ShowGreen;
@@ -97,6 +106,7 @@ page 53122 "DH Score Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Scale';
+                    ToolTip = 'Specifies Scale.';
                 }
             }
         }
@@ -263,10 +273,10 @@ page 53122 "DH Score Part"
         EmptySegments := 10 - FilledSegments;
 
         for i := 1 to FilledSegments do
-            ResultText += '■';
+            ResultText += 'â– ';
 
         for i := 1 to EmptySegments do
-            ResultText += '□';
+            ResultText += 'â–¡';
 
         exit(ResultText + '  ' + Format(ScoreValue) + '/100');
     end;
@@ -338,3 +348,4 @@ page 53122 "DH Score Part"
         exit('Subordinate');
     end;
 }
+

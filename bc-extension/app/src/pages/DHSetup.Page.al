@@ -1,4 +1,4 @@
-page 53100 "DH Setup"
+﻿page 53100 "DH Setup"
 {
     PageType = Card;
     SourceTable = "DH Setup";
@@ -14,27 +14,53 @@ page 53100 "DH Setup"
             {
                 Caption = 'Overview';
 
-                field("Current Plan"; Rec."Current Plan")
+                field(ProductAccessModel; Rec."Product Access Model")
                 {
                     ApplicationArea = All;
+                    Caption = 'Product Access';
+                    ToolTip = 'Specifies Product Access.';
                     Editable = false;
                 }
 
-                field("License Status"; Rec."License Status")
+                field("Scan Credits Available"; Rec."Scan Credits Available")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Scan Credits Available.';
                     Editable = false;
                 }
 
-                field("Last Scan Date"; Rec."Last Scan Date")
+                field("Monitoring Active"; Rec."Monitoring Active")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Monitoring Active.';
                     Editable = false;
                 }
 
-                field("Last Score"; Rec."Last Score")
+                field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Dashboard Access Until.';
+                    Editable = false;
+                }
+
+                field("Issue Access Until"; Rec."Issue Access Until")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Access Until.';
+                    Editable = false;
+                }
+
+                field("Can Run Deep Scan"; Rec."Can Run Deep Scan")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies Can Run Deep Scan.';
+                    Editable = false;
+                }
+
+                field("Last License Check"; Rec."Last License Check")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies Last License Check.';
                     Editable = false;
                 }
 
@@ -43,7 +69,7 @@ page 53100 "DH Setup"
                     ApplicationArea = All;
                     Caption = 'Feature access';
                     Editable = false;
-                    ToolTip = 'Shows whether premium actions are unlocked.';
+                    ToolTip = 'Shows whether paid scan access is available.';
                 }
             }
 
@@ -54,56 +80,69 @@ page 53100 "DH Setup"
                 field("API Base URL"; Rec."API Base URL")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
                     ToolTip = 'Base URL of the BCSentinel API. Default is production.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Tenant ID.';
                     Editable = false;
+                    Visible = false;
                 }
 
-                field("API Token"; Rec."API Token")
+                field(ApiTokenConfigured; HasStoredApiToken())
                 {
                     ApplicationArea = All;
+                    Caption = 'API Token Configured';
                     Editable = false;
+                    ToolTip = 'Shows whether the API token is stored securely for this company. The token itself is not displayed.';
+                }
+
+                field("Registration Invite Code"; Rec."Registration Invite Code")
+                {
+                    ApplicationArea = All;
+                    ExtendedDatatype = Masked;
+                    ToolTip = 'Specifies the BCSentinel pilot invite code. Current backend registration requires this code; AppSource self-service signup is a follow-up backend task.';
                 }
 
                 field(Registered; Rec.Registered)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Registered.';
                     Editable = false;
                 }
 
                 field("Registration Date"; Rec."Registration Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Registration Date.';
                     Editable = false;
                 }
 
                 field("Data Processing Consent"; Rec."Data Processing Consent")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Must be enabled before tenant registration and scan synchronization.';
-                }
-            }
-
-            group(License)
-            {
-                Caption = 'License';
-
-                field("Last License Check"; Rec."Last License Check")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
+                    ToolTip = 'Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
                 }
 
-                field("Premium Enabled"; Rec."Premium Enabled")
+                field(DataProcessingNotice; DataProcessingNoticeTxt)
                 {
                     ApplicationArea = All;
+                    Caption = 'Data Processing Notice';
                     Editable = false;
-                    ToolTip = 'Shows whether premium recommendations, drilldowns, worklists, and related premium details are unlocked.';
+                    MultiLine = true;
+                    ToolTip = 'Explains which data BCSentinel sends to the backend and why consent is required.';
+                }
+
+                field(InviteNotice; InviteNoticeTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Onboarding Notice';
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains the current pilot invite requirement for tenant registration.';
                 }
             }
 
@@ -180,6 +219,7 @@ page 53100 "DH Setup"
                 {
                     ApplicationArea = All;
                     Caption = 'Last Scan Date';
+                    ToolTip = 'Specifies Last Scan Date.';
                     Editable = false;
                     Visible = false;
                 }
@@ -194,6 +234,7 @@ page 53100 "DH Setup"
             action(TestConnection)
             {
                 Caption = 'Test BCSentinel Connection';
+                ToolTip = 'Runs Test BCSentinel Connection.';
                 ApplicationArea = All;
                 Image = TestFile;
 
@@ -205,72 +246,145 @@ page 53100 "DH Setup"
                 end;
             }
 
-            /*action(RegisterTenant)
-            {
-                Caption = 'Register with BCSentinel';
-                ApplicationArea = All;
-                Image = Web;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.EnsureTenantRegistered(Rec);
-                    //RefreshLicenseSilently();
-                    CurrPage.Update(false);
-                    Message('BCSentinel tenant registration completed.');
-                end;
-            }*/
-
             action(RegisterTenant)
             {
-                Caption = 'Register with BCSentinel';
+                Caption = 'Register Tenant';
+                ToolTip = 'Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.';
                 ApplicationArea = All;
                 Image = Web;
+                Enabled = CanRegisterTenant;
+                Visible = true;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = false;
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
-                    Message('BCSentinel tenant registration started.');
-                    Rec."Tenant ID" := '';
-                    Rec."API Token" := '';
-                    Rec.Registered := false;
-                    Rec."Registration Date" := 0DT;
-                    Rec.Modify(true);
+                    if Rec.Registered then begin
+                        if HasStoredApiToken() then begin
+                            Message('BCSentinel tenant is already registered.');
+                            exit;
+                        end;
 
+                        Message('BCSentinel registration data is incomplete. Registration will request a fresh API token.');
+                    end;
+
+                    Message('BCSentinel tenant registration started.');
                     ApiClient.RegisterTenant(Rec);
+                    ApiClient.RefreshLicenseStatus(Rec);
+                    UpdateActionState();
                     CurrPage.Update(false);
                     Message('BCSentinel tenant registration completed.');
                 end;
             }
 
-            action(UpgradeToPremium)
+            action(ResetRegistration)
             {
-                Caption = 'Upgrade to Premium';
+                Caption = 'Reset Registration';
+                ToolTip = 'Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.';
+                ApplicationArea = All;
+                Image = ResetStatus;
+                Enabled = CanResetRegistration;
+                Visible = true;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = false;
+
+                trigger OnAction()
+                var
+                    ResetRegistrationQst: Label 'Reset the local BCSentinel registration state? This keeps the API Base URL, invite code, and consent. Backend data is not deleted.';
+                begin
+                    if not Confirm(ResetRegistrationQst, false) then
+                        exit;
+
+                    ResetLocalRegistrationState();
+                    UpdateActionState();
+                    CurrPage.Update(false);
+                    Message('Local BCSentinel registration was reset. Please register again.');
+                end;
+            }
+
+            action(RequestAccess)
+            {
+                Caption = 'Request Access';
+                ToolTip = 'Opens the BCSentinel website to request onboarding access.';
+                ApplicationArea = All;
+                Image = LinkWeb;
+
+                trigger OnAction()
+                begin
+                    Hyperlink('https://bcsentinel.com');
+                end;
+            }
+
+            action(BuyAssessment)
+            {
+                Caption = 'Buy Assessment';
                 ApplicationArea = All;
                 Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout to activate Premium.';
+                ToolTip = 'Open the secure BCSentinel checkout for the Assessment one-time scan.';
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
-                    if Rec."Premium Enabled" then begin
-                        Message('Premium is already enabled.');
-                        exit;
-                    end;
+                    ApiClient.OpenProductCheckout(Rec, 'assessment');
+                end;
+            }
 
-                    ApiClient.OpenPremiumCheckout(Rec);
+            action(BuyValidationCheck)
+            {
+                Caption = 'Buy Validation Check';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for a Validation Check follow-up scan.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'validation_check');
+                end;
+            }
+
+            action(StartMonitoringMonthly)
+            {
+                Caption = 'Start Monitoring Monthly';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for monthly monitoring.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'monitoring_monthly');
+                end;
+            }
+
+            action(StartMonitoringAnnual)
+            {
+                Caption = 'Start Monitoring Annual';
+                ApplicationArea = All;
+                Image = Add;
+                ToolTip = 'Open the secure BCSentinel checkout for annual monitoring.';
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                begin
+                    ApiClient.OpenProductCheckout(Rec, 'monitoring_annual');
                 end;
             }
 
             action(RefreshLicenseStatus)
             {
-                Caption = 'Refresh License Status';
+                Caption = 'Refresh Product Access';
                 ApplicationArea = All;
                 Image = Refresh;
-                ToolTip = 'Refresh current plan and license status from BCSentinel.';
+                ToolTip = 'Refresh scan credits, monitoring status, and product access from BCSentinel.';
 
                 trigger OnAction()
                 var
@@ -281,7 +395,7 @@ page 53100 "DH Setup"
 
                     ApiClient.RefreshLicenseStatus(Rec);
                     CurrPage.Update(false);
-                    Message('License status refreshed.');
+                    Message('Product access refreshed.');
                 end;
             }
 
@@ -293,6 +407,7 @@ page 53100 "DH Setup"
                 action(StartScan)
                 {
                     Caption = 'Start Scan';
+                    ToolTip = 'Runs Start Scan.';
                     Image = Start;
                     ApplicationArea = All;
 
@@ -318,6 +433,7 @@ page 53100 "DH Setup"
                 action(ViewScanHistory)
                 {
                     Caption = 'Scan History';
+                    ToolTip = 'Runs Scan History.';
                     Image = List;
                     ApplicationArea = All;
 
@@ -330,11 +446,25 @@ page 53100 "DH Setup"
         }
     }
 
+    var
+        CanRegisterTenant: Boolean;
+        CanResetRegistration: Boolean;
+        DataProcessingNoticeTxt: Text[1024];
+        InviteNoticeTxt: Text[512];
+
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
+        UpdateActionState();
+        UpdateNoticeTexts();
         //RefreshLicenseSilently();
         CurrPage.Update(false);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        UpdateActionState();
+        UpdateNoticeTexts();
     end;
 
     local procedure EnsureSetupExists()
@@ -349,6 +479,29 @@ page 53100 "DH Setup"
         Rec.Modify(true);
     end;
 
+    local procedure HasStoredApiToken(): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Rec));
+    end;
+
+    local procedure DeleteStoredApiToken()
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        SecretMgt.DeleteApiToken(Rec);
+    end;
+
+    local procedure ResetLocalRegistrationState()
+    begin
+        Rec."Tenant ID" := '';
+        Rec.Registered := false;
+        Rec."Registration Date" := 0DT;
+        DeleteStoredApiToken();
+        Rec.Modify(true);
+    end;
+
     local procedure RefreshLicenseSilently()
     var
         ApiClient: Codeunit "DH API Client";
@@ -357,6 +510,25 @@ page 53100 "DH Setup"
             exit;
 
         ApiClient.RefreshLicenseStatus(Rec);
+    end;
+
+    local procedure UpdateActionState()
+    begin
+        CanRegisterTenant := Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
+        CanResetRegistration :=
+            Rec.Registered or
+            (Rec."Tenant ID" <> '') or
+            (Rec."Registration Date" <> 0DT) or
+            HasStoredApiToken();
+    end;
+
+    local procedure UpdateNoticeTexts()
+    begin
+        DataProcessingNoticeTxt :=
+            'Before registration or scans, BCSentinel requires consent to send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel. The data is used for Data Health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+
+        InviteNoticeTxt :=
+            'Current pilot registration requires a BCSentinel invite code. AppSource self-service signup must be enabled in the backend before this field can be optional for marketplace customers.';
     end;
 
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text
@@ -379,7 +551,7 @@ page 53100 "DH Setup"
 
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
     begin
-        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?token=' + EncodeUrlValue(Token));
+        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?embed_token=' + EncodeUrlValue(Token));
     end;
 
     local procedure GetIssueDrilldownLaunchUrl(): Text
@@ -421,3 +593,4 @@ page 53100 "DH Setup"
         exit(Value);
     end;
 }
+

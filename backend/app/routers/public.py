@@ -10,34 +10,26 @@ from app.services.impact_service import (
     get_hourly_rate_eur,
     get_impact_definition,
 )
-from app.services.pricing_service import get_public_pricing_payload
+from app.services.product_pricing_service import get_public_product_pricing_payload
 
 router = APIRouter(tags=["public"])
 
 
-class PublicPricingMarketingLocale(BaseModel):
-    plan_premium_price: str
-    pricing_premium_chip: str
+class PublicProductPricingItemResponse(BaseModel):
+    product_key: str
+    display_name: str
+    price_cents: int
+    price_eur: float
+    currency: str
+    billing_interval: str
+    is_active: bool
+    updated_at: str | None = None
 
 
-class PublicPricingMarketing(BaseModel):
-    de: PublicPricingMarketingLocale
-    en: PublicPricingMarketingLocale
-
-
-class PublicPricingResponse(BaseModel):
+class PublicProductPricingResponse(BaseModel):
     source: str
     currency: str
-    plan_code: str
-    display_name: str
-    base_price: float
-    included_records: int
-    step_records: int
-    step_price: float
-    annual_fixed_price: float
-    monthly_note: str
-    annual_note: str
-    marketing: PublicPricingMarketing
+    products: list[PublicProductPricingItemResponse]
 
 
 class PublicLossExampleIssueResponse(BaseModel):
@@ -51,10 +43,10 @@ class PublicLossExampleConfigResponse(BaseModel):
     issues: dict[str, PublicLossExampleIssueResponse]
 
 
-@router.get("/public/pricing", response_model=PublicPricingResponse)
-def get_public_pricing() -> PublicPricingResponse:
+@router.get("/pricing/public", response_model=PublicProductPricingResponse)
+def get_public_product_pricing() -> PublicProductPricingResponse:
     with SessionLocal() as db:
-        return PublicPricingResponse.model_validate(get_public_pricing_payload(db, "premium"))
+        return PublicProductPricingResponse.model_validate(get_public_product_pricing_payload(db))
 
 
 @router.get("/public/loss-examples-config", response_model=PublicLossExampleConfigResponse)

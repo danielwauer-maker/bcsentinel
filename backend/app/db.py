@@ -1,14 +1,18 @@
 import time
 import logging
+from functools import lru_cache
+from pathlib import Path
 
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.settings import settings
 
-REQUIRED_ALEMBIC_REVISION = "0013_scan_stability_layer"
 logger = logging.getLogger(__name__)
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 
 class Base(DeclarativeBase):
@@ -57,22 +61,37 @@ def wait_for_database(max_attempts: int = 30, delay_seconds: int = 2) -> None:
     raise RuntimeError("Database did not become ready in time.") from last_error
 
 
-def ensure_schema_is_migrated(required_revision: str = REQUIRED_ALEMBIC_REVISION) -> None:
+@lru_cache(maxsize=1)
+def get_required_alembic_revision() -> str:
+    alembic_config = Config(str(BACKEND_DIR / "alembic.ini"))
+    alembic_config.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
+    script = ScriptDirectory.from_config(alembic_config)
+    heads = script.get_heads()
+
+    if len(heads) != 1:
+        raise RuntimeError(
+            f"Expected exactly one Alembic head, found {len(heads)}: {', '.join(heads)}"
+        )
+
+    return heads[0]
+
+
+def ensure_schema_is_migrated(required_revision: str | None = None) -> None:
+    resolved_required_revision = required_revision or get_required_alembic_revision()
     inspector = inspect(engine)
 
     if "alembic_version" not in inspector.get_table_names():
         raise RuntimeError(
             "Database schema is not managed by Alembic yet. "
-            "Run 'alembic upgrade head' for a fresh database or "
-            "'alembic stamp 0002_commercials_and_pricing' once for an existing database "
-            "that already matches the current schema."
+            "Run 'alembic upgrade head' before starting the API."
         )
 
     with engine.connect() as connection:
         version = connection.execute(text("SELECT version_num FROM alembic_version LIMIT 1")).scalar()
 
-    if version != required_revision:
+    if version != resolved_required_revision:
         raise RuntimeError(
-            f"Database schema revision mismatch. Expected '{required_revision}', got '{version}'. "
-            "Run the pending Alembic migrations before starting the API."
+            f"Database schema revision mismatch. Expected Alembic head "
+            f"'{resolved_required_revision}', got '{version}'. "
+            "Run 'alembic upgrade head' before starting the API."
         )

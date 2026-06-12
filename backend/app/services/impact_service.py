@@ -331,7 +331,7 @@ def calculate_scan_commercials(
     supplied_estimated_premium_price_monthly: float = 0.0,
     pricing=None,
 ) -> dict[str, object]:
-    from app.services.pricing_service import calculate_monthly_price, get_license_pricing
+    from app.services.product_pricing_service import build_monitoring_pricing_breakdown
 
     total_records = max(int(total_records or 0), 0)
 
@@ -344,16 +344,16 @@ def calculate_scan_commercials(
     if supplied_estimated_loss_eur > 0 and not recalculated_issues:
         estimated_loss_eur = round(supplied_estimated_loss_eur, 2)
 
-    if pricing is None:
-        pricing = get_license_pricing(db, "premium")
-
     estimated_premium_price_monthly = max(
         float(supplied_estimated_premium_price_monthly or 0.0), 0.0
     )
     if estimated_premium_price_monthly <= 0:
-        estimated_premium_price_monthly = round(
-            calculate_monthly_price(total_records, pricing), 2
-        )
+        if pricing is not None and hasattr(pricing, "base_price_monthly"):
+            estimated_premium_price_monthly = round(float(pricing.base_price_monthly or 0.0), 2)
+        else:
+            estimated_premium_price_monthly = round(
+                float(build_monitoring_pricing_breakdown(db)["final_price_monthly"]), 2
+            )
 
     normalized = normalize_commercial_values(
         estimated_loss_eur=estimated_loss_eur,

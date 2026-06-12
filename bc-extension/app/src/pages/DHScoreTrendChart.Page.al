@@ -1,4 +1,4 @@
-page 53125 "DH Score Trend Chart"
+﻿page 53125 "DH Score Trend Chart"
 {
     PageType = CardPart;
     SourceTable = "DH Scan Header";

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner Portal | BCSentinel</title>
+  <title data-i18n="partner_portal_meta_title">Partner Portal | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -173,6 +173,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <strong data-i18n="portal_brand">BCSentinel Partner Portal</strong>
     <div class="actions">
@@ -183,7 +184,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="overview" class="container">
     <h1 data-i18n="title">Partner account overview</h1>
     <p class="lead" data-i18n="sub">Track tenant-based referrals, subscription status, and commission lifecycle in one place.</p>
 
@@ -264,7 +265,7 @@
     </section>
     </section>
 
-    <section class="card section panel-view" data-panel="profile">
+    <section id="profile" class="card section panel-view" data-panel="profile">
       <div class="toolbar">
         <strong data-i18n="profile_title">Profile settings</strong>
       </div>
@@ -284,14 +285,14 @@
         <label>
           <span data-i18n="profile_new_password">New password (optional)</span>
           <div class="password-row">
-            <input id="profileNewPassword" type="password" minlength="8" placeholder="********" />
+            <input id="profileNewPassword" type="password" minlength="8" placeholder="********" data-i18n-placeholder="partner_confirm_password_placeholder" data-i18n-placeholder="partner_new_password_placeholder" />
             <button type="button" class="toggle-pw-btn" id="togglePwBtn" data-i18n="profile_toggle_pw">Show</button>
           </div>
           <div class="pw-strength" id="passwordStrength" data-i18n="profile_pw_strength_idle">Password strength: not set</div>
         </label>
         <label>
           <span data-i18n="profile_confirm_password">Confirm new password</span>
-          <input id="profileConfirmPassword" type="password" minlength="8" placeholder="********" />
+          <input id="profileConfirmPassword" type="password" minlength="8" placeholder="********" data-i18n-placeholder="partner_confirm_password_placeholder" />
         </label>
       </form>
       <button class="btn" id="saveProfileBtn" style="margin-top:10px;" data-i18n="profile_save_btn">Save profile</button>
@@ -300,7 +301,6 @@
     </section>
   </main>
 
-  <script src="partner-api.js"></script>
   <script>
     const tr = {
       de: {
@@ -406,6 +406,7 @@
     const TOKEN_KEY = "bcs_partner_token";
     const LANG_KEY = "bcsentinel-lang";
     const THEME_KEY = "bcsentinel-theme";
+    const API_BASE = window.location.origin;
     const html = document.documentElement;
     let currentLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "de";
 
@@ -490,9 +491,9 @@
       let commissions = [];
       try {
         const [meRes, refRes, commRes] = await Promise.all([
-          fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/me"), { headers: authHeaders() }),
-          fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/me/referrals"), { headers: authHeaders() }),
-          fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/me/commissions"), { headers: authHeaders() })
+          fetch(API_BASE + "/api/partners/me", { headers: authHeaders() }),
+          fetch(API_BASE + "/api/partners/me/referrals", { headers: authHeaders() }),
+          fetch(API_BASE + "/api/partners/me/commissions", { headers: authHeaders() })
         ]);
         if (meRes.ok) me = await meRes.json();
         if (refRes.ok) referrals = await refRes.json();
@@ -585,7 +586,7 @@
         return;
       }
       try {
-        const res = await fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/me/profile"), {
+        const res = await fetch(API_BASE + "/api/partners/me/profile", {
           method: "POST",
           headers: { ...authHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify({ name, new_password: newPassword || null })
@@ -608,5 +609,7 @@
     refreshPasswordToggleLabel();
     loadData();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

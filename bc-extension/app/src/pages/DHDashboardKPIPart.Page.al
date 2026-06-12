@@ -1,4 +1,4 @@
-page 53142 "DH Dashboard KPI Part"
+﻿page 53142 "DH Dashboard KPI Part"
 {
     PageType = CardPart;
     SourceTable = "DH Deep Scan Run";

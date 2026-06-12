@@ -4,6 +4,7 @@ codeunit 53124 "DH Deep Scan Mgt."
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
+        ApiClient: Codeunit "DH API Client";
         TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
@@ -32,22 +33,18 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Backend Status" := 'queued';
         DeepScanRun."Current Step" := 'Waiting to start';
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
+
         DeepScanRun.Insert(true);
+        CreateOrUpdateScanHeader(DeepScanRun);
         Commit();
+
+        ApiClient.StartDeepScan(Setup, DeepScanRun."Run ID", TotalModules);
+
         TryUpdateBackendQueued(Setup, DeepScanRun);
 
-        TaskId :=
-            TaskScheduler.CreateTask(
-                Codeunit::"DH Deep Scan Runner",
-                Codeunit::"DH Deep Scan Failure",
-                true,
-                CompanyName(),
-                CurrentDateTime(),
-                DeepScanRun.RecordId);
-
-        DeepScanRun."Task ID" := TaskId;
-        DeepScanRun.Modify(true);
         Commit();
+
+        RunDeepScanNow(DeepScanRun);
 
         Message(ScanStartedMsg, DeepScanRun."Run ID");
 
@@ -68,7 +65,83 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun.Modify(true);
     end;
 
+    local procedure RunDeepScanNow(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        DeepScanRunner: Codeunit "DH Deep Scan Runner";
+    begin
+        DeepScanRunner.Run(DeepScanRun);
+    end;
+
+    local procedure CreateOrUpdateScanHeader(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        ScanHeader: Record "DH Scan Header";
+    begin
+        ScanHeader.Reset();
+        ScanHeader.SetRange("Scan Type", ScanHeader."Scan Type"::Deep);
+        ScanHeader.SetRange("Run ID", DeepScanRun."Run ID");
+
+        if not ScanHeader.FindFirst() then begin
+            ScanHeader.Reset();
+            ScanHeader.SetRange("Scan Type", ScanHeader."Scan Type"::Deep);
+            ScanHeader.SetRange("Backend Scan Id", DeepScanRun."Run ID");
+
+            if not ScanHeader.FindFirst() then begin
+                ScanHeader.Init();
+                ScanHeader."Entry No." := GetNextHeaderEntryNo();
+                ScanHeader."Scan Type" := ScanHeader."Scan Type"::Deep;
+                ScanHeader."Run ID" := DeepScanRun."Run ID";
+                ScanHeader."Backend Scan Id" := DeepScanRun."Run ID";
+                ScanHeader.Insert(true);
+            end;
+        end;
+
+        if ScanHeader."Run ID" = '' then
+            ScanHeader."Run ID" := DeepScanRun."Run ID";
+
+        if ScanHeader."Backend Scan Id" = '' then
+            ScanHeader."Backend Scan Id" := DeepScanRun."Run ID";
+
+        ScanHeader."Scan DateTime" := DeepScanRun."Requested At";
+        ScanHeader."Data Score" := DeepScanRun."Deep Score";
+        ScanHeader."Checks Count" := DeepScanRun."Checks Count";
+        ScanHeader."Issues Count" := DeepScanRun."Issues Count";
+        ScanHeader."Affected Records" := DeepScanRun."Affected Records";
+        ScanHeader."System Score" := DeepScanRun."System Score";
+        ScanHeader."Finance Score" := DeepScanRun."Finance Score";
+        ScanHeader."Sales Score" := DeepScanRun."Sales Score";
+        ScanHeader."Purchasing Score" := DeepScanRun."Purchasing Score";
+        ScanHeader."Inventory Score" := DeepScanRun."Inventory Score";
+        ScanHeader."CRM Score" := DeepScanRun."CRM Score";
+        ScanHeader."Manufacturing Score" := DeepScanRun."Manufacturing Score";
+        ScanHeader."Service Score" := DeepScanRun."Service Score";
+        ScanHeader."Jobs Score" := DeepScanRun."Jobs Score";
+        ScanHeader."HR Score" := DeepScanRun."HR Score";
+        ScanHeader."Estimated Loss (EUR)" := DeepScanRun."Estimated Loss (EUR)";
+        ScanHeader."Potential Saving (EUR)" := DeepScanRun."Potential Saving (EUR)";
+        ScanHeader."Est. Loss" := DeepScanRun."Estimated Loss (EUR)";
+        ScanHeader."Potential Saving" := DeepScanRun."Potential Saving (EUR)";
+        ScanHeader."Total Records" := DeepScanRun."Total Records";
+        ScanHeader."Est. Premium Price" := DeepScanRun."Est. Premium Price";
+        ScanHeader."ROI" := DeepScanRun."ROI";
+        ScanHeader."Headline" := CopyStr(DeepScanRun."Headline", 1, MaxStrLen(ScanHeader."Headline"));
+        ScanHeader."Rating" := CopyStr(DeepScanRun."Rating", 1, MaxStrLen(ScanHeader."Rating"));
+
+        ScanHeader.Modify(true);
+    end;
+
+    local procedure GetNextHeaderEntryNo(): Integer
+    var
+        ScanHeader: Record "DH Scan Header";
+    begin
+        if ScanHeader.FindLast() then
+            exit(ScanHeader."Entry No." + 1);
+
+        exit(1);
+    end;
+
     local procedure EnsureDeepScanAllowed(var Setup: Record "DH Setup")
+    var
+        ApiClient: Codeunit "DH API Client";
     begin
         if Setup."API Base URL" = '' then
             Error('Please configure API Base URL first.');
@@ -76,6 +149,11 @@ codeunit 53124 "DH Deep Scan Mgt."
         if Setup."Tenant ID" = '' then
             Error('Please register the tenant first.');
 
+        ApiClient.RefreshLicenseStatus(Setup);
+
+        if not Setup."Can Run Deep Scan" then
+            if not Setup.IsPremiumLicenseActive() then
+                Error('No scan credit or active monitoring available. Please buy an Assessment, Validation Check or start Monitoring.');
     end;
 
     local procedure GetNextRunEntryNo(): Integer

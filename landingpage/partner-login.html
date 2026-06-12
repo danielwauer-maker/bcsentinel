@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner Login | BCSentinel</title>
+  <title data-i18n="partner_login_meta_title">Partner Login | BCSentinel</title>
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,6 +145,7 @@
   </style>
 </head>
 <body>
+<header class="site-header"></header>
   <header class="container topbar">
     <a href="index.html"><strong>BCSentinel Partner</strong></a>
     <div class="actions">
@@ -154,7 +155,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main id="partner-login" class="container">
     <section class="panel">
       <h1 data-i18n="title">Partner Login</h1>
       <p class="lead" data-i18n="sub">Log in to view your account, referred tenants, and commission status.</p>
@@ -162,11 +163,11 @@
       <form id="loginForm" novalidate>
         <label>
           <span data-i18n="email_label">Business email</span>
-          <input type="email" id="email" required placeholder="partner@company.com" />
+          <input type="email" id="email" required placeholder="partner@company.com" data-i18n-placeholder="partner_forgot_email_placeholder" data-i18n-placeholder="partner_email_placeholder" />
         </label>
         <label>
           <span data-i18n="password_label">Password</span>
-          <input type="password" id="password" required placeholder="••••••••" />
+          <input type="password" id="password" required placeholder="********" data-i18n-placeholder="partner_password_placeholder" />
         </label>
         <button class="submit" type="submit" data-i18n="login_btn">Log in</button>
       </form>
@@ -174,7 +175,7 @@
       <div id="forgotWrap" class="forgot-wrap">
         <p class="lead" style="margin:0 0 8px;" data-i18n="forgot_sub">Enter your email and we will send a reset link.</p>
         <div class="forgot-row">
-          <input type="email" id="forgotEmail" placeholder="partner@company.com" />
+          <input type="email" id="forgotEmail" placeholder="partner@company.com" data-i18n-placeholder="partner_forgot_email_placeholder" />
           <button id="forgotSubmit" class="forgot-btn" type="button" data-i18n="forgot_btn">Send reset link</button>
         </div>
       </div>
@@ -184,7 +185,6 @@
     </section>
   </main>
 
-  <script src="partner-api.js"></script>
   <script>
     const translations = {
       de: {
@@ -223,6 +223,7 @@
       }
     };
 
+    const API_BASE = window.location.origin;
     const TOKEN_KEY = "bcs_partner_token";
     const LANG_KEY = "bcsentinel-lang";
     const THEME_KEY = "bcsentinel-theme";
@@ -275,7 +276,7 @@
       }
 
       try {
-        const res = await fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/auth/login"), {
+        const res = await fetch(API_BASE + "/api/partners/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -312,7 +313,7 @@
         return;
       }
       try {
-        await fetch(window.BCSentinelPartnerApi.buildUrl("/api/partners/auth/reset/request"), {
+        await fetch(API_BASE + "/api/partners/auth/reset/request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
@@ -326,5 +327,7 @@
     setTheme(localStorage.getItem(THEME_KEY) || "dark");
     applyI18n();
   </script>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

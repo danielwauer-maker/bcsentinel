@@ -30,8 +30,11 @@ table 53100 "DH Setup"
 
         field(4; "API Token"; Text[250])
         {
-            Caption = 'API Token';
+            Caption = 'Legacy API Token';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'API tokens are stored in company-scoped isolated storage.';
+            ObsoleteTag = '1.0.3.0';
         }
 
         field(5; "Last Score"; Integer)
@@ -48,7 +51,7 @@ table 53100 "DH Setup"
 
         field(7; "Premium Enabled"; Boolean)
         {
-            Caption = 'Premium Enabled';
+            Caption = 'Product Access Active';
             DataClassification = SystemMetadata;
         }
 
@@ -66,19 +69,19 @@ table 53100 "DH Setup"
 
         field(10; "Current Plan"; Enum "DH License Plan")
         {
-            Caption = 'Current Plan';
+            Caption = 'Compatibility Plan';
             DataClassification = SystemMetadata;
         }
 
         field(11; "License Status"; Enum "DH License Status")
         {
-            Caption = 'License Status';
+            Caption = 'Compatibility Status';
             DataClassification = SystemMetadata;
         }
 
         field(12; "Last License Check"; DateTime)
         {
-            Caption = 'Last License Check';
+            Caption = 'Last Product Access Check';
             DataClassification = SystemMetadata;
         }
 
@@ -86,6 +89,11 @@ table 53100 "DH Setup"
         {
             Caption = 'Data Processing Consent';
             DataClassification = CustomerContent;
+        }
+        field(27; "Registration Invite Code"; Text[100])
+        {
+            Caption = 'Registration Invite Code';
+            DataClassification = SystemMetadata;
         }
 
         field(14; "Last Run ID Date"; Date)
@@ -174,6 +182,46 @@ table 53100 "DH Setup"
             Caption = 'Issue Drilldown Code';
             DataClassification = SystemMetadata;
         }
+        field(28; "Scan Credits Available"; Integer)
+        {
+            Caption = 'Scan Credits Available';
+            DataClassification = SystemMetadata;
+        }
+        field(29; "Monitoring Active"; Boolean)
+        {
+            Caption = 'Monitoring Active';
+            DataClassification = SystemMetadata;
+        }
+        field(30; "Dashboard Access Until"; Text[50])
+        {
+            Caption = 'Dashboard Access Until';
+            DataClassification = SystemMetadata;
+        }
+        field(31; "Issue Access Until"; Text[50])
+        {
+            Caption = 'Issue Access Until';
+            DataClassification = SystemMetadata;
+        }
+        field(32; "Can Run Deep Scan"; Boolean)
+        {
+            Caption = 'Can Run Deep Scan';
+            DataClassification = SystemMetadata;
+        }
+        field(33; "Can View Dashboard"; Boolean)
+        {
+            Caption = 'Can View Dashboard';
+            DataClassification = SystemMetadata;
+        }
+        field(34; "Can View Issue Details"; Boolean)
+        {
+            Caption = 'Can View Issue Details';
+            DataClassification = SystemMetadata;
+        }
+        field(35; "Product Access Model"; Text[30])
+        {
+            Caption = 'Product Access';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -254,18 +302,30 @@ table 53100 "DH Setup"
 
     procedure GetFeatureAccessText(): Text[100]
     begin
-        if "Premium Enabled" then
-            exit('Premium actions unlocked');
+        if "Monitoring Active" then
+            exit('Monitoring active');
 
-        exit('Deep scan basis available, premium actions locked');
+        if "Scan Credits Available" > 0 then
+            exit(StrSubstNo('%1 scan credit(s) available', "Scan Credits Available"));
+
+        if "Premium Enabled" then
+            exit('Paid scan access active');
+
+        exit('Register the tenant and buy or grant a scan product to unlock paid scan actions');
     end;
 
     procedure GetUpgradeHintText(): Text[250]
     begin
-        if "Premium Enabled" then
-            exit('Premium recommendations and correction actions are available for this tenant.');
+        if "Monitoring Active" then
+            exit('Monitoring is active. Deep scans and dashboard details are available.');
 
-        exit('This scan already uses the full DeepScan data basis. Upgrade to Premium to unlock recommendations, drilldowns, and correction worklists.');
+        if "Scan Credits Available" > 0 then
+            exit('A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.');
+
+        if "Premium Enabled" then
+            exit('Paid recommendations and scan actions are available for this tenant.');
+
+        exit('Buy an Assessment, Validation Check, or Monitoring product to unlock recommendations, drilldowns, and scan actions.');
     end;
 
     procedure EnsureModuleDefaults()

@@ -1,4 +1,4 @@
-page 53144 "DH Purch. Line Worklist"
+﻿page 53144 "DH Purch. Line Worklist"
 {
     PageType = List;
     SourceTable = "Purchase Line";
@@ -16,66 +16,82 @@ page 53144 "DH Purch. Line Worklist"
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Document Type.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Document No.';
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Line No.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Type.';
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies No.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Description.';
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity.';
                 }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Direct Unit Cost.';
                 }
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Expected Receipt Date.';
                 }
                 field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Outstanding Quantity.';
                 }
                 field("Quantity Received"; Rec."Quantity Received")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity Received.';
                 }
                 field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Quantity Invoiced.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Line Discount %.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Location Code.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Shortcut Dimension 1 Code.';
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Shortcut Dimension 2 Code.';
                 }
             }
         }
@@ -88,6 +104,7 @@ page 53144 "DH Purch. Line Worklist"
             action(MarkIssueCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -100,6 +117,7 @@ page 53144 "DH Purch. Line Worklist"
             action(OpenDocument)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -213,3 +231,4 @@ page 53144 "DH Purch. Line Worklist"
     end;
 
 }
+

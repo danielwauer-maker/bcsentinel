@@ -1,4 +1,4 @@
-page 53126 "DH Scan Issues"
+﻿page 53126 "DH Scan Issues"
 {
     PageType = List;
     SourceTable = "DH Scan Issue";
@@ -19,32 +19,39 @@ page 53126 "DH Scan Issues"
                 field("Title"; Rec."Title")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Title.';
                 }
                 field("Severity"; Rec."Severity")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Severity.';
                     StyleExpr = SeverityStyle;
                 }
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Affected Count.';
                 }
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact €';
+                    Caption = 'Impact EUR';
+                    ToolTip = 'Specifies Impact EUR.';
                 }
                 field("Recommendation Preview"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Recommendation Preview.';
                 }
                 field("Premium"; Rec."Premium Only")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Premium.';
                 }
                 field("Issue Code"; Rec."Issue Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issue Code.';
                 }
             }
         }
@@ -118,3 +125,4 @@ page 53126 "DH Scan Issues"
         exit('Standard');
     end;
 }
+

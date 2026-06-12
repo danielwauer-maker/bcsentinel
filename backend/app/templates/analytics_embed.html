@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -12,7 +12,7 @@
       <div class="topbar-left">
         <div class="title-row">
           <h1 id="page-title">BCSentinel Analytics</h1>
-          <span id="current-plan-badge" class="plan-badge is-free">Free</span>
+          <span id="current-plan-badge" class="plan-badge is-locked">Credits needed</span>
         </div>
         <p id="page-subtitle" class="page-subtitle">Loading...</p>
       </div>
@@ -21,7 +21,7 @@
           <button type="button" class="topnav-link is-active" data-tab="overview">Overview</button>
           <button type="button" class="topnav-link" data-tab="subscription">Subscription</button>
         </nav>
-        <span id="last-updated" class="pill muted-pill">Last updated: —</span>
+        <span id="last-updated" class="pill muted-pill">Last updated: -</span>
       </div>
     </header>
 
@@ -29,7 +29,7 @@
       <section class="hero-block">
         <div>
           
-          <div id="hero-eyebrow" class="hero-eyebrow">Insight is free. Action is Premium.</div>
+          <div id="hero-eyebrow" class="hero-eyebrow">Assessment first. Monitoring when data quality needs control.</div>
           <h2 class="hero-title">
             <span id="hero-prefix">Your data health is</span>
             <span id="hero-highlight" class="hero-highlight">critical</span>
@@ -54,7 +54,7 @@
 
         <article class="stat-card panel accent-red">
           <div class="stat-label">Estimated annual loss</div>
-          <div class="stat-value loss-value" id="kpi-loss">0 €</div>
+          <div class="stat-value loss-value" id="kpi-loss">0 &euro;</div>
           <div class="stat-helper">Monetarisierter Impact</div>
         </article>
 
@@ -72,7 +72,7 @@
 
         <article class="stat-card panel accent-green">
           <div class="stat-label">ROI</div>
-          <div class="stat-value roi-value" id="kpi-roi">0 €</div>
+          <div class="stat-value roi-value" id="kpi-roi">0 &euro;</div>
           <div class="stat-helper">Potential minus annual cost</div>
         </article>
       </section>
@@ -84,7 +84,7 @@
               
               <h3>Data Scores by BC module</h3>
             </div>
-            <span class="muted">Score per module · 0 to 100</span>
+            <span class="muted">Score per module &middot; 0 to 100</span>
           </div>
           <div class="mini-grid" id="profile-cards"></div>
         </article>
@@ -103,7 +103,7 @@
         </article>
       </section>
 
-      <section id="premium-overview-panels" class="overview-grid premium-only-grid hidden">
+      <section id="monitoring-overview-panels" class="overview-grid monitoring-only-grid hidden">
         <article class="panel" id="scan-table-panel">
           <div class="panel-header">
             <div class="panel-title-block">
@@ -152,13 +152,13 @@
         </div>
       </section>
 
-      <section id="free-unlock-panel" class="panel unlock-panel hidden">
+      <section id="access-unlock-panel" class="panel unlock-panel hidden">
         <div class="unlock-header">
           <div>
-            <h3>Premium unlocks</h3>
+            <h3>Paid scan access</h3>
             <p id="unlock-headline" class="unlock-copy">Do you want to keep losing money or start fixing the root causes?</p>
           </div>
-          <button id="upgrade-button" type="button" class="primary-button">Upgrade to Premium</button>
+          <button id="upgrade-button" type="button" class="primary-button">Buy Assessment</button>
         </div>
         <div class="unlock-grid">
           <div class="unlock-left">
@@ -167,46 +167,46 @@
           </div>
           <div class="unlock-right">
             <div class="preview-title-row">
-              <span class="preview-title">Premium preview</span>
+              <span class="preview-title">Scan preview</span>
               <span class="muted">Record details, recommendations, actions</span>
             </div>
 
             <div class="pricing-breakdown-box">
-              <div class="pricing-breakdown-title">Estimated Premium pricing</div>
+              <div class="pricing-breakdown-title">Estimated monitoring pricing</div>
               <div class="pricing-breakdown-grid">
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Base price</div>
-                  <div id="preview-base-price" class="pricing-breakdown-value">€0.00</div>
+                  <div id="preview-base-price" class="pricing-breakdown-value">&euro;0.00</div>
                 </div>
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Data volume add-on</div>
-                  <div id="preview-variable-price" class="pricing-breakdown-value">€0.00</div>
+                  <div id="preview-variable-price" class="pricing-breakdown-value">&euro;0.00</div>
                 </div>
                 <div class="pricing-breakdown-item">
-                  <div class="stat-label">Estimated Premium / month</div>
-                  <div id="preview-final-price" class="pricing-breakdown-value">€0.00</div>
+                  <div class="stat-label">Estimated monitoring / month</div>
+                  <div id="preview-final-price" class="pricing-breakdown-value">&euro;0.00</div>
                 </div>
                 <div class="pricing-breakdown-item">
                   <div class="stat-label">Annual fixed plan</div>
-                  <div id="preview-annual-fixed" class="pricing-breakdown-value">€0.00</div>
+                  <div id="preview-annual-fixed" class="pricing-breakdown-value">&euro;0.00</div>
                 </div>
               </div>
               <div id="preview-monthly-note" class="pricing-note"></div>
               <div id="preview-annual-note" class="pricing-note"></div>
             </div>
 
-            <div id="premium-preview-findings" class="preview-cards"></div>
+            <div id="access-preview-findings" class="preview-cards"></div>
           </div>
         </div>
       </section>
 
-      <section id="premium-findings-panel" class="panel findings-panel hidden">
+      <section id="access-findings-panel" class="panel findings-panel hidden">
         <div class="panel-header">
           <div class="panel-title-block">
             
             <h3>Findings</h3>
           </div>
-          <span class="muted">Visible in Premium, actionable in Business Central</span>
+          <span class="muted">Visible with paid scan access, actionable in Business Central</span>
         </div>
         <div class="table-wrap">
           <table>
@@ -226,28 +226,44 @@
             
             <h3>Subscription</h3>
           </div>
-          <span id="subscription-plan-badge" class="plan-badge">Free</span>
+          <span id="subscription-plan-badge" class="plan-badge">Credits needed</span>
         </div>
         <div class="subscription-grid">
           <div class="subscription-card">
-            <div class="stat-label">Current plan</div>
-            <div id="subscription-plan" class="subscription-value">Free</div>
+            <div class="stat-label">Product access</div>
+            <div id="subscription-plan" class="subscription-value">Assessment needed</div>
             <div id="subscription-note" class="stat-helper"></div>
           </div>
           <div class="subscription-card">
-            <div class="stat-label">Monthly price</div>
-            <div id="subscription-price" class="subscription-value">0 €</div>
-            <div class="stat-helper">Current plan price</div>
+            <div class="stat-label">Scan Credits</div>
+            <div id="subscription-scan-credits" class="subscription-value">0</div>
+            <div class="stat-helper">Available paid scan starts</div>
           </div>
           <div class="subscription-card">
+            <div class="stat-label">Dashboard Access Until</div>
+            <div id="subscription-dashboard-until" class="subscription-value">—</div>
+            <div class="stat-helper">Assessment / Validation result window</div>
+          </div>
+          <div class="subscription-card">
+            <div class="stat-label">Issue Access Until</div>
+            <div id="subscription-issue-until" class="subscription-value">—</div>
+            <div class="stat-helper">Record details and recommendations</div>
+          </div>
+          <div class="subscription-card hidden" id="subscription-price-card">
+            <div class="stat-label">Monthly price</div>
+            <div id="subscription-price" class="subscription-value">EUR 0.00</div>
+            <div class="stat-helper">Monitoring price</div>
+          </div>
+          <div class="subscription-card hidden" id="subscription-annual-card">
             <div class="stat-label">Annual cost</div>
-            <div id="subscription-annual" class="subscription-value">0 €</div>
+            <div id="subscription-annual" class="subscription-value">EUR 0.00</div>
             <div class="stat-helper">12 months projection</div>
           </div>
         </div>
 
         <div class="subscription-cta-row">
-          <button id="subscription-cta" type="button" class="primary-button">Upgrade to Premium</button>
+          <button id="subscription-cta" type="button" class="primary-button">Start Monitoring</button>
+          <button id="buy-more-credits-cta" type="button" class="primary-button hidden">Buy More Credits</button>
         </div>
       </article>
     </section>

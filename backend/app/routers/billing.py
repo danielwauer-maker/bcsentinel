@@ -13,7 +13,7 @@ from sqlalchemy import select
 from app.core.observability import log_event
 from app.core.settings import resolve_billing_url, settings
 from app.db import SessionLocal
-from app.models import PartnerReferral, Scan, Subscription, Tenant
+from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantScanCredit
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -30,6 +30,18 @@ from app.services.billing_service import (
 )
 from app.services.entitlement_guard_service import require_tenant_feature
 from app.services.partner_service import ensure_partner_commission_for_invoice
+from app.services.product_license_service import (
+    PRODUCT_ASSESSMENT,
+    PRODUCT_MONITORING_ANNUAL,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_VALIDATION_CHECK,
+    grant_product_entitlement,
+    grant_scan_credit,
+    is_monitoring_product,
+    is_one_time_product,
+    normalize_product_code,
+    record_product_purchase,
+)
 
 router = APIRouter(tags=["billing"])
 logger = logging.getLogger(__name__)
@@ -59,8 +71,8 @@ SUPPORTED_STRIPE_EVENTS = {
 
 class CheckoutSessionRequest(BaseModel):
     tenant_id: str
-    plan_code: str = "premium"
     billing_interval: str = "monthly"
+    product_code: str
 
 
 class CheckoutSessionResponse(BaseModel):
@@ -70,6 +82,7 @@ class CheckoutSessionResponse(BaseModel):
     tenant_id: str
     plan_code: str
     billing_interval: str = "monthly"
+    product_code: str = "monitoring_monthly"
 
 
 class BillingPortalRequest(BaseModel):
@@ -241,26 +254,49 @@ def _normalize_billing_interval(value: str | None) -> str:
     raise HTTPException(status_code=400, detail="billing_interval must be 'monthly' or 'yearly'.")
 
 
-def _normalize_checkout_plan_code(value: str | None) -> str:
-    normalized = (value or "premium").strip().lower()
-    if normalized == "premium":
-        return normalized
-    raise HTTPException(status_code=400, detail="plan_code must be 'premium' for checkout.")
+def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
+    product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
+    if product_code not in {
+        PRODUCT_ASSESSMENT,
+        PRODUCT_VALIDATION_CHECK,
+        PRODUCT_MONITORING_MONTHLY,
+        PRODUCT_MONITORING_ANNUAL,
+    }:
+        raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
+    return product_code
 
 
-def _resolve_stripe_checkout_price_ids(billing_interval: str) -> tuple[str, str]:
-    if billing_interval == "yearly":
-        base_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY or "").strip()
-        pack_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY or "").strip()
-        if not base_price_id:
-            raise HTTPException(status_code=503, detail="Yearly premium base billing is not configured.")
-        return base_price_id, pack_price_id
+def _billing_interval_for_product(product_code: str, requested_interval: str | None) -> str:
+    if product_code == PRODUCT_MONITORING_ANNUAL:
+        return "yearly"
+    if product_code == PRODUCT_MONITORING_MONTHLY:
+        return "monthly"
+    return _normalize_billing_interval(requested_interval)
 
-    base_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY or "").strip()
-    pack_price_id = (settings.STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY or "").strip()
-    if not base_price_id:
-        raise HTTPException(status_code=503, detail="Monthly premium base billing is not configured.")
-    return base_price_id, pack_price_id
+
+def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
+    if product_code == PRODUCT_ASSESSMENT:
+        price_id = (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip()
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Assessment checkout is not configured.")
+        return price_id
+    if product_code == PRODUCT_VALIDATION_CHECK:
+        price_id = (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip()
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
+        return price_id
+    if product_code == PRODUCT_MONITORING_ANNUAL:
+        price_id = (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or "").strip()
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Monitoring annual checkout is not configured.")
+        return price_id
+    if product_code == PRODUCT_MONITORING_MONTHLY:
+        price_id = (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or "").strip()
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Monitoring monthly checkout is not configured.")
+        return price_id
+    raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
+
 
 
 def _find_tenant_for_invoice(db, explicit_tenant_id: str | None, provider_subscription_id: str | None) -> Tenant | None:
@@ -337,7 +373,7 @@ def _process_normalized_webhook(
             provider=provider,
             provider_subscription_id=provider_subscription_id,
             status=str(subscription_data.get("status") or "active").lower(),
-            plan_code=str(subscription_data.get("plan_code") or "premium").lower(),
+            plan_code=str(subscription_data.get("product_code") or subscription_data.get("plan_code") or "").lower(),
             currency=str(subscription_data.get("currency") or "EUR"),
             amount_monthly=float(subscription_data.get("amount_monthly") or 0.0),
             current_period_start_utc=occurred_at_utc,
@@ -346,6 +382,43 @@ def _process_normalized_webhook(
             canceled_at_utc=_parse_dt(subscription_data.get("canceled_at_utc")),
         )
         sync_tenant_license_from_subscription(tenant, subscription)
+        if is_monitoring_product(subscription.plan_code) and subscription.status in {"trialing", "active"}:
+            grant_product_entitlement(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=subscription.plan_code,
+                source="stripe_subscription",
+                valid_until_utc=subscription.current_period_end_utc,
+            )
+
+    if event_type == "checkout.session.completed":
+        checkout_data = subscription_data or {}
+        product_code = normalize_product_code(str(checkout_data.get("product_code") or checkout_data.get("plan_code") or ""))
+        if is_one_time_product(product_code):
+            purchase = record_product_purchase(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=product_code,
+                provider=provider,
+                provider_checkout_session_id=str(checkout_data.get("id") or event_id),
+                provider_payment_intent_id=checkout_data.get("payment_intent"),
+                status=str(checkout_data.get("payment_status") or "paid").lower(),
+                currency=str(checkout_data.get("currency") or "EUR"),
+                amount_total=float(checkout_data.get("amount_total") or 0.0),
+                source="checkout",
+            )
+            if purchase.status in {"paid", "complete", "completed"}:
+                existing_credit = db.scalar(
+                    select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
+                )
+                if existing_credit is None:
+                    grant_scan_credit(
+                        db,
+                        tenant_id=tenant.tenant_id,
+                        product_code=product_code,
+                        source="checkout",
+                        source_purchase_id=purchase.id,
+                    )
 
     if event_type.startswith("invoice."):
         provider_invoice_id = str(
@@ -397,20 +470,31 @@ def create_checkout_session(
 ) -> CheckoutSessionResponse:
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
-
-    normalized_plan_code = _normalize_checkout_plan_code(payload.plan_code)
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+    return create_checkout_session_for_tenant(payload)
+
+
+def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> CheckoutSessionResponse:
+    """Create checkout for a tenant already authorized by the caller."""
+
+    product_code = _normalize_checkout_product_code(payload)
+    normalized_plan_code = product_code
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
         require_tenant_feature(db, tenant, "billing_checkout")
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
         record_count = _deep_scan_record_count(latest_deep_scan)
         package_count = _additional_record_package_count(record_count)
 
-    billing_interval = _normalize_billing_interval(payload.billing_interval)
+    billing_interval = _billing_interval_for_product(product_code, payload.billing_interval)
     checkout_metadata = {
         "tenant_id": payload.tenant_id,
         "plan_code": normalized_plan_code,
+        "product_code": product_code,
         "billing_interval": billing_interval,
         "tenant_environment": str(getattr(tenant, "environment_name", "") or "").strip(),
         "record_count": str(record_count),
@@ -428,28 +512,29 @@ def create_checkout_session(
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     stripe.api_key = _require_stripe_secret_key()
-    base_price_id, pack_price_id = _resolve_stripe_checkout_price_ids(billing_interval)
-    line_items = [{"price": base_price_id, "quantity": 1}]
-    if package_count > 0:
-        if not pack_price_id:
-            raise HTTPException(
-                status_code=503,
-                detail="Stripe record package billing is not configured for the tenant's data volume.",
-            )
-        line_items.append({"price": pack_price_id, "quantity": package_count})
+    line_items = [{"price": _resolve_product_price_id(product_code, billing_interval), "quantity": 1}]
+    checkout_mode = "payment" if is_one_time_product(product_code) else "subscription"
 
     try:
-        session = stripe.checkout.Session.create(
-            mode="subscription",
-            client_reference_id=payload.tenant_id,
-            line_items=line_items,
-            success_url=success_url,
-            cancel_url=cancel_url,
-            metadata=checkout_metadata,
-            subscription_data={
-                "metadata": checkout_metadata
-            },
-        )
+        session_kwargs = {
+            "mode": checkout_mode,
+            "client_reference_id": payload.tenant_id,
+            "line_items": line_items,
+            "success_url": success_url,
+            "cancel_url": cancel_url,
+            "metadata": checkout_metadata,
+        }
+        if checkout_mode == "subscription":
+            session_kwargs["subscription_data"] = {"metadata": checkout_metadata}
+        session = stripe.checkout.Session.create(**session_kwargs)
+    except stripe.error.InvalidRequestError as exc:
+        message = str(exc).lower()
+        if "price" in message and ("inactive" in message or "no such price" in message or "invalid" in message):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Configured Stripe Price ID for {product_code} is inactive or invalid.",
+            ) from exc
+        raise HTTPException(status_code=400, detail="Stripe rejected the checkout request.") from exc
     except Exception:
         logger.exception(
             "Stripe checkout session creation failed.",
@@ -457,6 +542,7 @@ def create_checkout_session(
                 "event": "billing_checkout_failed",
                 "tenant_id": payload.tenant_id,
                 "billing_interval": billing_interval,
+                "product_code": product_code,
             },
         )
         raise
@@ -468,6 +554,7 @@ def create_checkout_session(
         "Stripe checkout session created.",
         tenant_id=payload.tenant_id,
         billing_interval=billing_interval,
+        product_code=product_code,
         package_count=package_count,
     )
     return CheckoutSessionResponse(
@@ -477,6 +564,7 @@ def create_checkout_session(
         tenant_id=payload.tenant_id,
         plan_code=normalized_plan_code,
         billing_interval=billing_interval,
+        product_code=product_code,
     )
 
 
@@ -487,9 +575,18 @@ def create_billing_portal_session(
 ) -> BillingPortalResponse:
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+    with SessionLocal() as db:
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
+    return create_billing_portal_session_for_tenant(payload)
+
+
+def create_billing_portal_session_for_tenant(payload: BillingPortalRequest) -> BillingPortalResponse:
+    """Create a billing portal for a tenant already authorized by the caller."""
 
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
         require_tenant_feature(db, tenant, "billing_portal")
         subscription = get_latest_subscription_for_tenant(db, tenant.tenant_id)
 
@@ -580,6 +677,40 @@ def sync_checkout_session_status(
 
     subscription_obj = checkout.get("subscription")
     if not subscription_obj:
+        metadata = checkout.get("metadata", {}) or {}
+        product_code = normalize_product_code(str(metadata.get("product_code") or metadata.get("plan_code") or ""))
+        if is_one_time_product(product_code) and str(checkout.get("payment_status") or "").lower() == "paid":
+            with SessionLocal() as db:
+                tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+                enforce_tenant_match(str(metadata.get("tenant_id") or tenant.tenant_id), tenant.tenant_id, "Checkout metadata tenant_id")
+                purchase = record_product_purchase(
+                    db,
+                    tenant_id=tenant.tenant_id,
+                    product_code=product_code,
+                    provider="stripe",
+                    provider_checkout_session_id=str(checkout.get("id") or session_id),
+                    provider_payment_intent_id=checkout.get("payment_intent"),
+                    status="paid",
+                    currency=str(checkout.get("currency") or "EUR").upper(),
+                    amount_total=float(checkout.get("amount_total") or 0) / 100.0,
+                    source="checkout_sync",
+                )
+                if db.scalar(select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)) is None:
+                    grant_scan_credit(
+                        db,
+                        tenant_id=tenant.tenant_id,
+                        product_code=product_code,
+                        source="checkout_sync",
+                        source_purchase_id=purchase.id,
+                    )
+                tenant.last_seen_at_utc = utc_now()
+                db.commit()
+            status_payload = get_billing_subscription_status(tenant_auth)
+            return CheckoutSessionSyncResponse(
+                status="synced",
+                checkout_session_id=session_id,
+                subscription_status=status_payload,
+            )
         status_payload = get_billing_subscription_status(tenant_auth)
         return CheckoutSessionSyncResponse(
             status="pending",
@@ -606,7 +737,7 @@ def sync_checkout_session_status(
             provider="stripe",
             provider_subscription_id=provider_subscription_id,
             status=str(subscription_obj.get("status") or "incomplete").lower(),
-            plan_code=str((subscription_obj.get("metadata", {}) or {}).get("plan_code") or "premium").lower(),
+            plan_code=str((subscription_obj.get("metadata", {}) or {}).get("product_code") or (subscription_obj.get("metadata", {}) or {}).get("plan_code") or "").lower(),
             currency=str(subscription_obj.get("currency") or "EUR").upper(),
             amount_monthly=float(_extract_subscription_monthly_amount(subscription_obj)),
             current_period_start_utc=_dt_from_unix(subscription_obj.get("current_period_start")),
@@ -703,7 +834,15 @@ async def process_billing_webhook(
                     event_type=event_type,
                     tenant_id=tenant_id,
                     occurred_at_utc=occurred_at_utc,
-                    subscription_data=None,
+                    subscription_data={
+                        "id": data_object.get("id"),
+                        "payment_intent": data_object.get("payment_intent"),
+                        "payment_status": data_object.get("payment_status"),
+                        "currency": (data_object.get("currency") or "EUR").upper(),
+                        "amount_total": float(data_object.get("amount_total") or 0) / 100.0,
+                        "product_code": (data_object.get("metadata", {}) or {}).get("product_code"),
+                        "plan_code": (data_object.get("metadata", {}) or {}).get("plan_code"),
+                    },
                     invoice_data=None,
                     raw_payload_json=body_text,
                 )
@@ -737,7 +876,8 @@ async def process_billing_webhook(
             subscription_data = {
                 "id": data_object.get("id"),
                 "status": data_object.get("status"),
-                "plan_code": (data_object.get("metadata", {}) or {}).get("plan_code", "premium"),
+                "plan_code": (data_object.get("metadata", {}) or {}).get("plan_code"),
+                "product_code": (data_object.get("metadata", {}) or {}).get("product_code"),
                 "currency": (data_object.get("currency") or "EUR").upper(),
                 "amount_monthly": float(_extract_subscription_monthly_amount(data_object)),
                 "current_period_end_utc": _dt_from_unix(data_object.get("current_period_end")),

@@ -36,7 +36,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Nr.</th><th>Tenant ID</th><th>Environment</th><th>App Version</th><th>Created At</th><th>Last Seen</th><th>Plan</th><th>License</th><th>Billing Provider</th><th>Billing Status</th><th>Scans</th><th>Last Scan</th><th>Actions</th></tr>
+                <tr><th>Nr.</th><th>Tenant ID</th><th>Environment</th><th>App Version</th><th>Created At</th><th>Last Seen</th><th>Product Access</th><th>Monitoring</th><th>Scan Credits</th><th>Billing Provider</th><th>Billing Status</th><th>Scans</th><th>Last Scan</th><th>Actions</th></tr>
               </thead>
               <tbody>
               {% for tenant in tenants %}
@@ -47,8 +47,9 @@
                   <td>{{ tenant.app_version }}</td>
                   <td>{{ tenant.created_at }}</td>
                   <td>{{ tenant.last_seen_at }}</td>
-                  <td><span class="pill small-pill">{{ tenant.current_plan }}</span></td>
-                  <td><span class="pill small-pill success-pill">{{ tenant.license_status }}</span></td>
+                  <td><span class="pill small-pill">{{ tenant.product_access }}</span></td>
+                  <td><span class="pill small-pill{% if tenant.monitoring_status == 'active' %} success-pill{% endif %}">{{ tenant.monitoring_status }}</span></td>
+                  <td>{{ tenant.available_scan_credits }}</td>
                   <td>{{ tenant.billing_provider }}</td>
                   <td>{{ tenant.billing_status }}</td>
                   <td>{{ tenant.scan_count }}</td>
@@ -100,21 +101,38 @@
         {% endif %}
 
         {% if active_section == "license_pricing" %}
-        <section class="admin-grid">
+        <section class="content-grid admin-detail-grid">
           <article class="panel">
-            <div class="panel-header"><h2>License Pricing</h2><span class="muted">Free stays at EUR0. Premium = base price + price per step with friendly rounding.</span></div>
-            <div class="config-list">
-              {% for row in license_prices if row.plan_code in ["free", "premium"] %}
-              <form method="post" action="/admin/config/license-pricing/{{ row.plan_code }}" class="config-row">
-                <div class="config-title">{{ row.plan_code }}</div>
-                <input type="text" name="display_name" value="{{ row.display_name }}">
-                <input type="number" step="0.01" name="base_price_monthly" value="{{ row.base_price_monthly }}">
-                <input type="number" step="1" name="included_records" value="{{ row.included_records }}" title="Step records">
-                <input type="number" step="0.01" name="additional_price_per_1000_records" value="{{ row.additional_price_per_1000_records }}" title="Price per step">
-                <label class="checkbox-inline"><input type="checkbox" name="is_active" {% if row.is_active %}checked{% endif %}> aktiv</label>
-                <button type="submit" class="btn btn-primary">Save</button>
-              </form>
-              {% endfor %}
+            <div class="panel-header"><h2>Product Pricing</h2><span class="muted">Zentrale Anzeige-Preise fuer Checkout-Produkte.</span></div>
+            <p class="muted">Stripe Price IDs bleiben in ENV. Diese Preise steuern Public Pricing, Landingpage und Dashboard-Anzeige.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Product Key</th><th>Name</th><th>Preis (Cent)</th><th>Currency</th><th>Intervall</th><th>Active</th><th>Updated</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {% for row in product_prices %}
+                  <tr>
+                    <td><code>{{ row.product_key }}</code></td>
+                    <td><input form="product-pricing-{{ row.product_key }}" type="text" name="display_name" value="{{ row.display_name }}" required></td>
+                    <td><input form="product-pricing-{{ row.product_key }}" type="number" name="price_cents" min="1" step="1" value="{{ row.price_cents }}" required></td>
+                    <td><input form="product-pricing-{{ row.product_key }}" type="text" name="currency" value="{{ row.currency }}" maxlength="3" required></td>
+                    <td>
+                      <select form="product-pricing-{{ row.product_key }}" name="billing_interval">
+                        <option value="one_time" {% if row.billing_interval == "one_time" %}selected{% endif %}>one_time</option>
+                        <option value="month" {% if row.billing_interval == "month" %}selected{% endif %}>month</option>
+                        <option value="year" {% if row.billing_interval == "year" %}selected{% endif %}>year</option>
+                      </select>
+                    </td>
+                    <td><label class="checkbox-inline"><input form="product-pricing-{{ row.product_key }}" type="checkbox" name="is_active" {% if row.is_active %}checked{% endif %}> active</label></td>
+                    <td>{{ fmt_dt(row.updated_at_utc) }}</td>
+                    <td>
+                      <form id="product-pricing-{{ row.product_key }}" method="post" action="/admin/config/product-pricing/{{ row.product_key }}" class="inline-form wrap-gap">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
           </article>
         </section>
@@ -414,10 +432,93 @@
           </div>
         </section>
         {% endif %}
+
+        {% if active_section == "site_translations" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <h2>Uebersetzungen - bcsentinel.com</h2>
+            <span class="muted">Landingpage- und Unterseiten-Texte in Deutsch und Englisch</span>
+          </div>
+          {% if site_translation_flash and site_translation_flash.message %}
+          <div class="pill {% if site_translation_flash.status == 'success' %}success-pill{% endif %}" style="margin-bottom:12px;">
+            {{ site_translation_flash.message }}
+          </div>
+          {% endif %}
+          <p class="muted">Diese Texte werden auf bcsentinel.com und den Landingpage-Unterseiten verwendet. Aenderungen werden nach dem naechsten Seiten-Refresh sichtbar.</p>
+          {% if site_translation_error %}
+          <div class="pill" style="margin:12px 0; white-space:normal; display:block; line-height:1.5;">
+            <strong>{{ site_translation_error.message }}</strong>
+            <div class="muted" style="margin-top:6px;">
+              {% for key, value in site_translation_error.details.items() %}
+                <div><code>{{ key }}</code>: {{ value }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
+          <div class="inline-form wrap-gap" style="margin:12px 0; align-items:center;">
+            <input id="siteTranslationSearch" type="search" placeholder="Key, Deutsch oder Englisch suchen" style="min-width:320px;">
+            <label class="muted" style="display:inline-flex; align-items:center; gap:8px;">
+              <input id="siteTranslationMissingOnly" type="checkbox">
+              Nur fehlende / Warnungen
+            </label>
+            <button class="btn btn-secondary" type="button" id="siteTranslationClear">Reset</button>
+          </div>
+          <form method="post" action="/admin/config/site-translations" id="siteTranslationsForm">
+            <div style="display:grid; gap:18px;">
+              {% for group in site_translation_groups %}
+              <details class="panel site-translation-group" style="margin:0;" data-group="{{ group.key }}" {% if loop.first %}open{% endif %}>
+                <summary class="panel-header" style="cursor:pointer;">
+                  <h2>{{ group.label }}</h2>
+                  <span class="muted">
+                    {{ group.key_count }} Keys
+                    {% if group.missing_count %} · {{ group.missing_count }} fehlend{% endif %}
+                    {% if group.warning_count %} · {{ group.warning_count }} Hinweise{% endif %}
+                  </span>
+                </summary>
+                <div class="table-wrap" style="margin-top:12px;">
+                  <table class="site-translations-table">
+                    <thead><tr><th style="width:22%;">Key</th><th style="width:34%;">Deutsch</th><th style="width:34%;">Englisch</th><th>Status / Hinweis</th></tr></thead>
+                    <tbody>
+                      {% for row in group.rows %}
+                      <tr class="site-translation-row" data-status="{{ row.status }}" data-search="{{ row.key }} {{ row.de }} {{ row.en }}">
+                        <td>
+                          <code>{{ row.key }}</code>
+                          <input type="hidden" name="keys" value="{{ row.key }}">
+                        </td>
+                        <td><textarea name="de_values" rows="{% if row.de|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.de }}</textarea></td>
+                        <td><textarea name="en_values" rows="{% if row.en|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.en }}</textarea></td>
+                        <td><span class="pill small-pill{% if row.status == 'OK' %} success-pill{% endif %}">{{ row.status }}</span></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+              {% endfor %}
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+              <button type="submit" class="btn btn-primary">Save all</button>
+              <a class="btn btn-secondary" href="/admin/config/site-translations">Reload</a>
+              <span id="siteTranslationClientStatus" class="muted"></span>
+            </div>
+          </form>
+          {% endif %}
+        </section>
+        {% endif %}
       </main>
     </div>
   </div>
   <script>
+    const csrfToken = "{{ csrf_token }}";
+    document.querySelectorAll('form[method="post"], form[method="POST"]').forEach((form) => {
+      if (form.querySelector('input[name="csrf_token"]')) return;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "csrf_token";
+      input.value = csrfToken;
+      form.appendChild(input);
+    });
+
     function generatePassword(length) {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
       const size = Math.max(12, length || 16);
@@ -441,6 +542,61 @@
       input.focus();
       input.select();
     });
+
+    const siteTranslationSearch = document.getElementById("siteTranslationSearch");
+    const siteTranslationClear = document.getElementById("siteTranslationClear");
+    const siteTranslationMissingOnly = document.getElementById("siteTranslationMissingOnly");
+    const siteTranslationsForm = document.getElementById("siteTranslationsForm");
+    const siteTranslationClientStatus = document.getElementById("siteTranslationClientStatus");
+    function applySiteTranslationFilter() {
+      if (!siteTranslationSearch) return;
+        const query = siteTranslationSearch.value.trim().toLowerCase();
+        const missingOnly = Boolean(siteTranslationMissingOnly && siteTranslationMissingOnly.checked);
+        document.querySelectorAll(".site-translation-row").forEach((row) => {
+          const haystack = (row.dataset.search || "").toLowerCase();
+          const status = row.dataset.status || "";
+          const matchesQuery = !query || haystack.includes(query);
+          const matchesMissing = !missingOnly || status !== "OK";
+          row.style.display = matchesQuery && matchesMissing ? "" : "none";
+        });
+        document.querySelectorAll(".site-translation-group").forEach((group) => {
+          const visibleRows = Array.from(group.querySelectorAll(".site-translation-row")).filter((row) => row.style.display !== "none");
+          group.style.display = visibleRows.length ? "" : "none";
+          if ((query || missingOnly) && visibleRows.length) group.open = true;
+        });
+    }
+    if (siteTranslationSearch) {
+      siteTranslationSearch.addEventListener("input", applySiteTranslationFilter);
+    }
+    if (siteTranslationMissingOnly) {
+      siteTranslationMissingOnly.addEventListener("change", applySiteTranslationFilter);
+    }
+    if (siteTranslationClear && siteTranslationSearch) {
+      siteTranslationClear.addEventListener("click", () => {
+        siteTranslationSearch.value = "";
+        if (siteTranslationMissingOnly) siteTranslationMissingOnly.checked = false;
+        applySiteTranslationFilter();
+      });
+    }
+    if (siteTranslationsForm) {
+      siteTranslationsForm.addEventListener("submit", (event) => {
+        const suspicious = [];
+        siteTranslationsForm.querySelectorAll("textarea[name='de_values'], textarea[name='en_values']").forEach((field) => {
+          const value = field.value.trim();
+          if (!value || /^(TODO|undefined|null)$/i.test(value) || /^[a-z0-9_]+$/i.test(value)) {
+            const row = field.closest(".site-translation-row");
+            suspicious.push(row ? row.querySelector("code").textContent : field.name);
+          }
+        });
+        if (suspicious.length) {
+          const message = "Bitte pruefen: leere oder platzhalterartige Texte bei " + suspicious.slice(0, 8).join(", ");
+          if (siteTranslationClientStatus) siteTranslationClientStatus.textContent = message;
+          if (!confirm(message + ". Trotzdem speichern?")) {
+            event.preventDefault();
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>

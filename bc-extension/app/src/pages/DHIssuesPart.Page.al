@@ -1,4 +1,4 @@
-page 53121 "DH Issues Part"
+﻿page 53121 "DH Issues Part"
 {
     PageType = ListPart;
     SourceTable = "DH Dashboard Issue";
@@ -19,11 +19,13 @@ page 53121 "DH Issues Part"
                 field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Source Type.';
                 }
 
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Title.';
 
                     trigger OnDrillDown()
                     var
@@ -36,12 +38,14 @@ page 53121 "DH Issues Part"
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Severity.';
                     StyleExpr = SeverityStyle;
                 }
 
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Affected Count.';
 
                     trigger OnDrillDown()
                     var
@@ -54,12 +58,14 @@ page 53121 "DH Issues Part"
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact €';
+                    Caption = 'Impact EUR';
+                    ToolTip = 'Specifies Impact EUR.';
                 }
 
                 field("Recommendation Preview"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Recommendation Preview.';
                 }
             }
         }
@@ -72,6 +78,7 @@ page 53121 "DH Issues Part"
             action(OpenAllIssues)
             {
                 Caption = 'Show All Issues';
+                ToolTip = 'Runs Show All Issues.';
                 ApplicationArea = All;
                 Image = List;
 
@@ -165,3 +172,4 @@ page 53121 "DH Issues Part"
         exit('Standard');
     end;
 }
+

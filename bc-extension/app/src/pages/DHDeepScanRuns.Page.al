@@ -1,4 +1,4 @@
-page 53130 "DH Deep Scan Runs"
+﻿page 53130 "DH Deep Scan Runs"
 {
     PageType = List;
     SourceTable = "DH Scan Header";
@@ -20,6 +20,7 @@ page 53130 "DH Deep Scan Runs"
                 {
                     ApplicationArea = All;
                     Caption = 'Run ID';
+                    ToolTip = 'Specifies Run ID.';
                     StyleExpr = RunIdStyle;
 
                     trigger OnDrillDown()
@@ -37,45 +38,52 @@ page 53130 "DH Deep Scan Runs"
                 {
                     ApplicationArea = All;
                     Caption = 'Scan Date';
+                    ToolTip = 'Specifies Scan Date.';
                 }
 
                 field("Data Score"; Rec."Data Score")
                 {
                     ApplicationArea = All;
                     Caption = 'Score';
+                    ToolTip = 'Specifies Score.';
                     StyleExpr = ScoreStyle;
                 }
 
                 field("Checks Count"; Rec."Checks Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Checks Count.';
                 }
 
                 field("Issues Count"; Rec."Issues Count")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Issues Count.';
                 }
 
                 field("Est. Loss"; Rec."Estimated Loss (EUR)")
                 {
                     ApplicationArea = All;
-                    Caption = 'Loss €';
+                    Caption = 'Loss EUR';
+                    ToolTip = 'Specifies Loss EUR.';
                 }
 
                 field("Rating"; Rec."Rating")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Rating.';
                 }
 
                 field("Headline"; Rec."Headline")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Headline.';
                 }
 
                 /*field("Premium"; GetIsPremiumRun())
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium';
+                    Caption = 'Paid Access';
                 }*/
             }
         }
@@ -88,6 +96,7 @@ page 53130 "DH Deep Scan Runs"
             action(OpenDashboardAction)
             {
                 Caption = 'Open Scan';
+                ToolTip = 'Runs Open Scan.';
                 ApplicationArea = All;
                 Image = Navigate;
 
@@ -100,6 +109,7 @@ page 53130 "DH Deep Scan Runs"
             action(OpenAllIssues)
             {
                 Caption = 'Open Issues';
+                ToolTip = 'Runs Open Issues.';
                 ApplicationArea = All;
                 Image = List;
 
@@ -117,6 +127,7 @@ page 53130 "DH Deep Scan Runs"
             action(OpenMonitor)
             {
                 Caption = 'Open Deep Scan Monitor';
+                ToolTip = 'Runs Open Deep Scan Monitor.';
                 ApplicationArea = All;
                 Image = ViewDetails;
 
@@ -138,6 +149,7 @@ page 53130 "DH Deep Scan Runs"
             action(DeleteSelectedScan)
             {
                 Caption = 'Delete Selected Scan(s)';
+                ToolTip = 'Runs Delete Selected Scan(s).';
                 ApplicationArea = All;
                 Image = Delete;
                 Scope = Repeater;
@@ -151,6 +163,7 @@ page 53130 "DH Deep Scan Runs"
             action(DeleteCurrentScan)
             {
                 Caption = 'Delete This Scan';
+                ToolTip = 'Runs Delete This Scan.';
                 ApplicationArea = All;
                 Image = Delete;
                 Scope = Repeater;
@@ -175,6 +188,7 @@ page 53130 "DH Deep Scan Runs"
             action(ReconcileScanHistory)
             {
                 Caption = 'Reconcile Scan History';
+                ToolTip = 'Runs Reconcile Scan History.';
                 ApplicationArea = All;
                 Image = RefreshLines;
 
@@ -198,6 +212,7 @@ page 53130 "DH Deep Scan Runs"
             action(Refresh)
             {
                 Caption = 'Refresh';
+                ToolTip = 'Runs Refresh.';
                 ApplicationArea = All;
                 Image = Refresh;
 
@@ -246,7 +261,7 @@ page 53130 "DH Deep Scan Runs"
         BackendDeleteId := GetBackendDeleteIdFor(ScanHeader);
 
         if Setup.Get('SETUP') then
-            if (Setup."Tenant ID" <> '') and (Setup."API Token" <> '') and (BackendDeleteId <> '') then
+            if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
                 ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
         DeleteLinkedDeepRunIfNeededFor(ScanHeader);
@@ -327,4 +342,12 @@ page 53130 "DH Deep Scan Runs"
     begin
         exit(Rec."Scan Type" = Rec."Scan Type"::Deep);
     end;
+
+    local procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
+    var
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        exit(SecretMgt.HasApiToken(Setup));
+    end;
 }
+

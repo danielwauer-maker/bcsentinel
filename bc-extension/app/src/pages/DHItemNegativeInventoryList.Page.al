@@ -1,4 +1,4 @@
-page 53136 "DH Item Neg. Inventory"
+﻿page 53136 "DH Item Neg. Inventory"
 {
     PageType = List;
     SourceTable = Item;
@@ -18,10 +18,12 @@ page 53136 "DH Item Neg. Inventory"
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
+                    ToolTip = 'Specifies Item No..';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Description.';
                 }
                 field("Location Filter"; Rec."Location Filter")
                 {
@@ -31,10 +33,12 @@ page 53136 "DH Item Neg. Inventory"
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Inventory.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies Blocked.';
                 }
             }
         }
@@ -47,6 +51,7 @@ page 53136 "DH Item Neg. Inventory"
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
+                ToolTip = 'Runs Exclude from Analysis.';
                 ApplicationArea = All;
                 Image = Cancel;
 
@@ -61,6 +66,7 @@ page 53136 "DH Item Neg. Inventory"
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
+                ToolTip = 'Runs Mark as Corrected.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -76,6 +82,7 @@ page 53136 "DH Item Neg. Inventory"
             action(OpenItemCard)
             {
                 Caption = 'Correct Data';
+                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
 
@@ -87,6 +94,7 @@ page 53136 "DH Item Neg. Inventory"
             action(OpenLedgerEntries)
             {
                 Caption = 'Show Issue';
+                ToolTip = 'Runs Show Issue.';
                 ApplicationArea = All;
                 Image = LedgerEntries;
 
@@ -101,3 +109,4 @@ page 53136 "DH Item Neg. Inventory"
         }
     }
 }
+

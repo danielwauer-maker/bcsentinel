@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impressum | BCSentinel</title>
-  <meta name="description" content="Legal notice / Impressum for BCSentinel" />
+  <title data-i18n="impressum_meta_title">Impressum | BCSentinel</title>
+  <meta name="description" data-i18n-content="impressum_meta_description" content="Legal notice / Impressum for BCSentinel" />
   <meta name="theme-color" content="#08111f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,15 +132,6 @@
       transform: translateY(-1px);
       box-shadow: 0 10px 24px rgba(0,0,0,.12);
     }
-    .theme-toggle-icon {
-      display: inline-grid;
-      place-items: center;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(74,141,255,.18), rgba(255,143,61,.18));
-      font-size: .88rem;
-    }
 
     .lang-switch {
       position: relative;
@@ -242,48 +233,21 @@
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="index.html" aria-label="BCSentinel home">
-        <span class="brand-mark">
-          <img src="logo-bcsentinel.png" alt="BCSentinel Logo" />
-        </span>
-        <span class="brand-copy">
-          <strong>BCSentinel</strong>
-          <span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span>
-        </span>
-      </a>
-
-      <nav class="nav-links" aria-label="Secondary navigation">
-        <a href="index.html" data-i18n="nav_home">Home</a>
-        <a href="privacy.html" data-i18n="nav_privacy">Privacy</a>
-        <a href="contact.html" data-i18n="nav_contact">Contact</a>
-        <a href="impressum.html" class="active" data-i18n="nav_legal">Legal notice</a>
-      </nav>
-
-      <div class="nav-actions">
-        <div class="lang-switch" aria-label="Language switcher">
-          <button class="lang-btn active" data-lang="de" type="button" aria-label="Switch to German" title="Deutsch">🇩🇪</button>
-          <button class="lang-btn" data-lang="en" type="button" aria-label="Switch to English" title="English">🇬🇧</button>
-        </div>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span aria-hidden="true" class="theme-toggle-icon">☀</span></button>
-      </div>
-    </div>
-  </header>
+  <header class="site-header"></header>
 
   <main>
-    <section class="hero">
+    <section id="provider" class="hero">
       <div class="container">
-        
-        <h1 data-i18n="title">Impressum</h1>
+        <div class="eyebrow" data-i18n="eyebrow">Rechtliche Angaben</div>
+        <!--<h1 data-i18n="title">Impressum</h1>-->
         
       </div>
     </section>
 
     <section class="content-wrap">
       <div class="container">
-        <div class="legal-card">
-          <div class="grid">
+        <div id="legal-info" class="legal-card">
+          <div id="contact" class="grid">
             <section class="section-block">
               <span class="label" data-i18n="sec1_label">Angaben gemäß § 5 TMG</span>
               <div class="stack">
@@ -372,25 +336,7 @@
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <a class="brand" href="index.html" aria-label="BCSentinel home">
-        <span class="brand-mark">
-          <img src="logo-bcsentinel.png" alt="BCSentinel Logo" />
-        </span>
-        <span class="brand-copy">
-          <strong>BCSentinel</strong>
-          <span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span>
-        </span>
-      </a>
-
-      <div class="footer-links">
-        <a href="index.html" data-i18n="nav_home">Home</a>
-        <a href="privacy.html" data-i18n="nav_privacy">Privacy</a>
-        <a href="contact.html" data-i18n="nav_contact">Contact</a>
-      </div>
-    </div>
-  </footer>
+  <footer class="site-footer"></footer>
 
   <script>
     const translations = {
@@ -510,16 +456,10 @@
       if (meta) meta.setAttribute("content", theme === "light" ? "#f4f8ff" : "#08111f");
     }
 
-    function updateThemeToggle(theme) {
-      const icon = themeToggle?.querySelector(".theme-toggle-icon");
-      if (icon) icon.textContent = theme === "dark" ? "☀" : "☾";
-    }
-
     function applyTheme(theme) {
       const selected = theme === "light" ? "light" : "dark";
       html.setAttribute("data-theme", selected);
       updateThemeMeta(selected);
-      updateThemeToggle(selected);
       try { localStorage.setItem(STORAGE_THEME_KEY, selected); } catch (e) {}
     }
 
@@ -532,10 +472,11 @@
       btn.addEventListener("click", () => applyTranslations(btn.dataset.lang));
     });
 
-    themeToggle.addEventListener("click", toggleTheme);
+    if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
 
     applyTheme(getStoredTheme());
     applyTranslations(getInitialLanguage());
   </script>
+<script src="js/site-shell.js"></script>
 </body>
 </html>

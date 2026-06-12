@@ -1,4 +1,4 @@
-page 53132 "DH Deep Scan Part"
+﻿page 53132 "DH Deep Scan Part"
 {
     PageType = CardPart;
     SourceTable = "DH Setup";
@@ -19,6 +19,7 @@ page 53132 "DH Deep Scan Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Status';
+                    ToolTip = 'Specifies Status.';
                     StyleExpr = StatusStyle;
                 }
 
@@ -26,6 +27,7 @@ page 53132 "DH Deep Scan Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Data Score';
+                    ToolTip = 'Specifies Data Score.';
                     StyleExpr = ScoreStyle;
                 }
 
@@ -33,6 +35,7 @@ page 53132 "DH Deep Scan Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Rating';
+                    ToolTip = 'Specifies Rating.';
                     StyleExpr = RatingStyle;
                 }
 
@@ -40,12 +43,14 @@ page 53132 "DH Deep Scan Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Checks';
+                    ToolTip = 'Specifies Checks.';
                 }
 
                 field(LatestIssuesCount; LatestIssuesCount)
                 {
                     ApplicationArea = All;
                     Caption = 'Issues';
+                    ToolTip = 'Specifies Issues.';
                     StyleExpr = IssuesStyle;
                 }
 
@@ -53,18 +58,21 @@ page 53132 "DH Deep Scan Part"
                 {
                     ApplicationArea = All;
                     Caption = 'Requested At';
+                    ToolTip = 'Specifies Requested At.';
                 }
 
                 field(LatestFinishedAt; LatestFinishedAt)
                 {
                     ApplicationArea = All;
                     Caption = 'Finished At';
+                    ToolTip = 'Specifies Finished At.';
                 }
 
                 field(LatestHeadline; LatestHeadline)
                 {
                     ApplicationArea = All;
                     Caption = 'Headline';
+                    ToolTip = 'Specifies Headline.';
                     MultiLine = true;
                 }
             }
@@ -198,3 +206,4 @@ page 53132 "DH Deep Scan Part"
         exit('Unfavorable');
     end;
 }
+

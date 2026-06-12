@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="{{ report.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BCSentinel Executive Report - {{ report.scan_id }}</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9dee8;
+      --surface: #f6f8fb;
+      --accent: #0f766e;
+      --critical: #b42318;
+      --warning: #b54708;
+      --good: #027a48;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #eef2f7;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 24px auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+    header {
+      padding: 34px 40px 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 8px 0 10px;
+      font-size: 32px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .meta, .muted { color: var(--muted); }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 24px;
+      font-size: 13px;
+    }
+    main { padding: 30px 40px 40px; }
+    section { margin-top: 30px; }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .summary-box {
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .score-box {
+      padding: 22px;
+      border: 1px solid var(--line);
+      display: grid;
+      align-content: center;
+      text-align: center;
+    }
+    .score {
+      font-size: 68px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .score span { font-size: 24px; color: var(--muted); }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      padding: 16px;
+      min-height: 112px;
+    }
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .kpi .value {
+      margin-top: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      background: #fbfcfe;
+    }
+    .severity {
+      display: inline-block;
+      min-width: 64px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .severity-high { color: var(--critical); background: #fff1f0; }
+    .severity-medium { color: var(--warning); background: #fff7ed; }
+    .severity-low { color: var(--good); background: #ecfdf3; }
+    .actions, .next-steps {
+      display: grid;
+      gap: 10px;
+      padding-left: 18px;
+    }
+    .actions li, .next-steps li { padding-left: 4px; }
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .matrix-item {
+      border: 1px solid var(--line);
+      padding: 16px;
+      background: #fff;
+    }
+    .priority {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    footer {
+      padding: 18px 40px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+    @media (max-width: 860px) {
+      .summary-grid, .columns, .kpis, .matrix { grid-template-columns: 1fr; }
+      header, main, footer { padding-left: 20px; padding-right: 20px; }
+      .score { font-size: 52px; }
+    }
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: #fff; }
+      .page {
+        width: 100%;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+      }
+      header, main, footer { padding-left: 0; padding-right: 0; }
+      section { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="eyebrow">BCSentinel Executive Management Report</div>
+      <h1>{{ 'Data Health, Business Impact, and Recommended Action' if report.language == 'en' else 'Data Health, Business Impact und empfohlene Aktionen' }}</h1>
+      <div class="meta">
+        <span>Tenant: {{ report.company_label }}</span>
+        <span>Environment: {{ report.environment_label }}</span>
+        <span>Scan: {{ report.scan_id }}</span>
+        <span>{{ 'Generated' if report.language == 'en' else 'Erstellt' }}: {{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="summary-grid">
+        <div class="summary-box">
+          <h2>{{ 'Executive Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2>
+          <p>{{ report.executive_summary }}</p>
+          <p class="muted">{{ report.headline }} · {{ report.rating }}</p>
+        </div>
+        <div class="score-box">
+          <div class="muted">{{ 'Overall Data Health Score' if report.language == 'en' else 'Gesamter Data Health Score' }}</div>
+          <div class="score">{{ report.data_health_score }}<span>/100</span></div>
+          <strong>{{ report.score_status }}</strong>
+        </div>
+      </section>
+
+      <section class="kpis" aria-label="Management KPIs">
+        {% for kpi in report.kpis %}
+        <div class="kpi">
+          <div class="label">{{ kpi.label }}</div>
+          <div class="value">{{ kpi.value }}</div>
+          <div class="muted">{{ kpi.note }}</div>
+        </div>
+        {% endfor %}
+      </section>
+
+      <section>
+        <h2>{{ 'Top 10 Risks' if report.language == 'en' else 'Top-10-Risiken' }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th>
+              <th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th>
+              <th>{{ 'Severity' if report.language == 'en' else 'Schweregrad' }}</th>
+              <th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in report.top_risks %}
+            <tr>
+              <td>{{ item.rank }}</td>
+              <td><strong>{{ item.title }}</strong><br><span class="muted">{{ item.recommendation }}</span></td>
+              <td>{{ item.category }}</td>
+              <td><span class="severity severity-{{ item.severity }}">{{ item.severity }}</span></td>
+              <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
+              <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="columns">
+        <div>
+          <h2>Quick Wins</h2>
+          <table>
+            <thead><tr><th>Finding</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Action' if report.language == 'en' else 'Aktion' }}</th></tr></thead>
+            <tbody>
+              {% for item in report.quick_wins %}
+              <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
+                <td>{{ item.recommendation }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h2>{{ 'Critical Findings' if report.language == 'en' else 'Kritische Findings' }}</h2>
+          <table>
+            <thead><tr><th>Finding</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Impact</th></tr></thead>
+            <tbody>
+              {% for item in report.critical_findings %}
+              <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="3">{{ 'No high-severity findings in this scan.' if report.language == 'en' else 'Keine Findings mit hohem Schweregrad in diesem Scan.' }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="columns">
+        <div>
+          <h2>{{ 'Data Quality Analysis' if report.language == 'en' else 'Datenqualitaetsanalyse' }}</h2>
+          <table>
+            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Status</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
+            <tbody>
+              {% for row in report.data_quality %}
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.score }}/100</td>
+                <td>{{ row.status }}</td>
+                <td>{{ '{:,}'.format(row.affected_count).replace(',', '.') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h2>{{ 'Master Data Quality' if report.language == 'en' else 'Stammdatenqualitaet' }}</h2>
+          <table>
+            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Issues</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
+            <tbody>
+              {% for row in report.master_data_quality %}
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.score }}/100</td>
+                <td>{{ row.issue_count }}</td>
+                <td>{{ '{:,}'.format(row.affected_count).replace(',', '.') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>{{ 'Financial Risks' if report.language == 'en' else 'Finanzielle Risiken' }}</h2>
+        <table>
+          <thead><tr><th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Estimated Impact' if report.language == 'en' else 'Geschaetzter Impact' }}</th><th>{{ 'Recommendation' if report.language == 'en' else 'Empfehlung' }}</th></tr></thead>
+          <tbody>
+            {% for item in report.financial_risks %}
+            <tr>
+              <td>{{ item.title }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
+              <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
+              <td>{{ item.recommendation }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>{{ 'Recommended Measures' if report.language == 'en' else 'Empfohlene Massnahmen' }}</h2>
+        <ol class="actions">
+          {% for action in report.recommended_actions %}
+          <li>{{ action }}</li>
+          {% endfor %}
+        </ol>
+      </section>
+
+      <section>
+        <h2>{{ 'Priority Matrix' if report.language == 'en' else 'Prioritaetenmatrix' }}</h2>
+        <div class="matrix">
+          {% for item in report.priority_matrix %}
+          <div class="matrix-item">
+            <div class="priority">{{ item.priority }}</div>
+            <h3>{{ item.focus }}</h3>
+            <p><strong>Impact:</strong> {{ item.impact }}</p>
+            <p><strong>{{ 'Effort' if report.language == 'en' else 'Aufwand' }}:</strong> {{ item.effort }}</p>
+            <p>{{ item.recommendation }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section>
+        <h2>{{ 'Next Steps' if report.language == 'en' else 'Naechste Schritte' }}</h2>
+        <ol class="next-steps">
+          {% for step in report.next_steps %}
+          <li>{{ step }}</li>
+          {% endfor %}
+        </ol>
+      </section>
+    </main>
+
+    <footer>
+      {{ 'BCSentinel report generated from Business Central scan results. Estimates are directional management indicators and should be validated with process owners.' if report.language == 'en' else 'BCSentinel Report aus Business-Central-Scan-Ergebnissen. Schaetzungen sind Management-Indikatoren und sollten mit Prozessverantwortlichen validiert werden.' }}
+    </footer>
+  </div>
+</body>
+</html>

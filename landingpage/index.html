@@ -4,45 +4,14 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>BCSentinel — Data Quality &amp; Business Impact for Business Central</title>
-<meta content="BCSentinel hilft Unternehmen mit Microsoft Dynamics 365 Business Central, kostspielige Datenprobleme sichtbar zu machen, finanzielle Auswirkungen zu verstehen und die richtigen Maßnahmen zuerst umzusetzen." name="description"/>
+<title data-i18n="home_meta_title">BCSentinel - Data Quality &amp; Business Impact for Business Central</title>
+<meta content="BCSentinel hilft Unternehmen mit Microsoft Dynamics 365 Business Central, kostspielige Datenprobleme sichtbar zu machen, finanzielle Auswirkungen zu verstehen und die richtigen Massnahmen zuerst umzusetzen." data-i18n-content="home_meta_description" name="description"/>
 <meta content="#08111f" name="theme-color"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
 <link href="styles.css" rel="stylesheet">
 <style>
-    .lang-switch {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 56px;
-      min-height: 44px;
-      padding: 4px;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .lang-switch .lang-btn {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      min-width: 48px;
-      min-height: 36px;
-      padding: 0 10px;
-      font-size: 1.15rem;
-      line-height: 1;
-    }
-
-    .lang-switch .lang-btn:not(.active) {
-      display: inline-flex;
-    }
-
-    .lang-switch .lang-btn.active {
-      display: none !important;
-    }
-
       .value-preview-layout {
         display: grid;
         grid-template-columns: 1fr;
@@ -167,7 +136,7 @@
     }
 
     .value-stat-link::after {
-      content: "↗";
+      content: "-";
       font-size: .9em;
     }
 
@@ -214,7 +183,7 @@
       font-size: .92rem;
     }
     .guarantee-list li::before {
-      content: "✓";
+      content: "OK";
       color: var(--green);
       font-weight: 900;
       flex: 0 0 auto;
@@ -366,54 +335,7 @@
 </link></head>
 <body>
 <div class="site-bg"></div>
-<header class="site-header">
-<div class="container nav">
-<a aria-label="BCSentinel home" class="brand" href="#top">
-<span class="brand-mark">
-<img alt="BCSentinel Logo" src="logo-bcsentinel.png"/>
-</span>
-<span class="brand-copy">
-<strong>BCSentinel</strong>
-<span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span>
-</span>
-</a>
-<button aria-controls="mobileMenu" aria-expanded="false" aria-label="Open menu" class="nav-toggle" id="navToggle">
-<span></span><span></span><span></span>
-</button>
-<nav aria-label="Primary navigation" class="nav-links desktop-nav">
-<a data-i18n="nav_problem" href="#problem">Problem</a>
-<a data-i18n="nav_solution" href="#solution">Solution</a>
-<a data-i18n="nav_pricing" href="#pricing">Pricing</a>
-<a data-i18n="nav_security" href="#security">Security</a>
-<a data-i18n="nav_partners" href="#partners">Partners</a>
-<a data-i18n="nav_faq" href="#faq">FAQ</a>
-</nav>
-<div class="nav-actions">
-<div aria-label="Language switcher" class="lang-switch">
-<button aria-label="Switch to German" class="lang-btn active" data-lang="de" title="Deutsch" type="button">🇩🇪</button>
-<button aria-label="Switch to English" class="lang-btn" data-lang="en" title="English" type="button">🇬🇧</button>
-</div>
-<button aria-label="Toggle theme" class="theme-toggle" id="themeToggle" type="button">
-<span aria-hidden="true" class="theme-toggle-icon">☀</span>
-</button>
-<!--<a class="btn btn-primary nav-cta" href="contact.html" data-i18n="nav_cta">Start free scan</a>-->
-</div>
-</div>
-<div class="mobile-menu" id="mobileMenu">
-<div class="container mobile-menu-inner">
-<a data-i18n="nav_problem" href="#problem">Problem</a>
-<a data-i18n="nav_solution" href="#solution">Solution</a>
-<a data-i18n="nav_pricing" href="#pricing">Pricing</a>
-<a data-i18n="nav_security" href="#security">Security</a>
-<a data-i18n="nav_partners" href="#partners">Partners</a>
-<a data-i18n="nav_faq" href="#faq">FAQ</a>
-<button aria-label="Toggle theme" class="theme-toggle mobile-theme-toggle" id="mobileThemeToggle" type="button">
-<span aria-hidden="true" class="theme-toggle-icon">☀</span>
-</button>
-<!--<a class="btn btn-primary" href="contact.html" data-i18n="nav_cta">Start free scan</a>-->
-</div>
-</div>
-</header>
+<header class="site-header"></header>
 <main id="top">
 <section class="hero section">
 <div class="container card card-highlight hero-grid">
@@ -421,32 +343,16 @@
 
 <h1 data-i18n="hero_title">Your Business Central data is costing you money.</h1>
 <p class="hero-sub lead" data-i18n="hero_sub">
-            Detect data issues, quantify financial impact, and monitor your ERP health continuously — before poor data slows processes, creates rework, and drives avoidable losses.
+            Detect data issues, quantify financial impact, and monitor your ERP health continuously - before poor data slows processes, creates rework, and drives avoidable losses.
           </p>
 <div class="btn-row">
-<a class="btn btn-primary" data-i18n="hero_cta_primary" href="contact.html">Start free scan</a>
+<a class="btn btn-primary" data-i18n="hero_cta_primary" href="#pricing">See products</a>
 <a class="btn btn-secondary" data-i18n="hero_cta_secondary" href="#how-it-works">See how it works</a>
 </div>
 <div class="trust-row">
 <span class="trust-item" data-i18n="hero_trust_1">Deep scan of your Business Central data</span>
 <span class="trust-item" data-i18n="hero_trust_2">Realistic annual loss and savings potential</span>
 <span class="trust-item" data-i18n="hero_trust_3">Continuous monitoring for critical data issues</span>
-</div>
-</div>
-<div class="hero-visual card card-strong">
-
-<div class="hero-browser">
-<div class="browser-bar">
-<span></span><span></span><span></span>
-<div class="browser-pill">analytics.bcsentinel.com</div>
-</div>
-<div class="hero-image-wrap">
-<img alt="BCSentinel Dashboard Preview" class="hero-image" src="dashboard-preview.png"/>
-<div class="trust-badges">
-  <div class="badge-trust">DSGVO-fokussiert</div>
-  <div class="badge-trust">Hosted in Germany</div>
-  <div class="badge-trust">Klare Mandantentrennung</div>
-</div>
 </div>
 </div>
 </div>
@@ -457,18 +363,18 @@
 <div class="callout card card-highlight value-preview-layout">
 <div class="callout-copy">
 
-<h2 data-i18n="value_title">See what poor data costs — and what fixing it can save.</h2>
+<h2 data-i18n="value_title">See what poor data costs - and what fixing it can save.</h2>
 <p class="lead-small" data-i18n="value_text">
               Turn weak data quality into a financial conversation that supports prioritization, budget decisions, and internal buy-in.
             </p>
 <p class="value-proof-box" data-i18n="value_proof">
-              Example: 18 pricing issues × 12 months × 15 minutes rework = <strong>€ 2,835 annual avoidable cost</strong>.
+              Example: 18 pricing issues - 12 months - 15 minutes rework = <strong>EUR 2,835 annual avoidable cost</strong>.
             </p>
 </div>
 <div class="value-stats-grid">
 <div class="value-stat-box loss">
 <span class="value-stat-label" data-i18n="value_stat_1_label">Estimated Loss</span>
-<strong class="value-stat-value">€ 10,492</strong>
+<strong class="value-stat-value">EUR 10,492</strong>
 <p class="value-stat-sub" data-i18n="value_stat_1_sub">
                 Estimated financial impact caused by detected data quality issues.
               </p>
@@ -476,7 +382,7 @@
 </div>
 <div class="value-stat-box saving">
 <span class="value-stat-label" data-i18n="value_stat_3_label">Potential Saving</span>
-<strong class="value-stat-value">€ 7,344</strong>
+<strong class="value-stat-value">EUR 7,344</strong>
 <p class="value-stat-sub" data-i18n="value_stat_3_sub">
                 Realistic saving potential after resolving the most important issues first.
               </p>
@@ -532,28 +438,28 @@
 <div class="impact-list">
 <div class="impact-item">
 <div class="impact-item-head">
-<span class="impact-icon" aria-hidden="true">€</span>
+<span class="impact-icon" aria-hidden="true">EUR</span>
 <strong data-i18n="impact_item_1_title">Lost revenue</strong>
 </div>
 <p data-i18n="impact_item_1_text">Wrong prices and discounts reduce margin.</p>
 </div>
 <div class="impact-item">
 <div class="impact-item-head">
-<span class="impact-icon" aria-hidden="true">🛠</span>
+<span class="impact-icon" aria-hidden="true">Risk</span>
 <strong data-i18n="impact_item_2_title">Manual rework</strong>
 </div>
 <p data-i18n="impact_item_2_text">Teams spend time fixing avoidable data errors.</p>
 </div>
 <div class="impact-item">
 <div class="impact-item-head">
-<span class="impact-icon" aria-hidden="true">⏳</span>
+<span class="impact-icon" aria-hidden="true"></span>
 <strong data-i18n="impact_item_3_title">Process delays</strong>
 </div>
 <p data-i18n="impact_item_3_text">Incomplete setups block transactions and approvals.</p>
 </div>
 <div class="impact-item">
 <div class="impact-item-head">
-<span class="impact-icon" aria-hidden="true">📉</span>
+<span class="impact-icon" aria-hidden="true">Trend</span>
 <strong data-i18n="impact_item_4_title">Wrong decisions</strong>
 </div>
 <p data-i18n="impact_item_4_text">Low-quality data distorts reports and KPIs.</p>
@@ -562,7 +468,7 @@
 </div>
 <div class="card feature-panel accent-panel">
 
-<h2 data-i18n="demo_title">Show management a real business case — not just a data list.</h2>
+<h2 data-i18n="demo_title">Show management a real business case - not just a data list.</h2>
 <p class="lead-small" data-i18n="demo_text">
             BCSentinel connects technical findings with financial relevance so weak data quality becomes visible in euros, priorities, and measurable improvement potential.
           </p>
@@ -570,7 +476,7 @@
 <li data-i18n="demo_list_1">Clear Data Health Score for a fast executive overview</li>
 <li data-i18n="demo_list_2">Estimated annual loss and realistic savings potential</li>
 <li data-i18n="demo_list_3">Issue categories and high-risk areas at a glance</li>
-<li data-i18n="demo_list_4">Strong basis for recurring monitoring and upgrade decisions</li>
+<li data-i18n="demo_list_4">Strong basis for recurring monitoring and purchase decisions</li>
 </ul>
 </div>
 </div>
@@ -587,22 +493,22 @@
 </div>
 <div class="grid grid-4">
 <article class="card">
-<div class="icon-badge icon-emoji">📊</div>
+<div class="icon-badge icon-emoji">Scan</div>
 <h3 data-i18n="solution_card_1_title">Data Health Score</h3>
 <p data-i18n="solution_card_1_text">Get an immediate management-ready overview of the quality of your ERP data.</p>
 </article>
 <article class="card">
-<div class="icon-badge icon-emoji">€</div>
+<div class="icon-badge icon-emoji">EUR</div>
 <h3 data-i18n="solution_card_2_title">Financial impact in euros</h3>
 <p data-i18n="solution_card_2_text">Translate data quality problems into realistic economic relevance.</p>
 </article>
 <article class="card">
-<div class="icon-badge icon-emoji">⚠</div>
+<div class="icon-badge icon-emoji">EUR</div>
 <h3 data-i18n="solution_card_3_title">Issue categories</h3>
 <p data-i18n="solution_card_3_text">See which data areas and processes are most affected by weak quality.</p>
 </article>
 <article class="card">
-<div class="icon-badge icon-emoji">↗</div>
+<div class="icon-badge icon-emoji">-</div>
 <h3 data-i18n="solution_card_4_title">Monitoring-ready structure</h3>
 <p data-i18n="solution_card_4_text">Build a strong basis for recurring scans and continuous data health monitoring.</p>
 </article>
@@ -614,26 +520,31 @@
 <div class="container card card-highlight">
 <div class="section-head">
 
-<h2 data-i18n="how_title">From first scan to clear action in three steps.</h2>
+<h2 data-i18n="how_title">From first assessment to ongoing monitoring.</h2>
 <p class="lead" data-i18n="how_sub">
             Lightweight for the customer, powerful enough to create real ERP value from day one.
           </p>
 </div>
-<div class="grid grid-3 steps-grid">
+<div class="grid grid-4 steps-grid">
 <article class="card step-card">
 <div class="step-number">1</div>
-<h3 data-i18n="step_1_title">Connect Business Central</h3>
-<p data-i18n="step_1_text">Start directly from your Business Central environment and launch your first scan.</p>
+<h3 data-i18n="step_1_title">Assessment</h3>
+<p data-i18n="step_1_text">Run one deep scan, receive one scan credit, and use seven days of dashboard, issue, and report access.</p>
 </article>
 <article class="card step-card">
 <div class="step-number">2</div>
-<h3 data-i18n="step_2_title">Scan the entire system</h3>
-<p data-i18n="step_2_text">Free and Premium use the same scan base so your results are realistic from day one.</p>
+<h3 data-i18n="step_2_title">Clean up data</h3>
+<p data-i18n="step_2_text">Use the findings, executive report, and recommendations to fix the most relevant Business Central data issues.</p>
 </article>
 <article class="card step-card">
 <div class="step-number">3</div>
-<h3 data-i18n="step_3_title">See impact instantly</h3>
-<p data-i18n="step_3_text">Get a score, business impact, and issue overview — then unlock actions with Premium.</p>
+<h3 data-i18n="step_3_title">Validation Check</h3>
+<p data-i18n="step_3_text">Run a follow-up scan after cleanup to validate progress and refresh dashboard, issues, and reports for seven days.</p>
+</article>
+<article class="card step-card">
+<div class="step-number">4</div>
+<h3 data-i18n="step_4_title">Monitoring</h3>
+<p data-i18n="step_4_text">Move to monthly or annual monitoring when data quality should stay visible as Business Central changes.</p>
 </article>
 </div>
 </div>
@@ -642,47 +553,68 @@
 <div class="container card card-highlight">
 <div class="section-head">
 
-<h2 data-i18n="pricing_title">Insight is free. Action is Premium.</h2>
+<h2 data-i18n="pricing_title">Clear product prices for scan and monitoring.</h2>
 <p class="lead" data-i18n="pricing_sub">
-            Start with immediate visibility into your data quality and business impact. Upgrade when you want deeper details, prioritization, and direct action.
+            Choose a one-time assessment start, a cleanup validation, or continuous monitoring.
           </p>
 </div>
-<div class="grid grid-2 pricing-grid">
-<article class="card price-card">
-<span class="plan-badge plan-badge-free" data-i18n="plan_free_badge">Free</span>
-<h3 data-i18n="plan_free_title">Visibility for your first business case.</h3>
+<div class="grid grid-4 pricing-grid">
+<article class="card price-card" data-product-card="assessment">
+<span class="plan-badge" data-i18n="product_assessment_badge">Assessment</span>
+<h3 data-i18n="product_assessment_title">One-time data health assessment.</h3>
 <div class="price-line">
-<strong>€ 0</strong>
-<span data-i18n="price_month">/ month</span>
+<strong data-product-price="assessment">EUR 79</strong>
+<span data-i18n="price_one_time">one-time</span>
 </div>
 <ul class="feature-list">
-<li data-i18n="plan_free_1">Full system scan</li>
-<li data-i18n="plan_free_2">Data Health Score</li>
-<li data-i18n="plan_free_3">Issue counts and categories</li>
-<li data-i18n="plan_free_4">Estimated annual loss</li>
-<li data-i18n="plan_free_5">Dashboard overview and monitoring basis</li>
+<li data-i18n="product_assessment_1">Deep scan and score</li>
+<li data-i18n="product_assessment_2">Business impact overview</li>
+<li data-i18n="product_assessment_3">Dashboard access window</li>
 </ul>
 
-<a class="btn btn-secondary btn-full" data-i18n="plan_free_cta" href="contact.html">Start free scan</a>
+<a class="btn btn-secondary btn-full" data-i18n="product_cta" href="contact.html">Open in Business Central</a>
 </article>
-<article class="card price-card price-card-featured">
-<span class="plan-badge plan-badge-featured" data-i18n="plan_premium_badge">Premium</span>
-<h3 data-i18n="plan_premium_title">Turn insight into execution.</h3>
+<article class="card price-card" data-product-card="validation_check">
+<span class="plan-badge" data-i18n="product_validation_badge">Validation Check</span>
+<h3 data-i18n="product_validation_title">Follow-up scan after cleanup.</h3>
 <div class="price-line">
-<strong data-i18n="plan_premium_price">…</strong>
+<strong data-product-price="validation_check">EUR 49</strong>
+<span data-i18n="price_one_time">one-time</span>
+</div>
+<ul class="feature-list">
+<li data-i18n="product_validation_1">Validation scan credit</li>
+<li data-i18n="product_validation_2">Improvement comparison</li>
+<li data-i18n="product_validation_3">Fresh executive view</li>
+</ul>
+<a class="btn btn-secondary btn-full" data-i18n="product_cta" href="contact.html">Open in Business Central</a>
+</article>
+<article class="card price-card price-card-featured" data-product-card="monitoring_monthly">
+<span class="plan-badge plan-badge-featured" data-i18n="product_monitoring_monthly_badge">Monitoring Monthly</span>
+<h3 data-i18n="product_monitoring_monthly_title">Continuous control, monthly billed.</h3>
+<div class="price-line">
+<strong data-product-price="monitoring_monthly">EUR 99</strong>
 <span data-i18n="price_month">/ month</span>
 </div>
 <ul class="feature-list">
-<li data-i18n="plan_premium_1">Everything in Free</li>
-<li data-i18n="plan_premium_2">Record-level details</li>
-<li data-i18n="plan_premium_3">Recommendations and prioritization</li>
-<li data-i18n="plan_premium_4">Direct actions in Business Central</li>
-<li data-i18n="plan_premium_5">Clear upgrade path from insight to execution</li>
-<li data-i18n="plan_guarantee_1">Monthly cancellable</li>
-<li data-i18n="plan_guarantee_2">No heavy setup project required</li>
-<li data-i18n="plan_guarantee_3">Upgrade anytime from Free</li>
+<li data-i18n="product_monitoring_1">Recurring dashboard access</li>
+<li data-i18n="product_monitoring_2">Issue details and recommendations</li>
+<li data-i18n="product_monitoring_3">Business Central actions</li>
 </ul>
-<a class="btn btn-primary btn-full" data-i18n="plan_premium_cta" href="contact.html">Request Premium demo</a>
+<a class="btn btn-primary btn-full" data-i18n="product_cta" href="contact.html">Open in Business Central</a>
+</article>
+<article class="card price-card" data-product-card="monitoring_annual">
+<span class="plan-badge" data-i18n="product_monitoring_annual_badge">Monitoring Annual</span>
+<h3 data-i18n="product_monitoring_annual_title">Annual monitoring with fixed yearly price.</h3>
+<div class="price-line">
+<strong data-product-price="monitoring_annual">EUR 990</strong>
+<span data-i18n="price_year">/ year</span>
+</div>
+<ul class="feature-list">
+<li data-i18n="product_monitoring_1">Recurring dashboard access</li>
+<li data-i18n="product_monitoring_2">Issue details and recommendations</li>
+<li data-i18n="product_monitoring_3">Business Central actions</li>
+</ul>
+<a class="btn btn-secondary btn-full" data-i18n="product_cta" href="contact.html">Open in Business Central</a>
 </article>
 </div>
 </div>
@@ -729,7 +661,7 @@
 <article class="card">
 <h3 data-i18n="partners_value_title">What partners get</h3>
 <ul class="feature-list compact-list">
-<li data-i18n="partners_value_1">30% commission on qualified Premium revenue</li>
+<li data-i18n="partners_value_1">Commission on eligible monitoring subscriptions</li>
 <li data-i18n="partners_value_2">Tenant-based referral attribution and tracking</li>
 <li data-i18n="partners_value_3">Clear payout overview with status transparency</li>
 <li data-i18n="partners_value_4">Sales-ready material for demo and onboarding</li>
@@ -764,16 +696,36 @@
 <p data-i18n="faq_1_a">BCSentinel scans your Business Central data quality across key areas such as customers, vendors, items, finance, purchasing, sales, and process-related records.</p>
 </details>
 <details class="faq-item">
-<summary data-i18n="faq_2_q">What is included in the Free plan?</summary>
-<p data-i18n="faq_2_a">The Free plan includes the full scan basis, a Data Health Score, issue categories, counts, and monetized impact visibility.</p>
+<summary data-i18n="faq_2_q">Which data is transferred?</summary>
+<p data-i18n="faq_2_a">BCSentinel transfers tenant and company identification, metadata, configuration data, scan results, findings, and aggregated quality metrics needed for the analysis.</p>
 </details>
 <details class="faq-item">
-<summary data-i18n="faq_3_q">Why upgrade to Premium?</summary>
-<p data-i18n="faq_3_a">Premium unlocks record-level details, recommendations, prioritization, and action-oriented issue handling directly in Business Central.</p>
+<summary data-i18n="faq_3_q">Are API tokens used in reports or URLs?</summary>
+<p data-i18n="faq_3_a">No. API tokens should not appear in reports or URLs. Dashboard embed uses short-lived embed tokens, and report share links use expiring links.</p>
 </details>
 <details class="faq-item">
-<summary data-i18n="faq_4_q">Is the solution GDPR-compliant?</summary>
-<p data-i18n="faq_4_a">BCSentinel is designed for GDPR-conscious use and can be hosted on a German server to support privacy and compliance requirements.</p>
+<summary data-i18n="faq_4_q">What is a scan credit?</summary>
+<p data-i18n="faq_4_a">A scan credit allows one paid deep scan. Assessment and Validation Check each include one scan credit.</p>
+</details>
+<details class="faq-item">
+<summary data-i18n="faq_5_q">What is the difference between Assessment and Validation Check?</summary>
+<p data-i18n="faq_5_a">Assessment is the first deep scan. Validation Check is the follow-up scan after cleanup to confirm progress and refresh the report view.</p>
+</details>
+<details class="faq-item">
+<summary data-i18n="faq_6_q">When does monitoring make sense?</summary>
+<p data-i18n="faq_6_a">Monitoring makes sense when data quality should be checked continuously, for example after an initial cleanup or for business-critical processes.</p>
+</details>
+<details class="faq-item">
+<summary data-i18n="faq_7_q">How long do I have access to dashboard, issues, and reports?</summary>
+<p data-i18n="faq_7_a">Assessment and Validation Check provide seven days of access. Monitoring keeps access active while the subscription is active.</p>
+</details>
+<details class="faq-item">
+<summary data-i18n="faq_8_q">Does BCSentinel work with Business Central Cloud?</summary>
+<p data-i18n="faq_8_a">Yes. BCSentinel is prepared for Business Central Cloud scenarios and does not require direct database access.</p>
+</details>
+<details class="faq-item">
+<summary data-i18n="faq_9_q">Is BCSentinel already live in Microsoft AppSource?</summary>
+<p data-i18n="faq_9_a">No. AppSource readiness is in preparation; the current flow is for pilot and direct customer onboarding.</p>
 </details>
 </div>
 </div>
@@ -784,36 +736,21 @@
 
 <h2 data-i18n="cta_title">See what your Business Central data is costing you before it gets more expensive.</h2>
 <p class="lead center-text" data-i18n="cta_sub">
-            Start your free scan, uncover hidden risks, and get a business-focused view of where weak data quality is already creating avoidable cost.
+            Start your assessment scan, uncover hidden risks, and get a business-focused view of where weak data quality is already creating avoidable cost.
           </p>
 <div class="btn-row center-row">
-<a class="btn btn-primary" data-i18n="cta_primary" href="contact.html">Start free scan</a>
-<a class="btn btn-secondary" data-i18n="cta_secondary" href="#pricing">Compare plans</a>
+<a class="btn btn-primary" data-i18n="cta_primary" href="#pricing">Choose product</a>
+<a class="btn btn-secondary" data-i18n="cta_secondary" href="docs.html">Read docs</a>
 </div>
-<p class="mini-note" data-i18n="cta_note">No commitment. Immediate insight. Upgrade when you want action.</p>
+<p class="mini-note" data-i18n="cta_note">Start with Assessment, validate improvements, and move to Monitoring when continuous control is needed.</p>
 </div>
 </div>
 </section>
 </main>
-<footer class="site-footer">
-<div class="container footer-inner">
-<a aria-label="BCSentinel home" class="brand footer-brand" href="#top">
-<span class="brand-mark">
-<img alt="BCSentinel Logo" src="logo-bcsentinel.png"/>
-</span>
-<span class="brand-copy">
-<strong>BCSentinel</strong>
-<span data-i18n="brand_sub">Data Quality &amp; Business Impact for Business Central</span>
-</span>
-</a>
-<div class="footer-links">
-<a data-i18n="footer_legal" href="impressum.html">Legal notice</a>
-<a data-i18n="footer_privacy" href="privacy.html">Privacy</a>
-<a data-i18n="footer_contact" href="contact.html">Contact</a>
-</div>
-</div>
-</footer>
+<footer class="site-footer"></footer>
 <script src="pricing-snapshot.js"></script>
 <script src="script.js"></script>
+<script src="js/site-shell.js"></script>
 </body>
 </html>
+
