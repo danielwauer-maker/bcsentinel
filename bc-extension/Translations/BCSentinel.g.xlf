@@ -3364,12 +3364,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Register with BCSentinel.</source>
+          <source>Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Register with BCSentinel</source>
+          <source>Register Tenant</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property Caption</note>
         </trans-unit>
@@ -3382,6 +3382,21 @@
           <source>Request Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RequestAccess - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 510766832 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 510766832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset Registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 510766832 - Method 1377591017 - NamedType 4179575190" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset the local BCSentinel registration state? This keeps the API Base URL, invite code, and consent. Backend data is not deleted.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Method OnAction - NamedType ResetRegistrationQst</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 2807940096 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan</source>

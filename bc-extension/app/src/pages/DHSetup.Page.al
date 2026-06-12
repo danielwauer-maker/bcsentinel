@@ -248,33 +248,61 @@
 
             action(RegisterTenant)
             {
-                Caption = 'Register with BCSentinel';
-                ToolTip = 'Runs Register with BCSentinel.';
+                Caption = 'Register Tenant';
+                ToolTip = 'Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.';
                 ApplicationArea = All;
                 Image = Web;
                 Enabled = CanRegisterTenant;
-                Visible = CanRegisterTenant;
+                Visible = true;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = false;
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
                     if Rec.Registered then begin
-                        Message('BCSentinel tenant is already registered.');
-                        exit;
+                        if HasStoredApiToken() then begin
+                            Message('BCSentinel tenant is already registered.');
+                            exit;
+                        end;
+
+                        Message('BCSentinel registration data is incomplete. Registration will request a fresh API token.');
                     end;
 
                     Message('BCSentinel tenant registration started.');
-                    Rec."Tenant ID" := '';
-                    ClearStoredApiToken();
-                    Rec.Registered := false;
-                    Rec."Registration Date" := 0DT;
-                    Rec.Modify(true);
-
                     ApiClient.RegisterTenant(Rec);
+                    ApiClient.RefreshLicenseStatus(Rec);
                     UpdateActionState();
                     CurrPage.Update(false);
                     Message('BCSentinel tenant registration completed.');
+                end;
+            }
+
+            action(ResetRegistration)
+            {
+                Caption = 'Reset Registration';
+                ToolTip = 'Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.';
+                ApplicationArea = All;
+                Image = ResetStatus;
+                Enabled = CanResetRegistration;
+                Visible = true;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = false;
+
+                trigger OnAction()
+                var
+                    ResetRegistrationQst: Label 'Reset the local BCSentinel registration state? This keeps the API Base URL, invite code, and consent. Backend data is not deleted.';
+                begin
+                    if not Confirm(ResetRegistrationQst, false) then
+                        exit;
+
+                    ResetLocalRegistrationState();
+                    UpdateActionState();
+                    CurrPage.Update(false);
+                    Message('Local BCSentinel registration was reset. Please register again.');
                 end;
             }
 
@@ -420,6 +448,7 @@
 
     var
         CanRegisterTenant: Boolean;
+        CanResetRegistration: Boolean;
         DataProcessingNoticeTxt: Text[1024];
         InviteNoticeTxt: Text[512];
 
@@ -457,11 +486,20 @@
         exit(SecretMgt.HasApiToken(Rec));
     end;
 
-    local procedure ClearStoredApiToken()
+    local procedure DeleteStoredApiToken()
     var
         SecretMgt: Codeunit "DH Secret Mgt.";
     begin
         SecretMgt.DeleteApiToken(Rec);
+    end;
+
+    local procedure ResetLocalRegistrationState()
+    begin
+        Rec."Tenant ID" := '';
+        Rec.Registered := false;
+        Rec."Registration Date" := 0DT;
+        DeleteStoredApiToken();
+        Rec.Modify(true);
     end;
 
     local procedure RefreshLicenseSilently()
@@ -476,7 +514,12 @@
 
     local procedure UpdateActionState()
     begin
-        CanRegisterTenant := not Rec.Registered;
+        CanRegisterTenant := Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
+        CanResetRegistration :=
+            Rec.Registered or
+            (Rec."Tenant ID" <> '') or
+            (Rec."Registration Date" <> 0DT) or
+            HasStoredApiToken();
     end;
 
     local procedure UpdateNoticeTexts()

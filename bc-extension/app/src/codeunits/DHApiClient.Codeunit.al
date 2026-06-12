@@ -63,8 +63,40 @@ codeunit 53100 "DH API Client"
             exit(true);
         if StrPos(Detail, 'BILLING_CANCEL_URL') > 0 then
             exit(true);
+        if StrPos(LowerCase(Detail), 'tenant not found') > 0 then
+            exit(true);
+        if StrPos(LowerCase(Detail), 'invalid invite') > 0 then
+            exit(true);
+        if StrPos(LowerCase(Detail), 'invite code') > 0 then
+            exit(true);
+        if StrPos(LowerCase(Detail), 'not authorized') > 0 then
+            exit(true);
+        if StrPos(LowerCase(Detail), 'forbidden') > 0 then
+            exit(true);
 
         exit(false);
+    end;
+
+    local procedure GetBackendErrorMessage(OperationName: Text; StatusCode: Integer; ResponseText: Text): Text
+    var
+        SafeDetail: Text;
+    begin
+        SafeDetail := GetSafeBackendErrorText(ResponseText);
+
+        case StatusCode of
+            401:
+                exit(StrSubstNo('%1 failed. Status 401. The backend did not accept the credentials. Register the tenant again or contact BCSentinel support.', OperationName));
+            403:
+                exit(StrSubstNo('%1 failed. Status 403. The tenant is not allowed to use this operation. Check the invite code, tenant access, or product access in BCSentinel.', OperationName));
+            404:
+                exit(StrSubstNo('%1 failed. Status 404. Tenant not found in backend. Please register again.', OperationName));
+            422:
+                exit(StrSubstNo('%1 failed. Status 422. The submitted registration data was not accepted. Check the invite code and API Base URL. %2', OperationName, SafeDetail));
+            500:
+                exit(StrSubstNo('%1 failed. Status 500. BCSentinel returned a server error. Try again later or contact BCSentinel support if this continues.', OperationName));
+            else
+                exit(StrSubstNo('%1 failed. Status %2. %3', OperationName, StatusCode, SafeDetail));
+        end;
     end;
 
     procedure EnsureTenantRegistered(var Setup: Record "DH Setup")
@@ -95,6 +127,12 @@ codeunit 53100 "DH API Client"
     begin
         EnsureSetupLoaded(Setup);
 
+        if Setup."API Base URL" = '' then
+            Error('Please configure the API Base URL first.');
+
+        if not Setup."Data Processing Consent" then
+            Error('Please enable Data Processing Consent before registering the tenant.');
+
         JsonRequest.Add('environment_name', 'BC Cloud');
         JsonRequest.Add('app_version', '0.4.0');
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
@@ -112,7 +150,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Tenant registration failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(GetBackendErrorMessage('Tenant registration', Response.HttpStatusCode(), ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
             Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
@@ -133,7 +171,6 @@ codeunit 53100 "DH API Client"
 
         Setup.Validate("Tenant ID", CopyStr(TenantId, 1, MaxStrLen(Setup."Tenant ID")));
         StoreApiToken(Setup, ApiToken);
-        Setup."Registration Invite Code" := '';
         Setup.Registered := true;
         Setup."Registration Date" := CurrentDateTime();
         Setup.Modify(true);
@@ -171,7 +208,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('License status request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(GetBackendErrorMessage('License status request', Response.HttpStatusCode(), ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
             Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');

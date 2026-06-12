@@ -4036,16 +4036,28 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Register with BCSentinel.</source>
-          <target state="translated">Fuehrt "Bei BCSentinel registrieren" aus.</target>
+          <source>Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.</source>
+          <target state="translated">Registriert diesen Business-Central-Tenant bei BCSentinel mit API-Basis-URL und Invite-Code, falls erforderlich.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Register with BCSentinel</source>
-          <target state="translated">Bei BCSentinel registrieren</target>
+          <source>Register Tenant</source>
+          <target state="translated">Registrieren</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action ResetRegistration - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
+          <target state="translated">Loescht nur den lokalen BCSentinel-Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht geloescht.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action ResetRegistration - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset Registration</source>
+          <target state="translated">Registrierung zuruecksetzen</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 618433871 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the BCSentinel website to request onboarding access.</source>
