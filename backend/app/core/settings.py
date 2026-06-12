@@ -37,12 +37,6 @@ class Settings(BaseSettings):
     # new Prices in Stripe and update these env vars — see backend/README.md.
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
-    STRIPE_PRICE_ID_PREMIUM: str | None = None
-    STRIPE_PRICE_ID_PREMIUM_YEARLY: str | None = None
-    STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY: str | None = None
-    STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY: str | None = None
-    STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY: str | None = None
-    STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY: str | None = None
     STRIPE_PRICE_ID_ASSESSMENT: str | None = None
     STRIPE_PRICE_ID_VALIDATION_CHECK: str | None = None
     STRIPE_PRICE_ID_MONITORING_MONTHLY: str | None = None

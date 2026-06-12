@@ -1263,19 +1263,11 @@ def analytics_billing_checkout(
     if requested_product not in allowed_products:
         raise HTTPException(status_code=400, detail="Unsupported product_code.")
 
-    if (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip():
-        checkout_payload = CheckoutSessionRequest(
-            tenant_id=tenant.tenant_id,
-            product_code=requested_product,
-            plan_code=requested_product,
-            billing_interval="monthly",
-        )
-    else:
-        checkout_payload = CheckoutSessionRequest(
-            tenant_id=tenant.tenant_id,
-            plan_code="premium",
-            billing_interval="monthly",
-        )
+    checkout_payload = CheckoutSessionRequest(
+        tenant_id=tenant.tenant_id,
+        product_code=requested_product,
+        billing_interval="monthly",
+    )
 
     session = create_checkout_session_for_tenant(checkout_payload)
     return JSONResponse(

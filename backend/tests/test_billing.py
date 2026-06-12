@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+import stripe
 from sqlalchemy import select
 
 from app.db import SessionLocal
@@ -22,10 +23,7 @@ def test_checkout_session_uses_configured_default_urls(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
-        STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY="price_base_year",
-        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
-        STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY="price_pack_year",
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
         APP_BASE_URL="https://app.example.com",
         BILLING_SUCCESS_URL=None,
         BILLING_CANCEL_URL=None,
@@ -44,8 +42,7 @@ def test_checkout_session_uses_configured_default_urls(
         headers=auth_header_factory(tenant),
         json={
             "tenant_id": tenant["tenant_id"],
-            "plan_code": "premium",
-            "billing_interval": "monthly",
+            "product_code": "monitoring_monthly",
             "success_url": "https://evil.example/success",
             "cancel_url": "https://evil.example/cancel",
         },
@@ -55,10 +52,7 @@ def test_checkout_session_uses_configured_default_urls(
     assert response.json()["provider"] == "stripe"
     assert captured["success_url"] == "https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}"
     assert captured["cancel_url"] == "https://app.example.com/billing/cancel"
-    assert captured["line_items"] == [
-        {"price": "price_base_month", "quantity": 1},
-        {"price": "price_pack_month", "quantity": 2},
-    ]
+    assert captured["line_items"] == [{"price": "price_monitoring_monthly", "quantity": 1}]
 
 
 def test_checkout_session_fails_without_safe_billing_url_config(
@@ -72,10 +66,7 @@ def test_checkout_session_fails_without_safe_billing_url_config(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
-        STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY="price_base_year",
-        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
-        STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY="price_pack_year",
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
         APP_BASE_URL=None,
         BILLING_SUCCESS_URL=None,
         BILLING_CANCEL_URL=None,
@@ -83,7 +74,7 @@ def test_checkout_session_fails_without_safe_billing_url_config(
     response = client.post(
         "/billing/checkout/session",
         headers=auth_header_factory(tenant),
-        json={"tenant_id": tenant["tenant_id"], "plan_code": "premium", "billing_interval": "monthly"},
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_monthly"},
     )
 
     assert response.status_code == 503
@@ -102,7 +93,6 @@ def test_billing_portal_uses_safe_return_url(
     subscription_factory(tenant_id=tenant["tenant_id"], provider_subscription_id="sub_live")
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM="price_portal",
         APP_BASE_URL="https://app.example.com",
         BILLING_PORTAL_RETURN_URL=None,
     )
@@ -143,7 +133,6 @@ def test_billing_portal_works_without_legacy_price_id(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM=None,
         APP_BASE_URL="https://app.example.com",
         BILLING_PORTAL_RETURN_URL=None,
     )
@@ -180,7 +169,6 @@ def test_billing_portal_fails_when_return_url_config_is_missing(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM="price_portal",
         APP_BASE_URL=None,
         BILLING_PORTAL_RETURN_URL=None,
     )
@@ -206,10 +194,7 @@ def test_monthly_checkout_does_not_require_yearly_price_ids(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
-        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
-        STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY=None,
-        STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY=None,
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
     )
@@ -221,14 +206,14 @@ def test_monthly_checkout_does_not_require_yearly_price_ids(
     response = client.post(
         "/billing/checkout/session",
         headers=auth_header_factory(tenant),
-        json={"tenant_id": tenant["tenant_id"], "plan_code": "premium", "billing_interval": "monthly"},
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_monthly"},
     )
 
     assert response.status_code == 200
     assert response.json()["checkout_session_id"] == "cs_monthly"
 
 
-def test_yearly_checkout_fails_cleanly_without_yearly_price_ids(
+def test_monitoring_annual_checkout_fails_cleanly_without_price_id(
     client,
     tenant_factory,
     auth_header_factory,
@@ -238,10 +223,8 @@ def test_yearly_checkout_fails_cleanly_without_yearly_price_ids(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
-        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
-        STRIPE_PRICE_ID_PREMIUM_BASE_YEARLY=None,
-        STRIPE_PRICE_ID_PREMIUM_PACK_YEARLY=None,
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
+        STRIPE_PRICE_ID_MONITORING_ANNUAL=None,
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
     )
@@ -249,11 +232,46 @@ def test_yearly_checkout_fails_cleanly_without_yearly_price_ids(
     response = client.post(
         "/billing/checkout/session",
         headers=auth_header_factory(tenant),
-        json={"tenant_id": tenant["tenant_id"], "plan_code": "premium", "billing_interval": "yearly"},
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_annual"},
     )
 
-    assert response.status_code == 503
-    assert "Yearly premium base billing is not configured." in response.json()["detail"]
+    assert response.status_code == 400
+    assert "Monitoring annual checkout is not configured." in response.json()["detail"]
+
+
+def test_monitoring_annual_checkout_handles_inactive_stripe_price(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    settings_state,
+    monkeypatch,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    settings_state(
+        ENV="prod",
+        STRIPE_SECRET_KEY="sk_test",
+        STRIPE_PRICE_ID_MONITORING_ANNUAL="price_archived_annual",
+        BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
+        BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+
+    def fake_create(**kwargs):
+        assert kwargs["line_items"] == [{"price": "price_archived_annual", "quantity": 1}]
+        raise stripe.error.InvalidRequestError(
+            "The price specified is inactive. This field only accepts active prices.",
+            "line_items[0][price]",
+        )
+
+    monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
+
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_annual"},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Configured Stripe Price ID for monitoring_annual is inactive or invalid."
 
 
 def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
@@ -266,8 +284,7 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
     tenant = tenant_factory(plan="free", license_status="trial")
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM_BASE_MONTHLY="price_base_month",
-        STRIPE_PRICE_ID_PREMIUM_PACK_MONTHLY="price_pack_month",
+        STRIPE_PRICE_ID_ASSESSMENT="price_assessment",
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
     )
@@ -488,7 +505,6 @@ def test_checkout_session_status_sync_succeeds_without_legacy_price_id(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM=None,
     )
     monkeypatch.setattr(
         "app.routers.billing.stripe.checkout.Session.retrieve",
@@ -540,7 +556,6 @@ def test_checkout_session_status_returns_pending_when_subscription_missing(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM=None,
     )
     monkeypatch.setattr(
         "app.routers.billing.stripe.checkout.Session.retrieve",
@@ -571,7 +586,6 @@ def test_checkout_session_status_requires_session_id(
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
-        STRIPE_PRICE_ID_PREMIUM=None,
     )
 
     response = client.get(

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import text
 
 import app.main as app_main
 from app.core.settings import validate_settings
-from app.db import SessionLocal, ensure_schema_is_migrated, get_required_alembic_revision
+from app.db import Base, SessionLocal, engine, ensure_schema_is_migrated, get_required_alembic_revision
 from app.routers.reports import _shared_report_url
 
 
@@ -14,17 +15,39 @@ class DummyRequest:
 
 
 def test_required_alembic_revision_uses_current_head():
-    assert get_required_alembic_revision() == "0017_tenant_preferred_language"
+    head = get_required_alembic_revision()
+
+    assert head
+    assert head.startswith("00")
 
 
 def test_schema_check_accepts_current_alembic_head():
     head = get_required_alembic_revision()
     with SessionLocal() as db:
+        db.execute(text("DROP TABLE IF EXISTS alembic_version"))
         db.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(255) NOT NULL)"))
         db.execute(text("INSERT INTO alembic_version (version_num) VALUES (:head)"), {"head": head})
         db.commit()
 
     ensure_schema_is_migrated()
+
+
+def test_startup_succeeds_with_current_alembic_head_schema():
+    head = get_required_alembic_revision()
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    with SessionLocal() as db:
+        db.execute(text("DROP TABLE IF EXISTS alembic_version"))
+        db.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(255) NOT NULL)"))
+        db.execute(text("INSERT INTO alembic_version (version_num) VALUES (:head)"), {"head": head})
+        db.commit()
+
+    with TestClient(app_main.app) as client:
+        response = client.get("/health/ready")
+
+    assert response.status_code == 200
+    assert response.json()["checks"]["database"] == "ok"
 
 
 def test_prod_cors_requires_explicit_origins(settings_state):

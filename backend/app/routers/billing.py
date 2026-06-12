@@ -278,22 +278,22 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
     if product_code == PRODUCT_ASSESSMENT:
         price_id = (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip()
         if not price_id:
-            raise HTTPException(status_code=503, detail="Assessment checkout is not configured.")
+            raise HTTPException(status_code=400, detail="Assessment checkout is not configured.")
         return price_id
     if product_code == PRODUCT_VALIDATION_CHECK:
         price_id = (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip()
         if not price_id:
-            raise HTTPException(status_code=503, detail="Validation Check checkout is not configured.")
+            raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
         return price_id
     if product_code == PRODUCT_MONITORING_ANNUAL:
         price_id = (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or "").strip()
         if not price_id:
-            raise HTTPException(status_code=503, detail="Monitoring annual checkout is not configured.")
+            raise HTTPException(status_code=400, detail="Monitoring annual checkout is not configured.")
         return price_id
     if product_code == PRODUCT_MONITORING_MONTHLY:
         price_id = (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or "").strip()
         if not price_id:
-            raise HTTPException(status_code=503, detail="Monitoring monthly checkout is not configured.")
+            raise HTTPException(status_code=400, detail="Monitoring monthly checkout is not configured.")
         return price_id
     raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
 
@@ -527,6 +527,14 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         if checkout_mode == "subscription":
             session_kwargs["subscription_data"] = {"metadata": checkout_metadata}
         session = stripe.checkout.Session.create(**session_kwargs)
+    except stripe.error.InvalidRequestError as exc:
+        message = str(exc).lower()
+        if "price" in message and ("inactive" in message or "no such price" in message or "invalid" in message):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Configured Stripe Price ID for {product_code} is inactive or invalid.",
+            ) from exc
+        raise HTTPException(status_code=400, detail="Stripe rejected the checkout request.") from exc
     except Exception:
         logger.exception(
             "Stripe checkout session creation failed.",
