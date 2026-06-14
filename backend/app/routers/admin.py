@@ -42,6 +42,10 @@ from app.services.product_pricing_service import (
     list_product_pricing,
     validate_product_pricing_update,
 )
+from app.services.landingpage_visibility_service import (
+    list_landingpage_visibility,
+    update_landingpage_visibility,
+)
 from app.services.site_translation_service import (
     SiteTranslationConfigError,
     load_site_translation_groups,
@@ -145,6 +149,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/site-translations",
         "subtitle": "Landingpage- und Shared-Texte in DE/EN pflegen",
     },
+    "landingpage_visibility": {
+        "label": "Website Visibility",
+        "href": "/admin/config/landingpage-pages",
+        "subtitle": "Phase-1-Seiten der neuen Landingpage ein- und ausblenden",
+    },
 }
 ADMIN_NAV_ORDER = [
     "tenants",
@@ -157,6 +166,7 @@ ADMIN_NAV_ORDER = [
     "audit",
     "email_templates",
     "site_translations",
+    "landingpage_visibility",
 ]
 
 
@@ -650,6 +660,8 @@ def _render_admin_page(
                     "message": str(exc),
                     "details": exc.details,
                 }
+        elif active_section == "landingpage_visibility":
+            context["landingpage_pages"] = list_landingpage_visibility(db)
 
         response = TEMPLATES.TemplateResponse(
             name="admin_tenants.html",
@@ -729,6 +741,12 @@ def admin_email_templates(request: Request, _: str = Depends(require_admin)):
 @router.get("/admin/config/site-translations/", response_class=HTMLResponse)
 def admin_site_translations(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="site_translations")
+
+
+@router.get("/admin/config/landingpage-pages", response_class=HTMLResponse)
+@router.get("/admin/config/landingpage-pages/", response_class=HTMLResponse)
+def admin_landingpage_pages(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="landingpage_visibility")
 
 
 @router.get("/admin/tenants/{tenant_id}", response_class=HTMLResponse)
@@ -1477,6 +1495,32 @@ def update_admin_site_translations(
         + quote_plus(message),
         status_code=status.HTTP_303_SEE_OTHER,
     )
+
+
+@router.post("/admin/landingpage/pages")
+@router.post("/admin/config/landingpage-pages")
+def update_admin_landingpage_pages(
+    visible_pages: list[str] = Form(default=[]),
+    admin_username: str = Depends(require_admin),
+):
+    with SessionLocal() as db:
+        try:
+            before = list_landingpage_visibility(db)
+            after = update_landingpage_visibility(db, set(visible_pages))
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="config.landingpage_visibility.update",
+            target_type="landingpage_page_visibility",
+            target_id="phase_1",
+            details={"before": before, "after": after},
+        )
+        db.commit()
+
+    return RedirectResponse(url="/admin/config/landingpage-pages", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/admin/config/email-templates/{template_key}/test-send")

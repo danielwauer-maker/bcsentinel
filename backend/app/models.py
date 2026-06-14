@@ -241,6 +241,16 @@ class ProductPricingConfig(Base):
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class LandingpagePageVisibility(Base):
+    __tablename__ = "landingpage_page_visibility"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    page_key: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class Subscription(Base):
     __tablename__ = "subscriptions"
 

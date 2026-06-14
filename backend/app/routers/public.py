@@ -11,6 +11,7 @@ from app.services.impact_service import (
     get_impact_definition,
 )
 from app.services.product_pricing_service import get_public_product_pricing_payload
+from app.services.landingpage_visibility_service import public_landingpage_visibility_payload
 
 router = APIRouter(tags=["public"])
 
@@ -32,6 +33,16 @@ class PublicProductPricingResponse(BaseModel):
     products: list[PublicProductPricingItemResponse]
 
 
+class PublicLandingpageVisibilityItemResponse(BaseModel):
+    page_key: str
+    is_visible: bool
+
+
+class PublicLandingpageVisibilityResponse(BaseModel):
+    source: str
+    pages: list[PublicLandingpageVisibilityItemResponse]
+
+
 class PublicLossExampleIssueResponse(BaseModel):
     minutes_per_occurrence: float
     probability: float
@@ -47,6 +58,12 @@ class PublicLossExampleConfigResponse(BaseModel):
 def get_public_product_pricing() -> PublicProductPricingResponse:
     with SessionLocal() as db:
         return PublicProductPricingResponse.model_validate(get_public_product_pricing_payload(db))
+
+
+@router.get("/landingpage/pages/visibility", response_model=PublicLandingpageVisibilityResponse)
+def get_public_landingpage_visibility() -> PublicLandingpageVisibilityResponse:
+    with SessionLocal() as db:
+        return PublicLandingpageVisibilityResponse.model_validate(public_landingpage_visibility_payload(db))
 
 
 @router.get("/public/loss-examples-config", response_model=PublicLossExampleConfigResponse)

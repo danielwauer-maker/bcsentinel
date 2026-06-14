@@ -505,6 +505,42 @@
           {% endif %}
         </section>
         {% endif %}
+
+        {% if active_section == "landingpage_visibility" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <h2>Website Visibility</h2>
+            <span class="muted">Phase-1-Seiten der neuen Landingpage</span>
+          </div>
+          <p class="muted">
+            Home ist geschuetzt und bleibt sichtbar. Unsichtbare Seiten werden in der Navigation ausgeblendet.
+            Beim direkten Aufruf leitet die neue Landingpage auf Home um; bei nicht erreichbarer API bleiben alle Seiten sichtbar.
+          </p>
+          <form method="post" action="/admin/config/landingpage-pages" class="config-list">
+            {% for page in landingpage_pages %}
+            <label class="config-row" style="grid-template-columns: 1fr auto auto; cursor:pointer;">
+              <span>
+                <span class="config-title">{{ page.label }}</span>
+                <span class="muted"><code>{{ page.page_key }}</code> · {{ page.path }}</span>
+              </span>
+              <span class="muted">{% if page.protected %}Protected{% else %}Optional{% endif %}</span>
+              <input
+                type="checkbox"
+                name="visible_pages"
+                value="{{ page.page_key }}"
+                {% if page.is_visible %}checked{% endif %}
+                {% if page.protected %}checked disabled{% endif %}
+              >
+            </label>
+            {% endfor %}
+            <input type="hidden" name="visible_pages" value="home">
+            <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+              <button type="submit" class="btn btn-primary">Save visibility</button>
+              <a class="btn btn-secondary" href="/admin/config/landingpage-pages">Reload</a>
+            </div>
+          </form>
+        </section>
+        {% endif %}
       </main>
     </div>
   </div>
