@@ -15,7 +15,7 @@
 </head>
 <body data-page-key="home">
   <main>
-    <section class="hero">
+    <section class="hero command-hero">
       <div class="container hero-grid">
         <div class="hero-copy">
           <p class="eyebrow" data-i18n="home_eyebrow">Built for Microsoft Dynamics 365 Business Central</p>
@@ -32,12 +32,15 @@
           </div>
         </div>
         <div class="hero-visual">
-          <img src="assets/img/dashboard-preview.svg" alt="" data-i18n-alt="dashboard_alt">
+          <div class="dashboard-stage">
+            <div class="stage-topline"><span></span><span></span><span></span></div>
+            <img src="assets/img/dashboard-preview.svg" alt="" data-i18n-alt="dashboard_alt">
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section tight band">
+    <section class="section tight band trust-section">
       <div class="container trust-bar">
         <div class="trust-item"><span class="icon">BC</span><span data-i18n="trust_bc">Built for Microsoft Dynamics 365 Business Central</span></div>
         <div class="trust-item"><span class="icon">AS</span><span data-i18n="trust_appsource">Available on Microsoft AppSource</span></div>
@@ -47,8 +50,8 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="container split">
+    <section class="section report-showcase">
+      <div class="container split report-grid">
         <div>
           <p class="eyebrow" data-i18n="report_eyebrow">Executive Report</p>
           <h2 data-i18n="report_title">Von Daten zu Entscheidungen.</h2>
@@ -61,11 +64,13 @@
           </ul>
           <p><a class="btn btn-ghost" href="executive-reports.html" data-i18n="reports_sample_cta">Beispielreport herunterladen</a></p>
         </div>
-        <img src="assets/img/executive-report-preview.svg" alt="" data-i18n-alt="report_alt">
+        <div class="report-preview-frame">
+          <img src="assets/img/executive-report-preview.svg" alt="" data-i18n-alt="report_alt">
+        </div>
       </div>
     </section>
 
-    <section class="section band">
+    <section class="section band pricing-band">
       <div class="container">
         <div style="text-align:center; max-width:760px; margin:0 auto 26px;">
           <h2 data-i18n="roi_title">Was schlechte Datenqualitaet Ihrem Unternehmen kostet</h2>
@@ -124,8 +129,8 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="container page-grid">
+    <section class="section founder-section">
+      <div class="container page-grid founder-grid">
         <div class="founder-card card">
           <div class="portrait"></div>
           <div><h3 data-i18n="founder_name">Benjamin Schroyer</h3><p data-i18n="founder_role">Gruender & Geschaeftsfuehrer</p><div class="signature">Benjamin</div></div>
