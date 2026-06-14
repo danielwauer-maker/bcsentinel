@@ -33,8 +33,62 @@
         </div>
         <div class="hero-visual">
           <div class="dashboard-stage">
-            <div class="stage-topline"><span></span><span></span><span></span></div>
-            <img src="assets/img/dashboard-preview.svg" alt="" data-i18n-alt="dashboard_alt">
+            <aside class="hero-dashboard-nav" aria-hidden="true">
+              <div class="dashboard-brand"><span class="dashboard-brand-mark">BC</span><strong>BCSentinel</strong></div>
+              <div class="dashboard-nav-item active"><span>O</span>Uebersicht</div>
+              <div class="dashboard-nav-item"><span>A</span>Assessment</div>
+              <div class="dashboard-nav-item"><span>V</span>Validation Check</div>
+              <div class="dashboard-nav-item"><span>M</span>Monitoring</div>
+              <div class="dashboard-nav-item"><span>D</span>Data Explorer</div>
+              <div class="dashboard-nav-item"><span>B</span>Berichte</div>
+              <div class="dashboard-nav-item"><span>E</span>Einstellungen</div>
+            </aside>
+            <div class="hero-dashboard-main" aria-hidden="true">
+              <div class="dashboard-toolbar">
+                <strong>Uebersicht</strong>
+                <div class="dashboard-actions"><span></span><span></span><span></span></div>
+              </div>
+              <div class="dashboard-kpis">
+                <div class="dash-kpi dash-score"><small>Data Health Score</small><div class="mini-score"><span>82</span></div><em>+12%</em></div>
+                <div class="dash-kpi"><small>Estimated Loss (jaehrlich)</small><strong>EUR 1.246.000</strong><em>+15%</em></div>
+                <div class="dash-kpi"><small>Potential Saving (jaehrlich)</small><strong>EUR 892.000</strong><em>+18%</em></div>
+                <div class="dash-kpi"><small>Gepruefte Datensaetze</small><strong>12,8 Mio.</strong><em>+8%</em></div>
+                <div class="dash-kpi"><small>Ueberwachte Tabellen</small><strong>142</strong><em>+6%</em></div>
+              </div>
+              <div class="dashboard-panels">
+                <section class="dash-panel line-panel">
+                  <h3>Score Verlauf (12 Monate)</h3>
+                  <div class="line-chart">
+                    <svg viewBox="0 0 340 150" preserveAspectRatio="none" focusable="false">
+                      <path class="grid-line" d="M0 125H340M0 92H340M0 59H340M0 26H340"/>
+                      <polyline points="8,116 45,82 82,92 119,75 156,105 193,72 230,78 267,42 332,24" fill="none" stroke="#0B8F78" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                      <g fill="#0B8F78"><circle cx="8" cy="116" r="4"/><circle cx="45" cy="82" r="4"/><circle cx="82" cy="92" r="4"/><circle cx="119" cy="75" r="4"/><circle cx="156" cy="105" r="4"/><circle cx="193" cy="72" r="4"/><circle cx="230" cy="78" r="4"/><circle cx="267" cy="42" r="4"/><circle cx="332" cy="24" r="4"/></g>
+                    </svg>
+                    <div class="months"><span>Jan</span><span>Feb</span><span>Mrz</span><span>Apr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Okt</span><span>Nov</span><span>Dez</span></div>
+                  </div>
+                </section>
+                <section class="dash-panel donut-panel">
+                  <h3>Top Fehlerkategorien</h3>
+                  <div class="donut-wrap">
+                    <div class="donut-chart"></div>
+                    <ul>
+                      <li><span></span>Stammdaten <strong>36%</strong></li>
+                      <li><span></span>Finanzen <strong>28%</strong></li>
+                      <li><span></span>Verkauf <strong>19%</strong></li>
+                      <li><span></span>Einkauf <strong>10%</strong></li>
+                      <li><span></span>Lager <strong>7%</strong></li>
+                    </ul>
+                  </div>
+                </section>
+                <section class="dash-panel alerts-panel">
+                  <h3>Aktive Alerts</h3>
+                  <div class="alert-row hot"><strong>23</strong><span>Hohe Datenprobleme</span></div>
+                  <div class="alert-row warn"><strong>7</strong><span>Kritische Risiken</span></div>
+                  <div class="alert-row info"><strong>4</strong><span>Empfehlungen bereit</span></div>
+                  <a>Alle Alerts anzeigen</a>
+                </section>
+              </div>
+            </div>
           </div>
         </div>
       </div>
