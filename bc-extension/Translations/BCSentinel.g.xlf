@@ -1028,6 +1028,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Tenant ID - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score started. Open the monitor to view progress. Run ID: %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDataHealthScore - NamedType ScanStartedMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 1618803454 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan started. Open the monitor to view progress. Run ID: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1384,7 +1389,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Checks Count - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1090525127 - Control 2908063460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assessment of data quality.</source>
+          <source>Shows the Data Health Score.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard KPI Part - Control Data Score - Property ToolTip</note>
         </trans-unit>
@@ -3333,15 +3338,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scan Date 2 - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Action 1690001900 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout for the Assessment one-time scan.</source>
+        <trans-unit id="Page 392523509 - Action 1850050961 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the secure BCSentinel checkout for Full Analysis.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyAssessment - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyFullAnalysis - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Action 1690001900 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy Assessment</source>
+        <trans-unit id="Page 392523509 - Action 1850050961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyAssessment - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyFullAnalysis - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1396684237 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the secure BCSentinel checkout for a Validation Check follow-up scan.</source>
@@ -3403,18 +3408,28 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ScanMenu - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Action 937822417 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starts a premium deep scan using an active Full Analysis, Validation Check or Monitoring access.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 937822417 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Premium Deep Scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Start Scan.</source>
+          <source>Starts the free Data Health Score scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Scan</source>
+          <source>Start Data Health Score</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Method 1377591017 - NamedType 2583652021" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
+          <source>Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Method OnAction - NamedType ConfirmStartScanQst</note>
         </trans-unit>

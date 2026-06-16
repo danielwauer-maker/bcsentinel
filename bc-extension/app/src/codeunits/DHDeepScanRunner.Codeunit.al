@@ -28,14 +28,14 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Started At" := CurrentDateTime();
         DeepScanRun."Finished At" := 0DT;
         DeepScanRun."Error Message" := '';
-        DeepScanRun."Headline" := 'Deep scan is running';
+        DeepScanRun."Headline" := CopyStr(GetRunningHeadline(DeepScanRun), 1, MaxStrLen(DeepScanRun."Headline"));
         DeepScanRun."Current Module" := 'Initializing';
         DeepScanRun."Progress %" := 0;
         DeepScanRun."Completed Modules" := 0;
         DeepScanRun."ETA Text" := 'Calculating...';
         DeepScanRun.Modify(true);
         Commit();
-        TryUpdateBackendProgress(DeepScanRun, 'running', 'Preparing scan checks', 'Deep scan started');
+        TryUpdateBackendProgress(DeepScanRun, 'running', 'Preparing scan checks', GetStartedEventMessage(DeepScanRun));
 
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
 
@@ -74,7 +74,8 @@ codeunit 53128 "DH Deep Scan Runner"
             SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
             ApplySyncCommercials(DeepScanRun, SyncResponseText);
             ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
-            ApiClient.RefreshLicenseStatus(Setup);
+            if not IsDataHealthScoreRun(DeepScanRun) then
+                ApiClient.RefreshLicenseStatus(Setup);
             TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
         end;
     end;
@@ -2176,7 +2177,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ScanHeader."Headline" := CopyStr(DeepScanRun."Headline", 1, MaxStrLen(ScanHeader."Headline"));
         ScanHeader."Rating" := CopyStr(DeepScanRun."Rating", 1, MaxStrLen(ScanHeader."Rating"));
         if Setup.Get('SETUP') then
-            ScanHeader."Premium Available" := Setup."Premium Enabled"
+            ScanHeader."Premium Available" := IsPremiumAvailableForRun(Setup, DeepScanRun)
         else
             ScanHeader."Premium Available" := false;
         ScanHeader.Modify(true);
@@ -2348,6 +2349,43 @@ codeunit 53128 "DH Deep Scan Runner"
         exit(SecretMgt.GetApiToken(Setup));
     end;
 
+    local procedure GetRunScanMode(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        if LowerCase(DeepScanRun."Scan Mode") = 'data_health_score' then
+            exit('data_health_score');
+
+        exit('deep');
+    end;
+
+    local procedure IsDataHealthScoreRun(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    begin
+        exit(GetRunScanMode(DeepScanRun) = 'data_health_score');
+    end;
+
+    local procedure GetRunningHeadline(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        if IsDataHealthScoreRun(DeepScanRun) then
+            exit('Data Health Score is running');
+
+        exit('Deep scan is running');
+    end;
+
+    local procedure GetStartedEventMessage(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        if IsDataHealthScoreRun(DeepScanRun) then
+            exit('Data Health Score started');
+
+        exit('Deep scan started');
+    end;
+
+    local procedure IsPremiumAvailableForRun(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    begin
+        if IsDataHealthScoreRun(DeepScanRun) then
+            exit(false);
+
+        exit(Setup."Premium Enabled");
+    end;
+
     local procedure BuildSyncPayload(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"): Text
     var
         Finding: Record "DH Deep Scan Finding";
@@ -2369,15 +2407,12 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
-        if StrPos(DeepScanRun."Headline", 'Data Health Score') > 0 then
-            Payload.Add('scan_type', 'data_health_score')
-        else
-            Payload.Add('scan_type', 'deep');
+        Payload.Add('scan_type', GetRunScanMode(DeepScanRun));
         Payload.Add('generated_at_utc', Format(ScanDateTime, 0, 9));
         Payload.Add('data_score', DeepScanRun."Deep Score");
         Payload.Add('checks_count', DeepScanRun."Checks Count");
         Payload.Add('issues_count', DeepScanRun."Issues Count");
-        Payload.Add('premium_available', Setup."Premium Enabled");
+        Payload.Add('premium_available', IsPremiumAvailableForRun(Setup, DeepScanRun));
         Payload.Add('data_profile', DataProfilingMgt.BuildDataProfile());
 
         ModuleScores.Add('system', DeepScanRun."System Score");

@@ -227,6 +227,10 @@ table 53128 "DH Deep Scan Run"
         {
             Caption = 'Recent Events';
         }
+        field(55; "Scan Mode"; Text[30])
+        {
+            Caption = 'Scan Mode';
+        }
     }
     keys
     {

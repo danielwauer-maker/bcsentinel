@@ -649,7 +649,7 @@ codeunit 53100 "DH API Client"
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('run_id', Format(DeepScanRun."Run ID"));
-        JsonRequest.Add('scan_mode', 'deep');
+        JsonRequest.Add('scan_mode', GetDeepScanRunMode(DeepScanRun));
         JsonRequest.Add('status', StatusValue);
         JsonRequest.Add('progress_percent', DeepScanRun."Progress %");
         JsonRequest.Add('current_module', DeepScanRun."Current Module");
@@ -688,6 +688,14 @@ codeunit 53100 "DH API Client"
                 Response.HttpStatusCode(),
                 Format(DeepScanRun."Run ID"),
                 GetSafeBackendErrorText(ResponseText));
+    end;
+
+    local procedure GetDeepScanRunMode(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        if LowerCase(DeepScanRun."Scan Mode") = 'data_health_score' then
+            exit('data_health_score');
+
+        exit('deep');
     end;
 
     procedure GetScanStatus(var Setup: Record "DH Setup"; RunId: Code[50]): Text
