@@ -319,18 +319,18 @@
                 end;
             }
 
-            action(BuyAssessment)
+            action(BuyFullAnalysis)
             {
-                Caption = 'Buy Assessment';
+                Caption = 'Buy Full Analysis';
                 ApplicationArea = All;
                 Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout for the Assessment one-time scan.';
+                ToolTip = 'Open the secure BCSentinel checkout for Full Analysis.';
 
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
-                    ApiClient.OpenProductCheckout(Rec, 'assessment');
+                    ApiClient.OpenProductCheckout(Rec, 'full_analysis');
                 end;
             }
 

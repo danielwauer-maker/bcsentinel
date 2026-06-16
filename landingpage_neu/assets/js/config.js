@@ -14,15 +14,17 @@
 
   window.BCSentinelConfig = {
     apiBase: apiBase(),
-    productCodes: ["assessment", "validation_check", "monitoring_monthly", "monitoring_annual"],
+    productCodes: ["data_health_score", "full_analysis", "validation_check", "monitoring_monthly", "monitoring_annual"],
     fallbackPricing: {
       source: "fallback",
       currency: "EUR",
       products: [
-        { product_key: "assessment", display_name: "Assessment", price_cents: 7900, currency: "EUR", billing_interval: "one_time", is_active: true },
+        { product_key: "data_health_score", display_name: "Data Health Score", price_cents: 0, currency: "EUR", billing_interval: "one_time", is_active: true },
+        { product_key: "full_analysis", display_name: "Full Analysis", price_cents: 7900, currency: "EUR", billing_interval: "one_time", is_active: true },
         { product_key: "validation_check", display_name: "Validation Check", price_cents: 4900, currency: "EUR", billing_interval: "one_time", is_active: true },
-        { product_key: "monitoring_monthly", display_name: "Monitoring Monthly", price_cents: 9900, currency: "EUR", billing_interval: "month", is_active: true },
-        { product_key: "monitoring_annual", display_name: "Monitoring Annual", price_cents: 99000, currency: "EUR", billing_interval: "year", is_active: true },
+        { product_key: "monitoring", display_name: "Monitoring", price_cents: 14900, currency: "EUR", billing_interval: "month", is_active: true },
+        { product_key: "monitoring_monthly", display_name: "Monitoring Monthly", price_cents: 14900, currency: "EUR", billing_interval: "month", is_active: true },
+        { product_key: "monitoring_annual", display_name: "Monitoring Annual", price_cents: 149000, currency: "EUR", billing_interval: "year", is_active: true },
       ],
     },
     pages: [

@@ -44,7 +44,7 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
         if not access["can_view_executive_report"]:
             raise HTTPException(
                 status_code=402,
-                detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.",
+                detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
             )
         return report
 
@@ -128,7 +128,7 @@ def create_executive_report_share_link(
         if not access["can_view_executive_report"]:
             raise HTTPException(
                 status_code=402,
-                detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.",
+                detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
             )
 
     token = _create_share_token(

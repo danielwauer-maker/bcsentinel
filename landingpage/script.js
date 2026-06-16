@@ -7,7 +7,7 @@ const translations = {
     nav_partners: "Partner",
     nav_security: "Sicherheit",
     nav_faq: "FAQ",
-    nav_cta: "Assessment starten",
+    nav_cta: "Full Analysis starten",
     theme_toggle_light: "Light",
     theme_toggle_dark: "Dark",
 
@@ -23,7 +23,7 @@ const translations = {
     metric_loss_label: "Geschaetzter Jahresverlust",
     metric_loss_sub: "Monetarisierter Impact auf Basis der erkannten Datenprobleme.",
     metric_price_label: "Monitoring",
-    metric_price_sub: "Klare Produktpreise fuer Assessment, Validation Check und laufende Ueberwachung.",
+    metric_price_sub: "Klare Produktpreise fuer Data Health Score, Full Analysis, Validation Check und laufende Ueberwachung.",
     metric_save_label: "Potenzielle Einsparung",
     metric_save_sub: "Realistisch geschaetzte Einsparung nach Behebung zentraler Probleme.",
 
@@ -75,9 +75,9 @@ const translations = {
     solution_card_4_text: "Schaffe eine starke Basis fuer wiederkehrende Scans und kontinuierliches Data-Health-Monitoring.",
 
     how_eyebrow: "So funktioniert es",
-    how_title: "Vom ersten Assessment zum laufenden Monitoring.",
+    how_title: "Vom Data Health Score zum laufenden Monitoring.",
     how_sub: "Leichtgewichtig fuer den Kunden, stark genug fuer echten ERP-Mehrwert ab dem ersten Tag.",
-    step_1_title: "Assessment",
+    step_1_title: "Data Health Score",
     step_1_text: "Starte direkt aus deiner Business-Central-Umgebung und loese deinen ersten Scan aus.",
     step_2_title: "Daten bereinigen",
     step_2_text: "Nutze Findings, Executive Report und Empfehlungen, um die wichtigsten Datenprobleme in Business Central zu beheben.",
@@ -94,15 +94,15 @@ const translations = {
 
     pricing_eyebrow: "Preise",
     pricing_title: "Klare Produktpreise fuer Scan und Monitoring.",
-    pricing_sub: "Waehle den einmaligen Assessment-Start, eine Validierung nach der Bereinigung oder kontinuierliches Monitoring.",
+    pricing_sub: "Starte kostenlos mit dem Data Health Score, schalte Details per Full Analysis frei oder nutze kontinuierliches Monitoring.",
     price_one_time: "einmalig",
     price_year: "/ Jahr",
     product_cta: "In Business Central oeffnen",
-    product_assessment_badge: "Assessment",
-    product_assessment_title: "Einmalige Data-Health-Analyse.",
-    product_assessment_1: "Deep Scan und Score",
-    product_assessment_2: "Business-Impact-ueberblick",
-    product_assessment_3: "Dashboard-Zugriffsfenster",
+    product_assessment_badge: "Full Analysis",
+    product_assessment_title: "7 Tage Premiumzugriff auf die vollstaendige Analyse.",
+    product_assessment_1: "Vollstaendige Issues und Actions",
+    product_assessment_2: "Reports und Business-Impact-Details",
+    product_assessment_3: "Datensatzdetails im Zugriffsfenster",
     product_validation_badge: "Validation Check",
     product_validation_title: "Folgescan nach der Bereinigung.",
     product_validation_1: "Validation-Scan-Credit",
@@ -115,15 +115,15 @@ const translations = {
     product_monitoring_1: "Wiederkehrender Dashboard-Zugriff",
     product_monitoring_2: "Issue-Details und Empfehlungen",
     product_monitoring_3: "Business-Central-Aktionen",
-    plan_assessment_badge: "Assessment",
-    plan_assessment_title: "Sichtbarkeit fuer deinen ersten Business Case.",
+    plan_assessment_badge: "Full Analysis",
+    plan_assessment_title: "Vollzugriff fuer deinen ersten Business Case.",
     price_month: "/ Monat",
     plan_assessment_1: "Vollstaendiger Systemscan",
     plan_assessment_2: "Data Health Score",
     plan_assessment_3: "Issue-Anzahlen und Kategorien",
     plan_assessment_4: "Geschaetzter Jahresverlust",
     plan_assessment_5: "Dashboard-ueberblick und Monitoring-Basis",
-    plan_assessment_cta: "Assessment starten",
+    plan_assessment_cta: "Full Analysis starten",
     plan_assessment_fit: "Ideal fuer Teams, die Risiken zuerst sauber quantifizieren moechten.",
     plan_monitoring_badge: "Monitoring",
     plan_monitoring_title: "Mache aus Insight echte Umsetzung.",
@@ -137,7 +137,7 @@ const translations = {
     plan_monitoring_fit: "Ideal fuer Teams, die schnell umsetzen und Einsparungen realisieren wollen.",
     plan_guarantee_1: "Monatlich kuendbar",
     plan_guarantee_2: "Kein schweres Setup-Projekt noetig",
-    plan_guarantee_3: "Purchase jederzeit aus Assessment moeglich",
+    plan_guarantee_3: "Upgrade aus Full Analysis oder Validation Check moeglich",
 
     security_eyebrow: "Sicherheit",
     security_title: "Entwickelt fuer datensensible Business-Central-Umgebungen.",
@@ -176,13 +176,13 @@ const translations = {
     faq_3_q: "Werden API Tokens in Reports oder URLs verwendet?",
     faq_3_a: "Nein. API Tokens sollen nicht in Reports oder URLs erscheinen. Dashboard-Embeds nutzen kurzlebige Embed Tokens, Report Share Links haben Ablaufzeiten.",
     faq_4_q: "Was ist ein Scan Credit?",
-    faq_4_a: "Ein Scan Credit erlaubt einen bezahlten Deep Scan. Assessment und Validation Check enthalten jeweils einen Scan Credit.",
-    faq_5_q: "Was ist der Unterschied zwischen Assessment und Validation Check?",
-    faq_5_a: "Assessment ist der erste Deep Scan. Validation Check ist der Folgescan nach der Bereinigung, um Fortschritt und Report-Sicht zu aktualisieren.",
+    faq_4_a: "Ein Scan Credit erlaubt einen bezahlten Deep Scan. Full Analysis und Validation Check enthalten jeweils einen Scan Credit.",
+    faq_5_q: "Was ist der Unterschied zwischen Full Analysis und Validation Check?",
+    faq_5_a: "Full Analysis ist der erste vollstaendige 7-Tage-Zugriff. Validation Check ist der Folgescan nach der Bereinigung, um Fortschritt und Report-Sicht zu aktualisieren.",
     faq_6_q: "Wann lohnt sich Monitoring?",
-    faq_6_a: "Monitoring lohnt sich, wenn Datenqualitaet nach dem ersten Assessment oder nach einer Bereinigung dauerhaft sichtbar bleiben soll.",
+    faq_6_a: "Monitoring lohnt sich, wenn Datenqualitaet nach der Full Analysis oder nach einer Bereinigung dauerhaft sichtbar bleiben soll.",
     faq_7_q: "Wie lange habe ich Zugriff auf Dashboard, Issues und Reports?",
-    faq_7_a: "Assessment und Validation Check geben sieben Tage Zugriff. Monitoring haelt den Zugriff waehrend eines aktiven Abonnements offen.",
+    faq_7_a: "Full Analysis und Validation Check geben sieben Tage Zugriff. Monitoring haelt den Zugriff waehrend eines aktiven Abonnements offen.",
     faq_8_q: "Funktioniert BCSentinel mit Business Central Cloud?",
     faq_8_a: "Ja. BCSentinel ist auf Business Central Cloud vorbereitet und benoetigt keinen direkten Datenbankzugriff.",
     faq_9_q: "Ist BCSentinel bereits im Microsoft AppSource Marketplace?",
@@ -190,10 +190,10 @@ const translations = {
 
     cta_eyebrow: "Bereit zu starten?",
     cta_title: "Sieh, was deine Business-Central-Daten dich kosten, bevor es noch teurer wird.",
-    cta_sub: "Starte mit Assessment, validiere Verbesserungen mit einem Folgescan und nutze Monitoring, wenn Datenqualitaet dauerhaft sichtbar bleiben soll.",
+    cta_sub: "Starte mit dem Data Health Score, schalte Full Analysis frei, validiere Verbesserungen und nutze Monitoring fuer dauerhafte Sichtbarkeit.",
     cta_primary: "Produkt waehlen",
     cta_secondary: "Dokumentation lesen",
-    cta_note: "Starte mit Assessment, validiere Verbesserungen und nutze Monitoring, wenn kontinuierliche Kontrolle sinnvoll ist.",
+    cta_note: "Starte mit Data Health Score und Full Analysis; nutze Monitoring, wenn kontinuierliche Kontrolle sinnvoll ist.",
 
     footer_legal: "Impressum",
     footer_privacy: "Datenschutz",
@@ -218,7 +218,7 @@ const translations = {
     nav_partners: "Partners",
     nav_security: "Security",
     nav_faq: "FAQ",
-    nav_cta: "Start assessment scan",
+    nav_cta: "Start Full Analysis",
     theme_toggle_light: "Light",
     theme_toggle_dark: "Dark",
 
@@ -234,7 +234,7 @@ const translations = {
     metric_loss_label: "Estimated annual loss",
     metric_loss_sub: "Monetized impact based on your detected data issues.",
     metric_price_label: "Monitoring",
-    metric_price_sub: "Clear product prices for Assessment, Validation Check, and ongoing monitoring.",
+    metric_price_sub: "Clear product prices for Data Health Score, Full Analysis, Validation Check, and ongoing monitoring.",
     metric_save_label: "Potential saving",
     metric_save_sub: "Estimated realistic savings after addressing key issues.",
 
@@ -286,9 +286,9 @@ const translations = {
     solution_card_4_text: "Build a strong basis for recurring scans and continuous data health monitoring.",
 
     how_eyebrow: "How it works",
-    how_title: "From first assessment to ongoing monitoring.",
+    how_title: "From Data Health Score to ongoing monitoring.",
     how_sub: "A clear customer path: assess, clean up, validate, and monitor continuously when needed.",
-    step_1_title: "Assessment",
+    step_1_title: "Data Health Score",
     step_1_text: "Run one deep scan with one scan credit and seven days of dashboard, issue, and report access.",
     step_2_title: "Clean up data",
     step_2_text: "Use findings, executive report, and recommendations to fix the most relevant Business Central data issues.",
@@ -305,15 +305,15 @@ const translations = {
 
     pricing_eyebrow: "Pricing",
     pricing_title: "Clear product prices for scan and monitoring.",
-    pricing_sub: "Choose a one-time assessment start, a cleanup validation, or continuous monitoring.",
+    pricing_sub: "Start free with Data Health Score, unlock details with Full Analysis, or choose continuous monitoring.",
     price_one_time: "one-time",
     price_year: "/ year",
     product_cta: "Open in Business Central",
-    product_assessment_badge: "Assessment",
-    product_assessment_title: "One-time data health assessment.",
-    product_assessment_1: "Deep scan and score",
-    product_assessment_2: "Business impact overview",
-    product_assessment_3: "Dashboard access window",
+    product_assessment_badge: "Full Analysis",
+    product_assessment_title: "7-day premium access to the complete analysis.",
+    product_assessment_1: "Complete issues and actions",
+    product_assessment_2: "Reports and business impact details",
+    product_assessment_3: "Record details during the access window",
     product_validation_badge: "Validation Check",
     product_validation_title: "Follow-up scan after cleanup.",
     product_validation_1: "Validation scan credit",
@@ -326,15 +326,15 @@ const translations = {
     product_monitoring_1: "Recurring dashboard access",
     product_monitoring_2: "Issue details and recommendations",
     product_monitoring_3: "Business Central actions",
-    plan_assessment_badge: "Assessment",
-    plan_assessment_title: "Visibility for your first business case.",
+    plan_assessment_badge: "Full Analysis",
+    plan_assessment_title: "Full access for your first business case.",
     price_month: "/ month",
     plan_assessment_1: "Full system scan",
     plan_assessment_2: "Data Health Score",
     plan_assessment_3: "Issue counts and categories",
     plan_assessment_4: "Estimated annual loss",
     plan_assessment_5: "Dashboard overview and monitoring basis",
-    plan_assessment_cta: "Start assessment scan",
+    plan_assessment_cta: "Start Full Analysis",
     plan_assessment_fit: "Best for teams that want to quantify risk before changing processes.",
     plan_monitoring_badge: "Monitoring",
     plan_monitoring_title: "Turn insight into execution.",
@@ -348,7 +348,7 @@ const translations = {
     plan_monitoring_fit: "Best for teams that want fast execution and measurable savings.",
     plan_guarantee_1: "Monthly cancellable",
     plan_guarantee_2: "No heavy setup project required",
-    plan_guarantee_3: "Move from Assessment or Validation Check when needed",
+    plan_guarantee_3: "Move from Full Analysis or Validation Check when needed",
 
     security_eyebrow: "Security",
     security_title: "Built for privacy-sensitive Business Central environments.",
@@ -387,13 +387,13 @@ const translations = {
     faq_3_q: "Are API tokens used in reports or URLs?",
     faq_3_a: "No. API tokens should not appear in reports or URLs. Dashboard embeds use short-lived embed tokens, and report share links have expiry times.",
     faq_4_q: "What is a scan credit?",
-    faq_4_a: "A scan credit allows one paid deep scan. Assessment and Validation Check each include one scan credit.",
-    faq_5_q: "What is the difference between Assessment and Validation Check?",
-    faq_5_a: "Assessment is the first deep scan. Validation Check is the follow-up scan after cleanup to confirm progress and refresh the report view.",
+    faq_4_a: "A scan credit allows one paid deep scan. Full Analysis and Validation Check each include one scan credit.",
+    faq_5_q: "What is the difference between Full Analysis and Validation Check?",
+    faq_5_a: "Full Analysis is the first complete 7-day access window. Validation Check is the follow-up scan after cleanup to confirm progress and refresh the report view.",
     faq_6_q: "When does monitoring make sense?",
-    faq_6_a: "Monitoring makes sense when data quality should remain visible after the first assessment or after cleanup work.",
+    faq_6_a: "Monitoring makes sense when data quality should remain visible after Full Analysis or cleanup work.",
     faq_7_q: "How long do I have access to dashboard, issues, and reports?",
-    faq_7_a: "Assessment and Validation Check provide seven days of access. Monitoring keeps access active while the subscription is active.",
+    faq_7_a: "Full Analysis and Validation Check provide seven days of access. Monitoring keeps access active while the subscription is active.",
     faq_8_q: "Does BCSentinel work with Business Central Cloud?",
     faq_8_a: "Yes. BCSentinel is prepared for Business Central Cloud and does not require direct database access.",
     faq_9_q: "Is BCSentinel already live in Microsoft AppSource?",
@@ -401,10 +401,10 @@ const translations = {
 
     cta_eyebrow: "Ready to start?",
     cta_title: "See what your Business Central data is costing you before it gets more expensive.",
-    cta_sub: "Start with Assessment, validate improvements with a follow-up scan, and use Monitoring when data quality should stay visible.",
+    cta_sub: "Start with Data Health Score, unlock Full Analysis, validate improvements, and use Monitoring when data quality should stay visible.",
     cta_primary: "Choose product",
     cta_secondary: "Read docs",
-    cta_note: "Start with Assessment, validate improvements, and move to Monitoring when continuous control is needed.",
+    cta_note: "Start with Data Health Score and Full Analysis, then move to Monitoring when continuous control is needed.",
 
     footer_legal: "Legal notice",
     footer_privacy: "Privacy",
@@ -496,10 +496,12 @@ function getFallbackProductPricing() {
     source: "fallback",
     currency: "EUR",
     products: [
-      { product_key: "assessment", display_name: "Assessment", price_cents: 7900, currency: "EUR", billing_interval: "one_time", is_active: true },
+      { product_key: "data_health_score", display_name: "Data Health Score", price_cents: 0, currency: "EUR", billing_interval: "one_time", is_active: true },
+      { product_key: "full_analysis", display_name: "Full Analysis", price_cents: 7900, currency: "EUR", billing_interval: "one_time", is_active: true },
       { product_key: "validation_check", display_name: "Validation Check", price_cents: 4900, currency: "EUR", billing_interval: "one_time", is_active: true },
-      { product_key: "monitoring_monthly", display_name: "Monitoring Monthly", price_cents: 9900, currency: "EUR", billing_interval: "month", is_active: true },
-      { product_key: "monitoring_annual", display_name: "Monitoring Annual", price_cents: 99000, currency: "EUR", billing_interval: "year", is_active: true },
+      { product_key: "monitoring", display_name: "Monitoring", price_cents: 14900, currency: "EUR", billing_interval: "month", is_active: true },
+      { product_key: "monitoring_monthly", display_name: "Monitoring Monthly", price_cents: 14900, currency: "EUR", billing_interval: "month", is_active: true },
+      { product_key: "monitoring_annual", display_name: "Monitoring Annual", price_cents: 149000, currency: "EUR", billing_interval: "year", is_active: true },
     ],
   };
 }
@@ -509,13 +511,19 @@ function renderProductPricing(payload) {
   currentPublicProductPricing = payload;
   const selectedLang = document.documentElement.getAttribute("lang") || getInitialLanguage();
   payload.products.forEach((product) => {
-    const priceNode = document.querySelector(`[data-product-price="${product.product_key}"]`);
-    if (!priceNode) return;
-    priceNode.textContent = formatPricingAmount(
+    const selector = product.product_key === "full_analysis"
+      ? '[data-product-price="full_analysis"], [data-product-price="assessment"]'
+      : product.product_key === "monitoring"
+        ? '[data-product-price="monitoring"], [data-product-price="monitoring_monthly"]'
+        : `[data-product-price="${product.product_key}"]`;
+    const priceNodes = document.querySelectorAll(selector);
+    if (!priceNodes.length) return;
+    const formattedPrice = formatPricingAmount(
       selectedLang,
       product.currency || payload.currency || "EUR",
       Number(product.price_cents || 0) / 100
     );
+    priceNodes.forEach((priceNode) => { priceNode.textContent = formattedPrice; });
   });
 }
 

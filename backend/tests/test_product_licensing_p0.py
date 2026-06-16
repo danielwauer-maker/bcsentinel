@@ -67,12 +67,13 @@ def _deep_scan_payload(tenant_id: str, scan_id: str) -> dict:
 
 
 @pytest.mark.parametrize(
-    ("product_code", "settings_key", "price_id", "expected_mode"),
+    ("product_code", "settings_key", "price_id", "expected_mode", "expected_product_code"),
     [
-        ("assessment", "STRIPE_PRICE_ID_ASSESSMENT", "price_assessment", "payment"),
-        ("validation_check", "STRIPE_PRICE_ID_VALIDATION_CHECK", "price_validation_check", "payment"),
-        ("monitoring_monthly", "STRIPE_PRICE_ID_MONITORING_MONTHLY", "price_monitoring_monthly", "subscription"),
-        ("monitoring_annual", "STRIPE_PRICE_ID_MONITORING_ANNUAL", "price_monitoring_annual", "subscription"),
+        ("assessment", "STRIPE_PRICE_ID_ASSESSMENT", "price_assessment", "payment", "full_analysis"),
+        ("full_analysis", "STRIPE_PRICE_ID_ASSESSMENT", "price_full_analysis", "payment", "full_analysis"),
+        ("validation_check", "STRIPE_PRICE_ID_VALIDATION_CHECK", "price_validation_check", "payment", "validation_check"),
+        ("monitoring_monthly", "STRIPE_PRICE_ID_MONITORING_MONTHLY", "price_monitoring_monthly", "subscription", "monitoring_monthly"),
+        ("monitoring_annual", "STRIPE_PRICE_ID_MONITORING_ANNUAL", "price_monitoring_annual", "subscription", "monitoring_annual"),
     ],
 )
 def test_product_checkout_uses_expected_stripe_mode(
@@ -85,6 +86,7 @@ def test_product_checkout_uses_expected_stripe_mode(
     settings_key,
     price_id,
     expected_mode,
+    expected_product_code,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
     settings_state(
@@ -107,17 +109,21 @@ def test_product_checkout_uses_expected_stripe_mode(
     )
 
     assert response.status_code == 200
-    assert response.json()["product_code"] == product_code
+    assert response.json()["product_code"] == expected_product_code
     assert captured["mode"] == expected_mode
     assert captured["line_items"] == [{"price": price_id, "quantity": 1}]
-    assert captured["metadata"]["product_code"] == product_code
+    assert captured["metadata"]["product_code"] == expected_product_code
 
 
-@pytest.mark.parametrize("product_code", ["assessment", "validation_check"])
+@pytest.mark.parametrize(
+    ("product_code", "expected_product_code"),
+    [("assessment", "full_analysis"), ("full_analysis", "full_analysis"), ("validation_check", "validation_check")],
+)
 def test_checkout_completed_grants_scan_credit_for_one_time_product(
     client,
     tenant_factory,
     product_code,
+    expected_product_code,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
 
@@ -141,7 +147,7 @@ def test_checkout_completed_grants_scan_credit_for_one_time_product(
     assert response.status_code == 200
     with SessionLocal() as db:
         credit = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).one()
-        assert credit.product_code == product_code
+        assert credit.product_code == expected_product_code
         assert credit.status == "available"
 
 
@@ -210,6 +216,11 @@ def test_license_status_exposes_scan_credits_and_product_entitlements(
     assert payload["can_view_dashboard"] is True
     assert payload["can_view_issue_details"] is True
     assert payload["validation_access_active"] is True
+    assert payload["validation_check_access_active"] is True
+    assert payload["can_view_issues"] is True
+    assert payload["can_view_actions"] is True
+    assert payload["can_view_reports"] is True
+    assert payload["can_view_record_details"] is True
     assert payload["dashboard_access_until"]
     assert "deep_scan" in payload["features"]
     assert "executive_report" in payload["features"]
@@ -231,6 +242,82 @@ def test_legacy_premium_tenant_still_gets_monitoring_features(
     assert "billing_portal" in payload["features"]
     assert payload["can_run_deep_scan"] is True
     assert payload["can_view_dashboard"] is True
+
+
+def test_free_insights_are_available_after_scan_without_premium_details(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    deep_scan_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="RUN_FREE_INSIGHTS", total_records=120000)
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["can_view_free_insights"] is True
+    assert payload["record_count"] == 120000
+    assert payload["pricing_tier"] == "professional"
+    assert payload["can_view_issues"] is False
+    assert payload["can_view_actions"] is False
+    assert payload["can_view_reports"] is False
+    assert payload["can_view_record_details"] is False
+    assert payload["premium_access_until"] is None
+
+
+@pytest.mark.parametrize(
+    ("record_count", "expected_tier"),
+    [
+        (100000, "starter"),
+        (250000, "professional"),
+        (500000, "business"),
+        (500001, "enterprise"),
+    ],
+)
+def test_pricing_tier_calculation_from_latest_scan(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    deep_scan_factory,
+    record_count,
+    expected_tier,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id=f"RUN_TIER_{record_count}", total_records=record_count)
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    assert response.json()["pricing_tier"] == expected_tier
+
+
+def test_monitoring_grants_new_premium_flags(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "monitoring_monthly",
+        },
+        follow_redirects=False,
+    )
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["can_use_monitoring"] is True
+    assert payload["can_view_issues"] is True
+    assert payload["can_view_actions"] is True
+    assert payload["can_view_reports"] is True
+    assert payload["can_view_record_details"] is True
 
 
 def test_deep_scan_without_credit_or_monitoring_is_blocked(
@@ -364,6 +451,9 @@ def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
     assert license_payload["can_view_dashboard"] is True
     assert license_payload["can_view_issue_details"] is True
     assert license_payload["assessment_access_active"] is True
+    assert license_payload["full_analysis_access_active"] is True
+    assert license_payload["can_view_free_insights"] is True
+    assert license_payload["can_view_issues"] is True
 
 
 def test_assessment_dashboard_payload_separates_access_from_monitoring(
@@ -398,7 +488,7 @@ def test_assessment_dashboard_payload_separates_access_from_monitoring(
     payload = response.json()
     assert payload["visibility"]["is_premium"] is True
     assert payload["product_access"]["monitoring_active"] is False
-    assert payload["subscription"]["plan_label"] == "Assessment / Validation access"
+    assert payload["subscription"]["plan_label"] == "Full Analysis / Validation access"
     assert payload["subscription"]["price_monthly"] == 0.0
     assert payload["subscription"]["annual_cost"] == 0.0
     assert payload["subscription"]["cta_label"] == "Start Monitoring"
@@ -471,9 +561,12 @@ def test_consumed_assessment_access_expires_after_seven_days(
     assert license_response.status_code == 200
     payload = license_response.json()
     assert payload["assessment_access_active"] is False
+    assert payload["full_analysis_access_active"] is False
     assert payload["can_run_deep_scan"] is False
     assert payload["can_view_dashboard"] is False
     assert payload["can_view_issue_details"] is False
+    assert payload["can_view_free_insights"] is True
+    assert payload["can_view_issues"] is False
 
 
 def test_executive_report_requires_active_product_access(

@@ -27,6 +27,7 @@ from app.models import (
     PartnerCommission,
     PartnerReferral,
     ProductPricingConfig,
+    ProductPricingMatrixConfig,
     Scan,
     Subscription,
     Tenant,
@@ -37,8 +38,13 @@ from app.models import (
 from app.services.cost_service import ensure_default_issue_costs
 from app.services.product_pricing_service import (
     PRODUCT_PRICING_DEFAULTS,
+    PRODUCT_PRICING_MATRIX_DEFAULTS,
+    PRICING_TIER_MAX_RECORDS,
+    PRICING_TIER_ORDER,
     ProductPricingValidationError,
     ensure_default_product_pricing,
+    ensure_default_product_pricing_matrix,
+    list_product_pricing_matrix,
     list_product_pricing,
     validate_product_pricing_update,
 )
@@ -64,6 +70,7 @@ from app.services.email_template_service import (
 from app.services.partner_service import normalize_partner_code
 from app.services.product_license_service import (
     PRODUCT_ASSESSMENT,
+    PRODUCT_FULL_ANALYSIS,
     PRODUCT_DISPLAY_NAMES,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
@@ -199,8 +206,11 @@ def _fmt_product_access_dates(product_access: dict) -> dict:
         "dashboard_access_until",
         "issue_access_until",
         "assessment_access_until",
+        "full_analysis_access_until",
         "validation_access_until",
+        "validation_check_access_until",
         "monitoring_access_until",
+        "premium_access_until",
     ]:
         raw = formatted.get(key)
         if not raw:
@@ -457,7 +467,7 @@ def _disable_monitoring_sources(db, tenant: Tenant) -> dict[str, int]:
             subscription.updated_at_utc = now
             subscriptions_changed += 1
 
-    if normalize_product_code(tenant.current_plan) in monitoring_products:
+    if normalize_product_code(tenant.current_plan) in monitoring_products or (tenant.current_plan or "").strip().lower() == "premium":
         tenant.current_plan = "free"
         tenant.license_status = "expired"
 
@@ -481,7 +491,7 @@ def _extend_one_time_access(db, tenant_id: str, days: int) -> TenantProductEntit
     return grant_product_entitlement(
         db,
         tenant_id=tenant_id,
-        product_code=PRODUCT_ASSESSMENT,
+        product_code=PRODUCT_FULL_ANALYSIS,
         source="admin_access_window",
         valid_until_utc=now + timedelta(days=days),
     )
@@ -618,6 +628,7 @@ def _render_admin_page(
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
         ensure_default_product_pricing(db)
+        ensure_default_product_pricing_matrix(db)
 
         if active_section == "tenants":
             context["tenants"] = _load_tenant_rows(db)
@@ -628,6 +639,7 @@ def _render_admin_page(
             ).all()
         elif active_section == "license_pricing":
             context["product_prices"] = list_product_pricing(db)
+            context["product_price_matrix"] = list_product_pricing_matrix(db)
             context["product_price_defaults"] = PRODUCT_PRICING_DEFAULTS
         elif active_section == "partners":
             context["partners"] = db.scalars(
@@ -830,7 +842,7 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
         product_access = _fmt_product_access_dates(license_snapshot["product_access"])
         active_product_codes = active_entitlement_product_codes(db, tenant_id)
         if product_access["assessment_access_active"]:
-            active_product_codes = sorted(set(active_product_codes + [PRODUCT_ASSESSMENT]))
+            active_product_codes = sorted(set(active_product_codes + [PRODUCT_FULL_ANALYSIS]))
         if product_access["validation_access_active"]:
             active_product_codes = sorted(set(active_product_codes + [PRODUCT_VALIDATION_CHECK]))
         if product_access["monitoring_active"] and not set(active_product_codes).intersection(MONITORING_PRODUCTS):
@@ -1361,7 +1373,7 @@ def update_product_pricing(
     is_active: str | None = Form(default=None),
     admin_username: str = Depends(require_admin),
 ):
-    normalized_key = (product_key or "").strip().lower()
+    normalized_key = normalize_product_code(product_key)
     normalized_currency = (currency or "").strip().upper()
     normalized_interval = (billing_interval or "").strip().lower()
     normalized_display_name = (display_name or "").strip()
@@ -1409,6 +1421,108 @@ def update_product_pricing(
                     "price_cents": int(row.price_cents),
                     "currency": row.currency,
                     "billing_interval": row.billing_interval,
+                    "is_active": bool(row.is_active),
+                },
+            },
+        )
+        db.commit()
+
+    return RedirectResponse(url="/admin/config/license-pricing", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/admin/config/product-pricing-matrix/{product_key}/{pricing_tier}")
+def update_product_pricing_matrix(
+    product_key: str,
+    pricing_tier: str,
+    max_records: str | None = Form(default=None),
+    amount_cents: str | None = Form(default=None),
+    currency: str = Form("EUR"),
+    billing_interval: str = Form(...),
+    display_name_de: str = Form(...),
+    display_name_en: str = Form(...),
+    stripe_price_id: str | None = Form(default=None),
+    is_active: str | None = Form(default=None),
+    admin_username: str = Depends(require_admin),
+):
+    normalized_key = normalize_product_code(product_key)
+    normalized_tier = (pricing_tier or "").strip().lower()
+    if normalized_key not in PRODUCT_PRICING_MATRIX_DEFAULTS:
+        raise HTTPException(status_code=400, detail="Unknown product key.")
+    if normalized_tier not in PRICING_TIER_ORDER:
+        raise HTTPException(status_code=400, detail="Unknown pricing tier.")
+
+    normalized_currency = (currency or "").strip().upper()
+    if normalized_currency != "EUR":
+        raise HTTPException(status_code=400, detail="Only EUR pricing is supported.")
+    normalized_interval = (billing_interval or "").strip().lower()
+    if normalized_interval not in {"one_time", "month", "year", "contact_sales"}:
+        raise HTTPException(status_code=400, detail="Invalid billing interval.")
+
+    parsed_amount_cents: int | None = None
+    if str(amount_cents or "").strip():
+        parsed_amount_cents = int(str(amount_cents).strip())
+        if parsed_amount_cents < 0:
+            raise HTTPException(status_code=400, detail="Price must not be negative.")
+    if normalized_interval != "contact_sales" and parsed_amount_cents is None:
+        raise HTTPException(status_code=400, detail="Price is required unless interval is contact_sales.")
+
+    parsed_max_records: int | None = PRICING_TIER_MAX_RECORDS[normalized_tier]
+    if str(max_records or "").strip():
+        parsed_max_records = int(str(max_records).strip())
+        if parsed_max_records < 0:
+            raise HTTPException(status_code=400, detail="Max records must not be negative.")
+
+    with SessionLocal() as db:
+        ensure_default_product_pricing_matrix(db)
+        row = db.scalar(
+            select(ProductPricingMatrixConfig).where(
+                ProductPricingMatrixConfig.product_key == normalized_key,
+                ProductPricingMatrixConfig.pricing_tier == normalized_tier,
+            )
+        )
+        if row is None:
+            row = ProductPricingMatrixConfig(
+                product_key=normalized_key,
+                pricing_tier=normalized_tier,
+                updated_at_utc=utc_now(),
+            )
+            db.add(row)
+
+        before = {
+            "max_records": row.max_records,
+            "amount_cents": row.amount_cents,
+            "currency": row.currency,
+            "billing_interval": row.billing_interval,
+            "display_name_de": row.display_name_de,
+            "display_name_en": row.display_name_en,
+            "stripe_price_id": row.stripe_price_id,
+            "is_active": bool(row.is_active),
+        }
+        row.max_records = parsed_max_records
+        row.amount_cents = parsed_amount_cents
+        row.currency = normalized_currency
+        row.billing_interval = normalized_interval
+        row.display_name_de = (display_name_de or "").strip()
+        row.display_name_en = (display_name_en or "").strip()
+        row.stripe_price_id = (stripe_price_id or "").strip() or None
+        row.is_active = is_active == "on"
+        row.updated_at_utc = utc_now()
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="config.product_pricing_matrix.update",
+            target_type="product_pricing_matrix_config",
+            target_id=f"{normalized_key}:{normalized_tier}",
+            details={
+                "before": before,
+                "after": {
+                    "max_records": row.max_records,
+                    "amount_cents": row.amount_cents,
+                    "currency": row.currency,
+                    "billing_interval": row.billing_interval,
+                    "display_name_de": row.display_name_de,
+                    "display_name_en": row.display_name_en,
+                    "stripe_price_id": row.stripe_price_id,
                     "is_active": bool(row.is_active),
                 },
             },

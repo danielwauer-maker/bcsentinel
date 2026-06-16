@@ -162,7 +162,7 @@
         Setup: Record "DH Setup";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Buy Assessment for detailed insights';
+        AccessText := 'Buy Full Analysis for detailed insights';
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin

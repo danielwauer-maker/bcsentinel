@@ -23,12 +23,23 @@ class LicenseStatusResponse(BaseModel):
     monitoring_active: bool = False
     product_access: dict = {}
     assessment_access_active: bool = False
+    full_analysis_access_active: bool = False
     validation_access_active: bool = False
+    validation_check_access_active: bool = False
     dashboard_access_until: str | None = None
     issue_access_until: str | None = None
+    premium_access_until: str | None = None
     can_run_deep_scan: bool = False
     can_view_dashboard: bool = False
     can_view_issue_details: bool = False
+    can_view_free_insights: bool = False
+    can_view_issues: bool = False
+    can_view_actions: bool = False
+    can_view_reports: bool = False
+    can_view_record_details: bool = False
+    can_use_monitoring: bool = False
+    record_count: int | None = None
+    pricing_tier: str | None = None
     products: list[dict] = []
 
 
@@ -59,12 +70,23 @@ def get_license_status(
             monitoring_active=snapshot["monitoring_active"],
             product_access=snapshot["product_access"],
             assessment_access_active=snapshot["assessment_access_active"],
+            full_analysis_access_active=snapshot["full_analysis_access_active"],
             validation_access_active=snapshot["validation_access_active"],
+            validation_check_access_active=snapshot["validation_check_access_active"],
             dashboard_access_until=snapshot["dashboard_access_until"],
             issue_access_until=snapshot["issue_access_until"],
+            premium_access_until=snapshot["premium_access_until"],
             can_run_deep_scan=snapshot["can_run_deep_scan"],
             can_view_dashboard=snapshot["can_view_dashboard"],
             can_view_issue_details=snapshot["can_view_issue_details"],
+            can_view_free_insights=snapshot["can_view_free_insights"],
+            can_view_issues=snapshot["can_view_issues"],
+            can_view_actions=snapshot["can_view_actions"],
+            can_view_reports=snapshot["can_view_reports"],
+            can_view_record_details=snapshot["can_view_record_details"],
+            can_use_monitoring=snapshot["can_use_monitoring"],
+            record_count=snapshot["record_count"],
+            pricing_tier=snapshot["pricing_tier"],
             products=snapshot["products"],
         )
         db.commit()

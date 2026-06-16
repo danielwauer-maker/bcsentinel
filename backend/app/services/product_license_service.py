@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 
 from app.models import (
+    Scan,
     Subscription,
     Tenant,
     TenantProductEntitlement,
@@ -13,27 +14,49 @@ from app.models import (
     TenantScanCredit,
 )
 
-PRODUCT_ASSESSMENT = "assessment"
+PRODUCT_DATA_HEALTH_SCORE = "data_health_score"
+PRODUCT_FULL_ANALYSIS = "full_analysis"
+PRODUCT_ASSESSMENT = PRODUCT_FULL_ANALYSIS
+PRODUCT_ASSESSMENT_LEGACY = "assessment"
 PRODUCT_VALIDATION_CHECK = "validation_check"
 PRODUCT_MONITORING_MONTHLY = "monitoring_monthly"
 PRODUCT_MONITORING_ANNUAL = "monitoring_annual"
 
 PRODUCT_ALIASES = {
-    "assessment": PRODUCT_ASSESSMENT,
+    # assessment is the legacy code for the first paid 7-day access product.
+    "assessment": PRODUCT_FULL_ANALYSIS,
+    "full_analysis": PRODUCT_FULL_ANALYSIS,
+    "data_health_score": PRODUCT_DATA_HEALTH_SCORE,
     "validation_check": PRODUCT_VALIDATION_CHECK,
     "monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
     "monitoring_annual": PRODUCT_MONITORING_ANNUAL,
 }
 
-ONE_TIME_PRODUCTS = {PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK}
+ONE_TIME_PRODUCTS = {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK}
 MONITORING_PRODUCTS = {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+PRODUCT_CODES = {
+    PRODUCT_DATA_HEALTH_SCORE,
+    PRODUCT_FULL_ANALYSIS,
+    PRODUCT_VALIDATION_CHECK,
+    PRODUCT_MONITORING_MONTHLY,
+    PRODUCT_MONITORING_ANNUAL,
+}
+LEGACY_PRODUCT_CODES = {PRODUCT_ASSESSMENT_LEGACY}
 
 PRODUCT_DISPLAY_NAMES = {
-    PRODUCT_ASSESSMENT: "BCSentinel Assessment",
+    PRODUCT_DATA_HEALTH_SCORE: "BCSentinel Data Health Score",
+    PRODUCT_FULL_ANALYSIS: "BCSentinel Full Analysis",
     PRODUCT_VALIDATION_CHECK: "BCSentinel Validation Check",
     PRODUCT_MONITORING_MONTHLY: "BCSentinel Monitoring Monthly",
     PRODUCT_MONITORING_ANNUAL: "BCSentinel Monitoring Annual",
 }
+
+PRICING_TIERS = (
+    ("starter", 100_000),
+    ("professional", 250_000),
+    ("business", 500_000),
+    ("enterprise", None),
+)
 
 BASE_FEATURES = {
     "scan_sync",
@@ -95,6 +118,27 @@ def normalize_product_code(value: str | None, *, billing_interval: str | None = 
     return normalized
 
 
+def product_code_storage_aliases(product_code: str) -> set[str]:
+    normalized = normalize_product_code(product_code)
+    aliases = {normalized}
+    if normalized == PRODUCT_FULL_ANALYSIS:
+        aliases.add(PRODUCT_ASSESSMENT_LEGACY)
+    return aliases
+
+
+def pricing_tier_for_record_count(record_count: int | None) -> str | None:
+    if record_count is None:
+        return None
+    normalized_count = max(int(record_count or 0), 0)
+    if normalized_count <= 100_000:
+        return "starter"
+    if normalized_count <= 250_000:
+        return "professional"
+    if normalized_count <= 500_000:
+        return "business"
+    return "enterprise"
+
+
 def is_one_time_product(product_code: str) -> bool:
     return normalize_product_code(product_code) in ONE_TIME_PRODUCTS
 
@@ -128,14 +172,40 @@ def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     return sorted(set(product_codes))
 
 
+def _latest_scan_record_count(db, tenant_id: str) -> int | None:
+    scan = db.scalar(
+        select(Scan)
+        .where(Scan.tenant_id == tenant_id)
+        .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
+        .limit(1)
+    )
+    if scan is None:
+        return None
+    try:
+        return max(int(scan.total_records or 0), 0)
+    except (TypeError, ValueError):
+        return None
+
+
+def _tenant_has_scan_results(db, tenant_id: str) -> bool:
+    return db.scalar(select(Scan.id).where(Scan.tenant_id == tenant_id).limit(1)) is not None
+
+
+def _has_legacy_premium_access(tenant: Tenant) -> bool:
+    plan = (tenant.current_plan or "").strip().lower()
+    status = (tenant.license_status or "").strip().lower()
+    return plan == "premium" and status in {"trial", "active"}
+
+
 def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) -> datetime | None:
     normalized_product = normalize_product_code(product_code)
+    storage_aliases = product_code_storage_aliases(normalized_product)
     access_until_values: list[datetime | None] = []
 
     credits = db.scalars(
         select(TenantScanCredit).where(
             TenantScanCredit.tenant_id == tenant_id,
-            TenantScanCredit.product_code == normalized_product,
+            TenantScanCredit.product_code.in_(storage_aliases),
             TenantScanCredit.status.in_(["available", "consumed"]),
         )
     ).all()
@@ -148,7 +218,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     purchases = db.scalars(
         select(TenantProductPurchase).where(
             TenantProductPurchase.tenant_id == tenant_id,
-            TenantProductPurchase.product_code == normalized_product,
+            TenantProductPurchase.product_code.in_(storage_aliases),
             TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
         )
     ).all()
@@ -160,7 +230,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     entitlements = db.scalars(
         select(TenantProductEntitlement).where(
             TenantProductEntitlement.tenant_id == tenant_id,
-            TenantProductEntitlement.product_code == normalized_product,
+            TenantProductEntitlement.product_code.in_(storage_aliases),
             TenantProductEntitlement.status == "active",
         )
     ).all()
@@ -194,48 +264,66 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
         if normalize_product_code(entitlement.product_code) in MONITORING_PRODUCTS:
             values.append(entitlement.valid_until_utc)
 
-    if has_active_monitoring_subscription(db, tenant) and not values:
+    if (has_active_monitoring_subscription(db, tenant) or _has_legacy_premium_access(tenant)) and not values:
         return None
     return _max_datetime(values)
 
 
 def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
-    assessment_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_ASSESSMENT)
+    full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
-    monitoring_active = has_active_monitoring_subscription(db, tenant) or bool(
+    monitoring_active = _has_legacy_premium_access(tenant) or has_active_monitoring_subscription(db, tenant) or bool(
         set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
     )
     monitoring_until = _monitoring_access_until(db, tenant)
 
-    one_time_until = _max_datetime([assessment_until, validation_until])
-    paid_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
-    assessment_active = assessment_until is not None and assessment_until >= now
+    one_time_until = _max_datetime([full_analysis_until, validation_until])
+    premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
+    full_analysis_active = full_analysis_until is not None and full_analysis_until >= now
     validation_active = validation_until is not None and validation_until >= now
-    one_time_active = assessment_active or validation_active
-    access_active = monitoring_active or one_time_active
+    one_time_active = full_analysis_active or validation_active
+    premium_access_active = monitoring_active or one_time_active
     credits_available = scan_credit_count(db, tenant.tenant_id)
+    has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
+    record_count = _latest_scan_record_count(db, tenant.tenant_id)
+    pricing_tier = pricing_tier_for_record_count(record_count)
 
     return {
-        "assessment_access_active": assessment_active,
+        "can_view_free_insights": has_scan_results,
+        "can_view_issues": premium_access_active,
+        "can_view_actions": premium_access_active,
+        "can_view_reports": premium_access_active,
+        "can_view_record_details": premium_access_active,
+        "can_use_monitoring": monitoring_active,
+        "full_analysis_access_active": full_analysis_active,
+        "validation_check_access_active": validation_active,
+        "premium_access_until": _iso(premium_access_until),
+        "record_count": record_count,
+        "pricing_tier": pricing_tier,
+        "assessment_access_active": full_analysis_active,
         "validation_access_active": validation_active,
         "monitoring_active": monitoring_active,
-        "dashboard_access_until": _iso(paid_access_until),
-        "issue_access_until": _iso(paid_access_until),
-        "report_access_until": _iso(paid_access_until),
+        "dashboard_access_until": _iso(premium_access_until),
+        "issue_access_until": _iso(premium_access_until),
+        "report_access_until": _iso(premium_access_until),
         "can_run_deep_scan": monitoring_active or credits_available > 0,
-        "can_view_dashboard": access_active,
-        "can_view_issue_details": access_active,
-        "can_view_executive_report": access_active,
+        "can_view_dashboard": premium_access_active,
+        "can_view_issue_details": premium_access_active,
+        "can_view_executive_report": premium_access_active,
         "scan_credits_available": credits_available,
         "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else "none"),
-        "assessment_access_until": _iso(assessment_until),
+        "assessment_access_until": _iso(full_analysis_until),
+        "full_analysis_access_until": _iso(full_analysis_until),
         "validation_access_until": _iso(validation_until),
+        "validation_check_access_until": _iso(validation_until),
         "monitoring_access_until": _iso(monitoring_until),
     }
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
+    if _has_legacy_premium_access(tenant):
+        return True
     subscriptions = db.scalars(
         select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
     ).all()
@@ -404,8 +492,8 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         for row in list_product_pricing(db)
     }
     access = build_product_access_snapshot(db, tenant)
-    if access["assessment_access_active"]:
-        active_products = sorted(set(active_products + [PRODUCT_ASSESSMENT]))
+    if access["full_analysis_access_active"]:
+        active_products = sorted(set(active_products + [PRODUCT_FULL_ANALYSIS]))
     if access["validation_access_active"]:
         active_products = sorted(set(active_products + [PRODUCT_VALIDATION_CHECK]))
     active_products = sorted(set(active_products + active_monitoring_subscription_product_codes(db, tenant)))
@@ -416,12 +504,23 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "monitoring_active": access["monitoring_active"],
         "product_access": access,
         "assessment_access_active": access["assessment_access_active"],
+        "full_analysis_access_active": access["full_analysis_access_active"],
         "validation_access_active": access["validation_access_active"],
+        "validation_check_access_active": access["validation_check_access_active"],
         "dashboard_access_until": access["dashboard_access_until"],
         "issue_access_until": access["issue_access_until"],
+        "premium_access_until": access["premium_access_until"],
         "can_run_deep_scan": access["can_run_deep_scan"],
         "can_view_dashboard": access["can_view_dashboard"],
         "can_view_issue_details": access["can_view_issue_details"],
+        "can_view_free_insights": access["can_view_free_insights"],
+        "can_view_issues": access["can_view_issues"],
+        "can_view_actions": access["can_view_actions"],
+        "can_view_reports": access["can_view_reports"],
+        "can_view_record_details": access["can_view_record_details"],
+        "can_use_monitoring": access["can_use_monitoring"],
+        "record_count": access["record_count"],
+        "pricing_tier": access["pricing_tier"],
         "products": [
             {
                 "product_code": code,
@@ -430,7 +529,8 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
                 "active": code in active_products,
             }
             for code in [
-                PRODUCT_ASSESSMENT,
+                PRODUCT_DATA_HEALTH_SCORE,
+                PRODUCT_FULL_ANALYSIS,
                 PRODUCT_VALIDATION_CHECK,
                 PRODUCT_MONITORING_MONTHLY,
                 PRODUCT_MONITORING_ANNUAL,

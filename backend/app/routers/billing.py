@@ -31,7 +31,7 @@ from app.services.billing_service import (
 from app.services.entitlement_guard_service import require_tenant_feature
 from app.services.partner_service import ensure_partner_commission_for_invoice
 from app.services.product_license_service import (
-    PRODUCT_ASSESSMENT,
+    PRODUCT_FULL_ANALYSIS,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
@@ -41,6 +41,10 @@ from app.services.product_license_service import (
     is_one_time_product,
     normalize_product_code,
     record_product_purchase,
+)
+from app.services.product_pricing_service import (
+    PRODUCT_BILLING_INTERVAL_CONTACT_SALES,
+    resolve_checkout_matrix_price,
 )
 
 router = APIRouter(tags=["billing"])
@@ -257,7 +261,7 @@ def _normalize_billing_interval(value: str | None) -> str:
 def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
     product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
     if product_code not in {
-        PRODUCT_ASSESSMENT,
+        PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
         PRODUCT_MONITORING_MONTHLY,
         PRODUCT_MONITORING_ANNUAL,
@@ -274,27 +278,30 @@ def _billing_interval_for_product(product_code: str, requested_interval: str | N
     return _normalize_billing_interval(requested_interval)
 
 
-def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
-    if product_code == PRODUCT_ASSESSMENT:
-        price_id = (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip()
-        if not price_id:
-            raise HTTPException(status_code=400, detail="Assessment checkout is not configured.")
-        return price_id
+def _env_price_id_for_product(product_code: str) -> str | None:
+    if product_code == PRODUCT_FULL_ANALYSIS:
+        return (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip() or None
     if product_code == PRODUCT_VALIDATION_CHECK:
-        price_id = (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip()
-        if not price_id:
-            raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
-        return price_id
+        return (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip() or None
     if product_code == PRODUCT_MONITORING_ANNUAL:
-        price_id = (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or "").strip()
-        if not price_id:
-            raise HTTPException(status_code=400, detail="Monitoring annual checkout is not configured.")
-        return price_id
+        return (settings.STRIPE_PRICE_ID_MONITORING_ANNUAL or "").strip() or None
     if product_code == PRODUCT_MONITORING_MONTHLY:
-        price_id = (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or "").strip()
-        if not price_id:
-            raise HTTPException(status_code=400, detail="Monitoring monthly checkout is not configured.")
+        return (settings.STRIPE_PRICE_ID_MONITORING_MONTHLY or "").strip() or None
+    return None
+
+
+def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
+    price_id = _env_price_id_for_product(product_code)
+    if price_id:
         return price_id
+    if product_code == PRODUCT_FULL_ANALYSIS:
+        raise HTTPException(status_code=400, detail="Full Analysis checkout is not configured.")
+    if product_code == PRODUCT_VALIDATION_CHECK:
+        raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
+    if product_code == PRODUCT_MONITORING_ANNUAL:
+        raise HTTPException(status_code=400, detail="Monitoring annual checkout is not configured.")
+    if product_code == PRODUCT_MONITORING_MONTHLY:
+        raise HTTPException(status_code=400, detail="Monitoring monthly checkout is not configured.")
     raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
 
 
@@ -489,20 +496,43 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
         record_count = _deep_scan_record_count(latest_deep_scan)
         package_count = _additional_record_package_count(record_count)
+        tenant_environment = str(getattr(tenant, "environment_name", "") or "").strip()
+        referral_code = str(getattr(referral, "referral_code", "") or "").strip().lower() if referral is not None else ""
+        matrix_price = resolve_checkout_matrix_price(
+            db,
+            product_key=product_code,
+            record_count=record_count,
+            env_price_id=_env_price_id_for_product(product_code),
+        )
 
-    billing_interval = _billing_interval_for_product(product_code, payload.billing_interval)
+    if matrix_price.contact_sales or matrix_price.billing_interval == PRODUCT_BILLING_INTERVAL_CONTACT_SALES:
+        raise HTTPException(
+            status_code=402,
+            detail=f"{matrix_price.display_name_en} for tier {matrix_price.pricing_tier} requires Contact Sales.",
+        )
+    if not matrix_price.is_active:
+        raise HTTPException(status_code=400, detail=f"{matrix_price.display_name_en} is not active for tier {matrix_price.pricing_tier}.")
+    if not matrix_price.stripe_price_id:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Stripe Price ID for {product_code} tier {matrix_price.pricing_tier} is not configured.",
+        )
+
+    billing_interval = matrix_price.billing_interval
     checkout_metadata = {
         "tenant_id": payload.tenant_id,
         "plan_code": normalized_plan_code,
         "product_code": product_code,
         "billing_interval": billing_interval,
-        "tenant_environment": str(getattr(tenant, "environment_name", "") or "").strip(),
+        "tenant_environment": tenant_environment,
         "record_count": str(record_count),
+        "pricing_tier": matrix_price.pricing_tier,
+        "amount_eur": str(matrix_price.amount_eur or ""),
         "package_size": "2000",
         "package_count": str(package_count),
     }
-    if referral is not None:
-        checkout_metadata["referral_code"] = str(referral.referral_code or "").strip().lower()
+    if referral_code:
+        checkout_metadata["referral_code"] = referral_code
         checkout_metadata["attribution_source"] = str(referral.attribution_source or "").strip().lower()
 
     try:
@@ -512,7 +542,7 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     stripe.api_key = _require_stripe_secret_key()
-    line_items = [{"price": _resolve_product_price_id(product_code, billing_interval), "quantity": 1}]
+    line_items = [{"price": matrix_price.stripe_price_id, "quantity": 1}]
     checkout_mode = "payment" if is_one_time_product(product_code) else "subscription"
 
     try:
@@ -555,6 +585,7 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         tenant_id=payload.tenant_id,
         billing_interval=billing_interval,
         product_code=product_code,
+        pricing_tier=matrix_price.pricing_tier,
         package_count=package_count,
     )
     return CheckoutSessionResponse(

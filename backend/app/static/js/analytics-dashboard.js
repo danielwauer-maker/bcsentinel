@@ -421,7 +421,7 @@ function renderPremiumPreview(items) {
 function renderUnlockPanel(data) {
   setText('unlock-headline', data?.premium_unlock?.headline || 'Paid scan access unlocks record-level details and direct action.');
   setText('unlock-body', data?.premium_unlock?.body || 'Upgrade to see exact affected records and recommendations.');
-  setText('upgrade-button', data?.premium_unlock?.button_label || 'Buy Assessment');
+  setText('upgrade-button', data?.premium_unlock?.button_label || 'Buy Full Analysis');
 
   const host = byId('unlock-highlights');
   if (host) {
@@ -443,7 +443,7 @@ function applyPlanState(data) {
   const findingsPanel = byId('access-findings-panel');
   const accessLabel = monitoringActive
     ? t('monitoring_active', 'Monitoring active')
-    : (hasPaidAccess ? t('assessment_validation_active', 'Assessment / Validation active') : t('credits_needed', 'Credits needed'));
+    : (hasPaidAccess ? t('assessment_validation_active', 'Full Analysis / Validation active') : t('credits_needed', 'Credits needed'));
 
   if (planBadge) {
     planBadge.textContent = accessLabel;
@@ -465,24 +465,32 @@ function renderSubscription(data) {
   const priceCard = byId('subscription-price-card');
   const annualCard = byId('subscription-annual-card');
   const buyMoreButton = byId('buy-more-credits-cta');
+  const tenantPricing = data?.tenant_pricing || {};
+  const monthlyPrice = tenantPricing?.prices?.monitoring_monthly || {};
+  const annualPrice = tenantPricing?.prices?.monitoring_annual || {};
+  const hasMonthlyQuote = monitoringActive || monthlyPrice.amount_eur !== undefined || monthlyPrice.contact_sales;
+  const hasAnnualQuote = monitoringActive || annualPrice.amount_eur !== undefined || annualPrice.contact_sales;
 
-  setText('subscription-plan', data?.subscription?.plan_label || t('assessment_needed', 'Assessment needed'));
+  setText('subscription-plan', data?.subscription?.plan_label || t('assessment_needed', 'Full Analysis needed'));
   setText('subscription-note', data?.subscription?.plan_note || '');
-  setText('subscription-cta', data?.subscription?.cta_label || t('buy_assessment', 'Buy Assessment'));
+  setText('subscription-cta', data?.subscription?.cta_label || t('buy_assessment', 'Buy Full Analysis'));
   setText('subscription-scan-credits', formatNumber(data?.product_access?.scan_credits_available));
   setText('subscription-dashboard-until', formatDateTime(data?.product_access?.dashboard_access_until));
   setText('subscription-issue-until', formatDateTime(data?.product_access?.issue_access_until));
 
-  if (priceCard) priceCard.classList.toggle('hidden', !monitoringActive);
-  if (annualCard) annualCard.classList.toggle('hidden', !monitoringActive);
+  if (priceCard) priceCard.classList.toggle('hidden', !hasMonthlyQuote);
+  if (annualCard) annualCard.classList.toggle('hidden', !hasAnnualQuote);
   if (buyMoreButton) buyMoreButton.classList.toggle('hidden', monitoringActive || !hasPaidAccess);
 
   if (monitoringActive) {
     setText('subscription-price', formatCurrency(data?.subscription?.price_monthly));
     setText('subscription-annual', formatCurrency(data?.subscription?.annual_cost));
+  } else if (tenantPricing?.contact_sales) {
+    setText('subscription-price', 'Contact Sales');
+    setText('subscription-annual', 'Contact Sales');
   } else {
-    setText('subscription-price', '');
-    setText('subscription-annual', '');
+    setText('subscription-price', monthlyPrice.amount_eur === null ? 'Contact Sales' : formatCurrency(monthlyPrice.amount_eur));
+    setText('subscription-annual', annualPrice.amount_eur === null ? 'Contact Sales' : formatCurrency(annualPrice.amount_eur));
   }
 }
 
@@ -549,7 +557,7 @@ async function loadDashboard(scanId = null) {
     setText('page-title', data?.title || 'BCSentinel Analytics');
     setText('page-subtitle', data?.subtitle || '');
     setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
-    setText('hero-eyebrow', data?.hero?.eyebrow || 'Assessment first. Monitoring when data quality needs control.');
+    setText('hero-eyebrow', data?.hero?.eyebrow || 'Data Health Score first. Full Analysis unlocks the details.');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
     setText('hero-suffix', data?.hero?.headline_suffix || '');
@@ -646,7 +654,7 @@ function registerEvents() {
   const buyMoreButton = byId('buy-more-credits-cta');
   if (buyMoreButton) {
     buyMoreButton.addEventListener('click', async () => {
-      await triggerBillingAction('checkout', 'assessment');
+      await triggerBillingAction('checkout', 'full_analysis');
     });
   }
 }

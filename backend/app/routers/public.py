@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Any
+
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from app.db import SessionLocal
@@ -10,7 +12,7 @@ from app.services.impact_service import (
     get_hourly_rate_eur,
     get_impact_definition,
 )
-from app.services.product_pricing_service import get_public_product_pricing_payload
+from app.services.product_pricing_service import build_public_pricing_matrix, get_public_product_pricing_payload
 from app.services.landingpage_visibility_service import public_landingpage_visibility_payload
 
 router = APIRouter(tags=["public"])
@@ -25,12 +27,15 @@ class PublicProductPricingItemResponse(BaseModel):
     billing_interval: str
     is_active: bool
     updated_at: str | None = None
+    starting_at: bool = False
+    contact_sales: bool = False
 
 
 class PublicProductPricingResponse(BaseModel):
     source: str
     currency: str
     products: list[PublicProductPricingItemResponse]
+    matrix: list[dict[str, Any]] | None = None
 
 
 class PublicLandingpageVisibilityItemResponse(BaseModel):
@@ -55,9 +60,12 @@ class PublicLossExampleConfigResponse(BaseModel):
 
 
 @router.get("/pricing/public", response_model=PublicProductPricingResponse)
-def get_public_product_pricing() -> PublicProductPricingResponse:
+def get_public_product_pricing(include_matrix: bool = Query(default=False)) -> PublicProductPricingResponse:
     with SessionLocal() as db:
-        return PublicProductPricingResponse.model_validate(get_public_product_pricing_payload(db))
+        payload = get_public_product_pricing_payload(db)
+        if include_matrix:
+            payload["matrix"] = build_public_pricing_matrix(db)
+        return PublicProductPricingResponse.model_validate(payload)
 
 
 @router.get("/landingpage/pages/visibility", response_model=PublicLandingpageVisibilityResponse)

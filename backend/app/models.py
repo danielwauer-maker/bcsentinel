@@ -241,6 +241,23 @@ class ProductPricingConfig(Base):
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class ProductPricingMatrixConfig(Base):
+    __tablename__ = "product_pricing_matrix_config"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    product_key: Mapped[str] = mapped_column(String(50), index=True)
+    pricing_tier: Mapped[str] = mapped_column(String(30), index=True)
+    max_records: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    amount_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    billing_interval: Mapped[str] = mapped_column(String(20), default="one_time")
+    display_name_de: Mapped[str] = mapped_column(String(120), default="")
+    display_name_en: Mapped[str] = mapped_column(String(120), default="")
+    stripe_price_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class LandingpagePageVisibility(Base):
     __tablename__ = "landingpage_page_visibility"
 

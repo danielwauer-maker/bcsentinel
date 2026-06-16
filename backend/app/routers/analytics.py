@@ -32,12 +32,17 @@ from app.services.impact_service import normalize_stored_commercials
 from app.services.localization_service import normalize_language, tenant_language, update_tenant_language
 from app.services.product_license_service import (
     build_product_access_snapshot,
-    PRODUCT_ASSESSMENT,
+    PRODUCT_FULL_ANALYSIS,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
+    normalize_product_code,
 )
-from app.services.product_pricing_service import build_monitoring_pricing_breakdown, get_public_product_pricing_payload
+from app.services.product_pricing_service import (
+    build_monitoring_pricing_breakdown,
+    build_tier_pricing_payload,
+    get_public_product_pricing_payload,
+)
 
 router = APIRouter(tags=["analytics"])
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -83,7 +88,7 @@ DASHBOARD_UI = {
         "score_trend_helper": "History of selected scans",
         "loss_trend": "Loss Trend",
         "loss_trend_helper": "Estimated annual impact",
-        "paid_scan_access": "Paid scan access",
+        "paid_scan_access": "Full Analysis access",
         "scan_preview": "Scan preview",
         "scan_preview_helper": "Record details, recommendations, actions",
         "estimated_monitoring_pricing": "Estimated monitoring pricing",
@@ -103,7 +108,7 @@ DASHBOARD_UI = {
         "scan_credits": "Scan Credits",
         "scan_credits_helper": "Available paid scan starts",
         "dashboard_access_until": "Dashboard Access Until",
-        "dashboard_access_helper": "Assessment / Validation result window",
+        "dashboard_access_helper": "Full Analysis / Validation result window",
         "issue_access_until": "Issue Access Until",
         "issue_access_helper": "Record details and recommendations",
         "monthly_price": "Monthly price",
@@ -122,9 +127,9 @@ DASHBOARD_UI = {
         "recommendations_available": "Recommendations available",
         "affected": "affected",
         "monitoring_active": "Monitoring active",
-        "assessment_validation_active": "Assessment / Validation active",
-        "assessment_needed": "Assessment needed",
-        "buy_assessment": "Buy Assessment",
+        "assessment_validation_active": "Full Analysis / Validation active",
+        "assessment_needed": "Full Analysis needed",
+        "buy_assessment": "Buy Full Analysis",
         "start_monitoring": "Start Monitoring",
         "buy_more_credits": "Buy More Credits",
         "manage_subscription": "Manage subscription",
@@ -165,7 +170,7 @@ DASHBOARD_UI = {
         "score_trend_helper": "Historie der ausgewaehlten Scans",
         "loss_trend": "Verlust-Trend",
         "loss_trend_helper": "Geschaetzter Jahresimpact",
-        "paid_scan_access": "Bezahlter Scan-Zugriff",
+        "paid_scan_access": "Full-Analysis-Zugriff",
         "scan_preview": "Scan-Vorschau",
         "scan_preview_helper": "Datensaetze, Empfehlungen, Aktionen",
         "estimated_monitoring_pricing": "Geschaetzter Monitoring-Preis",
@@ -185,7 +190,7 @@ DASHBOARD_UI = {
         "scan_credits": "Scan Credits",
         "scan_credits_helper": "Verfuegbare bezahlte Scan-Starts",
         "dashboard_access_until": "Dashboard-Zugriff bis",
-        "dashboard_access_helper": "Assessment-/Validation-Ergebnisfenster",
+        "dashboard_access_helper": "Full-Analysis-/Validation-Ergebnisfenster",
         "issue_access_until": "Issue-Zugriff bis",
         "issue_access_helper": "Datensatzdetails und Empfehlungen",
         "monthly_price": "Monatspreis",
@@ -204,9 +209,9 @@ DASHBOARD_UI = {
         "recommendations_available": "Empfehlungen verfuegbar",
         "affected": "betroffen",
         "monitoring_active": "Monitoring aktiv",
-        "assessment_validation_active": "Assessment / Validation aktiv",
-        "assessment_needed": "Assessment benoetigt",
-        "buy_assessment": "Assessment kaufen",
+        "assessment_validation_active": "Full Analysis / Validation aktiv",
+        "assessment_needed": "Full Analysis benoetigt",
+        "buy_assessment": "Full Analysis kaufen",
         "start_monitoring": "Monitoring starten",
         "buy_more_credits": "Weitere Credits kaufen",
         "manage_subscription": "Abo verwalten",
@@ -780,7 +785,9 @@ def _get_current_plan_price_monthly(tenant: Tenant | None, scan: Scan | None) ->
 
     try:
         with SessionLocal() as db:
-            return round(_safe_float(build_monitoring_pricing_breakdown(db).get("final_price_monthly")), 2)
+            pricing = build_tier_pricing_payload(db, record_count=_safe_int(scan.total_records))
+            monthly = pricing["prices"].get(PRODUCT_MONITORING_MONTHLY, {})
+            return round(_safe_float(monthly.get("amount_eur")), 2)
     except Exception:
         if plan == "premium":
             return round(_safe_float(getattr(scan, "estimated_premium_price_monthly", 0.0)), 2)
@@ -789,13 +796,34 @@ def _get_current_plan_price_monthly(tenant: Tenant | None, scan: Scan | None) ->
 
 def _get_premium_pricing_breakdown(scan: Scan | None) -> dict[str, Any]:
     with SessionLocal() as db:
-        return build_monitoring_pricing_breakdown(db)
+        pricing = build_tier_pricing_payload(
+            db,
+            record_count=_safe_int(getattr(scan, "total_records", 0)) if scan is not None else 0,
+        )
+    monthly = pricing["prices"].get(PRODUCT_MONITORING_MONTHLY, {})
+    annual = pricing["prices"].get(PRODUCT_MONITORING_ANNUAL, {})
+    monthly_price = _safe_float(monthly.get("amount_eur"), 0.0)
+    annual_price = _safe_float(annual.get("amount_eur"), 0.0)
+    return {
+        "base_price_monthly": monthly_price,
+        "step_records": 0,
+        "price_per_step": 0.0,
+        "variable_price_monthly": 0.0,
+        "raw_price_monthly": monthly_price,
+        "final_price_monthly": monthly_price,
+        "annual_fixed_price": annual_price,
+        "pricing_tier": pricing["pricing_tier"],
+        "contact_sales": pricing["contact_sales"],
+        "monthly_note": "Tenant-tier Monitoring Monthly price from Pricing Matrix.",
+        "annual_note": "Tenant-tier Monitoring Annual price from Pricing Matrix.",
+    }
 
 
 def _build_fallback_payload(company: str, environment: str, scan_mode: str | None, language: str = "en") -> dict[str, Any]:
     with SessionLocal() as db:
         default_pricing = build_monitoring_pricing_breakdown(db)
         product_pricing = get_public_product_pricing_payload(db)
+        tenant_pricing = build_tier_pricing_payload(db, record_count=0)
     fallback_monthly = _safe_float(default_pricing.get("final_price_monthly"), 0.0)
     lang = normalize_language(language)
     ui = _ui(lang)
@@ -811,12 +839,13 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "current_plan": "free",
         "visibility": {
             "is_premium": False,
+            "can_view_free_insights": False,
             "show_findings": False,
             "show_trends": False,
             "show_upgrade_preview": True,
         },
         "hero": {
-            "eyebrow": "Assessment zuerst. Monitoring, wenn Datenqualitaet dauerhaft sichtbar bleiben soll." if lang == "de" else "Assessment first. Monitoring when data quality needs control.",
+            "eyebrow": "Data Health Score zuerst. Full Analysis fuer Details." if lang == "de" else "Data Health Score first. Full Analysis unlocks the details.",
             "headline_prefix": "Deine Datenqualitaet ist" if lang == "de" else "Your data health is",
             "headline_highlight": "kritisch" if lang == "de" else "critical",
             "headline_suffix": "und braucht Aufmerksamkeit." if lang == "de" else "and requires immediate attention.",
@@ -850,8 +879,8 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "top_findings": [],
         "premium_preview_findings": [],
         "premium_unlock": {
-            "headline": "Bezahlte Scan-Produkte oeffnen Datensatzdetails und konkrete Aktionen." if lang == "de" else "Paid scan products unlock record-level details and direct action.",
-            "body": "Kaufe Assessment, Validation Check oder Monitoring, um betroffene Datensaetze, Empfehlungen und Business-Central-Aktionen zu sehen." if lang == "de" else "Buy an Assessment, Validation Check, or Monitoring plan to see affected records, recommendations, and Business Central actions for your highest-impact issues.",
+            "headline": "Full Analysis oeffnet Datensatzdetails und konkrete Aktionen." if lang == "de" else "Full Analysis unlocks record-level details and direct action.",
+            "body": "Kaufe Full Analysis, Validation Check oder Monitoring, um betroffene Datensaetze, Empfehlungen und Business-Central-Aktionen zu sehen." if lang == "de" else "Buy Full Analysis, Validation Check, or Monitoring to see affected records, recommendations, and Business Central actions for your highest-impact issues.",
             "button_label": ui["buy_assessment"],
             "button_action": "checkout",
             "highlights": [
@@ -862,14 +891,15 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         },
         "pricing_breakdown": default_pricing,
         "product_pricing": product_pricing,
+        "tenant_pricing": tenant_pricing,
         "subscription": {
             "plan_label": ui["assessment_needed"],
             "price_monthly": 0.0,
             "annual_cost": 0.0,
             "cta_label": ui["buy_assessment"],
             "cta_action": "checkout",
-            "cta_product_code": PRODUCT_ASSESSMENT,
-            "plan_note": "Insight startet mit einem Assessment. Monitoring haelt Datenqualitaet dauerhaft sichtbar." if lang == "de" else "Insight starts with an Assessment. Monitoring keeps it under control.",
+            "cta_product_code": PRODUCT_FULL_ANALYSIS,
+            "plan_note": "Insight startet mit dem Data Health Score. Full Analysis oeffnet Details." if lang == "de" else "Insight starts with the Data Health Score. Full Analysis opens the details.",
             "pricing_breakdown": default_pricing,
             "billing_options": {
                 "monthly_label": "Monatliche Abrechnung" if lang == "de" else "Monthly billing",
@@ -969,9 +999,10 @@ def _build_dashboard_payload(
         tenant_features = get_tenant_features(db, tenant)
         product_access = build_product_access_snapshot(db, tenant)
         product_pricing = get_public_product_pricing_payload(db)
+        tenant_pricing = build_tier_pricing_payload(db, record_count=_safe_int(active_scan.total_records))
 
     current_plan = _normalize_plan(getattr(tenant, "current_plan", "free"))
-    is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["can_view_dashboard"])
+    is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["can_view_issues"])
     monitoring_active = bool(product_access["monitoring_active"])
     can_view_recommendations = "recommendations" in tenant_features
 
@@ -1067,12 +1098,13 @@ def _build_dashboard_payload(
         "product_access": product_access,
         "visibility": {
             "is_premium": is_premium,
-            "show_findings": is_premium,
+            "can_view_free_insights": bool(product_access["can_view_free_insights"]),
+            "show_findings": bool(product_access["can_view_issues"]),
             "show_trends": is_premium,
             "show_upgrade_preview": not is_premium,
         },
         "hero": {
-            "eyebrow": "Assessment zuerst. Monitoring, wenn Datenqualitaet dauerhaft sichtbar bleiben soll." if lang == "de" else "Assessment first. Monitoring when data quality needs control.",
+            "eyebrow": "Data Health Score zuerst. Full Analysis fuer Details." if lang == "de" else "Data Health Score first. Full Analysis unlocks the details.",
             **(_hero_copy_for_score_de(_safe_int(active_scan.data_score)) if lang == "de" else _hero_copy_for_score(_safe_int(active_scan.data_score))),
         },
         "kpis": {
@@ -1113,7 +1145,7 @@ def _build_dashboard_payload(
         "premium_preview_findings": premium_preview_findings,
         "premium_unlock": {
             "headline": "Willst du weiter Geld verlieren oder die Ursachen beheben?" if lang == "de" else "Do you want to keep losing money or start fixing the root causes?",
-            "body": "Bezahlte Scan-Produkte zeigen betroffene Datensaetze, konkrete Empfehlungen und Priorisierung nach Business Impact." if lang == "de" else "Paid scan products reveal the exact affected records, explain what to fix, and prioritize the work by business impact.",
+            "body": "Full Analysis, Validation Check oder Monitoring zeigen betroffene Datensaetze, konkrete Empfehlungen und Priorisierung nach Business Impact." if lang == "de" else "Full Analysis, Validation Check, or Monitoring reveal the exact affected records, explain what to fix, and prioritize the work by business impact.",
             "button_label": _ui(lang)["buy_assessment"],
             "button_action": "checkout",
             "highlights": [
@@ -1124,14 +1156,15 @@ def _build_dashboard_payload(
         },
         "pricing_breakdown": pricing_breakdown,
         "product_pricing": product_pricing,
+        "tenant_pricing": tenant_pricing,
         "subscription": {
-            "plan_label": "Monitoring" if monitoring_active else (("Assessment / Validation aktiv" if lang == "de" else "Assessment / Validation access") if is_premium else ("Validation Check benoetigt" if lang == "de" else "Validation Check needed")),
+            "plan_label": "Monitoring" if monitoring_active else (("Full Analysis / Validation aktiv" if lang == "de" else "Full Analysis / Validation access") if is_premium else ("Full Analysis benoetigt" if lang == "de" else "Full Analysis needed")),
             "price_monthly": current_plan_price_monthly if monitoring_active else 0.0,
             "annual_cost": round(current_plan_price_monthly * 12, 2) if monitoring_active else 0.0,
             "cta_label": _ui(lang)["manage_subscription"] if monitoring_active else (_ui(lang)["start_monitoring"] if is_premium else _ui(lang)["buy_more_credits"]),
             "cta_action": "portal" if monitoring_active else "checkout",
-            "cta_product_code": None if monitoring_active else (PRODUCT_MONITORING_MONTHLY if is_premium else PRODUCT_ASSESSMENT),
-            "plan_note": ("Aktueller Monitoring-Zugriff" if lang == "de" else "Current monitoring access") if monitoring_active else (("7-Tage-Scan-Zugriff aktiv" if lang == "de" else "7-day scan access active") if is_premium else ("Kaufe einen Validation Check oder starte Monitoring, um Details wieder zu oeffnen." if lang == "de" else "Buy a Validation Check or start Monitoring to reopen details.")),
+            "cta_product_code": None if monitoring_active else (PRODUCT_MONITORING_MONTHLY if is_premium else PRODUCT_FULL_ANALYSIS),
+            "plan_note": ("Aktueller Monitoring-Zugriff" if lang == "de" else "Current monitoring access") if monitoring_active else (("7-Tage-Premiumzugriff aktiv" if lang == "de" else "7-day premium access active") if is_premium else ("Kaufe Full Analysis, einen Validation Check oder starte Monitoring, um Details zu oeffnen." if lang == "de" else "Buy Full Analysis, a Validation Check, or start Monitoring to open details.")),
             "pricing_breakdown": pricing_breakdown,
             "billing_options": {
                 "monthly_label": "Monatliche Abrechnung" if lang == "de" else "Monthly billing",
@@ -1253,9 +1286,9 @@ def analytics_billing_checkout(
     product_code: str | None = Query(default=None),
 ):
     tenant = _load_analytics_tenant(token, embed_token, analytics_cookie_token)
-    requested_product = (product_code or PRODUCT_ASSESSMENT).strip().lower()
+    requested_product = normalize_product_code(product_code or PRODUCT_FULL_ANALYSIS)
     allowed_products = {
-        PRODUCT_ASSESSMENT,
+        PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
         PRODUCT_MONITORING_MONTHLY,
         PRODUCT_MONITORING_ANNUAL,

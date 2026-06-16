@@ -104,7 +104,7 @@
         <section class="content-grid admin-detail-grid">
           <article class="panel">
             <div class="panel-header"><h2>Product Pricing</h2><span class="muted">Zentrale Anzeige-Preise fuer Checkout-Produkte.</span></div>
-            <p class="muted">Stripe Price IDs bleiben in ENV. Diese Preise steuern Public Pricing, Landingpage und Dashboard-Anzeige.</p>
+            <p class="muted">Legacy-Fallback je Produkt. Die tierbasierte Matrix darunter steuert bevorzugt Public Pricing, Dashboard und Checkout.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Product Key</th><th>Name</th><th>Preis (Cent)</th><th>Currency</th><th>Intervall</th><th>Active</th><th>Updated</th><th>Actions</th></tr></thead>
@@ -113,7 +113,7 @@
                   <tr>
                     <td><code>{{ row.product_key }}</code></td>
                     <td><input form="product-pricing-{{ row.product_key }}" type="text" name="display_name" value="{{ row.display_name }}" required></td>
-                    <td><input form="product-pricing-{{ row.product_key }}" type="number" name="price_cents" min="1" step="1" value="{{ row.price_cents }}" required></td>
+                    <td><input form="product-pricing-{{ row.product_key }}" type="number" name="price_cents" min="0" step="1" value="{{ row.price_cents }}" required></td>
                     <td><input form="product-pricing-{{ row.product_key }}" type="text" name="currency" value="{{ row.currency }}" maxlength="3" required></td>
                     <td>
                       <select form="product-pricing-{{ row.product_key }}" name="billing_interval">
@@ -126,6 +126,42 @@
                     <td>{{ fmt_dt(row.updated_at_utc) }}</td>
                     <td>
                       <form id="product-pricing-{{ row.product_key }}" method="post" action="/admin/config/product-pricing/{{ row.product_key }}" class="inline-form wrap-gap">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </article>
+          <article class="panel panel-large">
+            <div class="panel-header"><h2>Pricing Matrix</h2><span class="muted">Produkt x Datensatz-Tier mit Stripe Price ID.</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Product</th><th>Tier</th><th>Max Records</th><th>Preis (Cent)</th><th>Currency</th><th>Intervall</th><th>Name DE</th><th>Name EN</th><th>Stripe Price ID</th><th>Active</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {% for row in product_price_matrix %}
+                  <tr>
+                    <td><code>{{ row.product_key }}</code></td>
+                    <td><code>{{ row.pricing_tier }}</code></td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="number" name="max_records" min="0" step="1" value="{{ row.max_records if row.max_records is not none else '' }}"></td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="number" name="amount_cents" min="0" step="1" value="{{ row.amount_cents if row.amount_cents is not none else '' }}"></td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="text" name="currency" value="{{ row.currency }}" maxlength="3" required></td>
+                    <td>
+                      <select form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" name="billing_interval">
+                        <option value="one_time" {% if row.billing_interval == "one_time" %}selected{% endif %}>one_time</option>
+                        <option value="month" {% if row.billing_interval == "month" %}selected{% endif %}>month</option>
+                        <option value="year" {% if row.billing_interval == "year" %}selected{% endif %}>year</option>
+                        <option value="contact_sales" {% if row.billing_interval == "contact_sales" %}selected{% endif %}>contact_sales</option>
+                      </select>
+                    </td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="text" name="display_name_de" value="{{ row.display_name_de }}" required></td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="text" name="display_name_en" value="{{ row.display_name_en }}" required></td>
+                    <td><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="text" name="stripe_price_id" value="{{ row.stripe_price_id or '' }}" placeholder="price_..."></td>
+                    <td><label class="checkbox-inline"><input form="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" type="checkbox" name="is_active" {% if row.is_active %}checked{% endif %}> active</label></td>
+                    <td>
+                      <form id="product-pricing-matrix-{{ row.product_key }}-{{ row.pricing_tier }}" method="post" action="/admin/config/product-pricing-matrix/{{ row.product_key }}/{{ row.pricing_tier }}" class="inline-form wrap-gap">
                         <button type="submit" class="btn btn-primary">Save</button>
                       </form>
                     </td>

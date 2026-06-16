@@ -7,7 +7,8 @@ import stripe
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import Subscription, Tenant
+from app.models import ProductPricingMatrixConfig, Subscription, Tenant
+from app.services.product_pricing_service import ensure_default_product_pricing_matrix
 
 
 def test_checkout_session_uses_configured_default_urls(
@@ -236,7 +237,7 @@ def test_monitoring_annual_checkout_fails_cleanly_without_price_id(
     )
 
     assert response.status_code == 400
-    assert "Monitoring annual checkout is not configured." in response.json()["detail"]
+    assert "Stripe Price ID for monitoring_annual tier starter is not configured." in response.json()["detail"]
 
 
 def test_monitoring_annual_checkout_handles_inactive_stripe_price(
@@ -272,6 +273,85 @@ def test_monitoring_annual_checkout_handles_inactive_stripe_price(
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Configured Stripe Price ID for monitoring_annual is inactive or invalid."
+
+
+def test_checkout_session_uses_matrix_price_for_record_tier(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    deep_scan_factory,
+    settings_state,
+    monkeypatch,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_professional", total_records=184327)
+    settings_state(
+        ENV="prod",
+        STRIPE_SECRET_KEY="sk_test",
+        STRIPE_PRICE_ID_MONITORING_MONTHLY=None,
+        BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
+        BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+    with SessionLocal() as db:
+        ensure_default_product_pricing_matrix(db)
+        row = db.query(ProductPricingMatrixConfig).filter_by(
+            product_key="monitoring_monthly",
+            pricing_tier="professional",
+        ).one()
+        row.stripe_price_id = "price_monitoring_monthly_professional"
+        db.commit()
+
+    captured = {}
+
+    def fake_create(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(id="cs_professional", url="https://stripe.example/pro")
+
+    monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
+
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_monthly"},
+    )
+
+    assert response.status_code == 200
+    assert captured["line_items"] == [{"price": "price_monitoring_monthly_professional", "quantity": 1}]
+    assert captured["metadata"]["pricing_tier"] == "professional"
+    assert captured["metadata"]["amount_eur"] == "199.0"
+
+
+def test_checkout_session_blocks_enterprise_contact_sales_tier(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    deep_scan_factory,
+    settings_state,
+    monkeypatch,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_enterprise", total_records=500001)
+    settings_state(
+        ENV="prod",
+        STRIPE_SECRET_KEY="sk_test",
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
+        BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
+        BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+
+    def fail_create(**kwargs):
+        raise AssertionError("Stripe checkout should not be created for Contact Sales tiers.")
+
+    monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fail_create)
+
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_monthly"},
+    )
+
+    assert response.status_code == 402
+    assert "requires Contact Sales" in response.json()["detail"]
 
 
 def test_analytics_checkout_does_not_require_stored_plaintext_api_token(

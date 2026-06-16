@@ -29,7 +29,10 @@
     currentPayload = payload;
     const byKey = Object.fromEntries(payload.products.map((product) => [product.product_key, product]));
     document.querySelectorAll("[data-product-price]").forEach((node) => {
-      const product = byKey[node.dataset.productPrice];
+      const rawKey = node.dataset.productPrice;
+      const productKey = rawKey === "assessment" ? "full_analysis" : rawKey;
+      const publicProductKey = productKey === "monitoring_monthly" ? "monitoring" : productKey;
+      const product = byKey[productKey] || byKey[publicProductKey];
       if (product) node.textContent = format(product);
     });
   }

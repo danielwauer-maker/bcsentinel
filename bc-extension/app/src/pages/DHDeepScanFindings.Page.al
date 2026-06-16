@@ -163,7 +163,7 @@
         Setup: Record "DH Setup";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Buy Assessment';
+        AccessText := 'Buy Full Analysis';
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin

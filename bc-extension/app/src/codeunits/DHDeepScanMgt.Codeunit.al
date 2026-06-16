@@ -153,7 +153,7 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         if not Setup."Can Run Deep Scan" then
             if not Setup.IsPremiumLicenseActive() then
-                Error('No scan credit or active monitoring available. Please buy an Assessment, Validation Check or start Monitoring.');
+                Error('No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.');
     end;
 
     local procedure GetNextRunEntryNo(): Integer

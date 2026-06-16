@@ -36,14 +36,14 @@
             </select>
             <button class="theme-toggle" type="button" data-theme-toggle aria-label="Theme"><span data-theme-icon>D</span></button>
             ${supportAction}
-            <a class="btn btn-primary" href="contact.html?intent=assessment" data-checkout-product="assessment" data-product-code="assessment" data-i18n="cta_assessment">${t("cta_assessment")}</a>
+            <a class="btn btn-primary" href="contact.html?intent=full_analysis" data-checkout-product="full_analysis" data-product-code="full_analysis" data-i18n="cta_assessment">${t("cta_assessment")}</a>
             <button class="nav-toggle" type="button" data-nav-toggle aria-label="Menu">Menu</button>
           </div>
         </div>
         <div class="mobile-menu" data-mobile-menu>
           <div class="container">
             ${navPages.map((page) => `<a href="${page.href}" data-i18n="${page.labelKey}">${t(page.labelKey)}</a>`).join("")}
-            <a href="contact.html?intent=assessment" data-checkout-product="assessment" data-product-code="assessment" data-i18n="cta_assessment">${t("cta_assessment")}</a>
+            <a href="contact.html?intent=full_analysis" data-checkout-product="full_analysis" data-product-code="full_analysis" data-i18n="cta_assessment">${t("cta_assessment")}</a>
           </div>
         </div>
       </header>`;

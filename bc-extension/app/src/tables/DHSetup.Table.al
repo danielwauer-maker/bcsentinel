@@ -311,7 +311,7 @@ table 53100 "DH Setup"
         if "Premium Enabled" then
             exit('Paid scan access active');
 
-        exit('Register the tenant and buy or grant a scan product to unlock paid scan actions');
+        exit('Register the tenant and buy or grant Full Analysis, Validation Check, or Monitoring to unlock paid scan actions');
     end;
 
     procedure GetUpgradeHintText(): Text[250]
@@ -325,7 +325,7 @@ table 53100 "DH Setup"
         if "Premium Enabled" then
             exit('Paid recommendations and scan actions are available for this tenant.');
 
-        exit('Buy an Assessment, Validation Check, or Monitoring product to unlock recommendations, drilldowns, and scan actions.');
+        exit('Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.');
     end;
 
     procedure EnsureModuleDefaults()

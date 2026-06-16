@@ -113,7 +113,7 @@ ALLOWED_IDENTICAL_TEXTS = {
 I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z-]+)?=["']([^"']+)["']""")
 JS_T_CALL_RE = re.compile(r"""\bt\(["']([A-Za-z0-9_]+)["']\)""")
 JS_TRANSLATION_MEMBER_RE = re.compile(r"""translations\[[^\]]+\]\.([A-Za-z0-9_]+)""")
-JS_NAV_PAIR_RE = re.compile(r"""\[[^\[\]]+,\s*["']([A-Za-z0-9_]+)["']\]""")
+JS_NAV_PAIR_RE = re.compile(r"""\[[^\[\]]+,\s*["'](nav_[A-Za-z0-9_]+)["']\]""")
 
 
 @dataclass(frozen=True)
@@ -202,13 +202,11 @@ def discover_landingpage_i18n_keys() -> set[str]:
     keys: set[str] = set()
     for path in _landingpage_dir().glob("*.html"):
         text = path.read_text(encoding="utf-8", errors="ignore")
-        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
-        keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
-        keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip() and "$" not in match)
 
     for path in (_landingpage_dir() / "js").glob("*.js"):
         text = path.read_text(encoding="utf-8", errors="ignore")
-        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
+        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip() and "$" not in match)
         keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
         keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
         keys.update(match.strip() for match in JS_NAV_PAIR_RE.findall(text) if match.strip())

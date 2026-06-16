@@ -40,8 +40,8 @@
           <article class="stat-card emphasis"><div class="stat-label">Product Access</div><div class="stat-value stat-value-small">{{ product_access.access_model }}</div></article>
           <article class="stat-card"><div class="stat-label">Monitoring</div><div class="stat-value stat-value-small">{% if product_access.monitoring_active %}active{% else %}inactive{% endif %}</div></article>
           <article class="stat-card"><div class="stat-label">Scan Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
-          <article class="stat-card"><div class="stat-label">Dashboard Until</div><div class="stat-helper stat-helper-strong">{{ product_access.dashboard_access_until or '-' }}</div></article>
-          <article class="stat-card"><div class="stat-label">Issue Until</div><div class="stat-helper stat-helper-strong">{{ product_access.issue_access_until or '-' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Records / Tier</div><div class="stat-helper stat-helper-strong">{{ product_access.record_count if product_access.record_count is not none else '-' }} / {{ product_access.pricing_tier or '-' }}</div></article>
+          <article class="stat-card"><div class="stat-label">Premium Until</div><div class="stat-helper stat-helper-strong">{{ product_access.premium_access_until or '-' }}</div></article>
         </section>
 
         <section class="content-grid admin-detail-grid">
@@ -91,6 +91,7 @@
           <article class="panel">
             <div class="panel-header"><h2>Access Management</h2><span class="muted">Dashboard und Issue Access Window</span></div>
             <div class="config-list">
+              <div class="config-row no-border"><div class="config-title">Premium Access Until</div><div>{{ product_access.premium_access_until or '-' }}</div></div>
               <div class="config-row no-border"><div class="config-title">Dashboard Access Until</div><div>{{ product_access.dashboard_access_until or '-' }}</div></div>
               <div class="config-row no-border"><div class="config-title">Issue Access Until</div><div>{{ product_access.issue_access_until or '-' }}</div></div>
               <div class="config-row no-border">
@@ -121,7 +122,7 @@
             <div class="config-list">
               <div class="config-row no-border">
                 <div class="config-title">Simulate Products</div>
-                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="inline-form"><input type="hidden" name="product_code" value="assessment"><button type="submit" class="btn btn-secondary">Simulate Assessment</button></form>
+                <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="inline-form"><input type="hidden" name="product_code" value="full_analysis"><button type="submit" class="btn btn-secondary">Simulate Full Analysis</button></form>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/grant-product" class="inline-form"><input type="hidden" name="product_code" value="validation_check"><button type="submit" class="btn btn-secondary">Simulate Validation</button></form>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_monthly"><button type="submit" class="btn btn-secondary">Simulate Monitoring Monthly</button></form>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/enable-monitoring" class="inline-form"><input type="hidden" name="product_code" value="monitoring_annual"><button type="submit" class="btn btn-secondary">Simulate Monitoring Annual</button></form>
@@ -185,17 +186,18 @@
             <div class="panel-header"><h2>Product Access</h2><span class="muted">Pilot product entitlement status</span></div>
             <div class="config-list">
               <div class="config-row no-border"><div class="config-title">Active Products</div><div>{{ active_product_codes|join(', ') if active_product_codes else '-' }}</div></div>
-              <div class="config-row no-border"><div class="config-title">Assessment Access</div><div>{% if product_access.assessment_access_active %}active{% else %}inactive{% endif %} - {{ product_access.assessment_access_until or '-' }}</div></div>
-              <div class="config-row no-border"><div class="config-title">Validation Access</div><div>{% if product_access.validation_access_active %}active{% else %}inactive{% endif %} - {{ product_access.validation_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Free Insights</div><div>{% if product_access.can_view_free_insights %}available{% else %}not yet{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Full Analysis Access</div><div>{% if product_access.full_analysis_access_active %}active{% else %}inactive{% endif %} - {{ product_access.full_analysis_access_until or '-' }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Validation Check Access</div><div>{% if product_access.validation_check_access_active %}active{% else %}inactive{% endif %} - {{ product_access.validation_check_access_until or '-' }}</div></div>
               <div class="config-row no-border"><div class="config-title">Monitoring Status</div><div>{% if product_access.monitoring_active %}active{% else %}inactive{% endif %} - {{ product_access.monitoring_access_until or 'open-ended/manual' }}</div></div>
               <div class="config-row no-border"><div class="config-title">Can Run Deep Scan</div><div>{% if product_access.can_run_deep_scan %}yes{% else %}no{% endif %}</div></div>
               <div class="config-row no-border"><div class="config-title">Can View Dashboard</div><div>{% if product_access.can_view_dashboard %}yes{% else %}no{% endif %}</div></div>
-              <div class="config-row no-border"><div class="config-title">Can View Issue Details</div><div>{% if product_access.can_view_issue_details %}yes{% else %}no{% endif %}</div></div>
+              <div class="config-row no-border"><div class="config-title">Can View Issues / Actions / Reports / Records</div><div>{% if product_access.can_view_issues %}issues{% else %}-{% endif %} / {% if product_access.can_view_actions %}actions{% else %}-{% endif %} / {% if product_access.can_view_reports %}reports{% else %}-{% endif %} / {% if product_access.can_view_record_details %}records{% else %}-{% endif %}</div></div>
             </div>
           </article>
 
           <article class="panel">
-            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Assessment und Validation Check Credits</span></div>
+            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Full Analysis und Validation Check Credits</span></div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>ID</th><th>Product</th><th>Status</th><th>Source</th><th>Consumed Scan</th><th>Created</th></tr></thead>

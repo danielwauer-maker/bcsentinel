@@ -305,7 +305,7 @@ codeunit 53100 "DH API Client"
         RefreshLicenseStatus(Setup);
         if not Setup."Can Run Deep Scan" then
             if not IsPremiumAllowed(Setup) then
-                Error('No scan credit or active monitoring available. Please buy an Assessment, Validation Check or start Monitoring.');
+                Error('No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.');
     end;
 
     procedure IsPremiumAllowed(Setup: Record "DH Setup"): Boolean
