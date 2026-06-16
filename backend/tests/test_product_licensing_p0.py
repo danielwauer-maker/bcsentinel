@@ -267,6 +267,160 @@ def test_free_insights_are_available_after_scan_without_premium_details(
     assert payload["premium_access_until"] is None
 
 
+def test_data_health_score_start_without_credit_does_not_consume_credit(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+
+    response = client.post(
+        "/scan/start",
+        headers=auth_header_factory(tenant),
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": "RUN_FREE_SCORE_START",
+            "scan_mode": "data_health_score",
+            "total_modules": 3,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "queued"
+    assert payload["free_data_health_score"] is True
+    assert payload["credit_consumed"] is False
+
+    with SessionLocal() as db:
+        credit_count = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).count()
+    assert credit_count == 0
+
+
+def test_data_health_score_sync_without_credit_exposes_free_insights_and_locks_premium(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    payload = _deep_scan_payload(tenant["tenant_id"], "RUN_FREE_SCORE_SYNC")
+    payload["scan_type"] = "data_health_score"
+
+    response = client.post(
+        "/scan/sync",
+        headers=auth_header_factory(tenant),
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        credit_count = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).count()
+    assert credit_count == 0
+
+    license_response = client.get("/license/status", headers=auth_header_factory(tenant))
+    assert license_response.status_code == 200
+    license_payload = license_response.json()
+    assert license_payload["can_view_free_insights"] is True
+    assert license_payload["can_run_data_health_score"] is False
+    assert license_payload["has_completed_data_health_score"] is True
+    assert license_payload["can_view_issues"] is False
+    assert license_payload["can_view_actions"] is False
+    assert license_payload["can_view_reports"] is False
+    assert license_payload["can_view_record_details"] is False
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+    analytics_response = client.get(f"/analytics/embed/data?embed_token={analytics_token}")
+
+    assert analytics_response.status_code == 200
+    analytics_payload = analytics_response.json()
+    assert analytics_payload["visibility"]["is_premium"] is False
+    assert analytics_payload["free_insights"]["top_findings"][0]["title"] == "Smoke issue"
+    assert analytics_payload["free_insights"]["business_impacts"][0]["impact_eur"] > 0
+    assert analytics_payload["free_insights"]["active_issues_summary"]["medium"] == 1
+    assert analytics_payload["tenant_pricing"]["pricing_tier"] == "starter"
+    assert analytics_payload["issues_page"]["locked"] is True
+    assert analytics_payload["actions_page"]["locked"] is True
+    assert analytics_payload["reports_page"]["locked"] is True
+
+
+def test_free_dashboard_sections_are_server_locked_until_premium_access(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    payload = _deep_scan_payload(tenant["tenant_id"], "RUN_FREE_SECTION_LOCKS")
+    payload["scan_type"] = "data_health_score"
+    scan_response = client.post("/scan/sync", headers=auth_header_factory(tenant), json=payload)
+    assert scan_response.status_code == 200
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+
+    for section in ("issues", "actions", "reports"):
+        response = client.get(f"/analytics/embed/{section}?embed_token={analytics_token}")
+        assert response.status_code == 402
+
+
+def test_premium_dashboard_sections_are_unlocked(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "validation_check",
+        },
+        follow_redirects=False,
+    )
+    scan_response = client.post(
+        "/scan/sync",
+        headers=auth_header_factory(tenant),
+        json=_deep_scan_payload(tenant["tenant_id"], "RUN_PREMIUM_SECTIONS"),
+    )
+    assert scan_response.status_code == 200
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+
+    for section in ("issues", "actions", "reports"):
+        response = client.get(f"/analytics/embed/{section}?embed_token={analytics_token}")
+        assert response.status_code == 200
+        assert response.json()["locked"] is False
+
+
+def test_enterprise_free_insights_use_contact_sales_tenant_pricing(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    payload = _deep_scan_payload(tenant["tenant_id"], "RUN_ENTERPRISE_FREE_SCORE")
+    payload["scan_type"] = "data_health_score"
+    payload["data_profile"]["total_records"] = 500001
+
+    response = client.post("/scan/sync", headers=auth_header_factory(tenant), json=payload)
+    assert response.status_code == 200
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+    analytics_response = client.get(f"/analytics/embed/data?embed_token={analytics_token}")
+
+    assert analytics_response.status_code == 200
+    pricing = analytics_response.json()["tenant_pricing"]
+    assert pricing["pricing_tier"] == "enterprise"
+    assert pricing["contact_sales"] is True
+    assert pricing["prices"]["full_analysis"]["contact_sales"] is True
+
+
 @pytest.mark.parametrize(
     ("record_count", "expected_tier"),
     [

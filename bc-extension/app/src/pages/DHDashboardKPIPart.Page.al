@@ -22,7 +22,7 @@
                     ApplicationArea = All;
                     Caption = 'Data Health Score';
                     StyleExpr = DataScoreStyle;
-                    ToolTip = 'Assessment of data quality.';
+                    ToolTip = 'Shows the Data Health Score.';
                 }
 
                 /*field("Estimated Loss"; Rec."Estimated Loss (EUR)")

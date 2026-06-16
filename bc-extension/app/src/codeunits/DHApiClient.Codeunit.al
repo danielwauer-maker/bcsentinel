@@ -575,6 +575,16 @@ codeunit 53100 "DH API Client"
     end;
 
     procedure StartDeepScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
+    begin
+        StartBackendScan(Setup, RunId, TotalModules, 'deep');
+    end;
+
+    procedure StartDataHealthScore(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
+    begin
+        StartBackendScan(Setup, RunId, TotalModules, 'data_health_score');
+    end;
+
+    local procedure StartBackendScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer; ScanMode: Text)
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -588,12 +598,12 @@ codeunit 53100 "DH API Client"
         EnsureTenantAccessConfigured(Setup);
 
         if RunId = '' then
-            Error('Deep scan could not be started because the run id is empty.');
+            Error('Scan could not be started because the run id is empty.');
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('run_id', Format(RunId));
-        JsonRequest.Add('scan_mode', 'deep');
+        JsonRequest.Add('scan_mode', ScanMode);
         JsonRequest.Add('total_modules', TotalModules);
         JsonRequest.Add('company_name', CompanyName());
         JsonRequest.Add('environment_name', 'BC Cloud');
@@ -613,11 +623,11 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/start'), Content, Response) then
-            Error('Deep scan start could not be sent. Please verify the network connection.');
+            Error('Scan start could not be sent. Please verify the network connection.');
 
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
-            Error('Deep scan start failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error('Scan start failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)

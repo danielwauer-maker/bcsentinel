@@ -45,8 +45,8 @@ function applyDashboardUi(ui, language) {
 
   const statLabels = document.querySelectorAll('.stats-grid .stat-label');
   const statHelpers = document.querySelectorAll('.stats-grid .stat-helper');
-  const statLabelKeys = ['scanned_records', 'affected_records', 'estimated_annual_loss', 'checks_run', 'issues_found', 'roi'];
-  const statHelperKeys = ['scanned_records_helper', 'affected_records_helper', 'estimated_annual_loss_helper', 'checks_run_helper', 'issues_found_helper', 'roi_helper'];
+  const statLabelKeys = ['health_score', 'estimated_annual_loss', 'potential_savings', 'scanned_records', 'checks_run', 'issues_found'];
+  const statHelperKeys = ['health_score_helper', 'estimated_annual_loss_helper', 'potential_savings_helper', 'scanned_records_helper', 'checks_run_helper', 'issues_found_helper'];
   statLabels.forEach((el, index) => { if (statLabelKeys[index]) el.textContent = t(statLabelKeys[index], el.textContent); });
   statHelpers.forEach((el, index) => { if (statHelperKeys[index]) el.textContent = t(statHelperKeys[index], el.textContent); });
 
@@ -380,6 +380,134 @@ function renderFindings(items, isPremium) {
   }).join('');
 }
 
+function renderIssuesPage(data) {
+  const host = byId('issues-page-body');
+  if (!host) return;
+  const page = data?.issues_page || {};
+  const items = Array.isArray(page.items) ? page.items : [];
+  if (page.locked) {
+    host.innerHTML = `<tr><td colspan="7" class="table-empty">${escapeHtml(t('paid_access', 'Paid Access'))}</td></tr>`;
+    return;
+  }
+  if (items.length === 0) {
+    host.innerHTML = `<tr><td colspan="7" class="table-empty">${escapeHtml(t('no_findings', 'No findings are available for this scan.'))}</td></tr>`;
+    return;
+  }
+  host.innerHTML = items.map((item) => `
+    <tr>
+      <td><strong>${escapeHtml(item?.title)}</strong></td>
+      <td>${escapeHtml(item?.group)}</td>
+      <td><span class="severity severity-${escapeHtml(item?.severity)}">${escapeHtml(item?.severity_label || item?.severity)}</span></td>
+      <td>${formatNumber(item?.count)}</td>
+      <td>${formatCurrency(item?.impact_eur)}</td>
+      <td>Open</td>
+      <td>${escapeHtml(formatDateTime(data?.last_updated))}</td>
+    </tr>
+  `).join('');
+}
+
+function renderActionsPage(data) {
+  const host = byId('actions-page-body');
+  if (!host) return;
+  const page = data?.actions_page || {};
+  const items = Array.isArray(page.items) ? page.items : [];
+  if (page.locked) {
+    host.innerHTML = `<tr><td colspan="5" class="table-empty">${escapeHtml(t('paid_access', 'Paid Access'))}</td></tr>`;
+    return;
+  }
+  if (items.length === 0) {
+    host.innerHTML = `<tr><td colspan="5" class="table-empty">${escapeHtml(t('no_findings', 'No actions are available for this scan.'))}</td></tr>`;
+    return;
+  }
+  host.innerHTML = items.map((item) => `
+    <tr>
+      <td>${escapeHtml(item?.issue)}</td>
+      <td>${escapeHtml(item?.suggested_action)}</td>
+      <td><span class="severity severity-${escapeHtml(item?.priority)}">${escapeHtml(item?.priority)}</span></td>
+      <td>${formatCurrency(item?.potential_saving_eur)}</td>
+      <td>${escapeHtml(item?.effort || 'TBD')}</td>
+    </tr>
+  `).join('');
+}
+
+function renderReportsPage(data) {
+  const host = byId('reports-page-grid');
+  if (!host) return;
+  const page = data?.reports_page || {};
+  const items = Array.isArray(page.items) ? page.items : [];
+  if (page.locked) {
+    host.innerHTML = `<div class="empty-state">${escapeHtml(t('paid_access', 'Paid Access'))}</div>`;
+    return;
+  }
+  host.innerHTML = items.map((item) => `
+    <article class="report-card">
+      <h4>${escapeHtml(item?.title)}</h4>
+      <p class="muted">${escapeHtml(item?.available ? 'Ready for this scan.' : 'Available with monitoring history.')}</p>
+      <button type="button" class="pager-button" ${item?.available ? '' : 'disabled'}>Open</button>
+    </article>
+  `).join('') || `<div class="empty-state">${escapeHtml(t('no_findings', 'No reports are available for this scan.'))}</div>`;
+}
+
+function renderSettingsPage(data) {
+  const host = byId('settings-grid');
+  if (!host) return;
+  const settings = data?.settings_page || {};
+  const rows = [
+    ['Tenant ID', settings.tenant_id || ''],
+    ['Company', settings.company || ''],
+    ['Language', settings.language || ''],
+    ['Last Scan', formatDateTime(settings.last_scan)],
+    ['Connection Status', settings.connection_status || ''],
+  ];
+  host.innerHTML = rows.map(([label, value]) => `
+    <div class="subscription-card">
+      <div class="stat-label">${escapeHtml(label)}</div>
+      <div class="subscription-value stat-value-small">${escapeHtml(value || '—')}</div>
+    </div>
+  `).join('');
+}
+
+function renderSubscriptionProducts(data) {
+  const host = byId('subscription-product-grid');
+  if (!host) return;
+  const prices = data?.tenant_pricing?.prices || {};
+  const items = [
+    ['full_analysis', 'Full Analysis', 'Buy Full Analysis'],
+    ['validation_check', 'Validation Check', 'Buy Validation Check'],
+    ['monitoring_monthly', 'Monitoring Monthly', 'Start Monitoring Monthly'],
+    ['monitoring_annual', 'Monitoring Annual', 'Start Monitoring Annual'],
+  ];
+  host.innerHTML = items.map(([key, title, cta]) => {
+    const price = prices[key] || {};
+    const isContact = Boolean(price.contact_sales);
+    const amount = isContact ? 'Contact Sales' : formatCurrency(price.amount_eur);
+    return `
+      <article class="subscription-product-card">
+        <h4>${escapeHtml(title)}</h4>
+        <div class="subscription-product-price">${escapeHtml(amount)}</div>
+        <button type="button" class="pager-button subscription-product-action" data-product-code="${escapeHtml(key)}" ${isContact ? 'disabled' : ''}>${escapeHtml(isContact ? 'Contact Sales' : cta)}</button>
+      </article>
+    `;
+  }).join('');
+}
+
+function applyLockStates(data) {
+  const pages = data?.pages || {};
+  document.querySelectorAll('[data-lock-section]').forEach((region) => {
+    const section = region.dataset.lockSection;
+    const locked = Boolean(pages?.[section]?.locked);
+    region.classList.toggle('is-locked', locked);
+    let overlay = region.querySelector('.lock-overlay');
+    if (locked && !overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'lock-overlay';
+      overlay.innerHTML = `<strong>${escapeHtml(t('paid_access', 'Paid Access'))}</strong><span>${escapeHtml(pages?.[section]?.lock_reason || 'Unlock premium access to use this section.')}</span>`;
+      region.appendChild(overlay);
+    }
+    if (!locked && overlay) overlay.remove();
+  });
+}
+
 function warnOnInvalidBcCompanyFormat(url) {
   const match = String(url || '').match(/[?&]company=([^&#]+)/i);
   if (!match) return;
@@ -567,12 +695,14 @@ async function loadDashboard(scanId = null) {
       heroHighlight.className = `hero-highlight ${scoreBand(data?.kpis?.health_score)}`;
     }
 
+    setText('kpi-health-score', formatNumber(data?.kpis?.health_score));
+    const healthScore = byId('kpi-health-score');
+    if (healthScore) healthScore.className = `stat-value score-value ${scoreBand(data?.kpis?.health_score)}`;
     setText('kpi-records', formatNumber(data?.kpis?.total_records));
-    setText('kpi-affected-records', formatNumber(data?.kpis?.affected_records));
     setText('kpi-checks', formatNumber(data?.kpis?.checks_run));
     setText('kpi-issues', formatNumber(data?.kpis?.issues_count));
     setText('kpi-loss', formatCurrency(data?.kpis?.estimated_loss_eur));
-    setText('kpi-roi', formatCurrency(data?.kpis?.roi_eur));
+    setText('kpi-savings', formatCurrency(data?.kpis?.potential_saving_eur));
 
     renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
     renderModuleVolume(data);
@@ -580,9 +710,17 @@ async function loadDashboard(scanId = null) {
     renderRecentScansPagination(data?.recent_scans_pagination || {});
     renderTrend('trend-chart', data?.score_trend || []);
     renderTrend('loss-chart', data?.loss_trend || [], true);
+    renderTrend('analytics-score-trend', data?.score_trend || []);
+    renderTrend('analytics-loss-trend', data?.loss_trend || [], true);
     renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
     renderUnlockPanel(data);
     renderSubscription(data);
+    renderSubscriptionProducts(data);
+    renderIssuesPage(data);
+    renderActionsPage(data);
+    renderReportsPage(data);
+    renderSettingsPage(data);
+    applyLockStates(data);
     renderPricingBreakdown(data);
     applyPlanState(data);
   } catch (error) {
@@ -655,6 +793,15 @@ function registerEvents() {
   if (buyMoreButton) {
     buyMoreButton.addEventListener('click', async () => {
       await triggerBillingAction('checkout', 'full_analysis');
+    });
+  }
+
+  const productGrid = byId('subscription-product-grid');
+  if (productGrid) {
+    productGrid.addEventListener('click', async (event) => {
+      const button = event.target.closest('.subscription-product-action');
+      if (!button || button.disabled) return;
+      await triggerBillingAction('checkout', button.dataset.productCode || null);
     });
   }
 }

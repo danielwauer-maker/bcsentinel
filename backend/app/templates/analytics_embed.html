@@ -7,7 +7,31 @@
   <link rel="stylesheet" href="/static/css/dashboard.css?v=20260409-3">
 </head>
 <body class="dashboard-body">
-  <main class="page-shell">
+  <main class="dashboard-layout">
+    <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
+      <div class="sidebar-brand">
+        <div class="sidebar-mark">BC</div>
+        <div>
+          <strong>BCSentinel</strong>
+          <span>Data Health</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="topnav-link is-active" data-tab="overview">Overview</button>
+        <button type="button" class="topnav-link" data-tab="analytics">Analytics</button>
+        <button type="button" class="topnav-link" data-tab="issues">Issues</button>
+        <button type="button" class="topnav-link" data-tab="actions">Actions</button>
+        <button type="button" class="topnav-link" data-tab="reports">Reports</button>
+        <button type="button" class="topnav-link" data-tab="subscription">Subscription</button>
+        <button type="button" class="topnav-link" data-tab="settings">Settings</button>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="mailto:support@bcsentinel.com">Support</a>
+        <a href="/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
+        <button type="button" class="sidebar-link" id="logout-button">Logout</button>
+      </div>
+    </aside>
+    <section class="page-shell">
     <header class="topbar">
       <div class="topbar-left">
         <div class="title-row">
@@ -17,10 +41,6 @@
         <p id="page-subtitle" class="page-subtitle">Loading...</p>
       </div>
       <div class="topbar-right">
-        <nav class="topnav" aria-label="Dashboard sections">
-          <button type="button" class="topnav-link is-active" data-tab="overview">Overview</button>
-          <button type="button" class="topnav-link" data-tab="subscription">Subscription</button>
-        </nav>
         <span id="last-updated" class="pill muted-pill">Last updated: -</span>
       </div>
     </header>
@@ -41,39 +61,39 @@
 
       <section class="stats-grid">
         <article class="stat-card panel">
-          <div class="stat-label">Scanned records</div>
-          <div class="stat-value" id="kpi-records">0</div>
-          <div class="stat-helper">Total volume used for pricing and scope</div>
-        </article>
-
-        <article class="stat-card panel">
-          <div class="stat-label">Affected records</div>
-          <div class="stat-value" id="kpi-affected-records">0</div>
-          <div class="stat-helper">Records with action potential</div>
+          <div class="stat-label">Health Score</div>
+          <div class="stat-value score-value" id="kpi-health-score">0</div>
+          <div class="stat-helper">Overall data quality</div>
         </article>
 
         <article class="stat-card panel accent-red">
-          <div class="stat-label">Estimated annual loss</div>
+          <div class="stat-label">Estimated Loss</div>
           <div class="stat-value loss-value" id="kpi-loss">0 &euro;</div>
-          <div class="stat-helper">Monetarisierter Impact</div>
+          <div class="stat-helper">Estimated annual impact</div>
+        </article>
+
+        <article class="stat-card panel accent-green">
+          <div class="stat-label">Potential Savings</div>
+          <div class="stat-value roi-value" id="kpi-savings">0 &euro;</div>
+          <div class="stat-helper">Estimated improvement potential</div>
         </article>
 
         <article class="stat-card panel compact-stat">
-          <div class="stat-label">Checks run</div>
+          <div class="stat-label">Total Records</div>
+          <div class="stat-value" id="kpi-records">0</div>
+          <div class="stat-helper">Records analyzed</div>
+        </article>
+
+        <article class="stat-card panel compact-stat">
+          <div class="stat-label">Checks</div>
           <div class="stat-value" id="kpi-checks">0</div>
-          <div class="stat-helper">Depth of this scan</div>
+          <div class="stat-helper">Validation checks run</div>
         </article>
 
         <article class="stat-card panel compact-stat">
           <div class="stat-label">Issues Found</div>
           <div class="stat-value" id="kpi-issues">0</div>
-          <div class="stat-helper">Detected issue types</div>
-        </article>
-
-        <article class="stat-card panel accent-green">
-          <div class="stat-label">ROI</div>
-          <div class="stat-value roi-value" id="kpi-roi">0 &euro;</div>
-          <div class="stat-helper">Potential minus annual cost</div>
+          <div class="stat-helper">Active issue types</div>
         </article>
       </section>
 
@@ -219,6 +239,56 @@
       </section>
     </section>
 
+    <section id="analytics-tab" class="tab-panel hidden">
+      <section class="overview-grid overview-grid-top">
+        <article class="panel">
+          <div class="panel-header"><h3>Score Trend</h3><span class="muted">Premium analytics</span></div>
+          <div class="locked-region" data-lock-section="analytics"><div id="analytics-score-trend" class="trend-chart"></div></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><h3>Estimated Loss Trend</h3><span class="muted">Premium analytics</span></div>
+          <div class="locked-region" data-lock-section="analytics"><div id="analytics-loss-trend" class="trend-chart"></div></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="issues-tab" class="tab-panel hidden">
+      <article class="panel">
+        <div class="panel-header"><h3>Issues</h3><span class="muted">Full issue list</span></div>
+        <div class="locked-region" data-lock-section="issues">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Issue</th><th>Module</th><th>Severity</th><th>Affected Records</th><th>Estimated Loss</th><th>Status</th><th>Detected On</th></tr></thead>
+              <tbody id="issues-page-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="actions-tab" class="tab-panel hidden">
+      <article class="panel">
+        <div class="panel-header"><h3>Actions</h3><span class="muted">Recommended measures</span></div>
+        <div class="locked-region" data-lock-section="actions">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Issue</th><th>Suggested Action</th><th>Priority</th><th>Potential Saving</th><th>Effort</th></tr></thead>
+              <tbody id="actions-page-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="reports-tab" class="tab-panel hidden">
+      <article class="panel">
+        <div class="panel-header"><h3>Reports</h3><span class="muted">Premium report library</span></div>
+        <div class="locked-region" data-lock-section="reports">
+          <div id="reports-page-grid" class="report-grid"></div>
+        </div>
+      </article>
+    </section>
+
     <section id="subscription-tab" class="tab-panel hidden">
       <article class="panel subscription-panel">
         <div class="panel-header">
@@ -265,7 +335,16 @@
           <button id="subscription-cta" type="button" class="primary-button">Start Monitoring</button>
           <button id="buy-more-credits-cta" type="button" class="primary-button hidden">Buy More Credits</button>
         </div>
+        <div id="subscription-product-grid" class="subscription-product-grid"></div>
       </article>
+    </section>
+
+    <section id="settings-tab" class="tab-panel hidden">
+      <article class="panel">
+        <div class="panel-header"><h3>Settings</h3><span class="muted">Connection context</span></div>
+        <div id="settings-grid" class="subscription-grid"></div>
+      </article>
+    </section>
     </section>
   </main>
   <script src="/static/js/analytics-dashboard.js?v=20260409-3"></script>

@@ -150,9 +150,15 @@ def _safe_float(value: object, default: float = 0.0) -> float:
 
 def _normalize_scan_type(value: str | None) -> str:
     normalized = (value or "").strip().lower()
+    if normalized in {"data_health_score", "free_data_health_score", "health_score"}:
+        return "data_health_score"
     if normalized in {"deep", "premium_deep"}:
         return "deep"
     return "quick"
+
+
+def _is_free_data_health_score_scan(scan_mode: str) -> bool:
+    return scan_mode == "data_health_score"
 
 
 def _normalize_enabled_modules(values: List[str]) -> str:
@@ -214,8 +220,8 @@ def start_scan(
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
 
     normalized_scan_mode = _normalize_scan_type(payload.scan_mode)
-    if normalized_scan_mode != "deep":
-        raise HTTPException(status_code=400, detail="Only Deep Scan starts are supported.")
+    if normalized_scan_mode not in {"deep", "data_health_score"}:
+        raise HTTPException(status_code=400, detail="Only Deep Scan and Data Health Score starts are supported.")
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
@@ -228,7 +234,8 @@ def start_scan(
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
 
         is_monitoring = "monitoring_active" in tenant_features
-        if existing_scan is None and not is_monitoring and scan_credit_count(db, tenant.tenant_id) <= 0:
+        is_free_score = _is_free_data_health_score_scan(normalized_scan_mode)
+        if existing_scan is None and not is_free_score and not is_monitoring and scan_credit_count(db, tenant.tenant_id) <= 0:
             raise HTTPException(
                 status_code=402,
                 detail="A scan credit or active monitoring subscription is required for Deep Scan.",
@@ -257,12 +264,12 @@ def start_scan(
                 checks_count=0,
                 issues_count=0,
                 premium_available=is_premium_actions_enabled(tenant_features),
-                summary_headline="Deep scan queued",
+                summary_headline="Data Health Score queued" if is_free_score else "Deep scan queued",
                 summary_rating="Pending",
                 enabled_modules=None,
             )
             db.add(scan)
-            if not is_monitoring:
+            if not is_free_score and not is_monitoring:
                 consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.run_id)
 
         tenant.last_seen_at_utc = datetime.now(timezone.utc)
@@ -277,7 +284,8 @@ def start_scan(
             "status": "queued",
             "scan_id": payload.run_id,
             "scan_mode": normalized_scan_mode,
-            "credit_consumed": not is_monitoring and existing_scan is None,
+            "credit_consumed": not is_free_score and not is_monitoring and existing_scan is None,
+            "free_data_health_score": is_free_score,
         }
     )
 
@@ -306,6 +314,7 @@ def sync_scan(
         scan = existing_scan
         normalized_generated_at = _normalize_utc(payload.generated_at_utc)
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
+        is_free_score = _is_free_data_health_score_scan(normalized_scan_type)
         if (
             scan is None
             and normalized_scan_type == "deep"
@@ -396,7 +405,7 @@ def sync_scan(
             total_modules=len(payload.enabled_modules or []),
             completed_modules=len(payload.enabled_modules or []),
         )
-        if normalized_scan_type == "deep" and "monitoring_active" not in tenant_features:
+        if normalized_scan_type == "deep" and not is_free_score and "monitoring_active" not in tenant_features:
             consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.scan_id)
 
         for issue in recalculated_issues:

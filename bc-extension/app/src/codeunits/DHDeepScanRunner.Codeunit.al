@@ -2369,7 +2369,10 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
-        Payload.Add('scan_type', 'deep');
+        if StrPos(DeepScanRun."Headline", 'Data Health Score') > 0 then
+            Payload.Add('scan_type', 'data_health_score')
+        else
+            Payload.Add('scan_type', 'deep');
         Payload.Add('generated_at_utc', Format(ScanDateTime, 0, 9));
         Payload.Add('data_score', DeepScanRun."Deep Score");
         Payload.Add('checks_count', DeepScanRun."Checks Count");

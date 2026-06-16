@@ -775,6 +775,59 @@ def _build_profile_cards(scan: Scan, active_modules: list[str] | None = None) ->
     return [{"label": name, "value": module_counts.get(name, 0)} for name in names]
 
 
+def _severity_counts(issues: list[ScanIssueRecord]) -> dict[str, int]:
+    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    for issue in issues:
+        severity = _normalize_severity(issue.severity)
+        if severity not in counts:
+            severity = "low"
+        counts[severity] += 1
+    return counts
+
+
+def _issue_distribution(issue_groups: dict[str, int], lang: str) -> list[dict[str, Any]]:
+    total = max(sum(max(int(value or 0), 0) for value in issue_groups.values()), 0)
+    if total <= 0:
+        return []
+    return [
+        {
+            "name": _module_label(name, lang),
+            "count": count,
+            "percent": round((count / total) * 100, 1),
+        }
+        for name, count in sorted(
+            issue_groups.items(),
+            key=lambda item: (-item[1], MODULE_SCORE_ORDER.index(item[0]) if item[0] in MODULE_SCORE_ORDER else 999),
+        )
+        if count > 0
+    ]
+
+
+def _records_by_module(scan: Scan, lang: str) -> list[dict[str, Any]]:
+    module_counts = _build_module_counts(scan)
+    return [
+        {"name": _module_label(name, lang), "count": count}
+        for name, count in sorted(
+            module_counts.items(),
+            key=lambda item: (-item[1], MODULE_SCORE_ORDER.index(item[0]) if item[0] in MODULE_SCORE_ORDER else 999),
+        )
+        if count > 0
+    ]
+
+
+def _dashboard_page_state(product_access: dict[str, Any], *, has_scan: bool) -> dict[str, Any]:
+    premium_locked_copy = "Requires active Full Analysis, Validation Check, or Monitoring access."
+    return {
+        "overview": {"locked": False, "available": has_scan},
+        "analytics": {"locked": not bool(product_access.get("can_view_issues")), "available": has_scan, "lock_reason": premium_locked_copy},
+        "issues": {"locked": not bool(product_access.get("can_view_issues")), "available": has_scan, "lock_reason": premium_locked_copy},
+        "actions": {"locked": not bool(product_access.get("can_view_actions")), "available": has_scan, "lock_reason": premium_locked_copy},
+        "reports": {"locked": not bool(product_access.get("can_view_reports")), "available": has_scan, "lock_reason": premium_locked_copy},
+        "subscription": {"locked": False, "available": True},
+        "settings": {"locked": False, "available": True},
+    }
+
+
 def _get_current_plan_price_monthly(tenant: Tenant | None, scan: Scan | None) -> float:
     if tenant is None or scan is None:
         return 0.0
@@ -877,6 +930,13 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "loss_trend": [],
         "issue_groups": [],
         "top_findings": [],
+        "free_insights": {
+            "top_findings": [],
+            "business_impacts": [],
+            "module_distribution": [],
+            "records_by_module": [],
+            "active_issues_summary": {"critical": 0, "high": 0, "medium": 0, "low": 0},
+        },
         "premium_preview_findings": [],
         "premium_unlock": {
             "headline": "Full Analysis oeffnet Datensatzdetails und konkrete Aktionen." if lang == "de" else "Full Analysis unlocks record-level details and direct action.",
@@ -892,6 +952,11 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
         "pricing_breakdown": default_pricing,
         "product_pricing": product_pricing,
         "tenant_pricing": tenant_pricing,
+        "pages": _dashboard_page_state({}, has_scan=False),
+        "issues_page": {"locked": True, "items": [], "empty": True},
+        "actions_page": {"locked": True, "items": [], "empty": True},
+        "reports_page": {"locked": True, "items": [], "empty": True},
+        "settings_page": {"locked": False, "tenant_id": None, "company": company, "language": lang, "last_scan": None},
         "subscription": {
             "plan_label": ui["assessment_needed"],
             "price_monthly": 0.0,
@@ -1074,6 +1139,7 @@ def _build_dashboard_payload(
         }
         for issue in issues
     ]
+    top_findings_sorted = sorted(top_findings, key=lambda item: (-_safe_float(item.get("impact_eur")), -_safe_int(item.get("count"))))
 
     premium_preview_findings = [
         {
@@ -1083,7 +1149,35 @@ def _build_dashboard_payload(
             "impact_eur": item["impact_eur"],
             "recommendation_preview": item["recommendation_preview"],
         }
-        for item in top_findings[:3]
+        for item in top_findings_sorted[:5]
+    ]
+    business_impacts = [
+        {
+            "title": item["title"],
+            "group": item["group"],
+            "impact_eur": item["impact_eur"],
+            "count": item["count"],
+        }
+        for item in top_findings_sorted[:5]
+    ]
+    pages = _dashboard_page_state(product_access, has_scan=True)
+    actions_items = [
+        {
+            "issue": item["title"],
+            "suggested_action": item["recommendation_preview"] or "Review the affected records and resolve the underlying setup issue in Business Central.",
+            "priority": item["severity"],
+            "potential_saving_eur": item["impact_eur"],
+            "effort": None,
+        }
+        for item in top_findings_sorted
+    ]
+    report_cards = [
+        {"key": "executive_summary", "title": "Executive Summary", "available": is_premium},
+        {"key": "data_quality_report", "title": "Data Quality Report", "available": is_premium},
+        {"key": "issue_detail_report", "title": "Issue Detail Report", "available": is_premium},
+        {"key": "business_impact_report", "title": "Business Impact Report", "available": is_premium},
+        {"key": "action_plan_report", "title": "Action Plan Report", "available": is_premium},
+        {"key": "trend_report", "title": "Trend Report", "available": is_premium and monitoring_active},
     ]
 
     return {
@@ -1141,7 +1235,24 @@ def _build_dashboard_payload(
                 key=lambda item: (-item[1], MODULE_SCORE_ORDER.index(item[0]) if item[0] in MODULE_SCORE_ORDER else 999),
             )
         ],
-        "top_findings": top_findings if is_premium else [],
+        "top_findings": top_findings_sorted if is_premium else [],
+        "free_insights": {
+            "top_findings": [
+                {
+                    "title": item["title"],
+                    "severity": item["severity"],
+                    "severity_label": item["severity_label"],
+                    "count": item["count"],
+                    "impact_eur": item["impact_eur"],
+                    "group": item["group"],
+                }
+                for item in top_findings_sorted[:5]
+            ],
+            "business_impacts": business_impacts,
+            "module_distribution": _issue_distribution(issue_groups, lang),
+            "records_by_module": _records_by_module(active_scan, lang),
+            "active_issues_summary": _severity_counts(issues),
+        },
         "premium_preview_findings": premium_preview_findings,
         "premium_unlock": {
             "headline": "Willst du weiter Geld verlieren oder die Ursachen beheben?" if lang == "de" else "Do you want to keep losing money or start fixing the root causes?",
@@ -1157,6 +1268,18 @@ def _build_dashboard_payload(
         "pricing_breakdown": pricing_breakdown,
         "product_pricing": product_pricing,
         "tenant_pricing": tenant_pricing,
+        "pages": pages,
+        "issues_page": {"locked": not is_premium, "items": top_findings_sorted if is_premium else [], "empty": not bool(top_findings_sorted)},
+        "actions_page": {"locked": not is_premium, "items": actions_items if is_premium else [], "empty": not bool(actions_items)},
+        "reports_page": {"locked": not bool(product_access["can_view_reports"]), "items": report_cards if product_access["can_view_reports"] else [], "empty": False},
+        "settings_page": {
+            "locked": False,
+            "tenant_id": tenant.tenant_id,
+            "company": company,
+            "language": lang,
+            "last_scan": active_scan.generated_at_utc.isoformat(),
+            "connection_status": "connected",
+        },
         "subscription": {
             "plan_label": "Monitoring" if monitoring_active else (("Full Analysis / Validation aktiv" if lang == "de" else "Full Analysis / Validation access") if is_premium else ("Full Analysis benoetigt" if lang == "de" else "Full Analysis needed")),
             "price_monthly": current_plan_price_monthly if monitoring_active else 0.0,
@@ -1253,6 +1376,66 @@ def get_analytics_data(
             bc_issue_launch_url=payload.get("bc_issue_launch_url"),
         )
     )
+
+
+def _load_dashboard_payload_from_embed_token(
+    *,
+    token: str | None,
+    embed_token: str | None,
+    analytics_cookie_token: str | None,
+    scan_id: str | None = None,
+) -> dict[str, Any]:
+    effective_token = embed_token or token or analytics_cookie_token
+    if not effective_token:
+        raise HTTPException(status_code=401, detail="Missing analytics embed token.")
+
+    payload = _verify_analytics_embed_payload(effective_token)
+    tenant_id = str(payload.get("tenant_id") or "").strip()
+    if not tenant_id:
+        raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
+
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="Tenant not found.")
+
+    return _build_dashboard_payload(
+        company=payload.get("company", "BCSentinel"),
+        environment=payload.get("environment", "BC Cloud"),
+        tenant=tenant,
+        scan_mode=payload.get("scan_mode"),
+        selected_scan_id=scan_id,
+        bc_issue_launch_url=payload.get("bc_issue_launch_url"),
+    )
+
+
+@router.get("/analytics/embed/{section}", response_class=JSONResponse)
+def get_analytics_section(
+    section: str,
+    token: str | None = Query(default=None),
+    embed_token: str | None = Query(default=None),
+    analytics_cookie_token: str | None = Cookie(default=None, alias=ANALYTICS_EMBED_COOKIE_NAME),
+    scan_id: str | None = Query(default=None),
+):
+    normalized_section = (section or "").strip().lower()
+    if normalized_section not in {"issues", "actions", "reports"}:
+        raise HTTPException(status_code=404, detail="Analytics section not found.")
+
+    payload = _load_dashboard_payload_from_embed_token(
+        token=token,
+        embed_token=embed_token,
+        analytics_cookie_token=analytics_cookie_token,
+        scan_id=scan_id,
+    )
+    page_key = f"{normalized_section}_page"
+    page_payload = payload.get(page_key, {})
+    if page_payload.get("locked"):
+        raise HTTPException(
+            status_code=402,
+            detail=f"{normalized_section.title()} require active Full Analysis, Validation Check, or Monitoring access.",
+        )
+    return JSONResponse(content=page_payload)
 
 
 def _load_analytics_tenant(

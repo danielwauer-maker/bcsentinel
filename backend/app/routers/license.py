@@ -30,6 +30,8 @@ class LicenseStatusResponse(BaseModel):
     issue_access_until: str | None = None
     premium_access_until: str | None = None
     can_run_deep_scan: bool = False
+    can_run_data_health_score: bool = False
+    has_completed_data_health_score: bool = False
     can_view_dashboard: bool = False
     can_view_issue_details: bool = False
     can_view_free_insights: bool = False
@@ -77,6 +79,8 @@ def get_license_status(
             issue_access_until=snapshot["issue_access_until"],
             premium_access_until=snapshot["premium_access_until"],
             can_run_deep_scan=snapshot["can_run_deep_scan"],
+            can_run_data_health_score=snapshot["can_run_data_health_score"],
+            has_completed_data_health_score=snapshot["has_completed_data_health_score"],
             can_view_dashboard=snapshot["can_view_dashboard"],
             can_view_issue_details=snapshot["can_view_issue_details"],
             can_view_free_insights=snapshot["can_view_free_insights"],

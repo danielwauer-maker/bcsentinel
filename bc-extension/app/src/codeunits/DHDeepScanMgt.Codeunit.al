@@ -51,6 +51,57 @@ codeunit 53124 "DH Deep Scan Mgt."
         exit(EntryNo);
     end;
 
+    procedure QueueDataHealthScore(var Setup: Record "DH Setup"): Integer
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+        RunIdMgt: Codeunit "DH Run ID Mgt.";
+        ApiClient: Codeunit "DH API Client";
+        EntryNo: Integer;
+        TotalModules: Integer;
+        ScanStartedMsg: Label 'Data Health Score started. Open the monitor to view progress. Run ID: %1';
+    begin
+        if Setup."API Base URL" = '' then
+            Error('Please configure API Base URL first.');
+
+        if Setup."Tenant ID" = '' then
+            Error('Please register the tenant first.');
+
+        TotalModules := Setup.GetEnabledDeepScanModuleCount();
+        if TotalModules <= 0 then
+            Error('Please enable at least one scan module on the BCSentinel setup page.');
+
+        EntryNo := GetNextRunEntryNo();
+
+        DeepScanRun.Init();
+        DeepScanRun."Entry No." := EntryNo;
+        DeepScanRun."Run ID" := RunIdMgt.GetNextRunId(Setup);
+        DeepScanRun.Status := DeepScanRun.Status::Queued;
+        DeepScanRun."Requested At" := CurrentDateTime();
+        DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
+        DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
+        DeepScanRun."Headline" := 'Data Health Score queued';
+        DeepScanRun."Current Module" := 'Preparing';
+        DeepScanRun."Progress %" := 0;
+        DeepScanRun."Completed Modules" := 0;
+        DeepScanRun."Total Modules" := TotalModules;
+        DeepScanRun."ETA Text" := 'Pending';
+        DeepScanRun."Backend Status" := 'queued';
+        DeepScanRun."Current Step" := 'Waiting to start';
+        DeepScanRun."Last Heartbeat" := CurrentDateTime();
+
+        DeepScanRun.Insert(true);
+        CreateOrUpdateScanHeader(DeepScanRun);
+        Commit();
+
+        ApiClient.StartDataHealthScore(Setup, DeepScanRun."Run ID", TotalModules);
+        TryUpdateBackendQueued(Setup, DeepScanRun);
+        Commit();
+
+        RunDeepScanNow(DeepScanRun);
+        Message(ScanStartedMsg, DeepScanRun."Run ID");
+        exit(EntryNo);
+    end;
+
     local procedure TryUpdateBackendQueued(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
     begin
         if not SendBackendQueued(Setup, DeepScanRun) then;

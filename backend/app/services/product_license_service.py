@@ -191,6 +191,20 @@ def _tenant_has_scan_results(db, tenant_id: str) -> bool:
     return db.scalar(select(Scan.id).where(Scan.tenant_id == tenant_id).limit(1)) is not None
 
 
+def _tenant_has_completed_data_health_score(db, tenant_id: str) -> bool:
+    return (
+        db.scalar(
+            select(Scan.id)
+            .where(
+                Scan.tenant_id == tenant_id,
+                Scan.scan_type.in_([PRODUCT_DATA_HEALTH_SCORE, "quick", "deep"]),
+            )
+            .limit(1)
+        )
+        is not None
+    )
+
+
 def _has_legacy_premium_access(tenant: Tenant) -> bool:
     plan = (tenant.current_plan or "").strip().lower()
     status = (tenant.license_status or "").strip().lower()
@@ -286,10 +300,13 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     premium_access_active = monitoring_active or one_time_active
     credits_available = scan_credit_count(db, tenant.tenant_id)
     has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
+    has_completed_data_health_score = _tenant_has_completed_data_health_score(db, tenant.tenant_id)
     record_count = _latest_scan_record_count(db, tenant.tenant_id)
     pricing_tier = pricing_tier_for_record_count(record_count)
 
     return {
+        "can_run_data_health_score": not has_completed_data_health_score,
+        "has_completed_data_health_score": has_completed_data_health_score,
         "can_view_free_insights": has_scan_results,
         "can_view_issues": premium_access_active,
         "can_view_actions": premium_access_active,
@@ -514,6 +531,8 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "can_view_dashboard": access["can_view_dashboard"],
         "can_view_issue_details": access["can_view_issue_details"],
         "can_view_free_insights": access["can_view_free_insights"],
+        "can_run_data_health_score": access["can_run_data_health_score"],
+        "has_completed_data_health_score": access["has_completed_data_health_score"],
         "can_view_issues": access["can_view_issues"],
         "can_view_actions": access["can_view_actions"],
         "can_view_reports": access["can_view_reports"],

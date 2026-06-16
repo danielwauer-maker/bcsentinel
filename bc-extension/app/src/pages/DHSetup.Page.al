@@ -406,8 +406,31 @@
 
                 action(StartScan)
                 {
-                    Caption = 'Start Scan';
-                    ToolTip = 'Runs Start Scan.';
+                    Caption = 'Start Data Health Score';
+                    ToolTip = 'Starts the free Data Health Score scan.';
+                    Image = Start;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    var
+                        Setup: Record "DH Setup";
+                        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+                        ConfirmStartScanQst: Label 'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
+                    begin
+                        EnsureSetupExists();
+                        Setup := Rec;
+                        if not Confirm(ConfirmStartScanQst, false) then
+                            exit;
+
+                        DeepScanMgt.QueueDataHealthScore(Setup);
+                        CurrPage.Update(false);
+                    end;
+                }
+
+                action(StartPaidDeepScan)
+                {
+                    Caption = 'Start Premium Deep Scan';
+                    ToolTip = 'Starts a premium deep scan using an active Full Analysis, Validation Check or Monitoring access.';
                     Image = Start;
                     ApplicationArea = All;
 
@@ -416,15 +439,10 @@
                         Setup: Record "DH Setup";
                         ApiClient: Codeunit "DH API Client";
                         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                        ConfirmStartScanQst: Label 'Do you want to start the scan now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
                     begin
                         EnsureSetupExists();
                         Setup := Rec;
                         ApiClient.EnsureReadyForScan(Setup);
-
-                        if not Confirm(ConfirmStartScanQst, false) then
-                            exit;
-
                         DeepScanMgt.QueueDeepScan(Setup);
                         CurrPage.Update(false);
                     end;
