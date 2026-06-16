@@ -74,6 +74,8 @@ codeunit 53128 "DH Deep Scan Runner"
             SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
             ApplySyncCommercials(DeepScanRun, SyncResponseText);
             ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
+            EnsureDashboardHeaderForDeepScan(DeepScanRun);
+            Commit();
             if not IsDataHealthScoreRun(DeepScanRun) then
                 ApiClient.RefreshLicenseStatus(Setup);
             TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');

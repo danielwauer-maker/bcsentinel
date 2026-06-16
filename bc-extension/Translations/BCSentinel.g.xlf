@@ -868,6 +868,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Token - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3182893603 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Can Run Data Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Can Run Data Health Score - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - Field 2596091466 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Can Run Deep Scan</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -883,6 +888,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Can View Issue Details - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - Field 2632886192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact Email</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Contact Email - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - Field 648361014 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Compatibility Plan</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -892,6 +902,11 @@
           <source>Dashboard Access Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Dashboard Access Until - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3916285027 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score Completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Data Health Score Completed - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 987915639 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Processing Consent</source>
@@ -3228,6 +3243,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfigured - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2632886192 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact email used for BCSentinel onboarding and future dashboard login.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Contact Email - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 987915639 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3374,7 +3394,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.</source>
+          <source>Registers this Business Central tenant with BCSentinel.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property ToolTip</note>
         </trans-unit>
@@ -3404,7 +3424,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 510766832 - Method 1377591017 - NamedType 4179575190" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Reset the local BCSentinel registration state? This keeps the API Base URL, invite code, and consent. Backend data is not deleted.</source>
+          <source>Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Method OnAction - NamedType ResetRegistrationQst</note>
         </trans-unit>
@@ -3413,13 +3433,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ScanMenu - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1676059951 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Data Health Score already completed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action FreeDataHealthScoreCompleted - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1676059951 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Free Data Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action FreeDataHealthScoreCompleted - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Action 937822417 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Starts a premium deep scan using an active Full Analysis, Validation Check or Monitoring access.</source>
+          <source>Starts a Validation Check follow-up scan using active access.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 937822417 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Premium Deep Scan</source>
+          <source>Start Validation Check</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property Caption</note>
         </trans-unit>
@@ -3429,7 +3459,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Data Health Score</source>
+          <source>Start Free Data Health Score</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
         </trans-unit>
@@ -3437,6 +3467,16 @@
           <source>Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Method OnAction - NamedType ConfirmStartScanQst</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 2333379996 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run the free Data Health Score first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartValidationCheckBeforeFreeScore - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 2333379996 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Validation Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartValidationCheckBeforeFreeScore - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1159487516 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Runs Scan History.</source>

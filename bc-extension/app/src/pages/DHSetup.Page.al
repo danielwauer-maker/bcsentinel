@@ -456,6 +456,7 @@
                             exit;
 
                         DeepScanMgt.QueueDataHealthScore(Setup);
+                        Rec.Get('SETUP');
                         Rec."Data Health Score Completed" := true;
                         Rec."Can Run Data Health Score" := false;
                         Rec.Modify(true);
