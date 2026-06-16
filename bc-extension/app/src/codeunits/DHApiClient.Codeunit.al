@@ -152,9 +152,12 @@ codeunit 53100 "DH API Client"
         if not Setup."Data Processing Consent" then
             Error('Please enable Data Processing Consent before registering the tenant.');
 
+        Setup.EnsureValidContactEmail();
+
         JsonRequest.Add('environment_name', 'BC Cloud');
         JsonRequest.Add('app_version', '0.4.0');
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
+        JsonRequest.Add('contact_email', Setup."Contact Email");
         JsonRequest.Add('invite_code', Setup."Registration Invite Code");
         JsonRequest.WriteTo(RequestText);
 
@@ -254,6 +257,8 @@ codeunit 53100 "DH API Client"
         Setup."Can View Dashboard" := false;
         Setup."Can View Issue Details" := false;
         Setup."Product Access Model" := '';
+        Setup."Can Run Data Health Score" := true;
+        Setup."Data Health Score Completed" := false;
 
         if JsonResponse.Get('features', FeaturesToken) then begin
             Features := FeaturesToken.AsArray();
@@ -280,6 +285,12 @@ codeunit 53100 "DH API Client"
 
         if JsonResponse.Get('can_view_issue_details', Token) then
             Setup."Can View Issue Details" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('can_run_data_health_score', Token) then
+            Setup."Can Run Data Health Score" := GetJsonTokenBoolean(Token, true);
+
+        if JsonResponse.Get('has_completed_data_health_score', Token) then
+            Setup."Data Health Score Completed" := GetJsonTokenBoolean(Token, false);
 
         if JsonResponse.Get('product_access', ProductAccessToken) then begin
             ProductAccess := ProductAccessToken.AsObject();
@@ -470,7 +481,10 @@ codeunit 53100 "DH API Client"
         Response: HttpResponseMessage;
         ResponseText: Text;
     begin
-        EnsureReadyForScan(Setup);
+        if IsDataHealthScoreSyncPayload(RequestText) then
+            EnsureTenantAccessConfigured(Setup)
+        else
+            EnsureReadyForScan(Setup);
 
         Content.WriteFrom(RequestText);
         Content.GetHeaders(Headers);
@@ -494,6 +508,23 @@ codeunit 53100 "DH API Client"
             Error('Scan sync failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
+    end;
+
+    local procedure IsDataHealthScoreSyncPayload(RequestText: Text): Boolean
+    var
+        Payload: JsonObject;
+        Token: JsonToken;
+    begin
+        if not Payload.ReadFrom(RequestText) then
+            exit(false);
+
+        if not Payload.Get('scan_type', Token) then
+            exit(false);
+
+        if IsJsonNull(Token) then
+            exit(false);
+
+        exit(LowerCase(Token.AsValue().AsText()) = 'data_health_score');
     end;
 
     procedure DeleteScanFromBackend(var Setup: Record "DH Setup"; ScanId: Code[50])

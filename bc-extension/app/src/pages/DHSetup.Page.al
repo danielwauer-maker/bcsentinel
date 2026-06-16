@@ -82,6 +82,22 @@
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Base URL of the BCSentinel API. Default is production.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionState();
+                    end;
+                }
+
+                field("Contact Email"; Rec."Contact Email")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Contact email used for BCSentinel onboarding and future dashboard login.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionState();
+                    end;
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -105,6 +121,7 @@
                     ApplicationArea = All;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the BCSentinel pilot invite code. Current backend registration requires this code; AppSource self-service signup is a follow-up backend task.';
+                    Visible = false;
                 }
 
                 field(Registered; Rec.Registered)
@@ -125,6 +142,11 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionState();
+                    end;
                 }
 
                 field(DataProcessingNotice; DataProcessingNoticeTxt)
@@ -143,6 +165,7 @@
                     Editable = false;
                     MultiLine = true;
                     ToolTip = 'Explains the current pilot invite requirement for tenant registration.';
+                    Visible = false;
                 }
             }
 
@@ -249,7 +272,7 @@
             action(RegisterTenant)
             {
                 Caption = 'Register Tenant';
-                ToolTip = 'Registers this Business Central tenant with BCSentinel by using the API Base URL and invite code, if required.';
+                ToolTip = 'Registers this Business Central tenant with BCSentinel.';
                 ApplicationArea = All;
                 Image = Web;
                 Enabled = CanRegisterTenant;
@@ -262,6 +285,13 @@
                 var
                     ApiClient: Codeunit "DH API Client";
                 begin
+                    if Rec."Tenant ID" <> '' then begin
+                        Message('BCSentinel tenant is already registered.');
+                        exit;
+                    end;
+
+                    Rec.EnsureValidContactEmail();
+
                     if Rec.Registered then begin
                         if HasStoredApiToken() then begin
                             Message('BCSentinel tenant is already registered.');
@@ -294,7 +324,7 @@
 
                 trigger OnAction()
                 var
-                    ResetRegistrationQst: Label 'Reset the local BCSentinel registration state? This keeps the API Base URL, invite code, and consent. Backend data is not deleted.';
+                    ResetRegistrationQst: Label 'Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.';
                 begin
                     if not Confirm(ResetRegistrationQst, false) then
                         exit;
@@ -312,6 +342,7 @@
                 ToolTip = 'Opens the BCSentinel website to request onboarding access.';
                 ApplicationArea = All;
                 Image = LinkWeb;
+                Visible = false;
 
                 trigger OnAction()
                 begin
@@ -406,10 +437,12 @@
 
                 action(StartScan)
                 {
-                    Caption = 'Start Data Health Score';
+                    Caption = 'Start Free Data Health Score';
                     ToolTip = 'Starts the free Data Health Score scan.';
                     Image = Start;
                     ApplicationArea = All;
+                    Enabled = CanStartFreeDataHealthScore;
+                    Visible = ShowStartFreeDataHealthScore;
 
                     trigger OnAction()
                     var
@@ -423,16 +456,32 @@
                             exit;
 
                         DeepScanMgt.QueueDataHealthScore(Setup);
+                        Rec."Data Health Score Completed" := true;
+                        Rec."Can Run Data Health Score" := false;
+                        Rec.Modify(true);
+                        UpdateActionState();
                         CurrPage.Update(false);
                     end;
                 }
 
-                action(StartPaidDeepScan)
+                action(FreeDataHealthScoreCompleted)
                 {
-                    Caption = 'Start Premium Deep Scan';
-                    ToolTip = 'Starts a premium deep scan using an active Full Analysis, Validation Check or Monitoring access.';
+                    Caption = 'Start Free Data Health Score';
+                    ToolTip = 'Free Data Health Score already completed.';
                     Image = Start;
                     ApplicationArea = All;
+                    Enabled = false;
+                    Visible = ShowFreeDataHealthScoreCompleted;
+                }
+
+                action(StartPaidDeepScan)
+                {
+                    Caption = 'Start Validation Check';
+                    ToolTip = 'Starts a Validation Check follow-up scan using active access.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = CanStartValidationCheck;
+                    Visible = ShowStartValidationCheck;
 
                     trigger OnAction()
                     var
@@ -446,6 +495,16 @@
                         DeepScanMgt.QueueDeepScan(Setup);
                         CurrPage.Update(false);
                     end;
+                }
+
+                action(StartValidationCheckBeforeFreeScore)
+                {
+                    Caption = 'Start Validation Check';
+                    ToolTip = 'Run the free Data Health Score first.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = false;
+                    Visible = ShowValidationCheckRequiresFreeScore;
                 }
 
                 action(ViewScanHistory)
@@ -467,6 +526,12 @@
     var
         CanRegisterTenant: Boolean;
         CanResetRegistration: Boolean;
+        CanStartFreeDataHealthScore: Boolean;
+        CanStartValidationCheck: Boolean;
+        ShowStartFreeDataHealthScore: Boolean;
+        ShowFreeDataHealthScoreCompleted: Boolean;
+        ShowStartValidationCheck: Boolean;
+        ShowValidationCheckRequiresFreeScore: Boolean;
         DataProcessingNoticeTxt: Text[1024];
         InviteNoticeTxt: Text[512];
 
@@ -516,6 +581,16 @@
         Rec."Tenant ID" := '';
         Rec.Registered := false;
         Rec."Registration Date" := 0DT;
+        Rec."Can Run Data Health Score" := true;
+        Rec."Data Health Score Completed" := false;
+        Rec."Scan Credits Available" := 0;
+        Rec."Monitoring Active" := false;
+        Rec."Dashboard Access Until" := '';
+        Rec."Issue Access Until" := '';
+        Rec."Can Run Deep Scan" := false;
+        Rec."Can View Dashboard" := false;
+        Rec."Can View Issue Details" := false;
+        Rec."Product Access Model" := '';
         DeleteStoredApiToken();
         Rec.Modify(true);
     end;
@@ -531,13 +606,35 @@
     end;
 
     local procedure UpdateActionState()
+    var
+        HasCompletedFreeScore: Boolean;
     begin
-        CanRegisterTenant := Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
+        HasCompletedFreeScore := HasCompletedDataHealthScore();
+        CanRegisterTenant := (Rec."Tenant ID" = '') and Rec."Data Processing Consent" and (Rec."API Base URL" <> '') and Rec.HasValidContactEmail();
         CanResetRegistration :=
             Rec.Registered or
             (Rec."Tenant ID" <> '') or
             (Rec."Registration Date" <> 0DT) or
             HasStoredApiToken();
+        CanStartFreeDataHealthScore := (Rec."Tenant ID" <> '') and not HasCompletedFreeScore;
+        ShowStartFreeDataHealthScore := not HasCompletedFreeScore;
+        ShowFreeDataHealthScoreCompleted := HasCompletedFreeScore;
+        CanStartValidationCheck := (Rec."Tenant ID" <> '') and HasCompletedFreeScore;
+        ShowStartValidationCheck := HasCompletedFreeScore;
+        ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
+    end;
+
+    local procedure HasCompletedDataHealthScore(): Boolean
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        if Rec."Data Health Score Completed" then
+            exit(true);
+
+        DeepScanRun.Reset();
+        DeepScanRun.SetRange("Scan Mode", 'data_health_score');
+        DeepScanRun.SetRange(Status, DeepScanRun.Status::Completed);
+        exit(not DeepScanRun.IsEmpty());
     end;
 
     local procedure UpdateNoticeTexts()
@@ -545,8 +642,7 @@
         DataProcessingNoticeTxt :=
             'Before registration or scans, BCSentinel requires consent to send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel. The data is used for Data Health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
 
-        InviteNoticeTxt :=
-            'Current pilot registration requires a BCSentinel invite code. AppSource self-service signup must be enabled in the backend before this field can be optional for marketplace customers.';
+        InviteNoticeTxt := '';
     end;
 
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text

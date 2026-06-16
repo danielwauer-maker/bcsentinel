@@ -291,6 +291,7 @@ class TenantRegisterRequest(BaseModel):
     app_version: str
     invite_code: str | None = None
     preferred_language: str | None = None
+    contact_email: str | None = None
 
 
 class TenantRegisterResponse(BaseModel):
@@ -337,6 +338,21 @@ def _validate_tenant_registration_invite(payload_invite: str | None, header_invi
         raise HTTPException(status_code=403, detail="Invalid tenant registration invite.")
 
 
+def _normalize_contact_email(value: str | None) -> str | None:
+    normalized = (value or "").strip().lower()
+    if not normalized:
+        return None
+
+    if " " in normalized or "@" not in normalized:
+        raise HTTPException(status_code=422, detail="contact_email is invalid.")
+
+    local_part, _, domain = normalized.partition("@")
+    if not local_part or "." not in domain or domain.endswith("."):
+        raise HTTPException(status_code=422, detail="contact_email is invalid.")
+
+    return normalized
+
+
 @app.post("/tenant/register", response_model=TenantRegisterResponse)
 def register_tenant(
     payload: TenantRegisterRequest,
@@ -350,6 +366,7 @@ def register_tenant(
         window_seconds=settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
     )
     _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
+    contact_email = _normalize_contact_email(payload.contact_email)
 
     tenant_id = f"ten_{uuid4().hex[:12]}"
     api_token = f"tok_{uuid4().hex}"
@@ -362,6 +379,7 @@ def register_tenant(
             api_token_hash=hash_api_token(api_token),
             environment_name=payload.environment_name,
             app_version=payload.app_version,
+            contact_email=contact_email,
             preferred_language=normalize_language(payload.preferred_language),
             created_at_utc=now_utc,
             last_seen_at_utc=now_utc,

@@ -90,6 +90,27 @@ table 53100 "DH Setup"
             Caption = 'Data Processing Consent';
             DataClassification = CustomerContent;
         }
+        field(36; "Contact Email"; Text[100])
+        {
+            Caption = 'Contact Email';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                "Contact Email" := CopyStr(LowerCase(DelChr("Contact Email", '<>', ' ')), 1, MaxStrLen("Contact Email"));
+            end;
+        }
+        field(37; "Can Run Data Health Score"; Boolean)
+        {
+            Caption = 'Can Run Data Health Score';
+            DataClassification = SystemMetadata;
+            InitValue = true;
+        }
+        field(38; "Data Health Score Completed"; Boolean)
+        {
+            Caption = 'Data Health Score Completed';
+            DataClassification = SystemMetadata;
+        }
         field(27; "Registration Invite Code"; Text[100])
         {
             Caption = 'Registration Invite Code';
@@ -326,6 +347,37 @@ table 53100 "DH Setup"
             exit('Paid recommendations and scan actions are available for this tenant.');
 
         exit('Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.');
+    end;
+
+    procedure HasValidContactEmail(): Boolean
+    var
+        AtPos: Integer;
+        DomainPart: Text;
+    begin
+        if "Contact Email" = '' then
+            exit(false);
+
+        if StrPos("Contact Email", ' ') > 0 then
+            exit(false);
+
+        AtPos := StrPos("Contact Email", '@');
+        if AtPos <= 1 then
+            exit(false);
+
+        DomainPart := CopyStr("Contact Email", AtPos + 1);
+        if StrPos(DomainPart, '.') <= 1 then
+            exit(false);
+
+        if CopyStr(DomainPart, StrLen(DomainPart), 1) = '.' then
+            exit(false);
+
+        exit(true);
+    end;
+
+    procedure EnsureValidContactEmail()
+    begin
+        if not HasValidContactEmail() then
+            Error('Please enter a valid contact email before registering.');
     end;
 
     procedure EnsureModuleDefaults()

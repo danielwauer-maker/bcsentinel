@@ -363,6 +363,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Sales Score - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 1801240912 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Mode</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Scan Mode - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2181053114 - Field 3582458335 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Progress %</source>
           <note from="Developer" annotates="general" priority="2"></note>

@@ -344,6 +344,55 @@ def test_data_health_score_sync_without_credit_exposes_free_insights_and_locks_p
     assert analytics_payload["reports_page"]["locked"] is True
 
 
+def test_data_health_score_sync_updates_queued_placeholder_and_analytics_values(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    start_response = client.post(
+        "/scan/start",
+        headers=auth_header_factory(tenant),
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": "RUN_FREE_SCORE_PLACEHOLDER",
+            "scan_mode": "data_health_score",
+            "total_modules": 3,
+        },
+    )
+    assert start_response.status_code == 200
+
+    payload = _deep_scan_payload(tenant["tenant_id"], "RUN_FREE_SCORE_PLACEHOLDER")
+    payload["scan_type"] = "data_health_score"
+    payload["data_score"] = 47
+    payload["checks_count"] = 202
+    payload["issues_count"] = 95
+    payload["module_scores"]["finance"] = 42
+    payload["data_profile"]["total_records"] = 1234
+    sync_response = client.post("/scan/sync", headers=auth_header_factory(tenant), json=payload)
+    assert sync_response.status_code == 200
+
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+    analytics_response = client.get(f"/analytics/embed/data?embed_token={analytics_token}")
+
+    assert analytics_response.status_code == 200
+    analytics_payload = analytics_response.json()
+    assert analytics_payload["selected_scan_id"] == "RUN_FREE_SCORE_PLACEHOLDER"
+    assert analytics_payload["kpis"]["health_score"] == 47
+    assert analytics_payload["kpis"]["checks_run"] == 202
+    assert analytics_payload["kpis"]["issues_count"] == 95
+    assert analytics_payload["kpis"]["total_records"] == 1234
+    assert analytics_payload["kpis"]["estimated_loss_eur"] > 0
+    assert analytics_payload["kpis"]["potential_saving_eur"] > 0
+    assert analytics_payload["module_scores"]
+    assert any(item["value"] == 42 for item in analytics_payload["module_scores"])
+    assert analytics_payload["issues_page"]["locked"] is True
+    assert analytics_payload["actions_page"]["locked"] is True
+    assert analytics_payload["reports_page"]["locked"] is True
+
+
 def test_free_dashboard_sections_are_server_locked_until_premium_access(
     client,
     tenant_factory,

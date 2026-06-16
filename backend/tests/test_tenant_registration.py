@@ -38,6 +38,44 @@ def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_has
         tenant = db.query(Tenant).filter(Tenant.tenant_id == body["tenant_id"]).one()
         assert tenant.api_token is None
         assert tenant.api_token_hash
+        assert tenant.contact_email is None
+
+
+def test_tenant_registration_stores_optional_contact_email(client, settings_state):
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+
+    response = client.post(
+        "/tenant/register",
+        headers={"X-Registration-Invite": "pilot-secret"},
+        json={
+            "environment_name": "BC Cloud",
+            "app_version": "1.0.0",
+            "contact_email": " Pilot.Customer@Example.COM ",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter(Tenant.tenant_id == body["tenant_id"]).one()
+        assert tenant.contact_email == "pilot.customer@example.com"
+
+
+def test_tenant_registration_rejects_invalid_contact_email(client, settings_state):
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+
+    response = client.post(
+        "/tenant/register",
+        headers={"X-Registration-Invite": "pilot-secret"},
+        json={
+            "environment_name": "BC Cloud",
+            "app_version": "1.0.0",
+            "contact_email": "not-valid",
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_tenant_registration_rate_limit_returns_429(client, settings_state):
