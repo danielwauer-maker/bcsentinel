@@ -5,8 +5,8 @@ from typing import Iterable
 
 from app.models import ImpactSettingsConfig, IssueImpactConfig
 
-DEFAULT_HOURLY_RATE_EUR = 30.0
-DEFAULT_POTENTIAL_SAVING_FACTOR = 0.4
+DEFAULT_HOURLY_RATE_EUR = 40.0
+DEFAULT_POTENTIAL_SAVING_FACTOR = 0.7
 
 
 @dataclass(frozen=True)
