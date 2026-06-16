@@ -372,3 +372,29 @@ Unsicherheiten:
 - Ob BC aktuell in allen Kundeninstallationen `bc_issue_launch_url` mitsendet, ist aus dem Backend allein nicht sicher ableitbar.
 - Ob Free User fachlich den kompletten Overview sehen sollen oder nur eine reduzierte Data-Health-Score-Ansicht, muss fuer Phase 2 produktseitig bestaetigt werden.
 - Ob `Dashboard Access Until` den Zugriff auf das gesamte Dashboard oder nur die Premium-Details meint, ist im aktuellen UI nicht eindeutig.
+
+## Phase 2 Implementation Notes
+
+Datum: 2026-06-16
+
+Umgesetzte Navigation:
+
+- Die linke Sidebar enthaelt nun exakt: Overview, Analytics, Scans, Issues, Actions, Reports, Subscription, Settings.
+- Der Sidebar-Footer enthaelt weiterhin: Support, Documentation, Logout.
+- Das Dashboard bleibt eine clientseitig umgeschaltete Single Page App innerhalb von `analytics_embed.html`.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 3:
+
+- Overview fachlich und visuell finalisieren.
+- Free Insights, Premium Preview und Premium Findings klarer trennen.
+- Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 2 geaendert.
+- Critical Severity wurde nur UI-kompatibel vorbereitet, nicht fachlich eingefuehrt.
+- Reports, Actions, Issues Detail und Scans Detail bleiben spaeteren Phasen vorbehalten.

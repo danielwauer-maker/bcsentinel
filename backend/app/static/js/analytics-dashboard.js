@@ -38,7 +38,13 @@ function applyDashboardUi(ui, language) {
   document.documentElement.lang = currentDashboardLanguage;
 
   setTextContent('[data-tab="overview"]', t('overview', 'Overview'));
+  setTextContent('[data-tab="analytics"]', t('analytics', 'Analytics'));
+  setTextContent('[data-tab="scans"]', t('scans', 'Scans'));
+  setTextContent('[data-tab="issues"]', t('issues', 'Issues'));
+  setTextContent('[data-tab="actions"]', t('actions', 'Actions'));
+  setTextContent('[data-tab="reports"]', t('reports', 'Reports'));
   setTextContent('[data-tab="subscription"]', t('subscription', 'Subscription'));
+  setTextContent('[data-tab="settings"]', t('settings', 'Settings'));
   setTextContent('#current-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#subscription-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#page-subtitle', t('loading', 'Loading...'));
@@ -328,6 +334,31 @@ function renderRecentScans(items) {
       <td>${escapeHtml(item?.headline || '')}</td>
     </tr>
   `).join('');
+}
+
+function renderScansPage(data) {
+  const host = byId('scans-page-body');
+  if (!host) return;
+
+  const items = Array.isArray(data?.recent_scans) ? data.recent_scans : [];
+  if (items.length === 0) {
+    host.innerHTML = `<tr><td colspan="6" class="table-empty">${escapeHtml(t('no_scans', 'No scans available yet.'))}</td></tr>`;
+    return;
+  }
+
+  host.innerHTML = items.map((item) => {
+    const statusLabel = item?.is_selected ? 'Loaded' : (item?.is_valid === false ? 'Incomplete' : 'Available');
+    return `
+      <tr class="scan-row${item?.is_selected ? ' is-selected' : ''}" data-scan-id="${escapeHtml(item?.scan_id)}" tabindex="0">
+        <td>${escapeHtml(formatDateTime(item?.generated_at))}</td>
+        <td>${escapeHtml(item?.scan_type)}</td>
+        <td>${formatNumber(item?.data_score)}</td>
+        <td>${formatNumber(item?.issues_count)}</td>
+        <td><span class="access-chip ${item?.is_selected ? 'unlocked' : 'locked'}">${escapeHtml(statusLabel)}</span></td>
+        <td>${escapeHtml(item?.headline || '')}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderRecentScansPagination(pagination) {
@@ -656,7 +687,9 @@ async function triggerBillingAction(action, productCode = null) {
 
 function switchTab(tab) {
   document.querySelectorAll('.topnav-link').forEach((btn) => {
-    btn.classList.toggle('is-active', btn.dataset.tab === tab);
+    const isActive = btn.dataset.tab === tab;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
   document.querySelectorAll('.tab-panel').forEach((panel) => {
     panel.classList.toggle('hidden', panel.id !== `${tab}-tab`);
@@ -708,6 +741,7 @@ async function loadDashboard(scanId = null) {
     renderModuleVolume(data);
     renderRecentScans(data?.recent_scans || []);
     renderRecentScansPagination(data?.recent_scans_pagination || {});
+    renderScansPage(data);
     renderTrend('trend-chart', data?.score_trend || []);
     renderTrend('loss-chart', data?.loss_trend || [], true);
     renderTrend('analytics-score-trend', data?.score_trend || []);
@@ -730,9 +764,9 @@ async function loadDashboard(scanId = null) {
 }
 
 function registerEvents() {
-  const scansBody = byId('recent-scans-body');
-  if (scansBody) {
-    scansBody.addEventListener('click', async (event) => {
+  const bindScanTable = (host) => {
+    if (!host) return;
+    host.addEventListener('click', async (event) => {
       const row = event.target.closest('.scan-row');
       if (!row) return;
       const scanId = row.dataset.scanId;
@@ -740,7 +774,7 @@ function registerEvents() {
       await loadDashboard(scanId);
     });
 
-    scansBody.addEventListener('keydown', async (event) => {
+    host.addEventListener('keydown', async (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       const row = event.target.closest('.scan-row');
       if (!row) return;
@@ -749,7 +783,10 @@ function registerEvents() {
       if (!scanId || scanId === currentSelectedScanId) return;
       await loadDashboard(scanId);
     });
-  }
+  };
+
+  bindScanTable(byId('recent-scans-body'));
+  bindScanTable(byId('scans-page-body'));
 
   const prevButton = byId('recent-scans-prev');
   if (prevButton) {

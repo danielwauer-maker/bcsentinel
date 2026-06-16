@@ -19,6 +19,7 @@
       <nav class="sidebar-nav">
         <button type="button" class="topnav-link is-active" data-tab="overview">Overview</button>
         <button type="button" class="topnav-link" data-tab="analytics">Analytics</button>
+        <button type="button" class="topnav-link" data-tab="scans">Scans</button>
         <button type="button" class="topnav-link" data-tab="issues">Issues</button>
         <button type="button" class="topnav-link" data-tab="actions">Actions</button>
         <button type="button" class="topnav-link" data-tab="reports">Reports</button>
@@ -240,6 +241,14 @@
     </section>
 
     <section id="analytics-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Analytics</span>
+          <h2>Analytics</h2>
+          <p>Score and loss trends stay available here while deeper analytics are finalized in a later phase.</p>
+        </div>
+        <span class="placeholder-status">Phase 3 expansion</span>
+      </div>
       <section class="overview-grid overview-grid-top">
         <article class="panel">
           <div class="panel-header"><h3>Score Trend</h3><span class="muted">Premium analytics</span></div>
@@ -252,7 +261,45 @@
       </section>
     </section>
 
+    <section id="scans-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Scans</span>
+          <h2>Scans</h2>
+          <p>Review available scan runs and switch the dashboard context. Detailed scan status and filtering will be finalized in a later phase.</p>
+        </div>
+        <span class="placeholder-status">Navigation ready</span>
+      </div>
+      <article class="panel" id="scans-page-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Scan History</h3>
+            <span class="muted">Uses the existing dashboard payload; no additional scan API call is required.</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Type</th><th>Score</th><th>Issues</th><th>Status</th><th>Headline</th></tr>
+            </thead>
+            <tbody id="scans-page-body"></tbody>
+          </table>
+        </div>
+        <div class="placeholder-note">
+          Detailed filters, live progress and scan drilldown are planned for a later phase.
+        </div>
+      </article>
+    </section>
+
     <section id="issues-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Issues</span>
+          <h2>Issues</h2>
+          <p>The full issue list is routed here. Locked access remains controlled by the existing product access payload.</p>
+        </div>
+        <span class="placeholder-status">Detail view later</span>
+      </div>
       <article class="panel">
         <div class="panel-header"><h3>Issues</h3><span class="muted">Full issue list</span></div>
         <div class="locked-region" data-lock-section="issues">
@@ -267,6 +314,14 @@
     </section>
 
     <section id="actions-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Actions</span>
+          <h2>Actions</h2>
+          <p>Recommended measures are available as a stable view. Business Central action links will be connected in a later phase.</p>
+        </div>
+        <span class="placeholder-status">BC links later</span>
+      </div>
       <article class="panel">
         <div class="panel-header"><h3>Actions</h3><span class="muted">Recommended measures</span></div>
         <div class="locked-region" data-lock-section="actions">
@@ -281,6 +336,14 @@
     </section>
 
     <section id="reports-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Reports</span>
+          <h2>Reports</h2>
+          <p>Report navigation is in place. Export and share actions will be wired to the existing report endpoints later.</p>
+        </div>
+        <span class="placeholder-status">Exports later</span>
+      </div>
       <article class="panel">
         <div class="panel-header"><h3>Reports</h3><span class="muted">Premium report library</span></div>
         <div class="locked-region" data-lock-section="reports">
@@ -290,6 +353,14 @@
     </section>
 
     <section id="subscription-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Subscription</span>
+          <h2>Subscription</h2>
+          <p>Product access, scan credits and access windows stay visible here using the existing billing-safe dashboard payload.</p>
+        </div>
+        <span class="placeholder-status">Billing unchanged</span>
+      </div>
       <article class="panel subscription-panel">
         <div class="panel-header">
           <div class="panel-title-block">
@@ -340,6 +411,14 @@
     </section>
 
     <section id="settings-tab" class="tab-panel hidden">
+      <div class="page-intro panel">
+        <div>
+          <span class="section-kicker">Settings</span>
+          <h2>Settings</h2>
+          <p>Connection context is read-only for now. Editable settings and connection diagnostics are planned for a later phase.</p>
+        </div>
+        <span class="placeholder-status">Read-only</span>
+      </div>
       <article class="panel">
         <div class="panel-header"><h3>Settings</h3><span class="muted">Connection context</span></div>
         <div id="settings-grid" class="subscription-grid"></div>
