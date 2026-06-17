@@ -814,3 +814,116 @@ Stand: 2026-06-17
 - Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehenden Ausdruecken, nicht als sichtbare UI-Texte.
 - Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
 - `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
+
+## Phase 10 - Design Cleanup & Live Smoke Test
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `backend/app/main.py` lesend, zur Einordnung des lokalen Health-/Startup-Verhaltens
+- `backend/app/core/settings.py` lesend, zur Einordnung erforderlicher Env Vars
+- `backend/app/db.py` lesend, zur Einordnung des Alembic-/Datenbank-Readiness-Checks
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Design-Cleanup-Massnahmen
+
+- Dashboard-Farben an die Referenzscreenshots angenaehert: Navy-Sidebar, klares BCSentinel-Blau, weisse Cards, dezente Schatten, klare rote/gruene KPI-Farben.
+- Sidebar visuell konsolidiert: dunkler Verlauf, groessere Navigation, stabile aktive States, Footer unten und mobile Umschaltung unveraendert.
+- Cards vereinheitlicht: 8px Radius, konsistente Borders/Shadows, kompaktere Card-Optik nach SaaS-Referenz.
+- KPI-Grid und Card-Abstaende gestrafft, damit Overview, Issues, Actions, Reports, Subscription und Settings aus einem Guss wirken.
+- Trend-Charts angepasst: Score-Trends blau, Loss-Trends rot; Grid/Area/Points bleiben SVG-basiert und ohne neue Chart-Library.
+- Button-/Badge-Radien vereinheitlicht; Primary CTAs nutzen nun das Dashboard-Blau.
+- Tabellen optisch konsolidiert mit hellem Header, stabilen Row-Hoehen und horizontalem Scroll ueber bestehende `.table-wrap`.
+- Unfertig wirkende Placeholder-Texte auf Analytics/Scans ersetzt:
+  - `Phase 3 expansion` -> `Premium analytics`
+  - `Navigation ready` -> `Scan history`
+  - Scans-Hinweis auf konkrete Aktion `Select an available scan...`
+
+### Gepruefte Seiten
+
+Statisch anhand Template-/JS-Struktur geprueft:
+
+- Overview
+- Analytics
+- Scans
+- Issues
+- Issue Detail
+- Actions
+- Reports
+- Subscription
+- Settings
+
+Alle Hauptseiten sind weiterhin in der Sidebar vorhanden und werden ueber `switchTab()` clientseitig erreichbar gemacht. Issue Detail bleibt ueber die Issues-Tabelle erreichbar.
+
+### Live Smoke Test Ergebnis
+
+- `https://api.bcsentinel.com/health`: aus dieser Umgebung nicht erreichbar (`Die Verbindung mit dem Remoteserver kann nicht hergestellt werden`).
+- `https://api.bcsentinel.com/health/ready`: aus dieser Umgebung nicht erreichbar (`Die Verbindung mit dem Remoteserver kann nicht hergestellt werden`).
+- Lokaler Start mit gebuendelter Python-Runtime wurde versucht.
+- `python -m uvicorn app.main:app --host 127.0.0.1 --port 8000` scheitert vor dem Start, weil Pflicht-Env-Vars fehlen:
+  - `SECRET_KEY`
+  - `ADMIN_USERNAME`
+  - `ADMIN_PASSWORD`
+  - `DATABASE_URL`
+- Zusaetzlich verlangt die App laut `main.py`/`db.py` beim Startup eine erreichbare und migrierte Datenbank (`wait_for_database()`, `ensure_schema_is_migrated()`).
+- Daher konnte kein echter lokaler Browser-Smoke gegen `/analytics/embed` ausgefuehrt werden.
+
+### Browsercheck Ergebnis
+
+- Browsercheck fuer Desktop 1440px, Tablet 1024px und Mobile 390px konnte nicht ausgefuehrt werden, weil kein startbarer lokaler Server und kein vorhandener gueltiger Dashboard/Embed-Link in dieser Umgebung verfuegbar war.
+- Stattdessen wurden statische Struktur-, CSS-, JS- und Backend-Kompilierungschecks ausgefuehrt.
+
+### Technische Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- `python -m py_compile app/main.py app/routers/analytics.py app/core/settings.py app/db.py` erfolgreich.
+- Statische Suche nach `undefined`, `null`, `NaN`, `TODO`, `FIXME`, `coming soon`, `placeholder`, `API Token`, `Embed Token`, `Authorization`, `Stripe Secret`, `console.log` ausgefuehrt.
+- Legitime Treffer:
+  - `undefined`/`null`/`NaN` in defensiven JS-Pruefungen und Initialwerten.
+  - `placeholder-status`/`placeholder-note` als CSS-/UI-Klassen, nicht als unfertiger Produkttext.
+  - `API Token`/`Embed Token`/`Authorization` nur in Security-Dokumentationshinweisen, nicht als Dashboard-UI-Feld.
+- Keine `TODO`, `FIXME`, `coming soon` oder `console.log` Treffer in den geprueften Dashboard-Dateien.
+- `git status --short` konnte nicht ausgefuehrt werden, weil `git` in dieser PowerShell-Umgebung nicht im PATH ist.
+
+### Bekannte Luecken
+
+- Kein echter Browser-/Console-Smoke ohne lauffaehige Env und migrierte Datenbank.
+- Keine reale Free/Premium/Monitoring-Payload visuell im Browser validiert.
+- Screenshot-Perfektion ist ohne Live-Render und visuelle Iteration nicht abschliessend beweisbar.
+- Sidebar-Icons sind CSS-basierte, einfache Icon-Platzhalter und keine vollstaendige Icon-Library.
+- Einige alte CSS-Regeln bleiben aus Rueckwaertskompatibilitaet bestehen; Phase 10 nutzt bewusst spaete Overrides statt riskantem Gross-Refactoring.
+
+### Bewusst nicht geaendert
+
+- Keine Billing-/Stripe-/Checkout-Logik.
+- Kein License Refresh.
+- Keine Product-Access-Logik.
+- Keine Monitoring-Logik.
+- Keine Scan Engine.
+- Keine Tenant Registration.
+- Kein API Token Handling.
+- Keine BC Extension.
+- Keine Backend API Endpoints.
+- Keine Datenmodelle oder Datenbank.
+- Keine Auth-Logik.
+- Keine Report Engine.
+- Keine Share-Link-Logik.
+- Keine neuen externen Dependencies.
+
+### Finale Dashboard-Readiness-Einschaetzung
+
+- Readiness: 82%.
+- Pilotkundenfaehigkeit: GO WITH NOTES.
+- Begruendung: Die Dashboard-Struktur ist vollstaendig, die Hauptseiten sind UI-seitig umgesetzt und das Design wurde konsolidiert. Fuer ein klares GO fehlen noch ein echter Browser-Smoke mit gueltigem Embed-Kontext, Console-Check, responsive Screenshots und reale Free/Premium/Monitoring-Payload-Validierung.
