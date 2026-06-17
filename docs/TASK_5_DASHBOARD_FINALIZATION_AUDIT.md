@@ -596,3 +596,221 @@ Es wurden ausschliesslich bestehende Dashboard-/Analytics-Payloads und bereits v
 - Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehender Preislogik, nicht als sichtbare UI-Texte.
 - Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
 - `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
+
+## Phase 8 - Subscription Page Finalization
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `backend/app/routers/analytics.py` lesend, zur Einordnung vorhandener Product-Access-, Pricing- und Checkout-Payloads
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Verwendete Payloads
+
+- `product_access`
+- `current_plan`
+- `license_status`, falls vorhanden
+- `monitoring_status`, falls vorhanden
+- `dashboard_access_until`
+- `issue_access_until`
+- `scan_credits_available`, `scan_credits`
+- `assessment_access_active`, falls vorhanden
+- `validation_access_active`, falls vorhanden
+- `can_run_deep_scan`
+- `can_view_dashboard`
+- `can_view_issues`
+- `can_view_actions`
+- `can_view_reports`
+- `can_view_record_details` / `can_view_issue_details`
+- `subscription`
+- `tenant_pricing.prices`
+- `product_pricing`, falls vorhanden
+
+### Product Access Darstellung
+
+- Neuer Page Header `Subscription & Access` mit dem geforderten Subtitle.
+- Section `Current Access` mit Karten fuer Current Plan, Product Access, Dashboard Access und Issue Access.
+- Status-Badges fuer `Active`, `Expired`, `Trial` und `Locked` werden clientseitig aus bestehenden Payload-Feldern abgeleitet.
+- Fehlende Access-Daten werden als `Not available` oder `Locked` dargestellt, ohne neue Lizenzlogik zu erzeugen.
+
+### Monitoring Darstellung
+
+- Section `Monitoring Status` zeigt `Active` oder `Inactive`.
+- Renewal Date und Period End werden nur angezeigt, wenn passende vorhandene Felder wie `monitoring_renewal_date`, `monitoring_period_end`, `subscription.renewal_date`, `subscription.period_end` oder vorhandene Access-Zeitfenster geliefert werden.
+- Es wurde keine Monitoring-Logik geaendert.
+
+### Scan Credit Darstellung
+
+- Section `Scan Credits` zeigt vorhandene Scan Credits, Deep-Scan-Verfuegbarkeit und Validation-Verfuegbarkeit.
+- Bei 0 Credits wird der CTA `Buy Credits` sichtbar.
+- Der CTA nutzt weiter die bestehende Checkout-Integration und den bereits verwendeten Product Code `full_analysis`.
+
+### Checkout Integration
+
+- Die vier Produktkarten Full Analysis, Validation Check, Monitoring Monthly und Monitoring Annual verwenden weiterhin `.subscription-product-action`.
+- Klicks laufen weiter ueber den bestehenden Handler `triggerBillingAction('checkout', product_code)`.
+- Es wurden keine neuen Checkout-URLs, keine neuen Billing-Endpunkte und keine Stripe-Logik eingefuehrt.
+- Die bestehende Haupt-CTA `subscription-cta` nutzt weiterhin `subscription.cta_action` und `subscription.cta_product_code`.
+
+### Free/Premium Verhalten
+
+- Free User sehen die Subscription Page vollstaendig, inklusive Produktkarten, Preisen und aktiven Checkout-Buttons.
+- Premium/Assessment User sehen ihren Access-Status sofort in Current Access.
+- Aktive Produkte werden markiert, soweit aus bestehenden Access-Feldern ableitbar.
+- Monitoring-Produkte werden visuell hervorgehoben; aktives Monitoring zeigt den Status `Active`.
+
+### Bekannte Luecken
+
+- Es gibt kein separates Kundendashboard-Feld fuer alle moeglichen Produktlaufzeiten; fehlende Laufzeiten bleiben `Not available`.
+- `assessment_access_active` und `validation_access_active` werden nur genutzt, wenn der Payload sie bereits liefert; sonst wird vorsichtig aus vorhandenen Access-Rechten abgeleitet.
+- Feature Comparison ist reine UI-Orientierung und erzeugt keine Produktlogik.
+- `Buy Credits` verwendet weiterhin den vorhandenen Checkout-Flow; ein separates Credit-Pack wurde nicht eingefuehrt.
+
+### Bewusst nicht geaendert
+
+- Keine Billing-/Stripe-Logik.
+- Keine Checkout-Endpunkte.
+- Keine Product-Access-Logik.
+- Kein License Refresh.
+- Keine Monitoring-Logik.
+- Keine BC Extension.
+- Keine API-Endpunkte.
+- Keine neuen externen Dependencies.
+
+### Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- Statische Suche bestaetigt Subscription, Current Plan, Product Access, Dashboard Access, Issue Access, Monitoring, Scan Credits, Buy Now, Start Monitoring und Start Annual Monitoring.
+- Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
+- `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
+
+## Phase 9 - Settings Page Finalization
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+- `backend/app/routers/analytics.py` lesend, zur Einordnung vorhandener `settings_page`- und Dashboard-Payload-Felder
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Verwendete Payloads
+
+- `settings_page.tenant_id`
+- `settings_page.company`
+- `settings_page.language`
+- `settings_page.last_scan`
+- `settings_page.connection_status`
+- `company`, `company_name`, `environment`, `bc_environment`, falls spaeter vorhanden
+- `preferred_language`, `date_format`, `currency`, `theme`, falls vorhanden
+- `contact_email`, `tenant_contact_email`, falls vorhanden
+- `product_access`
+- `current_plan`
+- `license_status`
+- `last_updated`
+- `profile`
+- `visibility`
+- `subscription`
+- `pages`
+
+### Company/Tenant Darstellung
+
+- Section `Company & Tenant` zeigt Company, maskierte Tenant ID, Environment, Business Central Environment und Last Updated.
+- Tenant ID wird clientseitig maskiert, damit keine vollstaendige ID prominent angezeigt wird.
+- Environment und Business Central Environment werden nur aus vorhandenen Feldern bzw. dem bestehenden Dashboard-Subtitle abgeleitet.
+
+### Language/Localization Darstellung
+
+- Section `Language & Localization` zeigt Language, Preferred Language, Date Format und Currency.
+- Date Format und Currency fallen auf `Managed by Business Central / Tenant settings` zurueck, wenn keine Daten vorhanden sind.
+- Es wurde keine Speicherlogik fuer Sprache oder Lokalisierung gebaut.
+
+### Dashboard Preferences Darstellung
+
+- Section `Dashboard Preferences` zeigt Theme, Dashboard Access, Issue Access, Record Details Access und Monitoring Status.
+- Access-Werte werden aus `product_access` und vorhandenen `pages.*.locked`-States abgeleitet.
+- Theme faellt auf `System default` zurueck, wenn kein Theme-Feld vorhanden ist.
+
+### Contact Darstellung
+
+- Section `Contact` zeigt Contact Email, Support Contact und Documentation.
+- Contact Email nutzt vorhandene `contact_email` / `tenant_contact_email`-Felder, falls vorhanden.
+- Ohne E-Mail wird `Not configured` angezeigt.
+- Support und Documentation entsprechen der bestehenden Sidebar/Footer-Logik.
+
+### Notification Optional State
+
+- Section `Notification Settings` ist als Read-only Readiness State vorhanden.
+- Falls keine Notification-Payload-Felder vorhanden sind, wird `Notification settings are not configured yet` angezeigt.
+- Es wurde keine Mail-, Report- oder Notification-Logik aktiviert.
+
+### Security/Privacy Schutz
+
+- Die Settings Page rendert ausschliesslich eine feste Allowlist harmloser Felder.
+- API Token, Stripe Secrets, JWT, Embed Token, Authorization Header, Datenbank-URLs und interne Secrets werden nicht gerendert.
+- Es werden keine Payload-Objekte generisch iteriert und keine sensiblen Felder geloggt.
+
+### Free/Premium/Monitoring Verhalten
+
+- Settings ist fuer Free, Premium und Monitoring sichtbar.
+- Free User sehen Tenant-/Company-/Access-Status ohne gesperrte Details.
+- Premium User sehen dieselben vorhandenen Settings plus aktive Access-Badges.
+- Monitoring Status wird nur angezeigt, wenn bestehende Payload-Felder Monitoring aktiv melden.
+
+### Bekannte Luecken
+
+- Echte editierbare Settings, Save-Buttons und Validierung bleiben spaeteren Tasks vorbehalten.
+- Connection Status ist weiterhin nur so gut wie das vorhandene Payload-Feld.
+- Contact Email, Theme, Date Format, Currency und Notification Settings bleiben Fallbacks, solange der Payload keine konkreten Werte liefert.
+- Logout-Verhalten wurde nicht erweitert.
+
+### Bewusst nicht geaendert
+
+- Keine Persistenzlogik.
+- Keine Save-Endpunkte.
+- Keine Tenant-Registrierungslogik.
+- Keine Lizenzlogik.
+- Keine Billing-/Stripe-/Checkout-Logik.
+- Kein License Refresh.
+- Keine Product-Access-Logik.
+- Keine Monitoring-Logik.
+- Keine Scan Engine.
+- Kein API Token Handling.
+- Keine BC Extension.
+- Keine Backend API Endpoints.
+- Keine Datenmodelle oder Datenbank.
+- Keine Auth-Logik.
+- Keine neuen externen Dependencies.
+
+### Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- Statische Suche bestaetigt Settings, Company, Tenant ID, Environment, Business Central Environment, Language, Preferred Language, Theme, Contact Email und Notification Settings.
+- Statische Suche nach API Token, Embed Token und Authorization bestaetigt, dass diese Begriffe nur in Dokumentation/Security-Hinweisen vorkommen und nicht als Settings-UI-Felder gerendert werden.
+- Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehenden Ausdruecken, nicht als sichtbare UI-Texte.
+- Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
+- `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.

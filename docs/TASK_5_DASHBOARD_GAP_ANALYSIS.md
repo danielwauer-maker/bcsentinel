@@ -564,3 +564,64 @@ Offene Punkte fuer Phase 8:
 - Upgrade-/Portal-/Credit-CTAs nur mit bestehender Logik weiterverwenden.
 - Report-Zugriff auf der Subscription-Seite fachlich sichtbar machen, ohne neue Lizenzregeln einzufuehren.
 - Keine Report-Engine, Share-Link-Logik oder Monitoring-Logik wurde in Phase 7 geaendert.
+
+## Phase 8 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Subscription-Elemente:
+
+- Page Header `Subscription & Access` mit Subtitle `Manage your product access, monitoring status and available scan credits.`
+- Section `Current Access` mit Current Plan, Product Access, Dashboard Access und Issue Access.
+- Status-Badges fuer Active, Expired, Trial und Locked aus bestehenden Payload-Feldern.
+- Section `Monitoring Status` mit Active/Inactive, Renewal Date und Period End, soweit vorhandene Felder geliefert werden.
+- Section `Scan Credits` mit verfuegbaren Credits, Deep-Scan-Verfuegbarkeit, Validation-Verfuegbarkeit und CTA `Buy Credits` bei 0 Credits.
+- Vier Produktkarten: Full Analysis, Validation Check, Monitoring Monthly und Monitoring Annual.
+- Produktkarten nutzen weiterhin die bestehende Checkout-Integration ueber `subscription-product-action` und `triggerBillingAction('checkout', product_code)`.
+- Feature Comparison Tabelle fuer Dashboard, Issue Details, Actions, Reports, Open in BC, Score Trends, Loss Trends, Monitoring History, Prioritized Actions und Executive Reports.
+- Free User sehen Produktwert und aktive Kaufbuttons; Premium/Monitoring User sehen ihren Status sofort.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 9:
+
+- Settings Page finalisieren.
+- Connection Context, Tenant/Company/Language und Diagnoseinformationen professioneller darstellen.
+- Logout-/Support-/Documentation-Verhalten nur anfassen, wenn bestehende sichere Logik vorhanden ist.
+- Keine Billing-/Stripe-/Checkout-/Product-Access-/License-/Monitoring-Logik wurde in Phase 8 geaendert.
+
+## Phase 9 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Settings-Elemente:
+
+- Page Header `Settings` mit Subtitle `Review tenant, environment and dashboard preferences.`
+- Section `Company & Tenant` mit Company, maskierter Tenant ID, Environment, Business Central Environment und Last Updated.
+- Section `Language & Localization` mit Language, Preferred Language, Date Format und Currency.
+- Section `Dashboard Preferences` mit Theme, Dashboard Access, Issue Access, Record Details Access und Monitoring Status.
+- Section `Contact` mit Contact Email, Support Contact und Documentation.
+- Section `Notification Settings` als Read-only Optional State mit Fallback `Notification settings are not configured yet`.
+- Settings rendert nur eine feste Allowlist harmloser Felder; API Token, Embed Token, Authorization Header und Secrets werden nicht angezeigt.
+- Keine Save-Buttons, keine Persistenzlogik und keine neuen API-Aufrufe.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 10:
+
+- Dashboard Design Cleanup & Live Smoke Test.
+- Lokalen Server starten oder vorhandene DEV-Umgebung nutzen, um Overview, Issues, Actions, Reports, Subscription und Settings visuell zu pruefen.
+- Console Errors, Responsive Breakpoints und reale Free/Premium/Monitoring-Payloads im Browser testen.
+- Keine Billing-/Stripe-/Checkout-/License-/Product-Access-/Monitoring-/Auth-/Token-Logik wurde in Phase 9 geaendert.

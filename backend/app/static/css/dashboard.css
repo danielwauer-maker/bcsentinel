@@ -1019,6 +1019,261 @@ thead th { color: var(--muted); font-weight: 600; }
   color: #1d4ed8;
 }
 
+.subscription-page-intro {
+  align-items: center;
+}
+
+.subscription-section {
+  margin-bottom: 18px;
+}
+
+.subscription-access-grid,
+.subscription-status-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.subscription-access-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.subscription-status-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.subscription-access-card,
+.subscription-status-card {
+  border: 1px solid #e1e9f4;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff 0%, #f9fbff 100%);
+  padding: 16px;
+}
+
+.subscription-access-top,
+.subscription-product-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.subscription-status-badge,
+.subscription-product-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.status-active {
+  background: #eef8f4;
+  color: #0f9f6e;
+}
+
+.status-expired {
+  background: #fff3eb;
+  color: #c56a2b;
+}
+
+.status-trial {
+  background: #eef5ff;
+  color: #1d4ed8;
+}
+
+.status-locked {
+  background: #eef2f7;
+  color: #475569;
+}
+
+.subscription-status-value {
+  color: #13294b;
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 850;
+}
+
+.subscription-status-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.subscription-status-details div {
+  border: 1px solid #edf1f6;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.subscription-status-details span,
+.subscription-credit-main span {
+  display: block;
+  color: #7b8aa0;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.subscription-status-details strong,
+.subscription-credit-main strong {
+  color: #13294b;
+}
+
+.subscription-credit-main strong {
+  display: block;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 880;
+}
+
+.subscription-credit-warning {
+  margin-top: 14px;
+  border: 1px solid #f1d4c6;
+  border-radius: 12px;
+  background: #fff8f4;
+  color: #9e4a27;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.subscription-product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  background: linear-gradient(180deg, #fff 0%, #f9fbff 100%);
+}
+
+.subscription-product-card.is-monitoring-product {
+  border-color: #c8dafe;
+}
+
+.subscription-product-card.is-active-product {
+  border-color: #9fd8c6;
+  box-shadow: 0 16px 30px rgba(16, 185, 129, 0.12);
+}
+
+.subscription-product-badge {
+  background: #eef5ff;
+  color: #1d4ed8;
+}
+
+.subscription-product-card.is-active-product .subscription-product-badge {
+  background: #eef8f4;
+  color: #0f9f6e;
+}
+
+.subscription-product-card p {
+  margin: 4px 0 0;
+  color: #5f6f86;
+  line-height: 1.5;
+}
+
+.subscription-product-card .subscription-product-action {
+  margin-top: auto;
+  justify-content: center;
+}
+
+.feature-comparison-wrap {
+  border: 1px solid #e4ebf5;
+  background: #fff;
+}
+
+.feature-comparison-table {
+  min-width: 760px;
+}
+
+.feature-comparison-table th,
+.feature-comparison-table td {
+  text-align: center;
+}
+
+.feature-comparison-table th:first-child,
+.feature-comparison-table td:first-child {
+  text-align: left;
+}
+
+.is-current-plan-cell {
+  background: #f8fbff;
+}
+
+.feature-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 78px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.feature-mark.is-included {
+  background: #eef8f4;
+  color: #0f9f6e;
+}
+
+.feature-mark.is-locked {
+  background: #eef2f7;
+  color: #64748b;
+}
+
+.settings-page-intro {
+  align-items: center;
+}
+
+.settings-page-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.settings-section-wide {
+  grid-column: 1 / -1;
+}
+
+.settings-section {
+  display: grid;
+  gap: 12px;
+}
+
+.settings-row-list {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .7fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.settings-row span {
+  color: #7b8aa0;
+  font-size: 13px;
+}
+
+.settings-row strong {
+  color: #13294b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.settings-row em {
+  font-style: normal;
+}
+
 .severity-unknown {
   background: #eef2f7;
   color: #475569;
@@ -1163,7 +1418,10 @@ thead th { color: var(--muted); font-weight: 600; }
   .issues-severity-grid,
   .actions-summary-grid,
   .reports-summary-grid,
-  .report-grid.report-center-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .report-grid.report-center-grid,
+  .subscription-access-grid,
+  .subscription-status-grid,
+  .settings-page-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .overview-hero { grid-template-columns: 1fr; }
 }
 
@@ -1171,7 +1429,7 @@ thead th { color: var(--muted); font-weight: 600; }
   .page-shell { width: min(100vw, calc(100vw - 12px)); padding-inline: 6px; }
   #page-title { font-size: 28px; }
   .hero-title { font-size: 34px; }
-  .stats-grid, .overview-kpi-grid, .mini-grid, .module-distribution, .business-impact-grid, .issues-severity-grid, .actions-summary-grid, .reports-summary-grid, .report-grid.report-center-grid { grid-template-columns: 1fr; }
+  .stats-grid, .overview-kpi-grid, .mini-grid, .module-distribution, .business-impact-grid, .issues-severity-grid, .actions-summary-grid, .reports-summary-grid, .report-grid.report-center-grid, .subscription-access-grid, .subscription-status-grid, .subscription-status-details, .settings-page-grid { grid-template-columns: 1fr; }
   .topbar, .unlock-header, .page-intro { flex-direction: column; align-items: flex-start; }
   .page-intro h2 { font-size: 26px; }
   .issues-page-meta,
@@ -1192,6 +1450,10 @@ thead th { color: var(--muted); font-weight: 600; }
   .issue-detail-info-row {
     flex-direction: column;
     gap: 4px;
+  }
+  .settings-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
   }
   .issue-detail-info-row strong {
     text-align: left;

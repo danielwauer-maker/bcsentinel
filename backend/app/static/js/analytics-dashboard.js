@@ -88,14 +88,7 @@ function applyDashboardUi(ui, language) {
   setTextContent('.pricing-breakdown-title', t('estimated_monitoring_pricing', 'Estimated monitoring pricing'));
   setTextContent('#access-findings-panel h3', t('findings', 'Findings'));
   setTextContent('#access-findings-panel .muted', t('findings_helper', 'Visible with paid scan access, actionable in Business Central'));
-  setTextContent('#subscription-tab h3', t('subscription', 'Subscription'));
-
-  const subscriptionLabels = document.querySelectorAll('.subscription-card .stat-label');
-  const subscriptionHelpers = document.querySelectorAll('.subscription-card .stat-helper');
-  const subscriptionLabelKeys = ['product_access', 'scan_credits', 'dashboard_access_until', 'issue_access_until', 'monthly_price', 'annual_cost'];
-  const subscriptionHelperKeys = ['','scan_credits_helper', 'dashboard_access_helper', 'issue_access_helper', 'monthly_price_helper', 'annual_cost_helper'];
-  subscriptionLabels.forEach((el, index) => { if (subscriptionLabelKeys[index]) el.textContent = t(subscriptionLabelKeys[index], el.textContent); });
-  subscriptionHelpers.forEach((el, index) => { if (subscriptionHelperKeys[index]) el.textContent = t(subscriptionHelperKeys[index], el.textContent); });
+  setTextContent('#subscription-tab .subscription-page-intro h2', 'Subscription & Access');
 }
 
 function updatePageHeader(tab) {
@@ -108,7 +101,7 @@ function updatePageHeader(tab) {
     'issue-detail': ['Issue detail', 'Detailed issue context, impact and recommendation'],
     actions: ['Actions', 'Prioritized actions to reduce data quality risk and business impact.'],
     reports: ['Reports', 'Generate and review executive, operational and impact reports.'],
-    subscription: ['Subscription', 'Manage product access, scan credits and usage'],
+    subscription: ['Subscription & Access', 'Manage your product access, monitoring status and available scan credits.'],
     settings: ['Settings', 'Configure your account and preferences'],
   };
   const [title, fallbackSubtitle] = pageCopy[tab] || pageCopy.overview;
@@ -1274,7 +1267,7 @@ function renderReportsPage(data) {
   }).join('') || `<div class="empty-state executive-empty">${escapeHtml(t('no_findings', 'No reports are available for this scan.'))}</div>`;
 }
 
-function renderSettingsPage(data) {
+function renderSettingsPageLegacy(data) {
   const host = byId('settings-grid');
   if (!host) return;
   const settings = data?.settings_page || {};
@@ -1293,27 +1286,281 @@ function renderSettingsPage(data) {
   `).join('');
 }
 
+function maskIdentifier(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return 'Not available';
+  if (raw.length <= 8) return `${raw.slice(0, 2)}...${raw.slice(-2)}`;
+  return `${raw.slice(0, 4)}...${raw.slice(-4)}`;
+}
+
+function renderSettingsPage(data) {
+  const host = byId('settings-grid');
+  if (!host) return;
+  const settings = data?.settings_page || {};
+  const access = data?.product_access || {};
+  const profile = data?.profile || {};
+  const subscription = data?.subscription || {};
+  const subtitleParts = String(data?.subtitle || '').split(' - ');
+  const company = firstPresent(settings.company, settings.company_name, data?.company, data?.company_name, profile.company, profile.company_name, subtitleParts[0]);
+  const environment = firstPresent(settings.environment, data?.environment, profile.environment, subtitleParts[1]);
+  const bcEnvironment = firstPresent(settings.bc_environment, data?.bc_environment, profile.bc_environment, environment);
+  const language = firstPresent(settings.language, data?.language, profile.language, currentDashboardLanguage);
+  const preferredLanguage = firstPresent(settings.preferred_language, data?.preferred_language, profile.preferred_language, language);
+  const dateFormat = firstPresent(settings.date_format, data?.date_format, profile.date_format, subscription.date_format, 'Managed by Business Central / Tenant settings');
+  const currency = firstPresent(settings.currency, data?.currency, profile.currency, subscription.currency, 'Managed by Business Central / Tenant settings');
+  const theme = firstPresent(settings.theme, data?.theme, profile.theme, 'System default');
+  const contactEmail = firstPresent(settings.contact_email, settings.tenant_contact_email, data?.contact_email, data?.tenant_contact_email, profile.contact_email, profile.tenant_contact_email, 'Not configured');
+  const monitoringActive = Boolean(access.monitoring_active || access.can_use_monitoring || data?.monitoring_status === 'active');
+  const notificationSettings = settings.notification_settings || data?.notification_settings || {};
+  const pages = data?.pages || {};
+  const dashboardAccess = Boolean(access.can_view_dashboard || !pages?.overview?.locked);
+  const issueAccess = Boolean(access.can_view_issue_details || access.can_view_issues || !pages?.issues?.locked);
+  const recordAccess = Boolean(access.can_view_record_details || access.can_view_records);
+
+  const renderRows = (rows) => rows.map(([label, value, badge]) => `
+    <div class="settings-row">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value || 'Not available')}</strong>
+      ${badge ? `<em class="subscription-status-badge status-${escapeHtml(badge.className)}">${escapeHtml(badge.label)}</em>` : ''}
+    </div>
+  `).join('');
+
+  const renderSection = (title, helper, rows, extra = '') => `
+    <article class="panel settings-section ${escapeHtml(extra)}">
+      <div class="panel-header">
+        <div>
+          <span class="section-kicker">${escapeHtml(title)}</span>
+          <h3>${escapeHtml(title)}</h3>
+        </div>
+        <span class="muted">${escapeHtml(helper)}</span>
+      </div>
+      <div class="settings-row-list">${renderRows(rows)}</div>
+    </article>
+  `;
+
+  const notificationRows = Object.keys(notificationSettings).length
+    ? [
+        ['Scan completed', notificationSettings.scan_completed ? 'Enabled' : 'Disabled'],
+        ['Monitoring alerts', notificationSettings.monitoring_alerts ? 'Enabled' : 'Disabled'],
+        ['Report available', notificationSettings.report_available ? 'Enabled' : 'Disabled'],
+      ]
+    : [
+        ['Scan completed', 'Notification settings are not configured yet'],
+        ['Monitoring alerts', 'Notification settings are not configured yet'],
+        ['Report available', 'Notification settings are not configured yet'],
+      ];
+
+  host.innerHTML = [
+    renderSection('Company & Tenant', 'Read-only tenant context', [
+      ['Company', company || 'Not available'],
+      ['Tenant ID', maskIdentifier(settings.tenant_id || data?.tenant_id)],
+      ['Environment', environment || 'Not available'],
+      ['Business Central Environment', bcEnvironment || 'Not available'],
+      ['Last Updated', formatDateTime(firstPresent(settings.last_scan, data?.last_updated))],
+    ], 'settings-section-wide'),
+    renderSection('Language & Localization', 'Managed by existing tenant settings', [
+      ['Language', language || 'Not available'],
+      ['Preferred Language', preferredLanguage || 'Not available'],
+      ['Date Format', dateFormat],
+      ['Currency', currency],
+    ]),
+    renderSection('Dashboard Preferences', 'Access follows current product state', [
+      ['Theme', theme],
+      ['Dashboard Access', dashboardAccess ? 'Available' : 'Locked', accessStatus({ active: dashboardAccess, until: access.dashboard_access_until })],
+      ['Issue Access', issueAccess ? 'Available' : 'Locked', accessStatus({ active: issueAccess, until: access.issue_access_until })],
+      ['Record Details Access', recordAccess ? 'Available' : 'Locked', accessStatus({ active: recordAccess })],
+      ['Monitoring Status', monitoringActive ? 'Active' : 'Inactive', accessStatus({ active: monitoringActive })],
+    ]),
+    renderSection('Contact', 'Existing support and documentation links', [
+      ['Contact Email', contactEmail],
+      ['Support Contact', 'support@bcsentinel.com'],
+      ['Documentation', '/docs'],
+    ]),
+    renderSection('Notification Settings', 'Read-only readiness state', notificationRows),
+  ].join('');
+}
+
+function accessStatus({ active = false, until = null, trial = false } = {}) {
+  const rawUntil = String(until || '').trim();
+  if (trial) return { label: 'Trial', className: 'trial' };
+  if (active) return { label: 'Active', className: 'active' };
+  if (rawUntil && rawUntil !== 'â€”') {
+    const parsed = new Date(rawUntil.includes('T') ? rawUntil : rawUntil.replace(/ UTC$/, 'Z').replace(', ', 'T'));
+    if (!Number.isNaN(parsed.getTime()) && parsed.getTime() < Date.now()) {
+      return { label: 'Expired', className: 'expired' };
+    }
+  }
+  return { label: 'Locked', className: 'locked' };
+}
+
+function renderSubscriptionStatusBadge(status) {
+  return `<span class="subscription-status-badge status-${escapeHtml(status.className)}">${escapeHtml(status.label)}</span>`;
+}
+
+function subscriptionPriceFor(data, key) {
+  const tenantPrice = data?.tenant_pricing?.prices?.[key] || {};
+  const productPrice = data?.product_pricing?.prices?.[key] || data?.product_pricing?.[key] || {};
+  const price = Object.keys(tenantPrice).length ? tenantPrice : productPrice;
+  if (price.contact_sales) return { label: 'Contact Sales', disabled: true };
+  if (price.amount_eur === null) return { label: 'Contact Sales', disabled: true };
+  if (price.amount_eur !== undefined) return { label: formatCurrency(price.amount_eur), disabled: false };
+  if (price.price_eur !== undefined) return { label: formatCurrency(price.price_eur), disabled: false };
+  return { label: 'Price available in checkout', disabled: false };
+}
+
+function currentPlanLabel(data) {
+  const raw = String(data?.current_plan || '').trim();
+  if (data?.product_access?.monitoring_active) return 'Monitoring';
+  if (raw && raw !== 'free') return raw.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  return data?.subscription?.plan_label || 'Free';
+}
+
+function renderSubscriptionAccess(data) {
+  const host = byId('subscription-access-grid');
+  if (!host) return;
+  const access = data?.product_access || {};
+  const trial = String(data?.license_status || '').toLowerCase() === 'trial' || String(data?.current_plan || '').toLowerCase() === 'trial';
+  const rows = [
+    {
+      label: 'Current Plan',
+      value: currentPlanLabel(data),
+      helper: data?.subscription?.plan_note || 'Current billing-safe dashboard state.',
+      status: accessStatus({ active: Boolean(data?.visibility?.is_premium || access.monitoring_active), trial }),
+    },
+    {
+      label: 'Product Access',
+      value: access.can_view_issues || access.can_view_actions || access.can_view_reports ? 'Premium access' : 'Free access',
+      helper: 'Issues, actions, reports and records follow existing product access.',
+      status: accessStatus({ active: Boolean(access.can_view_issues || access.can_view_actions || access.can_view_reports), trial }),
+    },
+    {
+      label: 'Dashboard Access',
+      value: formatDateTime(access.dashboard_access_until),
+      helper: access.can_view_dashboard ? 'Dashboard access is available.' : 'Dashboard access is limited.',
+      status: accessStatus({ active: Boolean(access.can_view_dashboard), until: access.dashboard_access_until, trial }),
+    },
+    {
+      label: 'Issue Access',
+      value: formatDateTime(access.issue_access_until),
+      helper: access.can_view_issues || access.can_view_record_details ? 'Issue details are available.' : 'Issue details are locked.',
+      status: accessStatus({ active: Boolean(access.can_view_issues || access.can_view_record_details || access.can_view_issue_details), until: access.issue_access_until, trial }),
+    },
+  ];
+
+  host.innerHTML = rows.map((row) => `
+    <article class="subscription-access-card">
+      <div class="subscription-access-top">
+        <span class="stat-label">${escapeHtml(row.label)}</span>
+        ${renderSubscriptionStatusBadge(row.status)}
+      </div>
+      <div class="subscription-value stat-value-small">${escapeHtml(row.value || 'Not available')}</div>
+      <div class="stat-helper">${escapeHtml(row.helper)}</div>
+    </article>
+  `).join('');
+}
+
+function renderSubscriptionMonitoring(data) {
+  const host = byId('subscription-monitoring-card');
+  const badge = byId('subscription-monitoring-badge');
+  if (!host) return;
+  const access = data?.product_access || {};
+  const monitoringActive = Boolean(access.monitoring_active || access.can_use_monitoring || data?.monitoring_status === 'active');
+  const status = accessStatus({ active: monitoringActive });
+  if (badge) {
+    badge.textContent = monitoringActive ? 'Active' : 'Inactive';
+    badge.className = `subscription-status-badge status-${status.className}`;
+  }
+
+  const renewal = firstPresent(access.monitoring_renewal_date, data?.monitoring_renewal_date, data?.subscription?.renewal_date);
+  const periodEnd = firstPresent(access.monitoring_period_end, data?.monitoring_period_end, data?.subscription?.period_end, access.dashboard_access_until);
+  host.innerHTML = `
+    <div class="subscription-status-value">${escapeHtml(monitoringActive ? 'Active' : 'Inactive')}</div>
+    <div class="subscription-status-details">
+      <div><span>Renewal Date</span><strong>${escapeHtml(renewal ? formatDateTime(renewal) : 'Not available')}</strong></div>
+      <div><span>Period End</span><strong>${escapeHtml(periodEnd ? formatDateTime(periodEnd) : 'Not available')}</strong></div>
+    </div>
+  `;
+}
+
+function renderSubscriptionScanCredits(data) {
+  const host = byId('subscription-scan-credit-card');
+  const buyButton = byId('buy-more-credits-cta');
+  if (!host) return;
+  const access = data?.product_access || {};
+  const credits = safeNumber(firstPresent(access.scan_credits_available, access.scan_credits, data?.scan_credits), 0);
+  const canRunDeepScan = Boolean(access.can_run_deep_scan);
+  const validationAvailable = Boolean(access.validation_access_active || data?.validation_access_active || access.can_run_validation_check);
+  const needsCredits = credits <= 0;
+  if (buyButton) buyButton.classList.toggle('hidden', !needsCredits);
+
+  host.innerHTML = `
+    <div class="subscription-credit-main">
+      <span>Available Scan Credits</span>
+      <strong>${escapeHtml(formatNumber(credits))}</strong>
+    </div>
+    <div class="subscription-status-details">
+      <div><span>Deep Scan available?</span><strong>${escapeHtml(canRunDeepScan ? 'Yes' : 'No')}</strong></div>
+      <div><span>Validation available?</span><strong>${escapeHtml(validationAvailable ? 'Yes' : 'No')}</strong></div>
+    </div>
+    ${needsCredits ? '<div class="subscription-credit-warning">No paid scan credits are currently available.</div>' : ''}
+  `;
+}
+
 function renderSubscriptionProducts(data) {
   const host = byId('subscription-product-grid');
   if (!host) return;
-  const prices = data?.tenant_pricing?.prices || {};
+  const access = data?.product_access || {};
+  const activeAssessment = Boolean(access.assessment_access_active || data?.assessment_access_active || access.can_view_issues);
+  const activeValidation = Boolean(access.validation_access_active || data?.validation_access_active);
+  const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
   const items = [
-    ['full_analysis', 'Full Analysis', 'Buy Full Analysis'],
-    ['validation_check', 'Validation Check', 'Buy Validation Check'],
-    ['monitoring_monthly', 'Monitoring Monthly', 'Start Monitoring Monthly'],
-    ['monitoring_annual', 'Monitoring Annual', 'Start Monitoring Annual'],
+    ['full_analysis', 'Full Analysis', 'Complete Data Health Assessment', 'Buy Now', activeAssessment, 'Most Popular'],
+    ['validation_check', 'Validation Check', 'Validate improvements after remediation', 'Buy Now', activeValidation, ''],
+    ['monitoring_monthly', 'Monitoring Monthly', 'Continuous monitoring with trends and alerts', 'Start Monitoring', monitoringActive, 'Current Plan'],
+    ['monitoring_annual', 'Monitoring Annual', 'Best value annual monitoring plan', 'Start Annual Monitoring', monitoringActive, 'Best Value'],
   ];
-  host.innerHTML = items.map(([key, title, cta]) => {
-    const price = prices[key] || {};
-    const isContact = Boolean(price.contact_sales);
-    const amount = isContact ? 'Contact Sales' : formatCurrency(price.amount_eur);
+  host.innerHTML = items.map(([key, title, description, cta, active, badge]) => {
+    const price = subscriptionPriceFor(data, key);
+    const isMonitoring = key.startsWith('monitoring');
+    const cardBadge = active ? 'Active' : badge;
     return `
-      <article class="subscription-product-card">
-        <h4>${escapeHtml(title)}</h4>
-        <div class="subscription-product-price">${escapeHtml(amount)}</div>
-        <button type="button" class="pager-button subscription-product-action" data-product-code="${escapeHtml(key)}" ${isContact ? 'disabled' : ''}>${escapeHtml(isContact ? 'Contact Sales' : cta)}</button>
+      <article class="subscription-product-card ${active ? 'is-active-product' : ''} ${isMonitoring ? 'is-monitoring-product' : ''}">
+        <div class="subscription-product-top">
+          <h4>${escapeHtml(title)}</h4>
+          ${cardBadge ? `<span class="subscription-product-badge">${escapeHtml(cardBadge)}</span>` : ''}
+        </div>
+        <p>${escapeHtml(description)}</p>
+        <div class="subscription-product-price">${escapeHtml(price.label)}</div>
+        <button type="button" class="primary-button subscription-product-action" data-product-code="${escapeHtml(key)}" ${price.disabled ? 'disabled' : ''}>${escapeHtml(price.disabled ? 'Contact Sales' : cta)}</button>
       </article>
     `;
+  }).join('');
+}
+
+function renderFeatureComparison(data) {
+  const host = byId('subscription-feature-comparison-body');
+  if (!host) return;
+  const rows = [
+    ['Dashboard', true, true, true, true],
+    ['Issue Details', false, true, true, true],
+    ['Actions', false, true, true, true],
+    ['Reports', false, true, true, true],
+    ['Open in BC', false, true, true, true],
+    ['Score Trends', false, false, false, true],
+    ['Loss Trends', false, false, false, true],
+    ['Monitoring History', false, false, false, true],
+    ['Prioritized Actions', false, true, true, true],
+    ['Executive Reports', false, true, true, true],
+  ];
+  const access = data?.product_access || {};
+  const currentColumn = access.monitoring_active ? 3 : (data?.visibility?.is_premium ? 1 : 0);
+  host.innerHTML = rows.map(([feature, free, assessment, validation, monitoring]) => {
+    const cells = [free, assessment, validation, monitoring].map((enabled, index) => `
+      <td class="${index === currentColumn ? 'is-current-plan-cell' : ''}">
+        <span class="feature-mark ${enabled ? 'is-included' : 'is-locked'}">${enabled ? 'Included' : 'Locked'}</span>
+      </td>
+    `).join('');
+    return `<tr><td><strong>${escapeHtml(feature)}</strong></td>${cells}</tr>`;
   }).join('');
 }
 
@@ -1404,8 +1651,8 @@ function applyPlanState(data) {
     planBadge.classList.toggle('is-locked', !hasPaidAccess);
   }
   if (subBadge) {
-    subBadge.textContent = accessLabel;
-    subBadge.classList.toggle('is-locked', !hasPaidAccess);
+    subBadge.textContent = monitoringActive ? 'Current Plan: Monitoring' : (hasPaidAccess ? 'Current Plan: Assessment' : 'Current Plan: Free');
+    subBadge.classList.toggle('is-locked', !hasPaidAccess && !monitoringActive);
   }
 
   if (accessUnlock) accessUnlock.classList.toggle('hidden', hasPaidAccess);
@@ -1416,36 +1663,21 @@ function applyPlanState(data) {
 function renderSubscription(data) {
   const monitoringActive = Boolean(data?.product_access?.monitoring_active);
   const hasPaidAccess = Boolean(data?.visibility?.is_premium);
-  const priceCard = byId('subscription-price-card');
-  const annualCard = byId('subscription-annual-card');
-  const buyMoreButton = byId('buy-more-credits-cta');
-  const tenantPricing = data?.tenant_pricing || {};
-  const monthlyPrice = tenantPricing?.prices?.monitoring_monthly || {};
-  const annualPrice = tenantPricing?.prices?.monitoring_annual || {};
-  const hasMonthlyQuote = monitoringActive || monthlyPrice.amount_eur !== undefined || monthlyPrice.contact_sales;
-  const hasAnnualQuote = monitoringActive || annualPrice.amount_eur !== undefined || annualPrice.contact_sales;
+  const scanCreditButton = byId('buy-more-credits-cta');
+  const planBadge = byId('subscription-plan-badge');
 
-  setText('subscription-plan', data?.subscription?.plan_label || t('assessment_needed', 'Full Analysis needed'));
-  setText('subscription-note', data?.subscription?.plan_note || '');
-  setText('subscription-cta', data?.subscription?.cta_label || t('buy_assessment', 'Buy Full Analysis'));
-  setText('subscription-scan-credits', formatNumber(data?.product_access?.scan_credits_available));
-  setText('subscription-dashboard-until', formatDateTime(data?.product_access?.dashboard_access_until));
-  setText('subscription-issue-until', formatDateTime(data?.product_access?.issue_access_until));
-
-  if (priceCard) priceCard.classList.toggle('hidden', !hasMonthlyQuote);
-  if (annualCard) annualCard.classList.toggle('hidden', !hasAnnualQuote);
-  if (buyMoreButton) buyMoreButton.classList.toggle('hidden', monitoringActive || !hasPaidAccess);
-
-  if (monitoringActive) {
-    setText('subscription-price', formatCurrency(data?.subscription?.price_monthly));
-    setText('subscription-annual', formatCurrency(data?.subscription?.annual_cost));
-  } else if (tenantPricing?.contact_sales) {
-    setText('subscription-price', 'Contact Sales');
-    setText('subscription-annual', 'Contact Sales');
-  } else {
-    setText('subscription-price', monthlyPrice.amount_eur === null ? 'Contact Sales' : formatCurrency(monthlyPrice.amount_eur));
-    setText('subscription-annual', annualPrice.amount_eur === null ? 'Contact Sales' : formatCurrency(annualPrice.amount_eur));
+  if (planBadge) {
+    planBadge.textContent = monitoringActive ? 'Current Plan: Monitoring' : (hasPaidAccess ? 'Current Plan: Assessment' : 'Current Plan: Free');
+    planBadge.classList.toggle('is-locked', !hasPaidAccess && !monitoringActive);
   }
+
+  setText('subscription-cta', data?.subscription?.cta_label || t('buy_assessment', 'Buy Full Analysis'));
+  if (scanCreditButton) scanCreditButton.textContent = 'Buy Credits';
+
+  renderSubscriptionAccess(data);
+  renderSubscriptionMonitoring(data);
+  renderSubscriptionScanCredits(data);
+  renderFeatureComparison(data);
 }
 
 async function triggerBillingAction(action, productCode = null) {

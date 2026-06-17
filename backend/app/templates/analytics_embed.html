@@ -418,76 +418,89 @@
     </section>
 
     <section id="subscription-tab" class="tab-panel hidden">
-      <div class="page-intro panel">
+      <div class="page-intro panel subscription-page-intro">
         <div>
           <span class="section-kicker">Subscription</span>
-          <h2>Subscription</h2>
-          <p>Product access, scan credits and access windows stay visible here using the existing billing-safe dashboard payload.</p>
+          <h2>Subscription &amp; Access</h2>
+          <p>Manage your product access, monitoring status and available scan credits.</p>
         </div>
-        <span class="placeholder-status">Billing unchanged</span>
+        <span id="subscription-plan-badge" class="plan-badge">Current Plan</span>
       </div>
-      <article class="panel subscription-panel">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            
-            <h3>Subscription</h3>
-          </div>
-          <span id="subscription-plan-badge" class="plan-badge">Credits needed</span>
-        </div>
-        <div class="subscription-grid">
-          <div class="subscription-card">
-            <div class="stat-label">Product access</div>
-            <div id="subscription-plan" class="subscription-value">Full Analysis needed</div>
-            <div id="subscription-note" class="stat-helper"></div>
-          </div>
-          <div class="subscription-card">
-            <div class="stat-label">Scan Credits</div>
-            <div id="subscription-scan-credits" class="subscription-value">0</div>
-            <div class="stat-helper">Available paid scan starts</div>
-          </div>
-          <div class="subscription-card">
-            <div class="stat-label">Dashboard Access Until</div>
-            <div id="subscription-dashboard-until" class="subscription-value">—</div>
-            <div class="stat-helper">Full Analysis / Validation result window</div>
-          </div>
-          <div class="subscription-card">
-            <div class="stat-label">Issue Access Until</div>
-            <div id="subscription-issue-until" class="subscription-value">—</div>
-            <div class="stat-helper">Record details and recommendations</div>
-          </div>
-          <div class="subscription-card hidden" id="subscription-price-card">
-            <div class="stat-label">Monthly price</div>
-            <div id="subscription-price" class="subscription-value">EUR 0.00</div>
-            <div class="stat-helper">Monitoring price</div>
-          </div>
-          <div class="subscription-card hidden" id="subscription-annual-card">
-            <div class="stat-label">Annual cost</div>
-            <div id="subscription-annual" class="subscription-value">EUR 0.00</div>
-            <div class="stat-helper">12 months projection</div>
-          </div>
-        </div>
 
-        <div class="subscription-cta-row">
-          <button id="subscription-cta" type="button" class="primary-button">Start Monitoring</button>
-          <button id="buy-more-credits-cta" type="button" class="primary-button hidden">Buy More Credits</button>
+      <article class="panel subscription-section">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">Current Access</span>
+            <h3>Current Access</h3>
+          </div>
+          <span class="muted">Your active product and access windows</span>
+        </div>
+        <div id="subscription-access-grid" class="subscription-access-grid">
+        </div>
+      </article>
+
+      <section class="subscription-status-grid">
+        <article class="panel subscription-section">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Monitoring Status</span>
+              <h3>Monitoring</h3>
+            </div>
+            <span id="subscription-monitoring-badge" class="subscription-status-badge status-locked">Inactive</span>
+          </div>
+          <div id="subscription-monitoring-card" class="subscription-status-card"></div>
+        </article>
+
+        <article class="panel subscription-section">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Scan Credits</span>
+              <h3>Available Scan Credits</h3>
+            </div>
+            <button id="buy-more-credits-cta" type="button" class="pager-button hidden">Buy Credits</button>
+          </div>
+          <div id="subscription-scan-credit-card" class="subscription-status-card"></div>
+        </article>
+      </section>
+
+      <article class="panel subscription-section">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">Products</span>
+            <h3>Products</h3>
+          </div>
+          <button id="subscription-cta" type="button" class="primary-button">Buy Now</button>
         </div>
         <div id="subscription-product-grid" class="subscription-product-grid"></div>
+      </article>
+
+      <article class="panel subscription-section">
+        <div class="panel-header">
+          <div>
+            <span class="section-kicker">Feature Comparison</span>
+            <h3>Feature Comparison</h3>
+          </div>
+          <span class="muted">Plan capabilities shown for orientation only.</span>
+        </div>
+        <div class="table-wrap feature-comparison-wrap">
+          <table class="feature-comparison-table">
+            <thead><tr><th>Feature</th><th>Free</th><th>Assessment</th><th>Validation</th><th>Monitoring</th></tr></thead>
+            <tbody id="subscription-feature-comparison-body"></tbody>
+          </table>
+        </div>
       </article>
     </section>
 
     <section id="settings-tab" class="tab-panel hidden">
-      <div class="page-intro panel">
+      <div class="page-intro panel settings-page-intro">
         <div>
           <span class="section-kicker">Settings</span>
           <h2>Settings</h2>
-          <p>Connection context is read-only for now. Editable settings and connection diagnostics are planned for a later phase.</p>
+          <p>Review tenant, environment and dashboard preferences.</p>
         </div>
-        <span class="placeholder-status">Read-only</span>
+        <span class="placeholder-status">Read-only settings</span>
       </div>
-      <article class="panel">
-        <div class="panel-header"><h3>Settings</h3><span class="muted">Connection context</span></div>
-        <div id="settings-grid" class="subscription-grid"></div>
-      </article>
+      <div id="settings-grid" class="settings-page-grid"></div>
     </section>
     </section>
   </main>
