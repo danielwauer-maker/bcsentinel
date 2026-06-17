@@ -464,3 +464,37 @@ Offene Punkte fuer Phase 5:
 - Echten Issue-Status, Owner, SLA, History und Recommendations spaeter fachlich klaeren.
 - Critical Severity weiterhin nicht fachlich einfuehren; separater Task 6 bleibt empfohlen.
 - Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 4 geaendert.
+
+## Phase 5 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Issue-Detail-Elemente:
+
+- Clientseitige Issue Detail View innerhalb der bestehenden Dashboard-SPA.
+- Einstieg ueber `View Details` aus der Issues-Tabelle.
+- `Back to Issues` Navigation ohne Dashboard-Reload.
+- Aktive Sidebar-Markierung bleibt auf `Issues`, wenn die Detailansicht sichtbar ist.
+- Detail Header mit Issue Title, Module, Severity Badge, Status, Affected Records und Estimated Loss.
+- Detailkarten fuer Issue Information, Description, Business Impact, Score Impact und Recommendation.
+- Free/Locked Detail State mit anonymisiertem Titel, gesperrten Zahlen und CTA `Unlock full issue details`.
+- Premium Detail State mit vollstaendigen Issue-Feldern, soweit im vorhandenen Payload enthalten.
+- Open-in-Business-Central Button nutzt nur vorhandene Link-Felder; fehlt der Link, wird `Business Central link not available` deaktiviert angezeigt.
+- Professionelle Empty States fuer fehlende Description, Score Impact und Recommendation.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 6:
+
+- Actions Page finalisieren.
+- Actions mit vorhandenen Issue-/Recommendation-/Open-in-BC-Feldern verbinden.
+- Disabled-State fuer fehlende Business-Central-Links konsequent auf Actions anwenden.
+- Action Status, Effort, Owner und Priorisierung nur dann ausbauen, wenn stabile Daten vorhanden sind.
+- Record-Level-Details, SLA, History und echte Issue-Statusfelder bleiben separate Backend-/BC-Datenvertragsfragen.
+- Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 5 geaendert.

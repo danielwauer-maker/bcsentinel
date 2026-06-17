@@ -283,3 +283,109 @@ Feld-Fallbacks werden nur fuer Darstellung genutzt. Es wurde keine Backend- oder
 - Statische Suche nach `undefined`, `null` und `NaN`: Treffer liegen in defensiven JS-Pruefungen, Initialwerten und bestehender Preis-/Billing-Darstellung, nicht als sichtbare UI-Texte.
 - Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
 - `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
+
+## Phase 5 - Issue Detail Page Finalization
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `backend/app/routers/analytics.py` lesend, zur Zuordnung vorhandener Issue-Detail-Felder
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Verwendete Datenquellen
+
+Es wurden ausschliesslich bestehende Dashboard-/Analytics-Payloads verwendet:
+
+- `issues_page.items`
+- `top_findings`
+- `free_insights.top_findings`
+- `premium_preview_findings`
+- `visibility.is_premium`
+- `pages.issues.locked`
+- `last_updated`
+- vorhandene Issue-Felder wie `code`, `title`, `group`, `severity`, `severity_label`, `count`, `impact_eur`, `recommendation_preview`, `open_in_bc_url`
+
+### Issue-Detail-Normalisierung
+
+Die bestehende Phase-4-Normalisierung wurde fuer die Detailansicht erweitert:
+
+- `id` / Issue Code
+- `rawTitle` und sichtbarer `title`
+- `group`
+- `severity` und `severityLabel`
+- `count`
+- `impact`
+- `potentialSaving`
+- `status`
+- `detectedOn`
+- `description`
+- `recommendation`
+- `scoreImpact`
+- `openInBcUrl`
+- `locked`
+
+Fehlende Werte erzeugen professionelle Empty States wie `Detailed description is available after the full analysis.`, `Score impact details will appear when available.` und `Recommendation will be generated after the full analysis.`
+
+### Neue / ueberarbeitete Issue-Detail-Komponenten
+
+- Clientseitige SPA-Detail-View `issue-detail-tab` ohne neue Backend-Route.
+- Einstieg ueber `View Details` in der Issues-Tabelle.
+- Back Navigation `Back to Issues` ohne Dashboard-Reload.
+- Detail Header mit Issue Title, Module, Severity Badge, Status, Affected Records und Estimated Loss.
+- Karten fuer Issue Information, Description, Business Impact, Score Impact und Recommendation.
+- Deaktivierter Fallback-Button `Business Central link not available`, wenn kein vorhandener BC-Link geliefert wird.
+
+### Free/Premium/Monitoring-Verhalten
+
+- Free User koennen die Detailansicht oeffnen, sehen aber nur einen geschuetzten Detail-State.
+- Free User sehen generische Titel und gesperrte Werte; sensible Details, Affected Records und Estimated Loss bleiben geschuetzt.
+- Free Detail State enthaelt CTA `Unlock full issue details`, der clientseitig zur Subscription-Seite fuehrt.
+- Premium User sehen vollstaendige Issue-Detail-Daten, soweit im bestehenden Payload vorhanden.
+- Monitoring erzeugt keine neue Logik; vorhandener Scan-/Zeitkontext wird nur angezeigt.
+
+### Open-in-BC-Verhalten
+
+- Wenn `open_in_bc_url` oder kompatible vorhandene Link-Felder im Payload vorhanden sind und der Zugriff nicht locked ist, wird `Open in Business Central` als externer Link angezeigt.
+- Wenn kein Link vorhanden ist oder der Zugriff locked ist, wird `Business Central link not available` deaktiviert angezeigt.
+- Es wurde keine neue BC-Link-Logik, keine Backend-Deep-Link-Logik und keine BC Extension geaendert.
+
+### Bekannte Luecken
+
+- Es gibt weiterhin keine Record-Level-Details im Dashboard-Payload.
+- Beschreibung, Score Impact und Recommendation bleiben Empty States, wenn der vorhandene Payload diese Felder nicht liefert.
+- Issue-spezifisches Erkennungsdatum, Owner, SLA und History fehlen weiterhin.
+- Die Detailansicht nutzt clientseitige Issue-Auswahl; eine stabile direkte URL auf ein Issue ist noch nicht umgesetzt.
+- Critical Severity bleibt UI-kompatibel, aber fachlich nicht neu eingefuehrt.
+
+### Bewusst nicht geaendert
+
+- Keine Lizenzlogik.
+- Keine Billing-/Stripe-Logik.
+- Keine Free-Scan-Logik.
+- Keine Monitoring-Logik.
+- Keine Scan Engine.
+- Keine Backend-Routen.
+- Keine BC Extension.
+- Keine neuen externen Dependencies.
+- Keine fachliche Severity-Logik.
+
+### Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- Statische Suche bestaetigt Issue detail, Issue Information, Description, Business Impact, Score Impact, Recommendation, Open in Business Central, Back to Issues, Business Central link not available und Unlock full issue details.
+- Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehender Preislogik, nicht als sichtbare UI-Texte.
+- Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
+- `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.

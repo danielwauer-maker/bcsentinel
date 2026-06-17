@@ -1,4 +1,5 @@
 let currentSelectedScanId = null;
+let currentSelectedIssueIndex = null;
 let recentScansPage = 1;
 const RECENT_SCANS_PAGE_SIZE = 12;
 let currentDashboardState = null;
@@ -104,6 +105,7 @@ function updatePageHeader(tab) {
     analytics: ['Analytics', 'Score, loss and distribution analysis for the selected scan'],
     scans: ['Scans', 'Available scan runs and dashboard context'],
     issues: ['Issues', 'Review detected data quality issues, business impact and affected records.'],
+    'issue-detail': ['Issue detail', 'Detailed issue context, impact and recommendation'],
     actions: ['Actions', 'Recommended actions to improve your data quality'],
     reports: ['Reports', 'Create and download reports about your data quality'],
     subscription: ['Subscription', 'Manage product access, scan credits and usage'],
@@ -673,18 +675,29 @@ function normalizeIssueItem(item, index, isLocked, data) {
   const group = item?.group || item?.module || item?.area || 'Module pending';
   const count = safeNumber(item?.count ?? item?.affected_records ?? item?.affected_count);
   const impact = safeNumber(item?.impact_eur ?? item?.estimated_loss_eur ?? item?.estimated_impact_eur ?? item?.potential_saving_eur);
+  const potentialSaving = safeNumber(item?.potential_saving_eur ?? item?.potential_savings_eur);
   const status = String(item?.status || 'Open').trim() || 'Open';
+  const recommendation = item?.recommendation || item?.recommendation_preview || item?.action || item?.suggested_action || '';
+  const description = item?.description || item?.details || item?.summary || '';
+  const openInBcUrl = String(item?.open_in_bc_url || item?.open_in_business_central_url || item?.bc_url || '');
+  warnOnInvalidBcCompanyFormat(openInBcUrl);
 
   return {
     id: item?.code || item?.id || `issue-${index + 1}`,
+    rawTitle: title || 'Issue detail',
     title: isLocked ? 'Premium issue details' : (title || 'Issue'),
-    group,
+    group: group || 'General',
     severity,
     severityLabel: issueSeverityLabel(severity, item?.severity_label),
     count,
     impact,
+    potentialSaving,
     status,
     detectedOn: item?.detected_on || item?.detected_at || data?.last_updated || '',
+    description,
+    recommendation,
+    scoreImpact: item?.score_impact || item?.score_impact_points || item?.health_score_impact || '',
+    openInBcUrl,
     locked: isLocked,
   };
 }
@@ -764,6 +777,111 @@ function renderIssueSeverityCards(data, normalizedItems) {
   `).join('');
 }
 
+function issueInfoRows(issue) {
+  return [
+    ['Issue Code', issue.id],
+    ['Module / Category', issue.group || 'General'],
+    ['Severity', issue.severityLabel],
+    ['Status', issue.status || 'Open'],
+    ['Affected Records', issue.locked ? 'Locked' : formatNumber(issue.count)],
+    ['Estimated Impact / Loss', issue.locked ? 'Locked' : (issue.impact > 0 ? formatCurrency(issue.impact) : 'Not calculated yet')],
+    ['Last Scan / Last Updated', issue.detectedOn ? formatDateTime(issue.detectedOn) : 'Not available'],
+  ];
+}
+
+function detailSection(title, body, extraClass = '') {
+  return `
+    <article class="panel issue-detail-card ${escapeHtml(extraClass)}">
+      <h3>${escapeHtml(title)}</h3>
+      ${body}
+    </article>
+  `;
+}
+
+function renderIssueDetail(issue) {
+  const host = byId('issue-detail-content');
+  if (!host) return;
+
+  if (!issue) {
+    host.innerHTML = `<div class="empty-state executive-empty">Issue detail is available from the Issues page.</div>`;
+    return;
+  }
+
+  const title = issue.locked ? 'Premium issue details' : (issue.title || issue.rawTitle || 'Issue detail');
+  const affectedLabel = issue.locked ? 'Locked' : formatNumber(issue.count);
+  const lossLabel = issue.locked ? 'Locked' : (issue.impact > 0 ? formatCurrency(issue.impact) : 'Not calculated yet');
+  const description = issue.locked
+    ? 'Detailed description is available after the full analysis.'
+    : (issue.description || 'Detailed description is available after the full analysis.');
+  const recommendation = issue.locked
+    ? 'Recommendation will be generated after the full analysis.'
+    : (issue.recommendation || 'Recommendation will be generated after the full analysis.');
+  const scoreImpact = issue.locked
+    ? 'Score impact details will appear when available.'
+    : (issue.scoreImpact ? String(issue.scoreImpact) : 'Score impact details will appear when available.');
+  const businessImpactBody = issue.locked
+    ? `<div class="locked-detail-state">Business impact details are protected for the current access level.</div>`
+    : `
+      <div class="business-impact-grid">
+        <div><span>Estimated Loss</span><strong>${escapeHtml(lossLabel)}</strong></div>
+        <div><span>Affected Records</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>Severity</span><strong>${escapeHtml(issue.severityLabel)}</strong></div>
+        <div><span>Potential Savings</span><strong>${issue.potentialSaving > 0 ? formatCurrency(issue.potentialSaving) : 'Not calculated yet'}</strong></div>
+      </div>
+    `;
+  const openInBcMarkup = issue.openInBcUrl && !issue.locked
+    ? `<a href="${escapeHtml(issue.openInBcUrl)}" class="primary-button issue-detail-bc-link" target="_blank" rel="noopener noreferrer">Open in Business Central</a>`
+    : `<button type="button" class="pager-button issue-detail-bc-link" disabled>Business Central link not available</button>`;
+  const unlockMarkup = issue.locked
+    ? `<div class="issues-locked-note issue-detail-lock">
+        <strong>Unlock full issue details</strong>
+        <span>Full Analysis, Validation Check or Monitoring unlocks protected issue details and recommendations.</span>
+        <button type="button" class="pager-button issue-detail-unlock-button">Unlock full issue details</button>
+      </div>`
+    : '';
+
+  const informationRows = issueInfoRows(issue).map(([label, value]) => `
+    <div class="issue-detail-info-row">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value || 'Not available')}</strong>
+    </div>
+  `).join('');
+
+  host.innerHTML = `
+    <section class="panel issue-detail-hero ${issue.locked ? 'is-locked-detail' : ''}">
+      <div>
+        <span class="section-kicker">Issue detail</span>
+        <h2>${escapeHtml(title)}</h2>
+        <div class="issue-detail-meta">
+          <span>${escapeHtml(issue.group || 'General')}</span>
+          <span class="severity severity-${escapeHtml(issue.severity)}">${escapeHtml(issue.severityLabel)}</span>
+          <span class="status-badge status-open">${escapeHtml(issue.status || 'Open')}</span>
+        </div>
+      </div>
+      <div class="issue-detail-summary">
+        <div><span>Affected Records</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>Estimated Loss</span><strong>${escapeHtml(lossLabel)}</strong></div>
+      </div>
+    </section>
+    ${unlockMarkup}
+    <section class="issue-detail-grid">
+      ${detailSection('Issue Information', `<div class="issue-detail-info">${informationRows}</div>`)}
+      ${detailSection('Description', `<p>${escapeHtml(description)}</p>`)}
+      ${detailSection('Business Impact', businessImpactBody)}
+      ${detailSection('Score Impact', `<p>${escapeHtml(scoreImpact)}</p>`)}
+      ${detailSection('Recommendation', `<p>${escapeHtml(recommendation)}</p>${openInBcMarkup}`, 'issue-detail-recommendation')}
+    </section>
+  `;
+}
+
+function openIssueDetail(index) {
+  const items = normalizeIssuesForPage(currentDashboardState || {});
+  const issue = items[index] || null;
+  currentSelectedIssueIndex = issue ? index : null;
+  renderIssueDetail(issue);
+  switchTab('issue-detail');
+}
+
 function renderIssuesPage(data) {
   const host = byId('issues-page-body');
   if (!host) return;
@@ -796,12 +914,16 @@ function renderIssuesPage(data) {
       <td>${item.locked ? '<span class="locked-value">Locked</span>' : formatCurrency(item.impact)}</td>
       <td><span class="status-badge status-open">${escapeHtml(item.status)}</span></td>
       <td>
-        <button type="button" class="pager-button issue-detail-button" disabled>
-          ${escapeHtml(item.locked ? 'Locked' : (index === 0 ? 'View details later' : 'Details later'))}
+        <button type="button" class="pager-button issue-detail-button" data-issue-index="${index}">
+          ${escapeHtml(item.locked ? 'View locked details' : 'View Details')}
         </button>
       </td>
     </tr>
   `).join('');
+
+  if (currentSelectedIssueIndex !== null) {
+    renderIssueDetail(items[currentSelectedIssueIndex] || null);
+  }
 }
 
 function renderActionsPage(data) {
@@ -1053,8 +1175,9 @@ async function triggerBillingAction(action, productCode = null) {
 }
 
 function switchTab(tab) {
+  const activeNavTab = tab === 'issue-detail' ? 'issues' : tab;
   document.querySelectorAll('.topnav-link').forEach((btn) => {
-    const isActive = btn.dataset.tab === tab;
+    const isActive = btn.dataset.tab === activeNavTab;
     btn.classList.toggle('is-active', isActive);
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
@@ -1153,6 +1276,29 @@ function registerEvents() {
 
   bindScanTable(byId('recent-scans-body'));
   bindScanTable(byId('scans-page-body'));
+
+  const issuesBody = byId('issues-page-body');
+  if (issuesBody) {
+    issuesBody.addEventListener('click', (event) => {
+      const button = event.target.closest('.issue-detail-button');
+      if (!button) return;
+      openIssueDetail(safeNumber(button.dataset.issueIndex, -1));
+    });
+  }
+
+  const detailBackButton = byId('issue-detail-back-button');
+  if (detailBackButton) {
+    detailBackButton.addEventListener('click', () => switchTab('issues'));
+  }
+
+  const detailContent = byId('issue-detail-content');
+  if (detailContent) {
+    detailContent.addEventListener('click', (event) => {
+      const unlockButton = event.target.closest('.issue-detail-unlock-button');
+      if (!unlockButton) return;
+      switchTab('subscription');
+    });
+  }
 
   const prevButton = byId('recent-scans-prev');
   if (prevButton) {
