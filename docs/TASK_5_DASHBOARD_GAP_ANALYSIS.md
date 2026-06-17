@@ -498,3 +498,69 @@ Offene Punkte fuer Phase 6:
 - Action Status, Effort, Owner und Priorisierung nur dann ausbauen, wenn stabile Daten vorhanden sind.
 - Record-Level-Details, SLA, History und echte Issue-Statusfelder bleiben separate Backend-/BC-Datenvertragsfragen.
 - Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 5 geaendert.
+
+## Phase 6 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Actions-Elemente:
+
+- Actions Page Header mit Subtitle `Prioritized actions to reduce data quality risk and business impact.`
+- Header-Metadaten fuer Anzahl Actions, vorhandenes Einsparpotenzial und Access-Status.
+- Summary Cards fuer Recommended Actions, High Priority, Potential Saving und Open Items.
+- Actions-Tabelle mit Action, Related Issue, Module, Priority, Effort, Potential Saving, Status und Open in Business Central.
+- Clientseitige Actions-Normalisierung aus `actions_page.items` und vorhandenen Issue-/Finding-Quellen.
+- UI-seitige Priority-/Effort-Ableitung ohne Backend- oder Scan-Regel-Aenderung.
+- Free/Locked State mit generischen Actions, gesperrten Werten und CTA `Unlock recommended actions`.
+- Premium State mit konkreten Actions, soweit im vorhandenen Payload enthalten.
+- Open-in-BC Button aktiv nur bei vorhandenem Link und freigeschaltetem Zugriff; sonst deaktiviert als `BC link unavailable` oder `Unlock actions`.
+- Professioneller Empty State fuer fehlende Actions.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 7:
+
+- Reports Page finalisieren.
+- Report Cards mit vorhandenen Report-Endpunkten verbinden, sofern Gating und Scan-Kontext eindeutig sind.
+- Download-/Open-/Disabled-States fuer Reports sauber trennen.
+- Shared Links und PDF/HTML-Downloads nur mit vorhandenen Backend-Endpunkten und bestehendem Report-Gating nutzen.
+- Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 6 geaendert.
+
+## Phase 7 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Reports-Elemente:
+
+- Reports Page Header mit Subtitle `Generate and review executive, operational and impact reports.`
+- Header-Metadaten fuer letzten Scan, Report Access Status und letzten Report-Zeitpunkt, soweit im Payload vorhanden.
+- Summary Cards fuer Available Reports, Latest Scan, Report Access und Share Links.
+- Report Cards fuer Executive Summary, Data Quality Report, Issue Detail Report, Business Impact Report, Action Plan Report und Trend Report.
+- Executive Summary verlinkt bei freigeschaltetem Zugriff und vorhandenem Scan-Kontext auf die bestehenden Routen `/reports/executive/{scan_id}/html` und `/reports/executive/{scan_id}/pdf`.
+- Weitere Report Cards aktivieren Links nur, wenn vorhandene Payload-Felder wie `report_links`, `html_url`, `open_url`, `url` oder `pdf_url` geliefert werden.
+- Free/Locked State zeigt alle Report Cards, aber keine geschuetzten Links; CTA `Unlock reports` fuehrt zur Subscription-Seite.
+- Trend Report bleibt ohne vorhandene Monitoring-Historie deaktiviert mit `Available with monitoring history`.
+- Share Links werden nur angezeigt/gezaehlt, wenn sie bereits im Payload vorhanden sind; es wird keine Share-Link-Erzeugung ausgeloest.
+- Professionelle Disabled States fuer fehlende Links und fehlenden Scan-Kontext.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 8:
+
+- Subscription Page finalisieren, ohne Billing-/Stripe-Logik zu veraendern.
+- Product Access, Scan Credits und Access Windows klarer als Kundenzustand darstellen.
+- Upgrade-/Portal-/Credit-CTAs nur mit bestehender Logik weiterverwenden.
+- Report-Zugriff auf der Subscription-Seite fachlich sichtbar machen, ohne neue Lizenzregeln einzufuehren.
+- Keine Report-Engine, Share-Link-Logik oder Monitoring-Logik wurde in Phase 7 geaendert.

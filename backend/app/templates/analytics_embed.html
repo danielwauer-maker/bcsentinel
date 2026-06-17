@@ -356,41 +356,64 @@
     </section>
 
     <section id="actions-tab" class="tab-panel hidden">
-      <div class="page-intro panel">
+      <div class="page-intro panel actions-page-intro">
         <div>
           <span class="section-kicker">Actions</span>
           <h2>Actions</h2>
-          <p>Recommended measures are available as a stable view. Business Central action links will be connected in a later phase.</p>
+          <p>Prioritized actions to reduce data quality risk and business impact.</p>
         </div>
-        <span class="placeholder-status">BC links later</span>
+        <div id="actions-page-meta" class="issues-page-meta"></div>
       </div>
-      <article class="panel">
-        <div class="panel-header"><h3>Actions</h3><span class="muted">Recommended measures</span></div>
-        <div class="locked-region" data-lock-section="actions">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Issue</th><th>Suggested Action</th><th>Priority</th><th>Potential Saving</th><th>Effort</th></tr></thead>
-              <tbody id="actions-page-body"></tbody>
-            </table>
+
+      <section id="actions-summary-cards" class="actions-summary-grid"></section>
+
+      <article class="panel actions-list-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Actions</h3>
+            <span class="muted">Recommended measures from the existing dashboard payload</span>
           </div>
+          <button type="button" id="actions-unlock-button" class="pager-button hidden" data-jump-tab="subscription">Unlock recommended actions</button>
+        </div>
+        <div id="actions-locked-note" class="issues-locked-note hidden">
+          <strong>Unlock recommended actions</strong>
+          <span>Free access shows action value without exposing protected recommendations.</span>
+        </div>
+        <div class="table-wrap actions-table-wrap">
+          <table class="actions-table">
+            <thead><tr><th>Action</th><th>Related Issue</th><th>Module</th><th>Priority</th><th>Effort</th><th>Potential Saving</th><th>Status</th><th>Open in Business Central</th></tr></thead>
+            <tbody id="actions-page-body"></tbody>
+          </table>
         </div>
       </article>
     </section>
 
     <section id="reports-tab" class="tab-panel hidden">
-      <div class="page-intro panel">
+      <div class="page-intro panel reports-page-intro">
         <div>
           <span class="section-kicker">Reports</span>
           <h2>Reports</h2>
-          <p>Report navigation is in place. Export and share actions will be wired to the existing report endpoints later.</p>
+          <p>Generate and review executive, operational and impact reports.</p>
         </div>
-        <span class="placeholder-status">Exports later</span>
+        <div id="reports-page-meta" class="issues-page-meta"></div>
       </div>
-      <article class="panel">
-        <div class="panel-header"><h3>Reports</h3><span class="muted">Premium report library</span></div>
-        <div class="locked-region" data-lock-section="reports">
-          <div id="reports-page-grid" class="report-grid"></div>
+
+      <div id="reports-summary-cards" class="reports-summary-grid"></div>
+
+      <article class="panel reports-list-panel">
+        <div class="panel-header">
+          <div>
+            <h3>Report Center</h3>
+            <span class="muted">Use existing report access and scan context. Missing links stay disabled.</span>
+          </div>
+          <button id="reports-unlock-button" type="button" class="pager-button hidden" data-jump-tab="subscription">Unlock reports</button>
         </div>
+        <div id="reports-locked-note" class="issues-locked-note hidden">
+          <strong>Unlock reports</strong>
+          <span>Full Analysis, Validation Check or Monitoring unlocks protected report downloads and executive views.</span>
+          <button type="button" class="pager-button" data-jump-tab="subscription">Unlock reports</button>
+        </div>
+        <div id="reports-page-grid" class="report-grid report-center-grid"></div>
       </article>
     </section>
 

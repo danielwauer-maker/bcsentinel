@@ -106,8 +106,8 @@ function updatePageHeader(tab) {
     scans: ['Scans', 'Available scan runs and dashboard context'],
     issues: ['Issues', 'Review detected data quality issues, business impact and affected records.'],
     'issue-detail': ['Issue detail', 'Detailed issue context, impact and recommendation'],
-    actions: ['Actions', 'Recommended actions to improve your data quality'],
-    reports: ['Reports', 'Create and download reports about your data quality'],
+    actions: ['Actions', 'Prioritized actions to reduce data quality risk and business impact.'],
+    reports: ['Reports', 'Generate and review executive, operational and impact reports.'],
     subscription: ['Subscription', 'Manage product access, scan credits and usage'],
     settings: ['Settings', 'Configure your account and preferences'],
   };
@@ -926,46 +926,352 @@ function renderIssuesPage(data) {
   }
 }
 
+function deriveActionText(item, issue) {
+  const explicitAction = item?.action || item?.suggested_action || item?.recommendation || item?.recommendation_preview || issue?.recommendation;
+  if (explicitAction) return String(explicitAction);
+  const title = issue?.rawTitle || issue?.title || item?.issue || item?.title || '';
+  if (title) return `Review and resolve ${title}`;
+  return 'Review affected records and resolve the underlying setup issue in Business Central.';
+}
+
+function deriveActionEffort(item, issue) {
+  const explicitEffort = item?.effort || item?.estimated_effort;
+  if (explicitEffort) return String(explicitEffort);
+  const severity = normalizeIssueSeverity(item?.priority || issue?.severity);
+  const affected = safeNumber(issue?.count ?? item?.count ?? item?.affected_records);
+  if (severity === 'critical' || severity === 'high' || affected >= 1000) return 'Medium';
+  if (severity === 'medium') return 'Low / Medium';
+  if (severity === 'low') return 'Low';
+  return 'Not estimated';
+}
+
+function actionStatusLabel(item) {
+  return String(item?.status || 'Open').trim() || 'Open';
+}
+
+function collectActionCandidates(data, isLocked) {
+  const pageItems = Array.isArray(data?.actions_page?.items) ? data.actions_page.items : [];
+  if (!isLocked && pageItems.length > 0) return pageItems;
+  return normalizeIssuesForPage(data);
+}
+
+function normalizeActionsForPage(data) {
+  const actionsPage = data?.actions_page || {};
+  const isLocked = Boolean(actionsPage.locked || data?.pages?.actions?.locked || !data?.visibility?.is_premium);
+  const issues = normalizeIssuesForPage(data);
+  const issueByTitle = new Map(issues.map((issue) => [String(issue.rawTitle || issue.title || '').toLowerCase(), issue]));
+  const candidates = collectActionCandidates(data, isLocked);
+
+  return candidates.filter(Boolean).map((item, index) => {
+    const explicitIssueTitle = item?.issue || item?.related_issue || item?.title || item?.name || '';
+    const issue = item?.rawTitle || item?.openInBcUrl || item?.severityLabel
+      ? item
+      : (issueByTitle.get(String(explicitIssueTitle).toLowerCase()) || issues[index] || {});
+    const priority = normalizeIssueSeverity(item?.priority || item?.severity || issue?.severity || 'medium');
+    const saving = safeNumber(item?.potential_saving_eur ?? item?.potential_savings_eur ?? item?.impact_eur ?? issue?.potentialSaving ?? issue?.impact);
+    const openInBcUrl = String(item?.open_in_bc_url || item?.open_in_business_central_url || item?.bc_url || issue?.openInBcUrl || '');
+    warnOnInvalidBcCompanyFormat(openInBcUrl);
+
+    return {
+      action: isLocked ? 'Unlock to view exact action' : deriveActionText(item, issue),
+      relatedIssue: isLocked ? 'Premium issue' : (explicitIssueTitle || issue?.rawTitle || issue?.title || 'Issue'),
+      module: issue?.group || item?.module || item?.group || 'General',
+      priority,
+      priorityLabel: issueSeverityLabel(priority, item?.priority_label || item?.severity_label),
+      effort: isLocked ? 'Locked' : deriveActionEffort(item, issue),
+      potentialSaving: saving,
+      status: actionStatusLabel(item),
+      openInBcUrl,
+      locked: isLocked,
+    };
+  });
+}
+
+function renderActionsMeta(data, actions, isLocked) {
+  const host = byId('actions-page-meta');
+  if (!host) return;
+  const potentialSaving = safeNumber(data?.kpis?.potential_saving_eur) || actions.reduce((sum, item) => sum + safeNumber(item.potentialSaving), 0);
+  const accessLabel = isLocked ? 'Locked access' : 'Full action access';
+  host.innerHTML = `
+    <span class="placeholder-status">${formatNumber(actions.length)} Actions</span>
+    <span class="placeholder-status">${escapeHtml(potentialSaving > 0 ? formatCurrency(potentialSaving) : 'Saving pending')}</span>
+    <span class="placeholder-status">${escapeHtml(accessLabel)}</span>
+  `;
+}
+
+function renderActionsSummary(data, actions) {
+  const host = byId('actions-summary-cards');
+  if (!host) return;
+  const recommended = actions.length;
+  const highPriority = actions.filter((item) => ['critical', 'high'].includes(normalizeIssueSeverity(item.priority))).length;
+  const potentialSaving = safeNumber(data?.kpis?.potential_saving_eur) || actions.reduce((sum, item) => sum + safeNumber(item.potentialSaving), 0);
+  const openItems = actions.filter((item) => String(item.status || '').toLowerCase() === 'open').length;
+  const cards = [
+    ['Recommended Actions', formatNumber(recommended), 'Prioritized recommendations'],
+    ['High Priority', formatNumber(highPriority), 'Critical and high priority'],
+    ['Potential Saving', potentialSaving > 0 ? formatCurrency(potentialSaving) : 'Not calculated yet', 'Existing scan economics'],
+    ['Open Items', formatNumber(openItems), 'Default open status'],
+  ];
+
+  host.innerHTML = cards.map(([label, value, helper]) => `
+    <article class="stat-card panel action-summary-card">
+      <div class="stat-label">${escapeHtml(label)}</div>
+      <div class="stat-value">${escapeHtml(value)}</div>
+      <div class="stat-helper">${escapeHtml(helper)}</div>
+    </article>
+  `).join('');
+}
+
 function renderActionsPage(data) {
   const host = byId('actions-page-body');
   if (!host) return;
   const page = data?.actions_page || {};
-  const items = Array.isArray(page.items) ? page.items : [];
-  if (page.locked) {
-    host.innerHTML = `<tr><td colspan="5" class="table-empty">${escapeHtml(t('paid_access', 'Paid Access'))}</td></tr>`;
-    return;
-  }
+  const isLocked = Boolean(page.locked || data?.pages?.actions?.locked || !data?.visibility?.is_premium);
+  const items = normalizeActionsForPage(data);
+  const lockedNote = byId('actions-locked-note');
+  const unlockButton = byId('actions-unlock-button');
+
+  renderActionsMeta(data, items, isLocked);
+  renderActionsSummary(data, items);
+
+  if (lockedNote) lockedNote.classList.toggle('hidden', !isLocked);
+  if (unlockButton) unlockButton.classList.toggle('hidden', !isLocked);
+
   if (items.length === 0) {
-    host.innerHTML = `<tr><td colspan="5" class="table-empty">${escapeHtml(t('no_findings', 'No actions are available for this scan.'))}</td></tr>`;
+    host.innerHTML = `<tr><td colspan="8" class="table-empty">No recommended actions are available for the latest scan.</td></tr>`;
     return;
   }
-  host.innerHTML = items.map((item) => `
-    <tr>
-      <td>${escapeHtml(item?.issue)}</td>
-      <td>${escapeHtml(item?.suggested_action)}</td>
-      <td><span class="severity severity-${escapeHtml(item?.priority)}">${escapeHtml(item?.priority)}</span></td>
-      <td>${formatCurrency(item?.potential_saving_eur)}</td>
-      <td>${escapeHtml(item?.effort || 'TBD')}</td>
+
+  host.innerHTML = items.map((item) => {
+    const savingLabel = item.locked ? '<span class="locked-value">Locked</span>' : (item.potentialSaving > 0 ? formatCurrency(item.potentialSaving) : 'Not calculated yet');
+    const bcAction = item.openInBcUrl && !item.locked
+      ? `<a href="${escapeHtml(item.openInBcUrl)}" class="pager-button action-bc-link" target="_blank" rel="noopener noreferrer">Open in BC</a>`
+      : `<button type="button" class="pager-button action-bc-link" disabled>${escapeHtml(item.locked ? 'Unlock actions' : 'BC link unavailable')}</button>`;
+    return `
+    <tr class="${item.locked ? 'issue-row-locked' : ''}">
+      <td><strong>${escapeHtml(item.action)}</strong></td>
+      <td>${escapeHtml(item.relatedIssue)}</td>
+      <td>${escapeHtml(item.module)}</td>
+      <td><span class="severity severity-${escapeHtml(item.priority)}">${escapeHtml(item.priorityLabel)}</span></td>
+      <td>${escapeHtml(item.effort)}</td>
+      <td>${savingLabel}</td>
+      <td><span class="status-badge status-open">${escapeHtml(item.status)}</span></td>
+      <td>${bcAction}</td>
     </tr>
+  `;
+  }).join('');
+}
+
+function reportDefinitions() {
+  return [
+    {
+      key: 'executive_summary',
+      title: 'Executive Summary',
+      description: 'Management-ready summary of health score, risks and business impact.',
+      icon: 'ES',
+    },
+    {
+      key: 'data_quality_report',
+      title: 'Data Quality Report',
+      description: 'Detailed overview of data quality KPIs, modules and distributions.',
+      icon: 'DQ',
+    },
+    {
+      key: 'issue_detail_report',
+      title: 'Issue Detail Report',
+      description: 'Detailed list of detected issues and affected records.',
+      icon: 'ID',
+    },
+    {
+      key: 'business_impact_report',
+      title: 'Business Impact Report',
+      description: 'Commercial impact, estimated loss and potential savings.',
+      icon: 'BI',
+    },
+    {
+      key: 'action_plan_report',
+      title: 'Action Plan Report',
+      description: 'Prioritized action plan for remediation.',
+      icon: 'AP',
+    },
+    {
+      key: 'trend_report',
+      title: 'Trend Report',
+      description: 'Monitoring trends for score, loss and issue development.',
+      icon: 'TR',
+      monitoringOnly: true,
+    },
+  ];
+}
+
+function firstPresent(...values) {
+  return values.find((value) => String(value || '').trim());
+}
+
+function reportLinkFrom(item, links, key, type) {
+  const linkSet = links?.[key] || links?.[item?.key] || {};
+  if (type === 'pdf') {
+    return firstPresent(item?.pdf_url, item?.pdf_report_url, linkSet.pdf_url, linkSet.pdf, linkSet.pdf_report_url);
+  }
+  return firstPresent(item?.html_url, item?.open_url, item?.url, item?.report_url, linkSet.html_url, linkSet.open_url, linkSet.url, linkSet.report_url);
+}
+
+function reportShareLinkCount(data) {
+  const page = data?.reports_page || {};
+  const links = data?.report_links || page.links || {};
+  const candidates = [
+    data?.share_url,
+    data?.executive_share_url,
+    page.share_url,
+    links.share_url,
+    links.executive_share_url,
+    links.executive_summary?.share_url,
+  ];
+  return candidates.filter((value) => String(value || '').trim()).length;
+}
+
+function normalizeReportsForPage(data) {
+  const page = data?.reports_page || {};
+  const rawItems = Array.isArray(page.items) ? page.items : [];
+  const byKey = new Map(rawItems.map((item) => [item?.key || String(item?.title || '').toLowerCase().replaceAll(' ', '_'), item]));
+  const reportLinks = data?.report_links || page.links || {};
+  const selectedScanId = firstPresent(data?.selected_scan_id, currentSelectedScanId, data?.latest_scan_id, data?.scan_id);
+  const isLocked = Boolean(page.locked || data?.pages?.reports?.locked);
+  const monitoringActive = Boolean(data?.product_access?.monitoring_active || data?.product_access?.can_use_monitoring);
+  const historyCount = Math.max(
+    Array.isArray(data?.recent_scans) ? data.recent_scans.length : 0,
+    Array.isArray(data?.score_trend) ? data.score_trend.length : 0,
+    Array.isArray(data?.loss_trend) ? data.loss_trend.length : 0,
+  );
+  const hasMonitoringHistory = monitoringActive && historyCount > 1;
+
+  return {
+    isLocked,
+    selectedScanId,
+    monitoringActive,
+    hasMonitoringHistory,
+    items: reportDefinitions().map((definition) => {
+      const item = byKey.get(definition.key) || {};
+      const accessAllowed = !isLocked && Boolean(item.available);
+      let openUrl = reportLinkFrom(item, reportLinks, definition.key, 'open');
+      let pdfUrl = reportLinkFrom(item, reportLinks, definition.key, 'pdf');
+
+      if (definition.key === 'executive_summary' && accessAllowed && selectedScanId) {
+        const safeScanId = encodeURIComponent(selectedScanId);
+        openUrl = openUrl || `/reports/executive/${safeScanId}/html`;
+        pdfUrl = pdfUrl || `/reports/executive/${safeScanId}/pdf`;
+      }
+
+      const hasLink = Boolean(openUrl || pdfUrl);
+      let status = 'After scan';
+      let statusClass = 'after-scan';
+      let disabledLabel = 'Available after scan';
+      let helper = selectedScanId ? 'Report link is not available in the current dashboard payload.' : 'Available after scan';
+
+      if (isLocked) {
+        status = 'Locked';
+        statusClass = 'locked';
+        disabledLabel = 'Unlock reports';
+        helper = 'Protected report access is available on a paid product.';
+      } else if (definition.monitoringOnly && !hasMonitoringHistory) {
+        status = 'Monitoring only';
+        statusClass = 'monitoring';
+        disabledLabel = 'Available with monitoring history';
+        helper = 'Available with monitoring history';
+      } else if (accessAllowed && hasLink) {
+        status = 'Available';
+        statusClass = 'available';
+        disabledLabel = '';
+        helper = definition.key === 'executive_summary'
+          ? 'Existing Executive Report endpoints are linked for this scan.'
+          : 'Existing report link is available.';
+      } else if (!selectedScanId) {
+        helper = 'Available after scan';
+      }
+
+      return {
+        ...definition,
+        available: accessAllowed && hasLink && !(definition.monitoringOnly && !hasMonitoringHistory),
+        openUrl: accessAllowed ? openUrl : '',
+        pdfUrl: accessAllowed ? pdfUrl : '',
+        status,
+        statusClass,
+        disabledLabel,
+        helper,
+      };
+    }),
+  };
+}
+
+function renderReportsMeta(data, normalized) {
+  const host = byId('reports-page-meta');
+  if (!host) return;
+  const page = data?.reports_page || {};
+  const accessLabel = normalized.isLocked ? 'Report Access: Locked' : 'Report Access: Active';
+  const latestReport = firstPresent(page.latest_report_at, data?.latest_report_at, data?.last_report_at);
+  host.innerHTML = [
+    `<span class="placeholder-status">Latest Scan: ${escapeHtml(formatDateTime(data?.last_updated))}</span>`,
+    `<span class="placeholder-status">${escapeHtml(accessLabel)}</span>`,
+    `<span class="placeholder-status">Last Report: ${escapeHtml(latestReport ? formatDateTime(latestReport) : 'Not available')}</span>`,
+  ].join('');
+}
+
+function renderReportsSummary(data, normalized) {
+  const host = byId('reports-summary-cards');
+  if (!host) return;
+  const availableReports = normalized.items.filter((item) => item.available).length;
+  const summaries = [
+    ['Available Reports', `${availableReports} / ${normalized.items.length}`, normalized.isLocked ? 'Unlock reports to open protected outputs.' : 'Reports with existing usable links.'],
+    ['Latest Scan', data?.last_updated ? formatDateTime(data.last_updated) : 'Available after scan', normalized.selectedScanId ? `Scan ${normalized.selectedScanId}` : 'No scan context available yet.'],
+    ['Report Access', normalized.isLocked ? 'Locked' : 'Active', normalized.isLocked ? 'Open and PDF links stay protected.' : 'Existing report links can be opened.'],
+    ['Share Links', formatNumber(reportShareLinkCount(data)), 'Only existing share links are counted. No share link is created here.'],
+  ];
+
+  host.innerHTML = summaries.map(([label, value, helper]) => `
+    <article class="stat-card report-summary-card">
+      <div class="stat-label">${escapeHtml(label)}</div>
+      <div class="stat-value stat-value-small">${escapeHtml(value)}</div>
+      <div class="stat-helper">${escapeHtml(helper)}</div>
+    </article>
   `).join('');
 }
 
 function renderReportsPage(data) {
   const host = byId('reports-page-grid');
   if (!host) return;
-  const page = data?.reports_page || {};
-  const items = Array.isArray(page.items) ? page.items : [];
-  if (page.locked) {
-    host.innerHTML = `<div class="empty-state">${escapeHtml(t('paid_access', 'Paid Access'))}</div>`;
-    return;
-  }
-  host.innerHTML = items.map((item) => `
-    <article class="report-card">
-      <h4>${escapeHtml(item?.title)}</h4>
-      <p class="muted">${escapeHtml(item?.available ? 'Ready for this scan.' : 'Available with monitoring history.')}</p>
-      <button type="button" class="pager-button" ${item?.available ? '' : 'disabled'}>Open</button>
-    </article>
-  `).join('') || `<div class="empty-state">${escapeHtml(t('no_findings', 'No reports are available for this scan.'))}</div>`;
+  const normalized = normalizeReportsForPage(data);
+  const lockedNote = byId('reports-locked-note');
+  const unlockButton = byId('reports-unlock-button');
+
+  renderReportsMeta(data, normalized);
+  renderReportsSummary(data, normalized);
+
+  if (lockedNote) lockedNote.classList.toggle('hidden', !normalized.isLocked);
+  if (unlockButton) unlockButton.classList.toggle('hidden', !normalized.isLocked);
+
+  host.innerHTML = normalized.items.map((item) => {
+    const openButton = item.openUrl && item.available
+      ? `<a href="${escapeHtml(item.openUrl)}" class="pager-button report-action-button" target="_blank" rel="noopener noreferrer">Open</a>`
+      : `<button type="button" class="pager-button report-action-button" disabled>${escapeHtml(item.disabledLabel || 'Available after scan')}</button>`;
+    const pdfButton = item.pdfUrl && item.available
+      ? `<a href="${escapeHtml(item.pdfUrl)}" class="pager-button report-action-button" target="_blank" rel="noopener noreferrer">PDF</a>`
+      : '';
+    return `
+      <article class="report-card report-center-card">
+        <div class="report-card-header">
+          <span class="report-card-icon">${escapeHtml(item.icon)}</span>
+          <span class="report-status-badge report-status-${escapeHtml(item.statusClass)}">${escapeHtml(item.status)}</span>
+        </div>
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="report-card-helper">${escapeHtml(item.helper)}</div>
+        <div class="report-card-actions">
+          ${openButton}
+          ${pdfButton}
+        </div>
+      </article>
+    `;
+  }).join('') || `<div class="empty-state executive-empty">${escapeHtml(t('no_findings', 'No reports are available for this scan.'))}</div>`;
 }
 
 function renderSettingsPage(data) {
