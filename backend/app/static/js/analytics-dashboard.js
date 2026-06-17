@@ -103,7 +103,7 @@ function updatePageHeader(tab) {
     overview: ['Overview', 'Executive overview of your data quality and business impact'],
     analytics: ['Analytics', 'Score, loss and distribution analysis for the selected scan'],
     scans: ['Scans', 'Available scan runs and dashboard context'],
-    issues: ['Issues', 'All data quality issues found in your system'],
+    issues: ['Issues', 'Review detected data quality issues, business impact and affected records.'],
     actions: ['Actions', 'Recommended actions to improve your data quality'],
     reports: ['Reports', 'Create and download reports about your data quality'],
     subscription: ['Subscription', 'Manage product access, scan credits and usage'],
@@ -648,28 +648,158 @@ function renderFindings(items, isPremium) {
   }).join('');
 }
 
+function normalizeIssueSeverity(value) {
+  const severity = String(value || '').trim().toLowerCase();
+  if (['critical', 'high', 'medium', 'low'].includes(severity)) return severity;
+  return severity ? 'unknown' : 'low';
+}
+
+function issueSeverityLabel(value, fallback) {
+  const normalized = normalizeIssueSeverity(value);
+  if (fallback) return String(fallback);
+  const labels = {
+    critical: 'Critical',
+    high: 'High',
+    medium: 'Medium',
+    low: 'Low',
+    unknown: 'Unknown',
+  };
+  return labels[normalized] || 'Unknown';
+}
+
+function normalizeIssueItem(item, index, isLocked, data) {
+  const severity = normalizeIssueSeverity(item?.severity ?? item?.priority);
+  const title = item?.title || item?.issue || item?.name || '';
+  const group = item?.group || item?.module || item?.area || 'Module pending';
+  const count = safeNumber(item?.count ?? item?.affected_records ?? item?.affected_count);
+  const impact = safeNumber(item?.impact_eur ?? item?.estimated_loss_eur ?? item?.estimated_impact_eur ?? item?.potential_saving_eur);
+  const status = String(item?.status || 'Open').trim() || 'Open';
+
+  return {
+    id: item?.code || item?.id || `issue-${index + 1}`,
+    title: isLocked ? 'Premium issue details' : (title || 'Issue'),
+    group,
+    severity,
+    severityLabel: issueSeverityLabel(severity, item?.severity_label),
+    count,
+    impact,
+    status,
+    detectedOn: item?.detected_on || item?.detected_at || data?.last_updated || '',
+    locked: isLocked,
+  };
+}
+
+function collectIssueCandidates(data, isLocked) {
+  const pageItems = Array.isArray(data?.issues_page?.items) ? data.issues_page.items : [];
+  const premiumItems = Array.isArray(data?.top_findings) ? data.top_findings : [];
+  const freeItems = Array.isArray(data?.free_insights?.top_findings) ? data.free_insights.top_findings : [];
+  const previewItems = Array.isArray(data?.premium_preview_findings) ? data.premium_preview_findings : [];
+
+  if (!isLocked && pageItems.length > 0) return pageItems;
+  if (!isLocked && premiumItems.length > 0) return premiumItems;
+  if (freeItems.length > 0) return freeItems;
+  if (previewItems.length > 0) return previewItems;
+  return pageItems.length > 0 ? pageItems : [];
+}
+
+function normalizeIssuesForPage(data) {
+  const page = data?.issues_page || {};
+  const isLocked = Boolean(page.locked || data?.pages?.issues?.locked || !data?.visibility?.is_premium);
+  return collectIssueCandidates(data, isLocked)
+    .filter(Boolean)
+    .map((item, index) => normalizeIssueItem(item, index, isLocked, data));
+}
+
+function severityCountsForIssues(data, normalizedItems) {
+  const summary = data?.free_insights?.active_issues_summary || {};
+  const counts = {
+    critical: safeNumber(summary.critical),
+    high: safeNumber(summary.high),
+    medium: safeNumber(summary.medium),
+    low: safeNumber(summary.low),
+  };
+  const hasSummary = Object.values(counts).some((value) => value > 0);
+  if (hasSummary) return counts;
+
+  normalizedItems.forEach((item) => {
+    const severity = normalizeIssueSeverity(item?.severity);
+    if (severity in counts) counts[severity] += 1;
+  });
+  return counts;
+}
+
+function renderIssuesMeta(data, normalizedItems, isLocked) {
+  const host = byId('issues-page-meta');
+  if (!host) return;
+  const counts = severityCountsForIssues(data, normalizedItems);
+  const totalFromSummary = Object.values(counts).reduce((sum, value) => sum + value, 0);
+  const totalIssues = safeNumber(data?.kpis?.issues_count, totalFromSummary || normalizedItems.length);
+  const accessLabel = isLocked ? 'Locked access' : 'Full issue access';
+  const scanLabel = data?.last_updated ? `Last scan ${formatDateTime(data.last_updated)}` : 'No scan timestamp';
+
+  host.innerHTML = `
+    <span class="placeholder-status">${formatNumber(totalIssues)} Issues</span>
+    <span class="placeholder-status">${escapeHtml(scanLabel)}</span>
+    <span class="placeholder-status">${escapeHtml(accessLabel)}</span>
+  `;
+}
+
+function renderIssueSeverityCards(data, normalizedItems) {
+  const host = byId('issues-severity-cards');
+  if (!host) return;
+  const counts = severityCountsForIssues(data, normalizedItems);
+  const cards = [
+    ['critical', 'Critical', counts.critical],
+    ['high', 'High', counts.high],
+    ['medium', 'Medium', counts.medium],
+    ['low', 'Low', counts.low],
+  ];
+
+  host.innerHTML = cards.map(([key, label, count]) => `
+    <article class="stat-card panel issue-severity-card issue-severity-${key}">
+      <div class="stat-label">${escapeHtml(label)}</div>
+      <div class="stat-value">${formatNumber(count)}</div>
+      <div class="stat-helper">Detected ${escapeHtml(label.toLowerCase())} issues</div>
+    </article>
+  `).join('');
+}
+
 function renderIssuesPage(data) {
   const host = byId('issues-page-body');
   if (!host) return;
   const page = data?.issues_page || {};
-  const items = Array.isArray(page.items) ? page.items : [];
-  if (page.locked) {
-    host.innerHTML = `<tr><td colspan="7" class="table-empty">${escapeHtml(t('paid_access', 'Paid Access'))}</td></tr>`;
-    return;
-  }
+  const isLocked = Boolean(page.locked || data?.pages?.issues?.locked || !data?.visibility?.is_premium);
+  const items = normalizeIssuesForPage(data);
+  const lockedNote = byId('issues-locked-note');
+  const unlockButton = byId('issues-unlock-button');
+
+  renderIssuesMeta(data, items, isLocked);
+  renderIssueSeverityCards(data, items);
+
+  if (lockedNote) lockedNote.classList.toggle('hidden', !isLocked);
+  if (unlockButton) unlockButton.classList.toggle('hidden', !isLocked);
+
   if (items.length === 0) {
-    host.innerHTML = `<tr><td colspan="7" class="table-empty">${escapeHtml(t('no_findings', 'No findings are available for this scan.'))}</td></tr>`;
+    host.innerHTML = `<tr><td colspan="7" class="table-empty">No issues detected in the latest scan.</td></tr>`;
     return;
   }
-  host.innerHTML = items.map((item) => `
-    <tr>
-      <td><strong>${escapeHtml(item?.title)}</strong></td>
-      <td>${escapeHtml(item?.group)}</td>
-      <td><span class="severity severity-${escapeHtml(item?.severity)}">${escapeHtml(item?.severity_label || item?.severity)}</span></td>
-      <td>${formatNumber(item?.count)}</td>
-      <td>${formatCurrency(item?.impact_eur)}</td>
-      <td>Open</td>
-      <td>${escapeHtml(formatDateTime(data?.last_updated))}</td>
+
+  host.innerHTML = items.map((item, index) => `
+    <tr class="${item.locked ? 'issue-row-locked' : ''}">
+      <td>
+        <strong>${escapeHtml(item.title)}</strong>
+        <div class="muted">${item.locked ? 'Details protected by current access level' : `Issue ID ${escapeHtml(item.id)}`}</div>
+      </td>
+      <td>${escapeHtml(item.group)}</td>
+      <td><span class="severity severity-${escapeHtml(item.severity)}">${escapeHtml(item.severityLabel)}</span></td>
+      <td>${item.locked ? '<span class="locked-value">Locked</span>' : formatNumber(item.count)}</td>
+      <td>${item.locked ? '<span class="locked-value">Locked</span>' : formatCurrency(item.impact)}</td>
+      <td><span class="status-badge status-open">${escapeHtml(item.status)}</span></td>
+      <td>
+        <button type="button" class="pager-button issue-detail-button" disabled>
+          ${escapeHtml(item.locked ? 'Locked' : (index === 0 ? 'View details later' : 'Details later'))}
+        </button>
+      </td>
     </tr>
   `).join('');
 }

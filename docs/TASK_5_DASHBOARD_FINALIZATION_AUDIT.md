@@ -186,3 +186,100 @@ Es wurden ausschliesslich bestehende Dashboard-/Analytics-Payloads verwendet:
 - Statische Suche bestaetigt Overview, Health Score, Estimated Loss, Potential Savings, Total Records, Validation Checks, Score Trend, Loss Trend, Issue Distribution, Module Distribution, Recent Issues und Business Impact.
 - Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehender Preislogik, nicht als sichtbarer UI-Text.
 - `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
+
+## Phase 4 - Issues Page Finalization
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `backend/app/routers/analytics.py` lesend, zur Zuordnung der vorhandenen Issue-Payload-Felder
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Verwendete Datenquellen
+
+Es wurden ausschliesslich bestehende Dashboard-/Analytics-Payloads verwendet:
+
+- `issues_page.locked`
+- `issues_page.items`
+- `top_findings`
+- `free_insights.top_findings`
+- `free_insights.active_issues_summary`
+- `premium_preview_findings` als letzter Fallback fuer eine gesperrte Preview-Liste
+- `kpis.issues_count`
+- `visibility.is_premium`
+- `pages.issues.locked`
+- `last_updated`
+
+### Issues-Normalisierung
+
+Die Issues-Seite normalisiert vorhandene Issue-/Finding-Objekte clientseitig auf:
+
+- `title`
+- `group` / `module`
+- `severity`
+- `severity_label`
+- `count`
+- `impact_eur`
+- `status`
+- `detected_on`
+
+Feld-Fallbacks werden nur fuer Darstellung genutzt. Es wurde keine Backend- oder BC-Severity-Logik geaendert. `Critical`, `High`, `Medium` und `Low` werden als UI-Buckets angezeigt; `Critical` bleibt 0, wenn der vorhandene Payload keine Critical-Werte liefert. Unbekannte Severity-Werte werden als `Unknown` dargestellt.
+
+### Neue / ueberarbeitete Issues-Komponenten
+
+- Issues Page Header mit Management-Subtitle, Gesamtzahl, letztem Scan-Zeitpunkt und Access-Status.
+- Severity-KPI-Karten fuer Critical, High, Medium und Low.
+- Professionelle Issues-Tabelle mit Spalten: Issue, Module, Severity, Affected Records, Estimated Loss, Status und Action.
+- Empty State: `No issues detected in the latest scan.`
+- Locked Row State fuer Free User mit `Premium issue details`, `Locked` fuer geschuetzte Zahlen und CTA `Unlock full issue details`.
+- Premium-kompatible volle Issue-Liste aus bestehenden `issues_page.items` bzw. `top_findings`.
+- Vorbereiteter, deaktivierter Detail-Button fuer Phase 5 ohne neue Backend-Route.
+
+### Free/Premium/Monitoring-Verhalten
+
+- Issues bleibt fuer Free User sichtbar.
+- Free User sehen Severity-Verteilung, Module, Status-Kontext und gesperrte Werte, aber keine konkreten Issue-Titel, Affected-Record-Zahlen oder Estimated-Loss-Details in der Tabelle.
+- Premium User sehen die vollstaendigen Issue-/Finding-Felder, soweit im bestehenden Payload vorhanden.
+- Monitoring erzeugt keine zusaetzliche Logik; vorhandene Scan-/Zeitkontexte werden nur angezeigt.
+- Bestehendes Produkt-Gating wird nur lesend ausgewertet.
+
+### Bekannte Luecken
+
+- Issue Detail ist noch nicht implementiert.
+- Der Action-Button in der Issues-Tabelle ist absichtlich deaktiviert und fuer Phase 5 vorbereitet.
+- Echter Issue-Status fehlt weiterhin im Backend-Payload; die UI nutzt den Default `Open`, wenn kein Status vorhanden ist.
+- Issue-spezifisches Erkennungsdatum fehlt weiterhin; die Seite nutzt den vorhandenen Scan-Zeitpunkt.
+- Record-Level-Daten, Owner, SLA, History und konkrete Recommendations bleiben Phase 5 bzw. spaeteren Backend-/BC-Tasks vorbehalten.
+
+### Bewusst nicht geaendert
+
+- Keine Lizenzlogik.
+- Keine Billing-/Stripe-Logik.
+- Keine Free-Scan-Logik.
+- Keine Monitoring-Logik.
+- Keine Scan Engine.
+- Keine Backend-Routen.
+- Keine BC Extension.
+- Keine neuen externen Dependencies.
+- Keine fachliche Severity-Logik.
+
+### Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- Statische Suche bestaetigt Issues, Critical, High, Medium, Low, Affected Records, Estimated Loss, Unlock full issue details und severity-critical.
+- Statische Suche nach `undefined`, `null` und `NaN`: Treffer liegen in defensiven JS-Pruefungen, Initialwerten und bestehender Preis-/Billing-Darstellung, nicht als sichtbare UI-Texte.
+- Browser-Visual-Check konnte nicht ausgefuehrt werden, weil `http://localhost:8000/health` in der lokalen Umgebung nicht erreichbar war.
+- `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.

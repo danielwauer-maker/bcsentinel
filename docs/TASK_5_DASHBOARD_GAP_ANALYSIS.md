@@ -429,3 +429,38 @@ Offene Punkte fuer Phase 4:
 - Open-in-BC-Links erst auf Actions/Issue Detail anwenden, wenn vorhandene Link-Daten stabil sind.
 - Critical Severity weiterhin nicht fachlich einfuehren; separater Task 6 bleibt empfohlen.
 - Keine neuen Backend-Routen oder Produktlogiken wurden in Phase 3 eingefuehrt.
+
+## Phase 4 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Issues-Elemente:
+
+- Issues Page Header mit Subtitle `Review detected data quality issues, business impact and affected records.`
+- Header-Metadaten fuer Gesamtzahl Issues, letzten Scan-Zeitpunkt und Access-Status.
+- Severity-KPI-Karten fuer Critical, High, Medium und Low.
+- Issues-Tabelle mit Issue, Module, Severity, Affected Records, Estimated Loss, Status und Action.
+- Robuste clientseitige Normalisierung fuer vorhandene Quellen: `issues_page.items`, `top_findings`, `free_insights.top_findings` und `premium_preview_findings`.
+- Free/Locked State mit anonymisiertem Issue-Titel `Premium issue details`, gesperrten Werten und CTA `Unlock full issue details`.
+- Premium State mit vollstaendigen Issue-Daten, soweit im bestehenden Payload vorhanden.
+- Professioneller Empty State: `No issues detected in the latest scan.`
+- UI-kompatible Severity-Badges fuer Critical, High, Medium, Low und defensiv Unknown.
+- Deaktivierter Detail-Button als Vorbereitung fuer Phase 5, ohne neue Route.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 5:
+
+- Issue Detail Page finalisieren.
+- Stabile clientseitige Auswahl eines Issues definieren.
+- Record-Level-Daten nur anbinden, wenn Backend-/BC-Datenvertrag und Gating eindeutig sind.
+- Open-in-Business-Central-Links auf Detail-/Action-Ebene sauber anzeigen oder deaktivieren, falls kein Link vorhanden ist.
+- Echten Issue-Status, Owner, SLA, History und Recommendations spaeter fachlich klaeren.
+- Critical Severity weiterhin nicht fachlich einfuehren; separater Task 6 bleibt empfohlen.
+- Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 4 geaendert.

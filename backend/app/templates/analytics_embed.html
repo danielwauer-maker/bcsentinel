@@ -314,23 +314,34 @@
     </section>
 
     <section id="issues-tab" class="tab-panel hidden">
-      <div class="page-intro panel">
+      <div class="page-intro panel issues-page-intro">
         <div>
           <span class="section-kicker">Issues</span>
           <h2>Issues</h2>
-          <p>The full issue list is routed here. Locked access remains controlled by the existing product access payload.</p>
+          <p>Review detected data quality issues, business impact and affected records.</p>
         </div>
-        <span class="placeholder-status">Detail view later</span>
+        <div id="issues-page-meta" class="issues-page-meta"></div>
       </div>
-      <article class="panel">
-        <div class="panel-header"><h3>Issues</h3><span class="muted">Full issue list</span></div>
-        <div class="locked-region" data-lock-section="issues">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Issue</th><th>Module</th><th>Severity</th><th>Affected Records</th><th>Estimated Loss</th><th>Status</th><th>Detected On</th></tr></thead>
-              <tbody id="issues-page-body"></tbody>
-            </table>
+
+      <section id="issues-severity-cards" class="issues-severity-grid"></section>
+
+      <article class="panel issues-list-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Issues</h3>
+            <span class="muted">Full issue list from the existing dashboard payload</span>
           </div>
+          <button type="button" id="issues-unlock-button" class="pager-button hidden" data-jump-tab="subscription">Unlock full issue details</button>
+        </div>
+        <div id="issues-locked-note" class="issues-locked-note hidden">
+          <strong>Unlock full issue details</strong>
+          <span>Free access shows severity and business value without exposing protected issue details.</span>
+        </div>
+        <div class="table-wrap issues-table-wrap">
+          <table class="issues-table">
+            <thead><tr><th>Issue</th><th>Module</th><th>Severity</th><th>Affected Records</th><th>Estimated Loss</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="issues-page-body"></tbody>
+          </table>
         </div>
       </article>
     </section>
