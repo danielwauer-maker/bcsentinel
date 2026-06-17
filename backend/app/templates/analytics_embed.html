@@ -47,80 +47,127 @@
     </header>
 
     <section id="overview-tab" class="tab-panel is-active">
-      <section class="hero-block">
+      <section class="overview-hero panel">
         <div>
-          
-          <div id="hero-eyebrow" class="hero-eyebrow">Data Health Score first. Full Analysis unlocks the details.</div>
-          <h2 class="hero-title">
+          <div id="hero-eyebrow" class="hero-eyebrow">Executive overview</div>
+          <h2 class="hero-title overview-title">
             <span id="hero-prefix">Your data health is</span>
             <span id="hero-highlight" class="hero-highlight">critical</span>
             <span id="hero-suffix"></span>
           </h2>
+          <p id="overview-summary" class="overview-summary">Executive overview of your data quality and business impact.</p>
+          <div id="overview-context" class="overview-context"></div>
         </div>
         <ul id="hero-points" class="hero-points"></ul>
       </section>
 
-      <section class="stats-grid">
-        <article class="stat-card panel">
-          <div class="stat-label">Health Score</div>
-          <div class="stat-value score-value" id="kpi-health-score">0</div>
-          <div class="stat-helper">Overall data quality</div>
+      <section class="stats-grid overview-kpi-grid">
+        <article class="stat-card panel kpi-card kpi-score-card">
+          <div class="stat-label" id="kpi-health-label-title">Health Score</div>
+          <div class="health-score-wrap">
+            <div id="kpi-health-gauge" class="health-gauge" style="--score: 0">
+              <div>
+                <div class="stat-value score-value" id="kpi-health-score">0</div>
+                <div class="gauge-scale">/100</div>
+              </div>
+            </div>
+            <div id="kpi-health-label" class="kpi-status">Not calculated yet</div>
+          </div>
+          <div class="stat-helper" id="kpi-health-helper">Overall data quality</div>
         </article>
 
-        <article class="stat-card panel accent-red">
-          <div class="stat-label">Estimated Loss</div>
+        <article class="stat-card panel kpi-card accent-red">
+          <div class="stat-label" id="kpi-loss-label-title">Estimated Loss</div>
           <div class="stat-value loss-value" id="kpi-loss">0 &euro;</div>
-          <div class="stat-helper">Estimated annual impact</div>
+          <div class="stat-helper" id="kpi-loss-helper">Estimated annual impact</div>
         </article>
 
-        <article class="stat-card panel accent-green">
-          <div class="stat-label">Potential Savings</div>
+        <article class="stat-card panel kpi-card accent-green">
+          <div class="stat-label" id="kpi-savings-label-title">Potential Savings</div>
           <div class="stat-value roi-value" id="kpi-savings">0 &euro;</div>
-          <div class="stat-helper">Estimated improvement potential</div>
+          <div class="stat-helper" id="kpi-savings-helper">Estimated improvement potential</div>
         </article>
 
-        <article class="stat-card panel compact-stat">
-          <div class="stat-label">Total Records</div>
+        <article class="stat-card panel kpi-card compact-stat">
+          <div class="stat-label" id="kpi-records-label-title">Total Records</div>
           <div class="stat-value" id="kpi-records">0</div>
-          <div class="stat-helper">Records analyzed</div>
+          <div class="stat-helper" id="kpi-records-helper">Records analyzed</div>
         </article>
 
-        <article class="stat-card panel compact-stat">
-          <div class="stat-label">Checks</div>
+        <article class="stat-card panel kpi-card compact-stat">
+          <div class="stat-label" id="kpi-checks-label-title">Validation Checks</div>
           <div class="stat-value" id="kpi-checks">0</div>
-          <div class="stat-helper">Validation checks run</div>
-        </article>
-
-        <article class="stat-card panel compact-stat">
-          <div class="stat-label">Issues Found</div>
-          <div class="stat-value" id="kpi-issues">0</div>
-          <div class="stat-helper">Active issue types</div>
+          <div class="stat-helper" id="kpi-checks-helper">Validation checks run</div>
         </article>
       </section>
 
-      <section class="overview-grid overview-grid-top">
-        <article class="panel" id="profile-grid">
+      <section class="overview-grid overview-trend-grid">
+        <article class="panel" id="score-trend-panel">
           <div class="panel-header">
             <div class="panel-title-block">
-              
-              <h3>Data Scores by BC module</h3>
+              <h3>Score Trend</h3>
+              <span class="muted">Historical score movement when scan history is available</span>
             </div>
-            <span class="muted">Score per module &middot; 0 to 100</span>
+            <span id="score-trend-badge" class="placeholder-status">History</span>
           </div>
-          <div class="mini-grid" id="profile-cards"></div>
+          <div id="trend-chart" class="trend-chart"></div>
         </article>
 
-        <article class="panel" id="issue-group-panel">
+        <article class="panel" id="loss-trend-panel">
           <div class="panel-header">
             <div class="panel-title-block">
-              
-              <h3 id="module-volume-title">Issues by BC module</h3>
+              <h3>Loss Trend</h3>
+              <span class="muted">Estimated annual impact over available scans</span>
             </div>
-            <div class="panel-header-actions">
-              <span id="module-volume-subtitle" class="muted">Affected findings per module</span>
+            <span id="loss-trend-badge" class="placeholder-status">Monitoring value</span>
+          </div>
+          <div id="loss-chart" class="trend-chart"></div>
+        </article>
+      </section>
+
+      <section class="overview-grid overview-distribution-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Issue Distribution</h3>
+              <span class="muted">Severity mix for the selected scan</span>
             </div>
           </div>
-          <div id="issue-groups" class="progress-list"></div>
+          <div id="overview-issue-distribution" class="severity-distribution"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Module Distribution</h3>
+              <span class="muted">Affected findings and records by Business Central module</span>
+            </div>
+          </div>
+          <div id="overview-module-distribution" class="module-distribution"></div>
+        </article>
+      </section>
+
+      <section class="overview-grid overview-insight-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Recent Issues</h3>
+              <span class="muted">Top issues by impact for the selected scan</span>
+            </div>
+            <button type="button" class="pager-button inline-nav-button" data-jump-tab="issues">View all issues</button>
+          </div>
+          <div id="overview-recent-issues" class="overview-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Business Impact</h3>
+              <span class="muted">Management summary based on existing scan economics</span>
+            </div>
+            <span id="business-impact-badge" class="placeholder-status">Executive</span>
+          </div>
+          <div id="overview-business-impact" class="business-impact-panel"></div>
         </article>
       </section>
 
@@ -128,7 +175,6 @@
         <article class="panel" id="scan-table-panel">
           <div class="panel-header">
             <div class="panel-title-block">
-              
               <h3>Recent Scans</h3>
             </div>
             <span class="muted">Click a scan to load it</span>
@@ -147,30 +193,6 @@
             <button type="button" class="pager-button" id="recent-scans-next">Next</button>
           </div>
         </article>
-
-        <div class="trend-stack">
-          <article class="panel" id="score-trend-panel">
-            <div class="panel-header">
-              <div class="panel-title-block">
-                
-                <h3>Score Trend</h3>
-              </div>
-              <span class="muted">History of selected scans</span>
-            </div>
-            <div id="trend-chart" class="trend-chart"></div>
-          </article>
-
-          <article class="panel" id="loss-trend-panel">
-            <div class="panel-header">
-              <div class="panel-title-block">
-              
-                <h3>Loss Trend</h3>
-              </div>
-              <span class="muted">Estimated annual impact</span>
-            </div>
-            <div id="loss-chart" class="trend-chart"></div>
-          </article>
-        </div>
       </section>
 
       <section id="access-unlock-panel" class="panel unlock-panel hidden">

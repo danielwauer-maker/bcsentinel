@@ -10,17 +10,30 @@ function byId(id) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US').format(Number(value || 0));
+  const number = Number(value);
+  const safeNumber = Number.isFinite(number) ? number : 0;
+  return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US').format(safeNumber);
 }
 
 function formatCurrency(value) {
-  const number = Number(value || 0);
+  const number = Number(value);
+  const safeNumber = Number.isFinite(number) ? number : 0;
   return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US', {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(number);
+  }).format(safeNumber);
+}
+
+function safeNumber(value, defaultValue = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : defaultValue;
+}
+
+function formatPercent(value) {
+  const number = safeNumber(value);
+  return `${formatNumber(Math.round(number))}%`;
 }
 
 function t(key, fallback) {
@@ -82,6 +95,23 @@ function applyDashboardUi(ui, language) {
   const subscriptionHelperKeys = ['','scan_credits_helper', 'dashboard_access_helper', 'issue_access_helper', 'monthly_price_helper', 'annual_cost_helper'];
   subscriptionLabels.forEach((el, index) => { if (subscriptionLabelKeys[index]) el.textContent = t(subscriptionLabelKeys[index], el.textContent); });
   subscriptionHelpers.forEach((el, index) => { if (subscriptionHelperKeys[index]) el.textContent = t(subscriptionHelperKeys[index], el.textContent); });
+}
+
+function updatePageHeader(tab) {
+  const data = currentDashboardState || {};
+  const pageCopy = {
+    overview: ['Overview', 'Executive overview of your data quality and business impact'],
+    analytics: ['Analytics', 'Score, loss and distribution analysis for the selected scan'],
+    scans: ['Scans', 'Available scan runs and dashboard context'],
+    issues: ['Issues', 'All data quality issues found in your system'],
+    actions: ['Actions', 'Recommended actions to improve your data quality'],
+    reports: ['Reports', 'Create and download reports about your data quality'],
+    subscription: ['Subscription', 'Manage product access, scan credits and usage'],
+    settings: ['Settings', 'Configure your account and preferences'],
+  };
+  const [title, fallbackSubtitle] = pageCopy[tab] || pageCopy.overview;
+  setText('page-title', title);
+  setText('page-subtitle', tab === 'overview' && data?.subtitle ? `${fallbackSubtitle} - ${data.subtitle}` : fallbackSubtitle);
 }
 
 function formatDateTime(value) {
@@ -251,19 +281,19 @@ function renderModuleVolume(data) {
 
   renderIssueGroups(issueGroups, t('no_module_data', 'No module issue counts are available for this scan.'));
 }
-function renderTrend(containerId, items, asCurrency = false) {
+function renderTrend(containerId, items, asCurrency = false, emptyMessage = t('no_trend_data', 'No trend data available yet.')) {
   const host = byId(containerId);
   if (!host) return;
   host.innerHTML = '';
 
-  if (!Array.isArray(items) || items.length === 0) {
-    host.innerHTML = `<div class="empty-state">${escapeHtml(t('no_trend_data', 'No trend data available yet.'))}</div>`;
+  if (!Array.isArray(items) || items.length < 2) {
+    host.innerHTML = `<div class="empty-state executive-empty">${escapeHtml(emptyMessage)}</div>`;
     return;
   }
 
   const safeItems = items.map((item) => ({
     label: item?.label || '',
-    value: Number(item?.value || 0),
+    value: safeNumber(item?.value),
     is_selected: Boolean(item?.is_selected),
   }));
 
@@ -313,6 +343,213 @@ function renderTrend(containerId, items, asCurrency = false) {
       ${pointCircles}
       ${xLabels}
     </svg>
+  `;
+}
+
+function scoreLabel(score) {
+  const band = scoreBand(score);
+  const labels = {
+    critical: 'Critical',
+    warning: 'Needs attention',
+    moderate: 'Moderate',
+    good: 'Good',
+    excellent: 'Excellent',
+  };
+  return labels[band] || 'Not calculated yet';
+}
+
+function renderOverviewContext(data) {
+  const host = byId('overview-context');
+  if (!host) return;
+  const items = [
+    data?.subtitle ? ['Context', data.subtitle] : null,
+    data?.scan_mode_label ? ['Scan', data.scan_mode_label] : null,
+    data?.last_updated ? ['Last scan', formatDateTime(data.last_updated)] : null,
+  ].filter(Boolean);
+
+  host.innerHTML = items.map(([label, value]) => `
+    <span class="overview-context-chip"><strong>${escapeHtml(label)}</strong>${escapeHtml(value)}</span>
+  `).join('');
+}
+
+function renderOverviewKpis(data) {
+  const kpis = data?.kpis || {};
+  const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
+  const totalRecords = safeNumber(kpis.total_records);
+  const checksRun = safeNumber(kpis.checks_run);
+  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
+  const potentialSaving = safeNumber(kpis.potential_saving_eur);
+  const hasScan = Boolean(data?.selected_scan_id);
+
+  setText('kpi-health-label-title', 'Health Score');
+  setText('kpi-loss-label-title', 'Estimated Loss');
+  setText('kpi-savings-label-title', 'Potential Savings');
+  setText('kpi-records-label-title', 'Total Records');
+  setText('kpi-checks-label-title', 'Validation Checks');
+  setText('kpi-health-score', formatNumber(healthScore));
+  setText('kpi-health-label', hasScan ? scoreLabel(healthScore) : 'Not calculated yet');
+  setText('kpi-health-helper', hasScan ? 'Overall data quality' : 'Run a validation check to unlock this KPI');
+  const healthGauge = byId('kpi-health-gauge');
+  if (healthGauge) healthGauge.style.setProperty('--score', String(healthScore));
+  const healthScoreEl = byId('kpi-health-score');
+  if (healthScoreEl) healthScoreEl.className = `stat-value score-value ${scoreBand(healthScore)}`;
+
+  setText('kpi-loss', hasScan ? formatCurrency(estimatedLoss) : 'Not calculated yet');
+  setText('kpi-loss-helper', estimatedLoss > 0 ? 'Estimated annual impact' : 'Available after full analysis');
+  setText('kpi-savings', hasScan ? formatCurrency(potentialSaving) : 'Not calculated yet');
+  setText('kpi-savings-helper', potentialSaving > 0 ? 'Estimated improvement potential' : 'Run a validation check to unlock this KPI');
+  setText('kpi-records', hasScan ? formatNumber(totalRecords) : 'Not calculated yet');
+  setText('kpi-records-helper', totalRecords > 0 ? 'Records analyzed' : 'Available after scan sync');
+  setText('kpi-checks', hasScan ? formatNumber(checksRun) : 'Not calculated yet');
+  setText('kpi-checks-helper', checksRun > 0 ? 'Validation checks run' : 'Run a validation check to unlock this KPI');
+}
+
+function renderIssueDistribution(data) {
+  const host = byId('overview-issue-distribution');
+  if (!host) return;
+  const summary = data?.free_insights?.active_issues_summary || {};
+  const rows = [
+    ['critical', 'Critical', safeNumber(summary.critical)],
+    ['high', 'High', safeNumber(summary.high)],
+    ['medium', 'Medium', safeNumber(summary.medium)],
+    ['low', 'Low', safeNumber(summary.low)],
+  ];
+  const total = rows.reduce((sum, row) => sum + row[2], 0);
+
+  if (total <= 0) {
+    host.innerHTML = `<div class="empty-state executive-empty">No issue distribution is available for this scan yet.</div>`;
+    return;
+  }
+
+  host.innerHTML = rows.map(([key, label, count]) => {
+    const percent = total > 0 ? (count / total) * 100 : 0;
+    return `
+      <div class="severity-row">
+        <div><span class="severity-dot severity-dot-${key}"></span><span>${escapeHtml(label)}</span></div>
+        <strong>${formatNumber(count)}</strong>
+        <div class="distribution-track"><div class="distribution-fill severity-fill-${key}" style="width:${Math.max(percent, count > 0 ? 4 : 0)}%"></div></div>
+        <span class="muted">${formatPercent(percent)}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function normalizeDistributionItems(items) {
+  return Array.isArray(items)
+    ? items.filter(Boolean).map((item) => ({
+        name: item?.name || item?.label || '',
+        count: safeNumber(item?.count ?? item?.value),
+        percent: safeNumber(item?.percent),
+      })).filter((item) => item.name)
+    : [];
+}
+
+function renderModuleDistribution(data) {
+  const host = byId('overview-module-distribution');
+  if (!host) return;
+  const issueItems = normalizeDistributionItems(data?.free_insights?.module_distribution);
+  const recordItems = normalizeDistributionItems(data?.free_insights?.records_by_module);
+  const moduleItems = issueItems.length > 0 ? issueItems : normalizeDistributionItems(data?.issue_groups);
+
+  if (moduleItems.length === 0 && recordItems.length === 0) {
+    host.innerHTML = `<div class="empty-state executive-empty">Module distribution will appear after scan results are available.</div>`;
+    return;
+  }
+
+  const maxIssue = Math.max(...moduleItems.map((item) => item.count), 1);
+  const maxRecords = Math.max(...recordItems.map((item) => item.count), 1);
+  const issueMarkup = moduleItems.slice(0, 5).map((item) => `
+    <div class="module-row">
+      <span>${escapeHtml(item.name)}</span>
+      <div class="distribution-track"><div class="distribution-fill" style="width:${Math.max((item.count / maxIssue) * 100, 3)}%"></div></div>
+      <strong>${formatNumber(item.count)}</strong>
+    </div>
+  `).join('') || `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
+  const recordMarkup = recordItems.slice(0, 5).map((item) => `
+    <div class="module-row">
+      <span>${escapeHtml(item.name)}</span>
+      <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${Math.max((item.count / maxRecords) * 100, 3)}%"></div></div>
+      <strong>${formatNumber(item.count)}</strong>
+    </div>
+  `).join('') || `<div class="empty-state executive-empty compact-empty">No record module data yet.</div>`;
+
+  host.innerHTML = `
+    <div class="module-distribution-column">
+      <h4>Issue Distribution</h4>
+      ${issueMarkup}
+    </div>
+    <div class="module-distribution-column">
+      <h4>Records by Module</h4>
+      ${recordMarkup}
+    </div>
+  `;
+}
+
+function renderOverviewRecentIssues(data) {
+  const host = byId('overview-recent-issues');
+  if (!host) return;
+  const isPremium = Boolean(data?.visibility?.is_premium);
+  const premiumItems = Array.isArray(data?.top_findings) ? data.top_findings : [];
+  const freeItems = Array.isArray(data?.free_insights?.top_findings) ? data.free_insights.top_findings : [];
+  const items = (isPremium ? premiumItems : freeItems).slice(0, 5);
+
+  if (items.length === 0) {
+    host.innerHTML = `<div class="empty-state executive-empty">Recent issues will appear after the next scan.</div>`;
+    return;
+  }
+
+  host.innerHTML = items.map((item, index) => {
+    const title = isPremium ? (item?.title || 'Issue') : `Locked issue ${index + 1}`;
+    const moduleName = item?.group || item?.module || 'Module pending';
+    const severity = String(item?.severity || 'low').toLowerCase();
+    const impact = safeNumber(item?.impact_eur);
+    const count = safeNumber(item?.count);
+    return `
+      <div class="overview-list-row">
+        <div>
+          <strong>${escapeHtml(title)}</strong>
+          <span>${escapeHtml(moduleName)} - ${formatNumber(count)} affected</span>
+        </div>
+        <div class="overview-row-meta">
+          <span class="severity severity-${escapeHtml(severity)}">${escapeHtml(item?.severity_label || severity.toUpperCase())}</span>
+          <strong>${impact > 0 ? formatCurrency(impact) : 'Impact pending'}</strong>
+        </div>
+      </div>
+    `;
+  }).join('') + (!isPremium ? `<div class="placeholder-note">Issue details are protected. Full Analysis, Validation Check or Monitoring unlocks record-level actions.</div>` : '');
+}
+
+function renderBusinessImpact(data) {
+  const host = byId('overview-business-impact');
+  if (!host) return;
+  const kpis = data?.kpis || {};
+  const healthScore = safeNumber(kpis.health_score);
+  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
+  const potentialSaving = safeNumber(kpis.potential_saving_eur);
+  const roi = safeNumber(kpis.roi_eur);
+  const issuesCount = safeNumber(kpis.issues_count);
+
+  if (!data?.selected_scan_id) {
+    host.innerHTML = `<div class="empty-state executive-empty">Business impact will be calculated after scan results are available.</div>`;
+    return;
+  }
+
+  const headline = estimatedLoss > 0
+    ? `${formatCurrency(estimatedLoss)} estimated annual impact`
+    : 'Business impact not calculated yet';
+  const summary = potentialSaving > 0
+    ? `${formatCurrency(potentialSaving)} potential savings are available from the existing scan economics.`
+    : 'Run a validation check or full analysis to unlock a stronger business impact view.';
+
+  host.innerHTML = `
+    <div class="business-impact-headline">${escapeHtml(headline)}</div>
+    <p>${escapeHtml(summary)}</p>
+    <div class="business-impact-grid">
+      <div><span>Health Score</span><strong>${formatNumber(healthScore)}/100</strong></div>
+      <div><span>Issues Found</span><strong>${formatNumber(issuesCount)}</strong></div>
+      <div><span>Potential Savings</span><strong>${formatCurrency(potentialSaving)}</strong></div>
+      <div><span>ROI</span><strong>${formatCurrency(roi)}</strong></div>
+    </div>
   `;
 }
 
@@ -695,6 +932,7 @@ function switchTab(tab) {
     panel.classList.toggle('hidden', panel.id !== `${tab}-tab`);
     panel.classList.toggle('is-active', panel.id === `${tab}-tab`);
   });
+  updatePageHeader(tab);
 }
 
 async function loadDashboard(scanId = null) {
@@ -715,37 +953,35 @@ async function loadDashboard(scanId = null) {
     applyDashboardUi(data?.ui || {}, data?.language || 'en');
     currentSelectedScanId = data?.selected_scan_id || null;
 
-    setText('page-title', data?.title || 'BCSentinel Analytics');
-    setText('page-subtitle', data?.subtitle || '');
+    const activeTab = document.querySelector('.topnav-link.is-active')?.dataset?.tab || 'overview';
+    updatePageHeader(activeTab);
     setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
     setText('hero-eyebrow', data?.hero?.eyebrow || 'Data Health Score first. Full Analysis unlocks the details.');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
     setText('hero-suffix', data?.hero?.headline_suffix || '');
+    setText('overview-summary', data?.subtitle ? `Executive overview for ${data.subtitle}.` : 'Executive overview of your data quality and business impact.');
+    renderOverviewContext(data);
     renderHeroPoints(data?.hero?.points || []);
     const heroHighlight = byId('hero-highlight');
     if (heroHighlight) {
       heroHighlight.className = `hero-highlight ${scoreBand(data?.kpis?.health_score)}`;
     }
 
-    setText('kpi-health-score', formatNumber(data?.kpis?.health_score));
-    const healthScore = byId('kpi-health-score');
-    if (healthScore) healthScore.className = `stat-value score-value ${scoreBand(data?.kpis?.health_score)}`;
-    setText('kpi-records', formatNumber(data?.kpis?.total_records));
-    setText('kpi-checks', formatNumber(data?.kpis?.checks_run));
-    setText('kpi-issues', formatNumber(data?.kpis?.issues_count));
-    setText('kpi-loss', formatCurrency(data?.kpis?.estimated_loss_eur));
-    setText('kpi-savings', formatCurrency(data?.kpis?.potential_saving_eur));
-
+    renderOverviewKpis(data);
     renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
     renderModuleVolume(data);
     renderRecentScans(data?.recent_scans || []);
     renderRecentScansPagination(data?.recent_scans_pagination || {});
     renderScansPage(data);
-    renderTrend('trend-chart', data?.score_trend || []);
-    renderTrend('loss-chart', data?.loss_trend || [], true);
-    renderTrend('analytics-score-trend', data?.score_trend || []);
-    renderTrend('analytics-loss-trend', data?.loss_trend || [], true);
+    renderTrend('trend-chart', data?.score_trend || [], false, 'Score history appears after at least two scans. Monitoring keeps this trend useful over time.');
+    renderTrend('loss-chart', data?.loss_trend || [], true, 'Loss history appears after at least two scans. Monitoring adds the historical business context.');
+    renderTrend('analytics-score-trend', data?.score_trend || [], false, 'Score history appears after at least two scans.');
+    renderTrend('analytics-loss-trend', data?.loss_trend || [], true, 'Loss history appears after at least two scans.');
+    renderIssueDistribution(data);
+    renderModuleDistribution(data);
+    renderOverviewRecentIssues(data);
+    renderBusinessImpact(data);
     renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
     renderUnlockPanel(data);
     renderSubscription(data);
@@ -807,6 +1043,10 @@ function registerEvents() {
 
   document.querySelectorAll('.topnav-link').forEach((btn) => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab || 'overview'));
+  });
+
+  document.querySelectorAll('[data-jump-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.jumpTab || 'overview'));
   });
 
   const upgradeButton = byId('upgrade-button');

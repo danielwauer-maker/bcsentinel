@@ -398,3 +398,34 @@ Offene Punkte fuer Phase 3:
 - Keine Lizenz-/Billing-/Stripe-/Scan-/Monitoring-Logik wurde in Phase 2 geaendert.
 - Critical Severity wurde nur UI-kompatibel vorbereitet, nicht fachlich eingefuehrt.
 - Reports, Actions, Issues Detail und Scans Detail bleiben spaeteren Phasen vorbehalten.
+
+## Phase 3 Implementation Notes
+
+Datum: 2026-06-17
+
+Umgesetzte Overview-Elemente:
+
+- Page Header / Executive Hero mit professionellem Subtitle und Kontext-Chips.
+- KPI Cards fuer Health Score, Estimated Loss, Potential Savings, Total Records und Validation Checks.
+- Score Trend und Loss Trend als fester Overview-Bereich mit Empty State bei fehlender Historie.
+- Issue Distribution mit UI-kompatiblen Buckets Critical, High, Medium, Low.
+- Module Distribution fuer Issue- und Record-Verteilung aus bestehenden Payload-Feldern.
+- Recent Issues mit maximal fuenf Eintraegen; fuer Free User werden Details anonymisiert/locked dargestellt.
+- Business Impact Panel aus vorhandenen Feldern `estimated_loss_eur`, `potential_saving_eur`, `roi_eur`, `issues_count` und `health_score`.
+- Robuste Zahlen-/EUR-/Prozentformatierung mit Fallbacks gegen leere oder nicht numerische Werte.
+
+Geaenderte Dateien:
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+Offene Punkte fuer Phase 4:
+
+- Issues Page finalisieren.
+- Issue-Filter, Issue-Status und Issue-Detail-Verhalten definieren.
+- Open-in-BC-Links erst auf Actions/Issue Detail anwenden, wenn vorhandene Link-Daten stabil sind.
+- Critical Severity weiterhin nicht fachlich einfuehren; separater Task 6 bleibt empfohlen.
+- Keine neuen Backend-Routen oder Produktlogiken wurden in Phase 3 eingefuehrt.

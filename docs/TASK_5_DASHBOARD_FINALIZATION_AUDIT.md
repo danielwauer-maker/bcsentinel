@@ -94,3 +94,95 @@ Overview blieb als bestehende Startseite erhalten.
 - Das Dashboard laedt weiterhin ueber den bestehenden Datenendpunkt.
 - Scans-View erzeugt keine zusaetzlichen API-Aufrufe.
 - Mobile Layout nutzt weiterhin das bestehende einspaltige Sidebar-Verhalten und ergaenzende responsive Regeln fuer Page-Intros.
+
+## Phase 3 - Overview Finalization
+
+Stand: 2026-06-17
+
+### Analysierte Dateien
+
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `backend/app/routers/analytics.py` lesend, zur Zuordnung der vorhandenen Payload-Felder
+
+### Geaenderte Dateien
+
+- `backend/app/templates/analytics_embed.html`
+- `backend/app/static/js/analytics-dashboard.js`
+- `backend/app/static/css/dashboard.css`
+- `docs/TASK_5_DASHBOARD_GAP_ANALYSIS.md`
+- `docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md`
+
+### Verwendete Datenquellen
+
+Es wurden ausschliesslich bestehende Dashboard-/Analytics-Payloads verwendet:
+
+- `kpis.health_score`
+- `kpis.estimated_loss_eur`
+- `kpis.potential_saving_eur`
+- `kpis.total_records`
+- `kpis.checks_run`
+- `kpis.issues_count`
+- `kpis.roi_eur`
+- `score_trend`
+- `loss_trend`
+- `free_insights.active_issues_summary`
+- `free_insights.module_distribution`
+- `free_insights.records_by_module`
+- `free_insights.top_findings`
+- `top_findings`
+- `issue_groups`
+- `visibility.is_premium`
+- `product_access.monitoring_active`
+- `subtitle`, `scan_mode_label`, `last_updated`, `selected_scan_id`
+
+### Neue / ueberarbeitete Overview-Komponenten
+
+- Executive Hero mit Kontext-Chips fuer Company/Environment, Scan-Modus und letzten Scan-Zeitpunkt.
+- Fuenf KPI-Karten: Health Score, Estimated Loss, Potential Savings, Total Records, Validation Checks.
+- Health-Score-Gauge mit Score-Band-Label.
+- Score Trend und Loss Trend als fester Overview-Bereich mit Empty State bei weniger als zwei Scans.
+- Issue Distribution mit UI-kompatiblen Severity-Stufen Critical, High, Medium, Low.
+- Module Distribution mit Issue Distribution und Records by Module aus bestehenden Payload-Feldern.
+- Recent Issues Panel mit maximal fuenf Eintraegen.
+- Business Impact Panel mit management-orientierter Zusammenfassung aus bestehenden Commercial-Feldern.
+- Professionelle Empty States fuer fehlende Scan-, Trend-, Distribution-, Issue- und Business-Impact-Daten.
+
+### Free/Premium/Monitoring-Verhalten
+
+- Overview bleibt immer sichtbar.
+- Free User sehen KPI- und Business-Value-Daten, soweit im Payload vorhanden.
+- Free User sehen Recent Issues anonymisiert als locked/high-impact Eintraege; gesperrte Details bleiben geschuetzt.
+- Premium User sehen echte Top-Findings im Recent-Issues-Panel, soweit vorhanden.
+- Monitoring-Historie wird nicht erfunden: Trends zeigen erst ab mindestens zwei vorhandenen Datenpunkten eine Kurve.
+- Bestehende Monitoring-Anzeige fuer Recent Scans bleibt an `product_access.monitoring_active` gebunden.
+
+### Bekannte Luecken
+
+- Overview nutzt weiter vorhandene Payload-Felder; keine neuen Detaildaten fuer Issue-Drilldown.
+- Trend-Delta, Zeitraumfilter und Benchmarking sind noch nicht umgesetzt.
+- Critical Severity ist nur UI-kompatibel vorbereitet; fachliche Critical-Werte kommen erst mit einem separaten Severity-Task.
+- Business Impact bleibt eine Darstellung vorhandener Backend-Werte und baut keine neue Commercial-Logik.
+- Browser-Visual-Check wurde nicht ausgefuehrt, weil kein laufender lokaler Dashboard-Server mit gueltigem Analytics-Embed-Token bereitstand.
+
+### Bewusst nicht geaendert
+
+- Keine Lizenzlogik.
+- Keine Billing-/Stripe-Logik.
+- Keine Free-Scan-Logik.
+- Keine Monitoring-Logik.
+- Keine Scan Engine.
+- Keine Backend-Routen.
+- Keine BC Extension.
+- Keine neuen externen Dependencies.
+- Keine Severity-Fachlogik.
+
+### Verifikation
+
+- `node --check backend/app/static/js/analytics-dashboard.js` erfolgreich.
+- Statische Suche bestaetigt Overview, Health Score, Estimated Loss, Potential Savings, Total Records, Validation Checks, Score Trend, Loss Trend, Issue Distribution, Module Distribution, Recent Issues und Business Impact.
+- Statische Suche nach `undefined` und `NaN`: Treffer liegen in defensiven JS-Pruefungen bzw. bestehender Preislogik, nicht als sichtbarer UI-Text.
+- `git` ist in dieser PowerShell-Umgebung nicht im PATH; `git status --short` konnte nicht ausgefuehrt werden.
