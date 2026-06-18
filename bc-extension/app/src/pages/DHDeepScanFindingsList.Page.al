@@ -133,6 +133,8 @@
     local procedure GetSeveritySortOrder(SeverityValue: Code[20]): Integer
     begin
         case LowerCase(SeverityValue) of
+            'critical':
+                exit(0);
             'high':
                 exit(1);
             'medium':
@@ -147,6 +149,8 @@
     local procedure GetSeverityStyle(): Text
     begin
         case LowerCase(Rec.Severity) of
+            'critical':
+                exit('Unfavorable');
             'high':
                 exit('Unfavorable');
             'medium':

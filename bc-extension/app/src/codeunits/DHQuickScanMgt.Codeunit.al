@@ -340,6 +340,10 @@ codeunit 53123 "DH QuickScan Mgt."
             Issue.SetRange("Scan Entry No.", Header."Entry No.");
             Issue.SetRange("Issue Code", CopyStr(CodeTxt, 1, MaxStrLen(Issue."Issue Code")));
             if Issue.FindFirst() then begin
+                if GetJsonText(IssueObj, 'severity') <> '' then begin
+                    Issue."Severity" := CopyStr(GetJsonText(IssueObj, 'severity'), 1, MaxStrLen(Issue."Severity"));
+                    Issue."Severity Sort Order" := GetSeveritySortOrder(Issue."Severity");
+                end;
                 Issue."Estimated Impact (EUR)" := ReadJsonDecimalFromObject(IssueObj, 'estimated_impact_eur');
                 Issue.Modify(true);
             end;
@@ -422,6 +426,8 @@ codeunit 53123 "DH QuickScan Mgt."
     local procedure GetSeveritySortOrder(SeverityValue: Code[20]): Integer
     begin
         case LowerCase(SeverityValue) of
+            'critical':
+                exit(0);
             'high':
                 exit(1);
             'medium':

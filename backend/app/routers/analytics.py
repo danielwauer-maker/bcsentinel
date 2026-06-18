@@ -219,8 +219,8 @@ DASHBOARD_UI = {
 }
 
 SEVERITY_LABELS = {
-    "en": {"high": "High", "medium": "Medium", "low": "Low"},
-    "de": {"high": "Hoch", "medium": "Mittel", "low": "Niedrig"},
+    "en": {"critical": "Critical", "high": "High", "medium": "Medium", "low": "Low"},
+    "de": {"critical": "Kritisch", "high": "Hoch", "medium": "Mittel", "low": "Niedrig"},
 }
 
 MODULE_LABELS = {
@@ -269,18 +269,20 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
 
 def _normalize_severity(value: Any) -> str:
     text = str(value or "").strip().lower()
-    if text in {"high", "medium", "low"}:
+    if text in {"critical", "high", "medium", "low"}:
         return text
     return "low"
 
 
 def _severity_rank(value: Any) -> int:
     severity = _normalize_severity(value)
-    if severity == "high":
+    if severity == "critical":
         return 0
-    if severity == "medium":
+    if severity == "high":
         return 1
-    return 2
+    if severity == "medium":
+        return 2
+    return 3
 
 
 def _normalize_plan(value: Any) -> str:

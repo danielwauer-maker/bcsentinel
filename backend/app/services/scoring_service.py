@@ -215,6 +215,8 @@ def _safe_ratio(numerator: int, denominator: int) -> float:
 
 
 def _severity_from_ratio(ratio: float) -> str:
+    if ratio >= 0.30:
+        return "critical"
     if ratio >= 0.15:
         return "high"
     if ratio >= 0.05:

@@ -1881,6 +1881,8 @@ codeunit 53128 "DH Deep Scan Runner"
         if AffectedCount <= 0 then
             exit;
 
+        Severity := ResolveImpactSeverity(IssueCode, Severity, AffectedCount, PenaltyPoints);
+
         InsertFinding(
             DeepScanRun."Entry No.",
             Category,
@@ -2080,6 +2082,8 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure GetSeverityPenalty(Severity: Code[20]): Integer
     begin
         case LowerCase(Format(Severity)) of
+            'critical':
+                exit(10);
             'high':
                 exit(6);
             'medium':
@@ -2089,6 +2093,59 @@ codeunit 53128 "DH Deep Scan Runner"
         end;
 
         exit(2);
+    end;
+
+    local procedure ResolveImpactSeverity(IssueCode: Code[50]; Severity: Code[20]; AffectedCount: Integer; PenaltyPoints: Integer): Code[20]
+    var
+        IssueCodeUpper: Text;
+    begin
+        IssueCodeUpper := UpperCase(Format(IssueCode));
+
+        if LowerCase(Format(Severity)) <> 'high' then
+            exit(Severity);
+
+        if IsCriticalImpactIssue(IssueCodeUpper) then
+            exit('critical');
+
+        if (PenaltyPoints >= 7) and (AffectedCount >= 10) then
+            exit('critical');
+
+        if AffectedCount >= 1000 then
+            exit('critical');
+
+        exit(Severity);
+    end;
+
+    local procedure IsCriticalImpactIssue(IssueCodeUpper: Text): Boolean
+    begin
+        if StrPos(IssueCodeUpper, 'BLOCKED') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'OPEN_LEDGER') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'POSTING_GROUP') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'VAT_BUS_POSTING') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'NEGATIVE_INVENTORY') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'WITHOUT_UNIT_COST') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'INVENTORY_WITHOUT_UNIT_COST') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'PRICE_BELOW_UNIT_COST') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'DEAD_STOCK_365') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'MISSING_DIMENSIONS') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'LINES_MISSING_NO') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'ZERO_UNIT_PRICE') > 0 then
+            exit(true);
+        if StrPos(IssueCodeUpper, 'ZERO_UNIT_COST') > 0 then
+            exit(true);
+
+        exit(false);
     end;
 
     local procedure GetAffectedPenalty(AffectedCount: Integer): Integer
@@ -2277,6 +2334,10 @@ codeunit 53128 "DH Deep Scan Runner"
             Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
             Finding.SetRange("Issue Code", CopyStr(CodeTxt, 1, MaxStrLen(Finding."Issue Code")));
             if Finding.FindFirst() then begin
+                if GetJsonText(IssueObj, 'severity') <> '' then begin
+                    Finding.Severity := CopyStr(GetJsonText(IssueObj, 'severity'), 1, MaxStrLen(Finding.Severity));
+                    Finding."Severity Sort Order" := GetSeveritySortOrder(Finding.Severity);
+                end;
                 Finding."Estimated Impact (EUR)" := ReadJsonDecimalFromObject(IssueObj, 'estimated_impact_eur');
                 Finding.Modify(true);
             end;
@@ -2578,6 +2639,8 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure GetSeveritySortOrder(SeverityValue: Code[20]): Integer
     begin
         case LowerCase(SeverityValue) of
+            'critical':
+                exit(0);
             'high':
                 exit(1);
             'medium':

@@ -152,6 +152,8 @@ codeunit 53134 "DH Dashboard Mgt."
     local procedure GetSeveritySortOrder(SeverityValue: Code[20]): Integer
     begin
         case LowerCase(SeverityValue) of
+            'critical':
+                exit(0);
             'high':
                 exit(1);
             'medium':

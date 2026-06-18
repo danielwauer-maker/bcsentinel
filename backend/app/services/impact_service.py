@@ -147,6 +147,50 @@ def _round_money(value: float) -> float:
         return 0.0
 
 
+def _normalize_issue_severity(value: object) -> str:
+    severity = str(value or "").strip().lower()
+    if severity in {"critical", "high", "medium", "low"}:
+        return severity
+    return "low"
+
+
+def _is_critical_impact_code(code: str) -> bool:
+    normalized = _normalize_code(code)
+    return any(
+        marker in normalized
+        for marker in (
+            "BLOCKED_",
+            "OPEN_LEDGER",
+            "POSTING_GROUP",
+            "VAT_BUS_POSTING",
+            "NEGATIVE_INVENTORY",
+            "WITHOUT_UNIT_COST",
+            "INVENTORY_WITHOUT_UNIT_COST",
+            "PRICE_BELOW_UNIT_COST",
+            "DEAD_STOCK_365",
+            "MISSING_DIMENSIONS",
+            "LINES_MISSING_NO",
+            "ZERO_UNIT_PRICE",
+            "ZERO_UNIT_COST",
+        )
+    )
+
+
+def _impact_severity(code: str, supplied_severity: object, affected_count: int, estimated_impact_eur: float) -> str:
+    severity = _normalize_issue_severity(supplied_severity)
+    if severity == "critical":
+        return severity
+    if severity != "high":
+        return severity
+    if _is_critical_impact_code(code):
+        return "critical"
+    if affected_count >= 1000:
+        return "critical"
+    if estimated_impact_eur >= 10000:
+        return "critical"
+    return severity
+
+
 def normalize_commercial_values(
     *,
     estimated_loss_eur: float,
@@ -380,12 +424,13 @@ def calculate_issue_impacts(db, issues: Iterable[object]) -> list[dict[str, obje
         definition = get_impact_definition(db, code)
         affected_count = max(int(getattr(issue, "affected_count", 0) or 0), 0)
         impact = _calculate_issue_impact_amount(definition, affected_count, hourly_rate_eur)
+        severity = _impact_severity(code, getattr(issue, "severity", "low"), affected_count, impact)
         result.append(
             {
                 "code": code,
                 "title": getattr(issue, "title", "") or definition.title or code,
                 "category": getattr(issue, "category", None),
-                "severity": (getattr(issue, "severity", "low") or "low").strip().lower(),
+                "severity": severity,
                 "affected_count": affected_count,
                 "premium_only": bool(getattr(issue, "premium_only", False)),
                 "recommendation_preview": getattr(issue, "recommendation_preview", None),

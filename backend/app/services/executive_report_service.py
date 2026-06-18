@@ -37,7 +37,7 @@ MODULES = [
 
 MASTER_DATA_MODULES = {"CRM", "Purchasing", "Inventory", "Sales"}
 FINANCIAL_CATEGORIES = {"Finance", "Sales", "Purchasing", "Inventory"}
-SEVERITY_WEIGHT = {"high": 0, "medium": 1, "low": 2}
+SEVERITY_WEIGHT = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -140,12 +140,15 @@ def _recommendation(issue: ScanIssueRecord, language: str = "en") -> str:
 
 
 def _finding(rank: int, issue: ScanIssueRecord, language: str = "en") -> ReportFinding:
+    severity = str(issue.severity or "low").lower()
+    if severity not in SEVERITY_WEIGHT:
+        severity = "low"
     return ReportFinding(
         rank=rank,
         code=issue.code,
         title=issue.title,
         category=_normalize_category(issue.category, issue.code),
-        severity=str(issue.severity or "low").lower(),
+        severity=severity,
         affected_count=max(0, _safe_int(issue.affected_count)),
         estimated_impact_eur=round(_safe_float(issue.estimated_impact_eur), 2),
         recommendation=_recommendation(issue, language),
@@ -286,7 +289,7 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
 
     estimated_loss = float(commercials["estimated_loss_eur"])
     potential_saving = float(commercials["potential_saving_eur"])
-    critical = [finding for finding in findings if finding.severity == "high"]
+    critical = [finding for finding in findings if finding.severity in {"critical", "high"}]
     quick_wins = [
         finding
         for finding in findings
