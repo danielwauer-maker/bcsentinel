@@ -553,33 +553,122 @@ function normalizePercentDistribution(items) {
   });
 }
 
+function knownDashboardModules() {
+  if (currentDashboardLanguage === 'de') {
+    return ['System', 'Finanzen', 'Verkauf', 'Einkauf', 'Lager', 'CRM', 'Fertigung', 'Service', 'Projekte', 'HR'];
+  }
+  return ['System', 'Finance', 'Sales', 'Purchasing', 'Inventory', 'CRM', 'Manufacturing', 'Service', 'Jobs', 'HR'];
+}
+
+function moduleKey(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const aliases = {
+    finance: 'finance',
+    finanzen: 'finance',
+    sales: 'sales',
+    verkauf: 'sales',
+    purchasing: 'purchasing',
+    einkauf: 'purchasing',
+    inventory: 'inventory',
+    lager: 'inventory',
+    manufacturing: 'manufacturing',
+    fertigung: 'manufacturing',
+    jobs: 'jobs',
+    projekte: 'jobs',
+    projects: 'jobs',
+    system: 'system',
+    crm: 'crm',
+    service: 'service',
+    hr: 'hr',
+  };
+  return aliases[normalized] || normalized;
+}
+
+function mergeModuleRows(...sources) {
+  const rows = new Map();
+  const ensureRow = (name) => {
+    const key = moduleKey(name);
+    if (!rows.has(key)) rows.set(key, { key, name, count: 0, percent: 0 });
+    return rows.get(key);
+  };
+
+  knownDashboardModules().forEach((name) => ensureRow(name));
+  sources.flat().filter(Boolean).forEach((item) => {
+    const name = item?.name || item?.label || '';
+    if (!name) return;
+    const row = ensureRow(name);
+    row.name = name;
+    row.count = Math.max(row.count, safeNumber(item?.count ?? item?.value));
+    row.percent = Math.max(row.percent, safeNumber(item?.percent));
+  });
+
+  const order = knownDashboardModules().map(moduleKey);
+  return Array.from(rows.values()).sort((a, b) => {
+    const indexA = order.indexOf(a.key);
+    const indexB = order.indexOf(b.key);
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
+}
+
+function moduleNameRows(items) {
+  return Array.isArray(items)
+    ? items.filter(Boolean).map((item) => ({
+        name: item?.name || item?.label || '',
+        count: 0,
+        percent: 0,
+      })).filter((item) => item.name)
+    : [];
+}
+
+function sortModuleRowsByCount(rows) {
+  const order = knownDashboardModules().map(moduleKey);
+  return rows.slice().sort((a, b) => {
+    const countDiff = safeNumber(b.count) - safeNumber(a.count);
+    if (countDiff !== 0) return countDiff;
+    const indexA = order.indexOf(a.key);
+    const indexB = order.indexOf(b.key);
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
+}
+
 function renderModuleDistribution(data) {
   const host = byId('overview-module-distribution');
   if (!host) return;
   const issueItems = normalizeDistributionItems(data?.free_insights?.module_distribution);
   const recordItems = normalizeDistributionItems(data?.free_insights?.records_by_module);
-  const moduleItems = issueItems.length > 0 ? issueItems : normalizeDistributionItems(data?.issue_groups);
+  const issueGroups = normalizeDistributionItems(data?.issue_groups);
+  const moduleScoreNames = moduleNameRows(data?.module_scores);
+  const profileCards = normalizeDistributionItems(data?.profile_cards);
+  const profileCardNames = moduleNameRows(data?.profile_cards);
+  const moduleItems = sortModuleRowsByCount(mergeModuleRows(issueItems.length > 0 ? issueItems : issueGroups, moduleScoreNames, profileCardNames));
+  const recordRows = sortModuleRowsByCount(mergeModuleRows(recordItems, profileCards, moduleScoreNames));
 
-  if (moduleItems.length === 0 && recordItems.length === 0) {
+  if (moduleItems.length === 0 && recordRows.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty">Module distribution will appear after scan results are available.</div>`;
     return;
   }
 
-  const maxRecords = Math.max(...recordItems.map((item) => item.count), 1);
-  const colors = ['#003c9e', '#2d56e8', '#2f7bff', '#5968f4', '#6da0ff'];
-  const issueDistribution = normalizePercentDistribution(moduleItems.slice(0, 5));
+  const maxRecords = Math.max(...recordRows.map((item) => item.count), 1);
+  const colors = ['#003c9e', '#095cff', '#2f7bff', '#5968f4', '#6da0ff', '#8ab6ff', '#1d4ed8', '#60a5fa', '#4338ca', '#93c5fd'];
+  const issueDistribution = normalizePercentDistribution(moduleItems);
   let start = 0;
   const donutSegments = issueDistribution.map((item, index) => {
-    const end = start + Math.max(safeNumber(item.percent), 0);
-    const segment = `${colors[index % colors.length]} ${start}% ${end}%`;
+    const percent = Math.max(Math.min(safeNumber(item.percent), 100), 0);
+    const segment = percent > 0 ? `
+      <circle cx="50" cy="50" r="39" pathLength="100" class="module-donut-segment"
+        style="stroke:${colors[index % colors.length]};stroke-dasharray:${percent} ${100 - percent};stroke-dashoffset:${-start};"></circle>
+    ` : '';
+    const end = start + percent;
     start = end;
     return segment;
-  });
-  if (start < 100) donutSegments.push(`#edf2f8 ${start}% 100%`);
-  const donutBackground = donutSegments.join(', ') || '#edf2f8 0% 100%';
+  }).join('');
   const issueMarkup = issueDistribution.length > 0 ? `
     <div class="module-donut-wrap">
-      <div class="module-donut" style="--module-donut:${escapeHtml(donutBackground)}">
+      <div class="module-donut">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="39" class="module-donut-track"></circle>
+          ${donutSegments}
+        </svg>
         <div><strong>100%</strong><span>Issues</span></div>
       </div>
       <div class="module-legend">
@@ -593,11 +682,11 @@ function renderModuleDistribution(data) {
       </div>
     </div>
   ` : `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
-  const recordMarkup = recordItems.slice(0, 5).map((item) => `
+  const recordMarkup = recordRows.map((item) => `
     <div class="module-record-row">
       <span>${escapeHtml(item.name)}</span>
       <div>
-        <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${Math.max((item.count / maxRecords) * 100, 3)}%"></div></div>
+        <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${item.count > 0 ? Math.max((item.count / maxRecords) * 100, 3) : 0}%"></div></div>
       </div>
       <strong>${formatCompactRecords(item.count)}</strong>
     </div>

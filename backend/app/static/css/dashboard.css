@@ -3365,17 +3365,39 @@ td {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at center, #fff 0 45%, transparent 46%),
-    conic-gradient(var(--module-donut));
-  box-shadow: inset 0 0 0 1px rgba(7, 23, 58, .02);
+  position: relative;
+  background: #fff;
 }
 
 .module-donut > div {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   color: #07173a;
   line-height: 1.12;
+}
+
+.module-donut svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.module-donut-track,
+.module-donut-segment {
+  fill: none;
+  stroke-width: 15;
+}
+
+.module-donut-track {
+  stroke: #edf2f8;
+}
+
+.module-donut-segment {
+  stroke-linecap: butt;
 }
 
 .module-donut strong {
