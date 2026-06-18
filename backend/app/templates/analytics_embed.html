@@ -63,7 +63,10 @@
 
       <section class="stats-grid overview-kpi-grid">
         <article class="stat-card panel kpi-card kpi-score-card">
-          <div class="stat-label" id="kpi-health-label-title">Health Score</div>
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-health-label-title">Health Score</div>
+            <span class="kpi-info-icon" title="Overall data quality score">i</span>
+          </div>
           <div class="health-score-wrap">
             <div id="kpi-health-gauge" class="health-gauge" style="--score: 0">
               <div>
@@ -73,31 +76,47 @@
             </div>
             <div id="kpi-health-label" class="kpi-status">Not calculated yet</div>
           </div>
-          <div class="stat-helper" id="kpi-health-helper">Overall data quality</div>
+          <div class="stat-helper kpi-trend-line" id="kpi-health-helper">Overall data quality</div>
         </article>
 
         <article class="stat-card panel kpi-card accent-red">
-          <div class="stat-label" id="kpi-loss-label-title">Estimated Loss</div>
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-loss-label-title">Estimated Loss</div>
+            <span class="kpi-info-icon" title="Estimated annual loss based on current findings">i</span>
+          </div>
           <div class="stat-value loss-value" id="kpi-loss">0 &euro;</div>
-          <div class="stat-helper" id="kpi-loss-helper">Estimated annual impact</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="kpi-loss-helper">Estimated annual impact</div>
         </article>
 
         <article class="stat-card panel kpi-card accent-green">
-          <div class="stat-label" id="kpi-savings-label-title">Potential Savings</div>
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-savings-label-title">Potential Savings</div>
+            <span class="kpi-info-icon" title="Estimated savings potential after remediation">i</span>
+          </div>
           <div class="stat-value roi-value" id="kpi-savings">0 &euro;</div>
-          <div class="stat-helper" id="kpi-savings-helper">Estimated improvement potential</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="kpi-savings-helper">Estimated improvement potential</div>
         </article>
 
         <article class="stat-card panel kpi-card compact-stat">
-          <div class="stat-label" id="kpi-records-label-title">Total Records</div>
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-records-label-title">Total Records</div>
+            <span class="kpi-info-icon" title="Total analyzed records">i</span>
+          </div>
           <div class="stat-value" id="kpi-records">0</div>
-          <div class="stat-helper" id="kpi-records-helper">Records analyzed</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="kpi-records-helper">Records analyzed</div>
         </article>
 
         <article class="stat-card panel kpi-card compact-stat">
-          <div class="stat-label" id="kpi-checks-label-title">Validation Checks</div>
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-checks-label-title">Validation Checks</div>
+            <span class="kpi-info-icon" title="Validation checks executed for the selected scan">i</span>
+          </div>
           <div class="stat-value" id="kpi-checks">0</div>
-          <div class="stat-helper" id="kpi-checks-helper">Validation checks run</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="kpi-checks-helper">Validation checks run</div>
         </article>
       </section>
 

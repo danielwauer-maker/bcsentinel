@@ -27,6 +27,17 @@ function formatCurrency(value) {
   }).format(safeNumber);
 }
 
+function formatKpiCurrency(value) {
+  const number = Number(value);
+  const safeNumber = Number.isFinite(number) ? number : 0;
+  return new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US', {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(safeNumber);
+}
+
 function safeNumber(value, defaultValue = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : defaultValue;
@@ -35,6 +46,53 @@ function safeNumber(value, defaultValue = 0) {
 function formatPercent(value) {
   const number = safeNumber(value);
   return `${formatNumber(Math.round(number))}%`;
+}
+
+function firstFiniteNumber(values) {
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return null;
+}
+
+function trendFromFields(source, keys) {
+  if (!source || !Array.isArray(keys)) return null;
+  return firstFiniteNumber(keys.map((key) => source?.[key]));
+}
+
+function trendFromSeries(items) {
+  const values = Array.isArray(items)
+    ? items.map((item) => Number(item?.value ?? item?.score ?? item?.amount)).filter(Number.isFinite)
+    : [];
+  if (values.length < 2) return null;
+  const previous = values[values.length - 2];
+  const latest = values[values.length - 1];
+  if (!Number.isFinite(previous) || previous === 0 || !Number.isFinite(latest)) return null;
+  return ((latest - previous) / Math.abs(previous)) * 100;
+}
+
+function renderKpiTrend(targetId, trendValue, options = {}) {
+  const el = byId(targetId);
+  if (!el) return;
+
+  const emptyLabel = options.emptyLabel || 'No trend data yet';
+  if (trendValue === null || trendValue === undefined || !Number.isFinite(Number(trendValue))) {
+    el.className = 'stat-helper kpi-trend-line is-empty';
+    el.textContent = emptyLabel;
+    return;
+  }
+
+  const value = Number(trendValue);
+  const isDown = value < 0;
+  const variant = options.variant || (isDown ? 'negative' : 'positive');
+  const arrow = isDown ? 'down' : 'up';
+  el.className = `stat-helper kpi-trend-line kpi-trend-${variant}`;
+  el.innerHTML = `
+    <span class="kpi-trend-arrow kpi-trend-arrow-${arrow}" aria-hidden="true">${isDown ? '↓' : '↑'}</span>
+    <strong>${escapeHtml(formatPercent(Math.abs(value)))}</strong>
+    <span>vs. last month</span>
+  `;
 }
 
 function t(key, fallback) {
@@ -375,6 +433,11 @@ function renderOverviewKpis(data) {
   const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
   const potentialSaving = safeNumber(kpis.potential_saving_eur);
   const hasScan = Boolean(data?.selected_scan_id);
+  const healthTrend = trendFromFields(kpis, ['health_score_change_percent', 'health_score_trend_percent', 'health_score_delta_percent', 'score_change_percent']) ?? trendFromSeries(data?.score_trend);
+  const lossTrend = trendFromFields(kpis, ['estimated_loss_change_percent', 'estimated_loss_trend_percent', 'estimated_loss_delta_percent', 'loss_change_percent']) ?? trendFromSeries(data?.loss_trend);
+  const savingsTrend = trendFromFields(kpis, ['potential_saving_change_percent', 'potential_savings_change_percent', 'potential_saving_trend_percent', 'potential_savings_trend_percent']);
+  const recordsTrend = trendFromFields(kpis, ['total_records_change_percent', 'records_change_percent', 'scanned_records_change_percent']);
+  const checksTrend = trendFromFields(kpis, ['checks_run_change_percent', 'validation_checks_change_percent', 'checks_change_percent']);
 
   setText('kpi-health-label-title', 'Health Score');
   setText('kpi-loss-label-title', 'Estimated Loss');
@@ -383,20 +446,28 @@ function renderOverviewKpis(data) {
   setText('kpi-checks-label-title', 'Validation Checks');
   setText('kpi-health-score', formatNumber(healthScore));
   setText('kpi-health-label', hasScan ? scoreLabel(healthScore) : 'Not calculated yet');
-  setText('kpi-health-helper', hasScan ? 'Overall data quality' : 'Run a validation check to unlock this KPI');
+  const healthLabelEl = byId('kpi-health-label');
+  if (healthLabelEl) healthLabelEl.className = `kpi-status ${hasScan ? scoreBand(healthScore) : 'is-empty'}`;
+  renderKpiTrend('kpi-health-helper', hasScan ? healthTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
   const healthGauge = byId('kpi-health-gauge');
-  if (healthGauge) healthGauge.style.setProperty('--score', String(healthScore));
+  if (healthGauge) {
+    healthGauge.style.setProperty('--score', String(healthScore));
+    healthGauge.className = `health-gauge ${scoreBand(healthScore)}`;
+  }
   const healthScoreEl = byId('kpi-health-score');
   if (healthScoreEl) healthScoreEl.className = `stat-value score-value ${scoreBand(healthScore)}`;
 
-  setText('kpi-loss', hasScan ? formatCurrency(estimatedLoss) : 'Not calculated yet');
-  setText('kpi-loss-helper', estimatedLoss > 0 ? 'Estimated annual impact' : 'Available after full analysis');
-  setText('kpi-savings', hasScan ? formatCurrency(potentialSaving) : 'Not calculated yet');
-  setText('kpi-savings-helper', potentialSaving > 0 ? 'Estimated improvement potential' : 'Run a validation check to unlock this KPI');
+  setText('kpi-loss', hasScan ? formatKpiCurrency(estimatedLoss) : 'Not calculated yet');
+  renderKpiTrend('kpi-loss-helper', hasScan && estimatedLoss > 0 ? lossTrend : null, {
+    emptyLabel: hasScan ? 'No trend data yet' : 'Available after full analysis',
+    variant: Number(lossTrend) < 0 ? 'positive' : 'negative',
+  });
+  setText('kpi-savings', hasScan ? formatKpiCurrency(potentialSaving) : 'Not calculated yet');
+  renderKpiTrend('kpi-savings-helper', hasScan && potentialSaving > 0 ? savingsTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
   setText('kpi-records', hasScan ? formatNumber(totalRecords) : 'Not calculated yet');
-  setText('kpi-records-helper', totalRecords > 0 ? 'Records analyzed' : 'Available after scan sync');
+  renderKpiTrend('kpi-records-helper', hasScan && totalRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Available after scan sync' });
   setText('kpi-checks', hasScan ? formatNumber(checksRun) : 'Not calculated yet');
-  setText('kpi-checks-helper', checksRun > 0 ? 'Validation checks run' : 'Run a validation check to unlock this KPI');
+  renderKpiTrend('kpi-checks-helper', hasScan && checksRun > 0 ? checksTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
 }
 
 function renderIssueDistribution(data) {
