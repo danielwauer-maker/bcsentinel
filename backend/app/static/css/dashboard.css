@@ -3677,3 +3677,407 @@ td {
   }
 }
 
+/* Task 5.11 - Dashboard V2 polish */
+.executive-summary-hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(420px, .95fr);
+  align-items: center;
+  gap: 24px;
+  min-height: 132px;
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  border-color: #e0e8f3;
+  background:
+    linear-gradient(135deg, rgba(9, 92, 255, .06), rgba(15, 159, 110, .05) 52%, rgba(255, 255, 255, .95)),
+    #fff;
+  box-shadow: 0 20px 44px rgba(9, 23, 58, .09);
+}
+
+.executive-summary-hero .hero-eyebrow {
+  margin-bottom: 6px;
+  color: #07173a;
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.executive-summary-hero .hero-title {
+  max-width: 760px;
+  margin: 0;
+  color: #071326;
+  font-size: clamp(22px, 2vw, 34px);
+  line-height: 1.08;
+}
+
+.executive-summary-hero .overview-summary {
+  margin: 7px 0 0;
+  color: #415575;
+  font-size: 15px;
+}
+
+.executive-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.executive-hero-metric {
+  min-height: 82px;
+  padding: 14px 16px;
+  border: 1px solid #dfe8f5;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 12px 28px rgba(9, 23, 58, .08);
+}
+
+.executive-hero-metric span {
+  display: block;
+  margin-bottom: 8px;
+  color: #526582;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.executive-hero-metric strong {
+  color: #071326;
+  font-size: clamp(22px, 1.9vw, 34px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.executive-hero-metric strong.critical,
+.executive-hero-metric.is-loss strong {
+  color: #ef1717;
+}
+
+.executive-hero-metric strong.good,
+.executive-hero-metric strong.excellent,
+.executive-hero-metric.is-saving strong {
+  color: #078f55;
+}
+
+.overview-kpi-grid .kpi-card,
+.recommended-actions-panel,
+.overview-module-score-panel,
+.overview-products-panel,
+.overview-feature-comparison-panel,
+.business-impact-panel,
+.subscription-product-card {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.overview-kpi-grid .kpi-card:hover,
+.recommended-actions-panel:hover,
+.overview-module-score-panel:hover,
+.overview-products-panel:hover,
+.overview-feature-comparison-panel:hover,
+.subscription-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 48px rgba(9, 23, 58, .13);
+}
+
+.overview-kpi-grid .accent-red,
+.overview-kpi-grid .accent-green {
+  min-height: 232px;
+  border-color: #dce7f6;
+  box-shadow: 0 22px 48px rgba(9, 23, 58, .12);
+}
+
+.overview-kpi-grid .accent-red {
+  background: linear-gradient(180deg, #fff 0%, #fff7f7 100%);
+}
+
+.overview-kpi-grid .accent-green {
+  background: linear-gradient(180deg, #fff 0%, #f5fbf8 100%);
+}
+
+.overview-kpi-grid .accent-red .stat-value,
+.overview-kpi-grid .accent-green .stat-value {
+  font-size: clamp(40px, 3.1vw, 56px);
+  letter-spacing: 0;
+}
+
+.overview-kpi-grid .compact-stat {
+  min-height: 206px;
+}
+
+.overview-kpi-grid .compact-stat .stat-value {
+  font-size: clamp(32px, 2.3vw, 42px);
+}
+
+.overview-kpi-grid .kpi-trend-line.is-empty {
+  align-self: start;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f4f7fb;
+  color: #526582;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.recommended-actions-panel {
+  margin-bottom: 22px;
+  border-color: #dce7f6;
+  box-shadow: 0 18px 38px rgba(9, 23, 58, .09);
+}
+
+.recommended-actions-list {
+  display: grid;
+  gap: 12px;
+}
+
+.recommended-action-row {
+  display: grid;
+  grid-template-columns: 42px minmax(160px, 1fr) minmax(150px, .42fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e2eaf5;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #f9fbff 100%);
+}
+
+.recommended-action-rank {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eaf1ff;
+  color: #075cff;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.recommended-action-main {
+  display: grid;
+  gap: 4px;
+}
+
+.recommended-action-main strong {
+  color: #07173a;
+  font-size: 15px;
+}
+
+.recommended-action-main span,
+.recommended-action-saving span {
+  color: #5f7190;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.recommended-action-saving {
+  display: grid;
+  gap: 4px;
+}
+
+.recommended-action-saving strong {
+  color: #078f55;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.recommended-action-bc {
+  white-space: nowrap;
+}
+
+.overview-module-score-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.module-score-primary,
+.module-score-extra {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(128px, 1fr));
+  gap: 14px;
+}
+
+.module-score-card {
+  min-height: 160px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #f9fbff 100%);
+}
+
+.module-score-card.is-secondary {
+  opacity: .92;
+}
+
+.module-score-toggle {
+  justify-self: end;
+  margin-top: 4px;
+  border: 0;
+  background: transparent;
+  color: #075cff;
+  font-size: 15px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.module-score-toggle:hover,
+.business-impact-report-button:hover,
+.recent-critical-link:hover,
+.active-issues-link:hover,
+.module-view-button:hover {
+  text-shadow: 0 0 14px rgba(9, 92, 255, .22);
+}
+
+.business-impact-row {
+  grid-template-columns: 28px minmax(120px, 1fr) minmax(180px, 1.75fr) minmax(88px, auto);
+  min-height: 38px;
+  gap: 16px;
+}
+
+.business-impact-row .distribution-track {
+  height: 12px;
+  background: #eaf0f7;
+}
+
+.business-impact-row .distribution-fill {
+  background: linear-gradient(90deg, #075cff, #1f7cff);
+}
+
+.business-impact-row strong {
+  color: #ef1717;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.business-impact-name {
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.subscription-product-card.is-monitoring-product {
+  border: 2px solid #075cff;
+  background: linear-gradient(180deg, #f7faff 0%, #fff 100%);
+  box-shadow: 0 24px 54px rgba(9, 92, 255, .16);
+}
+
+.subscription-product-card.is-monitoring-product .subscription-product-badge {
+  background: #075cff;
+  color: #fff;
+}
+
+.primary-button,
+.pager-button,
+.topnav-link {
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+
+.primary-button:hover,
+.pager-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(9, 92, 255, .24);
+}
+
+.topnav-link.is-active {
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+@media (max-width: 1280px) {
+  .executive-summary-hero,
+  .recommended-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .executive-hero-metrics,
+  .module-score-primary,
+  .module-score-extra {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .executive-hero-metrics,
+  .module-score-primary,
+  .module-score-extra {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-kpi-grid .accent-red .stat-value,
+  .overview-kpi-grid .accent-green .stat-value {
+    font-size: 36px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #071326;
+    color: #dce7f6;
+  }
+
+  .page-shell {
+    background: #071326;
+  }
+
+  .panel,
+  .stat-card,
+  .executive-summary-hero,
+  .subscription-product-card,
+  .recommended-action-row,
+  .module-score-card,
+  .table-wrap {
+    border-color: #203554;
+    background: #0c1b35;
+    box-shadow: 0 18px 38px rgba(0, 0, 0, .32);
+  }
+
+  .executive-summary-hero,
+  .overview-kpi-grid .accent-red,
+  .overview-kpi-grid .accent-green,
+  .recommended-action-row,
+  .module-score-card,
+  .subscription-product-card.is-monitoring-product {
+    background: linear-gradient(180deg, #10213d 0%, #0c1b35 100%);
+  }
+
+  .page-intro h2,
+  .panel-header h3,
+  .stat-label,
+  .stat-value,
+  .module-score-title,
+  .business-impact-name,
+  .recommended-action-main strong,
+  .executive-summary-hero .hero-title,
+  .executive-hero-metric strong,
+  .module-record-row strong {
+    color: #f5f8ff;
+  }
+
+  .muted,
+  .page-subtitle,
+  .overview-summary,
+  .recommended-action-main span,
+  .recommended-action-saving span,
+  .executive-hero-metric span {
+    color: #a9b9d2;
+  }
+
+  .executive-hero-metric,
+  .recommended-action-rank,
+  .overview-kpi-grid .kpi-trend-line.is-empty,
+  .executive-empty {
+    border-color: #263a5d;
+    background: #122542;
+  }
+
+  thead th {
+    background: #132641;
+    color: #c8d6ec;
+  }
+
+  td,
+  th {
+    border-color: #203554;
+  }
+
+  .distribution-track,
+  #overview-module-distribution .distribution-track,
+  .business-impact-row .distribution-track {
+    background: #223652;
+  }
+}
+

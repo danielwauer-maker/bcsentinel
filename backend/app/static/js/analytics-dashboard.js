@@ -76,7 +76,7 @@ function renderKpiTrend(targetId, trendValue, options = {}) {
   const el = byId(targetId);
   if (!el) return;
 
-  const emptyLabel = options.emptyLabel || 'No trend data yet';
+  const emptyLabel = options.emptyLabel || 'Historical trends available after additional scans';
   if (trendValue === null || trendValue === undefined || !Number.isFinite(Number(trendValue))) {
     el.className = 'stat-helper kpi-trend-line is-empty';
     el.textContent = emptyLabel;
@@ -329,10 +329,10 @@ function renderOverviewModuleScores(data) {
       score: 0,
       variant: scoreBand(0),
     };
-  });
+  }).sort((a, b) => safeNumber(a.score) - safeNumber(b.score) || a.name.localeCompare(b.name));
 
-  host.innerHTML = rows.map((item) => `
-    <article class="module-score-card">
+  const cardMarkup = (item, extraClass = '') => `
+    <article class="module-score-card ${escapeHtml(extraClass)}">
       <div class="module-score-title">${escapeHtml(item.name)}</div>
       <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${item.score}">
         <div>
@@ -342,7 +342,28 @@ function renderOverviewModuleScores(data) {
       </div>
       <div class="module-score-status ${escapeHtml(item.variant)}">${escapeHtml(scoreLabel(item.score))}</div>
     </article>
-  `).join('');
+  `;
+
+  const topRows = rows.slice(0, 5);
+  const hiddenRows = rows.slice(5);
+  host.innerHTML = `
+    <div class="module-score-primary">${topRows.map((item) => cardMarkup(item)).join('')}</div>
+    ${hiddenRows.length > 0 ? `
+      <div id="overview-module-score-extra" class="module-score-extra hidden">
+        ${hiddenRows.map((item) => cardMarkup(item, 'is-secondary')).join('')}
+      </div>
+      <button type="button" class="module-score-toggle" id="overview-module-score-toggle">Show all modules</button>
+    ` : ''}
+  `;
+
+  const toggle = byId('overview-module-score-toggle');
+  const extra = byId('overview-module-score-extra');
+  if (toggle && extra) {
+    toggle.addEventListener('click', () => {
+      const isHidden = extra.classList.toggle('hidden');
+      toggle.textContent = isHidden ? 'Show all modules' : 'Show top risk modules';
+    });
+  }
 }
 
 function renderIssueGroups(items, emptyMessage = t('no_module_data', 'No module data is available for this scan.')) {
@@ -483,6 +504,33 @@ function renderOverviewContext(data) {
   host.classList.add('hidden');
 }
 
+function renderExecutiveHero(data) {
+  const kpis = data?.kpis || {};
+  const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
+  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
+  const potentialSaving = safeNumber(kpis.potential_saving_eur);
+  const hasScan = Boolean(data?.selected_scan_id);
+  const summary = hasScan
+    ? 'Your current data quality score requires attention.'
+    : 'Your Data Health Summary will appear after the first scan.';
+
+  setText('hero-eyebrow', 'Data Health Summary');
+  setText('hero-prefix', summary);
+  setText('hero-highlight', '');
+  setText('hero-suffix', '');
+  setText('overview-summary', summary);
+  setText('hero-metric-health', hasScan ? `${formatNumber(healthScore)}/100` : 'Pending');
+  setText('hero-metric-loss', hasScan ? formatKpiCurrency(estimatedLoss) : 'Pending');
+  setText('hero-metric-savings', hasScan ? formatKpiCurrency(potentialSaving) : 'Pending');
+
+  const healthMetric = byId('hero-metric-health');
+  if (healthMetric) healthMetric.className = scoreBand(healthScore);
+  const highlight = byId('hero-highlight');
+  if (highlight) highlight.classList.add('hidden');
+  renderOverviewContext(data);
+  renderHeroPoints([]);
+}
+
 function renderOverviewKpis(data) {
   const kpis = data?.kpis || {};
   const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
@@ -506,7 +554,9 @@ function renderOverviewKpis(data) {
   setText('kpi-health-label', hasScan ? scoreLabel(healthScore) : 'Not calculated yet');
   const healthLabelEl = byId('kpi-health-label');
   if (healthLabelEl) healthLabelEl.className = `kpi-status ${hasScan ? scoreBand(healthScore) : 'is-empty'}`;
-  renderKpiTrend('kpi-health-helper', hasScan ? healthTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
+  const monitoringTrendLabel = 'Available with Monitoring';
+  const scanTrendLabel = 'Historical trends available after additional scans';
+  renderKpiTrend('kpi-health-helper', hasScan ? healthTrend : null, { emptyLabel: hasScan ? monitoringTrendLabel : 'Run a validation check to unlock this KPI' });
   const healthGauge = byId('kpi-health-gauge');
   if (healthGauge) {
     healthGauge.style.setProperty('--score', String(healthScore));
@@ -517,15 +567,15 @@ function renderOverviewKpis(data) {
 
   setText('kpi-loss', hasScan ? formatKpiCurrency(estimatedLoss) : 'Not calculated yet');
   renderKpiTrend('kpi-loss-helper', hasScan && estimatedLoss > 0 ? lossTrend : null, {
-    emptyLabel: hasScan ? 'No trend data yet' : 'Available after full analysis',
+    emptyLabel: hasScan ? scanTrendLabel : 'Available after full analysis',
     variant: Number(lossTrend) < 0 ? 'positive' : 'negative',
   });
   setText('kpi-savings', hasScan ? formatKpiCurrency(potentialSaving) : 'Not calculated yet');
-  renderKpiTrend('kpi-savings-helper', hasScan && potentialSaving > 0 ? savingsTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
+  renderKpiTrend('kpi-savings-helper', hasScan && potentialSaving > 0 ? savingsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Run a validation check to unlock this KPI' });
   setText('kpi-records', hasScan ? formatNumber(totalRecords) : 'Not calculated yet');
-  renderKpiTrend('kpi-records-helper', hasScan && totalRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Available after scan sync' });
+  renderKpiTrend('kpi-records-helper', hasScan && totalRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Available after scan sync' });
   setText('kpi-checks', hasScan ? formatNumber(checksRun) : 'Not calculated yet');
-  renderKpiTrend('kpi-checks-helper', hasScan && checksRun > 0 ? checksTrend : null, { emptyLabel: hasScan ? 'No trend data yet' : 'Run a validation check to unlock this KPI' });
+  renderKpiTrend('kpi-checks-helper', hasScan && checksRun > 0 ? checksTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Run a validation check to unlock this KPI' });
 }
 
 function renderIssueDistribution(data) {
@@ -821,6 +871,53 @@ function renderOverviewRecentIssues(data) {
   }).join('') + `<button type="button" class="recent-critical-link" data-jump-tab="issues">View all issues <span aria-hidden="true">&rarr;</span></button>`;
   const link = host.querySelector('.recent-critical-link');
   if (link) link.addEventListener('click', () => switchTab('issues'));
+}
+
+function overviewActionCandidates(data) {
+  const isPremium = Boolean(data?.visibility?.is_premium);
+  const premiumItems = Array.isArray(data?.top_findings) ? data.top_findings : [];
+  const freeItems = Array.isArray(data?.free_insights?.top_findings) ? data.free_insights.top_findings : [];
+  const sourceItems = isPremium && premiumItems.length > 0 ? premiumItems : freeItems;
+  return sourceItems
+    .filter(Boolean)
+    .map((item) => ({
+      title: item?.title || item?.issue || item?.name || 'Recommended action',
+      saving: safeNumber(item?.potential_saving_eur ?? item?.potential_savings_eur ?? item?.impact_eur ?? item?.estimated_loss_eur),
+      openInBcUrl: String(item?.open_in_bc_url || item?.open_in_business_central_url || item?.bc_url || ''),
+      severity: normalizeIssueSeverity(item?.severity || item?.priority),
+    }))
+    .sort((a, b) => safeNumber(b.saving) - safeNumber(a.saving));
+}
+
+function renderRecommendedActions(data) {
+  const host = byId('overview-recommended-actions');
+  if (!host) return;
+  const items = overviewActionCandidates(data).slice(0, 3);
+
+  if (items.length === 0) {
+    host.innerHTML = `<div class="empty-state executive-empty">Recommended actions will appear after scan insights are available.</div>`;
+    return;
+  }
+
+  host.innerHTML = items.map((item, index) => {
+    const bcAction = item.openInBcUrl
+      ? `<a href="${escapeHtml(item.openInBcUrl)}" class="pager-button recommended-action-bc" target="_blank" rel="noopener noreferrer">Open in Business Central</a>`
+      : `<button type="button" class="pager-button recommended-action-bc" disabled>Business Central link unavailable</button>`;
+    return `
+      <article class="recommended-action-row recommended-action-${escapeHtml(item.severity)}">
+        <div class="recommended-action-rank">${index + 1}</div>
+        <div class="recommended-action-main">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(issueSeverityLabel(item.severity))}</span>
+        </div>
+        <div class="recommended-action-saving">
+          <span>Potential Saving</span>
+          <strong>${item.saving > 0 ? formatKpiCurrency(item.saving) : 'Calculated after full analysis'}</strong>
+        </div>
+        ${bcAction}
+      </article>
+    `;
+  }).join('');
 }
 
 function businessImpactIcon(name) {
@@ -1876,8 +1973,8 @@ function renderSubscriptionProducts(data) {
   const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
   const items = [
     ['full_analysis', 'Full Analysis', 'Complete Data Health Assessment', 'Buy Now', activeAssessment, 'Most Popular'],
-    ['validation_check', 'Validation Check', 'Validate improvements after remediation', 'Buy Now', activeValidation, ''],
-    ['monitoring_monthly', 'Monitoring Monthly', 'Continuous monitoring with trends and alerts', 'Start Monitoring', monitoringActive, 'Current Plan'],
+    ['validation_check', 'Validation Check', 'Validate improvements after remediation', 'Buy Now', activeValidation, 'After Fixes'],
+    ['monitoring_monthly', 'Monitoring Monthly', 'Continuous monitoring with trends and alerts', 'Start Monitoring', monitoringActive, 'Recommended'],
     ['monitoring_annual', 'Monitoring Annual', 'Best value annual monitoring plan', 'Start Annual Monitoring', monitoringActive, 'Best Value'],
   ];
   host.innerHTML = items.map(([key, title, description, cta, active, badge]) => {
@@ -2155,19 +2252,10 @@ async function loadDashboard(scanId = null) {
     const activeTab = document.querySelector('.topnav-link.is-active')?.dataset?.tab || 'overview';
     updatePageHeader(activeTab);
     setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
-    setText('hero-eyebrow', 'Your Data Health Assessment');
-    setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
-    setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
-    setText('hero-suffix', data?.hero?.headline_suffix || '');
-    setText('overview-summary', '');
-    renderOverviewContext(data);
-    renderHeroPoints(data?.hero?.points || []);
-    const heroHighlight = byId('hero-highlight');
-    if (heroHighlight) {
-      heroHighlight.className = `hero-highlight ${scoreBand(data?.kpis?.health_score)}`;
-    }
+    renderExecutiveHero(data);
 
     renderOverviewKpis(data);
+    renderRecommendedActions(data);
     renderOverviewModuleScores(data);
     renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
     renderModuleVolume(data);

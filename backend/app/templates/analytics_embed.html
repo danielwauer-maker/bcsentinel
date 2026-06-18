@@ -61,18 +61,32 @@
     </header>
 
     <section id="overview-tab" class="tab-panel is-active">
-      <section class="overview-hero panel">
-        <div>
-          <div id="hero-eyebrow" class="hero-eyebrow">Executive overview</div>
+      <section class="overview-hero panel executive-summary-hero">
+        <div class="executive-hero-copy">
+          <div id="hero-eyebrow" class="hero-eyebrow">Data Health Summary</div>
           <h2 class="hero-title overview-title">
-            <span id="hero-prefix">Your data health is</span>
-            <span id="hero-highlight" class="hero-highlight">critical</span>
+            <span id="hero-prefix">Your current data quality score requires attention.</span>
+            <span id="hero-highlight" class="hero-highlight hidden"></span>
             <span id="hero-suffix"></span>
           </h2>
-          <p id="overview-summary" class="overview-summary">Executive overview of your data quality and business impact.</p>
+          <p id="overview-summary" class="overview-summary">Your current data quality score requires attention.</p>
           <div id="overview-context" class="overview-context"></div>
         </div>
-        <ul id="hero-points" class="hero-points"></ul>
+        <div class="executive-hero-metrics" aria-label="Executive metrics">
+          <div class="executive-hero-metric">
+            <span>Health Score</span>
+            <strong id="hero-metric-health">0/100</strong>
+          </div>
+          <div class="executive-hero-metric is-loss">
+            <span>Estimated Annual Loss</span>
+            <strong id="hero-metric-loss">0 &euro;</strong>
+          </div>
+          <div class="executive-hero-metric is-saving">
+            <span>Potential Savings</span>
+            <strong id="hero-metric-savings">0 &euro;</strong>
+          </div>
+        </div>
+        <ul id="hero-points" class="hero-points hidden"></ul>
       </section>
 
       <section class="stats-grid overview-kpi-grid">
@@ -134,11 +148,22 @@
         </article>
       </section>
 
+      <section class="panel recommended-actions-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Recommended Actions</h3>
+            <span class="muted">Highest impact actions based on the selected scan.</span>
+          </div>
+          <span class="panel-info-icon" title="Top actions based on existing findings">i</span>
+        </div>
+        <div id="overview-recommended-actions" class="recommended-actions-list"></div>
+      </section>
+
       <section class="panel overview-module-score-panel">
         <div class="panel-header">
           <div class="panel-title-block">
-            <h3>Module Scores</h3>
-            <span class="muted">Health score per Business Central module</span>
+            <h3>Top Risk Modules</h3>
+            <span class="muted">Five weakest Business Central module scores first.</span>
           </div>
           <span class="panel-info-icon" title="Module health scores from Business Central">i</span>
         </div>
