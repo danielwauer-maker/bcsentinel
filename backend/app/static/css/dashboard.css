@@ -3050,3 +3050,66 @@ td {
   }
 }
 
+/* Sidebar logo and icon navigation */
+.sidebar-icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.sidebar-brand {
+  align-items: center;
+}
+
+.sidebar-logo {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .18));
+}
+
+.dashboard-sidebar .topnav-link::before,
+.sidebar-footer a::before,
+.sidebar-link::before {
+  content: none;
+}
+
+.sidebar-icon {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dashboard-sidebar .topnav-link {
+  gap: 16px;
+  padding: 13px 16px;
+}
+
+.dashboard-sidebar .topnav-link .nav-label,
+.sidebar-footer a span,
+.sidebar-link span {
+  line-height: 1;
+}
+
+.dashboard-sidebar .topnav-link.is-active .sidebar-icon {
+  stroke-width: 2.15;
+}
+
+.sidebar-footer a,
+.sidebar-link {
+  gap: 16px;
+}
+
+.sidebar-footer .sidebar-icon {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+}
+

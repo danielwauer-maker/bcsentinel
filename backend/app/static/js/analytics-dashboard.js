@@ -109,14 +109,14 @@ function applyDashboardUi(ui, language) {
   currentDashboardUi = ui || {};
   document.documentElement.lang = currentDashboardLanguage;
 
-  setTextContent('[data-tab="overview"]', t('overview', 'Overview'));
-  setTextContent('[data-tab="analytics"]', t('analytics', 'Analytics'));
-  setTextContent('[data-tab="scans"]', t('scans', 'Scans'));
-  setTextContent('[data-tab="issues"]', t('issues', 'Issues'));
-  setTextContent('[data-tab="actions"]', t('actions', 'Actions'));
-  setTextContent('[data-tab="reports"]', t('reports', 'Reports'));
-  setTextContent('[data-tab="subscription"]', t('subscription', 'Subscription'));
-  setTextContent('[data-tab="settings"]', t('settings', 'Settings'));
+  setTextContent('[data-tab="overview"] .nav-label', t('overview', 'Overview'));
+  setTextContent('[data-tab="analytics"] .nav-label', t('analytics', 'Analytics'));
+  setTextContent('[data-tab="scans"] .nav-label', t('scans', 'Scans'));
+  setTextContent('[data-tab="issues"] .nav-label', t('issues', 'Issues'));
+  setTextContent('[data-tab="actions"] .nav-label', t('actions', 'Actions'));
+  setTextContent('[data-tab="reports"] .nav-label', t('reports', 'Reports'));
+  setTextContent('[data-tab="subscription"] .nav-label', t('subscription', 'Subscription'));
+  setTextContent('[data-tab="settings"] .nav-label', t('settings', 'Settings'));
   setTextContent('#current-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#subscription-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#page-subtitle', t('loading', 'Loading...'));

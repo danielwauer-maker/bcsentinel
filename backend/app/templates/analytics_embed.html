@@ -9,27 +9,40 @@
 <body class="dashboard-body">
   <main class="dashboard-layout">
     <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
+      <svg class="sidebar-icon-sprite" aria-hidden="true" focusable="false">
+        <symbol id="sidebar-icon-home" viewBox="0 0 24 24"><path d="M3 10.7 12 3l9 7.7v9.1a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.3H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></symbol>
+        <symbol id="sidebar-icon-chart" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 3.2-3.2 2.7 2.2L18 8"/><path d="M18 8h-3.5"/><path d="M18 8v3.5"/></symbol>
+        <symbol id="sidebar-icon-scan" viewBox="0 0 24 24"><path d="M4 7V5.2A1.2 1.2 0 0 1 5.2 4H7"/><path d="M17 4h1.8A1.2 1.2 0 0 1 20 5.2V7"/><path d="M20 17v1.8a1.2 1.2 0 0 1-1.2 1.2H17"/><path d="M7 20H5.2A1.2 1.2 0 0 1 4 18.8V17"/><path d="M8 9h8"/><path d="M8 12h8"/><path d="M8 15h5"/></symbol>
+        <symbol id="sidebar-icon-issues" viewBox="0 0 24 24"><path d="M10.6 4.2 2.8 18.1A1.4 1.4 0 0 0 4 20.2h16a1.4 1.4 0 0 0 1.2-2.1L13.4 4.2a1.6 1.6 0 0 0-2.8 0z"/><path d="M12 8.5v5"/><path d="M12 17h.01"/></symbol>
+        <symbol id="sidebar-icon-actions" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M9 3v4"/><path d="M15 3v4"/><path d="m8.5 13 2.4 2.4 4.8-5"/></symbol>
+        <symbol id="sidebar-icon-reports" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 20V5A1.5 1.5 0 0 1 6.5 3.5z"/><path d="M14 3.5V8h4"/><path d="M8.5 13h7"/><path d="M8.5 17h7"/></symbol>
+        <symbol id="sidebar-icon-subscription" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M3.5 10h17"/><path d="M7 15h2.5"/><path d="M16.5 15h.01"/></symbol>
+        <symbol id="sidebar-icon-settings" viewBox="0 0 24 24"><path d="M12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2z"/><path d="m19.4 15.2 1.1 1.8-2.1 2.1-1.8-1.1a8 8 0 0 1-2 .8l-.5 2.1h-3l-.5-2.1a8 8 0 0 1-2-.8l-1.8 1.1L4.7 17l1.1-1.8a8 8 0 0 1-.8-2l-2.1-.5v-3l2.1-.5a8 8 0 0 1 .8-2L4.7 5.4l2.1-2.1 1.8 1.1a8 8 0 0 1 2-.8l.5-2.1h3l.5 2.1a8 8 0 0 1 2 .8l1.8-1.1 2.1 2.1-1.1 1.8a8 8 0 0 1 .8 2l2.1.5v3l-2.1.5a8 8 0 0 1-.8 2z"/></symbol>
+        <symbol id="sidebar-icon-support" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.7 2.7 0 0 1 5.1 1.2c0 2-2.7 2.1-2.7 4"/><path d="M12 18h.01"/></symbol>
+        <symbol id="sidebar-icon-docs" viewBox="0 0 24 24"><path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h13v16H7a2.5 2.5 0 0 0-2.5 2.5z"/><path d="M4.5 5.5v16"/><path d="M8 7h8"/></symbol>
+        <symbol id="sidebar-icon-logout" viewBox="0 0 24 24"><path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14"/><path d="M10 12h10"/><path d="m16 8 4 4-4 4"/></symbol>
+      </svg>
       <div class="sidebar-brand">
-        <div class="sidebar-mark">BC</div>
+        <img class="sidebar-logo" src="/static/img/logo-transparent.png" alt="BCSentinel logo">
         <div>
           <strong>BCSentinel</strong>
           <span>Data Health</span>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <button type="button" class="topnav-link is-active" data-tab="overview">Overview</button>
-        <button type="button" class="topnav-link" data-tab="analytics">Analytics</button>
-        <button type="button" class="topnav-link" data-tab="scans">Scans</button>
-        <button type="button" class="topnav-link" data-tab="issues">Issues</button>
-        <button type="button" class="topnav-link" data-tab="actions">Actions</button>
-        <button type="button" class="topnav-link" data-tab="reports">Reports</button>
-        <button type="button" class="topnav-link" data-tab="subscription">Subscription</button>
-        <button type="button" class="topnav-link" data-tab="settings">Settings</button>
+        <button type="button" class="topnav-link is-active" data-tab="overview"><svg class="sidebar-icon"><use href="#sidebar-icon-home"></use></svg><span class="nav-label">Overview</span></button>
+        <button type="button" class="topnav-link" data-tab="analytics"><svg class="sidebar-icon"><use href="#sidebar-icon-chart"></use></svg><span class="nav-label">Analytics</span></button>
+        <button type="button" class="topnav-link" data-tab="scans"><svg class="sidebar-icon"><use href="#sidebar-icon-scan"></use></svg><span class="nav-label">Scans</span></button>
+        <button type="button" class="topnav-link" data-tab="issues"><svg class="sidebar-icon"><use href="#sidebar-icon-issues"></use></svg><span class="nav-label">Issues</span></button>
+        <button type="button" class="topnav-link" data-tab="actions"><svg class="sidebar-icon"><use href="#sidebar-icon-actions"></use></svg><span class="nav-label">Actions</span></button>
+        <button type="button" class="topnav-link" data-tab="reports"><svg class="sidebar-icon"><use href="#sidebar-icon-reports"></use></svg><span class="nav-label">Reports</span></button>
+        <button type="button" class="topnav-link" data-tab="subscription"><svg class="sidebar-icon"><use href="#sidebar-icon-subscription"></use></svg><span class="nav-label">Subscription</span></button>
+        <button type="button" class="topnav-link" data-tab="settings"><svg class="sidebar-icon"><use href="#sidebar-icon-settings"></use></svg><span class="nav-label">Settings</span></button>
       </nav>
       <div class="sidebar-footer">
-        <a href="mailto:support@bcsentinel.com">Support</a>
-        <a href="/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
-        <button type="button" class="sidebar-link" id="logout-button">Logout</button>
+        <a href="mailto:support@bcsentinel.com"><svg class="sidebar-icon"><use href="#sidebar-icon-support"></use></svg><span>Support</span></a>
+        <a href="/docs" target="_blank" rel="noopener noreferrer"><svg class="sidebar-icon"><use href="#sidebar-icon-docs"></use></svg><span>Documentation</span></a>
+        <button type="button" class="sidebar-link" id="logout-button"><svg class="sidebar-icon"><use href="#sidebar-icon-logout"></use></svg><span>Logout</span></button>
       </div>
     </aside>
     <section class="page-shell">
