@@ -675,6 +675,10 @@ function mergeModuleRows(...sources) {
 
 function mergeBcModuleRows(...sources) {
   const rows = new Map();
+  knownDashboardModules().forEach((name) => {
+    const key = moduleKey(name);
+    rows.set(key, { key, name: canonicalDashboardModuleName(key, name), count: 0, percent: 0 });
+  });
   sources.flat().filter(Boolean).forEach((item) => {
     const name = item?.name || item?.label || '';
     if (!name) return;
@@ -856,18 +860,20 @@ function businessImpactRows(data) {
     if (!name || impact <= 0) return;
     const key = moduleKey(name);
     const current = grouped.get(key) || { key, name, impact: 0 };
-    current.name = name;
+    current.name = canonicalDashboardModuleName(key, name);
     current.impact += impact;
     grouped.set(key, current);
   });
 
   moduleNameRows(data?.module_scores).forEach((item) => {
     const key = moduleKey(item.name);
-    if (!grouped.has(key)) grouped.set(key, { key, name: item.name, impact: 0 });
+    if (!grouped.has(key)) grouped.set(key, { key, name: canonicalDashboardModuleName(key, item.name), impact: 0 });
   });
 
   const order = knownDashboardModules().map(moduleKey);
   return Array.from(grouped.values()).sort((a, b) => {
+    const impactDiff = safeNumber(b.impact) - safeNumber(a.impact);
+    if (impactDiff !== 0) return impactDiff;
     const indexA = order.indexOf(a.key);
     const indexB = order.indexOf(b.key);
     return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
