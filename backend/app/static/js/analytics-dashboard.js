@@ -927,6 +927,7 @@ function renderModuleDistribution(data) {
   const maxRecords = Math.max(...recordRows.map((item) => item.count), 1);
   const issueDistribution = normalizePercentDistribution(moduleItems);
   const moduleColors = getWeightedPalette(issueDistribution, (item) => item.percent, (item) => item.key);
+  const recordColors = getWeightedPalette(recordRows, (item) => item.count, (item) => item.key);
   let start = 0;
   const donutSegments = issueDistribution.map((item) => {
     const percent = Math.max(Math.min(safeNumber(item.percent), 100), 0);
@@ -963,7 +964,7 @@ function renderModuleDistribution(data) {
     </div>
   ` : `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
   const recordMarkup = recordRows.map((item) => {
-    const color = moduleColors.get(item.key) || WEIGHTED_ZERO_COLOR;
+    const color = item.count > 0 ? (recordColors.get(item.key) || WEIGHTED_ZERO_COLOR) : WEIGHTED_ZERO_COLOR;
     return `
     <div class="module-record-row">
       <span>${escapeHtml(item.name)}</span>

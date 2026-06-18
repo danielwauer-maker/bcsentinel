@@ -3510,15 +3510,15 @@ td {
 
 #overview-module-distribution.module-distribution {
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  gap: 34px;
   align-items: stretch;
-  min-height: 330px;
+  min-height: 386px;
 }
 
 #overview-module-distribution .module-distribution-column h4 {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   color: #07173a;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 850;
 }
 
@@ -3534,13 +3534,13 @@ td {
 
 .module-donut-wrap {
   display: grid;
-  grid-template-columns: 168px minmax(150px, 1fr);
+  grid-template-columns: 196px minmax(170px, 1fr);
   align-items: center;
-  gap: 24px;
+  gap: 28px;
 }
 
 .module-donut {
-  width: 164px;
+  width: 188px;
   aspect-ratio: 1;
   border-radius: 999px;
   display: grid;
@@ -3569,7 +3569,7 @@ td {
 .module-donut-track,
 .module-donut-segment {
   fill: none;
-  stroke-width: 16;
+  stroke-width: 17;
 }
 
 .module-donut-track {
@@ -3581,27 +3581,27 @@ td {
 }
 
 .module-donut strong {
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 850;
 }
 
 .module-donut span {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 750;
 }
 
 .module-legend {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .module-legend-row {
   display: grid;
   grid-template-columns: 14px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 11px;
   color: #172b55;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .module-legend-row strong {
@@ -3609,33 +3609,34 @@ td {
 }
 
 .module-legend-dot {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 999px;
 }
 
 .module-record-row {
   display: grid;
-  grid-template-columns: minmax(86px, .8fr) minmax(132px, 1.45fr) auto;
+  grid-template-columns: minmax(96px, .82fr) minmax(150px, 1.5fr) auto;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   color: #172b55;
-  font-size: 13px;
+  font-size: 14px;
+  min-height: 30px;
 }
 
 .module-record-row + .module-record-row {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .module-record-row strong {
-  min-width: 64px;
-  font-weight: 850;
+  min-width: 72px;
+  font-weight: 900;
   text-align: right;
   white-space: nowrap;
 }
 
 #overview-module-distribution .distribution-track {
-  height: 11px;
+  height: 13px;
   border-radius: 999px;
   background: #eef2f7;
 }
@@ -3652,7 +3653,7 @@ td {
   align-items: center;
   gap: 10px;
   float: right;
-  margin-top: 24px;
+  margin-top: 30px;
   border: 0;
   background: transparent;
   color: #075cff;
