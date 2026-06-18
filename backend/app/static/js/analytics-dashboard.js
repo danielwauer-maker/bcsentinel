@@ -618,6 +618,42 @@ function normalizePercentDistribution(items) {
   });
 }
 
+const WEIGHTED_PRIORITY_COLORS = [
+  '#991b1b',
+  '#dc2626',
+  '#ef4444',
+  '#f97316',
+  '#f59e0b',
+  '#eab308',
+  '#84cc16',
+  '#16a34a',
+  '#14b8a6',
+  '#2563eb',
+];
+const WEIGHTED_ZERO_COLOR = '#cbd5e1';
+
+function getWeightedPalette(items, valueAccessor, keyAccessor = (item) => item?.key || item?.name) {
+  const entries = (Array.isArray(items) ? items : [])
+    .filter(Boolean)
+    .map((item, index) => ({
+      item,
+      index,
+      key: String(keyAccessor(item) ?? index),
+      value: Math.max(safeNumber(valueAccessor(item)), 0),
+    }));
+  const positiveEntries = entries
+    .filter((entry) => entry.value > 0)
+    .sort((a, b) => b.value - a.value || a.index - b.index);
+  const palette = new Map();
+  positiveEntries.forEach((entry, index) => {
+    palette.set(entry.key, WEIGHTED_PRIORITY_COLORS[index % WEIGHTED_PRIORITY_COLORS.length]);
+  });
+  entries.filter((entry) => entry.value <= 0).forEach((entry) => {
+    palette.set(entry.key, WEIGHTED_ZERO_COLOR);
+  });
+  return palette;
+}
+
 function knownDashboardModules() {
   if (currentDashboardLanguage === 'de') {
     return ['System', 'Finanzen', 'Verkauf', 'Einkauf', 'Lager', 'CRM', 'Fertigung', 'Service', 'Projekte', 'HR'];
@@ -750,14 +786,15 @@ function renderModuleDistribution(data) {
   }
 
   const maxRecords = Math.max(...recordRows.map((item) => item.count), 1);
-  const colors = ['#003c9e', '#095cff', '#2f7bff', '#5968f4', '#6da0ff', '#8ab6ff', '#1d4ed8', '#60a5fa', '#4338ca', '#93c5fd'];
   const issueDistribution = normalizePercentDistribution(moduleItems);
+  const moduleColors = getWeightedPalette(issueDistribution, (item) => item.percent, (item) => item.key);
   let start = 0;
-  const donutSegments = issueDistribution.map((item, index) => {
+  const donutSegments = issueDistribution.map((item) => {
     const percent = Math.max(Math.min(safeNumber(item.percent), 100), 0);
+    const color = moduleColors.get(item.key) || WEIGHTED_ZERO_COLOR;
     const segment = percent > 0 ? `
       <circle cx="50" cy="50" r="39" pathLength="100" class="module-donut-segment"
-        style="stroke:${colors[index % colors.length]};stroke-dasharray:${percent} ${100 - percent};stroke-dashoffset:${-start};"></circle>
+        style="stroke:${color};stroke-dasharray:${percent} ${100 - percent};stroke-dashoffset:${-start};"></circle>
     ` : '';
     const end = start + percent;
     start = end;
@@ -773,25 +810,31 @@ function renderModuleDistribution(data) {
         <div><strong>100%</strong><span>Issues</span></div>
       </div>
       <div class="module-legend">
-        ${issueDistribution.map((item, index) => `
+        ${issueDistribution.map((item) => {
+          const color = moduleColors.get(item.key) || WEIGHTED_ZERO_COLOR;
+          return `
           <div class="module-legend-row">
-            <span class="module-legend-dot" style="background:${colors[index % colors.length]}"></span>
+            <span class="module-legend-dot" style="background:${color}"></span>
             <span>${escapeHtml(item.name)}</span>
-            <strong>${formatPercent(item.percent)}</strong>
+            <strong style="color:${color}">${formatPercent(item.percent)}</strong>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </div>
   ` : `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
-  const recordMarkup = recordRows.map((item) => `
+  const recordMarkup = recordRows.map((item) => {
+    const color = moduleColors.get(item.key) || WEIGHTED_ZERO_COLOR;
+    return `
     <div class="module-record-row">
       <span>${escapeHtml(item.name)}</span>
       <div>
-        <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${item.count > 0 ? Math.max((item.count / maxRecords) * 100, 3) : 0}%"></div></div>
+        <div class="distribution-track"><div class="distribution-fill record-fill" style="--weighted-color:${color};width:${item.count > 0 ? Math.max((item.count / maxRecords) * 100, 3) : 0}%"></div></div>
       </div>
-      <strong>${formatCompactRecords(item.count)}</strong>
+      <strong style="color:${color}">${formatCompactRecords(item.count)}</strong>
     </div>
-  `).join('') || `<div class="empty-state executive-empty compact-empty">No record module data yet.</div>`;
+  `;
+  }).join('') || `<div class="empty-state executive-empty compact-empty">No record module data yet.</div>`;
 
   host.innerHTML = `
     <div class="module-distribution-column module-issues-column">
@@ -963,17 +1006,21 @@ function renderBusinessImpact(data) {
   }
 
   const maxImpact = Math.max(...rows.map((item) => item.impact), 1);
+  const impactColors = getWeightedPalette(rows, (item) => item.impact, (item) => item.key);
 
   host.innerHTML = `
     <div class="business-impact-breakdown">
-      ${rows.map((item) => `
+      ${rows.map((item) => {
+        const color = impactColors.get(item.key) || WEIGHTED_ZERO_COLOR;
+        return `
         <div class="business-impact-row">
           <span class="business-impact-icon">${businessImpactIcon(item.name)}</span>
           <span class="business-impact-name">${escapeHtml(item.name)}</span>
-          <div class="distribution-track"><div class="distribution-fill" style="width:${item.impact > 0 ? Math.max((item.impact / maxImpact) * 100, 5) : 0}%"></div></div>
-          <strong>${formatKpiCurrency(item.impact)}</strong>
+          <div class="distribution-track"><div class="distribution-fill" style="--weighted-color:${color};width:${item.impact > 0 ? Math.max((item.impact / maxImpact) * 100, 5) : 0}%"></div></div>
+          <strong style="color:${color}">${formatKpiCurrency(item.impact)}</strong>
         </div>
-      `).join('')}
+      `;
+      }).join('')}
     </div>
     <button type="button" class="business-impact-report-button">View full impact report <span aria-hidden="true">&rarr;</span></button>
   `;
