@@ -4571,3 +4571,61 @@ body.dashboard-dark .recommended-action-bc:disabled {
   color: #c99f8b;
 }
 
+/* Overview issue cards refinement */
+.overview-issue-grid > .panel {
+  min-height: 316px;
+}
+
+.overview-issue-grid .panel-header {
+  margin-bottom: 18px;
+}
+
+.active-issues-list {
+  gap: 18px;
+}
+
+.active-issue-row {
+  min-height: 46px;
+  gap: 18px;
+}
+
+.active-issue-count {
+  width: 58px;
+  min-height: 46px;
+  border-radius: 10px;
+  font-size: 28px;
+}
+
+.active-issue-label {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.active-issues-link,
+.recent-critical-link {
+  margin-top: 26px;
+}
+
+.recent-critical-row {
+  min-height: 44px;
+  padding: 10px 0;
+}
+
+.recent-critical-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.recent-critical-count {
+  min-width: 44px;
+  min-height: 30px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+html.dashboard-dark .recent-critical-row,
+body.dashboard-dark .recent-critical-row {
+  border-color: #263a59;
+  color: #f4f7fb;
+}
+

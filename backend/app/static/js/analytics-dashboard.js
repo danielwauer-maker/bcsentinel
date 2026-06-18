@@ -822,8 +822,9 @@ function renderOverviewRecentIssues(data) {
       const severityB = severityRank[String(b?.severity || '').toLowerCase()] ?? 9;
       return severityA - severityB || safeNumber(b?.impact_eur) - safeNumber(a?.impact_eur);
     });
-  const criticalItems = sourceItems.filter((item) => ['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
-  const items = (criticalItems.length > 0 ? criticalItems : sourceItems).slice(0, 5);
+  const priorityItems = sourceItems.filter((item) => ['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
+  const fallbackItems = sourceItems.filter((item) => !['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
+  const items = [...priorityItems, ...fallbackItems].slice(0, 5);
 
   if (items.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty">Recent critical issues will appear after the next scan.</div>`;
