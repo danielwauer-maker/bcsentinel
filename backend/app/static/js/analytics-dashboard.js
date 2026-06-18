@@ -525,6 +525,32 @@ function normalizeDistributionItems(items) {
     : [];
 }
 
+function formatCompactRecords(value) {
+  const number = safeNumber(value);
+  if (number >= 1000000) {
+    const compact = number / 1000000;
+    return `${new Intl.NumberFormat(currentDashboardLanguage === 'de' ? 'de-DE' : 'en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(compact)} Mio.`;
+  }
+  return formatNumber(number);
+}
+
+function normalizePercentDistribution(items) {
+  const totalCount = items.reduce((sum, item) => sum + safeNumber(item.count), 0);
+  const rawPercentTotal = items.reduce((sum, item) => sum + safeNumber(item.percent), 0);
+  return items.map((item) => {
+    const percent = item.percent > 0
+      ? item.percent
+      : (totalCount > 0 ? (item.count / totalCount) * 100 : 0);
+    return {
+      ...item,
+      percent: rawPercentTotal > 100.5 && item.percent > 0 ? (item.percent / rawPercentTotal) * 100 : percent,
+    };
+  });
+}
+
 function renderModuleDistribution(data) {
   const host = byId('overview-module-distribution');
   if (!host) return;
@@ -537,33 +563,57 @@ function renderModuleDistribution(data) {
     return;
   }
 
-  const maxIssue = Math.max(...moduleItems.map((item) => item.count), 1);
   const maxRecords = Math.max(...recordItems.map((item) => item.count), 1);
-  const issueMarkup = moduleItems.slice(0, 5).map((item) => `
-    <div class="module-row">
-      <span>${escapeHtml(item.name)}</span>
-      <div class="distribution-track"><div class="distribution-fill" style="width:${Math.max((item.count / maxIssue) * 100, 3)}%"></div></div>
-      <strong>${formatNumber(item.count)}</strong>
+  const colors = ['#003c9e', '#2d56e8', '#2f7bff', '#5968f4', '#6da0ff'];
+  const issueDistribution = normalizePercentDistribution(moduleItems.slice(0, 5));
+  let start = 0;
+  const donutSegments = issueDistribution.map((item, index) => {
+    const end = start + Math.max(safeNumber(item.percent), 0);
+    const segment = `${colors[index % colors.length]} ${start}% ${end}%`;
+    start = end;
+    return segment;
+  });
+  if (start < 100) donutSegments.push(`#edf2f8 ${start}% 100%`);
+  const donutBackground = donutSegments.join(', ') || '#edf2f8 0% 100%';
+  const issueMarkup = issueDistribution.length > 0 ? `
+    <div class="module-donut-wrap">
+      <div class="module-donut" style="--module-donut:${escapeHtml(donutBackground)}">
+        <div><strong>100%</strong><span>Issues</span></div>
+      </div>
+      <div class="module-legend">
+        ${issueDistribution.map((item, index) => `
+          <div class="module-legend-row">
+            <span class="module-legend-dot" style="background:${colors[index % colors.length]}"></span>
+            <span>${escapeHtml(item.name)}</span>
+            <strong>${formatPercent(item.percent)}</strong>
+          </div>
+        `).join('')}
+      </div>
     </div>
-  `).join('') || `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
+  ` : `<div class="empty-state executive-empty compact-empty">No issue module data yet.</div>`;
   const recordMarkup = recordItems.slice(0, 5).map((item) => `
-    <div class="module-row">
+    <div class="module-record-row">
       <span>${escapeHtml(item.name)}</span>
-      <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${Math.max((item.count / maxRecords) * 100, 3)}%"></div></div>
-      <strong>${formatNumber(item.count)}</strong>
+      <div>
+        <div class="distribution-track"><div class="distribution-fill record-fill" style="width:${Math.max((item.count / maxRecords) * 100, 3)}%"></div></div>
+      </div>
+      <strong>${formatCompactRecords(item.count)}</strong>
     </div>
   `).join('') || `<div class="empty-state executive-empty compact-empty">No record module data yet.</div>`;
 
   host.innerHTML = `
-    <div class="module-distribution-column">
-      <h4>Issue Distribution</h4>
+    <div class="module-distribution-column module-issues-column">
+      <h4>Issue Distribution (by %)</h4>
       ${issueMarkup}
     </div>
-    <div class="module-distribution-column">
+    <div class="module-distribution-column module-records-column">
       <h4>Records by Module</h4>
       ${recordMarkup}
+      <button type="button" class="module-view-button" data-jump-tab="analytics">View all modules <span aria-hidden="true">&rarr;</span></button>
     </div>
   `;
+  const viewButton = host.querySelector('.module-view-button');
+  if (viewButton) viewButton.addEventListener('click', () => switchTab('analytics'));
 }
 
 function renderOverviewRecentIssues(data) {
