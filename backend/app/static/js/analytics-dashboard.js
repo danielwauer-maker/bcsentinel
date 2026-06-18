@@ -622,15 +622,24 @@ function renderOverviewRecentIssues(data) {
   const isPremium = Boolean(data?.visibility?.is_premium);
   const premiumItems = Array.isArray(data?.top_findings) ? data.top_findings : [];
   const freeItems = Array.isArray(data?.free_insights?.top_findings) ? data.free_insights.top_findings : [];
-  const items = (isPremium ? premiumItems : freeItems).slice(0, 5);
+  const severityRank = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sourceItems = (isPremium ? premiumItems : freeItems)
+    .filter(Boolean)
+    .sort((a, b) => {
+      const severityA = severityRank[String(a?.severity || '').toLowerCase()] ?? 9;
+      const severityB = severityRank[String(b?.severity || '').toLowerCase()] ?? 9;
+      return severityA - severityB || safeNumber(b?.impact_eur) - safeNumber(a?.impact_eur);
+    });
+  const criticalItems = sourceItems.filter((item) => ['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
+  const items = (criticalItems.length > 0 ? criticalItems : sourceItems).slice(0, 5);
 
   if (items.length === 0) {
-    host.innerHTML = `<div class="empty-state executive-empty">Recent issues will appear after the next scan.</div>`;
+    host.innerHTML = `<div class="empty-state executive-empty">Recent critical issues will appear after the next scan.</div>`;
     return;
   }
 
   host.innerHTML = items.map((item, index) => {
-    const title = isPremium ? (item?.title || 'Issue') : `Locked issue ${index + 1}`;
+    const title = item?.title || `Issue ${index + 1}`;
     const moduleName = item?.group || item?.module || 'Module pending';
     const severity = String(item?.severity || 'low').toLowerCase();
     const impact = safeNumber(item?.impact_eur);
@@ -647,7 +656,7 @@ function renderOverviewRecentIssues(data) {
         </div>
       </div>
     `;
-  }).join('') + (!isPremium ? `<div class="placeholder-note">Issue details are protected. Full Analysis, Validation Check or Monitoring unlocks record-level actions.</div>` : '');
+  }).join('') + (!isPremium ? `<div class="placeholder-note">Full Analysis unlocks record-level issue details and recommended actions.</div>` : '');
 }
 
 function businessImpactIcon(name) {
@@ -1723,23 +1732,54 @@ function renderSubscriptionProducts(data) {
   }).join('');
 }
 
-function renderFeatureComparison(data) {
-  const host = byId('subscription-feature-comparison-body');
+function renderOverviewProducts(data) {
+  const host = byId('overview-product-grid');
+  if (!host) return;
+  const access = data?.product_access || {};
+  const activeAssessment = Boolean(access.assessment_access_active || data?.assessment_access_active || access.can_view_issues);
+  const activeValidation = Boolean(access.validation_access_active || data?.validation_access_active);
+  const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
+  const items = [
+    ['full_analysis', 'Full Analysis', 'Complete insights for 7 days: issue details, affected records, recommendations, actions and reports.', 'Buy Full Analysis', activeAssessment, 'Most Popular'],
+    ['validation_check', 'Validation Check', 'New scan comparison for 7 days: validate fixes after remediation and update your score.', 'Buy Validation Check', activeValidation, 'After Fixes'],
+    ['monitoring_monthly', 'Monitoring', 'One full month of recurring monitoring: trends, scan history, alerts, prioritized actions and executive reporting.', 'Start Monitoring', monitoringActive, 'Best for ongoing control'],
+  ];
+  host.innerHTML = items.map(([key, title, description, cta, active, badge]) => {
+    const price = subscriptionPriceFor(data, key);
+    const isMonitoring = key.startsWith('monitoring');
+    const cardBadge = active ? 'Active' : badge;
+    return `
+      <article class="subscription-product-card overview-product-card ${active ? 'is-active-product' : ''} ${isMonitoring ? 'is-monitoring-product' : ''}">
+        <div class="subscription-product-top">
+          <h4>${escapeHtml(title)}</h4>
+          ${cardBadge ? `<span class="subscription-product-badge">${escapeHtml(cardBadge)}</span>` : ''}
+        </div>
+        <p>${escapeHtml(description)}</p>
+        <div class="subscription-product-price">${escapeHtml(price.label)}</div>
+        <button type="button" class="primary-button subscription-product-action" data-product-code="${escapeHtml(key)}" ${price.disabled ? 'disabled' : ''}>${escapeHtml(price.disabled ? 'Contact Sales' : cta)}</button>
+      </article>
+    `;
+  }).join('');
+}
+
+function renderFeatureComparisonBody(host, data) {
   if (!host) return;
   const rows = [
-    ['Dashboard', true, true, true, true],
+    ['Free Health Score Dashboard', true, true, true, true],
+    ['Active Issues Summary', true, true, true, true],
     ['Issue Details', false, true, true, true],
-    ['Actions', false, true, true, true],
+    ['Affected Records', false, true, true, true],
+    ['Actions & Recommendations', false, true, true, true],
+    ['Open in Business Central', false, true, true, true],
     ['Reports', false, true, true, true],
-    ['Open in BC', false, true, true, true],
+    ['Validation Scan Comparison', false, false, true, true],
     ['Score Trends', false, false, false, true],
     ['Loss Trends', false, false, false, true],
-    ['Monitoring History', false, false, false, true],
-    ['Prioritized Actions', false, true, true, true],
-    ['Executive Reports', false, true, true, true],
+    ['Monitoring History & Alerts', false, false, false, true],
   ];
   const access = data?.product_access || {};
-  const currentColumn = access.monitoring_active ? 3 : (data?.visibility?.is_premium ? 1 : 0);
+  const validationActive = Boolean(access.validation_access_active || data?.validation_access_active);
+  const currentColumn = access.monitoring_active ? 3 : (validationActive ? 2 : (data?.visibility?.is_premium ? 1 : 0));
   host.innerHTML = rows.map(([feature, free, assessment, validation, monitoring]) => {
     const cells = [free, assessment, validation, monitoring].map((enabled, index) => `
       <td class="${index === currentColumn ? 'is-current-plan-cell' : ''}">
@@ -1748,6 +1788,22 @@ function renderFeatureComparison(data) {
     `).join('');
     return `<tr><td><strong>${escapeHtml(feature)}</strong></td>${cells}</tr>`;
   }).join('');
+}
+
+function renderFeatureComparison(data) {
+  renderFeatureComparisonBody(byId('subscription-feature-comparison-body'), data);
+  renderFeatureComparisonBody(byId('overview-feature-comparison-body'), data);
+}
+
+function updateOverviewTrendVisibility(data) {
+  const section = byId('overview-trend-section');
+  if (!section) return;
+  const access = data?.product_access || {};
+  const premiumActive = Boolean(data?.visibility?.is_premium || access.monitoring_active || access.can_use_monitoring);
+  const scorePoints = Array.isArray(data?.score_trend) ? data.score_trend.length : 0;
+  const lossPoints = Array.isArray(data?.loss_trend) ? data.loss_trend.length : 0;
+  const hasMultipleScans = scorePoints > 1 || lossPoints > 1 || (Array.isArray(data?.recent_scans) && data.recent_scans.length > 1);
+  section.classList.toggle('hidden', !(premiumActive && hasMultipleScans));
 }
 
 function applyLockStates(data) {
@@ -1841,7 +1897,7 @@ function applyPlanState(data) {
     subBadge.classList.toggle('is-locked', !hasPaidAccess && !monitoringActive);
   }
 
-  if (accessUnlock) accessUnlock.classList.toggle('hidden', hasPaidAccess);
+  if (accessUnlock) accessUnlock.classList.add('hidden');
   if (monitoringPanels) monitoringPanels.classList.toggle('hidden', !monitoringActive);
   if (findingsPanel) findingsPanel.classList.toggle('hidden', !hasPaidAccess);
 }
@@ -1951,6 +2007,7 @@ async function loadDashboard(scanId = null) {
     renderRecentScans(data?.recent_scans || []);
     renderRecentScansPagination(data?.recent_scans_pagination || {});
     renderScansPage(data);
+    updateOverviewTrendVisibility(data);
     renderTrend('trend-chart', data?.score_trend || [], false, 'Score history appears after at least two scans. Monitoring keeps this trend useful over time.');
     renderTrend('loss-chart', data?.loss_trend || [], true, 'Loss history appears after at least two scans. Monitoring adds the historical business context.');
     renderTrend('analytics-score-trend', data?.score_trend || [], false, 'Score history appears after at least two scans.');
@@ -1963,6 +2020,7 @@ async function loadDashboard(scanId = null) {
     renderUnlockPanel(data);
     renderSubscription(data);
     renderSubscriptionProducts(data);
+    renderOverviewProducts(data);
     renderIssuesPage(data);
     renderActionsPage(data);
     renderReportsPage(data);
@@ -2076,6 +2134,15 @@ function registerEvents() {
   const productGrid = byId('subscription-product-grid');
   if (productGrid) {
     productGrid.addEventListener('click', async (event) => {
+      const button = event.target.closest('.subscription-product-action');
+      if (!button || button.disabled) return;
+      await triggerBillingAction('checkout', button.dataset.productCode || null);
+    });
+  }
+
+  const overviewProductGrid = byId('overview-product-grid');
+  if (overviewProductGrid) {
+    overviewProductGrid.addEventListener('click', async (event) => {
       const button = event.target.closest('.subscription-product-action');
       if (!button || button.disabled) return;
       await triggerBillingAction('checkout', button.dataset.productCode || null);

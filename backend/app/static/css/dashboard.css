@@ -311,6 +311,7 @@ button { font: inherit; }
 }
 
 .overview-distribution-grid,
+.overview-issue-grid,
 .overview-insight-grid {
   grid-template-columns: 1fr 1fr;
 }
@@ -612,6 +613,50 @@ button { font: inherit; }
 
   .business-impact-row .distribution-track {
     grid-column: 2 / -1;
+  }
+}
+
+/* Free overview layout */
+.overview-issue-grid,
+.overview-distribution-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.overview-products-panel,
+.overview-feature-comparison-panel {
+  margin-bottom: 22px;
+}
+
+.overview-product-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.overview-product-card {
+  min-height: 286px;
+}
+
+.overview-product-card p {
+  min-height: 72px;
+}
+
+.overview-feature-comparison-panel .feature-comparison-table th {
+  white-space: nowrap;
+}
+
+.overview-feature-comparison-panel .feature-mark {
+  min-width: 82px;
+}
+
+@media (max-width: 1180px) {
+  .overview-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .overview-issue-grid,
+  .overview-distribution-grid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -134,35 +134,11 @@
         </article>
       </section>
 
-      <section class="overview-grid overview-trend-grid">
-        <article class="panel" id="score-trend-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Score Trend</h3>
-              <span class="muted">Historical score movement when scan history is available</span>
-            </div>
-            <span id="score-trend-badge" class="placeholder-status">History</span>
-          </div>
-          <div id="trend-chart" class="trend-chart"></div>
-        </article>
-
-        <article class="panel" id="loss-trend-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Loss Trend</h3>
-              <span class="muted">Estimated annual impact over available scans</span>
-            </div>
-            <span id="loss-trend-badge" class="placeholder-status">Monitoring value</span>
-          </div>
-          <div id="loss-chart" class="trend-chart"></div>
-        </article>
-      </section>
-
-      <section class="overview-grid overview-distribution-grid">
+      <section class="overview-grid overview-issue-grid">
         <article class="panel">
           <div class="panel-header">
             <div class="panel-title-block">
-              <h3>Issue Distribution</h3>
+              <h3>Active Issues</h3>
               <span class="muted">Severity mix for the selected scan</span>
             </div>
           </div>
@@ -172,24 +148,24 @@
         <article class="panel">
           <div class="panel-header">
             <div class="panel-title-block">
+              <h3>Recent Critical Issues</h3>
+              <span class="muted">Highest impact findings from the selected scan</span>
+            </div>
+            <button type="button" class="pager-button inline-nav-button" data-jump-tab="issues">View all issues</button>
+          </div>
+          <div id="overview-recent-issues" class="overview-list"></div>
+        </article>
+      </section>
+
+      <section class="overview-grid overview-distribution-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
               <h3>Module Distribution &amp; Records</h3>
             </div>
             <span class="panel-info-icon" title="Affected findings and records by Business Central module">i</span>
           </div>
           <div id="overview-module-distribution" class="module-distribution"></div>
-        </article>
-      </section>
-
-      <section class="overview-grid overview-insight-grid">
-        <article class="panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Recent Issues</h3>
-              <span class="muted">Top issues by impact for the selected scan</span>
-            </div>
-            <button type="button" class="pager-button inline-nav-button" data-jump-tab="issues">View all issues</button>
-          </div>
-          <div id="overview-recent-issues" class="overview-list"></div>
         </article>
 
         <article class="panel">
@@ -201,6 +177,55 @@
           </div>
           <div id="overview-business-impact" class="business-impact-panel"></div>
         </article>
+      </section>
+
+      <section id="overview-trend-section" class="overview-grid overview-trend-grid hidden">
+        <article class="panel" id="score-trend-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Score Trend</h3>
+              <span class="muted">Historical score movement when scan history is available</span>
+            </div>
+            <span id="score-trend-badge" class="placeholder-status">Monitoring</span>
+          </div>
+          <div id="trend-chart" class="trend-chart"></div>
+        </article>
+
+        <article class="panel" id="loss-trend-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Loss Trend</h3>
+              <span class="muted">Estimated annual impact over available scans</span>
+            </div>
+            <span id="loss-trend-badge" class="placeholder-status">Monitoring</span>
+          </div>
+          <div id="loss-chart" class="trend-chart"></div>
+        </article>
+      </section>
+
+      <section id="overview-products-panel" class="panel overview-products-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Unlock the next step</h3>
+            <span class="muted">Choose the access level that matches what you want to do next.</span>
+          </div>
+        </div>
+        <div id="overview-product-grid" class="subscription-product-grid overview-product-grid"></div>
+      </section>
+
+      <section id="overview-feature-comparison-panel" class="panel overview-feature-comparison-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Feature Comparison</h3>
+            <span class="muted">Free Score, paid scan access and Monitoring at a glance.</span>
+          </div>
+        </div>
+        <div class="table-wrap feature-comparison-wrap">
+          <table class="feature-comparison-table">
+            <thead><tr><th>Feature</th><th>Free</th><th>Full Analysis</th><th>Validation Check</th><th>Monitoring</th></tr></thead>
+            <tbody id="overview-feature-comparison-body"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="monitoring-overview-panels" class="overview-grid monitoring-only-grid hidden">
