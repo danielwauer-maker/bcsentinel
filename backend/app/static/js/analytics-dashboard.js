@@ -151,6 +151,7 @@ function applyDashboardUi(ui, language) {
 
 function updatePageHeader(tab) {
   const data = currentDashboardState || {};
+  const companyName = getDashboardCompanyName(data);
   const pageCopy = {
     overview: ['Overview', 'Executive overview of your data quality and business impact'],
     analytics: ['Analytics', 'Score, loss and distribution analysis for the selected scan'],
@@ -164,7 +165,13 @@ function updatePageHeader(tab) {
   };
   const [title, fallbackSubtitle] = pageCopy[tab] || pageCopy.overview;
   setText('page-title', title);
-  setText('page-subtitle', tab === 'overview' && data?.subtitle ? `${fallbackSubtitle} - ${data.subtitle}` : fallbackSubtitle);
+  setText('page-subtitle', fallbackSubtitle);
+
+  const companyEl = byId('overview-company-name');
+  if (companyEl) {
+    companyEl.textContent = tab === 'overview' ? companyName : '';
+    companyEl.classList.toggle('hidden', tab !== 'overview' || !companyName);
+  }
 }
 
 function formatDateTime(value) {
@@ -411,18 +418,26 @@ function scoreLabel(score) {
   return labels[band] || 'Not calculated yet';
 }
 
+function getDashboardCompanyName(data) {
+  const settings = data?.settings || data?.tenant_settings || {};
+  const profile = data?.tenant_profile || data?.profile || {};
+  const subtitleParts = String(data?.subtitle || '').split(' - ');
+  return firstPresent(
+    settings.company,
+    settings.company_name,
+    data?.company,
+    data?.company_name,
+    profile.company,
+    profile.company_name,
+    subtitleParts[0],
+  );
+}
+
 function renderOverviewContext(data) {
   const host = byId('overview-context');
   if (!host) return;
-  const items = [
-    data?.subtitle ? ['Context', data.subtitle] : null,
-    data?.scan_mode_label ? ['Scan', data.scan_mode_label] : null,
-    data?.last_updated ? ['Last scan', formatDateTime(data.last_updated)] : null,
-  ].filter(Boolean);
-
-  host.innerHTML = items.map(([label, value]) => `
-    <span class="overview-context-chip"><strong>${escapeHtml(label)}</strong>${escapeHtml(value)}</span>
-  `).join('');
+  host.innerHTML = '';
+  host.classList.add('hidden');
 }
 
 function renderOverviewKpis(data) {
@@ -1714,8 +1729,8 @@ function applyPlanState(data) {
   const monitoringPanels = byId('monitoring-overview-panels');
   const findingsPanel = byId('access-findings-panel');
   const accessLabel = monitoringActive
-    ? t('monitoring_active', 'Monitoring active')
-    : (hasPaidAccess ? t('assessment_validation_active', 'Full Analysis / Validation active') : t('credits_needed', 'Credits needed'));
+    ? 'Full Premium Analysis'
+    : (hasPaidAccess ? 'Full Premium Analysis' : 'Free Data Score');
 
   if (planBadge) {
     planBadge.textContent = accessLabel;
@@ -1818,11 +1833,11 @@ async function loadDashboard(scanId = null) {
     const activeTab = document.querySelector('.topnav-link.is-active')?.dataset?.tab || 'overview';
     updatePageHeader(activeTab);
     setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
-    setText('hero-eyebrow', data?.hero?.eyebrow || 'Data Health Score first. Full Analysis unlocks the details.');
+    setText('hero-eyebrow', 'Your Data Health Assessment');
     setText('hero-prefix', data?.hero?.headline_prefix || 'Your data health is');
     setText('hero-highlight', data?.hero?.headline_highlight || 'critical');
     setText('hero-suffix', data?.hero?.headline_suffix || '');
-    setText('overview-summary', data?.subtitle ? `Executive overview for ${data.subtitle}.` : 'Executive overview of your data quality and business impact.');
+    setText('overview-summary', '');
     renderOverviewContext(data);
     renderHeroPoints(data?.hero?.points || []);
     const heroHighlight = byId('hero-highlight');

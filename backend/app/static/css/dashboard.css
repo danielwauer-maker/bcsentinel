@@ -3001,3 +3001,52 @@ td {
   }
 }
 
+/* Overview header and hero copy cleanup */
+.title-row {
+  align-items: center;
+}
+
+.overview-company-name {
+  color: #071f50;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.overview-hero {
+  grid-template-columns: 1fr;
+}
+
+.overview-title {
+  max-width: none;
+}
+
+.hero-title.overview-title {
+  font-size: clamp(40px, 3.35vw, 58px);
+  line-height: 1.04;
+  white-space: nowrap;
+}
+
+.overview-summary:empty {
+  display: none;
+}
+
+.overview-context.hidden {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .hero-title.overview-title {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 720px) {
+  .overview-company-name {
+    flex-basis: 100%;
+  }
+
+  .hero-title.overview-title {
+    font-size: 38px;
+  }
+}
+
