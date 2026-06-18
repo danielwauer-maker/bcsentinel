@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
-  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260409-4">
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260409-5">
 </head>
 <body class="dashboard-body">
   <main class="dashboard-layout">
@@ -132,6 +132,17 @@
           <div class="kpi-card-divider"></div>
           <div class="stat-helper kpi-trend-line" id="kpi-checks-helper">Validation checks run</div>
         </article>
+      </section>
+
+      <section class="panel overview-module-score-panel">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Module Scores</h3>
+            <span class="muted">Health score per Business Central module</span>
+          </div>
+          <span class="panel-info-icon" title="Module health scores from Business Central">i</span>
+        </div>
+        <div id="overview-module-score-grid" class="overview-module-score-grid"></div>
       </section>
 
       <section class="overview-grid overview-issue-grid">
@@ -561,6 +572,6 @@
     </section>
     </section>
   </main>
-  <script src="/static/js/analytics-dashboard.js?v=20260409-4"></script>
+  <script src="/static/js/analytics-dashboard.js?v=20260409-5"></script>
 </body>
 </html>

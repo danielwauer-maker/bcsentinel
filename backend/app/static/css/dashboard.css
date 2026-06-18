@@ -772,13 +772,117 @@ button { font: inherit; }
   color: #003fba;
 }
 
+.overview-module-score-panel {
+  margin-bottom: 22px;
+}
+
+.overview-module-score-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(112px, 1fr));
+  gap: 14px;
+}
+
+.module-score-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 148px;
+  padding: 14px 10px 12px;
+  border: 1px solid #e1e8f2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 20px rgba(9, 23, 58, .06);
+}
+
+.module-score-title {
+  max-width: 100%;
+  overflow: hidden;
+  color: #07173a;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.module-score-gauge {
+  --gauge-color: #0b8f55;
+  position: relative;
+  width: 88px;
+  height: 52px;
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+}
+
+.module-score-gauge::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+    conic-gradient(from 270deg, var(--gauge-color) calc(var(--score) * 1.8deg), #e5eaf2 0 180deg, transparent 0);
+}
+
+.module-score-gauge.critical { --gauge-color: #ef1717; }
+.module-score-gauge.warning { --gauge-color: #f97316; }
+.module-score-gauge.moderate { --gauge-color: #eab308; }
+.module-score-gauge.good,
+.module-score-gauge.excellent { --gauge-color: #0b8f55; }
+
+.module-score-gauge > div {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  padding-bottom: 1px;
+}
+
+.module-score-gauge strong {
+  color: #071326;
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.module-score-gauge span {
+  color: #33415f;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.module-score-status {
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.module-score-status.critical { color: #ef1717; }
+.module-score-status.warning { color: #f97316; }
+.module-score-status.moderate { color: #d29a00; }
+.module-score-status.good,
+.module-score-status.excellent { color: #0b8f55; }
+
 @media (max-width: 1180px) {
+  .overview-module-score-grid {
+    grid-template-columns: repeat(5, minmax(112px, 1fr));
+  }
+
   .overview-product-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 860px) {
+  .overview-module-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .overview-issue-grid,
   .overview-distribution-grid {
     grid-template-columns: 1fr;

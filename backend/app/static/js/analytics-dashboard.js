@@ -302,6 +302,49 @@ function renderProfileCards(moduleScores, fallbackItems) {
   });
 }
 
+function renderOverviewModuleScores(data) {
+  const host = byId('overview-module-score-grid');
+  if (!host) return;
+  const scoreItems = Array.isArray(data?.module_scores) ? data.module_scores.filter(Boolean) : [];
+  const scoreMap = new Map();
+
+  scoreItems.forEach((item) => {
+    const name = item?.name || item?.label || '';
+    if (!name) return;
+    const key = moduleKey(name);
+    const score = Math.max(0, Math.min(100, safeNumber(item?.score ?? item?.value)));
+    scoreMap.set(key, {
+      key,
+      name: canonicalDashboardModuleName(key, name),
+      score,
+      variant: item?.variant || scoreBand(score),
+    });
+  });
+
+  const rows = knownDashboardModules().map((name) => {
+    const key = moduleKey(name);
+    return scoreMap.get(key) || {
+      key,
+      name: canonicalDashboardModuleName(key, name),
+      score: 0,
+      variant: scoreBand(0),
+    };
+  });
+
+  host.innerHTML = rows.map((item) => `
+    <article class="module-score-card">
+      <div class="module-score-title">${escapeHtml(item.name)}</div>
+      <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${item.score}">
+        <div>
+          <strong>${formatNumber(item.score)}</strong>
+          <span>/100</span>
+        </div>
+      </div>
+      <div class="module-score-status ${escapeHtml(item.variant)}">${escapeHtml(scoreLabel(item.score))}</div>
+    </article>
+  `).join('');
+}
+
 function renderIssueGroups(items, emptyMessage = t('no_module_data', 'No module data is available for this scan.')) {
   const host = byId('issue-groups');
   if (!host) return;
@@ -2119,6 +2162,7 @@ async function loadDashboard(scanId = null) {
     }
 
     renderOverviewKpis(data);
+    renderOverviewModuleScores(data);
     renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
     renderModuleVolume(data);
     renderRecentScans(data?.recent_scans || []);
