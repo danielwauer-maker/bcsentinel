@@ -647,6 +647,74 @@ button { font: inherit; }
   min-width: 82px;
 }
 
+.active-issues-list {
+  display: grid;
+  gap: 12px;
+}
+
+.active-issue-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-height: 44px;
+  color: #07173a;
+}
+
+.active-issue-count {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  min-height: 38px;
+  border-radius: 7px;
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.active-issue-label {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.active-issue-critical .active-issue-count {
+  background: #fee2e2;
+  color: #ef1717;
+}
+
+.active-issue-high .active-issue-count {
+  background: #fff0e4;
+  color: #f97316;
+}
+
+.active-issue-medium .active-issue-count {
+  background: #fff7dc;
+  color: #f5a400;
+}
+
+.active-issue-low .active-issue-count {
+  background: #eaf2ff;
+  color: #0b5cff;
+}
+
+.active-issues-link {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  border: 0;
+  background: transparent;
+  color: #075cff;
+  font-size: 16px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.active-issues-link:hover {
+  color: #003fba;
+}
+
 @media (max-width: 1180px) {
   .overview-product-grid {
     grid-template-columns: 1fr;

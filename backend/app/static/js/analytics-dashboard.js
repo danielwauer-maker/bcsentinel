@@ -490,10 +490,10 @@ function renderIssueDistribution(data) {
   if (!host) return;
   const summary = data?.free_insights?.active_issues_summary || {};
   const rows = [
-    ['critical', 'Critical', safeNumber(summary.critical)],
-    ['high', 'High', safeNumber(summary.high)],
-    ['medium', 'Medium', safeNumber(summary.medium)],
-    ['low', 'Low', safeNumber(summary.low)],
+    ['critical', 'Critical Issues', safeNumber(summary.critical)],
+    ['high', 'High Issues', safeNumber(summary.high)],
+    ['medium', 'Medium Issues', safeNumber(summary.medium)],
+    ['low', 'Low Issues', safeNumber(summary.low)],
   ];
   const total = rows.reduce((sum, row) => sum + row[2], 0);
 
@@ -502,17 +502,19 @@ function renderIssueDistribution(data) {
     return;
   }
 
-  host.innerHTML = rows.map(([key, label, count]) => {
-    const percent = total > 0 ? (count / total) * 100 : 0;
-    return `
-      <div class="severity-row">
-        <div><span class="severity-dot severity-dot-${key}"></span><span>${escapeHtml(label)}</span></div>
-        <strong>${formatNumber(count)}</strong>
-        <div class="distribution-track"><div class="distribution-fill severity-fill-${key}" style="width:${Math.max(percent, count > 0 ? 4 : 0)}%"></div></div>
-        <span class="muted">${formatPercent(percent)}</span>
-      </div>
-    `;
-  }).join('');
+  host.innerHTML = `
+    <div class="active-issues-list">
+      ${rows.map(([key, label, count]) => `
+        <div class="active-issue-row active-issue-${escapeHtml(key)}">
+          <span class="active-issue-count">${formatNumber(count)}</span>
+          <span class="active-issue-label">${escapeHtml(label)}</span>
+        </div>
+      `).join('')}
+    </div>
+    <button type="button" class="active-issues-link" data-jump-tab="issues">View all issues <span aria-hidden="true">&rarr;</span></button>
+  `;
+  const link = host.querySelector('.active-issues-link');
+  if (link) link.addEventListener('click', () => switchTab('issues'));
 }
 
 function normalizeDistributionItems(items) {
