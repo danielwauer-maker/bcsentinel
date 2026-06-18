@@ -526,6 +526,95 @@ button { font: inherit; }
   font-size: 17px;
 }
 
+.panel-title-unit {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.business-impact-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.business-impact-breakdown {
+  display: grid;
+  gap: 18px;
+}
+
+.business-impact-row {
+  display: grid;
+  grid-template-columns: 24px minmax(95px, 1fr) minmax(120px, 1.35fr) auto;
+  align-items: center;
+  gap: 14px;
+  color: #07173a;
+  font-size: 14px;
+}
+
+.business-impact-icon {
+  display: inline-grid;
+  place-items: center;
+  color: #071f50;
+}
+
+.business-impact-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.business-impact-name {
+  font-weight: 750;
+}
+
+.business-impact-row .distribution-track {
+  height: 9px;
+  background: #eef2f7;
+}
+
+.business-impact-row .distribution-fill {
+  background: #0b5cff;
+}
+
+.business-impact-row strong {
+  min-width: 86px;
+  color: #ef1717;
+  font-size: 14px;
+  font-weight: 850;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.business-impact-report-button {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  color: #075cff;
+  font-size: 16px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.business-impact-report-button:hover {
+  color: #003fba;
+}
+
+@media (max-width: 720px) {
+  .business-impact-row {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+  }
+
+  .business-impact-row .distribution-track {
+    grid-column: 2 / -1;
+  }
+}
+
 .executive-empty {
   border: 1px dashed #d7e0ed;
   border-radius: 14px;

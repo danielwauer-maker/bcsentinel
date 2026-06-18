@@ -650,38 +650,88 @@ function renderOverviewRecentIssues(data) {
   }).join('') + (!isPremium ? `<div class="placeholder-note">Issue details are protected. Full Analysis, Validation Check or Monitoring unlocks record-level actions.</div>` : '');
 }
 
+function businessImpactIcon(name) {
+  const key = String(name || '').toLowerCase();
+  if (key.includes('finance') || key.includes('finanz')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 18V9"/><path d="M10 18V9"/><path d="M14 18V9"/><path d="M18 18V9"/><path d="M3.5 9h17L12 4z"/></svg>';
+  }
+  if (key.includes('master') || key.includes('data') || key.includes('stamm')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>';
+  }
+  if (key.includes('sales') || key.includes('verkauf')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 16l3-3 3 2 5-7"/><path d="M6 9v7"/><path d="M12 11v5"/><path d="M18 7v9"/></svg>';
+  }
+  if (key.includes('purchas') || key.includes('einkauf')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h2l1.4 8.2a1.5 1.5 0 0 0 1.5 1.3h6.8a1.5 1.5 0 0 0 1.4-1l1.4-4.5H8.2"/><circle cx="10" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>';
+  }
+  if (key.includes('inventory') || key.includes('lager')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5"/><path d="M12 12v9"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/></svg>';
+}
+
+function businessImpactRows(data) {
+  const freeImpactItems = Array.isArray(data?.free_insights?.business_impacts) ? data.free_insights.business_impacts : [];
+  const sourceItems = freeImpactItems.length > 0
+    ? freeImpactItems
+    : (Array.isArray(data?.top_findings) ? data.top_findings : []);
+  const grouped = new Map();
+
+  sourceItems.forEach((item) => {
+    const name = item?.group || item?.module || item?.module_name || item?.category || item?.title || '';
+    const impact = safeNumber(item?.impact_eur ?? item?.estimated_loss_eur ?? item?.estimated_impact_eur);
+    if (!name || impact <= 0) return;
+    const current = grouped.get(name) || { name, impact: 0 };
+    current.impact += impact;
+    grouped.set(name, current);
+  });
+
+  if (grouped.size === 0) {
+    const estimatedLoss = safeNumber(data?.kpis?.estimated_loss_eur);
+    const modules = normalizeDistributionItems(data?.free_insights?.module_distribution);
+    const total = modules.reduce((sum, item) => sum + safeNumber(item.count), 0);
+    if (estimatedLoss > 0 && total > 0) {
+      modules.forEach((item) => {
+        grouped.set(item.name, {
+          name: item.name,
+          impact: estimatedLoss * (safeNumber(item.count) / total),
+        });
+      });
+    }
+  }
+
+  return Array.from(grouped.values())
+    .sort((a, b) => b.impact - a.impact)
+    .slice(0, 5);
+}
+
 function renderBusinessImpact(data) {
   const host = byId('overview-business-impact');
   if (!host) return;
-  const kpis = data?.kpis || {};
-  const healthScore = safeNumber(kpis.health_score);
-  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
-  const potentialSaving = safeNumber(kpis.potential_saving_eur);
-  const roi = safeNumber(kpis.roi_eur);
-  const issuesCount = safeNumber(kpis.issues_count);
+  const rows = businessImpactRows(data);
 
-  if (!data?.selected_scan_id) {
+  if (!data?.selected_scan_id || rows.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty">Business impact will be calculated after scan results are available.</div>`;
     return;
   }
 
-  const headline = estimatedLoss > 0
-    ? `${formatCurrency(estimatedLoss)} estimated annual impact`
-    : 'Business impact not calculated yet';
-  const summary = potentialSaving > 0
-    ? `${formatCurrency(potentialSaving)} potential savings are available from the existing scan economics.`
-    : 'Run a validation check or full analysis to unlock a stronger business impact view.';
+  const maxImpact = Math.max(...rows.map((item) => item.impact), 1);
 
   host.innerHTML = `
-    <div class="business-impact-headline">${escapeHtml(headline)}</div>
-    <p>${escapeHtml(summary)}</p>
-    <div class="business-impact-grid">
-      <div><span>Health Score</span><strong>${formatNumber(healthScore)}/100</strong></div>
-      <div><span>Issues Found</span><strong>${formatNumber(issuesCount)}</strong></div>
-      <div><span>Potential Savings</span><strong>${formatCurrency(potentialSaving)}</strong></div>
-      <div><span>ROI</span><strong>${formatCurrency(roi)}</strong></div>
+    <div class="business-impact-breakdown">
+      ${rows.map((item) => `
+        <div class="business-impact-row">
+          <span class="business-impact-icon">${businessImpactIcon(item.name)}</span>
+          <span class="business-impact-name">${escapeHtml(item.name)}</span>
+          <div class="distribution-track"><div class="distribution-fill" style="width:${Math.max((item.impact / maxImpact) * 100, 5)}%"></div></div>
+          <strong>${formatKpiCurrency(item.impact)}</strong>
+        </div>
+      `).join('')}
     </div>
+    <button type="button" class="business-impact-report-button">View full impact report <span aria-hidden="true">&rarr;</span></button>
   `;
+  const reportButton = host.querySelector('.business-impact-report-button');
+  if (reportButton) reportButton.addEventListener('click', () => switchTab('reports'));
 }
 
 function renderRecentScans(items) {
