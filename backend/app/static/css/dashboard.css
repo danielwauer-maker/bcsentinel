@@ -4151,6 +4151,29 @@ body {
   cursor: pointer;
 }
 
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #34435c;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.language-toggle select {
+  height: 34px;
+  border: 1px solid #d7e1ef;
+  border-radius: 9px;
+  background: #fff;
+  color: #07173a;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 28px 0 10px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(9, 23, 58, .05);
+}
+
 .dark-mode-toggle input {
   position: absolute;
   width: 1px;
@@ -4537,6 +4560,7 @@ body.dashboard-dark .feature-comparison-table strong {
 html.dashboard-dark .muted,
 html.dashboard-dark .page-subtitle,
 html.dashboard-dark .overview-summary,
+html.dashboard-dark .language-toggle,
 html.dashboard-dark .dark-mode-toggle,
 html.dashboard-dark .recommended-action-main span,
 html.dashboard-dark .recommended-action-saving span,
@@ -4544,11 +4568,20 @@ html.dashboard-dark .subscription-product-card p,
 body.dashboard-dark .muted,
 body.dashboard-dark .page-subtitle,
 body.dashboard-dark .overview-summary,
+body.dashboard-dark .language-toggle,
 body.dashboard-dark .dark-mode-toggle,
 body.dashboard-dark .recommended-action-main span,
 body.dashboard-dark .recommended-action-saving span,
 body.dashboard-dark .subscription-product-card p {
   color: #aab7cf;
+}
+
+html.dashboard-dark .language-toggle select,
+body.dashboard-dark .language-toggle select {
+  border-color: #263a59;
+  background: #14233a;
+  color: #f4f7fb;
+  box-shadow: none;
 }
 
 html.dashboard-dark .executive-summary-hero .hero-eyebrow,

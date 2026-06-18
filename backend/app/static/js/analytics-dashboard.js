@@ -5,6 +5,104 @@ const RECENT_SCANS_PAGE_SIZE = 12;
 let currentDashboardState = null;
 let currentDashboardLanguage = 'en';
 let currentDashboardUi = {};
+let dashboardLanguageOverride = null;
+
+const LOCAL_DASHBOARD_UI = {
+  en: {
+    overview: 'Overview',
+    analytics: 'Analytics',
+    scans: 'Scans',
+    issues: 'Issues',
+    actions: 'Actions',
+    reports: 'Reports',
+    subscription: 'Subscription',
+    settings: 'Settings',
+    support: 'Support',
+    documentation: 'Documentation',
+    logout: 'Logout',
+    language: 'Language',
+    dark_mode: 'Dark mode',
+    overview_subtitle: 'Executive overview of your data quality and business impact',
+    analytics_subtitle: 'Score, loss and distribution analysis for the selected scan',
+    scans_subtitle: 'Available scan runs and dashboard context',
+    issues_subtitle: 'Review detected data quality issues, business impact and affected records.',
+    issue_detail: 'Issue detail',
+    issue_detail_subtitle: 'Detailed issue context, impact and recommendation',
+    actions_subtitle: 'Prioritized actions to reduce data quality risk and business impact.',
+    reports_subtitle: 'Generate and review executive, operational and impact reports.',
+    subscription_access: 'Subscription & Access',
+    subscription_subtitle: 'Manage your product access, monitoring status and available scan credits.',
+    settings_subtitle: 'Configure your account and preferences',
+  },
+  de: {
+    overview: 'Überblick',
+    analytics: 'Analytics',
+    scans: 'Scans',
+    issues: 'Issues',
+    actions: 'Actions',
+    reports: 'Reports',
+    subscription: 'Produktzugriff',
+    settings: 'Settings',
+    support: 'Support',
+    documentation: 'Dokumentation',
+    logout: 'Logout',
+    language: 'Sprache',
+    dark_mode: 'Dark Mode',
+    overview_subtitle: 'Executive Overview deiner Datenqualität und Business-Auswirkung',
+    analytics_subtitle: 'Score-, Verlust- und Verteilungsanalyse für den ausgewählten Scan',
+    scans_subtitle: 'Verfügbare Scan-Läufe und Dashboard-Kontext',
+    issues_subtitle: 'Prüfe erkannte Datenqualitäts-Issues, Business Impact und betroffene Datensätze.',
+    issue_detail: 'Issue Detail',
+    issue_detail_subtitle: 'Detaillierter Issue-Kontext, Impact und Empfehlung',
+    actions_subtitle: 'Priorisierte Aktionen zur Reduzierung von Datenqualitätsrisiko und Business Impact.',
+    reports_subtitle: 'Reports erstellen und Executive-, Operational- und Impact-Auswertungen prüfen.',
+    subscription_access: 'Subscription & Access',
+    subscription_subtitle: 'Verwalte Produktzugriff, Monitoring-Status und verfügbare Scan Credits.',
+    settings_subtitle: 'Account und Präferenzen konfigurieren',
+  },
+};
+
+const STATIC_TEXT_TRANSLATIONS = [
+  ['Active Issues', 'Aktive Issues'],
+  ['Recent Critical Issues', 'Aktuelle kritische Issues'],
+  ['Highest impact findings from the selected scan', 'Findings mit höchstem Impact aus dem ausgewählten Scan'],
+  ['Recommended Actions', 'Empfohlene Aktionen'],
+  ['Highest impact actions based on the selected scan.', 'Aktionen mit höchstem Impact basierend auf dem ausgewählten Scan.'],
+  ['Module Distribution & Records', 'Modulverteilung & Datensätze'],
+  ['Issue Distribution (by %)', 'Issue-Verteilung (in %)'],
+  ['Records by Module', 'Datensätze nach Modul'],
+  ['Business Impact Breakdown', 'Business Impact Aufschlüsselung'],
+  ['View all issues', 'Alle Issues anzeigen'],
+  ['View all modules', 'Alle Module anzeigen'],
+  ['View full impact report', 'Vollständigen Impact Report anzeigen'],
+  ['Unlock the next step', 'Nächsten Schritt freischalten'],
+  ['Choose the access level that matches what you want to do next.', 'Wähle den Zugriff, der zu deinem nächsten Schritt passt.'],
+  ['Feature Comparison', 'Feature-Vergleich'],
+  ['Free Score, paid scan access and Monitoring at a glance.', 'Free Score, bezahlter Scan-Zugriff und Monitoring auf einen Blick.'],
+  ['Feature', 'Feature'],
+  ['Free', 'Free'],
+  ['Full Analysis', 'Full Analysis'],
+  ['Validation Check', 'Validation Check'],
+  ['Validation', 'Validation'],
+  ['Assessment', 'Assessment'],
+  ['Monitoring', 'Monitoring'],
+  ['Date', 'Datum'],
+  ['Type', 'Typ'],
+  ['Score', 'Score'],
+  ['Status', 'Status'],
+  ['Headline', 'Headline'],
+  ['Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
+  ['Back to Issues', 'Zurück zu Issues'],
+  ['Current Access', 'Aktueller Zugriff'],
+  ['Monitoring Status', 'Monitoring-Status'],
+  ['Scan Credits', 'Scan Credits'],
+  ['Available Scan Credits', 'Verfügbare Scan Credits'],
+  ['Products', 'Produkte'],
+  ['Settings', 'Settings'],
+  ['Reports', 'Reports'],
+  ['Actions', 'Actions'],
+  ['Issues', 'Issues'],
+];
 
 function byId(id) {
   return document.getElementById(id);
@@ -96,7 +194,27 @@ function renderKpiTrend(targetId, trendValue, options = {}) {
 }
 
 function t(key, fallback) {
-  return currentDashboardUi?.[key] || fallback || key;
+  return currentDashboardUi?.[key] || LOCAL_DASHBOARD_UI[currentDashboardLanguage]?.[key] || fallback || key;
+}
+
+function translateStaticDashboardText() {
+  const root = document.querySelector('.page-shell');
+  if (!root) return;
+  const targetIndex = currentDashboardLanguage === 'de' ? 1 : 0;
+  const lookup = new Map();
+  STATIC_TEXT_TRANSLATIONS.forEach(([en, de]) => {
+    lookup.set(en, [en, de][targetIndex]);
+    lookup.set(de, [en, de][targetIndex]);
+  });
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach((node) => {
+    const original = node.nodeValue || '';
+    const trimmed = original.trim();
+    if (!trimmed || !lookup.has(trimmed)) return;
+    node.nodeValue = original.replace(trimmed, lookup.get(trimmed));
+  });
 }
 
 function setTextContent(selector, value) {
@@ -108,6 +226,8 @@ function applyDashboardUi(ui, language) {
   currentDashboardLanguage = language === 'de' ? 'de' : 'en';
   currentDashboardUi = ui || {};
   document.documentElement.lang = currentDashboardLanguage;
+  const languageToggle = byId('dashboard-language-toggle');
+  if (languageToggle) languageToggle.value = currentDashboardLanguage;
 
   setTextContent('[data-tab="overview"] .nav-label', t('overview', 'Overview'));
   setTextContent('[data-tab="analytics"] .nav-label', t('analytics', 'Analytics'));
@@ -117,6 +237,11 @@ function applyDashboardUi(ui, language) {
   setTextContent('[data-tab="reports"] .nav-label', t('reports', 'Reports'));
   setTextContent('[data-tab="subscription"] .nav-label', t('subscription', 'Subscription'));
   setTextContent('[data-tab="settings"] .nav-label', t('settings', 'Settings'));
+  setTextContent('.sidebar-footer a[href^="mailto"] span', t('support', 'Support'));
+  setTextContent('.sidebar-footer a[href="/docs"] span', t('documentation', 'Documentation'));
+  setTextContent('#logout-button span', t('logout', 'Logout'));
+  setTextContent('#language-toggle-label', t('language', 'Language'));
+  setTextContent('.dark-mode-toggle > span:first-child', t('dark_mode', 'Dark mode'));
   setTextContent('#current-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#subscription-plan-badge', t('credits_needed', 'Credits needed'));
   setTextContent('#page-subtitle', t('loading', 'Loading...'));
@@ -153,15 +278,15 @@ function updatePageHeader(tab) {
   const data = currentDashboardState || {};
   const companyName = getDashboardCompanyName(data);
   const pageCopy = {
-    overview: ['Overview', 'Executive overview of your data quality and business impact'],
-    analytics: ['Analytics', 'Score, loss and distribution analysis for the selected scan'],
-    scans: ['Scans', 'Available scan runs and dashboard context'],
-    issues: ['Issues', 'Review detected data quality issues, business impact and affected records.'],
-    'issue-detail': ['Issue detail', 'Detailed issue context, impact and recommendation'],
-    actions: ['Actions', 'Prioritized actions to reduce data quality risk and business impact.'],
-    reports: ['Reports', 'Generate and review executive, operational and impact reports.'],
-    subscription: ['Subscription & Access', 'Manage your product access, monitoring status and available scan credits.'],
-    settings: ['Settings', 'Configure your account and preferences'],
+    overview: [t('overview', 'Overview'), t('overview_subtitle', 'Executive overview of your data quality and business impact')],
+    analytics: [t('analytics', 'Analytics'), t('analytics_subtitle', 'Score, loss and distribution analysis for the selected scan')],
+    scans: [t('scans', 'Scans'), t('scans_subtitle', 'Available scan runs and dashboard context')],
+    issues: [t('issues', 'Issues'), t('issues_subtitle', 'Review detected data quality issues, business impact and affected records.')],
+    'issue-detail': [t('issue_detail', 'Issue detail'), t('issue_detail_subtitle', 'Detailed issue context, impact and recommendation')],
+    actions: [t('actions', 'Actions'), t('actions_subtitle', 'Prioritized actions to reduce data quality risk and business impact.')],
+    reports: [t('reports', 'Reports'), t('reports_subtitle', 'Generate and review executive, operational and impact reports.')],
+    subscription: [t('subscription_access', 'Subscription & Access'), t('subscription_subtitle', 'Manage your product access, monitoring status and available scan credits.')],
+    settings: [t('settings', 'Settings'), t('settings_subtitle', 'Configure your account and preferences')],
   };
   const [title, fallbackSubtitle] = pageCopy[tab] || pageCopy.overview;
   setText('page-title', title);
@@ -555,10 +680,10 @@ function renderIssueDistribution(data) {
   if (!host) return;
   const summary = data?.free_insights?.active_issues_summary || {};
   const rows = [
-    ['critical', 'Critical Issues', safeNumber(summary.critical)],
-    ['high', 'High Issues', safeNumber(summary.high)],
-    ['medium', 'Medium Issues', safeNumber(summary.medium)],
-    ['low', 'Low Issues', safeNumber(summary.low)],
+    ['critical', currentDashboardLanguage === 'de' ? 'Kritische Issues' : 'Critical Issues', safeNumber(summary.critical)],
+    ['high', currentDashboardLanguage === 'de' ? 'Hohe Issues' : 'High Issues', safeNumber(summary.high)],
+    ['medium', currentDashboardLanguage === 'de' ? 'Mittlere Issues' : 'Medium Issues', safeNumber(summary.medium)],
+    ['low', currentDashboardLanguage === 'de' ? 'Niedrige Issues' : 'Low Issues', safeNumber(summary.low)],
   ];
   const total = rows.reduce((sum, row) => sum + row[2], 0);
 
@@ -691,18 +816,32 @@ function moduleKey(value) {
 
 function canonicalDashboardModuleName(key, fallback) {
   const names = {
-    system: 'System',
-    finance: 'Finance',
-    sales: 'Sales',
-    purchasing: 'Purchasing',
-    inventory: 'Inventory',
-    crm: 'CRM',
-    manufacturing: 'Manufacturing',
-    service: 'Service',
-    jobs: 'Jobs',
-    hr: 'HR',
+    en: {
+      system: 'System',
+      finance: 'Finance',
+      sales: 'Sales',
+      purchasing: 'Purchasing',
+      inventory: 'Inventory',
+      crm: 'CRM',
+      manufacturing: 'Manufacturing',
+      service: 'Service',
+      jobs: 'Jobs',
+      hr: 'HR',
+    },
+    de: {
+      system: 'System',
+      finance: 'Finanzen',
+      sales: 'Verkauf',
+      purchasing: 'Einkauf',
+      inventory: 'Lager',
+      crm: 'CRM',
+      manufacturing: 'Fertigung',
+      service: 'Service',
+      jobs: 'Projekte',
+      hr: 'HR',
+    },
   };
-  return names[key] || fallback;
+  return names[currentDashboardLanguage]?.[key] || names.en[key] || fallback;
 }
 
 function mergeModuleRows(...sources) {
@@ -1131,15 +1270,21 @@ function normalizeIssueSeverity(value) {
 
 function issueSeverityLabel(value, fallback) {
   const normalized = normalizeIssueSeverity(value);
-  if (fallback) return String(fallback);
-  const labels = {
+  if (fallback && !['critical', 'high', 'medium', 'low', 'unknown'].includes(String(fallback).toLowerCase())) return String(fallback);
+  const labels = currentDashboardLanguage === 'de' ? {
+    critical: 'Kritisch',
+    high: 'Hoch',
+    medium: 'Mittel',
+    low: 'Niedrig',
+    unknown: 'Unbekannt',
+  } : {
     critical: 'Critical',
     high: 'High',
     medium: 'Medium',
     low: 'Low',
     unknown: 'Unknown',
   };
-  return labels[normalized] || 'Unknown';
+  return labels[normalized] || labels.unknown;
 }
 
 function normalizeIssueItem(item, index, isLocked, data) {
@@ -2141,6 +2286,64 @@ function initDarkModeToggle() {
   });
 }
 
+function resolveDashboardLanguage(data = currentDashboardState) {
+  return dashboardLanguageOverride || data?.language || 'en';
+}
+
+function renderDashboardFromState(data) {
+  if (!data) return;
+  applyDashboardUi(data?.ui || {}, resolveDashboardLanguage(data));
+  const activeTab = document.querySelector('.topnav-link.is-active')?.dataset?.tab || 'overview';
+  updatePageHeader(activeTab);
+  setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
+  renderExecutiveHero(data);
+
+  renderOverviewKpis(data);
+  renderRecommendedActions(data);
+  renderOverviewModuleScores(data);
+  renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
+  renderModuleVolume(data);
+  renderRecentScans(data?.recent_scans || []);
+  renderRecentScansPagination(data?.recent_scans_pagination || {});
+  renderScansPage(data);
+  updateOverviewTrendVisibility(data);
+  renderTrend('trend-chart', data?.score_trend || [], false, t('score_history_after_scans', 'Score history appears after at least two scans. Monitoring keeps this trend useful over time.'));
+  renderTrend('loss-chart', data?.loss_trend || [], true, t('loss_history_after_scans', 'Loss history appears after at least two scans. Monitoring adds the historical business context.'));
+  renderTrend('analytics-score-trend', data?.score_trend || [], false, t('score_history_after_scans_short', 'Score history appears after at least two scans.'));
+  renderTrend('analytics-loss-trend', data?.loss_trend || [], true, t('loss_history_after_scans_short', 'Loss history appears after at least two scans.'));
+  renderIssueDistribution(data);
+  renderModuleDistribution(data);
+  renderOverviewRecentIssues(data);
+  renderBusinessImpact(data);
+  renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
+  renderUnlockPanel(data);
+  renderSubscription(data);
+  renderSubscriptionProducts(data);
+  renderOverviewProducts(data);
+  renderIssuesPage(data);
+  renderActionsPage(data);
+  renderReportsPage(data);
+  renderSettingsPage(data);
+  applyLockStates(data);
+  renderPricingBreakdown(data);
+  applyPlanState(data);
+  translateStaticDashboardText();
+}
+
+function initLanguageToggle() {
+  const toggle = byId('dashboard-language-toggle');
+  const stored = localStorage.getItem('bcsentinel-dashboard-language');
+  if (stored === 'de' || stored === 'en') dashboardLanguageOverride = stored;
+  if (toggle) {
+    toggle.value = dashboardLanguageOverride || currentDashboardLanguage;
+    toggle.addEventListener('change', () => {
+      dashboardLanguageOverride = toggle.value === 'de' ? 'de' : 'en';
+      localStorage.setItem('bcsentinel-dashboard-language', dashboardLanguageOverride);
+      if (currentDashboardState) renderDashboardFromState(currentDashboardState);
+    });
+  }
+}
+
 function renderPremiumPreview(items) {
   const host = byId('access-preview-findings');
   if (!host) return;
@@ -2291,43 +2494,8 @@ async function loadDashboard(scanId = null) {
 
     const data = await response.json();
     currentDashboardState = data;
-    applyDashboardUi(data?.ui || {}, data?.language || 'en');
     currentSelectedScanId = data?.selected_scan_id || null;
-
-    const activeTab = document.querySelector('.topnav-link.is-active')?.dataset?.tab || 'overview';
-    updatePageHeader(activeTab);
-    setText('last-updated', `${t('last_updated', 'Last updated')}: ${formatDateTime(data?.last_updated)}`);
-    renderExecutiveHero(data);
-
-    renderOverviewKpis(data);
-    renderRecommendedActions(data);
-    renderOverviewModuleScores(data);
-    renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
-    renderModuleVolume(data);
-    renderRecentScans(data?.recent_scans || []);
-    renderRecentScansPagination(data?.recent_scans_pagination || {});
-    renderScansPage(data);
-    updateOverviewTrendVisibility(data);
-    renderTrend('trend-chart', data?.score_trend || [], false, 'Score history appears after at least two scans. Monitoring keeps this trend useful over time.');
-    renderTrend('loss-chart', data?.loss_trend || [], true, 'Loss history appears after at least two scans. Monitoring adds the historical business context.');
-    renderTrend('analytics-score-trend', data?.score_trend || [], false, 'Score history appears after at least two scans.');
-    renderTrend('analytics-loss-trend', data?.loss_trend || [], true, 'Loss history appears after at least two scans.');
-    renderIssueDistribution(data);
-    renderModuleDistribution(data);
-    renderOverviewRecentIssues(data);
-    renderBusinessImpact(data);
-    renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
-    renderUnlockPanel(data);
-    renderSubscription(data);
-    renderSubscriptionProducts(data);
-    renderOverviewProducts(data);
-    renderIssuesPage(data);
-    renderActionsPage(data);
-    renderReportsPage(data);
-    renderSettingsPage(data);
-    applyLockStates(data);
-    renderPricingBreakdown(data);
-    applyPlanState(data);
+    renderDashboardFromState(data);
   } catch (error) {
     console.error('loadDashboard failed:', error);
     setText('page-subtitle', t('dashboard_load_error', 'The dashboard could not be loaded.'));
@@ -2452,6 +2620,7 @@ function registerEvents() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initDarkModeToggle();
+  initLanguageToggle();
   registerEvents();
   switchTab('overview');
   recentScansPage = 1;
