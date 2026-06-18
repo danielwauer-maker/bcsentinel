@@ -63,45 +63,99 @@ const LOCAL_DASHBOARD_UI = {
 };
 
 const STATIC_TEXT_TRANSLATIONS = [
-  ['Active Issues', 'Aktive Issues'],
-  ['Recent Critical Issues', 'Aktuelle kritische Issues'],
-  ['Highest impact findings from the selected scan', 'Findings mit höchstem Impact aus dem ausgewählten Scan'],
-  ['Recommended Actions', 'Empfohlene Aktionen'],
-  ['Highest impact actions based on the selected scan.', 'Aktionen mit höchstem Impact basierend auf dem ausgewählten Scan.'],
-  ['Module Distribution & Records', 'Modulverteilung & Datensätze'],
-  ['Issue Distribution (by %)', 'Issue-Verteilung (in %)'],
-  ['Records by Module', 'Datensätze nach Modul'],
-  ['Business Impact Breakdown', 'Business Impact Aufschlüsselung'],
-  ['View all issues', 'Alle Issues anzeigen'],
-  ['View all modules', 'Alle Module anzeigen'],
-  ['View full impact report', 'Vollständigen Impact Report anzeigen'],
-  ['Unlock the next step', 'Nächsten Schritt freischalten'],
-  ['Choose the access level that matches what you want to do next.', 'Wähle den Zugriff, der zu deinem nächsten Schritt passt.'],
-  ['Feature Comparison', 'Feature-Vergleich'],
-  ['Free Score, paid scan access and Monitoring at a glance.', 'Free Score, bezahlter Scan-Zugriff und Monitoring auf einen Blick.'],
-  ['Feature', 'Feature'],
-  ['Free', 'Free'],
-  ['Full Analysis', 'Full Analysis'],
-  ['Validation Check', 'Validation Check'],
-  ['Validation', 'Validation'],
-  ['Assessment', 'Assessment'],
-  ['Monitoring', 'Monitoring'],
-  ['Date', 'Datum'],
-  ['Type', 'Typ'],
-  ['Score', 'Score'],
-  ['Status', 'Status'],
-  ['Headline', 'Headline'],
-  ['Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
-  ['Back to Issues', 'Zurück zu Issues'],
-  ['Current Access', 'Aktueller Zugriff'],
-  ['Monitoring Status', 'Monitoring-Status'],
-  ['Scan Credits', 'Scan Credits'],
-  ['Available Scan Credits', 'Verfügbare Scan Credits'],
-  ['Products', 'Produkte'],
-  ['Settings', 'Settings'],
-  ['Reports', 'Reports'],
-  ['Actions', 'Actions'],
-  ['Issues', 'Issues'],
+  ['static_active_issues', 'Active Issues', 'Aktive Issues'],
+  ['static_recent_critical_issues', 'Recent Critical Issues', 'Aktuelle kritische Issues'],
+  ['static_recent_critical_helper', 'Highest impact findings from the selected scan', 'Findings mit höchstem Impact aus dem ausgewählten Scan'],
+  ['static_recommended_actions', 'Recommended Actions', 'Empfohlene Aktionen'],
+  ['static_recommended_actions_helper', 'Highest impact actions based on the selected scan.', 'Aktionen mit höchstem Impact basierend auf dem ausgewählten Scan.'],
+  ['static_module_distribution_records', 'Module Distribution & Records', 'Modulverteilung & Datensätze'],
+  ['static_issue_distribution_percent', 'Issue Distribution (by %)', 'Issue-Verteilung (in %)'],
+  ['static_records_by_module', 'Records by Module', 'Datensätze nach Modul'],
+  ['static_business_impact_breakdown', 'Business Impact Breakdown', 'Business Impact Aufschlüsselung'],
+  ['static_view_all_issues', 'View all issues', 'Alle Issues anzeigen'],
+  ['static_view_all_modules', 'View all modules', 'Alle Module anzeigen'],
+  ['static_view_full_impact_report', 'View full impact report', 'Vollständigen Impact Report anzeigen'],
+  ['static_unlock_next_step', 'Unlock the next step', 'Nächsten Schritt freischalten'],
+  ['static_unlock_next_step_helper', 'Choose the access level that matches what you want to do next.', 'Wähle den Zugriff, der zu deinem nächsten Schritt passt.'],
+  ['static_feature_comparison', 'Feature Comparison', 'Feature-Vergleich'],
+  ['static_feature_comparison_helper', 'Free Score, paid scan access and Monitoring at a glance.', 'Free Score, bezahlter Scan-Zugriff und Monitoring auf einen Blick.'],
+  ['static_feature', 'Feature', 'Feature'],
+  ['static_free', 'Free', 'Free'],
+  ['full_analysis', 'Full Analysis', 'Full Analysis'],
+  ['validation_check', 'Validation Check', 'Validation Check'],
+  ['static_validation', 'Validation', 'Validation'],
+  ['static_assessment', 'Assessment', 'Assessment'],
+  ['monitoring', 'Monitoring', 'Monitoring'],
+  ['static_date', 'Date', 'Datum'],
+  ['static_type', 'Type', 'Typ'],
+  ['static_score', 'Score', 'Score'],
+  ['static_status', 'Status', 'Status'],
+  ['static_headline', 'Headline', 'Headline'],
+  ['static_issue_detail_empty', 'Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
+  ['static_back_to_issues', 'Back to Issues', 'Zurück zu Issues'],
+  ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
+  ['static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'],
+  ['static_scan_credits', 'Scan Credits', 'Scan Credits'],
+  ['static_available_scan_credits', 'Available Scan Credits', 'Verfügbare Scan Credits'],
+  ['static_products', 'Products', 'Produkte'],
+  ['settings', 'Settings', 'Settings'],
+  ['reports', 'Reports', 'Reports'],
+  ['actions', 'Actions', 'Actions'],
+  ['issues', 'Issues', 'Issues'],
+  ['static_issue_code', 'Issue Code', 'Issue-Code'],
+  ['static_module_category', 'Module / Category', 'Modul / Kategorie'],
+  ['static_general', 'General', 'Allgemein'],
+  ['static_open', 'Open', 'Offen'],
+  ['static_locked', 'Locked', 'Gesperrt'],
+  ['static_not_available', 'Not available', 'Nicht verfügbar'],
+  ['static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'],
+  ['static_affected_records', 'Affected Records', 'Betroffene Datensätze'],
+  ['static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschätzter Impact / Verlust'],
+  ['static_last_scan_updated', 'Last Scan / Last Updated', 'Letzter Scan / Letzte Aktualisierung'],
+  ['static_estimated_loss', 'Estimated Loss', 'Geschätzter Verlust'],
+  ['static_potential_savings', 'Potential Savings', 'Potenzielle Einsparungen'],
+  ['static_unlock_issue_details', 'Unlock full issue details', 'Issue Details freischalten'],
+  ['static_bc_link_unavailable', 'Business Central link not available', 'Business-Central-Link nicht verfügbar'],
+  ['static_locked_access', 'Locked access', 'Gesperrter Zugriff'],
+  ['static_full_issue_access', 'Full issue access', 'Voller Issue-Zugriff'],
+  ['static_no_scan_timestamp', 'No scan timestamp', 'Kein Scan-Zeitpunkt'],
+  ['static_saving_pending', 'Saving pending', 'Einsparung ausstehend'],
+  ['static_full_action_access', 'Full action access', 'Voller Actions-Zugriff'],
+  ['static_high_priority', 'High Priority', 'Hohe Priorität'],
+  ['static_open_actions', 'Open Actions', 'Offene Aktionen'],
+  ['static_prioritized_recommendations', 'Prioritized recommendations', 'Priorisierte Empfehlungen'],
+  ['static_critical_high_priority', 'Critical and high priority', 'Kritische und hohe Priorität'],
+  ['static_potential_saving', 'Potential Saving', 'Potenzielle Einsparung'],
+  ['static_executive_summary', 'Executive Summary', 'Executive Summary'],
+  ['static_data_quality_report', 'Data Quality Report', 'Data Quality Report'],
+  ['static_issue_detail_report', 'Issue Detail Report', 'Issue Detail Report'],
+  ['static_business_impact_report', 'Business Impact Report', 'Business Impact Report'],
+  ['static_action_plan_report', 'Action Plan Report', 'Action Plan Report'],
+  ['static_trend_report', 'Trend Report', 'Trend Report'],
+  ['static_after_scan', 'After scan', 'Nach Scan'],
+  ['static_available_after_scan', 'Available after scan', 'Nach Scan verfügbar'],
+  ['static_unlock_reports', 'Unlock reports', 'Reports freischalten'],
+  ['static_monitoring_only', 'Monitoring only', 'Nur Monitoring'],
+  ['static_available', 'Available', 'Verfügbar'],
+  ['static_current_plan', 'Current Plan', 'Aktueller Plan'],
+  ['static_product_access', 'Product Access', 'Produktzugriff'],
+  ['static_dashboard_access', 'Dashboard Access', 'Dashboard-Zugriff'],
+  ['static_issue_access', 'Issue Access', 'Issue-Zugriff'],
+  ['static_active', 'Active', 'Aktiv'],
+  ['static_inactive', 'Inactive', 'Inaktiv'],
+  ['static_expired', 'Expired', 'Abgelaufen'],
+  ['static_trial', 'Trial', 'Testphase'],
+  ['static_renewal_date', 'Renewal Date', 'Verlängerungsdatum'],
+  ['static_period_end', 'Period End', 'Periodenende'],
+  ['static_yes', 'Yes', 'Ja'],
+  ['static_no', 'No', 'Nein'],
+  ['static_buy_now', 'Buy Now', 'Jetzt kaufen'],
+  ['static_contact_sales', 'Contact Sales', 'Sales kontaktieren'],
+  ['static_company_tenant', 'Company & Tenant', 'Unternehmen & Tenant'],
+  ['static_language_localization', 'Language & Localization', 'Sprache & Lokalisierung'],
+  ['static_dashboard_preferences', 'Dashboard Preferences', 'Dashboard-Präferenzen'],
+  ['static_contact', 'Contact', 'Kontakt'],
+  ['static_notification_settings', 'Notification Settings', 'Benachrichtigungseinstellungen'],
 ];
 
 function byId(id) {
@@ -200,11 +254,12 @@ function t(key, fallback) {
 function translateStaticDashboardText() {
   const root = document.querySelector('.page-shell');
   if (!root) return;
-  const targetIndex = currentDashboardLanguage === 'de' ? 1 : 0;
   const lookup = new Map();
-  STATIC_TEXT_TRANSLATIONS.forEach(([en, de]) => {
-    lookup.set(en, [en, de][targetIndex]);
-    lookup.set(de, [en, de][targetIndex]);
+  STATIC_TEXT_TRANSLATIONS.forEach(([key, en, de]) => {
+    const fallback = currentDashboardLanguage === 'de' ? de : en;
+    const value = t(key, fallback);
+    lookup.set(en, value);
+    lookup.set(de, value);
   });
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes = [];
@@ -680,10 +735,10 @@ function renderIssueDistribution(data) {
   if (!host) return;
   const summary = data?.free_insights?.active_issues_summary || {};
   const rows = [
-    ['critical', currentDashboardLanguage === 'de' ? 'Kritische Issues' : 'Critical Issues', safeNumber(summary.critical)],
-    ['high', currentDashboardLanguage === 'de' ? 'Hohe Issues' : 'High Issues', safeNumber(summary.high)],
-    ['medium', currentDashboardLanguage === 'de' ? 'Mittlere Issues' : 'Medium Issues', safeNumber(summary.medium)],
-    ['low', currentDashboardLanguage === 'de' ? 'Niedrige Issues' : 'Low Issues', safeNumber(summary.low)],
+    ['critical', t('active_critical_issues', currentDashboardLanguage === 'de' ? 'Kritische Issues' : 'Critical Issues'), safeNumber(summary.critical)],
+    ['high', t('active_high_issues', currentDashboardLanguage === 'de' ? 'Hohe Issues' : 'High Issues'), safeNumber(summary.high)],
+    ['medium', t('active_medium_issues', currentDashboardLanguage === 'de' ? 'Mittlere Issues' : 'Medium Issues'), safeNumber(summary.medium)],
+    ['low', t('active_low_issues', currentDashboardLanguage === 'de' ? 'Niedrige Issues' : 'Low Issues'), safeNumber(summary.low)],
   ];
   const total = rows.reduce((sum, row) => sum + row[2], 0);
 
@@ -1272,18 +1327,12 @@ function normalizeIssueSeverity(value) {
 function issueSeverityLabel(value, fallback) {
   const normalized = normalizeIssueSeverity(value);
   if (fallback && !['critical', 'high', 'medium', 'low', 'unknown'].includes(String(fallback).toLowerCase())) return String(fallback);
-  const labels = currentDashboardLanguage === 'de' ? {
-    critical: 'Kritisch',
-    high: 'Hoch',
-    medium: 'Mittel',
-    low: 'Niedrig',
-    unknown: 'Unbekannt',
-  } : {
-    critical: 'Critical',
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low',
-    unknown: 'Unknown',
+  const labels = {
+    critical: t('severity_critical', currentDashboardLanguage === 'de' ? 'Kritisch' : 'Critical'),
+    high: t('severity_high', currentDashboardLanguage === 'de' ? 'Hoch' : 'High'),
+    medium: t('severity_medium', currentDashboardLanguage === 'de' ? 'Mittel' : 'Medium'),
+    low: t('severity_low', currentDashboardLanguage === 'de' ? 'Niedrig' : 'Low'),
+    unknown: t('severity_unknown', currentDashboardLanguage === 'de' ? 'Unbekannt' : 'Unknown'),
   };
   return labels[normalized] || labels.unknown;
 }
@@ -1366,11 +1415,11 @@ function renderIssuesMeta(data, normalizedItems, isLocked) {
   const counts = severityCountsForIssues(data, normalizedItems);
   const totalFromSummary = Object.values(counts).reduce((sum, value) => sum + value, 0);
   const totalIssues = safeNumber(data?.kpis?.issues_count, totalFromSummary || normalizedItems.length);
-  const accessLabel = isLocked ? 'Locked access' : 'Full issue access';
-  const scanLabel = data?.last_updated ? `Last scan ${formatDateTime(data.last_updated)}` : 'No scan timestamp';
+  const accessLabel = isLocked ? t('static_locked_access', 'Locked access') : t('static_full_issue_access', 'Full issue access');
+  const scanLabel = data?.last_updated ? `${t('recent_scans', 'Last scan')} ${formatDateTime(data.last_updated)}` : t('static_no_scan_timestamp', 'No scan timestamp');
 
   host.innerHTML = `
-    <span class="placeholder-status">${formatNumber(totalIssues)} Issues</span>
+    <span class="placeholder-status">${formatNumber(totalIssues)} ${escapeHtml(t('issues', 'Issues'))}</span>
     <span class="placeholder-status">${escapeHtml(scanLabel)}</span>
     <span class="placeholder-status">${escapeHtml(accessLabel)}</span>
   `;
@@ -1381,30 +1430,30 @@ function renderIssueSeverityCards(data, normalizedItems) {
   if (!host) return;
   const counts = severityCountsForIssues(data, normalizedItems);
   const cards = [
-    ['critical', 'Critical', counts.critical],
-    ['high', 'High', counts.high],
-    ['medium', 'Medium', counts.medium],
-    ['low', 'Low', counts.low],
+    ['critical', issueSeverityLabel('critical'), counts.critical],
+    ['high', issueSeverityLabel('high'), counts.high],
+    ['medium', issueSeverityLabel('medium'), counts.medium],
+    ['low', issueSeverityLabel('low'), counts.low],
   ];
 
   host.innerHTML = cards.map(([key, label, count]) => `
     <article class="stat-card panel issue-severity-card issue-severity-${key}">
       <div class="stat-label">${escapeHtml(label)}</div>
       <div class="stat-value">${formatNumber(count)}</div>
-      <div class="stat-helper">Detected ${escapeHtml(label.toLowerCase())} issues</div>
+      <div class="stat-helper">${escapeHtml(formatNumber(count))} ${escapeHtml(label)} ${escapeHtml(t('issues', 'Issues'))}</div>
     </article>
   `).join('');
 }
 
 function issueInfoRows(issue) {
   return [
-    ['Issue Code', issue.id],
-    ['Module / Category', issue.group || 'General'],
-    ['Severity', issue.severityLabel],
-    ['Status', issue.status || 'Open'],
-    ['Affected Records', issue.locked ? 'Locked' : formatNumber(issue.count)],
-    ['Estimated Impact / Loss', issue.locked ? 'Locked' : (issue.impact > 0 ? formatCurrency(issue.impact) : 'Not calculated yet')],
-    ['Last Scan / Last Updated', issue.detectedOn ? formatDateTime(issue.detectedOn) : 'Not available'],
+    [t('static_issue_code', 'Issue Code'), issue.id],
+    [t('static_module_category', 'Module / Category'), issue.group || t('static_general', 'General')],
+    [t('severity', 'Severity'), issue.severityLabel],
+    [t('static_status', 'Status'), issue.status || t('static_open', 'Open')],
+    [t('static_affected_records', 'Affected Records'), issue.locked ? t('static_locked', 'Locked') : formatNumber(issue.count)],
+    [t('static_estimated_impact_loss', 'Estimated Impact / Loss'), issue.locked ? t('static_locked', 'Locked') : (issue.impact > 0 ? formatCurrency(issue.impact) : t('static_not_calculated_yet', 'Not calculated yet'))],
+    [t('static_last_scan_updated', 'Last Scan / Last Updated'), issue.detectedOn ? formatDateTime(issue.detectedOn) : t('static_not_available', 'Not available')],
   ];
 }
 
@@ -1592,12 +1641,12 @@ function normalizeActionsForPage(data) {
     warnOnInvalidBcCompanyFormat(openInBcUrl);
 
     return {
-      action: isLocked ? 'Unlock to view exact action' : deriveActionText(item, issue),
-      relatedIssue: isLocked ? 'Premium issue' : (explicitIssueTitle || issue?.rawTitle || issue?.title || 'Issue'),
-      module: issue?.group || item?.module || item?.group || 'General',
+      action: isLocked ? t('static_unlock_issue_details', 'Unlock full issue details') : deriveActionText(item, issue),
+      relatedIssue: isLocked ? t('paid_access', 'Paid Access') : (explicitIssueTitle || issue?.rawTitle || issue?.title || t('issues', 'Issue')),
+      module: issue?.group || item?.module || item?.group || t('static_general', 'General'),
       priority,
       priorityLabel: issueSeverityLabel(priority, item?.priority_label || item?.severity_label),
-      effort: isLocked ? 'Locked' : deriveActionEffort(item, issue),
+      effort: isLocked ? t('static_locked', 'Locked') : deriveActionEffort(item, issue),
       potentialSaving: saving,
       status: actionStatusLabel(item),
       openInBcUrl,
@@ -1610,10 +1659,10 @@ function renderActionsMeta(data, actions, isLocked) {
   const host = byId('actions-page-meta');
   if (!host) return;
   const potentialSaving = safeNumber(data?.kpis?.potential_saving_eur) || actions.reduce((sum, item) => sum + safeNumber(item.potentialSaving), 0);
-  const accessLabel = isLocked ? 'Locked access' : 'Full action access';
+  const accessLabel = isLocked ? t('static_locked_access', 'Locked access') : t('static_full_action_access', 'Full action access');
   host.innerHTML = `
-    <span class="placeholder-status">${formatNumber(actions.length)} Actions</span>
-    <span class="placeholder-status">${escapeHtml(potentialSaving > 0 ? formatCurrency(potentialSaving) : 'Saving pending')}</span>
+    <span class="placeholder-status">${formatNumber(actions.length)} ${escapeHtml(t('actions', 'Actions'))}</span>
+    <span class="placeholder-status">${escapeHtml(potentialSaving > 0 ? formatCurrency(potentialSaving) : t('static_saving_pending', 'Saving pending'))}</span>
     <span class="placeholder-status">${escapeHtml(accessLabel)}</span>
   `;
 }
@@ -1626,10 +1675,10 @@ function renderActionsSummary(data, actions) {
   const potentialSaving = safeNumber(data?.kpis?.potential_saving_eur) || actions.reduce((sum, item) => sum + safeNumber(item.potentialSaving), 0);
   const openItems = actions.filter((item) => String(item.status || '').toLowerCase() === 'open').length;
   const cards = [
-    ['Recommended Actions', formatNumber(recommended), 'Prioritized recommendations'],
-    ['High Priority', formatNumber(highPriority), 'Critical and high priority'],
-    ['Potential Saving', potentialSaving > 0 ? formatCurrency(potentialSaving) : 'Not calculated yet', 'Existing scan economics'],
-    ['Open Items', formatNumber(openItems), 'Default open status'],
+    [t('static_recommended_actions', 'Recommended Actions'), formatNumber(recommended), t('static_prioritized_recommendations', 'Prioritized recommendations')],
+    [t('static_high_priority', 'High Priority'), formatNumber(highPriority), t('static_critical_high_priority', 'Critical and high priority')],
+    [t('static_potential_saving', 'Potential Saving'), potentialSaving > 0 ? formatCurrency(potentialSaving) : t('static_not_calculated_yet', 'Not calculated yet'), t('estimated_annual_loss_helper', 'Existing scan economics')],
+    [t('static_open_actions', 'Open Actions'), formatNumber(openItems), t('static_open', 'Open')],
   ];
 
   host.innerHTML = cards.map(([label, value, helper]) => `

@@ -30,6 +30,7 @@ from app.services.entitlement_guard_service import get_tenant_features, require_
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.impact_service import normalize_stored_commercials
 from app.services.localization_service import normalize_language, tenant_language, update_tenant_language
+from app.services.dashboard_translation_service import dashboard_ui_translations
 from app.services.product_license_service import (
     build_product_access_snapshot,
     PRODUCT_FULL_ANALYSIS,
@@ -241,7 +242,10 @@ MODULE_LABELS = {
 
 
 def _ui(lang: str) -> dict[str, str]:
-    return DASHBOARD_UI.get(normalize_language(lang), DASHBOARD_UI["en"])
+    normalized = normalize_language(lang)
+    merged = dict(DASHBOARD_UI.get(normalized, DASHBOARD_UI["en"]))
+    merged.update(dashboard_ui_translations(normalized))
+    return merged
 
 
 def _module_label(name: str, lang: str) -> str:

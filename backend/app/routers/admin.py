@@ -57,6 +57,10 @@ from app.services.site_translation_service import (
     load_site_translation_groups,
     update_site_translations,
 )
+from app.services.dashboard_translation_service import (
+    load_dashboard_translation_groups,
+    update_dashboard_translations,
+)
 from app.services.billing_service import utc_now
 from app.services.impact_service import ensure_default_impact_config, get_hourly_rate_eur
 from app.services.admin_audit_service import log_admin_event
@@ -156,6 +160,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/site-translations",
         "subtitle": "Landingpage- und Shared-Texte in DE/EN pflegen",
     },
+    "dashboard_translations": {
+        "label": "Dashboard Translations",
+        "href": "/admin/config/dashboard-translations",
+        "subtitle": "Dashboard und Unterseiten in DE/EN pflegen",
+    },
     "landingpage_visibility": {
         "label": "Website Visibility",
         "href": "/admin/config/landingpage-pages",
@@ -173,6 +182,7 @@ ADMIN_NAV_ORDER = [
     "audit",
     "email_templates",
     "site_translations",
+    "dashboard_translations",
     "landingpage_visibility",
 ]
 
@@ -621,6 +631,10 @@ def _render_admin_page(
             "status": (request.query_params.get("site_translation_status") or "").strip().lower(),
             "message": (request.query_params.get("site_translation_message") or "").strip(),
         },
+        "dashboard_translation_flash": {
+            "status": (request.query_params.get("dashboard_translation_status") or "").strip().lower(),
+            "message": (request.query_params.get("dashboard_translation_message") or "").strip(),
+        },
         "csrf_token": create_csrf_token(settings.SECRET_KEY),
     }
 
@@ -672,6 +686,8 @@ def _render_admin_page(
                     "message": str(exc),
                     "details": exc.details,
                 }
+        elif active_section == "dashboard_translations":
+            context["dashboard_translation_groups"] = load_dashboard_translation_groups()
         elif active_section == "landingpage_visibility":
             context["landingpage_pages"] = list_landingpage_visibility(db)
 
@@ -753,6 +769,12 @@ def admin_email_templates(request: Request, _: str = Depends(require_admin)):
 @router.get("/admin/config/site-translations/", response_class=HTMLResponse)
 def admin_site_translations(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="site_translations")
+
+
+@router.get("/admin/config/dashboard-translations", response_class=HTMLResponse)
+@router.get("/admin/config/dashboard-translations/", response_class=HTMLResponse)
+def admin_dashboard_translations(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="dashboard_translations")
 
 
 @router.get("/admin/config/landingpage-pages", response_class=HTMLResponse)
@@ -1606,6 +1628,46 @@ def update_admin_site_translations(
     message = f"{result['changed_count']} Translation Keys gespeichert."
     return RedirectResponse(
         url="/admin/config/site-translations?site_translation_status=success&site_translation_message="
+        + quote_plus(message),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/admin/config/dashboard-translations")
+def update_admin_dashboard_translations(
+    keys: list[str] = Form(default=[]),
+    de_values: list[str] = Form(default=[]),
+    en_values: list[str] = Form(default=[]),
+    admin_username: str = Depends(require_admin),
+):
+    try:
+        result = update_dashboard_translations(keys, de_values, en_values)
+    except ValueError as exc:
+        return RedirectResponse(
+            url="/admin/config/dashboard-translations?dashboard_translation_status=error&dashboard_translation_message="
+            + quote_plus(str(exc)),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    changed_keys = result["changed_keys"]
+    with SessionLocal() as db:
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="update_dashboard_translation",
+            target_type="dashboard_translation",
+            target_id="analytics_dashboard",
+            details={
+                "changed_count": result["changed_count"],
+                "changed_keys": changed_keys[:100],
+                "truncated": len(changed_keys) > 100,
+            },
+        )
+        db.commit()
+
+    message = f"{result['changed_count']} Dashboard Translation Keys gespeichert."
+    return RedirectResponse(
+        url="/admin/config/dashboard-translations?dashboard_translation_status=success&dashboard_translation_message="
         + quote_plus(message),
         status_code=status.HTTP_303_SEE_OTHER,
     )

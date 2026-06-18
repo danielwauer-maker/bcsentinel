@@ -542,6 +542,68 @@
         </section>
         {% endif %}
 
+        {% if active_section == "dashboard_translations" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <h2>Dashboard Translations</h2>
+            <span class="muted">Dashboard und Unterseiten-Texte in Deutsch und Englisch</span>
+          </div>
+          {% if dashboard_translation_flash and dashboard_translation_flash.message %}
+          <div class="pill {% if dashboard_translation_flash.status == 'success' %}success-pill{% endif %}" style="margin-bottom:12px;">
+            {{ dashboard_translation_flash.message }}
+          </div>
+          {% endif %}
+          <p class="muted">Diese Texte werden im Analytics Dashboard, den Dashboard-Unterseiten und dem Sprach-Toggle verwendet. Aenderungen werden nach dem naechsten Dashboard-Refresh sichtbar.</p>
+          <div class="inline-form wrap-gap" style="margin:12px 0; align-items:center;">
+            <input id="dashboardTranslationSearch" type="search" placeholder="Key, Deutsch oder Englisch suchen" style="min-width:320px;">
+            <label class="muted" style="display:inline-flex; align-items:center; gap:8px;">
+              <input id="dashboardTranslationMissingOnly" type="checkbox">
+              Nur fehlende / Warnungen
+            </label>
+            <button class="btn btn-secondary" type="button" id="dashboardTranslationClear">Reset</button>
+          </div>
+          <form method="post" action="/admin/config/dashboard-translations" id="dashboardTranslationsForm">
+            <div style="display:grid; gap:18px;">
+              {% for group in dashboard_translation_groups %}
+              <details class="panel dashboard-translation-group" style="margin:0;" data-group="{{ group.key }}" {% if loop.first %}open{% endif %}>
+                <summary class="panel-header" style="cursor:pointer;">
+                  <h2>{{ group.label }}</h2>
+                  <span class="muted">
+                    {{ group.key_count }} Keys
+                    {% if group.missing_count %} · {{ group.missing_count }} fehlend{% endif %}
+                    {% if group.warning_count %} · {{ group.warning_count }} Hinweise{% endif %}
+                  </span>
+                </summary>
+                <div class="table-wrap" style="margin-top:12px;">
+                  <table class="site-translations-table">
+                    <thead><tr><th style="width:22%;">Key</th><th style="width:34%;">Deutsch</th><th style="width:34%;">Englisch</th><th>Status / Hinweis</th></tr></thead>
+                    <tbody>
+                      {% for row in group.rows %}
+                      <tr class="dashboard-translation-row" data-status="{{ row.status }}" data-search="{{ row.key }} {{ row.de }} {{ row.en }}">
+                        <td>
+                          <code>{{ row.key }}</code>
+                          <input type="hidden" name="keys" value="{{ row.key }}">
+                        </td>
+                        <td><textarea name="de_values" rows="{% if row.de|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.de }}</textarea></td>
+                        <td><textarea name="en_values" rows="{% if row.en|length > 90 %}4{% else %}2{% endif %}" style="width:100%;">{{ row.en }}</textarea></td>
+                        <td><span class="pill small-pill{% if row.status == 'OK' %} success-pill{% endif %}">{{ row.status }}</span></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+              {% endfor %}
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+              <button type="submit" class="btn btn-primary">Save all</button>
+              <a class="btn btn-secondary" href="/admin/config/dashboard-translations">Reload</a>
+              <span id="dashboardTranslationClientStatus" class="muted"></span>
+            </div>
+          </form>
+        </section>
+        {% endif %}
+
         {% if active_section == "landingpage_visibility" %}
         <section class="panel panel-large">
           <div class="panel-header">
@@ -663,6 +725,61 @@
         if (suspicious.length) {
           const message = "Bitte pruefen: leere oder platzhalterartige Texte bei " + suspicious.slice(0, 8).join(", ");
           if (siteTranslationClientStatus) siteTranslationClientStatus.textContent = message;
+          if (!confirm(message + ". Trotzdem speichern?")) {
+            event.preventDefault();
+          }
+        }
+      });
+    }
+
+    const dashboardTranslationSearch = document.getElementById("dashboardTranslationSearch");
+    const dashboardTranslationMissingOnly = document.getElementById("dashboardTranslationMissingOnly");
+    const dashboardTranslationClear = document.getElementById("dashboardTranslationClear");
+    const dashboardTranslationsForm = document.getElementById("dashboardTranslationsForm");
+    const dashboardTranslationClientStatus = document.getElementById("dashboardTranslationClientStatus");
+    function applyDashboardTranslationFilter() {
+      if (!dashboardTranslationSearch) return;
+      const query = dashboardTranslationSearch.value.trim().toLowerCase();
+      const missingOnly = Boolean(dashboardTranslationMissingOnly && dashboardTranslationMissingOnly.checked);
+      document.querySelectorAll(".dashboard-translation-row").forEach((row) => {
+        const haystack = (row.dataset.search || "").toLowerCase();
+        const status = row.dataset.status || "";
+        const matchesQuery = !query || haystack.includes(query);
+        const matchesMissing = !missingOnly || status !== "OK";
+        row.style.display = matchesQuery && matchesMissing ? "" : "none";
+      });
+      document.querySelectorAll(".dashboard-translation-group").forEach((group) => {
+        const visibleRows = Array.from(group.querySelectorAll(".dashboard-translation-row")).filter((row) => row.style.display !== "none");
+        group.style.display = visibleRows.length ? "" : "none";
+        if ((query || missingOnly) && visibleRows.length) group.open = true;
+      });
+    }
+    if (dashboardTranslationSearch) {
+      dashboardTranslationSearch.addEventListener("input", applyDashboardTranslationFilter);
+    }
+    if (dashboardTranslationMissingOnly) {
+      dashboardTranslationMissingOnly.addEventListener("change", applyDashboardTranslationFilter);
+    }
+    if (dashboardTranslationClear && dashboardTranslationSearch) {
+      dashboardTranslationClear.addEventListener("click", () => {
+        dashboardTranslationSearch.value = "";
+        if (dashboardTranslationMissingOnly) dashboardTranslationMissingOnly.checked = false;
+        applyDashboardTranslationFilter();
+      });
+    }
+    if (dashboardTranslationsForm) {
+      dashboardTranslationsForm.addEventListener("submit", (event) => {
+        const suspicious = [];
+        dashboardTranslationsForm.querySelectorAll("textarea[name='de_values'], textarea[name='en_values']").forEach((field) => {
+          const value = field.value.trim();
+          if (!value || /^(TODO|undefined|null)$/i.test(value) || /^[a-z0-9_]+$/i.test(value)) {
+            const row = field.closest(".dashboard-translation-row");
+            suspicious.push(row ? row.querySelector("code").textContent : field.name);
+          }
+        });
+        if (suspicious.length) {
+          const message = "Bitte pruefen: leere oder platzhalterartige Texte bei " + suspicious.slice(0, 8).join(", ");
+          if (dashboardTranslationClientStatus) dashboardTranslationClientStatus.textContent = message;
           if (!confirm(message + ". Trotzdem speichern?")) {
             event.preventDefault();
           }
