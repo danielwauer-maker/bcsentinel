@@ -1158,7 +1158,7 @@ def _build_dashboard_payload(
             "impact_eur": item["impact_eur"],
             "count": item["count"],
         }
-        for item in top_findings_sorted[:5]
+        for item in top_findings_sorted
     ]
     pages = _dashboard_page_state(product_access, has_scan=True)
     actions_items = [

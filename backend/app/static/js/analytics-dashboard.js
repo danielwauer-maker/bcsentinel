@@ -672,11 +672,8 @@ function renderModuleDistribution(data) {
   const issueItems = normalizeDistributionItems(data?.free_insights?.module_distribution);
   const recordItems = normalizeDistributionItems(data?.free_insights?.records_by_module);
   const issueGroups = normalizeDistributionItems(data?.issue_groups);
-  const moduleScoreNames = moduleNameRows(data?.module_scores);
-  const profileCards = normalizeDistributionItems(data?.profile_cards);
-  const profileCardNames = moduleNameRows(data?.profile_cards);
-  const moduleItems = sortModuleRowsByCount(mergeBcModuleRows(issueItems.length > 0 ? issueItems : issueGroups, moduleScoreNames, profileCardNames));
-  const recordRows = sortModuleRowsByCount(mergeBcModuleRows(recordItems, profileCards, moduleScoreNames));
+  const moduleItems = sortModuleRowsByCount(mergeBcModuleRows(issueItems.length > 0 ? issueItems : issueGroups));
+  const recordRows = sortModuleRowsByCount(mergeBcModuleRows(recordItems));
 
   if (moduleItems.length === 0 && recordRows.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty">Module distribution will appear after scan results are available.</div>`;
