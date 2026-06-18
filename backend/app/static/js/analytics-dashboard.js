@@ -573,6 +573,8 @@ function moduleKey(value) {
     lager: 'inventory',
     manufacturing: 'manufacturing',
     fertigung: 'manufacturing',
+    produktion: 'manufacturing',
+    production: 'manufacturing',
     jobs: 'jobs',
     projekte: 'jobs',
     projects: 'jobs',
@@ -580,15 +582,33 @@ function moduleKey(value) {
     crm: 'crm',
     service: 'service',
     hr: 'hr',
+    personal: 'hr',
+    personnel: 'hr',
   };
   return aliases[normalized] || normalized;
+}
+
+function canonicalDashboardModuleName(key, fallback) {
+  const names = {
+    system: 'System',
+    finance: 'Finance',
+    sales: 'Sales',
+    purchasing: 'Purchasing',
+    inventory: 'Inventory',
+    crm: 'CRM',
+    manufacturing: 'Manufacturing',
+    service: 'Service',
+    jobs: 'Jobs',
+    hr: 'HR',
+  };
+  return names[key] || fallback;
 }
 
 function mergeModuleRows(...sources) {
   const rows = new Map();
   const ensureRow = (name) => {
     const key = moduleKey(name);
-    if (!rows.has(key)) rows.set(key, { key, name, count: 0, percent: 0 });
+    if (!rows.has(key)) rows.set(key, { key, name: canonicalDashboardModuleName(key, name), count: 0, percent: 0 });
     return rows.get(key);
   };
 
@@ -597,7 +617,7 @@ function mergeModuleRows(...sources) {
     const name = item?.name || item?.label || '';
     if (!name) return;
     const row = ensureRow(name);
-    row.name = name;
+    row.name = canonicalDashboardModuleName(row.key, name);
     row.count = Math.max(row.count, safeNumber(item?.count ?? item?.value));
     row.percent = Math.max(row.percent, safeNumber(item?.percent));
   });
@@ -608,6 +628,21 @@ function mergeModuleRows(...sources) {
     const indexB = order.indexOf(b.key);
     return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
   });
+}
+
+function mergeBcModuleRows(...sources) {
+  const rows = new Map();
+  sources.flat().filter(Boolean).forEach((item) => {
+    const name = item?.name || item?.label || '';
+    if (!name) return;
+    const key = moduleKey(name);
+    const row = rows.get(key) || { key, name: canonicalDashboardModuleName(key, name), count: 0, percent: 0 };
+    row.name = canonicalDashboardModuleName(key, name);
+    row.count = Math.max(row.count, safeNumber(item?.count ?? item?.value));
+    row.percent = Math.max(row.percent, safeNumber(item?.percent));
+    rows.set(key, row);
+  });
+  return Array.from(rows.values());
 }
 
 function moduleNameRows(items) {
@@ -640,8 +675,8 @@ function renderModuleDistribution(data) {
   const moduleScoreNames = moduleNameRows(data?.module_scores);
   const profileCards = normalizeDistributionItems(data?.profile_cards);
   const profileCardNames = moduleNameRows(data?.profile_cards);
-  const moduleItems = sortModuleRowsByCount(mergeModuleRows(issueItems.length > 0 ? issueItems : issueGroups, moduleScoreNames, profileCardNames));
-  const recordRows = sortModuleRowsByCount(mergeModuleRows(recordItems, profileCards, moduleScoreNames));
+  const moduleItems = sortModuleRowsByCount(mergeBcModuleRows(issueItems.length > 0 ? issueItems : issueGroups, moduleScoreNames, profileCardNames));
+  const recordRows = sortModuleRowsByCount(mergeBcModuleRows(recordItems, profileCards, moduleScoreNames));
 
   if (moduleItems.length === 0 && recordRows.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty">Module distribution will appear after scan results are available.</div>`;
