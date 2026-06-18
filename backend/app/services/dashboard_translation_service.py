@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DASHBOARD_TRANSLATIONS_DIR = REPO_ROOT / "backend" / "app" / "translations" / "dashboard"
+APP_DIR = Path(__file__).resolve().parents[1]
+DASHBOARD_TRANSLATIONS_DIR = APP_DIR / "translations" / "dashboard"
 
 DASHBOARD_GROUP_ORDER = [
     "navigation",
