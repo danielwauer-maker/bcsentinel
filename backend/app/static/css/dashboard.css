@@ -4081,3 +4081,493 @@ td {
   }
 }
 
+/* Task 5.12 - final corrections */
+body {
+  background: #f6f8fc;
+}
+
+.page-shell {
+  background: #f6f8fc;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dark-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #34435c;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dark-mode-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.dark-mode-switch {
+  position: relative;
+  width: 38px;
+  height: 20px;
+  border-radius: 999px;
+  background: #a9b6c9;
+  transition: background .16s ease, box-shadow .16s ease;
+}
+
+.dark-mode-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(9, 23, 58, .25);
+  transition: transform .16s ease;
+}
+
+.dark-mode-toggle input:checked + .dark-mode-switch {
+  background: #2f6bff;
+  box-shadow: 0 0 0 3px rgba(47, 107, 255, .14);
+}
+
+.dark-mode-toggle input:checked + .dark-mode-switch::after {
+  transform: translateX(18px);
+}
+
+.executive-summary-hero {
+  grid-template-columns: 1fr;
+  min-height: 128px;
+  padding: 22px 24px;
+  background:
+    linear-gradient(135deg, rgba(47, 107, 255, .06), rgba(21, 154, 85, .05) 55%, rgba(255, 255, 255, .96)),
+    #fff;
+  border-color: #dde6f3;
+}
+
+.executive-hero-metrics {
+  display: none !important;
+}
+
+.executive-summary-hero .hero-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 13px;
+  border: 1px solid #f2c7aa;
+  border-radius: 999px;
+  background: #fff7f1;
+  color: #071b4d;
+  letter-spacing: .04em;
+}
+
+.executive-summary-hero .hero-title {
+  color: #071b4d;
+  font-size: clamp(26px, 2.2vw, 38px);
+}
+
+.executive-summary-hero .overview-summary {
+  color: #50627f;
+}
+
+.overview-kpi-grid .kpi-card,
+.recommended-actions-panel,
+.overview-module-score-panel,
+.overview-products-panel,
+.overview-feature-comparison-panel,
+.overview-issue-grid > .panel,
+.overview-distribution-grid > .panel {
+  border-color: #dde6f3;
+  background: #fff;
+}
+
+.overview-kpi-grid .accent-red {
+  border-color: rgba(229, 25, 25, .22);
+  background: linear-gradient(180deg, #fff 0%, #fff7f7 100%);
+}
+
+.overview-kpi-grid .accent-green {
+  border-color: rgba(21, 154, 85, .2);
+  background: linear-gradient(180deg, #fff 0%, #f4fbf7 100%);
+}
+
+.overview-kpi-grid .accent-red .stat-value,
+.loss-value,
+.score-value.critical {
+  color: #e51919 !important;
+}
+
+.overview-kpi-grid .accent-green .stat-value,
+.roi-value {
+  color: #159a55 !important;
+}
+
+.overview-module-score-panel .panel-title-block .muted {
+  font-size: 13px;
+}
+
+.overview-module-score-grid {
+  grid-template-columns: repeat(10, minmax(108px, 1fr));
+  gap: 12px;
+}
+
+.module-score-card {
+  min-height: 138px;
+  padding: 12px 8px 10px;
+  border-color: #dde6f3;
+  box-shadow: 0 12px 24px rgba(7, 27, 77, .07);
+}
+
+.module-score-gauge {
+  width: 78px;
+  height: 46px;
+}
+
+.module-score-gauge strong {
+  font-size: 22px;
+}
+
+.module-score-status {
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: #fee2e2;
+}
+
+.module-score-status.warning {
+  background: #ffedd5;
+}
+
+.module-score-status.moderate {
+  background: #fef3c7;
+}
+
+.module-score-status.good,
+.module-score-status.excellent {
+  background: #dcfce7;
+}
+
+.recommended-actions-panel {
+  margin-top: 2px;
+}
+
+.recommended-actions-list {
+  gap: 10px;
+}
+
+.recommended-action-row {
+  grid-template-columns: 46px minmax(220px, 1fr) minmax(150px, .35fr) auto;
+  min-height: 68px;
+  padding: 12px 14px;
+  border-color: #dde6f3;
+  background: linear-gradient(180deg, #fff 0%, #fbfcff 100%);
+}
+
+.recommended-action-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #e51919;
+}
+
+.recommended-action-high .recommended-action-icon {
+  background: #ffedd5;
+  color: #f97316;
+}
+
+.recommended-action-medium .recommended-action-icon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.recommended-action-low .recommended-action-icon {
+  background: #eaf1ff;
+  color: #2f6bff;
+}
+
+.recommended-action-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.recommended-action-main strong {
+  color: #071b4d;
+  font-size: 14px;
+}
+
+.recommended-action-saving strong {
+  color: #159a55;
+  font-size: 17px;
+}
+
+.recommended-action-bc:disabled {
+  border-color: #ead8cf;
+  background: #fffaf7;
+  color: #c79a85;
+  box-shadow: none;
+}
+
+.overview-products-panel .subscription-product-grid,
+.overview-product-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.overview-product-card {
+  border-color: #dde6f3;
+  background: linear-gradient(180deg, #fff 0%, #fbfcff 100%);
+}
+
+.overview-product-card .subscription-product-action {
+  background: #2f6bff;
+}
+
+.overview-product-card .subscription-product-action[data-product-code="validation_check"] {
+  background: #7c3aed;
+  box-shadow: 0 12px 24px rgba(124, 58, 237, .2);
+}
+
+.overview-product-card .subscription-product-action[data-product-code="monitoring_monthly"],
+.subscription-product-card.is-monitoring-product .subscription-product-action {
+  background: #159a55;
+  box-shadow: 0 12px 24px rgba(21, 154, 85, .22);
+}
+
+.overview-product-card .subscription-product-badge,
+.subscription-product-card .subscription-product-badge {
+  background: #edf3ff;
+  color: #2f6bff;
+}
+
+.overview-product-card.is-monitoring-product,
+.subscription-product-card.is-monitoring-product {
+  border-color: #2f6bff;
+  background: linear-gradient(180deg, #f7faff 0%, #fff 100%);
+}
+
+.overview-product-card.is-monitoring-product .subscription-product-badge,
+.subscription-product-card.is-monitoring-product .subscription-product-badge {
+  background: #2f6bff;
+  color: #fff;
+}
+
+@media (max-width: 1380px) {
+  .overview-module-score-grid {
+    grid-template-columns: repeat(5, minmax(112px, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .recommended-action-row,
+  .overview-product-grid,
+  .overview-products-panel .subscription-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar-right {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .overview-module-score-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+html.dashboard-dark body,
+body.dashboard-dark {
+  background: #07111f;
+  color: #f4f7fb;
+}
+
+html.dashboard-light body,
+body.dashboard-light {
+  background: #f6f8fc;
+  color: #071b4d;
+}
+
+html.dashboard-light .page-shell,
+body.dashboard-light .page-shell {
+  background: #f6f8fc;
+}
+
+html.dashboard-light .panel,
+html.dashboard-light .stat-card,
+html.dashboard-light .recommended-action-row,
+html.dashboard-light .module-score-card,
+html.dashboard-light .subscription-product-card,
+html.dashboard-light .table-wrap,
+body.dashboard-light .panel,
+body.dashboard-light .stat-card,
+body.dashboard-light .recommended-action-row,
+body.dashboard-light .module-score-card,
+body.dashboard-light .subscription-product-card,
+body.dashboard-light .table-wrap {
+  border-color: #dde6f3;
+  background: #fff;
+}
+
+html.dashboard-dark .page-shell,
+body.dashboard-dark .page-shell {
+  background: #07111f;
+}
+
+html.dashboard-dark .dashboard-sidebar,
+body.dashboard-dark .dashboard-sidebar {
+  background: #061a35;
+}
+
+html.dashboard-dark .panel,
+html.dashboard-dark .stat-card,
+html.dashboard-dark .recommended-action-row,
+html.dashboard-dark .module-score-card,
+html.dashboard-dark .subscription-product-card,
+html.dashboard-dark .table-wrap,
+body.dashboard-dark .panel,
+body.dashboard-dark .stat-card,
+body.dashboard-dark .recommended-action-row,
+body.dashboard-dark .module-score-card,
+body.dashboard-dark .subscription-product-card,
+body.dashboard-dark .table-wrap {
+  border-color: #263a59;
+  background: #101b2d;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .35);
+}
+
+html.dashboard-dark .executive-summary-hero,
+html.dashboard-dark .overview-kpi-grid .accent-red,
+html.dashboard-dark .overview-kpi-grid .accent-green,
+html.dashboard-dark .recommended-action-row,
+html.dashboard-dark .module-score-card,
+html.dashboard-dark .overview-product-card,
+html.dashboard-dark .subscription-product-card.is-monitoring-product,
+body.dashboard-dark .executive-summary-hero,
+body.dashboard-dark .overview-kpi-grid .accent-red,
+body.dashboard-dark .overview-kpi-grid .accent-green,
+body.dashboard-dark .recommended-action-row,
+body.dashboard-dark .module-score-card,
+body.dashboard-dark .overview-product-card,
+body.dashboard-dark .subscription-product-card.is-monitoring-product {
+  background: linear-gradient(180deg, #14233a 0%, #101b2d 100%);
+}
+
+html.dashboard-dark #page-title,
+html.dashboard-dark .panel-header h3,
+html.dashboard-dark .stat-label,
+html.dashboard-dark .stat-value,
+html.dashboard-dark .module-score-title,
+html.dashboard-dark .recommended-action-main strong,
+html.dashboard-dark .business-impact-name,
+html.dashboard-dark .subscription-product-card h4,
+html.dashboard-dark .feature-comparison-table strong,
+body.dashboard-dark #page-title,
+body.dashboard-dark .panel-header h3,
+body.dashboard-dark .stat-label,
+body.dashboard-dark .stat-value,
+body.dashboard-dark .module-score-title,
+body.dashboard-dark .recommended-action-main strong,
+body.dashboard-dark .business-impact-name,
+body.dashboard-dark .subscription-product-card h4,
+body.dashboard-dark .feature-comparison-table strong {
+  color: #f4f7fb;
+}
+
+html.dashboard-dark .muted,
+html.dashboard-dark .page-subtitle,
+html.dashboard-dark .overview-summary,
+html.dashboard-dark .dark-mode-toggle,
+html.dashboard-dark .recommended-action-main span,
+html.dashboard-dark .recommended-action-saving span,
+html.dashboard-dark .subscription-product-card p,
+body.dashboard-dark .muted,
+body.dashboard-dark .page-subtitle,
+body.dashboard-dark .overview-summary,
+body.dashboard-dark .dark-mode-toggle,
+body.dashboard-dark .recommended-action-main span,
+body.dashboard-dark .recommended-action-saving span,
+body.dashboard-dark .subscription-product-card p {
+  color: #aab7cf;
+}
+
+html.dashboard-dark .executive-summary-hero .hero-eyebrow,
+body.dashboard-dark .executive-summary-hero .hero-eyebrow {
+  border-color: #375071;
+  background: #14233a;
+  color: #f4f7fb;
+}
+
+html.dashboard-dark .overview-kpi-grid .accent-red .stat-value,
+html.dashboard-dark .loss-value,
+html.dashboard-dark .score-value.critical,
+html.dashboard-dark .business-impact-row strong,
+body.dashboard-dark .overview-kpi-grid .accent-red .stat-value,
+body.dashboard-dark .loss-value,
+body.dashboard-dark .score-value.critical,
+body.dashboard-dark .business-impact-row strong {
+  color: #ff5a4f !important;
+}
+
+html.dashboard-dark .overview-kpi-grid .accent-green .stat-value,
+html.dashboard-dark .roi-value,
+html.dashboard-dark .recommended-action-saving strong,
+body.dashboard-dark .overview-kpi-grid .accent-green .stat-value,
+body.dashboard-dark .roi-value,
+body.dashboard-dark .recommended-action-saving strong {
+  color: #35d07f !important;
+}
+
+html.dashboard-dark thead th,
+body.dashboard-dark thead th {
+  background: #14233a;
+  color: #aab7cf;
+}
+
+html.dashboard-dark td,
+html.dashboard-dark th,
+body.dashboard-dark td,
+body.dashboard-dark th {
+  border-color: #263a59;
+}
+
+html.dashboard-dark .kpi-info-icon,
+html.dashboard-dark .panel-info-icon,
+body.dashboard-dark .kpi-info-icon,
+body.dashboard-dark .panel-info-icon {
+  border-color: #6e819e;
+  color: #aab7cf;
+}
+
+html.dashboard-dark .distribution-track,
+html.dashboard-dark #overview-module-distribution .distribution-track,
+html.dashboard-dark .business-impact-row .distribution-track,
+body.dashboard-dark .distribution-track,
+body.dashboard-dark #overview-module-distribution .distribution-track,
+body.dashboard-dark .business-impact-row .distribution-track {
+  background: #263a59;
+}
+
+html.dashboard-dark .recommended-action-bc:disabled,
+body.dashboard-dark .recommended-action-bc:disabled {
+  border-color: #4b3d38;
+  background: #1b2738;
+  color: #c99f8b;
+}
+
