@@ -731,23 +731,17 @@ function renderOverviewRecentIssues(data) {
 
   host.innerHTML = items.map((item, index) => {
     const title = item?.title || `Issue ${index + 1}`;
-    const moduleName = item?.group || item?.module || 'Module pending';
-    const severity = String(item?.severity || 'low').toLowerCase();
-    const impact = safeNumber(item?.impact_eur);
     const count = safeNumber(item?.count);
     return `
-      <div class="overview-list-row">
-        <div>
-          <strong>${escapeHtml(title)}</strong>
-          <span>${escapeHtml(moduleName)} - ${formatNumber(count)} affected</span>
-        </div>
-        <div class="overview-row-meta">
-          <span class="severity severity-${escapeHtml(severity)}">${escapeHtml(item?.severity_label || severity.toUpperCase())}</span>
-          <strong>${impact > 0 ? formatCurrency(impact) : 'Impact pending'}</strong>
-        </div>
+      <div class="recent-critical-row">
+        <span class="recent-critical-dot" aria-hidden="true"></span>
+        <span class="recent-critical-title">${escapeHtml(title)}</span>
+        <span class="recent-critical-count">${formatNumber(count)}</span>
       </div>
     `;
-  }).join('') + (!isPremium ? `<div class="placeholder-note">Full Analysis unlocks record-level issue details and recommended actions.</div>` : '');
+  }).join('') + `<button type="button" class="recent-critical-link" data-jump-tab="issues">View all issues <span aria-hidden="true">&rarr;</span></button>`;
+  const link = host.querySelector('.recent-critical-link');
+  if (link) link.addEventListener('click', () => switchTab('issues'));
 }
 
 function businessImpactIcon(name) {
@@ -777,32 +771,32 @@ function businessImpactRows(data) {
     : (Array.isArray(data?.top_findings) ? data.top_findings : []);
   const grouped = new Map();
 
+  knownDashboardModules().forEach((name) => {
+    grouped.set(moduleKey(name), { key: moduleKey(name), name, impact: 0 });
+  });
+
   sourceItems.forEach((item) => {
     const name = item?.group || item?.module || item?.module_name || item?.category || item?.title || '';
     const impact = safeNumber(item?.impact_eur ?? item?.estimated_loss_eur ?? item?.estimated_impact_eur);
     if (!name || impact <= 0) return;
-    const current = grouped.get(name) || { name, impact: 0 };
+    const key = moduleKey(name);
+    const current = grouped.get(key) || { key, name, impact: 0 };
+    current.name = name;
     current.impact += impact;
-    grouped.set(name, current);
+    grouped.set(key, current);
   });
 
-  if (grouped.size === 0) {
-    const estimatedLoss = safeNumber(data?.kpis?.estimated_loss_eur);
-    const modules = normalizeDistributionItems(data?.free_insights?.module_distribution);
-    const total = modules.reduce((sum, item) => sum + safeNumber(item.count), 0);
-    if (estimatedLoss > 0 && total > 0) {
-      modules.forEach((item) => {
-        grouped.set(item.name, {
-          name: item.name,
-          impact: estimatedLoss * (safeNumber(item.count) / total),
-        });
-      });
-    }
-  }
+  moduleNameRows(data?.module_scores).forEach((item) => {
+    const key = moduleKey(item.name);
+    if (!grouped.has(key)) grouped.set(key, { key, name: item.name, impact: 0 });
+  });
 
-  return Array.from(grouped.values())
-    .sort((a, b) => b.impact - a.impact)
-    .slice(0, 5);
+  const order = knownDashboardModules().map(moduleKey);
+  return Array.from(grouped.values()).sort((a, b) => {
+    const indexA = order.indexOf(a.key);
+    const indexB = order.indexOf(b.key);
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
 }
 
 function renderBusinessImpact(data) {
@@ -823,7 +817,7 @@ function renderBusinessImpact(data) {
         <div class="business-impact-row">
           <span class="business-impact-icon">${businessImpactIcon(item.name)}</span>
           <span class="business-impact-name">${escapeHtml(item.name)}</span>
-          <div class="distribution-track"><div class="distribution-fill" style="width:${Math.max((item.impact / maxImpact) * 100, 5)}%"></div></div>
+          <div class="distribution-track"><div class="distribution-fill" style="width:${item.impact > 0 ? Math.max((item.impact / maxImpact) * 100, 5) : 0}%"></div></div>
           <strong>${formatKpiCurrency(item.impact)}</strong>
         </div>
       `).join('')}

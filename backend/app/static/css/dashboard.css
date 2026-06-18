@@ -715,6 +715,63 @@ button { font: inherit; }
   color: #003fba;
 }
 
+.recent-critical-row {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf1f6;
+  color: #07173a;
+}
+
+.recent-critical-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #ef1717;
+}
+
+.recent-critical-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.recent-critical-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 38px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #ef1717;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.recent-critical-link {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  border: 0;
+  background: transparent;
+  color: #075cff;
+  font-size: 16px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.recent-critical-link:hover {
+  color: #003fba;
+}
+
 @media (max-width: 1180px) {
   .overview-product-grid {
     grid-template-columns: 1fr;
