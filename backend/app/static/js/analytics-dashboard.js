@@ -874,8 +874,8 @@ function renderRecommendedActions(data) {
 
   host.innerHTML = items.map((item, index) => {
     const bcAction = item.openInBcUrl
-      ? `<a href="${escapeHtml(item.openInBcUrl)}" class="pager-button recommended-action-bc" target="_blank" rel="noopener noreferrer">Open in Business Central</a>`
-      : `<button type="button" class="pager-button recommended-action-bc" disabled>Business Central link unavailable</button>`;
+      ? `<a href="${escapeHtml(item.openInBcUrl)}" class="pager-button recommended-action-bc" target="_blank" rel="noopener noreferrer">Open in BC</a>`
+      : `<button type="button" class="pager-button recommended-action-bc" disabled>BC link unavailable</button>`;
     return `
       <article class="recommended-action-row recommended-action-${escapeHtml(item.severity)}">
         <div class="recommended-action-icon" aria-hidden="true">

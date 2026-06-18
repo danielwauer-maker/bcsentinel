@@ -622,6 +622,11 @@ button { font: inherit; }
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
+.overview-issue-grid {
+  grid-template-columns: minmax(250px, .82fr) minmax(340px, 1.08fr) minmax(360px, 1.22fr);
+  align-items: stretch;
+}
+
 .overview-products-panel,
 .overview-feature-comparison-panel {
   margin-bottom: 22px;
@@ -869,6 +874,10 @@ button { font: inherit; }
 .module-score-status.excellent { color: #0b8f55; }
 
 @media (max-width: 1180px) {
+  .overview-issue-grid {
+    grid-template-columns: 1fr;
+  }
+
   .overview-module-score-grid {
     grid-template-columns: repeat(5, minmax(112px, 1fr));
   }
@@ -3823,6 +3832,10 @@ td {
   box-shadow: 0 18px 38px rgba(9, 23, 58, .09);
 }
 
+.overview-actions-card.recommended-actions-panel {
+  margin-bottom: 0;
+}
+
 .recommended-actions-list {
   display: grid;
   gap: 12px;
@@ -3881,6 +3894,30 @@ td {
 
 .recommended-action-bc {
   white-space: nowrap;
+}
+
+.overview-actions-card .recommended-actions-list {
+  gap: 10px;
+}
+
+.overview-actions-card .recommended-action-row {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 12px;
+  min-height: 72px;
+  padding: 12px;
+}
+
+.overview-actions-card .recommended-action-saving {
+  justify-items: end;
+  text-align: right;
+}
+
+.overview-actions-card .recommended-action-bc {
+  grid-column: 2 / -1;
+  justify-self: end;
+  min-height: 32px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 .overview-module-score-grid {
