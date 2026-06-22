@@ -25,26 +25,29 @@ page 53195 "DH Scan Checks"
                     Editable = false;
                     ToolTip = 'Specifies the technical check code.';
                 }
-                field(Module; Rec."Module")
+                field(Module; DisplayModule)
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the Business Central module or area.';
                 }
-                field(Name; Rec.Name)
+                field(Name; DisplayName)
                 {
+                    Caption = 'Name';
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the check name.';
                 }
-                field(Description; Rec.Description)
+                field(Description; DisplayDescription)
                 {
+                    Caption = 'Description';
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the check description.';
                 }
-                field("Risk Level"; Rec."Risk Level")
+                field("Risk Level"; DisplayRiskLevel)
                 {
+                    Caption = 'Risk Level';
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the risk level.';
@@ -141,5 +144,26 @@ page 53195 "DH Scan Checks"
         ScanCheckMgt.EnsureMonitoringAccess(true);
         ScanCheckMgt.EnsureDefaultChecks();
         Rec.SetCurrentKey("Sort Order", "Module", "Check Code");
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        UpdateDisplayValues();
+    end;
+
+    var
+        DisplayModule: Text[100];
+        DisplayName: Text[150];
+        DisplayDescription: Text[250];
+        DisplayRiskLevel: Text[30];
+
+    local procedure UpdateDisplayValues()
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+    begin
+        DisplayModule := ScanCheckMgt.GetLocalizedModule(Rec."Module");
+        DisplayName := ScanCheckMgt.GetLocalizedCheckName(Rec."Check Code", Rec.Name);
+        DisplayDescription := ScanCheckMgt.GetLocalizedCheckDescription(Rec."Check Code", Rec.Description);
+        DisplayRiskLevel := ScanCheckMgt.GetLocalizedRiskLevel(Rec."Risk Level");
     end;
 }

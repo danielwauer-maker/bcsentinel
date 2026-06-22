@@ -336,6 +336,177 @@ codeunit 53196 "DH Scan Check Mgt."
         ScanCheck.Modify(true);
     end;
 
+    procedure GetLocalizedModule(ModuleName: Text[100]): Text[100]
+    begin
+        if not IsGermanLanguage() then
+            exit(ModuleName);
+
+        case UpperCase(ModuleName) of
+            'CUSTOMER':
+                exit('Debitoren');
+            'VENDOR':
+                exit('Kreditoren');
+            'LEDGER':
+                exit('Posten');
+            'FINANCE':
+                exit('Finanzen');
+            'SALES':
+                exit('Verkauf');
+            'PURCHASE':
+                exit('Einkauf');
+            'ITEM', 'INVENTORY':
+                exit('Lager');
+            'CRM':
+                exit('CRM');
+            'SYSTEM':
+                exit('System');
+            'MANUFACTURING':
+                exit('Fertigung');
+            'SERVICE':
+                exit('Service');
+            'JOB':
+                exit('Projekte');
+            'HR':
+                exit('Personal');
+            else
+                exit(ModuleName);
+        end;
+    end;
+
+    procedure GetLocalizedRiskLevel(RiskLevel: Code[20]): Text[30]
+    begin
+        if not IsGermanLanguage() then
+            exit(UpperCase(Format(RiskLevel)));
+
+        case LowerCase(Format(RiskLevel)) of
+            'critical':
+                exit('Kritisch');
+            'high':
+                exit('Hoch');
+            'medium':
+                exit('Mittel');
+            'low':
+                exit('Niedrig');
+            else
+                exit(Format(RiskLevel));
+        end;
+    end;
+
+    procedure GetLocalizedCheckName(CheckCode: Code[50]; DefaultName: Text[150]): Text[150]
+    begin
+        if not IsGermanLanguage() then
+            exit(DefaultName);
+
+        exit(CopyStr(BuildGermanCheckName(CheckCode, DefaultName), 1, 150));
+    end;
+
+    procedure GetLocalizedCheckDescription(CheckCode: Code[50]; DefaultDescription: Text[250]): Text[250]
+    var
+        GermanName: Text[150];
+    begin
+        if not IsGermanLanguage() then
+            exit(DefaultDescription);
+
+        GermanName := GetLocalizedCheckName(CheckCode, '');
+        exit(CopyStr(StrSubstNo('Bitte pruefen und korrigieren: %1.', GermanName), 1, 250));
+    end;
+
+    local procedure IsGermanLanguage(): Boolean
+    begin
+        case GlobalLanguage() of
+            1031, // German - Germany
+            3079, // German - Austria
+            2055, // German - Switzerland
+            5127, // German - Liechtenstein
+            4103: // German - Luxembourg
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure BuildGermanCheckName(CheckCode: Code[50]; DefaultName: Text[150]): Text
+    var
+        NameText: Text;
+    begin
+        case CheckCode of
+            'CUSTOMERS_DUPLICATE_EMAIL':
+                exit('Debitoren mit doppelter E-Mail');
+            'VENDORS_DUPLICATE_EMAIL':
+                exit('Kreditoren mit doppelter E-Mail');
+            'CUSTOMERS_DUPLICATE_VAT':
+                exit('Debitoren mit doppelter USt-IdNr.');
+            'VENDORS_DUPLICATE_VAT':
+                exit('Kreditoren mit doppelter USt-IdNr.');
+            'CUSTOMERS_DUPLICATE_NAME_POST_CITY':
+                exit('Debitoren mit gleichem Namen, PLZ und Ort');
+            'VENDORS_DUPLICATE_NAME_POST_CITY':
+                exit('Kreditoren mit gleichem Namen, PLZ und Ort');
+        end;
+
+        NameText := DefaultName;
+        NameText := NameText.Replace('Customers', 'Debitoren');
+        NameText := NameText.Replace('Customer', 'Debitor');
+        NameText := NameText.Replace('Vendors', 'Kreditoren');
+        NameText := NameText.Replace('Vendor', 'Kreditor');
+        NameText := NameText.Replace('Items', 'Artikel');
+        NameText := NameText.Replace('Item', 'Artikel');
+        NameText := NameText.Replace('Sales Orders', 'Verkaufsauftraege');
+        NameText := NameText.Replace('Sales Lines', 'Verkaufszeilen');
+        NameText := NameText.Replace('Sales Documents', 'Verkaufsbelege');
+        NameText := NameText.Replace('Purchase Orders', 'Einkaufsbestellungen');
+        NameText := NameText.Replace('Purchase Lines', 'Einkaufszeilen');
+        NameText := NameText.Replace('Purchase Documents', 'Einkaufsbelege');
+        NameText := NameText.Replace('Open Customer Ledger Entries', 'Offene Debitorenposten');
+        NameText := NameText.Replace('Open Vendor Ledger Entries', 'Offene Kreditorenposten');
+        NameText := NameText.Replace('G/L Entries', 'Sachposten');
+        NameText := NameText.Replace('G/L Accounts', 'Sachkonten');
+        NameText := NameText.Replace('Contacts', 'Kontakte');
+        NameText := NameText.Replace('Contact', 'Kontakt');
+        NameText := NameText.Replace('Production BOMs', 'Fertigungsstuecklisten');
+        NameText := NameText.Replace('BOM Lines', 'Stuecklistenzeilen');
+        NameText := NameText.Replace('Routings', 'Arbeitsplaene');
+        NameText := NameText.Replace('Routing Lines', 'Arbeitsplanzeilen');
+        NameText := NameText.Replace('Work Centers', 'Arbeitsplaetze');
+        NameText := NameText.Replace('Machine Centers', 'Maschinenplaetze');
+        NameText := NameText.Replace('Service Items', 'Serviceartikel');
+        NameText := NameText.Replace('Service Documents', 'Servicebelege');
+        NameText := NameText.Replace('Service Lines', 'Servicezeilen');
+        NameText := NameText.Replace('Jobs', 'Projekte');
+        NameText := NameText.Replace('Job Tasks', 'Projektaufgaben');
+        NameText := NameText.Replace('Job Planning Lines', 'Projektplanungszeilen');
+        NameText := NameText.Replace('Employees', 'Mitarbeiter');
+        NameText := NameText.Replace('Resources', 'Ressourcen');
+        NameText := NameText.Replace('Missing', 'fehlend');
+        NameText := NameText.Replace('With', 'mit');
+        NameText := NameText.Replace('Without', 'ohne');
+        NameText := NameText.Replace('Blocked', 'Gesperrt');
+        NameText := NameText.Replace('Duplicate', 'doppelt');
+        NameText := NameText.Replace('Description', 'Beschreibung');
+        NameText := NameText.Replace('Address', 'Adresse');
+        NameText := NameText.Replace('City', 'Ort');
+        NameText := NameText.Replace('Post Code', 'PLZ');
+        NameText := NameText.Replace('Country/Region Code', 'Laender-/Regionscode');
+        NameText := NameText.Replace('Email', 'E-Mail');
+        NameText := NameText.Replace('Phone No.', 'Telefonnummer');
+        NameText := NameText.Replace('Payment Terms', 'Zahlungsbedingungen');
+        NameText := NameText.Replace('Payment Method', 'Zahlungsart');
+        NameText := NameText.Replace('Posting Group', 'Buchungsgruppe');
+        NameText := NameText.Replace('General Business Posting Group', 'Gesch.-Buchungsgruppe');
+        NameText := NameText.Replace('VAT Business Posting Group', 'MwSt.-Gesch.-Buchungsgruppe');
+        NameText := NameText.Replace('VAT Registration No.', 'USt-IdNr.');
+        NameText := NameText.Replace('Credit Limit', 'Kreditlimit');
+        NameText := NameText.Replace('Bank Account', 'Bankkonto');
+        NameText := NameText.Replace('Unit Cost', 'Einstandspreis');
+        NameText := NameText.Replace('Unit Price', 'Verkaufspreis');
+        NameText := NameText.Replace('Quantity 0', 'Menge 0');
+        NameText := NameText.Replace('Price 0', 'Preis 0');
+        NameText := NameText.Replace('Cost', 'Kosten');
+        NameText := NameText.Replace('No.', 'Nr.');
+
+        exit(NameText);
+    end;
+
     local procedure IsModuleIncluded(var Setup: Record "DH Setup"; ModuleName: Text[100]): Boolean
     begin
         case UpperCase(ModuleName) of
