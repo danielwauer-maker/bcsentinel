@@ -4683,8 +4683,27 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschreibung</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 1069846527 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Risk Level</source>
+          <target state="translated">Risikostufe</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Risk Level - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
 </xliff>
+
 
