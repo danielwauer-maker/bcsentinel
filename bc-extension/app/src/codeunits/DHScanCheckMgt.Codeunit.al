@@ -269,6 +269,22 @@ codeunit 53196 "DH Scan Check Mgt."
         exit(not ScanCheck.IsEmpty());
     end;
 
+    procedure GetExpectedChecksCount(var Setup: Record "DH Setup"): Integer
+    var
+        ScanCheck: Record "DH Scan Check Selection";
+        Count: Integer;
+    begin
+        EnsureDefaultChecks();
+        if ScanCheck.FindSet() then
+            repeat
+                if IsModuleIncluded(Setup, ScanCheck."Module") then
+                    if (not Setup."Monitoring Active") or ScanCheck.Enabled then
+                        Count += 1;
+            until ScanCheck.Next() = 0;
+
+        exit(Count);
+    end;
+
     procedure RequireEnabledChecksForMonitoring()
     var
         Setup: Record "DH Setup";
@@ -318,6 +334,34 @@ codeunit 53196 "DH Scan Check Mgt."
         ScanCheck."Last Run At" := CurrentDateTime();
         ScanCheck."Last Finding Count" := FindingCount;
         ScanCheck.Modify(true);
+    end;
+
+    local procedure IsModuleIncluded(var Setup: Record "DH Setup"; ModuleName: Text[100]): Boolean
+    begin
+        case UpperCase(ModuleName) of
+            'SYSTEM':
+                exit(Setup."Scan System Module");
+            'CUSTOMER', 'VENDOR', 'LEDGER', 'FINANCE':
+                exit(Setup."Scan Finance Module");
+            'SALES':
+                exit(Setup."Scan Sales Module");
+            'PURCHASE':
+                exit(Setup."Scan Purchasing Module");
+            'ITEM', 'INVENTORY':
+                exit(Setup."Scan Inventory Module");
+            'CRM':
+                exit(Setup."Scan CRM Module");
+            'MANUFACTURING':
+                exit(Setup."Scan Manufacturing Module");
+            'SERVICE':
+                exit(Setup."Scan Service Module");
+            'JOB':
+                exit(Setup."Scan Jobs Module");
+            'HR':
+                exit(Setup."Scan HR Module");
+            else
+                exit(true);
+        end;
     end;
 
     local procedure AddCheck(CheckCode: Code[50]; ModuleName: Text[100]; CheckName: Text[150]; Description: Text[250]; RiskLevel: Code[20]; SortOrder: Integer)
