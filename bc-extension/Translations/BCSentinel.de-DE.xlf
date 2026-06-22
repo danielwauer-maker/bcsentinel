@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en-US" target-language="de-DE" original="BCSentinel">
     <body>
@@ -4485,7 +4485,206 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1179860879 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Check Selection</source>
+          <target state="translated">Pruefungsauswahl</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 2231728661 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Code</source>
+          <target state="translated">Pruefungscode</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Check Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 788773274 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Enabled</source>
+          <target state="translated">Standardmaessig aktiviert</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Default Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschreibung</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 2891538263 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Aktiviert</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 1737756928 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Finding Count</source>
+          <target state="translated">Letzte Anzahl Befunde</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Last Finding Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 2659377714 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified At</source>
+          <target state="translated">Zuletzt geaendert am</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Last Modified At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 3043386282 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Run At</source>
+          <target state="translated">Letzte Ausfuehrung am</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Last Run At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 520258886 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Module</source>
+          <target state="translated">Modul</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Module - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 1069846527 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Risk Level</source>
+          <target state="translated">Risikostufe</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Risk Level - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1179860879 - Field 3915705456 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sort Order</source>
+          <target state="translated">Sortierreihenfolge</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Check Selection - Field Sort Order - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2002389332" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selecting individual checks is only available with active Monitoring.</source>
+          <target state="translated">Einzelne Pruefungen koennen nur mit aktivem Monitoring ausgewaehlt werden.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType MonitoringRequiredErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 3426171032" size-unit="char" translate="yes" xml:space="preserve">
+          <source>At least one scan check must be enabled before starting a Monitoring scan.</source>
+          <target state="translated">Mindestens eine Pruefung muss aktiviert sein, bevor ein Monitoring-Scan gestartet werden kann.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType NoChecksEnabledErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Checks</source>
+          <target state="translated">Pruefungen</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 2231728661 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the technical check code.</source>
+          <target state="translated">Gibt den technischen Pruefungscode an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Check Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the check description.</source>
+          <target state="translated">Gibt die Beschreibung der Pruefung an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 2891538263 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether this check is considered by Monitoring scans.</source>
+          <target state="translated">Gibt an, ob diese Pruefung in Monitoring-Scans beruecksichtigt wird.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Enabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 1737756928 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the last finding count for this check.</source>
+          <target state="translated">Gibt die letzte Anzahl Befunde fuer diese Pruefung an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Last Finding Count - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 3043386282 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies when this check last produced a scan result.</source>
+          <target state="translated">Gibt an, wann diese Pruefung zuletzt ein Scan-Ergebnis erzeugt hat.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Last Run At - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 520258886 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Business Central module or area.</source>
+          <target state="translated">Gibt das Business-Central-Modul oder den Bereich an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Module - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 2961552353 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the check name.</source>
+          <target state="translated">Gibt den Namen der Pruefung an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Control 1069846527 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the risk level.</source>
+          <target state="translated">Gibt die Risikostufe an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Control Risk Level - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 3889768663 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disables all scan checks.</source>
+          <target state="translated">Deaktiviert alle Scan-Pruefungen.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action DisableAll - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 3889768663 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disable All</source>
+          <target state="translated">Alle deaktivieren</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action DisableAll - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 642194116 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enables all scan checks.</source>
+          <target state="translated">Aktiviert alle Scan-Pruefungen.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action EnableAll - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 642194116 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable All</source>
+          <target state="translated">Alle aktivieren</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action EnableAll - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 930100607 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updates the local list of available BCSentinel scan checks.</source>
+          <target state="translated">Aktualisiert die lokale Liste der verfuegbaren BCSentinel Scan-Pruefungen.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action RefreshSelection - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 930100607 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh Selection</source>
+          <target state="translated">Auswahl aktualisieren</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action RefreshSelection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 1583998716 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restores the default scan check selection.</source>
+          <target state="translated">Stellt die Standardauswahl der Scan-Pruefungen wieder her.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action RestoreDefaults - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3201212130 - Action 1583998716 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restore Defaults</source>
+          <target state="translated">Standard wiederherstellen</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Checks - Action RestoreDefaults - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 644128942 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selects the checks that are included in Monitoring scans.</source>
+          <target state="translated">Waehlt die Pruefungen aus, die in Monitoring-Scans enthalten sind.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 644128942 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Scan Checks</source>
+          <target state="translated">Pruefungen auswaehlen</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>
 </xliff>
+

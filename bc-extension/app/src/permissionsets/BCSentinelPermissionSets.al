@@ -13,6 +13,7 @@ permissionset 53190 "BCSENTINEL VIEWER"
         tabledata "DH Dashboard Issue" = R,
         tabledata "DH Issue Exception" = R,
         tabledata "DH Issue Action Log" = R,
+        tabledata "DH Scan Check Selection" = R,
         tabledata "DH Duplicate Buffer" = R,
         page "DH Dashboard List" = X,
         page "DH Scan Issues" = X,
@@ -47,6 +48,7 @@ permissionset 53191 "BCSENTINEL SCAN"
         tabledata "DH Dashboard Issue" = RIMD,
         tabledata "DH Issue Exception" = R,
         tabledata "DH Issue Action Log" = RIMD,
+        tabledata "DH Scan Check Selection" = RIMD,
         tabledata "DH Duplicate Buffer" = RIMD,
         page "DH Dashboard List" = X,
         page "DH Deep Scan Runs" = X,
@@ -62,6 +64,7 @@ permissionset 53191 "BCSENTINEL SCAN"
         page "DH Purch. Line Worklist" = X,
         page "DH Sales Line Issue Worklist" = X,
         page "DH Issue Drilldown Launch" = X,
+        page "DH Scan Checks" = X,
         codeunit "DH API Client" = X,
         codeunit "DH QuickScan Mgt." = X,
         codeunit "DH Scan Dispatcher" = X,
@@ -75,6 +78,7 @@ permissionset 53191 "BCSENTINEL SCAN"
         codeunit "DH Duplicate Worklist Mgt." = X,
         codeunit "DH Issue Drilldown Mgt." = X,
         codeunit "DH Issue Drilldown Dispatcher" = X,
+        codeunit "DH Scan Check Mgt." = X,
         codeunit "DH Secret Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
@@ -87,9 +91,12 @@ permissionset 53192 "BCSENTINEL SETUP"
 
     Permissions =
         tabledata "DH Setup" = RIMD,
+        tabledata "DH Scan Check Selection" = RIMD,
         page "DH Setup" = X,
+        page "DH Scan Checks" = X,
         codeunit "DH API Client" = X,
         codeunit "DH Guided Experience" = X,
+        codeunit "DH Scan Check Mgt." = X,
         codeunit "DH Secret Mgt." = X,
         codeunit "DH Run ID Mgt." = X;
 }
@@ -109,6 +116,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         tabledata "DH Dashboard Issue" = RIMD,
         tabledata "DH Issue Exception" = RIMD,
         tabledata "DH Issue Action Log" = RIMD,
+        tabledata "DH Scan Check Selection" = RIMD,
         tabledata "DH Duplicate Buffer" = RIMD,
         page "DH Setup" = X,
         page "DH Dashboard List" = X,
@@ -138,6 +146,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         page "DH Issue Exceptions" = X,
         page "DH Action Log FB" = X,
         page "DH Excp. FactBox" = X,
+        page "DH Scan Checks" = X,
         page "DHM Analytics" = X,
         codeunit "DH API Client" = X,
         codeunit "DH QuickScan Mgt." = X,
@@ -154,6 +163,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Duplicate Worklist Mgt." = X,
         codeunit "DH Issue Drilldown Mgt." = X,
         codeunit "DH Issue Drilldown Dispatcher" = X,
+        codeunit "DH Scan Check Mgt." = X,
         codeunit "DH Secret Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;

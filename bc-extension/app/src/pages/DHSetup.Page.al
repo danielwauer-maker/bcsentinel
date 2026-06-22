@@ -520,6 +520,29 @@
                         Page.Run(Page::"DH Deep Scan Runs");
                     end;
                 }
+
+                action(SelectScanChecks)
+                {
+                    Caption = 'Select Scan Checks';
+                    ToolTip = 'Selects the checks that are included in Monitoring scans.';
+                    Image = CheckList;
+                    ApplicationArea = All;
+                    Enabled = CanSelectScanChecks;
+                    Visible = CanSelectScanChecks;
+
+                    trigger OnAction()
+                    var
+                        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+                    begin
+                        EnsureSetupExists();
+                        ScanCheckMgt.EnsureMonitoringAccess(true);
+                        Page.Run(Page::"DH Scan Checks");
+                        if Rec.Get('SETUP') then begin
+                            UpdateActionState();
+                            CurrPage.Update(false);
+                        end;
+                    end;
+                }
             }
         }
     }
@@ -533,6 +556,7 @@
         ShowFreeDataHealthScoreCompleted: Boolean;
         ShowStartValidationCheck: Boolean;
         ShowValidationCheckRequiresFreeScore: Boolean;
+        CanSelectScanChecks: Boolean;
         DataProcessingNoticeTxt: Text[1024];
         InviteNoticeTxt: Text[512];
 
@@ -623,6 +647,7 @@
         CanStartValidationCheck := (Rec."Tenant ID" <> '') and HasCompletedFreeScore;
         ShowStartValidationCheck := HasCompletedFreeScore;
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
+        CanSelectScanChecks := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
     end;
 
     local procedure HasCompletedDataHealthScore(): Boolean

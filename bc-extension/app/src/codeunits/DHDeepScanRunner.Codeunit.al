@@ -85,6 +85,7 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Setup: Record "DH Setup";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         ModuleNo: Integer;
         TotalModules: Integer;
     begin
@@ -108,6 +109,8 @@ codeunit 53128 "DH Deep Scan Runner"
             Setup."Scan Jobs Module" := true;
             Setup."Scan HR Module" := true;
         end;
+
+        ScanCheckMgt.RequireEnabledChecksForMonitoring();
 
         TotalModules := GetEnabledModuleCount(Setup);
         InitializeProgress(DeepScanRun, TotalModules);
@@ -363,9 +366,13 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunCustomerDuplicateEmailCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         EmailQuery: Query "DH Customer Duplicate Email";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         Email: Text[100];
     begin
+        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_EMAIL') then
+            exit;
+
         ChecksCount += 1;
 
         EmailQuery.SetFilter(EmailFilter, '<>%1', '');
@@ -385,6 +392,7 @@ codeunit 53128 "DH Deep Scan Runner"
                     DuplicateCount,
                     'Review duplicates and define a primary customer.');
 
+                ScanCheckMgt.UpdateLastRun('CUSTOMERS_DUPLICATE_EMAIL', DuplicateCount);
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
             end;
@@ -396,9 +404,13 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunVendorDuplicateEmailCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         EmailQuery: Query "DH Vendor Duplicate Email";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         Email: Text[100];
     begin
+        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_EMAIL') then
+            exit;
+
         ChecksCount += 1;
 
         EmailQuery.SetFilter(EmailFilter, '<>%1', '');
@@ -418,6 +430,7 @@ codeunit 53128 "DH Deep Scan Runner"
                     DuplicateCount,
                     'Review duplicates and clean up affected vendors.');
 
+                ScanCheckMgt.UpdateLastRun('VENDORS_DUPLICATE_EMAIL', DuplicateCount);
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
             end;
@@ -429,8 +442,12 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunCustomerDuplicateVatCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Customer: Record Customer;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
     begin
+        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_VAT') then
+            exit;
+
         ChecksCount += 1;
 
         Customer.Reset();
@@ -452,6 +469,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DuplicateCount,
                                 'Review VAT registration numbers and master data for duplicates.');
 
+                            ScanCheckMgt.UpdateLastRun('CUSTOMERS_DUPLICATE_VAT', DuplicateCount);
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
                         end;
@@ -462,8 +480,12 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunVendorDuplicateVatCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Vendor: Record Vendor;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
     begin
+        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_VAT') then
+            exit;
+
         ChecksCount += 1;
 
         Vendor.Reset();
@@ -485,6 +507,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DuplicateCount,
                                 'Review VAT registration numbers and vendor master data for duplicates.');
 
+                            ScanCheckMgt.UpdateLastRun('VENDORS_DUPLICATE_VAT', DuplicateCount);
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
                         end;
@@ -495,9 +518,13 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunCustomerDuplicateNamePostCodeCityCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Customer: Record Customer;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         Marker: Text[250];
     begin
+        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_NAME_POST_CITY') then
+            exit;
+
         ChecksCount += 1;
 
         Customer.Reset();
@@ -522,6 +549,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DuplicateCount,
                                 'Review and merge potential customer duplicates.');
 
+                            ScanCheckMgt.UpdateLastRun('CUSTOMERS_DUPLICATE_NAME_POST_CITY', DuplicateCount);
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
                         end;
@@ -533,9 +561,13 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunVendorDuplicateNamePostCodeCityCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Vendor: Record Vendor;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         Marker: Text[250];
     begin
+        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_NAME_POST_CITY') then
+            exit;
+
         ChecksCount += 1;
 
         Vendor.Reset();
@@ -560,6 +592,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DuplicateCount,
                                 'Review and merge potential vendor duplicates.');
 
+                            ScanCheckMgt.UpdateLastRun('VENDORS_DUPLICATE_NAME_POST_CITY', DuplicateCount);
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
                         end;
@@ -1877,7 +1910,14 @@ codeunit 53128 "DH Deep Scan Runner"
     end;
 
     local procedure AddCountFinding(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var IssuesCount: Integer; Category: Code[30]; IssueCode: Code[50]; Title: Text[150]; Severity: Code[20]; AffectedCount: Integer; RecommendationPreview: Text[250]; PenaltyPoints: Integer)
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
+        if not ScanCheckMgt.IsCheckEnabled(IssueCode) then
+            exit;
+
+        ScanCheckMgt.UpdateLastRun(IssueCode, AffectedCount);
+
         if AffectedCount <= 0 then
             exit;
 
