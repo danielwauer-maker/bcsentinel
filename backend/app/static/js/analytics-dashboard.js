@@ -91,6 +91,10 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_score', 'Score', 'Score'],
   ['static_status', 'Status', 'Status'],
   ['static_headline', 'Headline', 'Headline'],
+  ['premium_analytics', 'Premium analytics', 'Premium-Analyse'],
+  ['estimated_loss_trend', 'Estimated Loss Trend', 'Geschätzter Verlust-Trend'],
+  ['score_history_after_scans_short', 'Score history appears after at least two scans.', 'Score-Historie erscheint nach mindestens zwei Scans.'],
+  ['loss_history_after_scans_short', 'Loss history appears after at least two scans.', 'Verlust-Historie erscheint nach mindestens zwei Scans.'],
   ['static_issue_detail_empty', 'Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
   ['static_back_to_issues', 'Back to Issues', 'Zurück zu Issues'],
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
@@ -320,6 +324,10 @@ function applyDashboardUi(ui, language) {
   setTextContent('#score-trend-panel .muted', t('score_trend_helper', 'History of selected scans'));
   setTextContent('#loss-trend-panel h3', t('loss_trend', 'Loss Trend'));
   setTextContent('#loss-trend-panel .muted', t('loss_trend_helper', 'Estimated annual impact'));
+  setTextContent('#analytics-tab article:nth-child(1) .panel-header h3', t('score_trend', 'Score Trend'));
+  setTextContent('#analytics-tab article:nth-child(1) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
+  setTextContent('#analytics-tab article:nth-child(2) .panel-header h3', t('estimated_loss_trend', 'Estimated Loss Trend'));
+  setTextContent('#analytics-tab article:nth-child(2) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
   setTextContent('#access-unlock-panel h3', t('paid_scan_access', 'Paid scan access'));
   setTextContent('.preview-title', t('scan_preview', 'Scan preview'));
   setTextContent('.preview-title-row .muted', t('scan_preview_helper', 'Record details, recommendations, actions'));

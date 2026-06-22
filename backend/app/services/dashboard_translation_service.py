@@ -93,8 +93,12 @@ DEFAULT_DASHBOARD_TRANSLATIONS = {
             ("recent_scans_helper", "Click a scan to load it"),
             ("score_trend", "Score Trend"),
             ("score_trend_helper", "History of selected scans"),
+            ("score_history_after_scans_short", "Score history appears after at least two scans."),
             ("loss_trend", "Loss Trend"),
             ("loss_trend_helper", "Estimated annual impact"),
+            ("estimated_loss_trend", "Estimated Loss Trend"),
+            ("loss_history_after_scans_short", "Loss history appears after at least two scans."),
+            ("premium_analytics", "Premium analytics"),
             ("paid_scan_access", "Full Analysis access"),
             ("scan_preview", "Scan preview"),
             ("scan_preview_helper", "Record details, recommendations, actions"),
@@ -255,8 +259,12 @@ DEFAULT_DASHBOARD_TRANSLATIONS = {
             ("recent_scans_helper", "Scan anklicken, um ihn zu laden"),
             ("score_trend", "Score-Trend"),
             ("score_trend_helper", "Historie der ausgewählten Scans"),
+            ("score_history_after_scans_short", "Score-Historie erscheint nach mindestens zwei Scans."),
             ("loss_trend", "Verlust-Trend"),
             ("loss_trend_helper", "Geschätzter Jahresimpact"),
+            ("estimated_loss_trend", "Geschätzter Verlust-Trend"),
+            ("loss_history_after_scans_short", "Verlust-Historie erscheint nach mindestens zwei Scans."),
+            ("premium_analytics", "Premium-Analyse"),
             ("paid_scan_access", "Full-Analysis-Zugriff"),
             ("scan_preview", "Scan-Vorschau"),
             ("scan_preview_helper", "Datensätze, Empfehlungen, Aktionen"),
@@ -426,7 +434,7 @@ def _group_key(key: str) -> str:
         return "navigation"
     if key.startswith(("static_active_", "static_recent_", "static_recommended_", "static_module_", "static_issue_", "static_records_", "static_business_", "static_view_", "static_unlock_", "static_feature_", "active_", "health_", "estimated_", "potential_", "scanned_", "checks_", "module_")):
         return "overview"
-    if key.startswith(("score_trend", "loss_trend", "recent_scans", "scan_", "issues_by_module")):
+    if key.startswith(("score_trend", "score_history", "loss_trend", "loss_history", "estimated_loss_trend", "premium_analytics", "recent_scans", "scan_", "issues_by_module")):
         return "analytics_scans"
     if key.startswith(("issue", "severity_", "findings", "actions", "open_in_bc", "paid_access", "affected")):
         return "issues_actions"
