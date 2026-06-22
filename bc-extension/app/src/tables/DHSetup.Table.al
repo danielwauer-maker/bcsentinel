@@ -131,70 +131,70 @@ table 53100 "DH Setup"
 
         field(16; "Scan System Module"; Boolean)
         {
-            Caption = 'Scan System';
+            Caption = 'System';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(17; "Scan Finance Module"; Boolean)
         {
-            Caption = 'Scan Finance';
+            Caption = 'Finance';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(18; "Scan Sales Module"; Boolean)
         {
-            Caption = 'Scan Sales';
+            Caption = 'Sales';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(19; "Scan Purchasing Module"; Boolean)
         {
-            Caption = 'Scan Purchasing';
+            Caption = 'Purchasing';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(20; "Scan Inventory Module"; Boolean)
         {
-            Caption = 'Scan Inventory';
+            Caption = 'Inventory';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(21; "Scan CRM Module"; Boolean)
         {
-            Caption = 'Scan CRM';
+            Caption = 'CRM';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(22; "Scan Manufacturing Module"; Boolean)
         {
-            Caption = 'Scan Manufacturing';
+            Caption = 'Manufacturing';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(23; "Scan Service Module"; Boolean)
         {
-            Caption = 'Scan Service';
+            Caption = 'Service';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(24; "Scan Jobs Module"; Boolean)
         {
-            Caption = 'Scan Jobs';
+            Caption = 'Jobs';
             DataClassification = SystemMetadata;
             InitValue = true;
         }
 
         field(25; "Scan HR Module"; Boolean)
         {
-            Caption = 'Scan HR';
+            Caption = 'HR';
             DataClassification = SystemMetadata;
             InitValue = true;
         }

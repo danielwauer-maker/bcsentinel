@@ -91,6 +91,8 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_score', 'Score', 'Score'],
   ['static_status', 'Status', 'Status'],
   ['static_headline', 'Headline', 'Headline'],
+  ['free_data_score', 'Free Data Score', 'Free Data Score'],
+  ['full_premium_analysis', 'Full Premium Analysis', 'Full Premium Analysis'],
   ['premium_analytics', 'Premium analytics', 'Premium-Analyse'],
   ['estimated_loss_trend', 'Estimated Loss Trend', 'Geschätzter Verlust-Trend'],
   ['score_history_after_scans_short', 'Score history appears after at least two scans.', 'Score-Historie erscheint nach mindestens zwei Scans.'],
@@ -121,6 +123,20 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_not_available', 'Not available', 'Nicht verfügbar'],
   ['static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'],
   ['static_affected_records', 'Affected Records', 'Betroffene Datensätze'],
+  ['static_issue', 'Issue', 'Fehler'],
+  ['static_module', 'Module', 'Modul'],
+  ['static_severity', 'Severity', 'Schweregrad'],
+  ['static_action', 'Action', 'Aktion'],
+  ['static_total_issues', 'Total Issues', 'Fehler gesamt'],
+  ['static_full_issue_list_helper', 'Full issue list from the existing dashboard payload', 'Vollständige Fehlerliste aus dem bestehenden Dashboard-Payload'],
+  ['static_free_issue_access_note', 'Free access shows severity and business value without exposing protected issue details.', 'Kostenloser Zugriff zeigt Schweregrad und Business Value, ohne geschützte Fehlerdetails offenzulegen.'],
+  ['premium_issue_details', 'Premium issue details', 'Premium-Fehlerdetails'],
+  ['view_locked_details', 'View locked details', 'Gesperrte Details anzeigen'],
+  ['view_details', 'View Details', 'Details anzeigen'],
+  ['issue_detail_description_locked', 'Detailed description is available after the full analysis.', 'Die detaillierte Beschreibung ist nach der Full Analysis verfügbar.'],
+  ['issue_detail_recommendation_locked', 'Recommendation will be generated after the full analysis.', 'Die Empfehlung wird nach der Full Analysis erzeugt.'],
+  ['issue_detail_score_impact_empty', 'Score impact details will appear when available.', 'Score-Impact-Details erscheinen, sobald sie verfügbar sind.'],
+  ['issue_detail_business_impact_locked', 'Business impact details are protected for the current access level.', 'Business-Impact-Details sind für den aktuellen Zugriff geschützt.'],
   ['static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschätzter Impact / Verlust'],
   ['static_last_scan_updated', 'Last Scan / Last Updated', 'Letzter Scan / Letzte Aktualisierung'],
   ['static_estimated_loss', 'Estimated Loss', 'Geschätzter Verlust'],
@@ -347,6 +363,14 @@ function applyDashboardUi(ui, language) {
   setTextContent('.pricing-breakdown-title', t('estimated_monitoring_pricing', 'Estimated monitoring pricing'));
   setTextContent('#access-findings-panel h3', t('findings', 'Findings'));
   setTextContent('#access-findings-panel .muted', t('findings_helper', 'Visible with paid scan access, actionable in Business Central'));
+  setTextContent('.issues-list-panel h3', t('issues', 'Issues'));
+  setTextContent('.issues-list-panel .panel-title-block .muted', t('static_full_issue_list_helper', 'Full issue list from the existing dashboard payload'));
+  setTextContent('#issues-unlock-button', t('static_unlock_issue_details', 'Unlock full issue details'));
+  setTextContent('#issues-locked-note strong', t('static_unlock_issue_details', 'Unlock full issue details'));
+  setTextContent('#issues-locked-note span', t('static_free_issue_access_note', 'Free access shows severity and business value without exposing protected issue details.'));
+  const issuesHeaders = document.querySelectorAll('.issues-table thead th');
+  const issuesHeaderKeys = ['static_issue', 'static_module', 'static_severity', 'static_affected_records', 'static_estimated_loss', 'static_status', 'static_action'];
+  issuesHeaders.forEach((el, index) => { if (issuesHeaderKeys[index]) el.textContent = t(issuesHeaderKeys[index], el.textContent); });
   setTextContent('#subscription-tab .subscription-page-intro h2', 'Subscription & Access');
 }
 
@@ -1375,9 +1399,9 @@ function normalizeIssueItem(item, index, isLocked, data) {
 
   return {
     id: item?.code || item?.id || `issue-${index + 1}`,
-    rawTitle: title || 'Issue detail',
-    title: isLocked ? 'Premium issue details' : (title || 'Issue'),
-    group: group || 'General',
+    rawTitle: title || t('issue_detail', 'Issue detail'),
+    title: isLocked ? t('premium_issue_details', 'Premium issue details') : (title || t('static_issue', 'Issue')),
+    group: group || t('static_general', 'General'),
     severity,
     severityLabel: issueSeverityLabel(severity, item?.severity_label),
     count,
@@ -1452,7 +1476,9 @@ function renderIssueSeverityCards(data, normalizedItems) {
   const host = byId('issues-severity-cards');
   if (!host) return;
   const counts = severityCountsForIssues(data, normalizedItems);
+  const totalIssues = safeNumber(data?.kpis?.issues_count, Object.values(counts).reduce((sum, value) => sum + value, 0) || normalizedItems.length);
   const cards = [
+    ['total', t('static_total_issues', 'Total Issues'), totalIssues],
     ['critical', issueSeverityLabel('critical'), counts.critical],
     ['high', issueSeverityLabel('high'), counts.high],
     ['medium', issueSeverityLabel('medium'), counts.medium],
@@ -1463,7 +1489,6 @@ function renderIssueSeverityCards(data, normalizedItems) {
     <article class="stat-card panel issue-severity-card issue-severity-${key}">
       <div class="stat-label">${escapeHtml(label)}</div>
       <div class="stat-value">${formatNumber(count)}</div>
-      <div class="stat-helper">${escapeHtml(formatNumber(count))} ${escapeHtml(label)} ${escapeHtml(t('issues', 'Issues'))}</div>
     </article>
   `).join('');
 }
@@ -1472,7 +1497,7 @@ function issueInfoRows(issue) {
   return [
     [t('static_issue_code', 'Issue Code'), issue.id],
     [t('static_module_category', 'Module / Category'), issue.group || t('static_general', 'General')],
-    [t('severity', 'Severity'), issue.severityLabel],
+    [t('static_severity', 'Severity'), issue.severityLabel],
     [t('static_status', 'Status'), issue.status || t('static_open', 'Open')],
     [t('static_affected_records', 'Affected Records'), issue.locked ? t('static_locked', 'Locked') : formatNumber(issue.count)],
     [t('static_estimated_impact_loss', 'Estimated Impact / Loss'), issue.locked ? t('static_locked', 'Locked') : (issue.impact > 0 ? formatCurrency(issue.impact) : t('static_not_calculated_yet', 'Not calculated yet'))],
@@ -1498,25 +1523,25 @@ function renderIssueDetail(issue) {
     return;
   }
 
-  const title = issue.locked ? 'Premium issue details' : (issue.title || issue.rawTitle || 'Issue detail');
-  const affectedLabel = issue.locked ? 'Locked' : formatNumber(issue.count);
-  const lossLabel = issue.locked ? 'Locked' : (issue.impact > 0 ? formatCurrency(issue.impact) : 'Not calculated yet');
+  const title = issue.locked ? t('premium_issue_details', 'Premium issue details') : (issue.title || issue.rawTitle || t('issue_detail', 'Issue detail'));
+  const affectedLabel = issue.locked ? t('static_locked', 'Locked') : formatNumber(issue.count);
+  const lossLabel = issue.locked ? t('static_locked', 'Locked') : (issue.impact > 0 ? formatCurrency(issue.impact) : t('static_not_calculated_yet', 'Not calculated yet'));
   const description = issue.locked
-    ? 'Detailed description is available after the full analysis.'
-    : (issue.description || 'Detailed description is available after the full analysis.');
+    ? t('issue_detail_description_locked', 'Detailed description is available after the full analysis.')
+    : (issue.description || t('issue_detail_description_locked', 'Detailed description is available after the full analysis.'));
   const recommendation = issue.locked
-    ? 'Recommendation will be generated after the full analysis.'
-    : (issue.recommendation || 'Recommendation will be generated after the full analysis.');
+    ? t('issue_detail_recommendation_locked', 'Recommendation will be generated after the full analysis.')
+    : (issue.recommendation || t('issue_detail_recommendation_locked', 'Recommendation will be generated after the full analysis.'));
   const scoreImpact = issue.locked
-    ? 'Score impact details will appear when available.'
-    : (issue.scoreImpact ? String(issue.scoreImpact) : 'Score impact details will appear when available.');
+    ? t('issue_detail_score_impact_empty', 'Score impact details will appear when available.')
+    : (issue.scoreImpact ? String(issue.scoreImpact) : t('issue_detail_score_impact_empty', 'Score impact details will appear when available.'));
   const businessImpactBody = issue.locked
-    ? `<div class="locked-detail-state">Business impact details are protected for the current access level.</div>`
+    ? `<div class="locked-detail-state">${escapeHtml(t('issue_detail_business_impact_locked', 'Business impact details are protected for the current access level.'))}</div>`
     : `
       <div class="business-impact-grid">
         <div><span>Estimated Loss</span><strong>${escapeHtml(lossLabel)}</strong></div>
         <div><span>Affected Records</span><strong>${escapeHtml(affectedLabel)}</strong></div>
-        <div><span>Severity</span><strong>${escapeHtml(issue.severityLabel)}</strong></div>
+        <div><span>${escapeHtml(t('static_severity', 'Severity'))}</span><strong>${escapeHtml(issue.severityLabel)}</strong></div>
         <div><span>Potential Savings</span><strong>${issue.potentialSaving > 0 ? formatCurrency(issue.potentialSaving) : 'Not calculated yet'}</strong></div>
       </div>
     `;
@@ -1604,11 +1629,11 @@ function renderIssuesPage(data) {
       <td>${item.locked ? '<span class="locked-value">Locked</span>' : formatNumber(item.count)}</td>
       <td>${item.locked ? '<span class="locked-value">Locked</span>' : formatCurrency(item.impact)}</td>
       <td><span class="status-badge status-open">${escapeHtml(item.status)}</span></td>
-      <td>
-        <button type="button" class="pager-button issue-detail-button" data-issue-index="${index}">
-          ${escapeHtml(item.locked ? 'View locked details' : 'View Details')}
+        <td>
+          <button type="button" class="pager-button issue-detail-button" data-issue-index="${index}">
+          ${escapeHtml(item.locked ? t('view_locked_details', 'View locked details') : t('view_details', 'View Details'))}
         </button>
-      </td>
+        </td>
     </tr>
   `).join('');
 
@@ -2469,8 +2494,8 @@ function applyPlanState(data) {
   const monitoringPanels = byId('monitoring-overview-panels');
   const findingsPanel = byId('access-findings-panel');
   const accessLabel = monitoringActive
-    ? 'Full Premium Analysis'
-    : (hasPaidAccess ? 'Full Premium Analysis' : 'Free Data Score');
+    ? t('full_premium_analysis', 'Full Premium Analysis')
+    : (hasPaidAccess ? t('full_premium_analysis', 'Full Premium Analysis') : t('free_data_score', 'Free Data Score'));
 
   if (planBadge) {
     planBadge.textContent = accessLabel;

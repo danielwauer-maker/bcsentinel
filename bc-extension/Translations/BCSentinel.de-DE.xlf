@@ -1169,61 +1169,61 @@
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 2831026171 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan CRM</source>
-          <target state="translated">CRM scannen</target>
+          <target state="translated">CRM</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan CRM Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 368490735 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Finance</source>
-          <target state="translated">Scan Finanzen</target>
+          <target state="translated">Finanzen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Finance Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3050136617 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan HR</source>
-          <target state="translated">HR scannen</target>
+          <target state="translated">HR</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan HR Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 543617857 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Inventory</source>
-          <target state="translated">Scan Lager</target>
+          <target state="translated">Lager</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Inventory Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3923256547 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Jobs</source>
-          <target state="translated">Scan Projekte</target>
+          <target state="translated">Projekte</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Jobs Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 2574256087 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Manufacturing</source>
-          <target state="translated">Scan Fertigung</target>
+          <target state="translated">Fertigung</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Manufacturing Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 90491829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Purchasing</source>
-          <target state="translated">Scan Einkauf</target>
+          <target state="translated">Einkauf</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Purchasing Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 2120781063 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Sales</source>
-          <target state="translated">Scan Verkauf</target>
+          <target state="translated">Verkauf</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Sales Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1949943356 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Service</source>
-          <target state="translated">Service scannen</target>
+          <target state="translated">Service</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Service Module - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1649085900 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan System</source>
-          <target state="translated">System scannen</target>
+          <target state="translated">System</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan System Module - Property Caption</note>
         </trans-unit>

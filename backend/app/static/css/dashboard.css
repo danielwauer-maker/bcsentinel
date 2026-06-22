@@ -1136,11 +1136,12 @@ thead th { color: var(--muted); font-weight: 600; }
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 14px;
 }
 
 .issues-severity-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -1172,6 +1173,7 @@ thead th { color: var(--muted); font-weight: 600; }
   background: #94a3b8;
 }
 
+.issue-severity-total::after { background: #2563eb; }
 .issue-severity-critical::after { background: #dc2626; }
 .issue-severity-high::after { background: #f97316; }
 .issue-severity-medium::after { background: #eab308; }
