@@ -99,6 +99,13 @@ DEFAULT_DASHBOARD_TRANSLATIONS = {
             ("estimated_loss_trend", "Estimated Loss Trend"),
             ("loss_history_after_scans_short", "Loss history appears after at least two scans."),
             ("premium_analytics", "Premium analytics"),
+            ("scan_history", "Scan History"),
+            ("scan_history_helper", "Uses the existing dashboard payload; no additional scan API call is required."),
+            ("scan_context_hint", "Select an available scan to refresh the dashboard context."),
+            ("status_loaded", "Loaded"),
+            ("status_incomplete", "Incomplete"),
+            ("status_available", "Available"),
+            ("no_scans", "No scans available yet."),
             ("paid_scan_access", "Full Analysis access"),
             ("scan_preview", "Scan preview"),
             ("scan_preview_helper", "Record details, recommendations, actions"),
@@ -265,6 +272,13 @@ DEFAULT_DASHBOARD_TRANSLATIONS = {
             ("estimated_loss_trend", "Geschätzter Verlust-Trend"),
             ("loss_history_after_scans_short", "Verlust-Historie erscheint nach mindestens zwei Scans."),
             ("premium_analytics", "Premium-Analyse"),
+            ("scan_history", "Scan-Historie"),
+            ("scan_history_helper", "Verwendet den bestehenden Dashboard-Payload; kein zusätzlicher Scan-API-Aufruf erforderlich."),
+            ("scan_context_hint", "Wähle einen verfügbaren Scan aus, um den Dashboard-Kontext zu aktualisieren."),
+            ("status_loaded", "Geladen"),
+            ("status_incomplete", "Unvollständig"),
+            ("status_available", "Verfügbar"),
+            ("no_scans", "Noch keine Scans verfügbar."),
             ("paid_scan_access", "Full-Analysis-Zugriff"),
             ("scan_preview", "Scan-Vorschau"),
             ("scan_preview_helper", "Datensätze, Empfehlungen, Aktionen"),
@@ -434,7 +448,7 @@ def _group_key(key: str) -> str:
         return "navigation"
     if key.startswith(("static_active_", "static_recent_", "static_recommended_", "static_module_", "static_issue_", "static_records_", "static_business_", "static_view_", "static_unlock_", "static_feature_", "active_", "health_", "estimated_", "potential_", "scanned_", "checks_", "module_")):
         return "overview"
-    if key.startswith(("score_trend", "score_history", "loss_trend", "loss_history", "estimated_loss_trend", "premium_analytics", "recent_scans", "scan_", "issues_by_module")):
+    if key.startswith(("score_trend", "score_history", "loss_trend", "loss_history", "estimated_loss_trend", "premium_analytics", "recent_scans", "scan_", "status_", "no_scans", "issues_by_module")):
         return "analytics_scans"
     if key.startswith(("issue", "severity_", "findings", "actions", "open_in_bc", "paid_access", "affected")):
         return "issues_actions"

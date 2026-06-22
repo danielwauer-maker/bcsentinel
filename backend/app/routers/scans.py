@@ -312,6 +312,7 @@ def sync_scan(
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
 
         scan = existing_scan
+        scan_created_without_start = False
         normalized_generated_at = _normalize_utc(payload.generated_at_utc)
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
         is_free_score = _is_free_data_health_score_scan(normalized_scan_type)
@@ -327,6 +328,7 @@ def sync_scan(
             )
 
         if scan is None:
+            scan_created_without_start = True
             scan = Scan(
                 scan_id=payload.scan_id,
                 tenant_id=payload.tenant_id,
@@ -405,7 +407,7 @@ def sync_scan(
             total_modules=len(payload.enabled_modules or []),
             completed_modules=len(payload.enabled_modules or []),
         )
-        if normalized_scan_type == "deep" and not is_free_score and "monitoring_active" not in tenant_features:
+        if scan_created_without_start and normalized_scan_type == "deep" and not is_free_score and "monitoring_active" not in tenant_features:
             consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.scan_id)
 
         for issue in recalculated_issues:

@@ -481,10 +481,7 @@ codeunit 53100 "DH API Client"
         Response: HttpResponseMessage;
         ResponseText: Text;
     begin
-        if IsDataHealthScoreSyncPayload(RequestText) then
-            EnsureTenantAccessConfigured(Setup)
-        else
-            EnsureReadyForScan(Setup);
+        EnsureTenantAccessConfigured(Setup);
 
         Content.WriteFrom(RequestText);
         Content.GetHeaders(Headers);

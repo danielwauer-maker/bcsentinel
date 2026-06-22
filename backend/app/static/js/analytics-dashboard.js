@@ -95,6 +95,13 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['estimated_loss_trend', 'Estimated Loss Trend', 'Geschätzter Verlust-Trend'],
   ['score_history_after_scans_short', 'Score history appears after at least two scans.', 'Score-Historie erscheint nach mindestens zwei Scans.'],
   ['loss_history_after_scans_short', 'Loss history appears after at least two scans.', 'Verlust-Historie erscheint nach mindestens zwei Scans.'],
+  ['scan_history', 'Scan History', 'Scan-Historie'],
+  ['scan_history_helper', 'Uses the existing dashboard payload; no additional scan API call is required.', 'Verwendet den bestehenden Dashboard-Payload; kein zusätzlicher Scan-API-Aufruf erforderlich.'],
+  ['scan_context_hint', 'Select an available scan to refresh the dashboard context.', 'Wähle einen verfügbaren Scan aus, um den Dashboard-Kontext zu aktualisieren.'],
+  ['status_loaded', 'Loaded', 'Geladen'],
+  ['status_incomplete', 'Incomplete', 'Unvollständig'],
+  ['status_available', 'Available', 'Verfügbar'],
+  ['no_scans', 'No scans available yet.', 'Noch keine Scans verfügbar.'],
   ['static_issue_detail_empty', 'Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
   ['static_back_to_issues', 'Back to Issues', 'Zurück zu Issues'],
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
@@ -318,6 +325,12 @@ function applyDashboardUi(ui, language) {
   setTextContent('#module-volume-subtitle', t('issues_by_module_helper', 'Affected findings per module'));
   setTextContent('#scan-table-panel h3', t('recent_scans', 'Recent Scans'));
   setTextContent('#scan-table-panel .muted', t('recent_scans_helper', 'Click a scan to load it'));
+  setTextContent('#scans-page-panel h3', t('scan_history', 'Scan History'));
+  setTextContent('#scans-page-panel .panel-title-block .muted', t('scan_history_helper', 'Uses the existing dashboard payload; no additional scan API call is required.'));
+  setTextContent('#scans-page-panel .placeholder-note', t('scan_context_hint', 'Select an available scan to refresh the dashboard context.'));
+  const scanPageHeaders = document.querySelectorAll('#scans-page-panel thead th');
+  const scanPageHeaderKeys = ['static_date', 'static_type', 'static_score', 'issues', 'static_status', 'static_headline'];
+  scanPageHeaders.forEach((el, index) => { if (scanPageHeaderKeys[index]) el.textContent = t(scanPageHeaderKeys[index], el.textContent); });
   setTextContent('#recent-scans-prev', t('previous', 'Previous'));
   setTextContent('#recent-scans-next', t('next', 'Next'));
   setTextContent('#score-trend-panel h3', t('score_trend', 'Score Trend'));
@@ -1262,7 +1275,9 @@ function renderScansPage(data) {
   }
 
   host.innerHTML = items.map((item) => {
-    const statusLabel = item?.is_selected ? 'Loaded' : (item?.is_valid === false ? 'Incomplete' : 'Available');
+    const statusLabel = item?.is_selected
+      ? t('status_loaded', 'Loaded')
+      : (item?.is_valid === false ? t('status_incomplete', 'Incomplete') : t('status_available', 'Available'));
     return `
       <tr class="scan-row${item?.is_selected ? ' is-selected' : ''}" data-scan-id="${escapeHtml(item?.scan_id)}" tabindex="0">
         <td>${escapeHtml(formatDateTime(item?.generated_at))}</td>
