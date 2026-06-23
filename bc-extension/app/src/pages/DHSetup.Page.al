@@ -356,6 +356,7 @@
                 ApplicationArea = All;
                 Image = Add;
                 ToolTip = 'Open the secure BCSentinel checkout for Full Analysis.';
+                Visible = ShowBuyFullAnalysis;
 
                 trigger OnAction()
                 var
@@ -367,10 +368,11 @@
 
             action(BuyValidationCheck)
             {
-                Caption = 'Buy Validation Check';
+                Caption = 'Buy Validation Check / New Credit';
                 ApplicationArea = All;
                 Image = Add;
                 ToolTip = 'Open the secure BCSentinel checkout for a Validation Check follow-up scan.';
+                Visible = ShowBuyValidationCheck;
 
                 trigger OnAction()
                 var
@@ -386,6 +388,7 @@
                 ApplicationArea = All;
                 Image = Add;
                 ToolTip = 'Open the secure BCSentinel checkout for monthly monitoring.';
+                Visible = ShowStartMonitoring;
 
                 trigger OnAction()
                 var
@@ -401,6 +404,7 @@
                 ApplicationArea = All;
                 Image = Add;
                 ToolTip = 'Open the secure BCSentinel checkout for annual monitoring.';
+                Visible = ShowStartMonitoring;
 
                 trigger OnAction()
                 var
@@ -565,6 +569,9 @@
         ShowStartValidationCheck: Boolean;
         ShowValidationCheckRequiresFreeScore: Boolean;
         CanSelectScanChecks: Boolean;
+        ShowBuyFullAnalysis: Boolean;
+        ShowBuyValidationCheck: Boolean;
+        ShowStartMonitoring: Boolean;
         DataProcessingNoticeTxt: Text[1024];
         InviteNoticeTxt: Text[512];
 
@@ -641,8 +648,13 @@
     local procedure UpdateActionState()
     var
         HasCompletedFreeScore: Boolean;
+        HasOneTimeAccess: Boolean;
     begin
         HasCompletedFreeScore := HasCompletedDataHealthScore();
+        HasOneTimeAccess :=
+            Rec."Can View Issue Details" or
+            Rec."Premium Enabled" or
+            (LowerCase(Rec."Product Access Model") = 'one_time');
         CanRegisterTenant := (Rec."Tenant ID" = '') and Rec."Data Processing Consent" and (Rec."API Base URL" <> '') and Rec.HasValidContactEmail();
         CanResetRegistration :=
             Rec.Registered or
@@ -656,6 +668,9 @@
         ShowStartValidationCheck := HasCompletedFreeScore;
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
         CanSelectScanChecks := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
+        ShowBuyFullAnalysis := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and not HasOneTimeAccess;
+        ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasOneTimeAccess;
+        ShowStartMonitoring := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active";
     end;
 
     local procedure HasCompletedDataHealthScore(): Boolean

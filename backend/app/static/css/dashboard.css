@@ -4437,6 +4437,39 @@ body {
   color: #fff;
 }
 
+.subscription-empty-state {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: 14px;
+  padding: 22px 24px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.subscription-empty-state h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--navy);
+}
+
+.subscription-empty-state p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+html.dashboard-dark .subscription-empty-state,
+body.dashboard-dark .subscription-empty-state {
+  border-color: rgba(96, 165, 250, 0.24);
+  background: rgba(15, 32, 55, 0.86);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.28);
+}
+
+html.dashboard-dark .subscription-empty-state h4,
+body.dashboard-dark .subscription-empty-state h4 {
+  color: #f8fbff;
+}
+
 @media (max-width: 1380px) {
   .overview-module-score-grid {
     grid-template-columns: repeat(5, minmax(112px, 1fr));

@@ -25,6 +25,8 @@
   "reports_subtitle": "Generate and review executive, operational and impact reports.",
   "subscription_access": "Subscription & Access",
   "subscription_subtitle": "Manage your product access, monitoring status and available scan credits.",
+  "subscription_no_products_title": "No additional subscription needed",
+  "subscription_no_products_body": "Monitoring is active. All current dashboard features are already available for this tenant.",
   "settings_subtitle": "Configure your account and preferences",
   "health_score": "Health Score",
   "estimated_annual_loss": "Estimated Annual Loss",

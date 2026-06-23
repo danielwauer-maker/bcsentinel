@@ -1,4 +1,4 @@
-let currentSelectedScanId = null;
+﻿let currentSelectedScanId = null;
 let currentSelectedIssueIndex = null;
 let recentScansPage = 1;
 const RECENT_SCANS_PAGE_SIZE = 12;
@@ -32,10 +32,12 @@ const LOCAL_DASHBOARD_UI = {
     reports_subtitle: 'Generate and review executive, operational and impact reports.',
     subscription_access: 'Subscription & Access',
     subscription_subtitle: 'Manage your product access, monitoring status and available scan credits.',
+    subscription_no_products_title: 'No additional subscription needed',
+    subscription_no_products_body: 'Monitoring is active. All current dashboard features are already available for this tenant.',
     settings_subtitle: 'Configure your account and preferences',
   },
   de: {
-    overview: 'Überblick',
+    overview: 'Ãœberblick',
     analytics: 'Analytics',
     scans: 'Scans',
     issues: 'Issues',
@@ -48,35 +50,37 @@ const LOCAL_DASHBOARD_UI = {
     logout: 'Logout',
     language: 'Sprache',
     dark_mode: 'Dark Mode',
-    overview_subtitle: 'Executive Overview deiner Datenqualität und Business-Auswirkung',
-    analytics_subtitle: 'Score-, Verlust- und Verteilungsanalyse für den ausgewählten Scan',
-    scans_subtitle: 'Verfügbare Scan-Läufe und Dashboard-Kontext',
-    issues_subtitle: 'Prüfe erkannte Datenqualitäts-Issues, Business Impact und betroffene Datensätze.',
+    overview_subtitle: 'Executive Overview deiner DatenqualitÃ¤t und Business-Auswirkung',
+    analytics_subtitle: 'Score-, Verlust- und Verteilungsanalyse fÃ¼r den ausgewÃ¤hlten Scan',
+    scans_subtitle: 'VerfÃ¼gbare Scan-LÃ¤ufe und Dashboard-Kontext',
+    issues_subtitle: 'PrÃ¼fe erkannte DatenqualitÃ¤ts-Issues, Business Impact und betroffene DatensÃ¤tze.',
     issue_detail: 'Issue Detail',
     issue_detail_subtitle: 'Detaillierter Issue-Kontext, Impact und Empfehlung',
-    actions_subtitle: 'Priorisierte Aktionen zur Reduzierung von Datenqualitätsrisiko und Business Impact.',
-    reports_subtitle: 'Reports erstellen und Executive-, Operational- und Impact-Auswertungen prüfen.',
+    actions_subtitle: 'Priorisierte Aktionen zur Reduzierung von DatenqualitÃ¤tsrisiko und Business Impact.',
+    reports_subtitle: 'Reports erstellen und Executive-, Operational- und Impact-Auswertungen prÃ¼fen.',
     subscription_access: 'Subscription & Access',
-    subscription_subtitle: 'Verwalte Produktzugriff, Monitoring-Status und verfügbare Scan Credits.',
-    settings_subtitle: 'Account und Präferenzen konfigurieren',
+    subscription_subtitle: 'Verwalte Produktzugriff, Monitoring-Status und verfÃ¼gbare Scan Credits.',
+    subscription_no_products_title: 'Keine weitere Subscription erforderlich',
+    subscription_no_products_body: 'Monitoring ist aktiv. Alle aktuellen Dashboard-Funktionen sind fuer diesen Tenant bereits verfuegbar.',
+    settings_subtitle: 'Account und PrÃ¤ferenzen konfigurieren',
   },
 };
 
 const STATIC_TEXT_TRANSLATIONS = [
   ['static_active_issues', 'Active Issues', 'Aktive Issues'],
   ['static_recent_critical_issues', 'Recent Critical Issues', 'Aktuelle kritische Issues'],
-  ['static_recent_critical_helper', 'Highest impact findings from the selected scan', 'Findings mit höchstem Impact aus dem ausgewählten Scan'],
+  ['static_recent_critical_helper', 'Highest impact findings from the selected scan', 'Findings mit hÃ¶chstem Impact aus dem ausgewÃ¤hlten Scan'],
   ['static_recommended_actions', 'Recommended Actions', 'Empfohlene Aktionen'],
-  ['static_recommended_actions_helper', 'Highest impact actions based on the selected scan.', 'Aktionen mit höchstem Impact basierend auf dem ausgewählten Scan.'],
-  ['static_module_distribution_records', 'Module Distribution & Records', 'Modulverteilung & Datensätze'],
+  ['static_recommended_actions_helper', 'Highest impact actions based on the selected scan.', 'Aktionen mit hÃ¶chstem Impact basierend auf dem ausgewÃ¤hlten Scan.'],
+  ['static_module_distribution_records', 'Module Distribution & Records', 'Modulverteilung & DatensÃ¤tze'],
   ['static_issue_distribution_percent', 'Issue Distribution (by %)', 'Issue-Verteilung (in %)'],
-  ['static_records_by_module', 'Records by Module', 'Datensätze nach Modul'],
-  ['static_business_impact_breakdown', 'Business Impact Breakdown', 'Business Impact Aufschlüsselung'],
+  ['static_records_by_module', 'Records by Module', 'DatensÃ¤tze nach Modul'],
+  ['static_business_impact_breakdown', 'Business Impact Breakdown', 'Business Impact AufschlÃ¼sselung'],
   ['static_view_all_issues', 'View all issues', 'Alle Issues anzeigen'],
   ['static_view_all_modules', 'View all modules', 'Alle Module anzeigen'],
-  ['static_view_full_impact_report', 'View full impact report', 'Vollständigen Impact Report anzeigen'],
-  ['static_unlock_next_step', 'Unlock the next step', 'Nächsten Schritt freischalten'],
-  ['static_unlock_next_step_helper', 'Choose the access level that matches what you want to do next.', 'Wähle den Zugriff, der zu deinem nächsten Schritt passt.'],
+  ['static_view_full_impact_report', 'View full impact report', 'VollstÃ¤ndigen Impact Report anzeigen'],
+  ['static_unlock_next_step', 'Unlock the next step', 'NÃ¤chsten Schritt freischalten'],
+  ['static_unlock_next_step_helper', 'Choose the access level that matches what you want to do next.', 'WÃ¤hle den Zugriff, der zu deinem nÃ¤chsten Schritt passt.'],
   ['static_feature_comparison', 'Feature Comparison', 'Feature-Vergleich'],
   ['static_feature_comparison_helper', 'Free Score, paid scan access and Monitoring at a glance.', 'Free Score, bezahlter Scan-Zugriff und Monitoring auf einen Blick.'],
   ['static_feature', 'Feature', 'Feature'],
@@ -94,22 +98,22 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['free_data_score', 'Free Data Score', 'Free Data Score'],
   ['full_premium_analysis', 'Full Premium Analysis', 'Full Premium Analysis'],
   ['premium_analytics', 'Premium analytics', 'Premium-Analyse'],
-  ['estimated_loss_trend', 'Estimated Loss Trend', 'Geschätzter Verlust-Trend'],
+  ['estimated_loss_trend', 'Estimated Loss Trend', 'GeschÃ¤tzter Verlust-Trend'],
   ['score_history_after_scans_short', 'Score history appears after at least two scans.', 'Score-Historie erscheint nach mindestens zwei Scans.'],
   ['loss_history_after_scans_short', 'Loss history appears after at least two scans.', 'Verlust-Historie erscheint nach mindestens zwei Scans.'],
   ['scan_history', 'Scan History', 'Scan-Historie'],
-  ['scan_history_helper', 'Uses the existing dashboard payload; no additional scan API call is required.', 'Verwendet den bestehenden Dashboard-Payload; kein zusätzlicher Scan-API-Aufruf erforderlich.'],
-  ['scan_context_hint', 'Select an available scan to refresh the dashboard context.', 'Wähle einen verfügbaren Scan aus, um den Dashboard-Kontext zu aktualisieren.'],
+  ['scan_history_helper', 'Uses the existing dashboard payload; no additional scan API call is required.', 'Verwendet den bestehenden Dashboard-Payload; kein zusÃ¤tzlicher Scan-API-Aufruf erforderlich.'],
+  ['scan_context_hint', 'Select an available scan to refresh the dashboard context.', 'WÃ¤hle einen verfÃ¼gbaren Scan aus, um den Dashboard-Kontext zu aktualisieren.'],
   ['status_loaded', 'Loaded', 'Geladen'],
-  ['status_incomplete', 'Incomplete', 'Unvollständig'],
-  ['status_available', 'Available', 'Verfügbar'],
-  ['no_scans', 'No scans available yet.', 'Noch keine Scans verfügbar.'],
-  ['static_issue_detail_empty', 'Issue detail is available from the Issues page.', 'Issue Details sind über die Issues-Seite verfügbar.'],
-  ['static_back_to_issues', 'Back to Issues', 'Zurück zu Issues'],
+  ['status_incomplete', 'Incomplete', 'UnvollstÃ¤ndig'],
+  ['status_available', 'Available', 'VerfÃ¼gbar'],
+  ['no_scans', 'No scans available yet.', 'Noch keine Scans verfÃ¼gbar.'],
+  ['static_issue_detail_empty', 'Issue detail is available from the Issues page.', 'Issue Details sind Ã¼ber die Issues-Seite verfÃ¼gbar.'],
+  ['static_back_to_issues', 'Back to Issues', 'ZurÃ¼ck zu Issues'],
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
   ['static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'],
   ['static_scan_credits', 'Scan Credits', 'Scan Credits'],
-  ['static_available_scan_credits', 'Available Scan Credits', 'Verfügbare Scan Credits'],
+  ['static_available_scan_credits', 'Available Scan Credits', 'VerfÃ¼gbare Scan Credits'],
   ['static_products', 'Products', 'Produkte'],
   ['settings', 'Settings', 'Settings'],
   ['reports', 'Reports', 'Reports'],
@@ -120,38 +124,38 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_general', 'General', 'Allgemein'],
   ['static_open', 'Open', 'Offen'],
   ['static_locked', 'Locked', 'Gesperrt'],
-  ['static_not_available', 'Not available', 'Nicht verfügbar'],
+  ['static_not_available', 'Not available', 'Nicht verfÃ¼gbar'],
   ['static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'],
-  ['static_affected_records', 'Affected Records', 'Betroffene Datensätze'],
+  ['static_affected_records', 'Affected Records', 'Betroffene DatensÃ¤tze'],
   ['static_issue', 'Issue', 'Fehler'],
   ['static_module', 'Module', 'Modul'],
   ['static_severity', 'Severity', 'Schweregrad'],
   ['static_action', 'Action', 'Aktion'],
   ['static_total_issues', 'Total Issues', 'Fehler gesamt'],
-  ['static_full_issue_list_helper', 'Full issue list from the existing dashboard payload', 'Vollständige Fehlerliste aus dem bestehenden Dashboard-Payload'],
-  ['static_free_issue_access_note', 'Free access shows severity and business value without exposing protected issue details.', 'Kostenloser Zugriff zeigt Schweregrad und Business Value, ohne geschützte Fehlerdetails offenzulegen.'],
+  ['static_full_issue_list_helper', 'Full issue list from the existing dashboard payload', 'VollstÃ¤ndige Fehlerliste aus dem bestehenden Dashboard-Payload'],
+  ['static_free_issue_access_note', 'Free access shows severity and business value without exposing protected issue details.', 'Kostenloser Zugriff zeigt Schweregrad und Business Value, ohne geschÃ¼tzte Fehlerdetails offenzulegen.'],
   ['premium_issue_details', 'Premium issue details', 'Premium-Fehlerdetails'],
   ['view_locked_details', 'View locked details', 'Gesperrte Details anzeigen'],
   ['view_details', 'View Details', 'Details anzeigen'],
-  ['issue_detail_description_locked', 'Detailed description is available after the full analysis.', 'Die detaillierte Beschreibung ist nach der Full Analysis verfügbar.'],
+  ['issue_detail_description_locked', 'Detailed description is available after the full analysis.', 'Die detaillierte Beschreibung ist nach der Full Analysis verfÃ¼gbar.'],
   ['issue_detail_recommendation_locked', 'Recommendation will be generated after the full analysis.', 'Die Empfehlung wird nach der Full Analysis erzeugt.'],
-  ['issue_detail_score_impact_empty', 'Score impact details will appear when available.', 'Score-Impact-Details erscheinen, sobald sie verfügbar sind.'],
-  ['issue_detail_business_impact_locked', 'Business impact details are protected for the current access level.', 'Business-Impact-Details sind für den aktuellen Zugriff geschützt.'],
-  ['static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschätzter Impact / Verlust'],
+  ['issue_detail_score_impact_empty', 'Score impact details will appear when available.', 'Score-Impact-Details erscheinen, sobald sie verfÃ¼gbar sind.'],
+  ['issue_detail_business_impact_locked', 'Business impact details are protected for the current access level.', 'Business-Impact-Details sind fÃ¼r den aktuellen Zugriff geschÃ¼tzt.'],
+  ['static_estimated_impact_loss', 'Estimated Impact / Loss', 'GeschÃ¤tzter Impact / Verlust'],
   ['static_last_scan_updated', 'Last Scan / Last Updated', 'Letzter Scan / Letzte Aktualisierung'],
-  ['static_estimated_loss', 'Estimated Loss', 'Geschätzter Verlust'],
+  ['static_estimated_loss', 'Estimated Loss', 'GeschÃ¤tzter Verlust'],
   ['static_potential_savings', 'Potential Savings', 'Potenzielle Einsparungen'],
   ['static_unlock_issue_details', 'Unlock full issue details', 'Issue Details freischalten'],
-  ['static_bc_link_unavailable', 'Business Central link not available', 'Business-Central-Link nicht verfügbar'],
+  ['static_bc_link_unavailable', 'Business Central link not available', 'Business-Central-Link nicht verfÃ¼gbar'],
   ['static_locked_access', 'Locked access', 'Gesperrter Zugriff'],
   ['static_full_issue_access', 'Full issue access', 'Voller Issue-Zugriff'],
   ['static_no_scan_timestamp', 'No scan timestamp', 'Kein Scan-Zeitpunkt'],
   ['static_saving_pending', 'Saving pending', 'Einsparung ausstehend'],
   ['static_full_action_access', 'Full action access', 'Voller Actions-Zugriff'],
-  ['static_high_priority', 'High Priority', 'Hohe Priorität'],
+  ['static_high_priority', 'High Priority', 'Hohe PrioritÃ¤t'],
   ['static_open_actions', 'Open Actions', 'Offene Aktionen'],
   ['static_prioritized_recommendations', 'Prioritized recommendations', 'Priorisierte Empfehlungen'],
-  ['static_critical_high_priority', 'Critical and high priority', 'Kritische und hohe Priorität'],
+  ['static_critical_high_priority', 'Critical and high priority', 'Kritische und hohe PrioritÃ¤t'],
   ['static_potential_saving', 'Potential Saving', 'Potenzielle Einsparung'],
   ['static_executive_summary', 'Executive Summary', 'Executive Summary'],
   ['static_data_quality_report', 'Data Quality Report', 'Data Quality Report'],
@@ -160,10 +164,10 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_action_plan_report', 'Action Plan Report', 'Action Plan Report'],
   ['static_trend_report', 'Trend Report', 'Trend Report'],
   ['static_after_scan', 'After scan', 'Nach Scan'],
-  ['static_available_after_scan', 'Available after scan', 'Nach Scan verfügbar'],
+  ['static_available_after_scan', 'Available after scan', 'Nach Scan verfÃ¼gbar'],
   ['static_unlock_reports', 'Unlock reports', 'Reports freischalten'],
   ['static_monitoring_only', 'Monitoring only', 'Nur Monitoring'],
-  ['static_available', 'Available', 'Verfügbar'],
+  ['static_available', 'Available', 'VerfÃ¼gbar'],
   ['static_current_plan', 'Current Plan', 'Aktueller Plan'],
   ['static_product_access', 'Product Access', 'Produktzugriff'],
   ['static_dashboard_access', 'Dashboard Access', 'Dashboard-Zugriff'],
@@ -172,7 +176,7 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_inactive', 'Inactive', 'Inaktiv'],
   ['static_expired', 'Expired', 'Abgelaufen'],
   ['static_trial', 'Trial', 'Testphase'],
-  ['static_renewal_date', 'Renewal Date', 'Verlängerungsdatum'],
+  ['static_renewal_date', 'Renewal Date', 'VerlÃ¤ngerungsdatum'],
   ['static_period_end', 'Period End', 'Periodenende'],
   ['static_yes', 'Yes', 'Ja'],
   ['static_no', 'No', 'Nein'],
@@ -180,7 +184,7 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_contact_sales', 'Contact Sales', 'Sales kontaktieren'],
   ['static_company_tenant', 'Company & Tenant', 'Unternehmen & Tenant'],
   ['static_language_localization', 'Language & Localization', 'Sprache & Lokalisierung'],
-  ['static_dashboard_preferences', 'Dashboard Preferences', 'Dashboard-Präferenzen'],
+  ['static_dashboard_preferences', 'Dashboard Preferences', 'Dashboard-PrÃ¤ferenzen'],
   ['static_contact', 'Contact', 'Kontakt'],
   ['static_notification_settings', 'Notification Settings', 'Benachrichtigungseinstellungen'],
 ];
@@ -268,7 +272,7 @@ function renderKpiTrend(targetId, trendValue, options = {}) {
   const arrow = isDown ? 'down' : 'up';
   el.className = `stat-helper kpi-trend-line kpi-trend-${variant}`;
   el.innerHTML = `
-    <span class="kpi-trend-arrow kpi-trend-arrow-${arrow}" aria-hidden="true">${isDown ? '↓' : '↑'}</span>
+    <span class="kpi-trend-arrow kpi-trend-arrow-${arrow}" aria-hidden="true">${isDown ? 'â†“' : 'â†‘'}</span>
     <strong>${escapeHtml(formatPercent(Math.abs(value)))}</strong>
     <span>vs. last month</span>
   `;
@@ -401,7 +405,7 @@ function updatePageHeader(tab) {
 
 function formatDateTime(value) {
   const raw = String(value || '').trim();
-  if (!raw || raw === '—') return '—';
+  if (!raw || raw === 'â€”') return 'â€”';
 
   const isoLike = raw.includes('T') ? raw : raw.replace(/ UTC$/, 'Z').replace(', ', 'T');
   const parsed = new Date(isoLike);
@@ -2004,7 +2008,7 @@ function renderSettingsPageLegacy(data) {
   host.innerHTML = rows.map(([label, value]) => `
     <div class="subscription-card">
       <div class="stat-label">${escapeHtml(label)}</div>
-      <div class="subscription-value stat-value-small">${escapeHtml(value || '—')}</div>
+      <div class="subscription-value stat-value-small">${escapeHtml(value || 'â€”')}</div>
     </div>
   `).join('');
 }
@@ -2107,7 +2111,7 @@ function accessStatus({ active = false, until = null, trial = false } = {}) {
   const rawUntil = String(until || '').trim();
   if (trial) return { label: 'Trial', className: 'trial' };
   if (active) return { label: 'Active', className: 'active' };
-  if (rawUntil && rawUntil !== 'â€”') {
+  if (rawUntil && rawUntil !== 'Ã¢â‚¬â€') {
     const parsed = new Date(rawUntil.includes('T') ? rawUntil : rawUntil.replace(/ UTC$/, 'Z').replace(', ', 'T'));
     if (!Number.isNaN(parsed.getTime()) && parsed.getTime() < Date.now()) {
       return { label: 'Expired', className: 'expired' };
@@ -2136,6 +2140,40 @@ function currentPlanLabel(data) {
   if (data?.product_access?.monitoring_active) return 'Monitoring';
   if (raw && raw !== 'free') return raw.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
   return data?.subscription?.plan_label || 'Free';
+}
+
+function availableSubscriptionProductKeys(data, { overview = false } = {}) {
+  const access = data?.product_access || {};
+  const monitoringActive = Boolean(access.monitoring_active || access.can_use_monitoring || data?.monitoring_status === 'active');
+  if (monitoringActive) return new Set();
+
+  const hasFullOrPremiumAccess = Boolean(
+    access.full_analysis_access_active ||
+    access.assessment_access_active ||
+    access.validation_check_access_active ||
+    access.validation_access_active ||
+    access.can_view_issues ||
+    data?.visibility?.is_premium
+  );
+
+  if (hasFullOrPremiumAccess) {
+    return new Set(overview
+      ? ['validation_check', 'monitoring_monthly']
+      : ['validation_check', 'monitoring_monthly', 'monitoring_annual']);
+  }
+
+  return new Set(overview
+    ? ['full_analysis', 'monitoring_monthly']
+    : ['full_analysis', 'monitoring_monthly', 'monitoring_annual']);
+}
+
+function renderNoSubscriptionNeeded(host) {
+  host.innerHTML = `
+    <article class="subscription-empty-state">
+      <h4>${escapeHtml(t('subscription_no_products_title') || 'No additional subscription needed')}</h4>
+      <p>${escapeHtml(t('subscription_no_products_body') || 'Monitoring is active. All current dashboard features are already available for this tenant.')}</p>
+    </article>
+  `;
 }
 
 function renderSubscriptionAccess(data) {
@@ -2236,12 +2274,17 @@ function renderSubscriptionProducts(data) {
   const activeAssessment = Boolean(access.assessment_access_active || data?.assessment_access_active || access.can_view_issues);
   const activeValidation = Boolean(access.validation_access_active || data?.validation_access_active);
   const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
+  const allowedProducts = availableSubscriptionProductKeys(data);
   const items = [
     ['full_analysis', 'Full Analysis', 'Complete Data Health Assessment', 'Buy Now', activeAssessment, 'Most Popular'],
-    ['validation_check', 'Validation Check', 'Validate improvements after remediation', 'Buy Now', activeValidation, 'After Fixes'],
+    ['validation_check', 'Validation Check / New Credit', 'Validate improvements after remediation', 'Buy Now', activeValidation, 'After Fixes'],
     ['monitoring_monthly', 'Monitoring Monthly', 'Continuous monitoring with trends and alerts', 'Start Monitoring', monitoringActive, 'Recommended'],
     ['monitoring_annual', 'Monitoring Annual', 'Best value annual monitoring plan', 'Start Annual Monitoring', monitoringActive, 'Best Value'],
-  ];
+  ].filter(([key]) => allowedProducts.has(key));
+  if (!items.length) {
+    renderNoSubscriptionNeeded(host);
+    return;
+  }
   host.innerHTML = items.map(([key, title, description, cta, active, badge]) => {
     const price = subscriptionPriceFor(data, key);
     const isMonitoring = key.startsWith('monitoring');
@@ -2267,11 +2310,16 @@ function renderOverviewProducts(data) {
   const activeAssessment = Boolean(access.assessment_access_active || data?.assessment_access_active || access.can_view_issues);
   const activeValidation = Boolean(access.validation_access_active || data?.validation_access_active);
   const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
+  const allowedProducts = availableSubscriptionProductKeys(data, { overview: true });
   const items = [
     ['full_analysis', 'Full Analysis', 'Complete insights for 7 days: issue details, affected records, recommendations, actions and reports.', 'Buy Full Analysis', activeAssessment, 'Most Popular'],
-    ['validation_check', 'Validation Check', 'New scan comparison for 7 days: validate fixes after remediation and update your score.', 'Buy Validation Check', activeValidation, 'After Fixes'],
+    ['validation_check', 'Validation Check / New Credit', 'New scan comparison for 7 days: validate fixes after remediation and update your score.', 'Buy Validation Check', activeValidation, 'After Fixes'],
     ['monitoring_monthly', 'Monitoring', 'One full month of recurring monitoring: trends, scan history, alerts, prioritized actions and executive reporting.', 'Start Monitoring', monitoringActive, 'Best for ongoing control'],
-  ];
+  ].filter(([key]) => allowedProducts.has(key));
+  if (!items.length) {
+    renderNoSubscriptionNeeded(host);
+    return;
+  }
   host.innerHTML = items.map(([key, title, description, cta, active, badge]) => {
     const price = subscriptionPriceFor(data, key);
     const isMonitoring = key.startsWith('monitoring');
@@ -2724,3 +2772,4 @@ document.addEventListener('DOMContentLoaded', () => {
   recentScansPage = 1;
   loadDashboard();
 });
+

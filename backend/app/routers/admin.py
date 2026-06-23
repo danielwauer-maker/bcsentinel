@@ -1005,7 +1005,7 @@ def grant_tenant_product(
     with SessionLocal() as db:
         tenant = _load_tenant_or_404(db, tenant_id)
 
-        if normalized_product_code in {PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK}:
+        if normalized_product_code == PRODUCT_VALIDATION_CHECK:
             grant_scan_credit(
                 db,
                 tenant_id=tenant.tenant_id,
@@ -1013,6 +1013,15 @@ def grant_tenant_product(
                 source="admin_manual",
             )
             action = "tenant.scan_credit.grant"
+        elif normalized_product_code == PRODUCT_FULL_ANALYSIS:
+            grant_product_entitlement(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_manual",
+                valid_until_utc=utc_now() + timedelta(days=7),
+            )
+            action = "tenant.product_entitlement.grant"
         else:
             _grant_monitoring(db, tenant, normalized_product_code)
             action = "tenant.product_entitlement.grant"

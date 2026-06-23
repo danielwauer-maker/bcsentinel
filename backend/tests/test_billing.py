@@ -7,7 +7,7 @@ import stripe
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import ProductPricingMatrixConfig, Subscription, Tenant
+from app.models import ProductPricingMatrixConfig, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
 from app.services.product_pricing_service import ensure_default_product_pricing_matrix
 
 
@@ -388,6 +388,79 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
 
     assert response.status_code == 200
     assert response.json()["checkout_url"] == "https://stripe.example/session"
+
+
+def test_full_analysis_checkout_webhook_grants_access_without_scan_credit(
+    client,
+    tenant_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+
+    response = client.post(
+        "/billing/webhook",
+        json={
+            "provider": "manual",
+            "event_id": "evt_full_analysis_paid",
+            "event_type": "checkout.session.completed",
+            "tenant_id": tenant["tenant_id"],
+            "subscription": {
+                "id": "cs_full_analysis_paid",
+                "product_code": "full_analysis",
+                "payment_status": "paid",
+                "currency": "EUR",
+                "amount_total": 79.0,
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        credits = db.scalars(
+            select(TenantScanCredit).where(TenantScanCredit.tenant_id == tenant["tenant_id"])
+        ).all()
+        entitlement = db.scalar(
+            select(TenantProductEntitlement).where(
+                TenantProductEntitlement.tenant_id == tenant["tenant_id"],
+                TenantProductEntitlement.product_code == "full_analysis",
+            )
+        )
+
+    assert credits == []
+    assert entitlement is not None
+
+
+def test_validation_checkout_webhook_grants_one_scan_credit(
+    client,
+    tenant_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+
+    response = client.post(
+        "/billing/webhook",
+        json={
+            "provider": "manual",
+            "event_id": "evt_validation_paid",
+            "event_type": "checkout.session.completed",
+            "tenant_id": tenant["tenant_id"],
+            "subscription": {
+                "id": "cs_validation_paid",
+                "product_code": "validation_check",
+                "payment_status": "paid",
+                "currency": "EUR",
+                "amount_total": 49.0,
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        credits = db.scalars(
+            select(TenantScanCredit).where(TenantScanCredit.tenant_id == tenant["tenant_id"])
+        ).all()
+
+    assert len(credits) == 1
+    assert credits[0].product_code == "validation_check"
+    assert credits[0].status == "available"
 
 
 def test_billing_webhook_processes_valid_signed_event_and_is_idempotent(

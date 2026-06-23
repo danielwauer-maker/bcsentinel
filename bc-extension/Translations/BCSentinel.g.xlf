@@ -3574,7 +3574,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1396684237 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy Validation Check</source>
+          <source>Buy Validation Check / New Credit</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property Caption</note>
         </trans-unit>

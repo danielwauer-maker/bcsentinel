@@ -2,18 +2,20 @@ from __future__ import annotations
 
 import math
 import logging
-from datetime import datetime
+from html import escape
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from app.core.observability import log_event
 from app.core.settings import resolve_billing_url, settings
 from app.db import SessionLocal
-from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantScanCredit
+from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -34,7 +36,9 @@ from app.services.product_license_service import (
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
+    ONE_TIME_ACCESS_DAYS,
     PRODUCT_VALIDATION_CHECK,
+    build_product_access_snapshot,
     grant_product_entitlement,
     grant_scan_credit,
     is_monitoring_product,
@@ -51,7 +55,7 @@ router = APIRouter(tags=["billing"])
 logger = logging.getLogger(__name__)
 
 # Stripe event matrix (v1):
-# - checkout.session.completed      -> ignored (metadata source only, no state write)
+# - checkout.session.completed      -> records one-time purchases and grants product-specific access
 # - customer.subscription.created   -> subscription.created
 # - customer.subscription.updated   -> subscription.updated
 # - customer.subscription.deleted   -> subscription.deleted
@@ -305,6 +309,94 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
     raise HTTPException(status_code=400, detail="Unsupported product_code for checkout.")
 
 
+def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
+    access = build_product_access_snapshot(db, tenant)
+    if access["monitoring_active"]:
+        return set()
+    if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["can_view_issues"]:
+        return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+    return {PRODUCT_FULL_ANALYSIS, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+
+
+def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
+    allowed_products = _allowed_checkout_product_codes(db, tenant)
+    if product_code not in allowed_products:
+        if not allowed_products:
+            raise HTTPException(status_code=409, detail="No additional subscription is available for the current product access.")
+        raise HTTPException(status_code=409, detail="This product is not available for the current product access.")
+
+
+def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, source: str, purchase) -> None:
+    if product_code == PRODUCT_VALIDATION_CHECK:
+        existing_credit = db.scalar(
+            select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
+        )
+        if existing_credit is None:
+            grant_scan_credit(
+                db,
+                tenant_id=tenant_id,
+                product_code=product_code,
+                source=source,
+                source_purchase_id=purchase.id,
+            )
+    elif product_code == PRODUCT_FULL_ANALYSIS:
+        existing_entitlement = db.scalar(
+            select(TenantProductEntitlement).where(
+                TenantProductEntitlement.tenant_id == tenant_id,
+                TenantProductEntitlement.product_code == product_code,
+                TenantProductEntitlement.status == "active",
+                or_(
+                    TenantProductEntitlement.valid_until_utc.is_(None),
+                    TenantProductEntitlement.valid_until_utc > utc_now(),
+                ),
+            )
+        )
+        if existing_entitlement is None:
+            grant_product_entitlement(
+                db,
+                tenant_id=tenant_id,
+                product_code=product_code,
+                source=source,
+                valid_until_utc=utc_now() + timedelta(days=ONE_TIME_ACCESS_DAYS),
+            )
+
+
+@router.get("/billing/success", response_class=HTMLResponse)
+def billing_success(session_id: str | None = None) -> HTMLResponse:
+    safe_session = escape((session_id or "").strip())
+    return HTMLResponse(
+        """
+        <!doctype html>
+        <html lang="en">
+        <head><meta charset="utf-8"><title>BCSentinel Checkout Complete</title></head>
+        <body style="font-family:Arial,sans-serif;margin:48px;line-height:1.5;color:#06183d;">
+          <h1>Checkout complete</h1>
+          <p>Your payment was accepted. Please return to Business Central or refresh the BCSentinel dashboard to update product access.</p>
+          <p style="color:#557;">Session: """
+        + safe_session
+        + """</p>
+        </body>
+        </html>
+        """
+    )
+
+
+@router.get("/billing/cancel", response_class=HTMLResponse)
+def billing_cancel() -> HTMLResponse:
+    return HTMLResponse(
+        """
+        <!doctype html>
+        <html lang="en">
+        <head><meta charset="utf-8"><title>BCSentinel Checkout Cancelled</title></head>
+        <body style="font-family:Arial,sans-serif;margin:48px;line-height:1.5;color:#06183d;">
+          <h1>Checkout cancelled</h1>
+          <p>No payment was completed. You can return to Business Central or the BCSentinel dashboard and choose another option.</p>
+        </body>
+        </html>
+        """
+    )
+
+
 
 def _find_tenant_for_invoice(db, explicit_tenant_id: str | None, provider_subscription_id: str | None) -> Tenant | None:
     if explicit_tenant_id:
@@ -415,17 +507,13 @@ def _process_normalized_webhook(
                 source="checkout",
             )
             if purchase.status in {"paid", "complete", "completed"}:
-                existing_credit = db.scalar(
-                    select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
+                _grant_one_time_checkout_result(
+                    db,
+                    tenant_id=tenant.tenant_id,
+                    product_code=product_code,
+                    source="checkout",
+                    purchase=purchase,
                 )
-                if existing_credit is None:
-                    grant_scan_credit(
-                        db,
-                        tenant_id=tenant.tenant_id,
-                        product_code=product_code,
-                        source="checkout",
-                        source_purchase_id=purchase.id,
-                    )
 
     if event_type.startswith("invoice."):
         provider_invoice_id = str(
@@ -492,6 +580,7 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         if tenant is None:
             raise HTTPException(status_code=404, detail="Tenant not found.")
         require_tenant_feature(db, tenant, "billing_checkout")
+        _ensure_checkout_product_allowed(db, tenant, product_code)
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
         record_count = _deep_scan_record_count(latest_deep_scan)
@@ -726,14 +815,13 @@ def sync_checkout_session_status(
                     amount_total=float(checkout.get("amount_total") or 0) / 100.0,
                     source="checkout_sync",
                 )
-                if db.scalar(select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)) is None:
-                    grant_scan_credit(
-                        db,
-                        tenant_id=tenant.tenant_id,
-                        product_code=product_code,
-                        source="checkout_sync",
-                        source_purchase_id=purchase.id,
-                    )
+                _grant_one_time_checkout_result(
+                    db,
+                    tenant_id=tenant.tenant_id,
+                    product_code=product_code,
+                    source="checkout_sync",
+                    purchase=purchase,
+                )
                 tenant.last_seen_at_utc = utc_now()
                 db.commit()
             status_payload = get_billing_subscription_status(tenant_auth)

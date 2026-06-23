@@ -25,6 +25,8 @@
   "reports_subtitle": "Reports erstellen und Executive-, Operational- und Impact-Auswertungen prüfen.",
   "subscription_access": "Subscription & Access",
   "subscription_subtitle": "Verwalte Produktzugriff, Monitoring-Status und verfügbare Scan Credits.",
+  "subscription_no_products_title": "Keine weitere Subscription erforderlich",
+  "subscription_no_products_body": "Monitoring ist aktiv. Alle aktuellen Dashboard-Funktionen sind für diesen Tenant bereits verfügbar.",
   "settings_subtitle": "Account und Präferenzen konfigurieren",
   "health_score": "Health Score",
   "estimated_annual_loss": "Geschätzter Jahresverlust",
