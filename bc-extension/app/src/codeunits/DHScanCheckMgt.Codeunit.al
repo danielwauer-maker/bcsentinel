@@ -285,6 +285,41 @@ codeunit 53196 "DH Scan Check Mgt."
         exit(Count);
     end;
 
+    procedure GetTotalModuleChecksCount(var Setup: Record "DH Setup"): Integer
+    var
+        ScanCheck: Record "DH Scan Check Selection";
+        Count: Integer;
+    begin
+        EnsureDefaultChecks();
+        if ScanCheck.FindSet() then
+            repeat
+                if IsModuleIncluded(Setup, ScanCheck."Module") then
+                    Count += 1;
+            until ScanCheck.Next() = 0;
+
+        exit(Count);
+    end;
+
+    procedure BuildCheckSelectionEventText(var Setup: Record "DH Setup"): Text[250]
+    var
+        ActiveChecks: Integer;
+        SkippedChecks: Integer;
+        TotalChecks: Integer;
+        ActiveChecksLoadedTxt: Label 'Active checks loaded: %1';
+        ActiveAndSkippedChecksLoadedTxt: Label 'Active checks loaded: %1 | Skipped checks: %2';
+    begin
+        TotalChecks := GetTotalModuleChecksCount(Setup);
+        ActiveChecks := GetExpectedChecksCount(Setup);
+        SkippedChecks := TotalChecks - ActiveChecks;
+        if SkippedChecks < 0 then
+            SkippedChecks := 0;
+
+        if Setup."Monitoring Active" then
+            exit(CopyStr(StrSubstNo(ActiveAndSkippedChecksLoadedTxt, ActiveChecks, SkippedChecks), 1, 250));
+
+        exit(CopyStr(StrSubstNo(ActiveChecksLoadedTxt, ActiveChecks), 1, 250));
+    end;
+
     procedure RequireEnabledChecksForMonitoring()
     var
         Setup: Record "DH Setup";

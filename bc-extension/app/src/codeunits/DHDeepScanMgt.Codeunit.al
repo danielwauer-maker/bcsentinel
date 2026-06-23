@@ -5,10 +5,11 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
         ApiClient: Codeunit "DH API Client";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Scan started. Open the monitor to view progress. Run ID: %1';
+        ScanStartedMsg: Label 'Scan started. Opening the monitor. Run ID: %1';
     begin
         EnsureDeepScanAllowed(Setup);
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
@@ -33,6 +34,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."ETA Text" := 'Pending';
         DeepScanRun."Backend Status" := 'queued';
         DeepScanRun."Current Step" := 'Waiting to start';
+        DeepScanRun."Recent Events" := ScanCheckMgt.BuildCheckSelectionEventText(Setup);
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
 
         DeepScanRun.Insert(true);
@@ -57,9 +59,10 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
         ApiClient: Codeunit "DH API Client";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Data Health Score started. Open the monitor to view progress. Run ID: %1';
+        ScanStartedMsg: Label 'Data Health Score started. Opening the monitor. Run ID: %1';
     begin
         if Setup."API Base URL" = '' then
             Error('Please configure API Base URL first.');
@@ -89,6 +92,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."ETA Text" := 'Pending';
         DeepScanRun."Backend Status" := 'queued';
         DeepScanRun."Current Step" := 'Waiting to start';
+        DeepScanRun."Recent Events" := ScanCheckMgt.BuildCheckSelectionEventText(Setup);
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
 
         DeepScanRun.Insert(true);

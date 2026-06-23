@@ -1109,12 +1109,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Tenant ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Health Score started. Open the monitor to view progress. Run ID: %1</source>
+          <source>Data Health Score started. Opening the monitor. Run ID: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDataHealthScore - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 1618803454 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan started. Open the monitor to view progress. Run ID: %1</source>
+          <source>Scan started. Opening the monitor. Run ID: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScan - NamedType ScanStartedMsg</note>
         </trans-unit>
@@ -1127,6 +1127,16 @@
           <source>At least one scan check must be enabled before starting a Monitoring scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType NoChecksEnabledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - Method 1515343267 - NamedType 2158976906" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active checks loaded: %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - Method BuildCheckSelectionEventText - NamedType ActiveChecksLoadedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - Method 1515343267 - NamedType 1429877671" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active checks loaded: %1 | Skipped checks: %2</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - Method BuildCheckSelectionEventText - NamedType ActiveAndSkippedChecksLoadedTxt</note>
         </trans-unit>
         <trans-unit id="Page 1112104590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>DH Activity</source>
@@ -1758,6 +1768,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 3864462274 - NamedType 1945231236" size-unit="char" translate="yes" xml:space="preserve">
+          <source>0% queued</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method BuildProgressText - NamedType ProgressQueuedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 3864462274 - NamedType 957533376" size-unit="char" translate="yes" xml:space="preserve">
+          <source>100% complete</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method BuildProgressText - NamedType ProgressCompleteTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 3864462274 - NamedType 1865683705" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 complete</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method BuildProgressText - NamedType ProgressInProgressTxt</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - Control 2430819985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Module Progress</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2154,12 +2179,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 1321243612 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Refresh Status.</source>
+          <source>Refreshes the scan monitor status.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshProgress - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 1321243612 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh Status</source>
+          <source>Refresh</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshProgress - Property Caption</note>
         </trans-unit>
@@ -2369,12 +2394,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenDashboardAction - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 3151516508 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Open Deep Scan Monitor.</source>
+          <source>Opens the scan monitor for the selected run.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitor - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 3151516508 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open Deep Scan Monitor</source>
+          <source>Open Scan Monitor</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitor - Property Caption</note>
         </trans-unit>

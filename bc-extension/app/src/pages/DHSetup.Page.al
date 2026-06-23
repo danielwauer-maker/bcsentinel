@@ -447,7 +447,9 @@
                     trigger OnAction()
                     var
                         Setup: Record "DH Setup";
+                        DeepScanRun: Record "DH Deep Scan Run";
                         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+                        EntryNo: Integer;
                         ConfirmStartScanQst: Label 'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
                     begin
                         EnsureSetupExists();
@@ -455,13 +457,15 @@
                         if not Confirm(ConfirmStartScanQst, false) then
                             exit;
 
-                        DeepScanMgt.QueueDataHealthScore(Setup);
+                        EntryNo := DeepScanMgt.QueueDataHealthScore(Setup);
                         Rec.Get('SETUP');
                         Rec."Data Health Score Completed" := true;
                         Rec."Can Run Data Health Score" := false;
                         Rec.Modify(true);
                         UpdateActionState();
                         CurrPage.Update(false);
+                        if DeepScanRun.Get(EntryNo) then
+                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
                     end;
                 }
 
@@ -487,14 +491,18 @@
                     trigger OnAction()
                     var
                         Setup: Record "DH Setup";
+                        DeepScanRun: Record "DH Deep Scan Run";
                         ApiClient: Codeunit "DH API Client";
                         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+                        EntryNo: Integer;
                     begin
                         EnsureSetupExists();
                         Setup := Rec;
                         ApiClient.EnsureReadyForScan(Setup);
-                        DeepScanMgt.QueueDeepScan(Setup);
+                        EntryNo := DeepScanMgt.QueueDeepScan(Setup);
                         CurrPage.Update(false);
+                        if DeepScanRun.Get(EntryNo) then
+                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
                     end;
                 }
 

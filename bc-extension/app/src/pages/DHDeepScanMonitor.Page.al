@@ -359,8 +359,8 @@
         {
             action(RefreshProgress)
             {
-                Caption = 'Refresh Status';
-                ToolTip = 'Runs Refresh Status.';
+                Caption = 'Refresh';
+                ToolTip = 'Refreshes the scan monitor status.';
                 ApplicationArea = All;
                 Image = Refresh;
 
@@ -624,7 +624,7 @@
         CurrentModuleTxt := GetCurrentModuleText();
         CurrentStepTxt := GetCurrentStepText();
         ProgressPct := GetDisplayProgressPercent();
-        OverallBarTxt := BuildBar(ProgressPct);
+        OverallBarTxt := BuildProgressText(ProgressPct);
         ETATxt := GetEtaText();
         LastHeartbeatValue := Rec."Last Heartbeat";
         EstimatedRemainingTxt := FormatRemainingSeconds(Rec."Estimated Remaining Seconds");
@@ -633,7 +633,7 @@
         HeadlineTxt := Rec.Headline;
         WarningMessageTxt := GetDisplayWarningText();
         ErrorMessageTxt := GetDisplayErrorText();
-        RecentEventsTxt := Rec."Recent Events";
+        RecentEventsTxt := FormatRecentEvents(Rec."Recent Events");
 
         DeepScoreValue := Rec."Deep Score";
         ChecksCountValue := Rec."Checks Count";
@@ -800,7 +800,7 @@
 
     local procedure BuildModuleText(ModuleName: Text; PercentValue: Integer): Text
     begin
-        exit(StrSubstNo('%1  %2%  %3', ModuleName, PercentValue, BuildBar(PercentValue)));
+        exit(StrSubstNo('%1: %2', ModuleName, BuildProgressText(PercentValue)));
     end;
 
     local procedure GetDisplayProgressPercent(): Integer
@@ -939,6 +939,37 @@
                 BarTxt += '-';
 
         exit(BarTxt);
+    end;
+
+    local procedure BuildProgressText(PercentValue: Integer): Text[60]
+    var
+        ProgressQueuedTxt: Label '0% queued';
+        ProgressCompleteTxt: Label '100% complete';
+        ProgressInProgressTxt: Label '%1 complete';
+    begin
+        if PercentValue < 0 then
+            PercentValue := 0;
+        if PercentValue > 100 then
+            PercentValue := 100;
+
+        case PercentValue of
+            0:
+                exit(ProgressQueuedTxt);
+            100:
+                exit(ProgressCompleteTxt);
+            else
+                exit(CopyStr(StrSubstNo(ProgressInProgressTxt, Format(PercentValue) + '%'), 1, 60));
+        end;
+    end;
+
+    local procedure FormatRecentEvents(Value: Text[500]): Text[500]
+    begin
+        if Value = '' then
+            exit('');
+
+        Value := Value.Replace(' | ', '; ');
+        Value := Value.Replace('|', '; ');
+        exit(Value);
     end;
 
     local procedure GetProgressStyle(Value: Integer): Text

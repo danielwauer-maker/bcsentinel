@@ -126,8 +126,8 @@
 
             action(OpenMonitor)
             {
-                Caption = 'Open Deep Scan Monitor';
-                ToolTip = 'Runs Open Deep Scan Monitor.';
+                Caption = 'Open Scan Monitor';
+                ToolTip = 'Opens the scan monitor for the selected run.';
                 ApplicationArea = All;
                 Image = ViewDetails;
 
