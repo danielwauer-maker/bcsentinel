@@ -29,6 +29,7 @@ from app.models import (
     ProductPricingConfig,
     ProductPricingMatrixConfig,
     Scan,
+    ScanRunStatus,
     Subscription,
     Tenant,
     TenantProductEntitlement,
@@ -339,7 +340,7 @@ def _unique_partner_code(db, seed: str) -> str:
 
 
 def _load_tenant_rows(db):
-    tenants = db.scalars(select(Tenant).order_by(Tenant.created_at_utc.desc())).all()
+    tenants = db.scalars(select(Tenant).order_by(Tenant.id.asc())).all()
     tenant_ids = [tenant.tenant_id for tenant in tenants]
     scan_counts = {}
     last_scans = {}
@@ -369,13 +370,13 @@ def _load_tenant_rows(db):
         if sub.tenant_id not in latest_subscription_map:
             latest_subscription_map[sub.tenant_id] = sub
 
-    for idx, tenant in enumerate(tenants, start=1):
+    for tenant in tenants:
         latest_subscription = latest_subscription_map.get(tenant.tenant_id)
         license_snapshot = build_license_snapshot(db, tenant)
         product_access = _fmt_product_access_dates(license_snapshot["product_access"])
         rows.append(
             {
-                "tenant_no": f"{idx:05d}",
+                "tenant_no": f"{tenant.id:05d}",
                 "tenant_id": tenant.tenant_id,
                 "environment_name": tenant.environment_name,
                 "app_version": tenant.app_version,
@@ -398,6 +399,21 @@ def _admin_tenant_redirect(tenant_id: str) -> RedirectResponse:
         url=f"/admin/tenants/{tenant_id}",
         status_code=status.HTTP_303_SEE_OTHER,
     )
+
+
+def _delete_tenant_dependents(db, tenant: Tenant) -> None:
+    """Remove tenant-owned rows that are not reachable through Tenant ORM cascades."""
+    scan_runs = db.scalars(
+        select(ScanRunStatus).where(ScanRunStatus.tenant_id == tenant.tenant_id)
+    ).all()
+    for scan_run in scan_runs:
+        db.delete(scan_run)
+
+    partner_referral = db.scalar(
+        select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id)
+    )
+    if partner_referral is not None:
+        db.delete(partner_referral)
 
 
 def _load_tenant_or_404(db, tenant_id: str) -> Tenant:
@@ -1293,6 +1309,7 @@ def delete_tenant(tenant_id: str, admin_username: str = Depends(require_admin)):
             target_id=tenant.tenant_id,
             details={"environment_name": tenant.environment_name},
         )
+        _delete_tenant_dependents(db, tenant)
         db.delete(tenant)
         db.commit()
 

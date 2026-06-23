@@ -2,10 +2,22 @@ from __future__ import annotations
 
 import base64
 import json
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
+from sqlalchemy import select
+
 from app.db import SessionLocal
-from app.models import AdminAuditEvent, ImpactSettingsConfig, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import (
+    AdminAuditEvent,
+    ImpactSettingsConfig,
+    Partner,
+    PartnerReferral,
+    ScanRunStatus,
+    Tenant,
+    TenantProductEntitlement,
+    TenantScanCredit,
+)
 from app.services.impact_service import calculate_issue_impact, calculate_scan_commercials
 from app.services.product_license_service import build_license_snapshot
 
@@ -121,6 +133,72 @@ def test_admin_post_without_csrf_is_rejected(client):
     )
 
     assert response.status_code == 403
+
+
+def test_admin_tenant_numbers_are_creation_order_stable(client, tenant_factory):
+    first = tenant_factory(tenant_id="ten_first")
+    second = tenant_factory(tenant_id="ten_second")
+
+    response = client.get("/admin/tenants", headers=_admin_auth_header())
+
+    assert response.status_code == 200
+    first_pos = response.text.index(first["tenant_id"])
+    second_pos = response.text.index(second["tenant_id"])
+    assert first_pos < second_pos
+    assert "00001" in response.text
+    assert "00002" in response.text
+
+
+def test_admin_delete_tenant_removes_monitor_status_and_referral_dependents(client, tenant_factory):
+    tenant = tenant_factory(tenant_id="ten_delete_me")
+    now = datetime.now(timezone.utc)
+
+    with SessionLocal() as db:
+        partner = Partner(
+            name="Delete Test Partner",
+            partner_code="delete-test-partner",
+            contact_email="delete-test@example.com",
+            status="active",
+            default_commission_rate=0.2,
+            created_at_utc=now,
+            updated_at_utc=now,
+        )
+        db.add(partner)
+        db.flush()
+        db.add(
+            PartnerReferral(
+                partner_id=partner.id,
+                tenant_id=tenant["tenant_id"],
+                referral_code="delete-test",
+                attribution_source="manual",
+                attributed_at_utc=now,
+            )
+        )
+        db.add(
+            ScanRunStatus(
+                run_id="RUN_DELETE_TEST",
+                tenant_id=tenant["tenant_id"],
+                scan_mode="deep",
+                status="queued",
+                updated_at_utc=now,
+            )
+        )
+        db.commit()
+
+    response = client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/delete",
+        headers=_admin_auth_header(),
+        data=_admin_csrf(client, "/admin/tenants"),
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    with SessionLocal() as db:
+        assert db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"])) is None
+        assert db.scalar(select(ScanRunStatus).where(ScanRunStatus.tenant_id == tenant["tenant_id"])) is None
+        assert db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant["tenant_id"])) is None
+        event = db.query(AdminAuditEvent).filter(AdminAuditEvent.action == "tenant.delete").one()
+        assert event.target_id == tenant["tenant_id"]
 
 
 def _tenant_csrf(client, tenant_id: str) -> dict[str, str]:
