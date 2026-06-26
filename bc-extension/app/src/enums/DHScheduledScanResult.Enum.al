@@ -27,4 +27,8 @@ enum 53171 "DH Scheduled Scan Result"
     {
         Caption = 'Skipped - Configuration incomplete';
     }
+    value(6; Disabled)
+    {
+        Caption = 'Disabled';
+    }
 }

@@ -30,7 +30,12 @@ def test_tenant_registration_sets_de_for_de_de(client, settings_state):
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={"environment_name": "BC Cloud", "app_version": "1.0.0", "preferred_language": "de-DE"},
+        json={
+            "environment_name": "BC Cloud",
+            "app_version": "1.0.0",
+            "preferred_language": "de-DE",
+            "contact_email": "de-pilot@example.com",
+        },
     )
 
     assert response.status_code == 200
@@ -46,7 +51,12 @@ def test_tenant_registration_sets_en_for_en_us(client, settings_state):
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={"environment_name": "BC Cloud", "app_version": "1.0.0", "preferred_language": "en-US"},
+        json={
+            "environment_name": "BC Cloud",
+            "app_version": "1.0.0",
+            "preferred_language": "en-US",
+            "contact_email": "en-pilot@example.com",
+        },
     )
 
     assert response.status_code == 200

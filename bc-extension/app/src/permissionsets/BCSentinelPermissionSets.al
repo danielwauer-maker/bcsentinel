@@ -79,6 +79,9 @@ permissionset 53191 "BCSENTINEL SCAN"
         codeunit "DH Issue Drilldown Mgt." = X,
         codeunit "DH Issue Drilldown Dispatcher" = X,
         codeunit "DH Scan Check Mgt." = X,
+        codeunit "DH Scan Scheduler Mgt." = X,
+        codeunit "DH Scheduled Scan Runner" = X,
+        codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
@@ -97,6 +100,9 @@ permissionset 53192 "BCSENTINEL SETUP"
         codeunit "DH API Client" = X,
         codeunit "DH Guided Experience" = X,
         codeunit "DH Scan Check Mgt." = X,
+        codeunit "DH Scan Scheduler Mgt." = X,
+        codeunit "DH Scheduled Scan Runner" = X,
+        codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
         codeunit "DH Run ID Mgt." = X;
 }
@@ -164,6 +170,9 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Issue Drilldown Mgt." = X,
         codeunit "DH Issue Drilldown Dispatcher" = X,
         codeunit "DH Scan Check Mgt." = X,
+        codeunit "DH Scan Scheduler Mgt." = X,
+        codeunit "DH Scheduled Scan Runner" = X,
+        codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;

@@ -464,8 +464,7 @@ def reconcile_scans(
     keep_ids = {scan_id.strip() for scan_id in payload.scan_ids if scan_id and scan_id.strip()}
 
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
-        require_tenant_feature(db, tenant, "scan_sync")
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
 
         scans = db.scalars(select(Scan).where(Scan.tenant_id == payload.tenant_id)).all()
         deleted_ids: list[str] = []
@@ -508,8 +507,7 @@ def delete_scan(
     enforce_tenant_match(tenant_id, header_tenant_id, "Path tenant_id")
 
     with SessionLocal() as db:
-        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
-        require_tenant_feature(db, tenant, "scan_sync")
+        load_authenticated_tenant(db, header_tenant_id, header_api_token)
         scan = db.scalar(select(Scan).where(Scan.tenant_id == tenant_id, Scan.scan_id == scan_id))
 
         if scan is None:

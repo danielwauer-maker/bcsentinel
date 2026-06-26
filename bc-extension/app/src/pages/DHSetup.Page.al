@@ -134,9 +134,16 @@
                     ToolTip = 'Specifies whether scheduled scans are enabled.';
 
                     trigger OnValidate()
+                    var
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
                     begin
+                        if Rec."Scheduled Scans Enabled" then
+                            SchedulerMgt.EnableScheduler(Rec)
+                        else
+                            SchedulerMgt.DisableScheduler(Rec);
                         UpdateActionState();
                         UpdateDisplayValues();
+                        CurrPage.Update(false);
                     end;
                 }
                 field("Schedule Frequency"; Rec."Schedule Frequency")
@@ -434,9 +441,16 @@
                 trigger OnAction()
                 var
                     ApiClient: Codeunit "DH API Client";
+                    RegistrationMessage: Text;
+                    ContactEmailRequiredMsg: Label 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.';
                 begin
                     if Rec."Tenant ID" <> '' then begin
                         Message('BCSentinel tenant is already registered.');
+                        exit;
+                    end;
+
+                    if Rec."Contact Email" = '' then begin
+                        Message(ContactEmailRequiredMsg);
                         exit;
                     end;
 
@@ -452,11 +466,11 @@
                     end;
 
                     Message('BCSentinel tenant registration started.');
-                    ApiClient.RegisterTenant(Rec);
+                    RegistrationMessage := ApiClient.RegisterTenant(Rec);
                     ApiClient.RefreshLicenseStatus(Rec);
                     UpdateActionState();
                     CurrPage.Update(false);
-                    Message('BCSentinel tenant registration completed.');
+                    Message(RegistrationMessage);
                 end;
             }
 
@@ -479,10 +493,12 @@
                     if not Confirm(ResetRegistrationQst, false) then
                         exit;
 
+                    DeleteScanHistoryForReset();
                     ResetLocalRegistrationState();
                     UpdateActionState();
+                    UpdateDisplayValues();
                     CurrPage.Update(false);
-                    Message('Local BCSentinel registration was reset. Please register again.');
+                    Message('Local BCSentinel registration and scan history were reset. Please register again.');
                 end;
             }
 
@@ -1018,6 +1034,30 @@
         Rec.Modify(true);
     end;
 
+    local procedure DeleteScanHistoryForReset()
+    var
+        ApiClient: Codeunit "DH API Client";
+        ScanHeader: Record "DH Scan Header";
+        DeepScanRun: Record "DH Deep Scan Run";
+        ScanTrend: Record "DH Scan Trend";
+    begin
+        ApiClient.ClearBackendScanHistoryForReset(Rec);
+
+        if not ScanHeader.IsEmpty() then
+            ScanHeader.DeleteAll(true);
+
+        if not DeepScanRun.IsEmpty() then
+            DeepScanRun.DeleteAll(true);
+
+        if not ScanTrend.IsEmpty() then
+            ScanTrend.DeleteAll(true);
+
+        Rec."Last Score" := 0;
+        Rec."Last Scan Date" := 0DT;
+        Rec."Data Health Score Completed" := false;
+        Rec."Can Run Data Health Score" := true;
+    end;
+
     local procedure RefreshLicenseSilently()
     var
         ApiClient: Codeunit "DH API Client";
@@ -1038,7 +1078,7 @@
             Rec."Can View Issue Details" or
             Rec."Premium Enabled" or
             (LowerCase(Rec."Product Access Model") = 'one_time');
-        CanRegisterTenant := (Rec."Tenant ID" = '') and Rec."Data Processing Consent" and (Rec."API Base URL" <> '') and Rec.HasValidContactEmail();
+        CanRegisterTenant := (Rec."Tenant ID" = '') and Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
         CanResetRegistration :=
             Rec.Registered or
             (Rec."Tenant ID" <> '') or
@@ -1276,6 +1316,8 @@
                 exit('Favorable');
             Rec."Last Scheduled Scan Result"::Failed, Rec."Last Scheduled Scan Result"::SkippedConfiguration, Rec."Last Scheduled Scan Result"::SkippedMonitoringInactive:
                 exit('Unfavorable');
+            Rec."Last Scheduled Scan Result"::Disabled:
+                exit('Standard');
         end;
         exit('Standard');
     end;

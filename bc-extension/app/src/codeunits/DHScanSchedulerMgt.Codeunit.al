@@ -14,6 +14,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     procedure Reschedule(var Setup: Record "DH Setup")
     var
         NotBefore: DateTime;
+        TaskId: Guid;
         SchedulerUnavailableMsg: Label 'The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.';
     begin
         EnsureMonitoringForScheduler(Setup);
@@ -22,14 +23,33 @@ codeunit 53170 "DH Scan Scheduler Mgt."
             Error('Scheduled scans are not enabled.');
 
         NotBefore := CalculateNextRun(Setup);
-        if not TryCreateSchedulerTask(NotBefore) then
+        CancelExistingSchedulerTask(Setup);
+        if TryCreateSchedulerTask(NotBefore, TaskId) then begin
+            Setup."Scheduled Scan Task ID" := TaskId;
+            Setup."Last Scheduled Scan Error" := '';
+            Setup.Modify(true);
+            Message('Next scheduled scan planned for %1.', NotBefore);
+        end else
             Message(SchedulerUnavailableMsg);
+    end;
+
+    procedure EnableScheduler(var Setup: Record "DH Setup")
+    begin
+        EnsureMonitoringForScheduler(Setup);
+        EnsureScanConfiguration(Setup);
+
+        Setup."Scheduled Scans Enabled" := true;
+        Setup.Modify(true);
+        Reschedule(Setup);
     end;
 
     procedure DisableScheduler(var Setup: Record "DH Setup")
     begin
+        CancelExistingSchedulerTask(Setup);
         Setup."Scheduled Scans Enabled" := false;
-        Setup."Scheduled Scan Task ID" := CreateGuid();
+        Clear(Setup."Scheduled Scan Task ID");
+        Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::Disabled;
+        Setup."Last Scheduled Scan Error" := '';
         Setup.Modify(true);
     end;
 
@@ -60,7 +80,6 @@ codeunit 53170 "DH Scan Scheduler Mgt."
             Setup."Last Scheduled Scan" := StartedAt;
             Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::SkippedMonitoringInactive;
             Setup."Last Scheduled Scan Error" := 'Scheduled scans require an active Monitoring subscription.';
-            Setup."Scheduled Scan Failure Count" += 1;
             Setup."Next Scheduled Scan" := CalculateNextRunFrom(Setup, StartedAt);
             Setup.Modify(true);
             exit;
@@ -70,7 +89,6 @@ codeunit 53170 "DH Scan Scheduler Mgt."
             Setup."Last Scheduled Scan" := StartedAt;
             Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::SkippedConfiguration;
             Setup."Last Scheduled Scan Error" := 'No scan module is active.';
-            Setup."Scheduled Scan Failure Count" += 1;
             Setup."Next Scheduled Scan" := CalculateNextRunFrom(Setup, StartedAt);
             Setup.Modify(true);
             exit;
@@ -96,7 +114,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         Setup.Modify(true);
 
         if Setup."Scheduled Scans Enabled" and Setup."Monitoring Active" then
-            if TryCreateSchedulerTask(Setup."Next Scheduled Scan") then;
+            PlanNextTaskSilently(Setup);
     end;
 
     procedure GetActiveChecksSummary(var Setup: Record "DH Setup"): Text[100]
@@ -225,9 +243,55 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         exit(DMY2Date(DayNo, MonthNo, YearNo));
     end;
 
-    [TryFunction]
-    local procedure TryCreateSchedulerTask(NotBefore: DateTime)
+    procedure MarkTaskFailure(ErrorText: Text)
+    var
+        Setup: Record "DH Setup";
     begin
-        TaskScheduler.CreateTask(Codeunit::"DH Scheduled Scan Runner", Codeunit::"DH Scheduled Scan Runner", true, CompanyName(), NotBefore);
+        if not Setup.Get('SETUP') then
+            exit;
+
+        Setup."Last Scheduled Scan" := CurrentDateTime();
+        Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::Failed;
+        Setup."Last Scheduled Scan Error" := CopyStr(ErrorText, 1, MaxStrLen(Setup."Last Scheduled Scan Error"));
+        Setup."Scheduled Scan Failure Count" += 1;
+        Clear(Setup."Scheduled Scan Task ID");
+        Setup.Modify(true);
+    end;
+
+    local procedure PlanNextTaskSilently(var Setup: Record "DH Setup")
+    var
+        TaskId: Guid;
+    begin
+        CancelExistingSchedulerTask(Setup);
+        if TryCreateSchedulerTask(Setup."Next Scheduled Scan", TaskId) then begin
+            Setup."Scheduled Scan Task ID" := TaskId;
+            Setup.Modify(true);
+        end;
+    end;
+
+    local procedure CancelExistingSchedulerTask(var Setup: Record "DH Setup")
+    begin
+        if IsNullGuid(Setup."Scheduled Scan Task ID") then
+            exit;
+
+        if TryCancelSchedulerTask(Setup."Scheduled Scan Task ID") then;
+        Clear(Setup."Scheduled Scan Task ID");
+    end;
+
+    local procedure IsNullGuid(Value: Guid): Boolean
+    begin
+        exit((Format(Value) = '') or (Format(Value) = '00000000-0000-0000-0000-000000000000') or (Format(Value) = '{00000000-0000-0000-0000-000000000000}'));
+    end;
+
+    [TryFunction]
+    local procedure TryCancelSchedulerTask(TaskId: Guid)
+    begin
+        TaskScheduler.CancelTask(TaskId);
+    end;
+
+    [TryFunction]
+    local procedure TryCreateSchedulerTask(NotBefore: DateTime; var TaskId: Guid)
+    begin
+        TaskId := TaskScheduler.CreateTask(Codeunit::"DH Scheduled Scan Runner", Codeunit::"DH Scheduled Scan Failure", true, CompanyName(), NotBefore);
     end;
 }

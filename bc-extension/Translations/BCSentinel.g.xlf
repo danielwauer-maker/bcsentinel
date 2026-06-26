@@ -4303,6 +4303,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Action 424589911 - Method 1377591017 - NamedType 1347640888" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Method OnAction - NamedType ContactEmailRequiredMsg</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Action 618433871 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the BCSentinel website to request onboarding access.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4782,6 +4787,11 @@
           <source>Completed</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum DH Scheduled Scan Result - EnumValue Completed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3777200501 - EnumValue 1864907812 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum DH Scheduled Scan Result - EnumValue Disabled - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3777200501 - EnumValue 3826689261 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed</source>

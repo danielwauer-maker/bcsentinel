@@ -60,6 +60,42 @@ DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {
 </html>
 """.strip(),
     },
+    "dashboard_access_invite_en": {
+        "label": "Dashboard access invite EN",
+        "description": "Sent after Business Central tenant registration to invite the dashboard contact.",
+        "placeholders": ["dashboard_url", "login_email", "tenant_id", "support_email"],
+        "subject": "Your BCSentinel Dashboard access",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44;">
+    <p>Hello,</p>
+    <p>Your BCSentinel tenant was registered successfully. Dashboard access has been prepared for this email address.</p>
+    <p><strong>Dashboard:</strong> <a href="{{ dashboard_url }}">{{ dashboard_url }}</a></p>
+    <p><strong>Login email:</strong> {{ login_email }}</p>
+    <p>This access is bound to tenant <strong>{{ tenant_id }}</strong>. Until standalone dashboard login is enabled, please open the dashboard from Business Central.</p>
+    <p>For support, contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+  </body>
+</html>
+""".strip(),
+    },
+    "dashboard_access_invite_de": {
+        "label": "Dashboard access invite DE",
+        "description": "Wird nach der Business-Central-Tenant-Registrierung an den Dashboard-Kontakt versendet.",
+        "placeholders": ["dashboard_url", "login_email", "tenant_id", "support_email"],
+        "subject": "Ihr BCSentinel Dashboard-Zugang",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44;">
+    <p>Hallo,</p>
+    <p>Ihr BCSentinel Tenant wurde erfolgreich registriert. Der Dashboard-Zugang wurde fuer diese E-Mail-Adresse vorbereitet.</p>
+    <p><strong>Dashboard:</strong> <a href="{{ dashboard_url }}">{{ dashboard_url }}</a></p>
+    <p><strong>Login-E-Mail:</strong> {{ login_email }}</p>
+    <p>Dieser Zugriff ist an Tenant <strong>{{ tenant_id }}</strong> gebunden. Bis der eigenstaendige Dashboard-Login aktiviert ist, oeffnen Sie das Dashboard bitte aus Business Central.</p>
+    <p>Support: <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+  </body>
+</html>
+""".strip(),
+    },
 }
 
 

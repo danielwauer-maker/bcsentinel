@@ -60,6 +60,7 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
+from app.services.dashboard_invite_service import ensure_dashboard_user_invite
 from app.services.email_template_service import ensure_default_email_templates
 from app.services.localization_service import normalize_language, update_tenant_language
 from app.services.scoring_service import calculate_quick_scan_result
@@ -297,6 +298,9 @@ class TenantRegisterRequest(BaseModel):
 class TenantRegisterResponse(BaseModel):
     tenant_id: str
     api_token: str
+    dashboard_invite_sent: bool = False
+    dashboard_invite_email: str | None = None
+    dashboard_invite_error: str | None = None
 
 
 @app.get("/health")
@@ -341,7 +345,7 @@ def _validate_tenant_registration_invite(payload_invite: str | None, header_invi
 def _normalize_contact_email(value: str | None) -> str | None:
     normalized = (value or "").strip().lower()
     if not normalized:
-        return None
+        raise HTTPException(status_code=422, detail="contact_email is required.")
 
     if " " in normalized or "@" not in normalized:
         raise HTTPException(status_code=422, detail="contact_email is invalid.")
@@ -371,8 +375,11 @@ def register_tenant(
     tenant_id = f"ten_{uuid4().hex[:12]}"
     api_token = f"tok_{uuid4().hex}"
     now_utc = datetime.now(timezone.utc)
+    invite_sent = False
+    invite_error: str | None = None
 
     with SessionLocal() as db:
+        ensure_default_email_templates(db)
         tenant = Tenant(
             tenant_id=tenant_id,
             api_token=None,
@@ -387,11 +394,21 @@ def register_tenant(
             license_status="trial",
         )
         db.add(tenant)
+        try:
+            invite_result = ensure_dashboard_user_invite(db, tenant=tenant, email=contact_email)
+            invite_sent = invite_result.mail_sent
+            invite_error = invite_result.mail_error
+        except ValueError as exc:
+            db.rollback()
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
         db.commit()
 
     return TenantRegisterResponse(
         tenant_id=tenant_id,
         api_token=api_token,
+        dashboard_invite_sent=invite_sent,
+        dashboard_invite_email=contact_email,
+        dashboard_invite_error=invite_error,
     )
 
 

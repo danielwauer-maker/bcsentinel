@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -54,6 +54,31 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
+    dashboard_users: Mapped[list["DashboardUser"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+
+
+class DashboardUser(Base):
+    __tablename__ = "dashboard_users"
+    __table_args__ = (UniqueConstraint("tenant_id", "email", name="uq_dashboard_users_tenant_email"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    email: Mapped[str] = mapped_column(String(255), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="invited", index=True)
+    invite_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    invite_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    must_change_password: Mapped[bool] = mapped_column(Boolean, default=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    last_invited_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    invite_mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    invite_mail_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    tenant: Mapped["Tenant"] = relationship(back_populates="dashboard_users")
 
 
 class Scan(Base):

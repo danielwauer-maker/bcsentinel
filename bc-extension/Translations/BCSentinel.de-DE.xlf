@@ -5548,6 +5548,11 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - Method BuildCheckSelectionEventText - NamedType ActiveChecksLoadedTxt</note>
         </trans-unit>
+      <trans-unit id="Page 392523509 - Action 424589911 - Method 1377591017 - NamedType 1347640888" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.</source><target state="translated">Bitte geben Sie zuerst eine Kontakt-E-Mail-Adresse ein. Diese wird fuer den Dashboard-Zugang und wichtige BCSentinel-Benachrichtigungen benoetigt.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Method OnAction - NamedType ContactEmailRequiredMsg</note>
+        </trans-unit>
     </body>
   </file>
 </xliff>

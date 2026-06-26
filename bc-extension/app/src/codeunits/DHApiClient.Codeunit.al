@@ -119,6 +119,8 @@ codeunit 53100 "DH API Client"
     end;
 
     procedure EnsureTenantRegistered(var Setup: Record "DH Setup")
+    var
+        RegistrationMessage: Text;
     begin
         EnsureSetupLoaded(Setup);
 
@@ -127,10 +129,10 @@ codeunit 53100 "DH API Client"
 
         // Nur wenn wirklich noch nichts existiert
         if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') then
-            RegisterTenant(Setup);
+            RegistrationMessage := RegisterTenant(Setup);
     end;
 
-    procedure RegisterTenant(var Setup: Record "DH Setup")
+    procedure RegisterTenant(var Setup: Record "DH Setup"): Text
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -143,6 +145,9 @@ codeunit 53100 "DH API Client"
         Token: JsonToken;
         TenantId: Text;
         ApiToken: Text;
+        DashboardInviteEmail: Text;
+        DashboardInviteError: Text;
+        DashboardInviteSent: Boolean;
     begin
         EnsureSetupLoaded(Setup);
 
@@ -185,6 +190,18 @@ codeunit 53100 "DH API Client"
             if not IsJsonNull(Token) then
                 ApiToken := Token.AsValue().AsText();
 
+        if JsonResponse.Get('dashboard_invite_sent', Token) then
+            if not IsJsonNull(Token) then
+                DashboardInviteSent := Token.AsValue().AsBoolean();
+
+        if JsonResponse.Get('dashboard_invite_email', Token) then
+            if not IsJsonNull(Token) then
+                DashboardInviteEmail := Token.AsValue().AsText();
+
+        if JsonResponse.Get('dashboard_invite_error', Token) then
+            if not IsJsonNull(Token) then
+                DashboardInviteError := Token.AsValue().AsText();
+
         if TenantId = '' then
             Error('The backend response does not contain a tenant_id.');
 
@@ -196,6 +213,17 @@ codeunit 53100 "DH API Client"
         Setup.Registered := true;
         Setup."Registration Date" := CurrentDateTime();
         Setup.Modify(true);
+
+        if DashboardInviteEmail = '' then
+            DashboardInviteEmail := Setup."Contact Email";
+
+        if DashboardInviteSent then
+            exit(StrSubstNo('BCSentinel tenant registration completed. Dashboard access was sent to %1.', DashboardInviteEmail));
+
+        if DashboardInviteError <> '' then
+            exit(StrSubstNo('BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', DashboardInviteError));
+
+        exit('BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.');
     end;
 
     procedure RefreshLicenseStatus(var Setup: Record "DH Setup")
@@ -600,6 +628,51 @@ codeunit 53100 "DH API Client"
 
         if not Response.IsSuccessStatusCode() then
             Error('Backend reconcile failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+    end;
+
+    procedure ClearBackendScanHistoryForReset(var Setup: Record "DH Setup")
+    var
+        Client: HttpClient;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        RequestText: Text;
+        ResponseText: Text;
+        JsonRequest: JsonObject;
+        ScanIds: JsonArray;
+    begin
+        EnsureSetupLoaded(Setup);
+
+        if Setup."Tenant ID" = '' then
+            exit;
+
+        if GetApiToken(Setup) = '' then
+            exit;
+
+        JsonRequest.Add('tenant_id', Setup."Tenant ID");
+        JsonRequest.Add('scan_ids', ScanIds);
+        JsonRequest.WriteTo(RequestText);
+
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(Headers);
+        Headers.Clear();
+        Headers.Add('Content-Type', 'application/json');
+
+        Headers := Client.DefaultRequestHeaders();
+        if Headers.Contains('X-Tenant-Id') then
+            Headers.Remove('X-Tenant-Id');
+        if Headers.Contains('X-Api-Token') then
+            Headers.Remove('X-Api-Token');
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
+
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/reconcile'), Content, Response) then
+            Error('The backend scan history cleanup request could not be sent. Please verify the network connection.');
+
+        Response.Content.ReadAs(ResponseText);
+
+        if not Response.IsSuccessStatusCode() then
+            Error('Backend scan history cleanup failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure StartDeepScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
