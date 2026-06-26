@@ -10,72 +10,217 @@
     {
         area(Content)
         {
-            group(Overview)
+            group(SubscriptionStatus)
             {
-                Caption = 'Overview';
+                Caption = 'Subscription & Status';
 
-                field(ProductAccessModel; Rec."Product Access Model")
+                field(SubscriptionStatusDisplay; SubscriptionStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Subscription Status';
+                    Editable = false;
+                    StyleExpr = SubscriptionStatusStyle;
+                    ToolTip = 'Shows the current BCSentinel subscription and access status.';
+                }
+                field(ProductAccessDisplay; ProductAccessTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Product Access';
-                    ToolTip = 'Specifies Product Access.';
                     Editable = false;
+                    ToolTip = 'Shows the readable product access level.';
                 }
-
-                field("Scan Credits Available"; Rec."Scan Credits Available")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies Scan Credits Available.';
-                    Editable = false;
-                }
-
                 field("Monitoring Active"; Rec."Monitoring Active")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Monitoring Active.';
                     Editable = false;
+                    StyleExpr = MonitoringStyle;
                 }
-
+                field(ScheduledScanAccess; ScheduledScanAccessTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scheduled Scans';
+                    Editable = false;
+                    StyleExpr = SchedulerAccessStyle;
+                    ToolTip = 'Shows whether scheduled scans are available.';
+                }
                 field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Dashboard Access Until.';
                     Editable = false;
                 }
-
                 field("Issue Access Until"; Rec."Issue Access Until")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Issue Access Until.';
                     Editable = false;
                 }
-
-                field("Can Run Deep Scan"; Rec."Can Run Deep Scan")
+                field("Scan Credits Available"; Rec."Scan Credits Available")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Can Run Deep Scan.';
+                    ToolTip = 'Specifies Scan Credits Available.';
                     Editable = false;
+                    StyleExpr = ScanCreditsStyle;
                 }
-
                 field("Last License Check"; Rec."Last License Check")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Last License Check.';
+                    ToolTip = 'Specifies Last Product Access Check.';
                     Editable = false;
-                }
-
-                field(FeatureAccess; Rec.GetFeatureAccessText())
-                {
-                    ApplicationArea = All;
-                    Caption = 'Feature access';
-                    Editable = false;
-                    ToolTip = 'Shows whether paid scan access is available.';
                 }
             }
 
-            group(General)
+            group(ScanConfiguration)
             {
-                Caption = 'General';
+                Caption = 'Scan Configuration';
+
+                field(ActiveModulesSummary; ActiveModulesTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Active Modules';
+                    Editable = false;
+                    DrillDown = true;
+                    StyleExpr = ModuleConfigStyle;
+                    ToolTip = 'Shows how many scan modules are active.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"DH Scan Modules");
+                    end;
+                }
+                field(ActiveChecksSummary; ActiveChecksTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Active Checks';
+                    Editable = false;
+                    DrillDown = true;
+                    StyleExpr = ChecksConfigStyle;
+                    ToolTip = 'Shows how many checks are active for the current module selection.';
+
+                    trigger OnDrillDown()
+                    begin
+                        OpenChecksSelection();
+                    end;
+                }
+                field(ScanConfigurationStatus; ScanConfigurationStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scan Status';
+                    Editable = false;
+                    MultiLine = true;
+                    StyleExpr = ScanConfigurationStyle;
+                    ToolTip = 'Shows whether the scan configuration is ready.';
+                }
+            }
+
+            group(ScheduledScans)
+            {
+                Caption = 'Scheduled Scans';
+
+                field(SchedulerNotice; SchedulerNoticeTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scheduler Notice';
+                    Editable = false;
+                    MultiLine = true;
+                    StyleExpr = SchedulerAccessStyle;
+                    ToolTip = 'Shows scheduler availability.';
+                }
+                field("Scheduled Scans Enabled"; Rec."Scheduled Scans Enabled")
+                {
+                    ApplicationArea = All;
+                    Editable = CanUseScheduler;
+                    ToolTip = 'Specifies whether scheduled scans are enabled.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                    end;
+                }
+                field("Schedule Frequency"; Rec."Schedule Frequency")
+                {
+                    ApplicationArea = All;
+                    Editable = CanEditSchedulerDetails;
+                    ToolTip = 'Specifies how often scheduled scans should run.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateSchedulerVisibility();
+                    end;
+                }
+                field("Schedule Time"; Rec."Schedule Time")
+                {
+                    ApplicationArea = All;
+                    Editable = CanEditSchedulerDetails;
+                    ToolTip = 'Specifies the local time for scheduled scans.';
+                }
+                group(WeeklyDays)
+                {
+                    Caption = 'Weekly Days';
+                    Visible = ShowWeeklySchedulerFields;
+
+                    field("Schedule Monday"; Rec."Schedule Monday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Tuesday"; Rec."Schedule Tuesday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Wednesday"; Rec."Schedule Wednesday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Thursday"; Rec."Schedule Thursday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Friday"; Rec."Schedule Friday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Saturday"; Rec."Schedule Saturday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Sunday"; Rec."Schedule Sunday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                }
+                field("Monthly Schedule Day"; Rec."Monthly Schedule Day")
+                {
+                    ApplicationArea = All;
+                    Editable = CanEditSchedulerDetails;
+                    Visible = ShowMonthlySchedulerFields;
+                    ToolTip = 'Specifies the day of month for monthly scheduled scans.';
+                }
+                field("Next Scheduled Scan"; Rec."Next Scheduled Scan")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the next scheduled scan.';
+                }
+                field("Last Scheduled Scan"; Rec."Last Scheduled Scan")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the last scheduled scan.';
+                }
+                field("Last Scheduled Scan Result"; Rec."Last Scheduled Scan Result")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    StyleExpr = LastScheduledResultStyle;
+                    ToolTip = 'Specifies the last scheduled scan result.';
+                }
+                field("Last Scheduled Scan Duration"; Rec."Last Scheduled Scan Duration")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the last scheduled scan duration.';
+                }
+                field("Scheduled Scan Failure Count"; Rec."Scheduled Scan Failure Count")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    StyleExpr = ScheduledFailureStyle;
+                    ToolTip = 'Specifies the scheduled scan failure count.';
+                }
+                field("Last Scheduled Scan Error"; Rec."Last Scheduled Scan Error")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    MultiLine = true;
+                    StyleExpr = ScheduledFailureStyle;
+                    ToolTip = 'Specifies the last scheduled scan error.';
+                }
+            }
+
+            group(Connection)
+            {
+                Caption = 'Connection';
 
                 field("API Base URL"; Rec."API Base URL")
                 {
@@ -103,9 +248,9 @@
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
+                    Caption = 'Tenant ID';
                     ToolTip = 'Specifies Tenant ID.';
                     Editable = false;
-                    Visible = false;
                 }
 
                 field(ApiTokenConfigured; HasStoredApiToken())
@@ -169,82 +314,87 @@
                 }
             }
 
-            group("Enabled Scan Modules")
+            group(ModuleHealthScores)
             {
-                Caption = 'Enabled Scan Modules';
+                Caption = 'Module Health Scores (Last Scan)';
 
-                field("Scan System Module"; Rec."Scan System Module")
+                field(ModuleScoresNotice; ModuleScoresNoticeTxt)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Include system and setup checks in the deep scan.';
+                    Caption = 'Status';
+                    Editable = false;
+                    MultiLine = true;
+                    Visible = ShowNoScanNotice;
+                    ToolTip = 'Shows whether module scores are available.';
                 }
-
-                field("Scan Finance Module"; Rec."Scan Finance Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include finance-related checks in the deep scan.';
-                }
-
-                field("Scan Sales Module"; Rec."Scan Sales Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include sales-related checks in the deep scan.';
-                }
-
-                field("Scan Purchasing Module"; Rec."Scan Purchasing Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include purchasing-related checks in the deep scan.';
-                }
-
-                field("Scan Inventory Module"; Rec."Scan Inventory Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include inventory-related checks in the deep scan.';
-                }
-
-                field("Scan CRM Module"; Rec."Scan CRM Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include CRM/contact-related checks in the deep scan.';
-                }
-
-                field("Scan Manufacturing Module"; Rec."Scan Manufacturing Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include manufacturing and production master data checks in the deep scan.';
-                }
-
-                field("Scan Service Module"; Rec."Scan Service Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include service-related checks in the deep scan.';
-                }
-
-                field("Scan Jobs Module"; Rec."Scan Jobs Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include jobs and project-related checks in the deep scan.';
-                }
-
-                field("Scan HR Module"; Rec."Scan HR Module")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Include employee and resource-related checks in the deep scan.';
-                }
+                field(SystemModuleScore; SystemModuleScoreTxt) { ApplicationArea = All; Caption = 'System'; Editable = false; StyleExpr = SystemModuleScoreStyle; }
+                field(FinanceModuleScore; FinanceModuleScoreTxt) { ApplicationArea = All; Caption = 'Finance'; Editable = false; StyleExpr = FinanceModuleScoreStyle; }
+                field(SalesModuleScore; SalesModuleScoreTxt) { ApplicationArea = All; Caption = 'Sales'; Editable = false; StyleExpr = SalesModuleScoreStyle; }
+                field(PurchasingModuleScore; PurchasingModuleScoreTxt) { ApplicationArea = All; Caption = 'Purchasing'; Editable = false; StyleExpr = PurchasingModuleScoreStyle; }
+                field(InventoryModuleScore; InventoryModuleScoreTxt) { ApplicationArea = All; Caption = 'Inventory'; Editable = false; StyleExpr = InventoryModuleScoreStyle; }
+                field(CRMModuleScore; CRMModuleScoreTxt) { ApplicationArea = All; Caption = 'CRM'; Editable = false; StyleExpr = CRMModuleScoreStyle; }
+                field(ManufacturingModuleScore; ManufacturingModuleScoreTxt) { ApplicationArea = All; Caption = 'Manufacturing'; Editable = false; StyleExpr = ManufacturingModuleScoreStyle; }
+                field(ServiceModuleScore; ServiceModuleScoreTxt) { ApplicationArea = All; Caption = 'Service'; Editable = false; StyleExpr = ServiceModuleScoreStyle; }
+                field(JobsModuleScore; JobsModuleScoreTxt) { ApplicationArea = All; Caption = 'Jobs'; Editable = false; StyleExpr = JobsModuleScoreStyle; }
+                field(HRModuleScore; HRModuleScoreTxt) { ApplicationArea = All; Caption = 'HR'; Editable = false; StyleExpr = HRModuleScoreStyle; }
             }
 
-            group(Scan)
+            group(LastScan)
             {
                 Caption = 'Last Scan';
 
-                field("Last Scan Date 2"; Rec."Last Scan Date")
+                field(LastScanRunId; LastScanRunIdTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Scan ID';
+                    Editable = false;
+                    ToolTip = 'Specifies the last scan ID.';
+                }
+                field(LastScanDate; LastScanDateValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Last Scan Date';
-                    ToolTip = 'Specifies Last Scan Date.';
                     Editable = false;
-                    Visible = false;
+                    ToolTip = 'Specifies the last scan date.';
+                }
+                field(LastScanScore; LastScanScoreTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Data Health Score';
+                    Editable = false;
+                    StyleExpr = LastScanScoreStyle;
+                    ToolTip = 'Specifies the last data health score.';
+                }
+                field(LastScanIssues; LastScanIssuesValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Issues';
+                    Editable = false;
+                    StyleExpr = LastScanIssuesStyle;
+                    ToolTip = 'Specifies the issue count from the last scan.';
+                }
+                field(LastScanEstimatedLoss; LastScanEstimatedLossValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Estimated Loss EUR';
+                    Editable = false;
+                    StyleExpr = LastScanLossStyle;
+                    ToolTip = 'Specifies the estimated loss from the last scan.';
+                }
+                field(LastScanDuration; LastScanDurationTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Duration';
+                    Editable = false;
+                    ToolTip = 'Specifies the duration of the last scan.';
+                }
+                field(LastScanStatus; LastScanStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Scan Status';
+                    Editable = false;
+                    StyleExpr = LastScanStatusStyle;
+                    ToolTip = 'Specifies the last scan status.';
                 }
             }
         }
@@ -434,6 +584,26 @@
                 end;
             }
 
+            action(OpenDashboard)
+            {
+                Caption = 'Open Dashboard';
+                ApplicationArea = All;
+                Image = View;
+                ToolTip = 'Opens the BCSentinel dashboard for this tenant.';
+                Enabled = CanOpenDashboard;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    ApiClient: Codeunit "DH API Client";
+                    Token: Text;
+                begin
+                    Token := ApiClient.GetAnalyticsDashboardToken(Rec);
+                    Hyperlink(GetDashboardUrl(Rec, Token));
+                end;
+            }
+
             group(ScanMenu)
             {
                 Caption = 'Scan';
@@ -485,7 +655,7 @@
 
                 action(StartPaidDeepScan)
                 {
-                    Caption = 'Start Validation Check';
+                    Caption = 'Start Scan';
                     ToolTip = 'Starts a Validation Check follow-up scan using active access.';
                     Image = Start;
                     ApplicationArea = All;
@@ -533,26 +703,182 @@
                     end;
                 }
 
+                action(OpenLatestScanMonitor)
+                {
+                    Caption = 'Open Scan Monitor';
+                    ToolTip = 'Opens the scan monitor for the latest deep scan.';
+                    Image = ViewDetails;
+                    ApplicationArea = All;
+                    Enabled = CanOpenLatestMonitor;
+
+                    trigger OnAction()
+                    begin
+                        OpenLatestMonitor();
+                    end;
+                }
+
                 action(SelectScanChecks)
                 {
-                    Caption = 'Select Scan Checks';
+                    Caption = 'Select Checks';
                     ToolTip = 'Selects the checks that are included in Monitoring scans.';
                     Image = CheckList;
                     ApplicationArea = All;
                     Enabled = CanSelectScanChecks;
-                    Visible = CanSelectScanChecks;
+                    Visible = true;
+                    Promoted = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        OpenChecksSelection();
+                    end;
+                }
+
+                action(ConfigureModules)
+                {
+                    Caption = 'Configure Modules';
+                    ToolTip = 'Opens the BCSentinel scan module configuration.';
+                    Image = Setup;
+                    ApplicationArea = All;
+                    Promoted = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        Page.Run(Page::"DH Scan Modules");
+                    end;
+                }
+            }
+
+            group(SchedulerActions)
+            {
+                Caption = 'Scheduler';
+                Image = Calendar;
+
+                action(RunScheduledScanNow)
+                {
+                    Caption = 'Run now';
+                    ToolTip = 'Starts a Monitoring scan immediately and opens the scan monitor.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = CanUseScheduler;
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     var
-                        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+                        DeepScanRun: Record "DH Deep Scan Run";
+                        EntryNo: Integer;
                     begin
-                        EnsureSetupExists();
-                        ScanCheckMgt.EnsureMonitoringAccess(true);
-                        Page.Run(Page::"DH Scan Checks");
-                        if Rec.Get('SETUP') then begin
-                            UpdateActionState();
-                            CurrPage.Update(false);
-                        end;
+                        EntryNo := SchedulerMgt.RunNow(Rec);
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                        if DeepScanRun.Get(EntryNo) then
+                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                    end;
+                }
+
+                action(CalculateNextRun)
+                {
+                    Caption = 'Calculate Next Run';
+                    ToolTip = 'Calculates the next scheduled scan date and time.';
+                    Image = CalculateCalendar;
+                    ApplicationArea = All;
+                    Enabled = CanUseScheduler;
+
+                    trigger OnAction()
+                    var
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+                        NextRun: DateTime;
+                    begin
+                        NextRun := SchedulerMgt.CalculateNextRun(Rec);
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                        Message('Next scheduled scan: %1', NextRun);
+                    end;
+                }
+
+                action(RescheduleScheduler)
+                {
+                    Caption = 'Reschedule Scheduler';
+                    ToolTip = 'Schedules the next Monitoring scan with the Business Central TaskScheduler.';
+                    Image = Calendar;
+                    ApplicationArea = All;
+                    Enabled = CanEditSchedulerDetails;
+
+                    trigger OnAction()
+                    var
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+                    begin
+                        SchedulerMgt.Reschedule(Rec);
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                    end;
+                }
+
+                action(DisableScheduler)
+                {
+                    Caption = 'Disable Scheduler';
+                    ToolTip = 'Disables scheduled scans.';
+                    Image = Cancel;
+                    ApplicationArea = All;
+                    Enabled = Rec."Scheduled Scans Enabled";
+
+                    trigger OnAction()
+                    var
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+                    begin
+                        SchedulerMgt.DisableScheduler(Rec);
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+
+            group(HelpSupport)
+            {
+                Caption = 'Help & Support';
+                Image = Help;
+
+                action(OpenDocumentation)
+                {
+                    Caption = 'Documentation';
+                    ToolTip = 'Opens BCSentinel documentation.';
+                    Image = Help;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                        Hyperlink('https://bcsentinel.com/documentation');
+                    end;
+                }
+
+                action(OpenSupport)
+                {
+                    Caption = 'Support';
+                    ToolTip = 'Opens BCSentinel support.';
+                    Image = Help;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                        Hyperlink('https://bcsentinel.com/support');
+                    end;
+                }
+
+                action(OpenPrivacySecurity)
+                {
+                    Caption = 'Privacy & Security';
+                    ToolTip = 'Opens BCSentinel privacy and security information.';
+                    Image = Lock;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                        Hyperlink('https://bcsentinel.com/privacy.html');
                     end;
                 }
             }
@@ -569,17 +895,73 @@
         ShowStartValidationCheck: Boolean;
         ShowValidationCheckRequiresFreeScore: Boolean;
         CanSelectScanChecks: Boolean;
+        CanUseScheduler: Boolean;
+        CanEditSchedulerDetails: Boolean;
+        CanOpenDashboard: Boolean;
+        CanOpenLatestMonitor: Boolean;
         ShowBuyFullAnalysis: Boolean;
         ShowBuyValidationCheck: Boolean;
         ShowStartMonitoring: Boolean;
+        ShowWeeklySchedulerFields: Boolean;
+        ShowMonthlySchedulerFields: Boolean;
+        ShowNoScanNotice: Boolean;
         DataProcessingNoticeTxt: Text[1024];
         InviteNoticeTxt: Text[512];
+        SubscriptionStatusTxt: Text[100];
+        ProductAccessTxt: Text[100];
+        ScheduledScanAccessTxt: Text[100];
+        ActiveModulesTxt: Text[100];
+        ActiveChecksTxt: Text[100];
+        ScanConfigurationStatusTxt: Text[250];
+        SchedulerNoticeTxt: Text[250];
+        ModuleScoresNoticeTxt: Text[100];
+        LastScanRunIdTxt: Text[50];
+        LastScanDateValue: DateTime;
+        LastScanScoreTxt: Text[30];
+        LastScanIssuesValue: Integer;
+        LastScanEstimatedLossValue: Decimal;
+        LastScanDurationTxt: Text[50];
+        LastScanStatusTxt: Text[100];
+        SystemModuleScoreTxt: Text[50];
+        FinanceModuleScoreTxt: Text[50];
+        SalesModuleScoreTxt: Text[50];
+        PurchasingModuleScoreTxt: Text[50];
+        InventoryModuleScoreTxt: Text[50];
+        CRMModuleScoreTxt: Text[50];
+        ManufacturingModuleScoreTxt: Text[50];
+        ServiceModuleScoreTxt: Text[50];
+        JobsModuleScoreTxt: Text[50];
+        HRModuleScoreTxt: Text[50];
+        SubscriptionStatusStyle: Text[30];
+        MonitoringStyle: Text[30];
+        SchedulerAccessStyle: Text[30];
+        ScanCreditsStyle: Text[30];
+        ModuleConfigStyle: Text[30];
+        ChecksConfigStyle: Text[30];
+        ScanConfigurationStyle: Text[30];
+        LastScheduledResultStyle: Text[30];
+        ScheduledFailureStyle: Text[30];
+        LastScanScoreStyle: Text[30];
+        LastScanIssuesStyle: Text[30];
+        LastScanLossStyle: Text[30];
+        LastScanStatusStyle: Text[30];
+        SystemModuleScoreStyle: Text[30];
+        FinanceModuleScoreStyle: Text[30];
+        SalesModuleScoreStyle: Text[30];
+        PurchasingModuleScoreStyle: Text[30];
+        InventoryModuleScoreStyle: Text[30];
+        CRMModuleScoreStyle: Text[30];
+        ManufacturingModuleScoreStyle: Text[30];
+        ServiceModuleScoreStyle: Text[30];
+        JobsModuleScoreStyle: Text[30];
+        HRModuleScoreStyle: Text[30];
 
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
         UpdateActionState();
         UpdateNoticeTexts();
+        UpdateDisplayValues();
         //RefreshLicenseSilently();
         CurrPage.Update(false);
     end;
@@ -588,6 +970,7 @@
     begin
         UpdateActionState();
         UpdateNoticeTexts();
+        UpdateDisplayValues();
     end;
 
     local procedure EnsureSetupExists()
@@ -668,6 +1051,11 @@
         ShowStartValidationCheck := HasCompletedFreeScore;
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
         CanSelectScanChecks := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
+        CanUseScheduler := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
+        CanEditSchedulerDetails := CanUseScheduler and Rec."Scheduled Scans Enabled";
+        CanOpenDashboard := (Rec."Tenant ID" <> '') and HasStoredApiToken();
+        CanOpenLatestMonitor := LastDeepScanRunExists();
+        UpdateSchedulerVisibility();
         ShowBuyFullAnalysis := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and not HasOneTimeAccess;
         ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasOneTimeAccess;
         ShowStartMonitoring := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active";
@@ -692,6 +1080,241 @@
             'Before registration or scans, BCSentinel requires consent to send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel. The data is used for Data Health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
 
         InviteNoticeTxt := '';
+    end;
+
+    local procedure UpdateDisplayValues()
+    var
+        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+        LastRun: Record "DH Deep Scan Run";
+        EnabledChecks: Integer;
+        TotalChecks: Integer;
+    begin
+        Rec.EnsureSchedulerDefaults();
+        SubscriptionStatusTxt := Rec.GetSubscriptionStatusDisplay();
+        ProductAccessTxt := Rec.GetProductAccessDisplay();
+        ScheduledScanAccessTxt := Rec.GetScheduledScanAccessDisplay();
+        ActiveModulesTxt := SchedulerMgt.GetActiveModulesSummary(Rec);
+        ActiveChecksTxt := SchedulerMgt.GetActiveChecksSummary(Rec);
+        EnabledChecks := ScanCheckMgt.GetExpectedChecksCount(Rec);
+        TotalChecks := ScanCheckMgt.GetTotalModuleChecksCount(Rec);
+
+        if not Rec.HasAnyModuleEnabled() then begin
+            ScanConfigurationStatusTxt := 'Scan not possible. At least one module must be active.';
+            ScanConfigurationStyle := 'Unfavorable';
+        end else
+            if Rec."Monitoring Active" and (EnabledChecks = 0) and (TotalChecks > 0) then begin
+                ScanConfigurationStatusTxt := 'Scan not possible. At least one check must be active.';
+                ScanConfigurationStyle := 'Unfavorable';
+            end else begin
+                ScanConfigurationStatusTxt := 'Scan possible. Required modules and checks are available.';
+                ScanConfigurationStyle := 'Favorable';
+            end;
+
+        if Rec."Monitoring Active" then
+            SchedulerNoticeTxt := 'Scheduled scans are available with active Monitoring.'
+        else
+            SchedulerNoticeTxt := 'Scheduled scans require an active Monitoring subscription.';
+
+        SubscriptionStatusStyle := GetAccessStyle(Rec."Monitoring Active" or Rec."Can View Issue Details" or Rec."Premium Enabled");
+        MonitoringStyle := GetAccessStyle(Rec."Monitoring Active");
+        SchedulerAccessStyle := GetAccessStyle(Rec."Monitoring Active");
+        if Rec."Scan Credits Available" > 0 then
+            ScanCreditsStyle := 'Favorable'
+        else
+            ScanCreditsStyle := 'Standard';
+
+        ModuleConfigStyle := GetAccessStyle(Rec.HasAnyModuleEnabled());
+        ChecksConfigStyle := GetAccessStyle(EnabledChecks > 0);
+        LastScheduledResultStyle := GetScheduledResultStyle();
+        if Rec."Scheduled Scan Failure Count" > 0 then
+            ScheduledFailureStyle := 'Unfavorable'
+        else
+            ScheduledFailureStyle := 'Standard';
+
+        LoadLastScan(LastRun);
+        UpdateModuleScoreTexts(LastRun);
+    end;
+
+    local procedure UpdateSchedulerVisibility()
+    begin
+        ShowWeeklySchedulerFields := Rec."Schedule Frequency" = Rec."Schedule Frequency"::Weekly;
+        ShowMonthlySchedulerFields := Rec."Schedule Frequency" = Rec."Schedule Frequency"::Monthly;
+    end;
+
+    local procedure LoadLastScan(var LastRun: Record "DH Deep Scan Run")
+    begin
+        Clear(LastRun);
+        LastScanRunIdTxt := '';
+        LastScanDateValue := 0DT;
+        LastScanScoreTxt := '';
+        LastScanIssuesValue := 0;
+        LastScanEstimatedLossValue := 0;
+        LastScanDurationTxt := '';
+        LastScanStatusTxt := '';
+        ShowNoScanNotice := true;
+        ModuleScoresNoticeTxt := 'No scan available yet.';
+
+        LastRun.Reset();
+        LastRun.SetCurrentKey("Requested At");
+        LastRun.Ascending(false);
+        if not LastRun.FindFirst() then begin
+            LastScanStatusTxt := 'No scan available yet.';
+            LastScanStatusStyle := 'Standard';
+            exit;
+        end;
+
+        ShowNoScanNotice := false;
+        ModuleScoresNoticeTxt := '';
+        LastScanRunIdTxt := LastRun."Run ID";
+        LastScanDateValue := LastRun."Requested At";
+        LastScanScoreTxt := StrSubstNo('%1 / 100', LastRun."Deep Score");
+        LastScanIssuesValue := LastRun."Issues Count";
+        LastScanEstimatedLossValue := LastRun."Estimated Loss (EUR)";
+        LastScanDurationTxt := GetDurationText(LastRun);
+        LastScanStatusTxt := Format(LastRun.Status);
+        LastScanScoreStyle := GetScoreStyle(LastRun."Deep Score");
+        LastScanIssuesStyle := GetIssueStyle(LastRun."Issues Count");
+        LastScanLossStyle := GetAmountStyle(LastRun."Estimated Loss (EUR)");
+        LastScanStatusStyle := GetRunStatusStyle(LastRun);
+    end;
+
+    local procedure UpdateModuleScoreTexts(var LastRun: Record "DH Deep Scan Run")
+    begin
+        SystemModuleScoreTxt := FormatModuleScore(LastRun."System Score");
+        FinanceModuleScoreTxt := FormatModuleScore(LastRun."Finance Score");
+        SalesModuleScoreTxt := FormatModuleScore(LastRun."Sales Score");
+        PurchasingModuleScoreTxt := FormatModuleScore(LastRun."Purchasing Score");
+        InventoryModuleScoreTxt := FormatModuleScore(LastRun."Inventory Score");
+        CRMModuleScoreTxt := FormatModuleScore(LastRun."CRM Score");
+        ManufacturingModuleScoreTxt := FormatModuleScore(LastRun."Manufacturing Score");
+        ServiceModuleScoreTxt := FormatModuleScore(LastRun."Service Score");
+        JobsModuleScoreTxt := FormatModuleScore(LastRun."Jobs Score");
+        HRModuleScoreTxt := FormatModuleScore(LastRun."HR Score");
+
+        SystemModuleScoreStyle := GetScoreStyle(LastRun."System Score");
+        FinanceModuleScoreStyle := GetScoreStyle(LastRun."Finance Score");
+        SalesModuleScoreStyle := GetScoreStyle(LastRun."Sales Score");
+        PurchasingModuleScoreStyle := GetScoreStyle(LastRun."Purchasing Score");
+        InventoryModuleScoreStyle := GetScoreStyle(LastRun."Inventory Score");
+        CRMModuleScoreStyle := GetScoreStyle(LastRun."CRM Score");
+        ManufacturingModuleScoreStyle := GetScoreStyle(LastRun."Manufacturing Score");
+        ServiceModuleScoreStyle := GetScoreStyle(LastRun."Service Score");
+        JobsModuleScoreStyle := GetScoreStyle(LastRun."Jobs Score");
+        HRModuleScoreStyle := GetScoreStyle(LastRun."HR Score");
+    end;
+
+    local procedure FormatModuleScore(Score: Integer): Text[50]
+    begin
+        if ShowNoScanNotice then
+            exit('-');
+
+        exit(StrSubstNo('%1 / 100', Score));
+    end;
+
+    local procedure GetAccessStyle(IsAvailable: Boolean): Text[30]
+    begin
+        if IsAvailable then
+            exit('Favorable');
+
+        exit('Standard');
+    end;
+
+    local procedure GetScoreStyle(Score: Integer): Text[30]
+    begin
+        if Score >= 90 then
+            exit('Favorable');
+        if Score >= 70 then
+            exit('Ambiguous');
+        if Score > 0 then
+            exit('Unfavorable');
+        exit('Standard');
+    end;
+
+    local procedure GetIssueStyle(IssueCount: Integer): Text[30]
+    begin
+        if IssueCount > 0 then
+            exit('Unfavorable');
+        exit('Favorable');
+    end;
+
+    local procedure GetAmountStyle(Amount: Decimal): Text[30]
+    begin
+        if Amount > 0 then
+            exit('Unfavorable');
+        exit('Standard');
+    end;
+
+    local procedure GetRunStatusStyle(var DeepScanRun: Record "DH Deep Scan Run"): Text[30]
+    begin
+        case DeepScanRun.Status of
+            DeepScanRun.Status::Completed:
+                exit('Favorable');
+            DeepScanRun.Status::Failed, DeepScanRun.Status::Canceled:
+                exit('Unfavorable');
+            DeepScanRun.Status::Queued, DeepScanRun.Status::Running:
+                exit('Ambiguous');
+        end;
+        exit('Standard');
+    end;
+
+    local procedure GetDurationText(var DeepScanRun: Record "DH Deep Scan Run"): Text[50]
+    var
+        DurationValue: Duration;
+    begin
+        if (DeepScanRun."Started At" = 0DT) or (DeepScanRun."Finished At" = 0DT) then
+            exit('');
+
+        DurationValue := DeepScanRun."Finished At" - DeepScanRun."Started At";
+        exit(Format(DurationValue));
+    end;
+
+    local procedure GetScheduledResultStyle(): Text[30]
+    begin
+        case Rec."Last Scheduled Scan Result" of
+            Rec."Last Scheduled Scan Result"::Completed, Rec."Last Scheduled Scan Result"::Queued:
+                exit('Favorable');
+            Rec."Last Scheduled Scan Result"::Failed, Rec."Last Scheduled Scan Result"::SkippedConfiguration, Rec."Last Scheduled Scan Result"::SkippedMonitoringInactive:
+                exit('Unfavorable');
+        end;
+        exit('Standard');
+    end;
+
+    local procedure LastDeepScanRunExists(): Boolean
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        DeepScanRun.Reset();
+        DeepScanRun.SetCurrentKey("Requested At");
+        DeepScanRun.Ascending(false);
+        exit(DeepScanRun.FindFirst());
+    end;
+
+    local procedure OpenLatestMonitor()
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        DeepScanRun.Reset();
+        DeepScanRun.SetCurrentKey("Requested At");
+        DeepScanRun.Ascending(false);
+        if not DeepScanRun.FindFirst() then
+            Error('No deep scan run is available.');
+
+        Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+    end;
+
+    local procedure OpenChecksSelection()
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+    begin
+        EnsureSetupExists();
+        ScanCheckMgt.EnsureMonitoringAccess(true);
+        Page.Run(Page::"DH Scan Checks");
+        if Rec.Get('SETUP') then begin
+            UpdateActionState();
+            UpdateDisplayValues();
+            CurrPage.Update(false);
+        end;
     end;
 
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text

@@ -243,6 +243,98 @@ table 53100 "DH Setup"
             Caption = 'Product Access';
             DataClassification = SystemMetadata;
         }
+        field(39; "Scheduled Scans Enabled"; Boolean)
+        {
+            Caption = 'Scheduled Scans Enabled';
+            DataClassification = SystemMetadata;
+        }
+        field(40; "Schedule Frequency"; Enum "DH Scan Schedule Frequency")
+        {
+            Caption = 'Schedule Frequency';
+            DataClassification = SystemMetadata;
+        }
+        field(41; "Schedule Time"; Time)
+        {
+            Caption = 'Schedule Time';
+            DataClassification = SystemMetadata;
+        }
+        field(42; "Schedule Monday"; Boolean)
+        {
+            Caption = 'Monday';
+            DataClassification = SystemMetadata;
+        }
+        field(43; "Schedule Tuesday"; Boolean)
+        {
+            Caption = 'Tuesday';
+            DataClassification = SystemMetadata;
+        }
+        field(44; "Schedule Wednesday"; Boolean)
+        {
+            Caption = 'Wednesday';
+            DataClassification = SystemMetadata;
+        }
+        field(45; "Schedule Thursday"; Boolean)
+        {
+            Caption = 'Thursday';
+            DataClassification = SystemMetadata;
+        }
+        field(46; "Schedule Friday"; Boolean)
+        {
+            Caption = 'Friday';
+            DataClassification = SystemMetadata;
+        }
+        field(47; "Schedule Saturday"; Boolean)
+        {
+            Caption = 'Saturday';
+            DataClassification = SystemMetadata;
+        }
+        field(48; "Schedule Sunday"; Boolean)
+        {
+            Caption = 'Sunday';
+            DataClassification = SystemMetadata;
+        }
+        field(49; "Monthly Schedule Day"; Integer)
+        {
+            Caption = 'Monthly Day';
+            DataClassification = SystemMetadata;
+            MinValue = 1;
+            MaxValue = 31;
+        }
+        field(50; "Next Scheduled Scan"; DateTime)
+        {
+            Caption = 'Next Scheduled Scan';
+            DataClassification = SystemMetadata;
+        }
+        field(51; "Last Scheduled Scan"; DateTime)
+        {
+            Caption = 'Last Scheduled Scan';
+            DataClassification = SystemMetadata;
+        }
+        field(52; "Last Scheduled Scan Result"; Enum "DH Scheduled Scan Result")
+        {
+            Caption = 'Last Scheduled Scan Result';
+            DataClassification = SystemMetadata;
+        }
+        field(53; "Last Scheduled Scan Duration"; Duration)
+        {
+            Caption = 'Last Scheduled Scan Duration';
+            DataClassification = SystemMetadata;
+        }
+        field(54; "Scheduled Scan Failure Count"; Integer)
+        {
+            Caption = 'Scheduled Scan Failure Count';
+            DataClassification = SystemMetadata;
+        }
+        field(55; "Last Scheduled Scan Error"; Text[250])
+        {
+            Caption = 'Last Scheduled Scan Error';
+            DataClassification = SystemMetadata;
+        }
+        field(56; "Scheduled Scan Task ID"; Guid)
+        {
+            Caption = 'Scheduled Scan Task ID';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -259,6 +351,7 @@ table 53100 "DH Setup"
             "Primary Key" := 'SETUP';
 
         ApplyDefaults();
+        EnsureModuleDefaults();
     end;
 
     trigger OnModify()
@@ -273,7 +366,7 @@ table 53100 "DH Setup"
         else
             "API Base URL" := NormalizeApiBaseUrl("API Base URL");
 
-        EnsureModuleDefaults();
+        EnsureSchedulerDefaults();
     end;
 
     procedure GetDefaultApiBaseUrl(): Text[250]
@@ -335,10 +428,66 @@ table 53100 "DH Setup"
         exit('Register the tenant and unlock Full Analysis or Monitoring.');
     end;
 
+    procedure GetProductAccessDisplay(): Text[100]
+    var
+        AccessModel: Text;
+    begin
+        if "Monitoring Active" then begin
+            AccessModel := LowerCase("Product Access Model");
+            if AccessModel.Contains('annual') then
+                exit('Monitoring Annual');
+            exit('Monitoring Monthly');
+        end;
+
+        if "Can View Issue Details" or "Premium Enabled" then begin
+            if "Scan Credits Available" > 0 then
+                exit('Validation Check');
+            exit('Full Analysis');
+        end;
+
+        exit('Free Data Health Score');
+    end;
+
+    procedure GetDeepScanAccessDisplay(): Text[100]
+    begin
+        if "Monitoring Active" then
+            exit('Unlimited');
+
+        if "Can Run Deep Scan" then begin
+            if "Scan Credits Available" > 0 then
+                exit(StrSubstNo('%1 scan credit(s) available', "Scan Credits Available"));
+            exit('Available');
+        end;
+
+        exit('Not available');
+    end;
+
+    procedure GetScheduledScanAccessDisplay(): Text[100]
+    begin
+        if "Monitoring Active" then
+            exit('Available');
+
+        exit('Scheduled scans require active Monitoring.');
+    end;
+
+    procedure GetSubscriptionStatusDisplay(): Text[100]
+    begin
+        if "Monitoring Active" then
+            exit('Monitoring active');
+
+        if "Can View Issue Details" or "Premium Enabled" then
+            exit('Paid scan access active');
+
+        if Registered then
+            exit('Free access active');
+
+        exit('Not registered');
+    end;
+
     procedure GetUpgradeHintText(): Text[250]
     begin
         if "Monitoring Active" then
-            exit('Monitoring is active. Deep scans and dashboard details are available.');
+            exit('Monitoring is active. Scans and dashboard details are available.');
 
         if "Scan Credits Available" > 0 then
             exit('A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.');
@@ -393,6 +542,42 @@ table 53100 "DH Setup"
             "Scan Service Module" := true;
             "Scan Jobs Module" := true;
             "Scan HR Module" := true;
+        end;
+    end;
+
+    procedure SetAllScanModules(Enabled: Boolean)
+    begin
+        "Scan System Module" := Enabled;
+        "Scan Finance Module" := Enabled;
+        "Scan Sales Module" := Enabled;
+        "Scan Purchasing Module" := Enabled;
+        "Scan Inventory Module" := Enabled;
+        "Scan CRM Module" := Enabled;
+        "Scan Manufacturing Module" := Enabled;
+        "Scan Service Module" := Enabled;
+        "Scan Jobs Module" := Enabled;
+        "Scan HR Module" := Enabled;
+    end;
+
+    procedure RestoreDefaultScanModules()
+    begin
+        SetAllScanModules(true);
+    end;
+
+    procedure EnsureSchedulerDefaults()
+    begin
+        if "Schedule Time" = 0T then
+            "Schedule Time" := 020000T;
+
+        if "Monthly Schedule Day" = 0 then
+            "Monthly Schedule Day" := 1;
+
+        if not ("Schedule Monday" or "Schedule Tuesday" or "Schedule Wednesday" or "Schedule Thursday" or "Schedule Friday" or "Schedule Saturday" or "Schedule Sunday") then begin
+            "Schedule Monday" := true;
+            "Schedule Tuesday" := true;
+            "Schedule Wednesday" := true;
+            "Schedule Thursday" := true;
+            "Schedule Friday" := true;
         end;
     end;
 
