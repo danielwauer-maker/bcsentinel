@@ -36,14 +36,6 @@
                     Editable = false;
                     StyleExpr = MonitoringStyle;
                 }
-                field(ScheduledScanAccess; ScheduledScanAccessTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Scheduled Scans';
-                    Editable = false;
-                    StyleExpr = SchedulerAccessStyle;
-                    ToolTip = 'Shows whether scheduled scans are available.';
-                }
                 field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
                     ApplicationArea = All;
@@ -445,7 +437,7 @@
                     ContactEmailRequiredMsg: Label 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.';
                 begin
                     if Rec."Tenant ID" <> '' then begin
-                        Message('BCSentinel tenant is already registered.');
+                        Message(TenantAlreadyRegisteredLbl);
                         exit;
                     end;
 
@@ -458,14 +450,14 @@
 
                     if Rec.Registered then begin
                         if HasStoredApiToken() then begin
-                            Message('BCSentinel tenant is already registered.');
+                            Message(TenantAlreadyRegisteredLbl);
                             exit;
                         end;
 
-                        Message('BCSentinel registration data is incomplete. Registration will request a fresh API token.');
+                        Message(RegistrationIncompleteLbl);
                     end;
 
-                    Message('BCSentinel tenant registration started.');
+                    Message(TenantRegistrationStartedLbl);
                     RegistrationMessage := ApiClient.RegisterTenant(Rec);
                     ApiClient.RefreshLicenseStatus(Rec);
                     UpdateActionState();
@@ -498,7 +490,7 @@
                     UpdateActionState();
                     UpdateDisplayValues();
                     CurrPage.Update(false);
-                    Message('Local BCSentinel registration and scan history were reset. Please register again.');
+                    Message(RegistrationResetLbl);
                 end;
             }
 
@@ -592,11 +584,11 @@
                     ApiClient: Codeunit "DH API Client";
                 begin
                     if Rec."Tenant ID" = '' then
-                        Error('Please register the tenant first.');
+                        Error(RegisterTenantFirstLbl);
 
                     ApiClient.RefreshLicenseStatus(Rec);
                     CurrPage.Update(false);
-                    Message('Product access refreshed.');
+                    Message(ProductAccessRefreshedLbl);
                 end;
             }
 
@@ -812,7 +804,7 @@
                         NextRun := SchedulerMgt.CalculateNextRun(Rec);
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        Message('Next scheduled scan: %1', NextRun);
+                        Message(NextScheduledScanLbl, NextRun);
                     end;
                 }
 
@@ -925,7 +917,6 @@
         InviteNoticeTxt: Text[512];
         SubscriptionStatusTxt: Text[100];
         ProductAccessTxt: Text[100];
-        ScheduledScanAccessTxt: Text[100];
         ActiveModulesTxt: Text[100];
         ActiveChecksTxt: Text[100];
         ScanConfigurationStatusTxt: Text[250];
@@ -971,6 +962,25 @@
         ServiceModuleScoreStyle: Text[30];
         JobsModuleScoreStyle: Text[30];
         HRModuleScoreStyle: Text[30];
+        DataProcessingNoticeLbl: Label 'Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.', Comment = 'DEU="Vor der Registrierung oder vor Scans benoetigt BCSentinel Ihre Einwilligung zur Uebermittlung und Verarbeitung von Mandanten- und Unternehmensdaten, Metadaten, Konfigurationsdaten, Scan-Ergebnissen, Findings und aggregierten Qualitaetskennzahlen. Die Daten werden fuer Data-Health-Analysen, Dashboards, Executive Reports und Lizenzpruefungen verwendet."';
+        ScanNotPossibleModuleLbl: Label 'Scan not possible. At least one module must be active.', Comment = 'DEU="Scan nicht moeglich. Mindestens ein Modul muss aktiv sein."';
+        ScanNotPossibleCheckLbl: Label 'Scan not possible. At least one check must be active.', Comment = 'DEU="Scan nicht moeglich. Mindestens ein Check muss aktiv sein."';
+        ScanPossibleLbl: Label 'Scan possible. Required modules and checks are available.', Comment = 'DEU="Scan moeglich. Erforderliche Module und Checks sind verfuegbar."';
+        ScheduledScansAvailableLbl: Label 'Scheduled scans are available with active Monitoring.', Comment = 'DEU="Geplante Scans sind mit aktivem Monitoring verfuegbar."';
+        ScheduledScansRequireMonitoringLbl: Label 'Scheduled scans require an active Monitoring subscription.', Comment = 'DEU="Geplante Scans erfordern ein aktives Monitoring-Abonnement."';
+        NoScanAvailableLbl: Label 'No scan available yet.', Comment = 'DEU="Noch kein Scan verfuegbar."';
+        NoDeepScanRunAvailableLbl: Label 'No deep scan run is available.', Comment = 'DEU="Es ist kein Deep-Scan-Lauf verfuegbar."';
+        ConfigureApiBaseUrlLbl: Label 'Please configure the API Base URL first.', Comment = 'DEU="Bitte konfigurieren Sie zuerst die API-Basis-URL."';
+        TenantNotRegisteredLbl: Label 'Tenant is not registered yet.', Comment = 'DEU="Der Tenant ist noch nicht registriert."';
+        TokenResponseInvalidJsonLbl: Label 'The token response is not valid JSON.', Comment = 'DEU="Die Token-Antwort ist kein gueltiges JSON."';
+        TokenMissingLbl: Label 'The token field is missing in the response.', Comment = 'DEU="Das Token-Feld fehlt in der Antwort."';
+        TenantAlreadyRegisteredLbl: Label 'BCSentinel tenant is already registered.', Comment = 'DEU="Der BCSentinel Tenant ist bereits registriert."';
+        RegistrationIncompleteLbl: Label 'BCSentinel registration data is incomplete. Registration will request a fresh API token.', Comment = 'DEU="Die BCSentinel Registrierungsdaten sind unvollstaendig. Die Registrierung fordert einen neuen API-Token an."';
+        TenantRegistrationStartedLbl: Label 'BCSentinel tenant registration started.', Comment = 'DEU="BCSentinel Tenant-Registrierung wurde gestartet."';
+        RegistrationResetLbl: Label 'Local BCSentinel registration and scan history were reset. Please register again.', Comment = 'DEU="Die lokale BCSentinel Registrierung und Scan-Historie wurden zurueckgesetzt. Bitte registrieren Sie sich erneut."';
+        RegisterTenantFirstLbl: Label 'Please register the tenant first.', Comment = 'DEU="Bitte registrieren Sie zuerst den Tenant."';
+        ProductAccessRefreshedLbl: Label 'Product access refreshed.', Comment = 'DEU="Produktzugriff wurde aktualisiert."';
+        NextScheduledScanLbl: Label 'Next scheduled scan: %1', Comment = 'DEU="Naechster geplanter Scan: %1"';
 
     trigger OnOpenPage()
     begin
@@ -1116,8 +1126,7 @@
 
     local procedure UpdateNoticeTexts()
     begin
-        DataProcessingNoticeTxt :=
-            'Before registration or scans, BCSentinel requires consent to send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel. The data is used for Data Health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+        DataProcessingNoticeTxt := DataProcessingNoticeLbl;
 
         InviteNoticeTxt := '';
     end;
@@ -1133,28 +1142,27 @@
         Rec.EnsureSchedulerDefaults();
         SubscriptionStatusTxt := Rec.GetSubscriptionStatusDisplay();
         ProductAccessTxt := Rec.GetProductAccessDisplay();
-        ScheduledScanAccessTxt := Rec.GetScheduledScanAccessDisplay();
         ActiveModulesTxt := SchedulerMgt.GetActiveModulesSummary(Rec);
         ActiveChecksTxt := SchedulerMgt.GetActiveChecksSummary(Rec);
         EnabledChecks := ScanCheckMgt.GetExpectedChecksCount(Rec);
         TotalChecks := ScanCheckMgt.GetTotalModuleChecksCount(Rec);
 
         if not Rec.HasAnyModuleEnabled() then begin
-            ScanConfigurationStatusTxt := 'Scan not possible. At least one module must be active.';
+            ScanConfigurationStatusTxt := ScanNotPossibleModuleLbl;
             ScanConfigurationStyle := 'Unfavorable';
         end else
             if Rec."Monitoring Active" and (EnabledChecks = 0) and (TotalChecks > 0) then begin
-                ScanConfigurationStatusTxt := 'Scan not possible. At least one check must be active.';
+                ScanConfigurationStatusTxt := ScanNotPossibleCheckLbl;
                 ScanConfigurationStyle := 'Unfavorable';
             end else begin
-                ScanConfigurationStatusTxt := 'Scan possible. Required modules and checks are available.';
+                ScanConfigurationStatusTxt := ScanPossibleLbl;
                 ScanConfigurationStyle := 'Favorable';
             end;
 
         if Rec."Monitoring Active" then
-            SchedulerNoticeTxt := 'Scheduled scans are available with active Monitoring.'
+            SchedulerNoticeTxt := ScheduledScansAvailableLbl
         else
-            SchedulerNoticeTxt := 'Scheduled scans require an active Monitoring subscription.';
+            SchedulerNoticeTxt := ScheduledScansRequireMonitoringLbl;
 
         SubscriptionStatusStyle := GetAccessStyle(Rec."Monitoring Active" or Rec."Can View Issue Details" or Rec."Premium Enabled");
         MonitoringStyle := GetAccessStyle(Rec."Monitoring Active");
@@ -1193,13 +1201,13 @@
         LastScanDurationTxt := '';
         LastScanStatusTxt := '';
         ShowNoScanNotice := true;
-        ModuleScoresNoticeTxt := 'No scan available yet.';
+        ModuleScoresNoticeTxt := NoScanAvailableLbl;
 
         LastRun.Reset();
         LastRun.SetCurrentKey("Requested At");
         LastRun.Ascending(false);
         if not LastRun.FindFirst() then begin
-            LastScanStatusTxt := 'No scan available yet.';
+            LastScanStatusTxt := NoScanAvailableLbl;
             LastScanStatusStyle := 'Standard';
             exit;
         end;
@@ -1340,7 +1348,7 @@
         DeepScanRun.SetCurrentKey("Requested At");
         DeepScanRun.Ascending(false);
         if not DeepScanRun.FindFirst() then
-            Error('No deep scan run is available.');
+            Error(NoDeepScanRunAvailableLbl);
 
         Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
     end;
@@ -1362,10 +1370,10 @@
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text
     begin
         if Setup."API Base URL" = '' then
-            Error('Please configure the API Base URL first.');
+            Error(ConfigureApiBaseUrlLbl);
 
         if Setup."Tenant ID" = '' then
-            Error('Tenant is not registered yet.');
+            Error(TenantNotRegisteredLbl);
 
         exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/get-token?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue('BC Cloud') + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
@@ -1393,10 +1401,10 @@
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error('The token response is not valid JSON.');
+            Error(TokenResponseInvalidJsonLbl);
 
         if not JsonObj.Get('token', JsonToken) then
-            Error('The token field is missing in the response.');
+            Error(TokenMissingLbl);
 
         exit(JsonToken.AsValue().AsText());
     end;
@@ -1420,5 +1428,6 @@
         Value := Value.Replace('/', '%2F');
         exit(Value);
     end;
+
 }
 

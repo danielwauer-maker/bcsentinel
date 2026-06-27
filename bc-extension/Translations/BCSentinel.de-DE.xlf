@@ -4045,13 +4045,13 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action ResetRegistration - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
-          <target state="translated">Löscht nur den lokalen BCSentinel-Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht gelöscht.</target>
+          <target state="translated">Loescht nur den lokalen BCSentinel Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht geloescht.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action ResetRegistration - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
-          <target state="translated">Registrierung zurücksetzen</target>
+          <target state="translated">Registrierung zuruecksetzen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit>
@@ -4081,7 +4081,7 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Free Data Health Score</source>
-          <target state="translated">Scan starten</target>
+          <target state="translated">Kostenlosen Data Health Score starten</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
         </trans-unit>
@@ -4703,15 +4703,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Scan Mode - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 3182893603 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Can Run Data Health Score</source>
-          <target state="translated">Can Run Data Health Score</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Data Health Score kann gestartet werden</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Can Run Data Health Score - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 2632886192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact Email</source>
-          <target state="translated">Contact Email</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Kontakt-E-Mail</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Contact Email - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 3916285027 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Health Score Completed</source>
-          <target state="translated">Data Health Score Completed</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Data Health Score abgeschlossen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Data Health Score Completed - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 2037707720 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Scheduled Scan</source>
@@ -4743,23 +4743,23 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Frequency - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1408650904 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Friday</source>
-          <target state="translated">Friday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Freitag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Friday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1955589599 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Monday</source>
-          <target state="translated">Monday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Montag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Monday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 3978227348 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Saturday</source>
-          <target state="translated">Saturday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Samstag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Saturday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 3217992067 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sunday</source>
-          <target state="translated">Sunday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Sonntag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Sunday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1215997499 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thursday</source>
-          <target state="translated">Thursday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Donnerstag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Thursday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1549919492 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Schedule Time</source>
@@ -4767,11 +4767,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Time - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 754748522 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Tuesday</source>
-          <target state="translated">Tuesday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Dienstag</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Tuesday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1384734729 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Wednesday</source>
-          <target state="translated">Wednesday</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Mittwoch</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Schedule Wednesday - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 940401207 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduled Scan Failure Count</source>
@@ -4779,7 +4779,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scheduled Scan Failure Count - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 3139893018 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduled Scan Task ID</source>
-          <target state="translated">Scheduled Scan Task ID</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Geplante Scan Task-ID</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scheduled Scan Task ID - Property Caption</note>
         </trans-unit><trans-unit id="Table 392523509 - Field 1487759236 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduled Scans Enabled</source>
@@ -4787,7 +4787,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scheduled Scans Enabled - Property Caption</note>
         </trans-unit><trans-unit id="Codeunit 2400674024 - Method 1736788238 - NamedType 1383200216" size-unit="char" translate="yes" xml:space="preserve">
           <source>The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.</source>
-          <target state="translated">The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Der naechste geplante Scan wurde berechnet, aber die automatische TaskScheduler-Planung ist in diesem Client-Kontext nicht verfuegbar. Verwenden Sie Jetzt ausfuehren oder planen Sie aus einer aktiven Business-Central-Sitzung.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - Method Reschedule - NamedType SchedulerUnavailableMsg</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1735060826 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Connection</source>
@@ -4795,7 +4795,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Connection - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2632886192 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact email used for BCSentinel onboarding and future dashboard login.</source>
-          <target state="translated">Contact email used for BCSentinel onboarding and future dashboard login.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Kontakt-E-Mail fuer das BCSentinel Onboarding und den spaeteren Dashboard-Login.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Contact Email - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3096476687 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Scan</source>
@@ -4803,7 +4803,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScan - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3838328083 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scan date.</source>
-          <target state="translated">Specifies the last scan date.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt das Datum des letzten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanDate - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3838328083 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Scan Date</source>
@@ -4811,7 +4811,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanDate - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3957536704 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the estimated loss from the last scan.</source>
-          <target state="translated">Specifies the estimated loss from the last scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den geschaetzten Verlust aus dem letzten Scan an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedLoss - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3957536704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Estimated Loss EUR</source>
@@ -4819,7 +4819,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedLoss - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2777469809 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the issue count from the last scan.</source>
-          <target state="translated">Specifies the issue count from the last scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt die Anzahl der Fehler aus dem letzten Scan an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanIssues - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2777469809 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Issues</source>
@@ -4827,7 +4827,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanIssues - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2287407027 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scan ID.</source>
-          <target state="translated">Specifies the last scan ID.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt die ID des letzten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanRunId - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2287407027 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Scan ID</source>
@@ -4835,7 +4835,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanRunId - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3788235039 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last data health score.</source>
-          <target state="translated">Specifies the last data health score.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den letzten Data Health Score an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanScore - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3788235039 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Health Score</source>
@@ -4843,7 +4843,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 235406251 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scan status.</source>
-          <target state="translated">Specifies the last scan status.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den Status des letzten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanStatus - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 235406251 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Scan Status</source>
@@ -4859,7 +4859,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CRMModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2430559094 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Finance</source>
-          <target state="translated">Finance</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Finanzen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FinanceModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3561666500 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>HR</source>
@@ -4867,19 +4867,19 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control HRModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1227204916 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory</source>
-          <target state="translated">Inventory</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Lager</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control InventoryModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2145554986 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Jobs</source>
-          <target state="translated">Jobs</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Projekte</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control JobsModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3173709086 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manufacturing</source>
-          <target state="translated">Manufacturing</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Fertigung</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ManufacturingModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1693325245 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether module scores are available.</source>
-          <target state="translated">Shows whether module scores are available.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt an, ob Modulscores verfuegbar sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ModuleScoresNotice - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1693325245 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Status</source>
@@ -4887,11 +4887,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ModuleScoresNotice - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 880916792 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchasing</source>
-          <target state="translated">Purchasing</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Einkauf</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PurchasingModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3949944718 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales</source>
-          <target state="translated">Sales</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Verkauf</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SalesModuleScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 298752089 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service</source>
@@ -4907,7 +4907,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScanConfiguration - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2654885543 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows how many checks are active for the current module selection.</source>
-          <target state="translated">Shows how many checks are active for the current module selection.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt, wie viele Checks fuer die aktuelle Modulauswahl aktiv sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ActiveChecksSummary - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2654885543 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Active Checks</source>
@@ -4915,7 +4915,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ActiveChecksSummary - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1154910283 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows how many scan modules are active.</source>
-          <target state="translated">Shows how many scan modules are active.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt, wie viele Scan-Module aktiv sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ActiveModulesSummary - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1154910283 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Active Modules</source>
@@ -4927,7 +4927,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ModuleSelection - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2836285109 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether the scan configuration is ready.</source>
-          <target state="translated">Shows whether the scan configuration is ready.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt an, ob die Scan-Konfiguration bereit ist.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScanConfigurationStatus - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2836285109 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Status</source>
@@ -4939,47 +4939,47 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScheduledScans - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2037707720 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scheduled scan.</source>
-          <target state="translated">Specifies the last scheduled scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den letzten geplanten Scan an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scheduled Scan - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1422053158 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scheduled scan duration.</source>
-          <target state="translated">Specifies the last scheduled scan duration.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt die Dauer des letzten geplanten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scheduled Scan Duration - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 276639896 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scheduled scan error.</source>
-          <target state="translated">Specifies the last scheduled scan error.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den Fehler des letzten geplanten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scheduled Scan Error - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3700898887 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last scheduled scan result.</source>
-          <target state="translated">Specifies the last scheduled scan result.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt das Ergebnis des letzten geplanten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scheduled Scan Result - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2911262040 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the day of month for monthly scheduled scans.</source>
-          <target state="translated">Specifies the day of month for monthly scheduled scans.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den Tag im Monat fuer monatlich geplante Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Monthly Schedule Day - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1119544971 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the next scheduled scan.</source>
-          <target state="translated">Specifies the next scheduled scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt den naechsten geplanten Scan an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Next Scheduled Scan - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2163988155 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how often scheduled scans should run.</source>
-          <target state="translated">Specifies how often scheduled scans should run.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt an, wie oft geplante Scans ausgefuehrt werden.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Frequency - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1549919492 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the local time for scheduled scans.</source>
-          <target state="translated">Specifies the local time for scheduled scans.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt die lokale Uhrzeit fuer geplante Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Time - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 940401207 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the scheduled scan failure count.</source>
-          <target state="translated">Specifies the scheduled scan failure count.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt die Anzahl fehlgeschlagener geplanter Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scan Failure Count - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1487759236 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether scheduled scans are enabled.</source>
-          <target state="translated">Specifies whether scheduled scans are enabled.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Gibt an, ob geplante Scans aktiviert sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scans Enabled - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3734875791 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows scheduler availability.</source>
-          <target state="translated">Shows scheduler availability.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt die Verfuegbarkeit des Schedulers an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SchedulerNotice - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3734875791 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduler Notice</source>
@@ -4995,7 +4995,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatus - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1718495841 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether deep scans are available.</source>
-          <target state="translated">Shows whether deep scans are available.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt an, ob Deep Scans verfuegbar sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control DeepScanAccess - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1718495841 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Deep Scan Access</source>
@@ -5003,23 +5003,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control DeepScanAccess - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 838429711 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the readable product access level.</source>
-          <target state="translated">Shows the readable product access level.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt den lesbaren Produktzugriff an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ProductAccessDisplay - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 838429711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Product Access</source>
           <target state="translated">Produktzugriff</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ProductAccessDisplay - Property Caption</note>
-        </trans-unit><trans-unit id="Page 392523509 - Control 3846500702 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows whether scheduled scans are available.</source>
-          <target state="translated">Shows whether scheduled scans are available.</target><note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScheduledScanAccess - Property ToolTip</note>
-        </trans-unit><trans-unit id="Page 392523509 - Control 3846500702 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scheduled Scans</source>
-          <target state="translated">Geplante Scans</target><note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScheduledScanAccess - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3577206343 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the current BCSentinel subscription and access status.</source>
-          <target state="translated">Shows the current BCSentinel subscription and access status.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Zeigt den aktuellen BCSentinel Subscription- und Zugriffsstatus an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatusDisplay - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3577206343 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Subscription Status</source>
@@ -5027,11 +5019,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatusDisplay - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1850050961 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the secure BCSentinel checkout for Full Analysis.</source>
-          <target state="translated">Open the secure BCSentinel checkout for Full Analysis.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet den sicheren BCSentinel Checkout fuer Full Analysis.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyFullAnalysis - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1850050961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy Full Analysis</source>
-          <target state="translated">Buy Full Analysis</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Full Analysis kaufen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyFullAnalysis - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1774995026 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Help &amp; Support</source>
@@ -5039,7 +5031,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action HelpSupport - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1816293402 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens BCSentinel documentation.</source>
-          <target state="translated">Opens BCSentinel documentation.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet die BCSentinel Dokumentation.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDocumentation - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1816293402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Documentation</source>
@@ -5047,7 +5039,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDocumentation - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2183648192 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens BCSentinel privacy and security information.</source>
-          <target state="translated">Opens BCSentinel privacy and security information.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet die BCSentinel Datenschutz- und Sicherheitsinformationen.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenPrivacySecurity - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2183648192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Privacy &amp; Security</source>
@@ -5055,7 +5047,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenPrivacySecurity - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1241958869 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens BCSentinel support.</source>
-          <target state="translated">Opens BCSentinel support.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet den BCSentinel Support.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenSupport - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1241958869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Support</source>
@@ -5063,7 +5055,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenSupport - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1727984412 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the BCSentinel dashboard for this tenant.</source>
-          <target state="translated">Opens the BCSentinel dashboard for this tenant.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet das BCSentinel Dashboard fuer diesen Tenant.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDashboard - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1727984412 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open Dashboard</source>
@@ -5071,15 +5063,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDashboard - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
-          <target state="translated">Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Loescht nur den lokalen BCSentinel Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht geloescht.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
-          <target state="translated">Reset Registration</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Registrierung zuruecksetzen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Method 1377591017 - NamedType 4179575190" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.</source>
-          <target state="translated">Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">BCSentinel Registrierung zuruecksetzen? Dadurch wird eine neue Tenant-Identitaet erstellt. Bestehende Kaeufe, Guthaben, Full Analysis, Validation Check und Monitoring sind dann nicht mehr mit dieser Business-Central-Firma verknuepft. Fahren Sie nur fort, wenn Sie dies verstanden haben.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Method OnAction - NamedType ResetRegistrationQst</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1604416963 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the BCSentinel scan module configuration.</source>
@@ -5091,15 +5083,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ConfigureModules - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1676059951 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Free Data Health Score already completed.</source>
-          <target state="translated">Free Data Health Score already completed.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Kostenloser Data Health Score bereits abgeschlossen.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action FreeDataHealthScoreCompleted - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1676059951 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Free Data Health Score</source>
-          <target state="translated">Start Free Data Health Score</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Kostenlosen Data Health Score starten</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action FreeDataHealthScoreCompleted - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2700438768 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the scan monitor for the latest deep scan.</source>
-          <target state="translated">Opens the scan monitor for the latest deep scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Oeffnet den Scan-Monitor fuer den letzten Deep Scan.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestScanMonitor - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2700438768 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open Scan Monitor</source>
@@ -5107,7 +5099,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestScanMonitor - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 937822417 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Starts a Validation Check follow-up scan using active access.</source>
-          <target state="translated">Starts a Validation Check follow-up scan using active access.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Startet einen Validation-Check-Folgescan mit aktivem Zugriff.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 937822417 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Scan</source>
@@ -5115,11 +5107,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartPaidDeepScan - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2333379996 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run the free Data Health Score first.</source>
-          <target state="translated">Run the free Data Health Score first.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Fuehren Sie zuerst den kostenlosen Data Health Score aus.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartValidationCheckBeforeFreeScore - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2333379996 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Validation Check</source>
-          <target state="translated">Start Validation Check</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Validation Check starten</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartValidationCheckBeforeFreeScore - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 4289272758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduler</source>
@@ -5127,7 +5119,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SchedulerActions - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1990605486 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Calculates the next scheduled scan date and time.</source>
-          <target state="translated">Calculates the next scheduled scan date and time.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Berechnet Datum und Uhrzeit des naechsten geplanten Scans.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action CalculateNextRun - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1990605486 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Calculate Next Run</source>
@@ -5135,7 +5127,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action CalculateNextRun - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 4196038893 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disables scheduled scans.</source>
-          <target state="translated">Disables scheduled scans.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Deaktiviert geplante Scans.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action DisableScheduler - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 4196038893 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disable Scheduler</source>
@@ -5143,7 +5135,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action DisableScheduler - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1695452711 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Schedules the next Monitoring scan with the Business Central TaskScheduler.</source>
-          <target state="translated">Schedules the next Monitoring scan with the Business Central TaskScheduler.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Plant den naechsten Monitoring-Scan mit dem Business Central TaskScheduler.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RescheduleScheduler - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1695452711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reschedule Scheduler</source>
@@ -5151,7 +5143,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RescheduleScheduler - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 3998217827 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Starts a Monitoring scan immediately and opens the scan monitor.</source>
-          <target state="translated">Starts a Monitoring scan immediately and opens the scan monitor.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Startet sofort einen Monitoring-Scan und oeffnet den Scan-Monitor.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RunScheduledScanNow - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 3998217827 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run now</source>

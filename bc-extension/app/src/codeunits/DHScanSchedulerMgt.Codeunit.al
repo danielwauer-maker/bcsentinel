@@ -15,12 +15,11 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     var
         NotBefore: DateTime;
         TaskId: Guid;
-        SchedulerUnavailableMsg: Label 'The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.';
     begin
         EnsureMonitoringForScheduler(Setup);
 
         if not Setup."Scheduled Scans Enabled" then
-            Error('Scheduled scans are not enabled.');
+            Error(ScheduledScansNotEnabledLbl);
 
         NotBefore := CalculateNextRun(Setup);
         CancelExistingSchedulerTask(Setup);
@@ -28,9 +27,9 @@ codeunit 53170 "DH Scan Scheduler Mgt."
             Setup."Scheduled Scan Task ID" := TaskId;
             Setup."Last Scheduled Scan Error" := '';
             Setup.Modify(true);
-            Message('Next scheduled scan planned for %1.', NotBefore);
+            Message(NextScheduledScanPlannedLbl, NotBefore);
         end else
-            Message(SchedulerUnavailableMsg);
+            Message(SchedulerUnavailableLbl);
     end;
 
     procedure EnableScheduler(var Setup: Record "DH Setup")
@@ -79,7 +78,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         if not Setup."Monitoring Active" then begin
             Setup."Last Scheduled Scan" := StartedAt;
             Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::SkippedMonitoringInactive;
-            Setup."Last Scheduled Scan Error" := 'Scheduled scans require an active Monitoring subscription.';
+            Setup."Last Scheduled Scan Error" := ScheduledScansRequireMonitoringLbl;
             Setup."Next Scheduled Scan" := CalculateNextRunFrom(Setup, StartedAt);
             Setup.Modify(true);
             exit;
@@ -88,7 +87,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         if not Setup.HasAnyModuleEnabled() then begin
             Setup."Last Scheduled Scan" := StartedAt;
             Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::SkippedConfiguration;
-            Setup."Last Scheduled Scan Error" := 'No scan module is active.';
+            Setup."Last Scheduled Scan Error" := NoScanModuleActiveLbl;
             Setup."Next Scheduled Scan" := CalculateNextRunFrom(Setup, StartedAt);
             Setup.Modify(true);
             exit;
@@ -121,12 +120,12 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     var
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
-        exit(StrSubstNo('%1 / %2 active', ScanCheckMgt.GetExpectedChecksCount(Setup), ScanCheckMgt.GetTotalModuleChecksCount(Setup)));
+        exit(StrSubstNo(ActiveCountLbl, ScanCheckMgt.GetExpectedChecksCount(Setup), ScanCheckMgt.GetTotalModuleChecksCount(Setup)));
     end;
 
     procedure GetActiveModulesSummary(var Setup: Record "DH Setup"): Text[100]
     begin
-        exit(StrSubstNo('%1 / 10 active', Setup.GetEnabledDeepScanModuleCount()));
+        exit(StrSubstNo(ActiveCountLbl, Setup.GetEnabledDeepScanModuleCount(), 10));
     end;
 
     local procedure StartScheduledScan(var Setup: Record "DH Setup"): Integer
@@ -145,7 +144,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     local procedure EnsureMonitoringForScheduler(var Setup: Record "DH Setup")
     begin
         if not Setup."Monitoring Active" then
-            Error('Scheduled scans require an active Monitoring subscription.');
+            Error(ScheduledScansRequireMonitoringLbl);
     end;
 
     local procedure EnsureScanConfiguration(var Setup: Record "DH Setup")
@@ -153,7 +152,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
         if not Setup.HasAnyModuleEnabled() then
-            Error('Please enable at least one scan module on the BCSentinel setup page.');
+            Error(EnableOneScanModuleLbl);
 
         ScanCheckMgt.RequireEnabledChecksForMonitoring();
     end;
@@ -294,4 +293,13 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     begin
         TaskId := TaskScheduler.CreateTask(Codeunit::"DH Scheduled Scan Runner", Codeunit::"DH Scheduled Scan Failure", true, CompanyName(), NotBefore);
     end;
+
+    var
+        SchedulerUnavailableLbl: Label 'The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.', Comment = 'DEU="Der naechste geplante Scan wurde berechnet, aber die automatische TaskScheduler-Planung ist in diesem Client-Kontext nicht verfuegbar. Verwenden Sie Jetzt ausfuehren oder planen Sie aus einer aktiven Business-Central-Sitzung."';
+        ScheduledScansNotEnabledLbl: Label 'Scheduled scans are not enabled.', Comment = 'DEU="Geplante Scans sind nicht aktiviert."';
+        NextScheduledScanPlannedLbl: Label 'Next scheduled scan planned for %1.', Comment = 'DEU="Naechster geplanter Scan fuer %1 geplant."';
+        ScheduledScansRequireMonitoringLbl: Label 'Scheduled scans require an active Monitoring subscription.', Comment = 'DEU="Geplante Scans erfordern ein aktives Monitoring-Abonnement."';
+        NoScanModuleActiveLbl: Label 'No scan module is active.', Comment = 'DEU="Es ist kein Scan-Modul aktiv."';
+        ActiveCountLbl: Label '%1 / %2 active', Comment = 'DEU="%1 / %2 aktiv"';
+        EnableOneScanModuleLbl: Label 'Please enable at least one scan module on the BCSentinel setup page.', Comment = 'DEU="Bitte aktivieren Sie mindestens ein Scan-Modul auf der BCSentinel Setup Page."';
 }

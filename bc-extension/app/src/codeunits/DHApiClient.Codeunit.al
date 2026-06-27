@@ -125,7 +125,7 @@ codeunit 53100 "DH API Client"
         EnsureSetupLoaded(Setup);
 
         if not Setup."Data Processing Consent" then
-            Error('Please enable Data Processing Consent first.');
+            Error(EnableDataProcessingConsentLbl);
 
         // Nur wenn wirklich noch nichts existiert
         if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') then
@@ -152,10 +152,10 @@ codeunit 53100 "DH API Client"
         EnsureSetupLoaded(Setup);
 
         if Setup."API Base URL" = '' then
-            Error('Please configure the API Base URL first.');
+            Error(ConfigureApiBaseUrlLbl);
 
         if not Setup."Data Processing Consent" then
-            Error('Please enable Data Processing Consent before registering the tenant.');
+            Error(EnableDataProcessingConsentBeforeRegisterLbl);
 
         Setup.EnsureValidContactEmail();
 
@@ -172,7 +172,7 @@ codeunit 53100 "DH API Client"
         Headers.Add('Content-Type', 'application/json');
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/tenant/register'), Content, Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
@@ -180,7 +180,7 @@ codeunit 53100 "DH API Client"
             Error(GetBackendErrorMessage('Tenant registration', Response.HttpStatusCode(), ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
+            Error(BackendInvalidJsonLbl);
 
         if JsonResponse.Get('tenant_id', Token) then
             if not IsJsonNull(Token) then
@@ -203,10 +203,10 @@ codeunit 53100 "DH API Client"
                 DashboardInviteError := Token.AsValue().AsText();
 
         if TenantId = '' then
-            Error('The backend response does not contain a tenant_id.');
+            Error(BackendMissingTenantIdLbl);
 
         if ApiToken = '' then
-            Error('The backend response does not contain an api_token.');
+            Error(BackendMissingApiTokenLbl);
 
         Setup.Validate("Tenant ID", CopyStr(TenantId, 1, MaxStrLen(Setup."Tenant ID")));
         StoreApiToken(Setup, ApiToken);
@@ -218,12 +218,12 @@ codeunit 53100 "DH API Client"
             DashboardInviteEmail := Setup."Contact Email";
 
         if DashboardInviteSent then
-            exit(StrSubstNo('BCSentinel tenant registration completed. Dashboard access was sent to %1.', DashboardInviteEmail));
+            exit(StrSubstNo(RegistrationCompletedInviteSentLbl, DashboardInviteEmail));
 
         if DashboardInviteError <> '' then
-            exit(StrSubstNo('BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', DashboardInviteError));
+            exit(StrSubstNo(RegistrationCompletedInviteFailedLbl, DashboardInviteError));
 
-        exit('BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.');
+        exit(RegistrationCompletedInviteUnknownLbl);
     end;
 
     procedure RefreshLicenseStatus(var Setup: Record "DH Setup")
@@ -1651,4 +1651,16 @@ codeunit 53100 "DH API Client"
         Item.SetRange(Blocked, true);
         exit(Item.Count());
     end;
+
+    var
+        EnableDataProcessingConsentLbl: Label 'Please enable Data Processing Consent first.', Comment = 'DEU="Bitte aktivieren Sie zuerst die Einwilligung zur Datenverarbeitung."';
+        ConfigureApiBaseUrlLbl: Label 'Please configure the API Base URL first.', Comment = 'DEU="Bitte konfigurieren Sie zuerst die API-Basis-URL."';
+        EnableDataProcessingConsentBeforeRegisterLbl: Label 'Please enable Data Processing Consent before registering the tenant.', Comment = 'DEU="Bitte aktivieren Sie die Einwilligung zur Datenverarbeitung, bevor Sie den Tenant registrieren."';
+        BackendRequestNotSentLbl: Label 'The backend request could not be sent. Please verify the network connection.', Comment = 'DEU="Die Backend-Anfrage konnte nicht gesendet werden. Bitte pruefen Sie die Netzwerkverbindung."';
+        BackendInvalidJsonLbl: Label 'The backend returned an invalid JSON response. Contact BCSentinel support if this continues.', Comment = 'DEU="Das Backend hat eine ungueltige JSON-Antwort geliefert. Kontaktieren Sie den BCSentinel Support, falls dies weiterhin auftritt."';
+        BackendMissingTenantIdLbl: Label 'The backend response does not contain a tenant_id.', Comment = 'DEU="Die Backend-Antwort enthaelt keine tenant_id."';
+        BackendMissingApiTokenLbl: Label 'The backend response does not contain an api_token.', Comment = 'DEU="Die Backend-Antwort enthaelt keinen api_token."';
+        RegistrationCompletedInviteSentLbl: Label 'BCSentinel tenant registration completed. Dashboard access was sent to %1.', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen. Der Dashboard-Zugang wurde an %1 gesendet."';
+        RegistrationCompletedInviteFailedLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht gesendet werden. Bitte senden Sie die Einladung im Admin-Dashboard erneut. Details: %1"';
+        RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht bestaetigt werden. Bitte pruefen Sie das Admin-Dashboard."';
 }
