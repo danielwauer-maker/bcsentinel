@@ -1250,22 +1250,22 @@
     begin
         case Rec."Last Scheduled Scan Result" of
             Rec."Last Scheduled Scan Result"::None:
-                exit(LocalizeText('None', 'Keine'));
+                exit(LocalizeText('Unknown', 'Unbekannt'));
             Rec."Last Scheduled Scan Result"::Queued:
-                exit(LocalizeText('Queued', 'In Warteschlange'));
+                exit(LocalizeText('Waiting', 'Wartet'));
             Rec."Last Scheduled Scan Result"::Completed:
-                exit(LocalizeText('Completed', 'Abgeschlossen'));
+                exit(LocalizeText('Success', 'Erfolgreich'));
             Rec."Last Scheduled Scan Result"::Failed:
                 exit(LocalizeText('Failed', 'Fehlgeschlagen'));
             Rec."Last Scheduled Scan Result"::SkippedMonitoringInactive:
-                exit(LocalizeText('Skipped - Monitoring inactive', 'Übersprungen - Monitoring inaktiv'));
+                exit(LocalizeText('Skipped', 'Übersprungen'));
             Rec."Last Scheduled Scan Result"::SkippedConfiguration:
-                exit(LocalizeText('Skipped - Configuration incomplete', 'Übersprungen - Konfiguration unvollständig'));
+                exit(LocalizeText('Skipped', 'Übersprungen'));
             Rec."Last Scheduled Scan Result"::Disabled:
                 exit(LocalizeText('Disabled', 'Deaktiviert'));
         end;
 
-        exit('');
+        exit(LocalizeText('Unknown', 'Unbekannt'));
     end;
 
     local procedure GetDeepScanStatusDisplay(var DeepScanRun: Record "DH Deep Scan Run"): Text[100]

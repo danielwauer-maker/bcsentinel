@@ -3847,13 +3847,13 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 847646385 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether the API token is stored securely for this company. The token itself is not displayed.</source>
-          <target state="translated">Zeigt, ob das API-Token fuer diese Firma sicher gespeichert ist. Das Token selbst wird nicht angezeigt.</target>
+          <target state="translated">Zeigt an, ob der API-Token für diese Firma sicher gespeichert ist. Der Token selbst wird nicht angezeigt.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfigured - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 847646385 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>API Token Configured</source>
-          <target state="translated">API-Token Configured</target>
+          <target state="translated">API-Token konfiguriert</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfigured - Property Caption</note>
         </trans-unit>
@@ -4008,20 +4008,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyAssessment - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1396684237 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout for a Validation Check follow-up scan.</source>
-          <target state="translated">Oeffnet den sicheren BCSentinel-Checkout fuer einen Validation-Check-Folgescan.</target>
+          <source>Opens the secure BCSentinel checkout for a Validation Check follow-up scan.</source>
+          <target state="translated">Öffnet den sicheren BCSentinel Checkout für einen Validation-Check-Folgescan.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1396684237 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy Validation Check / New Credit</source>
-          <target state="translated">Validation Check / Neuen Credit kaufen</target>
+          <source>Buy Validation Check</source>
+          <target state="translated">Validation Check kaufen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyValidationCheck - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh scan credits, monitoring status, and product access from BCSentinel.</source>
-          <target state="translated">Aktualisiert Scan-Guthaben, Monitoringstatus und Produktzugriff von BCSentinel.</target>
+          <source>Refreshes scan credits, monitoring status, and product access from BCSentinel.</source>
+          <target state="translated">Aktualisiert Scan-Guthaben, Monitoring-Status und Produktzugriff von BCSentinel.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property ToolTip</note>
         </trans-unit>
@@ -4038,7 +4038,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Register Tenant</source>
+          <source>Register</source>
           <target state="translated">Registrieren</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property Caption</note>
@@ -4051,7 +4051,7 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action ResetRegistration - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
-          <target state="translated">Registrierung zuruecksetzen</target>
+          <target state="translated">Registrierung zurücksetzen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit>
@@ -4074,14 +4074,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ScanMenu - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Starts the free Data Health Score scan.</source>
-          <target state="translated">Fuehrt "Scan starten" aus.</target>
+          <source>Starts the available BCSentinel scan and opens the scan monitor.</source>
+          <target state="translated">Startet den verfügbaren BCSentinel Scan und öffnet den Scan-Monitor.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Free Data Health Score</source>
-          <target state="translated">Kostenlosen Data Health Score starten</target>
+          <source>Start Scan</source>
+          <target state="translated">Scan starten</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
         </trans-unit>
@@ -4092,44 +4092,44 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Method OnAction - NamedType ConfirmStartScanQst</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1159487516 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Scan History.</source>
-          <target state="translated">Fuehrt "Scan-Historie" aus.</target>
+          <source>Opens the BCSentinel scan history.</source>
+          <target state="translated">Öffnet die BCSentinel Scan-Historie.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ViewScanHistory - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1159487516 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan History</source>
-          <target state="translated">Scan-Historie</target>
+          <source>Open Scan History</source>
+          <target state="translated">Scan-Historie öffnen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ViewScanHistory - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 2214515191 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout for annual monitoring.</source>
-          <target state="translated">Oeffnet den sicheren BCSentinel-Checkout fuer jaehrliches Monitoring.</target>
+          <source>Opens the secure BCSentinel checkout for annual monitoring.</source>
+          <target state="translated">Öffnet den sicheren BCSentinel Checkout für jährliches Monitoring.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringAnnual - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 2214515191 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Monitoring Annual</source>
-          <target state="translated">Jaehrliches Monitoring starten</target>
+          <source>Buy Monitoring Annual</source>
+          <target state="translated">Jährliches Monitoring kaufen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringAnnual - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3745981011 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout for monthly monitoring.</source>
-          <target state="translated">Oeffnet den sicheren BCSentinel-Checkout fuer monatliches Monitoring.</target>
+          <source>Opens the secure BCSentinel checkout for monthly monitoring.</source>
+          <target state="translated">Öffnet den sicheren BCSentinel Checkout für monatliches Monitoring.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringMonthly - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3745981011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Monitoring Monthly</source>
-          <target state="translated">Monatliches Monitoring starten</target>
+          <source>Buy Monitoring Monthly</source>
+          <target state="translated">Monatliches Monitoring kaufen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringMonthly - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 4263468516 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Test BCSentinel Connection.</source>
-          <target state="translated">Fuehrt "BCSentinel-Verbindung testen" aus.</target>
+          <source>Tests the connection to the configured BCSentinel API.</source>
+          <target state="translated">Testet die Verbindung zur konfigurierten BCSentinel API.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action TestConnection - Property ToolTip</note>
         </trans-unit>
@@ -4669,13 +4669,13 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 644128942 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Selects the checks that are included in Monitoring scans.</source>
-          <target state="translated">Waehlt die Checks aus, die in Monitoring-Scans enthalten sind.</target>
+          <target state="translated">Wählt die Checks aus, die in Monitoring-Scans enthalten sind.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 644128942 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Select Checks</source>
-          <target state="translated">Checks auswaehlen</target>
+          <target state="translated">Checks auswählen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property Caption</note>
         </trans-unit>
@@ -4953,6 +4953,14 @@
           <source>Specifies the last scheduled scan result.</source>
           <target state="translated">Gibt das Ergebnis des letzten geplanten Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Last Scheduled Scan Result - Property ToolTip</note>
+        </trans-unit><trans-unit id="Page 392523509 - Control 3409774279 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the last scheduled scan result.</source>
+          <target state="translated">Gibt das Ergebnis des letzten geplanten Scans an.</target><note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScheduledScanResult - Property ToolTip</note>
+        </trans-unit><trans-unit id="Page 392523509 - Control 3409774279 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Scheduled Scan Result</source>
+          <target state="translated">Letztes Scheduler-Ergebnis</target><note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScheduledScanResult - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2911262040 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the day of month for monthly scheduled scans.</source>
           <target state="translated">Gibt den Tag im Monat fuer monatlich geplante Scans an.</target><note from="Developer" annotates="general" priority="2" />
@@ -5018,8 +5026,8 @@
           <target state="translated">Abonnementstatus</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatusDisplay - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1850050961 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open the secure BCSentinel checkout for Full Analysis.</source>
-          <target state="translated">Oeffnet den sicheren BCSentinel Checkout fuer Full Analysis.</target><note from="Developer" annotates="general" priority="2" />
+          <source>Opens the secure BCSentinel checkout for Full Analysis.</source>
+          <target state="translated">Öffnet den sicheren BCSentinel Checkout für Full Analysis.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action BuyFullAnalysis - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1850050961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy Full Analysis</source>
@@ -5054,20 +5062,20 @@
           <target state="translated">Support</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenSupport - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1727984412 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Opens the BCSentinel dashboard for this tenant.</source>
-          <target state="translated">Oeffnet das BCSentinel Dashboard fuer diesen Tenant.</target><note from="Developer" annotates="general" priority="2" />
+          <source>Opens the BCSentinel analytics dashboard for this tenant.</source>
+          <target state="translated">Öffnet das BCSentinel Analyse-Dashboard für diesen Tenant.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDashboard - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1727984412 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open Dashboard</source>
-          <target state="translated">Dashboard oeffnen</target><note from="Developer" annotates="general" priority="2" />
+          <source>Open Analytics Dashboard</source>
+          <target state="translated">Analyse-Dashboard öffnen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDashboard - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.</source>
-          <target state="translated">Loescht nur den lokalen BCSentinel Registrierungsstatus und den gespeicherten API-Token, damit der Tenant erneut registriert werden kann. Backend-Daten werden nicht geloescht.</target><note from="Developer" annotates="general" priority="2" />
+          <source>Clears the local BCSentinel registration state, stored API token, and scan history so the tenant can be registered again.</source>
+          <target state="translated">Löscht den lokalen BCSentinel Registrierungsstatus, den gespeicherten API-Token und die Scan-Historie, damit der Tenant erneut registriert werden kann.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
-          <target state="translated">Registrierung zuruecksetzen</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Registrierung zurücksetzen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Method 1377591017 - NamedType 4179575190" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.</source>
@@ -5091,11 +5099,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action FreeDataHealthScoreCompleted - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2700438768 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the scan monitor for the latest deep scan.</source>
-          <target state="translated">Oeffnet den Scan-Monitor fuer den letzten Deep Scan.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Öffnet den Scan-Monitor für den letzten Deep Scan.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestScanMonitor - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 2700438768 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open Scan Monitor</source>
-          <target state="translated">Scan-Monitor oeffnen</target><note from="Developer" annotates="general" priority="2" />
+          <source>Open Current Scan</source>
+          <target state="translated">Aktuellen Scan öffnen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestScanMonitor - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 937822417 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Starts a Validation Check follow-up scan using active access.</source>
@@ -5119,11 +5127,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SchedulerActions - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1990605486 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Calculates the next scheduled scan date and time.</source>
-          <target state="translated">Berechnet Datum und Uhrzeit des naechsten geplanten Scans.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Berechnet Datum und Uhrzeit des nächsten geplanten Scans.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action CalculateNextRun - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1990605486 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Calculate Next Run</source>
-          <target state="translated">Naechsten Lauf berechnen</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Nächsten Lauf berechnen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action CalculateNextRun - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 4196038893 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disables scheduled scans.</source>
@@ -5135,7 +5143,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action DisableScheduler - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1695452711 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Schedules the next Monitoring scan with the Business Central TaskScheduler.</source>
-          <target state="translated">Plant den naechsten Monitoring-Scan mit dem Business Central TaskScheduler.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Plant den nächsten Monitoring-Scan mit dem Business Central TaskScheduler.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RescheduleScheduler - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 1695452711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reschedule Scheduler</source>
@@ -5143,11 +5151,11 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RescheduleScheduler - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 3998217827 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Starts a Monitoring scan immediately and opens the scan monitor.</source>
-          <target state="translated">Startet sofort einen Monitoring-Scan und oeffnet den Scan-Monitor.</target><note from="Developer" annotates="general" priority="2" />
+          <target state="translated">Startet sofort einen Monitoring-Scan und öffnet den Scan-Monitor.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RunScheduledScanNow - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 3998217827 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Run now</source>
-          <target state="translated">Jetzt ausfuehren</target><note from="Developer" annotates="general" priority="2" />
+          <source>Run Now</source>
+          <target state="translated">Jetzt ausführen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RunScheduledScanNow - Property Caption</note>
         </trans-unit><trans-unit id="Enum 2330330510 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan Schedule Frequency</source>
@@ -5509,7 +5517,73 @@
           <source>Duration</source>
           <target state="translated">Dauer</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanDuration - Property Caption</note>
-        </trans-unit></group>
+        </trans-unit><trans-unit id="Page 392523509 - Action 1833457685 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connection</source>
+          <target state="translated">Verbindung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ConnectionActions - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 562808694 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starts the available BCSentinel scan and opens the scan monitor.</source>
+          <target state="translated">Startet den verfügbaren BCSentinel Scan und öffnet den Scan-Monitor.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property ToolTip</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 562808694 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Scan</source>
+          <target state="translated">Scan starten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 4113970930 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enables scheduled Monitoring scans and plans the next run.</source>
+          <target state="translated">Aktiviert geplante Monitoring-Scans und plant den nächsten Lauf.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action EnableScheduler - Property ToolTip</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 4113970930 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable Scheduler</source>
+          <target state="translated">Scheduler aktivieren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action EnableScheduler - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 865525844 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">Einstellungen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SettingsActions - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 1697855195 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the BCSentinel scan module selection.</source>
+          <target state="translated">Öffnet die BCSentinel Scan-Modulauswahl.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectModules - Property ToolTip</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 1697855195 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Modules</source>
+          <target state="translated">Module auswählen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectModules - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 3191227238 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Data Health Score already completed. Buy a Validation Check or start Monitoring to run another scan.</source>
+          <target state="translated">Kostenloser Data Health Score bereits abgeschlossen. Kaufen Sie einen Validation Check oder starten Sie Monitoring, um einen weiteren Scan auszuführen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanCompleted - Property ToolTip</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 3191227238 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Scan</source>
+          <target state="translated">Scan starten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanCompleted - Property Caption</note>
+        </trans-unit>
+<trans-unit id="Page 392523509 - Action 1495211882 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subscription</source>
+          <target state="translated">Abonnement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SubscriptionActions - Property Caption</note>
+        </trans-unit>
+        </group>
       <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Health Score started. Opening the monitor. Run ID: %1</source><target state="translated">Data Health Score gestartet. Scan-Monitor wird geoeffnet. Lauf-ID: %1</target>
           <note from="Developer" annotates="general" priority="2" />
