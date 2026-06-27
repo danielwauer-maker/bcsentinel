@@ -187,9 +187,10 @@
                     Editable = false;
                     ToolTip = 'Specifies the last scheduled scan.';
                 }
-                field("Last Scheduled Scan Result"; Rec."Last Scheduled Scan Result")
+                field(LastScheduledScanResult; LastScheduledScanResultTxt)
                 {
                     ApplicationArea = All;
+                    Caption = 'Last Scheduled Scan Result';
                     Editable = false;
                     StyleExpr = LastScheduledResultStyle;
                     ToolTip = 'Specifies the last scheduled scan result.';
@@ -403,325 +404,164 @@
     {
         area(Processing)
         {
-            action(TestConnection)
+            action(StartScan)
             {
-                Caption = 'Test BCSentinel Connection';
-                ToolTip = 'Runs Test BCSentinel Connection.';
+                Caption = 'Start Scan';
+                ToolTip = 'Starts the available BCSentinel scan and opens the scan monitor.';
+                Image = Start;
                 ApplicationArea = All;
-                Image = TestFile;
+                Enabled = CanStartFreeDataHealthScore or CanStartValidationCheck;
+                Visible = ShowStartFreeDataHealthScore or ShowStartValidationCheck;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = true;
 
                 trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
                 begin
-                    ApiClient.TestConnection(Rec);
+                    StartAvailableScan();
                 end;
             }
 
-            action(RegisterTenant)
+            action(StartScanCompleted)
             {
-                Caption = 'Register Tenant';
-                ToolTip = 'Registers this Business Central tenant with BCSentinel.';
+                Caption = 'Start Scan';
+                ToolTip = 'Free Data Health Score already completed. Buy a Validation Check or start Monitoring to run another scan.';
+                Image = Start;
                 ApplicationArea = All;
-                Image = Web;
-                Enabled = CanRegisterTenant;
-                Visible = true;
+                Enabled = false;
+                Visible = ShowFreeDataHealthScoreCompleted and not ShowStartValidationCheck;
                 Promoted = true;
                 PromotedCategory = Process;
-                PromotedOnly = false;
+                PromotedOnly = true;
+            }
 
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                    RegistrationMessage: Text;
-                    ContactEmailRequiredMsg: Label 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.';
-                begin
-                    if Rec."Tenant ID" <> '' then begin
-                        Message(TenantAlreadyRegisteredLbl);
-                        exit;
+            group(ConnectionActions)
+            {
+                Caption = 'Connection';
+                Image = Link;
+
+                action(TestConnection)
+                {
+                    Caption = 'Test BCSentinel Connection';
+                    ToolTip = 'Tests the connection to the configured BCSentinel API.';
+                    ApplicationArea = All;
+                    Image = TestFile;
+
+                    trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
+                    begin
+                        ApiClient.TestConnection(Rec);
                     end;
+                }
 
-                    if Rec."Contact Email" = '' then begin
-                        Message(ContactEmailRequiredMsg);
-                        exit;
-                    end;
+                action(RegisterTenant)
+                {
+                    Caption = 'Register';
+                    ToolTip = 'Registers this Business Central tenant with BCSentinel.';
+                    ApplicationArea = All;
+                    Image = Web;
+                    Enabled = CanRegisterTenant;
+                    Visible = true;
 
-                    Rec.EnsureValidContactEmail();
-
-                    if Rec.Registered then begin
-                        if HasStoredApiToken() then begin
-                            Message(TenantAlreadyRegisteredLbl);
+                    trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
+                        RegistrationMessage: Text;
+                    begin
+                        if Rec."Tenant ID" <> '' then begin
+                            Message(LocalizeText('BCSentinel tenant is already registered.', 'Der BCSentinel Tenant ist bereits registriert.'));
                             exit;
                         end;
 
-                        Message(RegistrationIncompleteLbl);
-                    end;
-
-                    Message(TenantRegistrationStartedLbl);
-                    RegistrationMessage := ApiClient.RegisterTenant(Rec);
-                    ApiClient.RefreshLicenseStatus(Rec);
-                    UpdateActionState();
-                    CurrPage.Update(false);
-                    Message(RegistrationMessage);
-                end;
-            }
-
-            action(ResetRegistration)
-            {
-                Caption = 'Reset Registration';
-                ToolTip = 'Clears only the local BCSentinel registration state and stored API token so the tenant can be registered again. Backend data is not deleted.';
-                ApplicationArea = All;
-                Image = ResetStatus;
-                Enabled = CanResetRegistration;
-                Visible = true;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = false;
-
-                trigger OnAction()
-                var
-                    ResetRegistrationQst: Label 'Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.';
-                begin
-                    if not Confirm(ResetRegistrationQst, false) then
-                        exit;
-
-                    DeleteScanHistoryForReset();
-                    ResetLocalRegistrationState();
-                    UpdateActionState();
-                    UpdateDisplayValues();
-                    CurrPage.Update(false);
-                    Message(RegistrationResetLbl);
-                end;
-            }
-
-            action(RequestAccess)
-            {
-                Caption = 'Request Access';
-                ToolTip = 'Opens the BCSentinel website to request onboarding access.';
-                ApplicationArea = All;
-                Image = LinkWeb;
-                Visible = false;
-
-                trigger OnAction()
-                begin
-                    Hyperlink('https://bcsentinel.com');
-                end;
-            }
-
-            action(BuyFullAnalysis)
-            {
-                Caption = 'Buy Full Analysis';
-                ApplicationArea = All;
-                Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout for Full Analysis.';
-                Visible = ShowBuyFullAnalysis;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.OpenProductCheckout(Rec, 'full_analysis');
-                end;
-            }
-
-            action(BuyValidationCheck)
-            {
-                Caption = 'Buy Validation Check / New Credit';
-                ApplicationArea = All;
-                Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout for a Validation Check follow-up scan.';
-                Visible = ShowBuyValidationCheck;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.OpenProductCheckout(Rec, 'validation_check');
-                end;
-            }
-
-            action(StartMonitoringMonthly)
-            {
-                Caption = 'Start Monitoring Monthly';
-                ApplicationArea = All;
-                Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout for monthly monitoring.';
-                Visible = ShowStartMonitoring;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.OpenProductCheckout(Rec, 'monitoring_monthly');
-                end;
-            }
-
-            action(StartMonitoringAnnual)
-            {
-                Caption = 'Start Monitoring Annual';
-                ApplicationArea = All;
-                Image = Add;
-                ToolTip = 'Open the secure BCSentinel checkout for annual monitoring.';
-                Visible = ShowStartMonitoring;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    ApiClient.OpenProductCheckout(Rec, 'monitoring_annual');
-                end;
-            }
-
-            action(RefreshLicenseStatus)
-            {
-                Caption = 'Refresh Product Access';
-                ApplicationArea = All;
-                Image = Refresh;
-                ToolTip = 'Refresh scan credits, monitoring status, and product access from BCSentinel.';
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                begin
-                    if Rec."Tenant ID" = '' then
-                        Error(RegisterTenantFirstLbl);
-
-                    ApiClient.RefreshLicenseStatus(Rec);
-                    CurrPage.Update(false);
-                    Message(ProductAccessRefreshedLbl);
-                end;
-            }
-
-            action(OpenDashboard)
-            {
-                Caption = 'Open Dashboard';
-                ApplicationArea = All;
-                Image = View;
-                ToolTip = 'Opens the BCSentinel dashboard for this tenant.';
-                Enabled = CanOpenDashboard;
-                Promoted = true;
-                PromotedCategory = Process;
-
-                trigger OnAction()
-                var
-                    ApiClient: Codeunit "DH API Client";
-                    Token: Text;
-                begin
-                    Token := ApiClient.GetAnalyticsDashboardToken(Rec);
-                    Hyperlink(GetDashboardUrl(Rec, Token));
-                end;
-            }
-
-            group(ScanMenu)
-            {
-                Caption = 'Scan';
-                Image = Start;
-
-                action(StartScan)
-                {
-                    Caption = 'Start Free Data Health Score';
-                    ToolTip = 'Starts the free Data Health Score scan.';
-                    Image = Start;
-                    ApplicationArea = All;
-                    Enabled = CanStartFreeDataHealthScore;
-                    Visible = ShowStartFreeDataHealthScore;
-
-                    trigger OnAction()
-                    var
-                        Setup: Record "DH Setup";
-                        DeepScanRun: Record "DH Deep Scan Run";
-                        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                        EntryNo: Integer;
-                        ConfirmStartScanQst: Label 'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
-                    begin
-                        EnsureSetupExists();
-                        Setup := Rec;
-                        if not Confirm(ConfirmStartScanQst, false) then
+                        if Rec."Contact Email" = '' then begin
+                            Message(LocalizeText(
+                                'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.',
+                                'Bitte geben Sie zuerst eine Kontakt-E-Mail-Adresse ein. Sie wird für den Dashboard-Zugang und wichtige BCSentinel Benachrichtigungen benötigt.'));
                             exit;
+                        end;
 
-                        EntryNo := DeepScanMgt.QueueDataHealthScore(Setup);
-                        Rec.Get('SETUP');
-                        Rec."Data Health Score Completed" := true;
-                        Rec."Can Run Data Health Score" := false;
-                        Rec.Modify(true);
+                        Rec.EnsureValidContactEmail();
+
+                        if Rec.Registered then begin
+                            if HasStoredApiToken() then begin
+                                Message(LocalizeText('BCSentinel tenant is already registered.', 'Der BCSentinel Tenant ist bereits registriert.'));
+                                exit;
+                            end;
+
+                            Message(LocalizeText('BCSentinel registration data is incomplete. Registration will request a fresh API token.', 'Die BCSentinel Registrierungsdaten sind unvollständig. Die Registrierung fordert einen neuen API-Token an.'));
+                        end;
+
+                        Message(LocalizeText('BCSentinel tenant registration started.', 'BCSentinel Tenant-Registrierung wurde gestartet.'));
+                        RegistrationMessage := ApiClient.RegisterTenant(Rec);
+                        ApiClient.RefreshLicenseStatus(Rec);
                         UpdateActionState();
                         CurrPage.Update(false);
-                        if DeepScanRun.Get(EntryNo) then
-                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                        Message(RegistrationMessage);
                     end;
                 }
 
-                action(FreeDataHealthScoreCompleted)
+                action(ResetRegistration)
                 {
-                    Caption = 'Start Free Data Health Score';
-                    ToolTip = 'Free Data Health Score already completed.';
-                    Image = Start;
+                    Caption = 'Reset Registration';
+                    ToolTip = 'Clears the local BCSentinel registration state, stored API token, and scan history so the tenant can be registered again.';
                     ApplicationArea = All;
-                    Enabled = false;
-                    Visible = ShowFreeDataHealthScoreCompleted;
+                    Image = ResetStatus;
+                    Enabled = CanResetRegistration;
+                    Visible = true;
+
+                    trigger OnAction()
+                    begin
+                        if not Confirm(LocalizeText(
+                            'Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.',
+                            'BCSentinel Registrierung zurücksetzen? Dadurch wird eine neue Tenant-Identität erstellt. Bestehende Käufe, Guthaben, Full Analysis, Validation Check und Monitoring sind dann nicht mehr mit dieser Business-Central-Firma verknüpft. Fahren Sie nur fort, wenn Sie dies verstanden haben.'), false) then
+                            exit;
+
+                        DeleteScanHistoryForReset();
+                        ResetLocalRegistrationState();
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                        Message(LocalizeText('Local BCSentinel registration and scan history were reset. Please register again.', 'Die lokale BCSentinel Registrierung und Scan-Historie wurden zurückgesetzt. Bitte registrieren Sie sich erneut.'));
+                    end;
                 }
 
-                action(StartPaidDeepScan)
+                action(RefreshLicenseStatus)
                 {
-                    Caption = 'Start Scan';
-                    ToolTip = 'Starts a Validation Check follow-up scan using active access.';
-                    Image = Start;
+                    Caption = 'Refresh Product Access';
                     ApplicationArea = All;
-                    Enabled = CanStartValidationCheck;
-                    Visible = ShowStartValidationCheck;
+                    Image = Refresh;
+                    ToolTip = 'Refreshes scan credits, monitoring status, and product access from BCSentinel.';
 
                     trigger OnAction()
                     var
-                        Setup: Record "DH Setup";
-                        DeepScanRun: Record "DH Deep Scan Run";
                         ApiClient: Codeunit "DH API Client";
-                        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                        EntryNo: Integer;
                     begin
-                        EnsureSetupExists();
-                        Setup := Rec;
-                        ApiClient.EnsureReadyForScan(Setup);
-                        EntryNo := DeepScanMgt.QueueDeepScan(Setup);
+                        if Rec."Tenant ID" = '' then
+                            Error(LocalizeText('Please register the tenant first.', 'Bitte registrieren Sie zuerst den Tenant.'));
+
+                        ApiClient.RefreshLicenseStatus(Rec);
                         CurrPage.Update(false);
-                        if DeepScanRun.Get(EntryNo) then
-                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                        Message(LocalizeText('Product access refreshed.', 'Produktzugriff wurde aktualisiert.'));
                     end;
                 }
+            }
 
-                action(StartValidationCheckBeforeFreeScore)
-                {
-                    Caption = 'Start Validation Check';
-                    ToolTip = 'Run the free Data Health Score first.';
-                    Image = Start;
-                    ApplicationArea = All;
-                    Enabled = false;
-                    Visible = ShowValidationCheckRequiresFreeScore;
-                }
+            group(SettingsActions)
+            {
+                Caption = 'Settings';
+                Image = Setup;
 
-                action(ViewScanHistory)
+                action(SelectModules)
                 {
-                    Caption = 'Scan History';
-                    ToolTip = 'Runs Scan History.';
-                    Image = List;
+                    Caption = 'Select Modules';
+                    ToolTip = 'Opens the BCSentinel scan module selection.';
+                    Image = Setup;
                     ApplicationArea = All;
 
                     trigger OnAction()
                     begin
-                        Page.Run(Page::"DH Deep Scan Runs");
-                    end;
-                }
-
-                action(OpenLatestScanMonitor)
-                {
-                    Caption = 'Open Scan Monitor';
-                    ToolTip = 'Opens the scan monitor for the latest deep scan.';
-                    Image = ViewDetails;
-                    ApplicationArea = All;
-                    Enabled = CanOpenLatestMonitor;
-
-                    trigger OnAction()
-                    begin
-                        OpenLatestMonitor();
+                        Page.Run(Page::"DH Scan Modules");
                     end;
                 }
 
@@ -733,27 +573,76 @@
                     ApplicationArea = All;
                     Enabled = CanSelectScanChecks;
                     Visible = true;
-                    Promoted = true;
-                    PromotedCategory = Process;
 
                     trigger OnAction()
                     begin
                         OpenChecksSelection();
                     end;
                 }
+            }
 
-                action(ConfigureModules)
+            group(ScanMenu)
+            {
+                Caption = 'Scan';
+                Image = Start;
+
+                action(StartScanFromMenu)
                 {
-                    Caption = 'Configure Modules';
-                    ToolTip = 'Opens the BCSentinel scan module configuration.';
-                    Image = Setup;
+                    Caption = 'Start Scan';
+                    ToolTip = 'Starts the available BCSentinel scan and opens the scan monitor.';
+                    Image = Start;
                     ApplicationArea = All;
-                    Promoted = true;
-                    PromotedCategory = Process;
+                    Enabled = CanStartFreeDataHealthScore or CanStartValidationCheck;
+                    Visible = ShowStartFreeDataHealthScore or ShowStartValidationCheck;
 
                     trigger OnAction()
                     begin
-                        Page.Run(Page::"DH Scan Modules");
+                        StartAvailableScan();
+                    end;
+                }
+
+                action(OpenLatestScanMonitor)
+                {
+                    Caption = 'Open Current Scan';
+                    ToolTip = 'Opens the scan monitor for the latest deep scan.';
+                    Image = ViewDetails;
+                    ApplicationArea = All;
+                    Enabled = CanOpenLatestMonitor;
+
+                    trigger OnAction()
+                    begin
+                        OpenLatestMonitor();
+                    end;
+                }
+
+                action(ViewScanHistory)
+                {
+                    Caption = 'Open Scan History';
+                    ToolTip = 'Opens the BCSentinel scan history.';
+                    Image = List;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                        Page.Run(Page::"DH Deep Scan Runs");
+                    end;
+                }
+
+                action(OpenDashboard)
+                {
+                    Caption = 'Open Analytics Dashboard';
+                    ApplicationArea = All;
+                    Image = View;
+                    ToolTip = 'Opens the BCSentinel analytics dashboard for this tenant.';
+                    Enabled = CanOpenDashboard;
+
+                    trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
+                        Token: Text;
+                    begin
+                        Token := ApiClient.GetAnalyticsDashboardToken(Rec);
+                        Hyperlink(GetDashboardUrl(Rec, Token));
                     end;
                 }
             }
@@ -763,28 +652,22 @@
                 Caption = 'Scheduler';
                 Image = Calendar;
 
-                action(RunScheduledScanNow)
+                action(EnableScheduler)
                 {
-                    Caption = 'Run now';
-                    ToolTip = 'Starts a Monitoring scan immediately and opens the scan monitor.';
-                    Image = Start;
+                    Caption = 'Enable Scheduler';
+                    ToolTip = 'Enables scheduled Monitoring scans and plans the next run.';
+                    Image = Approve;
                     ApplicationArea = All;
-                    Enabled = CanUseScheduler;
-                    Promoted = true;
-                    PromotedCategory = Process;
+                    Enabled = CanUseScheduler and not Rec."Scheduled Scans Enabled";
 
                     trigger OnAction()
                     var
                         SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
-                        DeepScanRun: Record "DH Deep Scan Run";
-                        EntryNo: Integer;
                     begin
-                        EntryNo := SchedulerMgt.RunNow(Rec);
+                        SchedulerMgt.EnableScheduler(Rec);
                         UpdateActionState();
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        if DeepScanRun.Get(EntryNo) then
-                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
                     end;
                 }
 
@@ -804,7 +687,7 @@
                         NextRun := SchedulerMgt.CalculateNextRun(Rec);
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        Message(NextScheduledScanLbl, NextRun);
+                        Message(LocalizeText('Next scheduled scan: %1', 'Nächster geplanter Scan: %1'), NextRun);
                     end;
                 }
 
@@ -844,52 +727,101 @@
                         CurrPage.Update(false);
                     end;
                 }
+
+                action(RunScheduledScanNow)
+                {
+                    Caption = 'Run Now';
+                    ToolTip = 'Starts a Monitoring scan immediately and opens the scan monitor.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = CanUseScheduler;
+
+                    trigger OnAction()
+                    var
+                        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+                        DeepScanRun: Record "DH Deep Scan Run";
+                        EntryNo: Integer;
+                    begin
+                        EntryNo := SchedulerMgt.RunNow(Rec);
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                        if DeepScanRun.Get(EntryNo) then
+                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                    end;
+                }
             }
 
-            group(HelpSupport)
+            group(SubscriptionActions)
             {
-                Caption = 'Help & Support';
-                Image = Help;
+                Caption = 'Subscription';
+                Image = Payment;
 
-                action(OpenDocumentation)
+                action(BuyFullAnalysis)
                 {
-                    Caption = 'Documentation';
-                    ToolTip = 'Opens BCSentinel documentation.';
-                    Image = Help;
+                    Caption = 'Buy Full Analysis';
                     ApplicationArea = All;
+                    Image = Add;
+                    ToolTip = 'Opens the secure BCSentinel checkout for Full Analysis.';
+                    Visible = ShowBuyFullAnalysis;
 
                     trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
                     begin
-                        Hyperlink('https://bcsentinel.com/documentation');
+                        ApiClient.OpenProductCheckout(Rec, 'full_analysis');
                     end;
                 }
 
-                action(OpenSupport)
+                action(BuyValidationCheck)
                 {
-                    Caption = 'Support';
-                    ToolTip = 'Opens BCSentinel support.';
-                    Image = Help;
+                    Caption = 'Buy Validation Check';
                     ApplicationArea = All;
+                    Image = Add;
+                    ToolTip = 'Opens the secure BCSentinel checkout for a Validation Check follow-up scan.';
+                    Visible = ShowBuyValidationCheck;
 
                     trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
                     begin
-                        Hyperlink('https://bcsentinel.com/support');
+                        ApiClient.OpenProductCheckout(Rec, 'validation_check');
                     end;
                 }
 
-                action(OpenPrivacySecurity)
+                action(StartMonitoringMonthly)
                 {
-                    Caption = 'Privacy & Security';
-                    ToolTip = 'Opens BCSentinel privacy and security information.';
-                    Image = Lock;
+                    Caption = 'Buy Monitoring Monthly';
                     ApplicationArea = All;
+                    Image = Add;
+                    ToolTip = 'Opens the secure BCSentinel checkout for monthly monitoring.';
+                    Visible = ShowStartMonitoring;
 
                     trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
                     begin
-                        Hyperlink('https://bcsentinel.com/privacy.html');
+                        ApiClient.OpenProductCheckout(Rec, 'monitoring_monthly');
+                    end;
+                }
+
+                action(StartMonitoringAnnual)
+                {
+                    Caption = 'Buy Monitoring Annual';
+                    ApplicationArea = All;
+                    Image = Add;
+                    ToolTip = 'Opens the secure BCSentinel checkout for annual monitoring.';
+                    Visible = ShowStartMonitoring;
+
+                    trigger OnAction()
+                    var
+                        ApiClient: Codeunit "DH API Client";
+                    begin
+                        ApiClient.OpenProductCheckout(Rec, 'monitoring_annual');
                     end;
                 }
             }
+
         }
     }
 
@@ -922,6 +854,7 @@
         ScanConfigurationStatusTxt: Text[250];
         SchedulerNoticeTxt: Text[250];
         ModuleScoresNoticeTxt: Text[100];
+        LastScheduledScanResultTxt: Text[100];
         LastScanRunIdTxt: Text[50];
         LastScanDateValue: DateTime;
         LastScanScoreTxt: Text[30];
@@ -962,26 +895,6 @@
         ServiceModuleScoreStyle: Text[30];
         JobsModuleScoreStyle: Text[30];
         HRModuleScoreStyle: Text[30];
-        DataProcessingNoticeLbl: Label 'Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.', Comment = 'DEU="Vor der Registrierung oder vor Scans benoetigt BCSentinel Ihre Einwilligung zur Uebermittlung und Verarbeitung von Mandanten- und Unternehmensdaten, Metadaten, Konfigurationsdaten, Scan-Ergebnissen, Findings und aggregierten Qualitaetskennzahlen. Die Daten werden fuer Data-Health-Analysen, Dashboards, Executive Reports und Lizenzpruefungen verwendet."';
-        ScanNotPossibleModuleLbl: Label 'Scan not possible. At least one module must be active.', Comment = 'DEU="Scan nicht moeglich. Mindestens ein Modul muss aktiv sein."';
-        ScanNotPossibleCheckLbl: Label 'Scan not possible. At least one check must be active.', Comment = 'DEU="Scan nicht moeglich. Mindestens ein Check muss aktiv sein."';
-        ScanPossibleLbl: Label 'Scan possible. Required modules and checks are available.', Comment = 'DEU="Scan moeglich. Erforderliche Module und Checks sind verfuegbar."';
-        ScheduledScansAvailableLbl: Label 'Scheduled scans are available with active Monitoring.', Comment = 'DEU="Geplante Scans sind mit aktivem Monitoring verfuegbar."';
-        ScheduledScansRequireMonitoringLbl: Label 'Scheduled scans require an active Monitoring subscription.', Comment = 'DEU="Geplante Scans erfordern ein aktives Monitoring-Abonnement."';
-        NoScanAvailableLbl: Label 'No scan available yet.', Comment = 'DEU="Noch kein Scan verfuegbar."';
-        NoDeepScanRunAvailableLbl: Label 'No deep scan run is available.', Comment = 'DEU="Es ist kein Deep-Scan-Lauf verfuegbar."';
-        ConfigureApiBaseUrlLbl: Label 'Please configure the API Base URL first.', Comment = 'DEU="Bitte konfigurieren Sie zuerst die API-Basis-URL."';
-        TenantNotRegisteredLbl: Label 'Tenant is not registered yet.', Comment = 'DEU="Der Tenant ist noch nicht registriert."';
-        TokenResponseInvalidJsonLbl: Label 'The token response is not valid JSON.', Comment = 'DEU="Die Token-Antwort ist kein gueltiges JSON."';
-        TokenMissingLbl: Label 'The token field is missing in the response.', Comment = 'DEU="Das Token-Feld fehlt in der Antwort."';
-        TenantAlreadyRegisteredLbl: Label 'BCSentinel tenant is already registered.', Comment = 'DEU="Der BCSentinel Tenant ist bereits registriert."';
-        RegistrationIncompleteLbl: Label 'BCSentinel registration data is incomplete. Registration will request a fresh API token.', Comment = 'DEU="Die BCSentinel Registrierungsdaten sind unvollstaendig. Die Registrierung fordert einen neuen API-Token an."';
-        TenantRegistrationStartedLbl: Label 'BCSentinel tenant registration started.', Comment = 'DEU="BCSentinel Tenant-Registrierung wurde gestartet."';
-        RegistrationResetLbl: Label 'Local BCSentinel registration and scan history were reset. Please register again.', Comment = 'DEU="Die lokale BCSentinel Registrierung und Scan-Historie wurden zurueckgesetzt. Bitte registrieren Sie sich erneut."';
-        RegisterTenantFirstLbl: Label 'Please register the tenant first.', Comment = 'DEU="Bitte registrieren Sie zuerst den Tenant."';
-        ProductAccessRefreshedLbl: Label 'Product access refreshed.', Comment = 'DEU="Produktzugriff wurde aktualisiert."';
-        NextScheduledScanLbl: Label 'Next scheduled scan: %1', Comment = 'DEU="Naechster geplanter Scan: %1"';
-
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
@@ -1126,7 +1039,9 @@
 
     local procedure UpdateNoticeTexts()
     begin
-        DataProcessingNoticeTxt := DataProcessingNoticeLbl;
+        DataProcessingNoticeTxt := LocalizeText(
+            'Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.',
+            'Vor der Registrierung oder vor Scans benoetigt BCSentinel Ihre Einwilligung zur Übermittlung und Verarbeitung von Mandanten- und Unternehmensdaten, Metadaten, Konfigurationsdaten, Scan-Ergebnissen, Findings und aggregierten Qualitätskennzahlen. Die Daten werden für Data-Health-Analysen, Dashboards, Executive Reports und Lizenzpruefungen verwendet.');
 
         InviteNoticeTxt := '';
     end;
@@ -1148,21 +1063,21 @@
         TotalChecks := ScanCheckMgt.GetTotalModuleChecksCount(Rec);
 
         if not Rec.HasAnyModuleEnabled() then begin
-            ScanConfigurationStatusTxt := ScanNotPossibleModuleLbl;
+            ScanConfigurationStatusTxt := LocalizeText('Scan not possible. At least one module must be active.', 'Scan nicht möglich. Mindestens ein Modul muss aktiv sein.');
             ScanConfigurationStyle := 'Unfavorable';
         end else
             if Rec."Monitoring Active" and (EnabledChecks = 0) and (TotalChecks > 0) then begin
-                ScanConfigurationStatusTxt := ScanNotPossibleCheckLbl;
+                ScanConfigurationStatusTxt := LocalizeText('Scan not possible. At least one check must be active.', 'Scan nicht möglich. Mindestens ein Check muss aktiv sein.');
                 ScanConfigurationStyle := 'Unfavorable';
             end else begin
-                ScanConfigurationStatusTxt := ScanPossibleLbl;
+                ScanConfigurationStatusTxt := LocalizeText('Scan possible. Required modules and checks are available.', 'Scan möglich. Erforderliche Module und Checks sind verfügbar.');
                 ScanConfigurationStyle := 'Favorable';
             end;
 
         if Rec."Monitoring Active" then
-            SchedulerNoticeTxt := ScheduledScansAvailableLbl
+            SchedulerNoticeTxt := LocalizeText('Scheduled scans are available with active Monitoring.', 'Geplante Scans sind mit aktivem Monitoring verfügbar.')
         else
-            SchedulerNoticeTxt := ScheduledScansRequireMonitoringLbl;
+            SchedulerNoticeTxt := LocalizeText('Scheduled scans require an active Monitoring subscription.', 'Geplante Scans erfordern ein aktives Monitoring-Abonnement.');
 
         SubscriptionStatusStyle := GetAccessStyle(Rec."Monitoring Active" or Rec."Can View Issue Details" or Rec."Premium Enabled");
         MonitoringStyle := GetAccessStyle(Rec."Monitoring Active");
@@ -1175,6 +1090,7 @@
         ModuleConfigStyle := GetAccessStyle(Rec.HasAnyModuleEnabled());
         ChecksConfigStyle := GetAccessStyle(EnabledChecks > 0);
         LastScheduledResultStyle := GetScheduledResultStyle();
+        LastScheduledScanResultTxt := GetScheduledScanResultDisplay();
         if Rec."Scheduled Scan Failure Count" > 0 then
             ScheduledFailureStyle := 'Unfavorable'
         else
@@ -1201,13 +1117,13 @@
         LastScanDurationTxt := '';
         LastScanStatusTxt := '';
         ShowNoScanNotice := true;
-        ModuleScoresNoticeTxt := NoScanAvailableLbl;
+        ModuleScoresNoticeTxt := LocalizeText('No scan available yet.', 'Noch kein Scan verfügbar.');
 
         LastRun.Reset();
         LastRun.SetCurrentKey("Requested At");
         LastRun.Ascending(false);
         if not LastRun.FindFirst() then begin
-            LastScanStatusTxt := NoScanAvailableLbl;
+            LastScanStatusTxt := LocalizeText('No scan available yet.', 'Noch kein Scan verfügbar.');
             LastScanStatusStyle := 'Standard';
             exit;
         end;
@@ -1220,7 +1136,7 @@
         LastScanIssuesValue := LastRun."Issues Count";
         LastScanEstimatedLossValue := LastRun."Estimated Loss (EUR)";
         LastScanDurationTxt := GetDurationText(LastRun);
-        LastScanStatusTxt := Format(LastRun.Status);
+        LastScanStatusTxt := GetDeepScanStatusDisplay(LastRun);
         LastScanScoreStyle := GetScoreStyle(LastRun."Deep Score");
         LastScanIssuesStyle := GetIssueStyle(LastRun."Issues Count");
         LastScanLossStyle := GetAmountStyle(LastRun."Estimated Loss (EUR)");
@@ -1330,6 +1246,64 @@
         exit('Standard');
     end;
 
+    local procedure GetScheduledScanResultDisplay(): Text[100]
+    begin
+        case Rec."Last Scheduled Scan Result" of
+            Rec."Last Scheduled Scan Result"::None:
+                exit(LocalizeText('None', 'Keine'));
+            Rec."Last Scheduled Scan Result"::Queued:
+                exit(LocalizeText('Queued', 'In Warteschlange'));
+            Rec."Last Scheduled Scan Result"::Completed:
+                exit(LocalizeText('Completed', 'Abgeschlossen'));
+            Rec."Last Scheduled Scan Result"::Failed:
+                exit(LocalizeText('Failed', 'Fehlgeschlagen'));
+            Rec."Last Scheduled Scan Result"::SkippedMonitoringInactive:
+                exit(LocalizeText('Skipped - Monitoring inactive', 'Übersprungen - Monitoring inaktiv'));
+            Rec."Last Scheduled Scan Result"::SkippedConfiguration:
+                exit(LocalizeText('Skipped - Configuration incomplete', 'Übersprungen - Konfiguration unvollständig'));
+            Rec."Last Scheduled Scan Result"::Disabled:
+                exit(LocalizeText('Disabled', 'Deaktiviert'));
+        end;
+
+        exit('');
+    end;
+
+    local procedure GetDeepScanStatusDisplay(var DeepScanRun: Record "DH Deep Scan Run"): Text[100]
+    begin
+        case DeepScanRun.Status of
+            DeepScanRun.Status::Queued:
+                exit(LocalizeText('Queued', 'In Warteschlange'));
+            DeepScanRun.Status::Running:
+                exit(LocalizeText('Running', 'Wird ausgeführt'));
+            DeepScanRun.Status::Completed:
+                exit(LocalizeText('Completed', 'Abgeschlossen'));
+            DeepScanRun.Status::Failed:
+                exit(LocalizeText('Failed', 'Fehlgeschlagen'));
+            DeepScanRun.Status::Canceled:
+                exit(LocalizeText('Canceled', 'Abgebrochen'));
+        end;
+
+        exit('');
+    end;
+
+    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
+    begin
+        if IsGermanLanguage() then
+            exit(GermanText);
+
+        exit(EnglishText);
+    end;
+
+    local procedure IsGermanLanguage(): Boolean
+    begin
+        case GlobalLanguage() of
+            1031, 2055, 3079, 4103, 5127:
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
     local procedure LastDeepScanRunExists(): Boolean
     var
         DeepScanRun: Record "DH Deep Scan Run";
@@ -1340,6 +1314,40 @@
         exit(DeepScanRun.FindFirst());
     end;
 
+    local procedure StartAvailableScan()
+    var
+        Setup: Record "DH Setup";
+        DeepScanRun: Record "DH Deep Scan Run";
+        ApiClient: Codeunit "DH API Client";
+        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+        EntryNo: Integer;
+    begin
+        EnsureSetupExists();
+        Setup := Rec;
+
+        if ShowStartFreeDataHealthScore and CanStartFreeDataHealthScore then begin
+            if not Confirm(LocalizeText(
+                'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.',
+                'Möchten Sie den kostenlosen Data Health Score jetzt starten? Die Leistung kann im laufenden Betrieb beeinträchtigt werden. Wir empfehlen die Ausführung außerhalb der Geschäftszeiten.'), false) then
+                exit;
+
+            EntryNo := DeepScanMgt.QueueDataHealthScore(Setup);
+            Rec.Get('SETUP');
+            Rec."Data Health Score Completed" := true;
+            Rec."Can Run Data Health Score" := false;
+            Rec.Modify(true);
+        end else begin
+            ApiClient.EnsureReadyForScan(Setup);
+            EntryNo := DeepScanMgt.QueueDeepScan(Setup);
+        end;
+
+        UpdateActionState();
+        UpdateDisplayValues();
+        CurrPage.Update(false);
+        if DeepScanRun.Get(EntryNo) then
+            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+    end;
+
     local procedure OpenLatestMonitor()
     var
         DeepScanRun: Record "DH Deep Scan Run";
@@ -1348,7 +1356,7 @@
         DeepScanRun.SetCurrentKey("Requested At");
         DeepScanRun.Ascending(false);
         if not DeepScanRun.FindFirst() then
-            Error(NoDeepScanRunAvailableLbl);
+            Error(LocalizeText('No deep scan run is available.', 'Es ist kein Deep-Scan-Lauf verfügbar.'));
 
         Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
     end;
@@ -1370,10 +1378,10 @@
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text
     begin
         if Setup."API Base URL" = '' then
-            Error(ConfigureApiBaseUrlLbl);
+            Error(LocalizeText('Please configure the API Base URL first.', 'Bitte konfigurieren Sie zuerst die API-Basis-URL.'));
 
         if Setup."Tenant ID" = '' then
-            Error(TenantNotRegisteredLbl);
+            Error(LocalizeText('Tenant is not registered yet.', 'Der Tenant ist noch nicht registriert.'));
 
         exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/get-token?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue('BC Cloud') + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
@@ -1401,10 +1409,10 @@
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error(TokenResponseInvalidJsonLbl);
+            Error(LocalizeText('The token response is not valid JSON.', 'Die Token-Antwort ist kein gültiges JSON.'));
 
         if not JsonObj.Get('token', JsonToken) then
-            Error(TokenMissingLbl);
+            Error(LocalizeText('The token field is missing in the response.', 'Das Token-Feld fehlt in der Antwort.'));
 
         exit(JsonToken.AsValue().AsText());
     end;

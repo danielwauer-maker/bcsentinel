@@ -344,7 +344,9 @@ codeunit 53100 "DH API Client"
         RefreshLicenseStatus(Setup);
         if not Setup."Can Run Deep Scan" then
             if not IsPremiumAllowed(Setup) then
-                Error('No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.');
+                Error(LocalizeText(
+                    'No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.',
+                    'Kein Scan-Guthaben oder aktives Monitoring verfügbar. Bitte kaufen Sie Full Analysis, Validation Check oder starten Sie Monitoring.'));
     end;
 
     procedure IsPremiumAllowed(Setup: Record "DH Setup"): Boolean
@@ -1652,15 +1654,33 @@ codeunit 53100 "DH API Client"
         exit(Item.Count());
     end;
 
+    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
+    begin
+        if IsGermanLanguage() then
+            exit(GermanText);
+
+        exit(EnglishText);
+    end;
+
+    local procedure IsGermanLanguage(): Boolean
+    begin
+        case GlobalLanguage() of
+            1031, 2055, 3079, 4103, 5127:
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
     var
         EnableDataProcessingConsentLbl: Label 'Please enable Data Processing Consent first.', Comment = 'DEU="Bitte aktivieren Sie zuerst die Einwilligung zur Datenverarbeitung."';
         ConfigureApiBaseUrlLbl: Label 'Please configure the API Base URL first.', Comment = 'DEU="Bitte konfigurieren Sie zuerst die API-Basis-URL."';
         EnableDataProcessingConsentBeforeRegisterLbl: Label 'Please enable Data Processing Consent before registering the tenant.', Comment = 'DEU="Bitte aktivieren Sie die Einwilligung zur Datenverarbeitung, bevor Sie den Tenant registrieren."';
-        BackendRequestNotSentLbl: Label 'The backend request could not be sent. Please verify the network connection.', Comment = 'DEU="Die Backend-Anfrage konnte nicht gesendet werden. Bitte pruefen Sie die Netzwerkverbindung."';
-        BackendInvalidJsonLbl: Label 'The backend returned an invalid JSON response. Contact BCSentinel support if this continues.', Comment = 'DEU="Das Backend hat eine ungueltige JSON-Antwort geliefert. Kontaktieren Sie den BCSentinel Support, falls dies weiterhin auftritt."';
-        BackendMissingTenantIdLbl: Label 'The backend response does not contain a tenant_id.', Comment = 'DEU="Die Backend-Antwort enthaelt keine tenant_id."';
-        BackendMissingApiTokenLbl: Label 'The backend response does not contain an api_token.', Comment = 'DEU="Die Backend-Antwort enthaelt keinen api_token."';
+        BackendRequestNotSentLbl: Label 'The backend request could not be sent. Please verify the network connection.', Comment = 'DEU="Die Backend-Anfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung."';
+        BackendInvalidJsonLbl: Label 'The backend returned an invalid JSON response. Contact BCSentinel support if this continues.', Comment = 'DEU="Das Backend hat eine ungültige JSON-Antwort geliefert. Kontaktieren Sie den BCSentinel Support, falls dies weiterhin auftritt."';
+        BackendMissingTenantIdLbl: Label 'The backend response does not contain a tenant_id.', Comment = 'DEU="Die Backend-Antwort enthält keine tenant_id."';
+        BackendMissingApiTokenLbl: Label 'The backend response does not contain an api_token.', Comment = 'DEU="Die Backend-Antwort enthält keinen api_token."';
         RegistrationCompletedInviteSentLbl: Label 'BCSentinel tenant registration completed. Dashboard access was sent to %1.', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen. Der Dashboard-Zugang wurde an %1 gesendet."';
         RegistrationCompletedInviteFailedLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht gesendet werden. Bitte senden Sie die Einladung im Admin-Dashboard erneut. Details: %1"';
-        RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht bestaetigt werden. Bitte pruefen Sie das Admin-Dashboard."';
+        RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.', Comment = 'DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht bestätigt werden. Bitte prüfen Sie das Admin-Dashboard."';
 }

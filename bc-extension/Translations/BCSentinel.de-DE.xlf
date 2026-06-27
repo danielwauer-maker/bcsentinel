@@ -4033,7 +4033,7 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 424589911 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Registers this Business Central tenant with BCSentinel.</source>
-          <target state="translated">Registriert diesen Business-Central-Tenant bei BCSentinel mit API-Basis-URL und Invite-Code, falls erforderlich.</target>
+          <target state="translated">Registriert diesen Business Central Tenant bei BCSentinel.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Property ToolTip</note>
         </trans-unit>
@@ -4309,7 +4309,7 @@
         </trans-unit>
         <trans-unit id="Page 3166868633 - Action 1727984412 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open Analytics Dashboard</source>
-          <target state="translated">Analytics-Dashboard Oeffnen</target>
+          <target state="translated">Analyse-Dashboard oeffnen</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Action OpenDashboard - Property Caption</note>
         </trans-unit>
@@ -4669,7 +4669,7 @@
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 644128942 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Selects the checks that are included in Monitoring scans.</source>
-          <target state="translated">Waehlt die Pruefungen aus, die in Monitoring-Scans enthalten sind.</target>
+          <target state="translated">Waehlt die Checks aus, die in Monitoring-Scans enthalten sind.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SelectScanChecks - Property ToolTip</note>
         </trans-unit>

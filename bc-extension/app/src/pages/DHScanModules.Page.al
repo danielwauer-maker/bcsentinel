@@ -395,27 +395,27 @@ page 53172 "DH Scan Modules"
         ActiveModulesStyle := GetOkStyle(Rec.HasAnyModuleEnabled());
         ActiveChecksStyle := GetOkStyle(EnabledChecks > 0);
         if not Rec.HasAnyModuleEnabled() then begin
-            ModuleSelectionStatusTxt := 'Scan not possible. At least one module must be active.';
+            ModuleSelectionStatusTxt := LocalizeText('Scan not possible. At least one module must be active.', 'Scan nicht möglich. Mindestens ein Modul muss aktiv sein.');
             ModuleSelectionStatusStyle := 'Unfavorable';
         end else
             if EnabledChecks = 0 then begin
-                ModuleSelectionStatusTxt := 'Scan not possible. At least one check must be active.';
+                ModuleSelectionStatusTxt := LocalizeText('Scan not possible. At least one check must be active.', 'Scan nicht möglich. Mindestens ein Check muss aktiv sein.');
                 ModuleSelectionStatusStyle := 'Unfavorable';
             end else begin
-                ModuleSelectionStatusTxt := 'Scan possible. Required modules and checks are available.';
+                ModuleSelectionStatusTxt := LocalizeText('Scan possible. Required modules and checks are available.', 'Scan möglich. Erforderliche Module und Checks sind verfügbar.');
                 ModuleSelectionStatusStyle := 'Favorable';
             end;
 
-        SystemDescriptionTxt := 'System, setup, dimensions and core configuration.';
-        FinanceDescriptionTxt := 'Finance, posting setup, VAT and ledger quality checks.';
-        SalesDescriptionTxt := 'Sales master data and sales document quality checks.';
-        PurchasingDescriptionTxt := 'Purchasing master data and purchase document quality checks.';
-        InventoryDescriptionTxt := 'Inventory, item master data and stock value checks.';
-        CRMDescriptionTxt := 'Contacts, relationships and CRM data quality checks.';
-        ManufacturingDescriptionTxt := 'Manufacturing and production master data checks.';
-        ServiceDescriptionTxt := 'Service management data quality checks.';
-        JobsDescriptionTxt := 'Jobs and project-related planning checks.';
-        HRDescriptionTxt := 'Employees and resources data quality checks.';
+        SystemDescriptionTxt := LocalizeText('System, setup, dimensions and core configuration.', 'System, Einrichtung, Dimensionen und Kernkonfiguration.');
+        FinanceDescriptionTxt := LocalizeText('Finance, posting setup, VAT and ledger quality checks.', 'Finanzen, Buchungseinrichtung, MwSt. und Sachpostenqualitaet.');
+        SalesDescriptionTxt := LocalizeText('Sales master data and sales document quality checks.', 'Verkaufsstammdaten und Qualitätspruefungen für Verkaufsbelege.');
+        PurchasingDescriptionTxt := LocalizeText('Purchasing master data and purchase document quality checks.', 'Einkaufsstammdaten und Qualitätspruefungen für Einkaufsbelege.');
+        InventoryDescriptionTxt := LocalizeText('Inventory, item master data and stock value checks.', 'Lager, Artikelstammdaten und Lagerwertpruefungen.');
+        CRMDescriptionTxt := LocalizeText('Contacts, relationships and CRM data quality checks.', 'Kontakte, Beziehungen und CRM-Datenqualitaetspruefungen.');
+        ManufacturingDescriptionTxt := LocalizeText('Manufacturing and production master data checks.', 'Fertigungs- und Produktionsstammdatenpruefungen.');
+        ServiceDescriptionTxt := LocalizeText('Service management data quality checks.', 'Datenqualitaetspruefungen im Servicemanagement.');
+        JobsDescriptionTxt := LocalizeText('Jobs and project-related planning checks.', 'Projekt- und auftragsbezogene Planungspruefungen.');
+        HRDescriptionTxt := LocalizeText('Employees and resources data quality checks.', 'Datenqualitaetspruefungen für Mitarbeiter und Ressourcen.');
 
         SystemChecksTxt := GetModuleChecksText('SYSTEM');
         FinanceChecksTxt := GetModuleChecksText('FINANCE');
@@ -478,7 +478,7 @@ page 53172 "DH Scan Modules"
         TotalCount := ScanCheck.Count();
         ScanCheck.SetRange(Enabled, true);
         ActiveCount := ScanCheck.Count();
-        exit(StrSubstNo('%1 / %2 active', ActiveCount, TotalCount));
+        exit(StrSubstNo(LocalizeText('%1 / %2 active', '%1 / %2 aktiv'), ActiveCount, TotalCount));
     end;
 
     local procedure OpenChecksForModule(ModuleName: Text[100])
@@ -510,6 +510,24 @@ page 53172 "DH Scan Modules"
         if IsOk then
             exit('Favorable');
         exit('Unfavorable');
+    end;
+
+    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
+    begin
+        if IsGermanLanguage() then
+            exit(GermanText);
+
+        exit(EnglishText);
+    end;
+
+    local procedure IsGermanLanguage(): Boolean
+    begin
+        case GlobalLanguage() of
+            1031, 2055, 3079, 4103, 5127:
+                exit(true);
+        end;
+
+        exit(false);
     end;
 
     local procedure GetScoreStyle(Score: Integer): Text[30]
