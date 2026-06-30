@@ -1512,6 +1512,13 @@ def analytics_billing_portal(
     portal = create_billing_portal_session_for_tenant(
         BillingPortalRequest(tenant_id=tenant.tenant_id)
     )
+    return JSONResponse(
+        content={
+            "action": "portal",
+            "provider": portal.provider,
+            "portal_url": portal.portal_url,
+        }
+    )
 
 
 def _create_analytics_embed_token(
@@ -1554,13 +1561,6 @@ def _verify_analytics_embed_payload(token: str) -> dict[str, Any]:
         raise HTTPException(status_code=401, detail="Analytics embed token is missing tenant_id.")
 
     return payload
-    return JSONResponse(
-        content={
-            "action": "portal",
-            "provider": portal.provider,
-            "portal_url": portal.portal_url,
-        }
-    )
 
 
 @router.get("/analytics/embed", response_class=HTMLResponse)

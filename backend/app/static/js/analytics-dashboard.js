@@ -1,4 +1,4 @@
-﻿let currentSelectedScanId = null;
+let currentSelectedScanId = null;
 let currentSelectedIssueIndex = null;
 let recentScansPage = 1;
 const RECENT_SCANS_PAGE_SIZE = 12;
@@ -2418,6 +2418,38 @@ function applyDashboardTheme(isDark) {
   if (toggle) toggle.checked = Boolean(isDark);
 }
 
+const DASHBOARD_SHELL_SLOTS = [
+  'executive-summary',
+  'health-score',
+  'business-impact',
+  'top-risks',
+  'critical-issues',
+  'recommended-actions',
+  'issue-list',
+  'monitoring',
+];
+
+function initDashboardShell() {
+  const root = byId('dashboard-root');
+  if (root) root.dataset.shellReady = 'true';
+  document.body.dataset.dashboardShell = 'ready';
+
+  document.querySelectorAll('[data-dashboard-slot]').forEach((slot) => {
+    slot.classList.add('dashboard-slot');
+    slot.dataset.shellReady = 'true';
+    if (!slot.hasAttribute('role')) slot.setAttribute('role', 'region');
+    if (!slot.hasAttribute('aria-label')) {
+      const label = String(slot.dataset.dashboardSlot || '').replaceAll('-', ' ');
+      slot.setAttribute('aria-label', label ? `Dashboard slot: ${label}` : 'Dashboard slot');
+    }
+  });
+
+  DASHBOARD_SHELL_SLOTS.forEach((slotName) => {
+    if (!document.querySelector(`[data-dashboard-slot="${slotName}"]`)) {
+      console.warn(`Dashboard shell slot missing: ${slotName}`);
+    }
+  });
+}
 function initDarkModeToggle() {
   const toggle = byId('dashboard-dark-toggle');
   const stored = localStorage.getItem('bcsentinel-dashboard-theme');
@@ -2765,6 +2797,7 @@ function registerEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initDashboardShell();
   initDarkModeToggle();
   initLanguageToggle();
   registerEvents();
@@ -2772,4 +2805,6 @@ document.addEventListener('DOMContentLoaded', () => {
   recentScansPage = 1;
   loadDashboard();
 });
+
+
 

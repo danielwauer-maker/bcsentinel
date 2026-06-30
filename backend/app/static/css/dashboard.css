@@ -4740,3 +4740,78 @@ body.dashboard-dark .recent-critical-row {
   color: #f4f7fb;
 }
 
+
+/* Dashboard shell contract for Build 01B */
+.dashboard-root {
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  min-width: 0;
+}
+
+.dashboard-header {
+  position: relative;
+  z-index: 2;
+}
+
+.dashboard-content-wrapper {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.shell-notification-area,
+.shell-subscription-banner {
+  display: grid;
+  gap: 10px;
+}
+
+.shell-notification-area:empty,
+.shell-subscription-banner:empty {
+  display: none;
+}
+
+.dashboard-slot {
+  scroll-margin-top: 24px;
+}
+
+.dashboard-slot[data-shell-ready="true"] {
+  min-width: 0;
+}
+
+.dashboard-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-action-link {
+  color: var(--primary-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-action-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+  .dashboard-content-wrapper {
+    gap: 14px;
+  }
+
+  .dashboard-footer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+html.dashboard-dark .dashboard-footer-actions,
+body.dashboard-dark .dashboard-footer-actions {
+  border-top-color: #263a59;
+}
