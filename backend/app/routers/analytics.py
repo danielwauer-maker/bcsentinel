@@ -877,6 +877,197 @@ def _get_premium_pricing_breakdown(scan: Scan | None) -> dict[str, Any]:
         "annual_note": "Tenant-tier Monitoring Annual price from Pricing Matrix.",
     }
 
+def _analytics_demo_mode_enabled() -> bool:
+    return bool(settings.ANALYTICS_DEMO_MODE) and settings.ENV.strip().lower() != "prod"
+
+
+def _build_demo_dashboard_payload(
+    company: str,
+    environment: str,
+    scan_mode: str | None,
+    language: str = "en",
+) -> dict[str, Any]:
+    with SessionLocal() as db:
+        default_pricing = build_monitoring_pricing_breakdown(db)
+        product_pricing = get_public_product_pricing_payload(db)
+        tenant_pricing = build_tier_pricing_payload(db, record_count=24850)
+
+    lang = normalize_language(language)
+    ui = _ui(lang)
+    generated_at = datetime.now(timezone.utc)
+    last_updated = generated_at.strftime("%d.%m.%Y %H:%M:%S")
+    demo_scan_id = "demo_preview_scan"
+    product_access = {
+        "can_view_free_insights": True,
+        "can_view_issues": False,
+        "can_view_actions": False,
+        "can_view_reports": False,
+        "can_view_record_details": False,
+        "monitoring_active": False,
+    }
+    demo_issues = [
+        {
+            "code": "DEMO_MASTER_DATA_QUALITY",
+            "title": "Demo: Missing master data on customer records",
+            "severity": "critical",
+            "severity_label": _severity_label("critical", lang),
+            "count": 184,
+            "impact_eur": 42800.0,
+            "group": _module_label("CRM", lang),
+            "recommendation_preview": "Sample recommendation: complete required posting and contact fields before the next billing run.",
+            "premium_only": False,
+            "open_in_bc_url": None,
+        },
+        {
+            "code": "DEMO_DUPLICATE_VENDORS",
+            "title": "Demo: Potential duplicate vendor records",
+            "severity": "high",
+            "severity_label": _severity_label("high", lang),
+            "count": 67,
+            "impact_eur": 23600.0,
+            "group": _module_label("Purchasing", lang),
+            "recommendation_preview": "Sample recommendation: merge duplicate vendor profiles and lock inactive payment targets.",
+            "premium_only": False,
+            "open_in_bc_url": None,
+        },
+        {
+            "code": "DEMO_INVENTORY_RISK",
+            "title": "Demo: Inconsistent item and inventory records",
+            "severity": "medium",
+            "severity_label": _severity_label("medium", lang),
+            "count": 129,
+            "impact_eur": 18500.0,
+            "group": _module_label("Inventory", lang),
+            "recommendation_preview": "Sample recommendation: align item status, costing setup, and warehouse handling rules.",
+            "premium_only": False,
+            "open_in_bc_url": None,
+        },
+    ]
+    module_scores = [
+        {"name": "Finance", "score": 71, "value": 71, "label": _module_label("Finance", lang), "variant": _score_variant(71)},
+        {"name": "Sales", "score": 76, "value": 76, "label": _module_label("Sales", lang), "variant": _score_variant(76)},
+        {"name": "Purchasing", "score": 63, "value": 63, "label": _module_label("Purchasing", lang), "variant": _score_variant(63)},
+        {"name": "Inventory", "score": 68, "value": 68, "label": _module_label("Inventory", lang), "variant": _score_variant(68)},
+        {"name": "CRM", "score": 58, "value": 58, "label": _module_label("CRM", lang), "variant": _score_variant(58)},
+    ]
+    issue_groups = [
+        {"name": _module_label("CRM", lang), "count": 184},
+        {"name": _module_label("Purchasing", lang), "count": 67},
+        {"name": _module_label("Inventory", lang), "count": 129},
+        {"name": _module_label("Finance", lang), "count": 41},
+    ]
+    recent_scans = [
+        {"scan_id": demo_scan_id, "generated_at": last_updated, "scan_type": "demo_preview", "data_score": 68, "issues_count": 421, "headline": "Demo Preview - Sample data", "is_selected": True, "is_valid": True},
+        {"scan_id": "demo_preview_previous", "generated_at": (generated_at - timedelta(days=31)).strftime("%d.%m.%Y %H:%M:%S"), "scan_type": "demo_preview", "data_score": 72, "issues_count": 389, "headline": "Demo Preview - Previous sample", "is_selected": False, "is_valid": True},
+    ]
+    score_trend = [
+        {"scan_id": "demo_preview_previous", "label": (generated_at - timedelta(days=31)).strftime("%d.%m"), "timestamp": (generated_at - timedelta(days=31)).strftime("%d.%m.%Y %H:%M:%S"), "value": 72, "scan_type": "demo_preview", "is_selected": False},
+        {"scan_id": demo_scan_id, "label": generated_at.strftime("%d.%m"), "timestamp": last_updated, "value": 68, "scan_type": "demo_preview", "is_selected": True},
+    ]
+    loss_trend = [
+        {"scan_id": "demo_preview_previous", "label": (generated_at - timedelta(days=31)).strftime("%d.%m"), "timestamp": (generated_at - timedelta(days=31)).strftime("%d.%m.%Y %H:%M:%S"), "value": 64200.0, "scan_type": "demo_preview", "is_selected": False},
+        {"scan_id": demo_scan_id, "label": generated_at.strftime("%d.%m"), "timestamp": last_updated, "value": 84900.0, "scan_type": "demo_preview", "is_selected": True},
+    ]
+
+    return {
+        "is_demo": True,
+        "data_source": "demo_preview",
+        "title": "BCSentinel Analytics",
+        "language": lang,
+        "ui": ui,
+        "subtitle": f"Demo Preview - Sample data - {company} - {environment}",
+        "scan_mode_label": _scan_mode_label("demo_preview", scan_mode),
+        "last_updated": last_updated,
+        "selected_scan_id": demo_scan_id,
+        "current_plan": "free",
+        "product_access": product_access,
+        "visibility": {
+            "is_premium": False,
+            "can_view_free_insights": True,
+            "show_findings": False,
+            "show_trends": False,
+            "show_upgrade_preview": True,
+        },
+        "hero": {
+            "eyebrow": "Demo Preview - Sample data",
+            "headline_prefix": "Your sample data health is",
+            "headline_highlight": "at risk",
+            "headline_suffix": "and ready for dashboard review.",
+        },
+        "score_label": "Demo Preview Score",
+        "kpis": {
+            "health_score": 68,
+            "total_records": 24850,
+            "affected_records": 421,
+            "estimated_premium_price_monthly": round(_safe_float(default_pricing.get("final_price_monthly")), 2),
+            "estimated_loss_eur": 84900.0,
+            "potential_saving_eur": 51700.0,
+            "roi_eur": 49912.0,
+            "checks_run": 312,
+            "issues_count": 421,
+        },
+        "profile_cards": [
+            {"label": "Customers", "value": 4200, "helper": "Demo sample"},
+            {"label": "Vendors", "value": 1380, "helper": "Demo sample"},
+            {"label": "Items", "value": 9270, "helper": "Demo sample"},
+            {"label": "Ledger Entries", "value": 10000, "helper": "Demo sample"},
+        ],
+        "module_counts": {"System": 0, "Finance": 41, "Sales": 52, "Purchasing": 67, "Inventory": 129, "CRM": 184, "Manufacturing": 0, "Service": 0, "Jobs": 0, "HR": 0},
+        "module_scores": module_scores,
+        "top_risk_modules": module_scores[-3:],
+        "recent_scans": recent_scans,
+        "recent_scans_pagination": {"page": 1, "page_size": 10, "total_items": len(recent_scans), "total_pages": 1, "has_prev": False, "has_next": False},
+        "score_trend": score_trend,
+        "loss_trend": loss_trend,
+        "issue_groups": issue_groups,
+        "top_findings": [],
+        "free_insights": {
+            "top_findings": demo_issues,
+            "business_impacts": [{"title": item["title"], "group": item["group"], "impact_eur": item["impact_eur"], "count": item["count"]} for item in demo_issues],
+            "module_distribution": issue_groups,
+            "records_by_module": [
+                {"name": _module_label("CRM", lang), "count": 4200},
+                {"name": _module_label("Purchasing", lang), "count": 1380},
+                {"name": _module_label("Inventory", lang), "count": 9270},
+            ],
+            "active_issues_summary": {"critical": 1, "high": 1, "medium": 1, "low": 0},
+        },
+        "critical_issues_summary": {"critical": 1, "high": 1, "medium": 1, "low": 0, "total": 421},
+        "recommended_actions": [
+            {"issue": item["title"], "suggested_action": item["recommendation_preview"], "priority": item["severity"], "potential_saving_eur": item["impact_eur"], "effort": "Sample"}
+            for item in demo_issues
+        ],
+        "issue_preview": demo_issues,
+        "premium_preview_findings": [{"title": item["title"], "group": item["group"], "count": item["count"], "impact_eur": item["impact_eur"], "recommendation_preview": item["recommendation_preview"]} for item in demo_issues],
+        "premium_unlock": {
+            "headline": "Demo Preview shows how Full Analysis will explain business impact.",
+            "body": "This is synthetic sample data for local dashboard review. Real scan data always replaces this preview.",
+            "button_label": ui["buy_assessment"],
+            "button_action": "checkout",
+            "highlights": ["Sample affected records", "Sample recommendations", "Sample business impact"],
+        },
+        "pricing_breakdown": default_pricing,
+        "product_pricing": product_pricing,
+        "tenant_pricing": tenant_pricing,
+        "pages": _dashboard_page_state(product_access, has_scan=True),
+        "issues_page": {"locked": True, "items": [], "empty": False},
+        "actions_page": {"locked": True, "items": [], "empty": False},
+        "reports_page": {"locked": True, "items": [], "empty": False},
+        "settings_page": {"locked": False, "tenant_id": None, "company": company, "language": lang, "last_scan": last_updated, "connection_status": "demo_preview"},
+        "scan_information": {"scan_id": demo_scan_id, "scan_type": "demo_preview", "last_updated": last_updated, "records": 24850, "checks_run": 312, "data_source": "demo_preview"},
+        "monitoring_preview": {"status": "demo_preview", "frequency": "daily sample status", "last_check": last_updated, "trend": "sample deterioration versus previous scan", "alert": "Sample alert: critical deterioration detected"},
+        "subscription": {
+            "plan_label": "Demo Preview",
+            "price_monthly": 0.0,
+            "annual_cost": 0.0,
+            "cta_label": ui["buy_assessment"],
+            "cta_action": "checkout",
+            "cta_product_code": PRODUCT_FULL_ANALYSIS,
+            "plan_note": "Synthetic local preview. Real scans and real access rights take precedence.",
+            "pricing_breakdown": default_pricing,
+            "billing_options": {"monthly_label": "Monthly billing", "monthly_note": default_pricing.get("monthly_note", ""), "annual_label": ui["annual_fixed_plan"], "annual_note": default_pricing.get("annual_note", "")},
+        },
+    }
 
 def _build_fallback_payload(company: str, environment: str, scan_mode: str | None, language: str = "en") -> dict[str, Any]:
     with SessionLocal() as db:
@@ -1062,6 +1253,8 @@ def _build_dashboard_payload(
 
     recent_scans_desc = _load_recent_scans_desc(tenant.tenant_id)
     if not recent_scans_desc:
+        if _analytics_demo_mode_enabled():
+            return _build_demo_dashboard_payload(company, environment, scan_mode, lang)
         return _build_fallback_payload(company, environment, scan_mode, lang)
 
     active_scan = _select_active_scan(recent_scans_desc, selected_scan_id)

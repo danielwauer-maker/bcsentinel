@@ -61,3 +61,78 @@ def test_analytics_data_rejects_generic_non_embed_token(client, tenant_factory):
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid analytics embed token."
+
+
+def _analytics_embed_token(client, tenant, auth_header_factory):
+    token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
+    assert token_response.status_code == 200
+    return token_response.json()["token"]
+
+
+def test_dev_demo_mode_returns_demo_payload_without_scans(client, tenant_factory, auth_header_factory, monkeypatch):
+    monkeypatch.setattr(settings, "ENV", "dev")
+    monkeypatch.setattr(settings, "ANALYTICS_DEMO_MODE", True)
+    tenant = tenant_factory()
+    embed_token = _analytics_embed_token(client, tenant, auth_header_factory)
+
+    response = client.get("/analytics/embed/data", params={"embed_token": embed_token})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["is_demo"] is True
+    assert body["data_source"] == "demo_preview"
+    assert "Demo Preview" in body["subtitle"]
+    assert body["selected_scan_id"] == "demo_preview_scan"
+    assert body["free_insights"]["top_findings"]
+
+
+def test_demo_mode_disabled_uses_fallback_without_scans(client, tenant_factory, auth_header_factory, monkeypatch):
+    monkeypatch.setattr(settings, "ENV", "dev")
+    monkeypatch.setattr(settings, "ANALYTICS_DEMO_MODE", False)
+    tenant = tenant_factory()
+    embed_token = _analytics_embed_token(client, tenant, auth_header_factory)
+
+    response = client.get("/analytics/embed/data", params={"embed_token": embed_token})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("is_demo") is not True
+    assert body["selected_scan_id"] is None
+    assert body["recent_scans"] == []
+
+
+def test_prod_demo_mode_flag_uses_fallback_without_scans(client, tenant_factory, auth_header_factory, monkeypatch):
+    monkeypatch.setattr(settings, "ENV", "prod")
+    monkeypatch.setattr(settings, "ANALYTICS_DEMO_MODE", True)
+    tenant = tenant_factory()
+    embed_token = _analytics_embed_token(client, tenant, auth_header_factory)
+
+    response = client.get("/analytics/embed/data", params={"embed_token": embed_token})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("is_demo") is not True
+    assert body["selected_scan_id"] is None
+    assert body["recent_scans"] == []
+
+
+def test_real_scan_takes_precedence_over_demo_mode(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    scan_factory,
+    monkeypatch,
+):
+    monkeypatch.setattr(settings, "ENV", "dev")
+    monkeypatch.setattr(settings, "ANALYTICS_DEMO_MODE", True)
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="real_scan_demo_precedence")
+    embed_token = _analytics_embed_token(client, tenant, auth_header_factory)
+
+    response = client.get("/analytics/embed/data", params={"embed_token": embed_token})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("is_demo") is not True
+    assert body["selected_scan_id"] == "real_scan_demo_precedence"
+    assert body["kpis"]["health_score"] == 80

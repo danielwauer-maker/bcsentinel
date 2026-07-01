@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in
     # config/pricing_canonical.json or license_pricing_config change, create matching
-    # new Prices in Stripe and update these env vars — see backend/README.md.
+    # new Prices in Stripe and update these env vars Ã¢â‚¬â€ see backend/README.md.
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
     STRIPE_PRICE_ID_ASSESSMENT: str | None = None
@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     BILLING_PORTAL_RETURN_URL: str | None = None
     SCAN_STALLED_AFTER_SECONDS: int = 180
     SCAN_MAX_RUNTIME_SECONDS: int | None = None
+    ANALYTICS_DEMO_MODE: bool = False
 
     model_config = SettingsConfigDict(
         case_sensitive=True,
