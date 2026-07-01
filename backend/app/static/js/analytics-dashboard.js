@@ -712,26 +712,151 @@ function renderOverviewContext(data) {
   host.classList.add('hidden');
 }
 
+function executiveSummaryVariant(data) {
+  const isMonitoring = Boolean(data?.product_access?.monitoring_active || data?.monitoring_preview?.status === 'active');
+  const isPremium = Boolean(data?.visibility?.is_premium);
+  if (isMonitoring) return 'monitoring';
+  if (isPremium) return 'full';
+  return 'free';
+}
+
+function executiveTrendCopy(data) {
+  const scoreTrend = trendFromSeries(data?.score_trend);
+  const lossTrend = trendFromSeries(data?.loss_trend);
+  if (Number.isFinite(Number(scoreTrend))) {
+    const direction = Number(scoreTrend) >= 0 ? 'improved' : 'declined';
+    return `Health score ${direction} ${formatPercent(Math.abs(scoreTrend))} versus the previous scan.`;
+  }
+  if (Number.isFinite(Number(lossTrend))) {
+    const direction = Number(lossTrend) <= 0 ? 'reduced' : 'increased';
+    return `Estimated loss ${direction} ${formatPercent(Math.abs(lossTrend))} versus the previous scan.`;
+  }
+  return 'Trend comparison becomes available after additional scans.';
+}
+
+function executiveTopRiskLabel(data) {
+  const risks = Array.isArray(data?.top_risk_modules) && data.top_risk_modules.length > 0
+    ? data.top_risk_modules
+    : (Array.isArray(data?.module_scores) ? data.module_scores : []);
+  const normalized = risks
+    .map((item) => ({
+      label: item?.label || item?.name || item?.module || '',
+      score: safeNumber(item?.score ?? item?.value, 100),
+    }))
+    .filter((item) => item.label)
+    .sort((a, b) => a.score - b.score);
+  if (!normalized.length) return 'No module risk is available yet.';
+  return `${normalized[0].label} is the top risk area.`;
+}
+
 function renderExecutiveHero(data) {
   const kpis = data?.kpis || {};
   const hasScan = Boolean(data?.selected_scan_id);
-  const headline = hasScan
-    ? 'Your current data quality score requires attention.'
-    : 'Your Data Health Summary will appear after the first scan.';
-  const subline = 'Executive overview of your data quality and business impact.';
+  const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
+  const band = scoreBand(healthScore);
+  const variant = executiveSummaryVariant(data);
+  const isDemo = Boolean(data?.is_demo || data?.data_source === 'demo_preview');
+  const issueSummary = data?.free_insights?.active_issues_summary || data?.critical_issues_summary || {};
+  const criticalCount = safeNumber(issueSummary.critical);
+  const highCount = safeNumber(issueSummary.high);
+  const totalIssues = safeNumber(kpis.issues_count);
+  const affectedRecords = safeNumber(kpis.affected_records);
+  const checksRun = safeNumber(kpis.checks_run);
+  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
+  const potentialSaving = safeNumber(kpis.potential_saving_eur);
+  const monitoringPreview = data?.monitoring_preview || {};
 
-  setText('hero-eyebrow', 'Data Health Summary');
-  setText('hero-prefix', headline);
-  setText('hero-highlight', '');
-  setText('hero-suffix', '');
-  setText('overview-summary', subline);
+  const config = {
+    free: {
+      eyebrow: isDemo ? 'Demo Preview - Executive Summary' : 'Executive Summary - Free Dashboard',
+      summary: hasScan
+        ? `Health Score ${formatNumber(healthScore)} (${scoreLabel(healthScore)}). Full Analysis is required to unlock record-level evidence and prioritized remediation.`
+        : 'Run the first scan to generate an executive overview of data quality, business risk and next action.',
+      ctaLabel: 'Unlock Full Analysis',
+      ctaTab: 'subscription',
+      note: 'Limited visibility: free view shows executive signals, not full issue evidence.',
+    },
+    full: {
+      eyebrow: 'Executive Summary - Full Analysis',
+      summary: `Business risk is visible: ${formatKpiCurrency(estimatedLoss)} estimated annual loss and ${formatKpiCurrency(potentialSaving)} potential savings are currently in scope.`,
+      ctaLabel: 'Review Critical Risks',
+      ctaTab: 'issues',
+      note: 'Full Analysis access is active. Monitoring is not active yet.',
+    },
+    monitoring: {
+      eyebrow: 'Executive Summary - Monitoring',
+      summary: monitoringPreview?.alert || `Monitoring context is active. ${executiveTrendCopy(data)}`,
+      ctaLabel: 'Review Critical Changes',
+      ctaTab: 'issues',
+      note: monitoringPreview?.frequency || 'Monitoring status is summarized here; detailed widgets remain outside this build.',
+    },
+  }[variant];
+
+  const hero = data?.hero || {};
+  const headlinePrefix = hasScan
+    ? (hero.headline_prefix || 'Your data health is')
+    : 'Your Data Health Summary will appear after the first scan.';
+  const headlineHighlight = hasScan ? (hero.headline_highlight || scoreLabel(healthScore).toLowerCase()) : '';
+  const headlineSuffix = hasScan ? (hero.headline_suffix || 'and requires executive attention.') : '';
+
+  setText('hero-eyebrow', config.eyebrow);
+  setText('hero-prefix', headlinePrefix);
+  setText('hero-highlight', headlineHighlight);
+  setText('hero-suffix', headlineSuffix);
+  setText('overview-summary', config.summary);
 
   const highlight = byId('hero-highlight');
-  if (highlight) highlight.classList.add('hidden');
-  renderOverviewContext(data);
-  renderHeroPoints([]);
-}
+  if (highlight) {
+    highlight.className = `hero-highlight ${hasScan ? band : 'hidden'}`;
+    highlight.classList.toggle('hidden', !headlineHighlight);
+  }
 
+  const points = hasScan
+    ? [
+        `${formatNumber(totalIssues)} issues across ${formatNumber(affectedRecords)} affected records.`,
+        `${formatNumber(checksRun)} checks evaluated in the selected scan.`,
+        executiveTopRiskLabel(data),
+      ]
+    : ['No scan data is available yet.', 'The dashboard will use real scan data as soon as it exists.'];
+  renderHeroPoints(points);
+
+  const context = byId('overview-context');
+  if (!context) return;
+  context.classList.remove('hidden');
+  context.className = `overview-context executive-summary-context executive-summary-${variant}`;
+  context.innerHTML = `
+    <div class="executive-summary-meta">
+      <span class="executive-summary-badge ${escapeHtml(band)}">${escapeHtml(scoreLabel(healthScore))}</span>
+      ${isDemo ? '<span class="executive-summary-badge is-demo">Demo Preview</span>' : ''}
+      <span class="executive-summary-updated">${escapeHtml(formatDateTime(data?.last_updated))}</span>
+    </div>
+    <div class="executive-summary-metrics" aria-label="Executive summary metrics">
+      <div class="executive-summary-metric">
+        <span>Health Score</span>
+        <strong class="${escapeHtml(band)}">${hasScan ? escapeHtml(formatNumber(healthScore)) : '-'}</strong>
+      </div>
+      <div class="executive-summary-metric">
+        <span>Estimated Loss</span>
+        <strong>${hasScan ? escapeHtml(formatKpiCurrency(estimatedLoss)) : '-'}</strong>
+      </div>
+      <div class="executive-summary-metric">
+        <span>Potential Savings</span>
+        <strong>${hasScan ? escapeHtml(formatKpiCurrency(potentialSaving)) : '-'}</strong>
+      </div>
+      <div class="executive-summary-metric">
+        <span>Critical / High</span>
+        <strong>${escapeHtml(formatNumber(criticalCount + highCount))}</strong>
+      </div>
+    </div>
+    <p class="executive-summary-note">${escapeHtml(config.note)}</p>
+    <button type="button" class="primary-button executive-summary-cta" data-executive-target="${escapeHtml(config.ctaTab)}">
+      ${escapeHtml(config.ctaLabel)}
+    </button>
+  `;
+
+  const cta = context.querySelector('.executive-summary-cta');
+  if (cta) cta.addEventListener('click', () => switchTab(cta.dataset.executiveTarget || 'subscription'));
+}
 function renderOverviewKpis(data) {
   const kpis = data?.kpis || {};
   const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
