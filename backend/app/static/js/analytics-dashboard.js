@@ -235,8 +235,28 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_last_scan_updated', 'Last Scan / Last Updated', 'Letzter Scan / Letzte Aktualisierung'],
   ['static_estimated_loss', 'Estimated Loss', 'GeschÃ¤tzter Verlust'],
   ['static_potential_savings', 'Potential Savings', 'Potenzielle Einsparungen'],
+  ['static_business_problem', 'Business Problem', 'Geschaeftliches Problem'],
+  ['static_business_impact', 'Business Impact', 'Business Impact'],
+  ['static_why_this_matters', 'Why this matters', 'Warum das wichtig ist'],
+  ['static_recommended_action', 'Recommended Action', 'Empfohlene Massnahme'],
+  ['static_technical_information', 'Technical Information', 'Technische Informationen'],
+  ['static_urgency', 'Urgency', 'Dringlichkeit'],
+  ['static_decision_context', 'Decision context', 'Entscheidungskontext'],
+  ['static_evidence_table', 'Evidence table', 'Evidenztabelle'],
+  ['static_issue_cards_helper', 'Management view of existing findings from the dashboard payload.', 'Management-Sicht auf bestehende Findings aus dem Dashboard-Payload.'],
+  ['static_no_issue_findings', 'No findings detected in the latest scan.', 'Im letzten Scan wurden keine Findings erkannt.'],
+  ['static_no_issue_data', 'Issue evidence appears after scan data is available.', 'Issue-Evidenz erscheint, sobald Scan-Daten verfuegbar sind.'],
+  ['static_premium_issue_preview', 'Premium access is required for the complete issue evidence.', 'Premium-Zugriff ist fuer die vollstaendige Issue-Evidenz erforderlich.'],
+  ['static_issue_locked_context', 'Current access shows the business signal without exposing protected details.', 'Der aktuelle Zugriff zeigt das Business-Signal ohne geschuetzte Details offenzulegen.'],
+  ['static_issue_action_pending', 'Recommended action will appear when available in the scan payload.', 'Die empfohlene Massnahme erscheint, sobald sie im Scan-Payload verfuegbar ist.'],
+  ['static_priority_critical', 'Critical priority', 'Kritische Prioritaet'],
+  ['static_priority_high', 'High priority', 'Hohe Prioritaet'],
+  ['static_priority_medium', 'Medium priority', 'Mittlere Prioritaet'],
+  ['static_priority_low', 'Low priority', 'Niedrige Prioritaet'],
+  ['static_priority_unknown', 'Priority pending', 'Prioritaet ausstehend'],
   ['static_unlock_issue_details', 'Unlock full issue details', 'Issue Details freischalten'],
   ['static_bc_link_unavailable', 'Business Central link not available', 'Business-Central-Link nicht verfÃ¼gbar'],
+  ['static_open_in_business_central', 'Open in Business Central', 'In Business Central oeffnen'],
   ['static_locked_access', 'Locked access', 'Gesperrter Zugriff'],
   ['static_full_issue_access', 'Full issue access', 'Voller Issue-Zugriff'],
   ['static_no_scan_timestamp', 'No scan timestamp', 'Kein Scan-Zeitpunkt'],
@@ -1990,6 +2010,107 @@ function renderIssueSeverityCards(data, normalizedItems) {
   `).join('');
 }
 
+function issueUrgencyText(issue) {
+  const labels = {
+    critical: t('static_priority_critical', 'Critical priority'),
+    high: t('static_priority_high', 'High priority'),
+    medium: t('static_priority_medium', 'Medium priority'),
+    low: t('static_priority_low', 'Low priority'),
+    unknown: t('static_priority_unknown', 'Priority pending'),
+  };
+  return labels[normalizeIssueSeverity(issue?.severity)] || labels.unknown;
+}
+
+function issueProblemText(issue) {
+  if (issue?.locked) return t('static_issue_locked_context', 'Current access shows the business signal without exposing protected details.');
+  return issue?.description || issue?.rawTitle || issue?.title || t('issue_detail_description_locked', 'Detailed description is available after the full analysis.');
+}
+
+function issueWhyMattersText(issue) {
+  const group = issue?.group || t('static_general', 'General');
+  const affected = issue?.locked ? t('static_locked', 'Locked') : formatNumber(issue?.count);
+  if (issue?.impact > 0) {
+    return `${escapeHtml(group)} ${escapeHtml(t('static_estimated_impact_loss', 'Estimated Impact / Loss'))}: ${escapeHtml(formatCurrency(issue.impact))}. ${escapeHtml(t('static_affected_records', 'Affected Records'))}: ${escapeHtml(affected)}.`;
+  }
+  return `${escapeHtml(group)}. ${escapeHtml(t('static_affected_records', 'Affected Records'))}: ${escapeHtml(affected)}.`;
+}
+
+function issueRecommendationText(issue) {
+  if (issue?.locked) return t('issue_detail_recommendation_locked', 'Recommendation will be generated after the full analysis.');
+  return issue?.recommendation || t('static_issue_action_pending', 'Recommended action will appear when available in the scan payload.');
+}
+
+function issueEmptyStateMessage(data, isLocked) {
+  const hasScanContext = Boolean(data?.selected_scan_id || data?.last_updated || data?.is_demo || safeNumber(data?.kpis?.checks_run) > 0);
+  if (isLocked) return t('static_premium_issue_preview', 'Premium access is required for the complete issue evidence.');
+  if (!hasScanContext) return t('static_no_issue_data', 'Issue evidence appears after scan data is available.');
+  return t('static_no_issue_findings', 'No findings detected in the latest scan.');
+}
+
+function renderIssueExecutiveCards(data, items, isLocked) {
+  const host = byId('issues-executive-cards');
+  if (!host) return;
+
+  if (!items.length) {
+    host.innerHTML = `
+      <div class="empty-state executive-empty issue-empty-state">
+        ${escapeHtml(issueEmptyStateMessage(data, isLocked))}
+      </div>
+    `;
+    return;
+  }
+
+  host.innerHTML = items.map((item, index) => {
+    const title = item.locked ? item.title : (item.title || item.rawTitle);
+    const impactLabel = item.locked ? t('static_locked', 'Locked') : (item.impact > 0 ? formatCurrency(item.impact) : t('static_not_calculated_yet', 'Not calculated yet'));
+    const affectedLabel = item.locked ? t('static_locked', 'Locked') : formatNumber(item.count);
+    const savingLabel = item.locked ? t('static_locked', 'Locked') : (item.potentialSaving > 0 ? formatCurrency(item.potentialSaving) : t('static_not_calculated_yet', 'Not calculated yet'));
+    const recommendation = issueRecommendationText(item);
+
+    return `
+      <article class="issue-executive-card issue-executive-card-${escapeHtml(item.severity)} ${item.locked ? 'issue-executive-card-locked' : ''}">
+        <div class="issue-executive-card-main">
+          <div class="issue-executive-card-heading">
+            <span class="section-kicker">${escapeHtml(t('static_business_problem', 'Business Problem'))}</span>
+            <h4>${escapeHtml(title)}</h4>
+          </div>
+          <div class="issue-executive-badges">
+            <span class="severity severity-${escapeHtml(item.severity)}">${escapeHtml(item.severityLabel)}</span>
+            <span class="status-badge status-open">${escapeHtml(item.status || t('static_open', 'Open'))}</span>
+            <span class="issue-priority-label">${escapeHtml(issueUrgencyText(item))}</span>
+          </div>
+          <p>${escapeHtml(issueProblemText(item))}</p>
+          <div class="issue-executive-answer">
+            <strong>${escapeHtml(t('static_why_this_matters', 'Why this matters'))}</strong>
+            <span>${issueWhyMattersText(item)}</span>
+          </div>
+          <div class="issue-executive-answer issue-executive-recommendation">
+            <strong>${escapeHtml(t('static_recommended_action', 'Recommended Action'))}</strong>
+            <span>${escapeHtml(recommendation)}</span>
+          </div>
+        </div>
+        <div class="issue-executive-metrics" aria-label="${escapeHtml(t('static_business_impact', 'Business Impact'))}">
+          <div>
+            <span>${escapeHtml(t('static_estimated_loss', 'Estimated Loss'))}</span>
+            <strong>${escapeHtml(impactLabel)}</strong>
+          </div>
+          <div>
+            <span>${escapeHtml(t('static_affected_records', 'Affected Records'))}</span>
+            <strong>${escapeHtml(affectedLabel)}</strong>
+          </div>
+          <div>
+            <span>${escapeHtml(t('static_potential_saving', 'Potential Saving'))}</span>
+            <strong>${escapeHtml(savingLabel)}</strong>
+          </div>
+          <button type="button" class="pager-button issue-detail-button" data-issue-index="${index}">
+            ${escapeHtml(item.locked ? t('view_locked_details', 'View locked details') : t('view_details', 'View Details'))}
+          </button>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
 function issueInfoRows(issue) {
   return [
     [t('static_issue_code', 'Issue Code'), issue.id],
@@ -2036,20 +2157,20 @@ function renderIssueDetail(issue) {
     ? `<div class="locked-detail-state">${escapeHtml(t('issue_detail_business_impact_locked', 'Business impact details are protected for the current access level.'))}</div>`
     : `
       <div class="business-impact-grid">
-        <div><span>Estimated Loss</span><strong>${escapeHtml(lossLabel)}</strong></div>
-        <div><span>Affected Records</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>${escapeHtml(t('static_estimated_loss', 'Estimated Loss'))}</span><strong>${escapeHtml(lossLabel)}</strong></div>
+        <div><span>${escapeHtml(t('static_affected_records', 'Affected Records'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
         <div><span>${escapeHtml(t('static_severity', 'Severity'))}</span><strong>${escapeHtml(issue.severityLabel)}</strong></div>
-        <div><span>Potential Savings</span><strong>${issue.potentialSaving > 0 ? formatCurrency(issue.potentialSaving) : 'Not calculated yet'}</strong></div>
+        <div><span>${escapeHtml(t('static_potential_savings', 'Potential Savings'))}</span><strong>${issue.potentialSaving > 0 ? formatCurrency(issue.potentialSaving) : escapeHtml(t('static_not_calculated_yet', 'Not calculated yet'))}</strong></div>
       </div>
     `;
   const openInBcMarkup = issue.openInBcUrl && !issue.locked
-    ? `<a href="${escapeHtml(issue.openInBcUrl)}" class="primary-button issue-detail-bc-link" target="_blank" rel="noopener noreferrer">Open in Business Central</a>`
-    : `<button type="button" class="pager-button issue-detail-bc-link" disabled>Business Central link not available</button>`;
+    ? `<a href="${escapeHtml(issue.openInBcUrl)}" class="primary-button issue-detail-bc-link" target="_blank" rel="noopener noreferrer">${escapeHtml(t('static_open_in_business_central', 'Open in Business Central'))}</a>`
+    : `<button type="button" class="pager-button issue-detail-bc-link" disabled>${escapeHtml(t('static_bc_link_unavailable', 'Business Central link not available'))}</button>`;
   const unlockMarkup = issue.locked
     ? `<div class="issues-locked-note issue-detail-lock">
-        <strong>Unlock full issue details</strong>
-        <span>Full Analysis, Validation Check or Monitoring unlocks protected issue details and recommendations.</span>
-        <button type="button" class="pager-button issue-detail-unlock-button">Unlock full issue details</button>
+        <strong>${escapeHtml(t('static_unlock_issue_details', 'Unlock full issue details'))}</strong>
+        <span>${escapeHtml(t('static_free_issue_access_note', 'Free access shows severity and business value without exposing protected issue details.'))}</span>
+        <button type="button" class="pager-button issue-detail-unlock-button">${escapeHtml(t('static_unlock_issue_details', 'Unlock full issue details'))}</button>
       </div>`
     : '';
 
@@ -2063,26 +2184,27 @@ function renderIssueDetail(issue) {
   host.innerHTML = `
     <section class="panel issue-detail-hero ${issue.locked ? 'is-locked-detail' : ''}">
       <div>
-        <span class="section-kicker">Issue detail</span>
+        <span class="section-kicker">${escapeHtml(t('static_executive_summary', 'Executive Summary'))}</span>
         <h2>${escapeHtml(title)}</h2>
         <div class="issue-detail-meta">
-          <span>${escapeHtml(issue.group || 'General')}</span>
+          <span>${escapeHtml(issue.group || t('static_general', 'General'))}</span>
           <span class="severity severity-${escapeHtml(issue.severity)}">${escapeHtml(issue.severityLabel)}</span>
-          <span class="status-badge status-open">${escapeHtml(issue.status || 'Open')}</span>
+          <span class="status-badge status-open">${escapeHtml(issue.status || t('static_open', 'Open'))}</span>
+          <span class="issue-priority-label">${escapeHtml(issueUrgencyText(issue))}</span>
         </div>
+        <p class="issue-detail-executive-text">${escapeHtml(issueProblemText(issue))}</p>
       </div>
       <div class="issue-detail-summary">
-        <div><span>Affected Records</span><strong>${escapeHtml(affectedLabel)}</strong></div>
-        <div><span>Estimated Loss</span><strong>${escapeHtml(lossLabel)}</strong></div>
+        <div><span>${escapeHtml(t('static_affected_records', 'Affected Records'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>${escapeHtml(t('static_estimated_loss', 'Estimated Loss'))}</span><strong>${escapeHtml(lossLabel)}</strong></div>
       </div>
     </section>
     ${unlockMarkup}
     <section class="issue-detail-grid">
-      ${detailSection('Issue Information', `<div class="issue-detail-info">${informationRows}</div>`)}
-      ${detailSection('Description', `<p>${escapeHtml(description)}</p>`)}
-      ${detailSection('Business Impact', businessImpactBody)}
-      ${detailSection('Score Impact', `<p>${escapeHtml(scoreImpact)}</p>`)}
-      ${detailSection('Recommendation', `<p>${escapeHtml(recommendation)}</p>${openInBcMarkup}`, 'issue-detail-recommendation')}
+      ${detailSection(t('static_business_impact', 'Business Impact'), businessImpactBody, 'issue-detail-business-impact')}
+      ${detailSection(t('static_why_this_matters', 'Why this matters'), `<p>${issueWhyMattersText(issue)}</p><p>${escapeHtml(description)}</p>`)}
+      ${detailSection(t('static_recommended_action', 'Recommended Action'), `<p>${escapeHtml(recommendation)}</p>`, 'issue-detail-recommendation')}
+      ${detailSection(t('static_technical_information', 'Technical Information'), `<div class="issue-detail-info">${informationRows}</div><p>${escapeHtml(scoreImpact)}</p>${openInBcMarkup}`, 'issue-detail-technical')}
     </section>
   `;
 }
@@ -2106,12 +2228,13 @@ function renderIssuesPage(data) {
 
   renderIssuesMeta(data, items, isLocked);
   renderIssueSeverityCards(data, items);
+  renderIssueExecutiveCards(data, items, isLocked);
 
   if (lockedNote) lockedNote.classList.toggle('hidden', !isLocked);
   if (unlockButton) unlockButton.classList.toggle('hidden', !isLocked);
 
   if (items.length === 0) {
-    host.innerHTML = `<tr><td colspan="7" class="table-empty">No issues detected in the latest scan.</td></tr>`;
+    host.innerHTML = `<tr><td colspan="7" class="table-empty">${escapeHtml(issueEmptyStateMessage(data, isLocked))}</td></tr>`;
     return;
   }
 
@@ -2119,7 +2242,7 @@ function renderIssuesPage(data) {
     <tr class="${item.locked ? 'issue-row-locked' : ''}">
       <td>
         <strong>${escapeHtml(item.title)}</strong>
-        <div class="muted">${item.locked ? 'Details protected by current access level' : `Issue ID ${escapeHtml(item.id)}`}</div>
+        <div class="muted">${escapeHtml(item.locked ? t('static_issue_locked_context', 'Current access shows the business signal without exposing protected details.') : t('static_decision_context', 'Decision context'))}</div>
       </td>
       <td>${escapeHtml(item.group)}</td>
       <td><span class="severity severity-${escapeHtml(item.severity)}">${escapeHtml(item.severityLabel)}</span></td>
@@ -3203,6 +3326,15 @@ function registerEvents() {
   const issuesBody = byId('issues-page-body');
   if (issuesBody) {
     issuesBody.addEventListener('click', (event) => {
+      const button = event.target.closest('.issue-detail-button');
+      if (!button) return;
+      openIssueDetail(safeNumber(button.dataset.issueIndex, -1));
+    });
+  }
+
+  const issueCards = byId('issues-executive-cards');
+  if (issueCards) {
+    issueCards.addEventListener('click', (event) => {
       const button = event.target.closest('.issue-detail-button');
       if (!button) return;
       openIssueDetail(safeNumber(button.dataset.issueIndex, -1));
