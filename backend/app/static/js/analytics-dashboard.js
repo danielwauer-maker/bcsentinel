@@ -857,39 +857,94 @@ function renderExecutiveHero(data) {
   const cta = context.querySelector('.executive-summary-cta');
   if (cta) cta.addEventListener('click', () => switchTab(cta.dataset.executiveTarget || 'subscription'));
 }
+function getHealthScoreValue(data) {
+  const value = Number(data?.kpis?.health_score);
+  if (!Number.isFinite(value)) return null;
+  return Math.max(0, Math.min(100, value));
+}
+
+function healthScoreInterpretation(score) {
+  const band = scoreBand(score);
+  const copy = {
+    critical: 'Immediate review is recommended. The data quality score indicates critical risk.',
+    warning: 'Action is recommended. Several data quality signals need attention.',
+    moderate: 'The score is acceptable, but the current data quality still needs review.',
+    good: 'Your data quality is currently in a healthy range.',
+    excellent: 'Your data quality is currently in a strong range.',
+  };
+  return copy[band] || 'The score appears after the first completed scan.';
+}
+
+function healthScoreActionCopy(score) {
+  const band = scoreBand(score);
+  if (band === 'critical') return 'Review the score context before continuing with business-critical processes.';
+  if (band === 'warning') return 'Prioritize follow-up review to reduce data quality risk.';
+  if (band === 'moderate') return 'Review the most relevant findings when Full Analysis is available.';
+  return 'No immediate action is required from the score alone. Continue regular review.';
+}
+
+function healthScoreVariantCopy(data, hasScore) {
+  if (!hasScore) return 'No completed scan is available yet. Run a validation check to calculate the Data Health Score.';
+  const variant = executiveSummaryVariant(data);
+  if (variant === 'monitoring') return 'Monitoring uses this score as part of ongoing control. Detailed monitoring widgets remain outside this build.';
+  if (variant === 'full') return 'Full Analysis explains this score in the complete scan context. Score breakdown details remain separate.';
+  return 'Free view explains the score at executive level. Full Analysis unlocks causes and action context.';
+}
+
+function healthScoreTrendText(data, hasScore) {
+  if (!hasScore) return 'Trend becomes available after at least two completed scans.';
+  const trend = trendFromSeries(data?.score_trend);
+  if (!Number.isFinite(Number(trend))) return 'Trend becomes available after at least two completed scans.';
+  const value = Number(trend);
+  if (Math.abs(value) < 0.5) return 'Stable versus previous scan.';
+  const direction = value > 0 ? 'improved' : 'declined';
+  return `Score ${direction} ${formatPercent(Math.abs(value))} versus previous scan.`;
+}
+
+function renderHealthScoreExperience(data) {
+  const score = getHealthScoreValue(data);
+  const hasScore = Boolean(data?.selected_scan_id && score !== null);
+  const band = hasScore ? scoreBand(score) : 'is-empty';
+  const isDemo = Boolean(data?.is_demo || data?.data_source === 'demo_preview');
+
+  setText('kpi-health-label-title', 'Data Health Score');
+  setText('kpi-health-score', hasScore ? formatNumber(score) : '-');
+  setText('kpi-health-label', hasScore ? scoreLabel(score) : 'Not calculated yet');
+  setText('kpi-health-scale', `${isDemo ? 'Demo Preview - ' : ''}Scale 0-100`);
+  setText('kpi-health-interpretation', hasScore ? healthScoreInterpretation(score) : 'The score appears after the first completed scan.');
+  setText('kpi-health-data-status', `Last updated: ${hasScore ? formatDateTime(data?.last_updated) : 'Not available'}`);
+  setText('kpi-health-context', hasScore ? `${healthScoreActionCopy(score)} ${healthScoreVariantCopy(data, hasScore)}` : healthScoreVariantCopy(data, hasScore));
+  setText('kpi-health-helper', healthScoreTrendText(data, hasScore));
+
+  const healthLabelEl = byId('kpi-health-label');
+  if (healthLabelEl) healthLabelEl.className = `kpi-status ${band}`;
+  const healthGauge = byId('kpi-health-gauge');
+  if (healthGauge) {
+    healthGauge.style.setProperty('--score', String(hasScore ? score : 0));
+    healthGauge.className = `health-gauge ${band}`;
+    healthGauge.setAttribute('aria-label', hasScore ? `Data Health Score ${formatNumber(score)} of 100, ${scoreLabel(score)}.` : 'Data Health Score not calculated yet.');
+  }
+  const healthScoreEl = byId('kpi-health-score');
+  if (healthScoreEl) healthScoreEl.className = `stat-value score-value ${band}`;
+}
 function renderOverviewKpis(data) {
   const kpis = data?.kpis || {};
-  const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
   const totalRecords = safeNumber(kpis.total_records);
   const checksRun = safeNumber(kpis.checks_run);
   const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
   const potentialSaving = safeNumber(kpis.potential_saving_eur);
   const hasScan = Boolean(data?.selected_scan_id);
-  const healthTrend = trendFromFields(kpis, ['health_score_change_percent', 'health_score_trend_percent', 'health_score_delta_percent', 'score_change_percent']) ?? trendFromSeries(data?.score_trend);
   const lossTrend = trendFromFields(kpis, ['estimated_loss_change_percent', 'estimated_loss_trend_percent', 'estimated_loss_delta_percent', 'loss_change_percent']) ?? trendFromSeries(data?.loss_trend);
   const savingsTrend = trendFromFields(kpis, ['potential_saving_change_percent', 'potential_savings_change_percent', 'potential_saving_trend_percent', 'potential_savings_trend_percent']);
   const recordsTrend = trendFromFields(kpis, ['total_records_change_percent', 'records_change_percent', 'scanned_records_change_percent']);
   const checksTrend = trendFromFields(kpis, ['checks_run_change_percent', 'validation_checks_change_percent', 'checks_change_percent']);
 
-  setText('kpi-health-label-title', 'Health Score');
+  renderHealthScoreExperience(data);
   setText('kpi-loss-label-title', 'Estimated Loss');
   setText('kpi-savings-label-title', 'Potential Savings');
   setText('kpi-records-label-title', 'Total Records');
   setText('kpi-checks-label-title', 'Validation Checks');
-  setText('kpi-health-score', formatNumber(healthScore));
-  setText('kpi-health-label', hasScan ? scoreLabel(healthScore) : 'Not calculated yet');
-  const healthLabelEl = byId('kpi-health-label');
-  if (healthLabelEl) healthLabelEl.className = `kpi-status ${hasScan ? scoreBand(healthScore) : 'is-empty'}`;
-  const monitoringTrendLabel = 'Available with Monitoring';
   const scanTrendLabel = 'Historical trends available after additional scans';
-  renderKpiTrend('kpi-health-helper', hasScan ? healthTrend : null, { emptyLabel: hasScan ? monitoringTrendLabel : 'Run a validation check to unlock this KPI' });
-  const healthGauge = byId('kpi-health-gauge');
-  if (healthGauge) {
-    healthGauge.style.setProperty('--score', String(healthScore));
-    healthGauge.className = `health-gauge ${scoreBand(healthScore)}`;
-  }
-  const healthScoreEl = byId('kpi-health-score');
-  if (healthScoreEl) healthScoreEl.className = `stat-value score-value ${scoreBand(healthScore)}`;
 
   setText('kpi-loss', hasScan ? formatKpiCurrency(estimatedLoss) : 'Not calculated yet');
   renderKpiTrend('kpi-loss-helper', hasScan && estimatedLoss > 0 ? lossTrend : null, {

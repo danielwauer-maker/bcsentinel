@@ -3351,6 +3351,54 @@ td {
 .kpi-score-card .kpi-status.excellent { color: #0b8f55; }
 .kpi-score-card .kpi-status.is-empty { color: #60708d; }
 
+.health-score-detail {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 12px;
+  text-align: center;
+}
+
+.health-score-scale {
+  color: #52617a;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.health-score-interpretation,
+.health-score-meta,
+.health-score-context {
+  margin: 0;
+}
+
+.health-score-interpretation {
+  color: #12213a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.health-score-meta {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.health-score-context {
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.health-gauge.is-empty {
+  --gauge-color: #94a3b8;
+}
+
+.kpi-score-card .score-value.is-empty {
+  color: #64748b !important;
+}
+
 @media (min-width: 1500px) {
   .overview-kpi-grid {
     grid-template-columns: repeat(5, minmax(240px, 1fr));
@@ -4961,4 +5009,25 @@ body.dashboard-dark .executive-summary-note {
 html.dashboard-dark .executive-summary-metric strong,
 body.dashboard-dark .executive-summary-metric strong {
   color: #f5f8ff;
+}
+
+html.dashboard-dark .health-score-scale,
+html.dashboard-dark .health-score-meta,
+html.dashboard-dark .health-score-context,
+body.dashboard-dark .health-score-scale,
+body.dashboard-dark .health-score-meta,
+body.dashboard-dark .health-score-context {
+  color: #a9b9d2;
+}
+
+html.dashboard-dark .health-score-interpretation,
+body.dashboard-dark .health-score-interpretation {
+  color: #eef4ff;
+}
+
+html.dashboard-dark .health-gauge::before,
+body.dashboard-dark .health-gauge::before {
+  background:
+    radial-gradient(circle at center, #101d32 0 58%, transparent 59%),
+    conic-gradient(from 270deg, var(--gauge-color) calc(var(--score) * 1.8deg), #263a5d 0 180deg, transparent 0);
 }
