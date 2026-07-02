@@ -58,6 +58,18 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_estimate_label: 'Estimate',
     business_impact_estimate_note: 'Amounts are estimates based on available scan context and are not guaranteed results.',
     business_impact_demo_note: 'Demo Preview uses sample data.',
+    top_risk_modules_title: 'Top Risk Modules',
+    top_risk_modules_subtitle: 'Executive ranking of the modules with the highest current risk.',
+    top_risk_modules_info: 'Top risk modules from the existing dashboard payload',
+    top_risk_modules_empty: 'No risk modules are available in the current scan context.',
+    top_risk_modules_rank: 'Rank',
+    top_risk_modules_score: 'Module score',
+    top_risk_modules_share: 'Risk share',
+    top_risk_modules_impact: 'Business impact',
+    top_risk_modules_context: 'Executive risk context from existing module data.',
+    top_risk_modules_payload_top: 'Prioritized by dashboard payload.',
+    top_risk_modules_payload_fallback: 'Shown from module scores because no top risk module payload is available.',
+    top_risk_modules_not_available: 'Not available',
     settings_subtitle: 'Configure your account and preferences',
   },
   de: {
@@ -110,6 +122,18 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_estimate_label: 'Schaetzung',
     business_impact_estimate_note: 'Betraege sind Schaetzungen auf Basis des verfuegbaren Scan-Kontexts und keine garantierten Ergebnisse.',
     business_impact_demo_note: 'Demo Preview verwendet Beispieldaten.',
+    top_risk_modules_title: 'Top Risk Modules',
+    top_risk_modules_subtitle: 'Executive Ranking der Module mit dem hoechsten aktuellen Risiko.',
+    top_risk_modules_info: 'Top Risk Modules aus dem bestehenden Dashboard-Payload',
+    top_risk_modules_empty: 'Im aktuellen Scan-Kontext sind keine Risikomodule verfuegbar.',
+    top_risk_modules_rank: 'Rang',
+    top_risk_modules_score: 'Modul-Score',
+    top_risk_modules_share: 'Risikoanteil',
+    top_risk_modules_impact: 'Business Impact',
+    top_risk_modules_context: 'Executive-Risikokontext aus vorhandenen Moduldaten.',
+    top_risk_modules_payload_top: 'Durch Dashboard-Payload priorisiert.',
+    top_risk_modules_payload_fallback: 'Aus Modul-Scores angezeigt, weil kein Top-Risk-Module-Payload verfuegbar ist.',
+    top_risk_modules_not_available: 'Nicht verfuegbar',
     settings_subtitle: 'Account und PrÃ¤ferenzen konfigurieren',
   },
 };
@@ -409,6 +433,10 @@ function applyDashboardUi(ui, language) {
   setTextContent('#business-impact-subtitle', t('business_impact_subtitle'));
   const businessImpactBadge = byId('business-impact-badge');
   if (businessImpactBadge) businessImpactBadge.setAttribute('title', t('business_impact_info'));
+  setTextContent('#top-risk-modules-title', t('top_risk_modules_title'));
+  setTextContent('#top-risk-modules-subtitle', t('top_risk_modules_subtitle'));
+  const topRiskModulesBadge = byId('top-risk-modules-badge');
+  if (topRiskModulesBadge) topRiskModulesBadge.setAttribute('title', t('top_risk_modules_info'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header h3', t('score_trend', 'Score Trend'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
   setTextContent('#analytics-tab article:nth-child(2) .panel-header h3', t('estimated_loss_trend', 'Estimated Loss Trend'));
@@ -583,47 +611,87 @@ function renderProfileCards(moduleScores, fallbackItems) {
   });
 }
 
+function topRiskModuleSource(data) {
+  if (Object.prototype.hasOwnProperty.call(data || {}, 'top_risk_modules') && Array.isArray(data?.top_risk_modules)) {
+    return { items: data.top_risk_modules, source: 'top' };
+  }
+  return { items: Array.isArray(data?.module_scores) ? data.module_scores : [], source: 'fallback' };
+}
+
+function normalizeTopRiskModule(item) {
+  const rawName = item?.name || item?.label || item?.module || '';
+  if (!rawName) return null;
+  const key = moduleKey(rawName);
+  const rawScore = safeNumber(item?.score ?? item?.value, null);
+  const score = rawScore === null ? null : Math.max(0, Math.min(100, rawScore));
+  const variant = item?.variant || (score === null ? 'moderate' : scoreBand(score));
+  const share = firstFiniteNumber([item?.risk_share, item?.share, item?.risk_percent, item?.percent]);
+  const impact = firstFiniteNumber([item?.impact_eur, item?.estimated_loss_eur, item?.estimated_impact_eur]);
+  return {
+    key,
+    name: canonicalDashboardModuleName(key, rawName),
+    score,
+    variant,
+    share,
+    impact,
+  };
+}
+
+function topRiskModuleMetric(item) {
+  if (item.share !== null) {
+    return {
+      label: t('top_risk_modules_share'),
+      value: formatPercent(item.share),
+    };
+  }
+  if (item.impact !== null) {
+    return {
+      label: t('top_risk_modules_impact'),
+      value: formatKpiCurrency(item.impact),
+    };
+  }
+  return {
+    label: t('top_risk_modules_score'),
+    value: item.score === null ? t('top_risk_modules_not_available') : `${formatNumber(item.score)}/100`,
+  };
+}
+
 function renderOverviewModuleScores(data) {
   const host = byId('overview-module-score-grid');
   if (!host) return;
-  const scoreItems = Array.isArray(data?.module_scores) ? data.module_scores.filter(Boolean) : [];
-  const scoreMap = new Map();
 
-  scoreItems.forEach((item) => {
-    const name = item?.name || item?.label || '';
-    if (!name) return;
-    const key = moduleKey(name);
-    const score = Math.max(0, Math.min(100, safeNumber(item?.score ?? item?.value)));
-    scoreMap.set(key, {
-      key,
-      name: canonicalDashboardModuleName(key, name),
-      score,
-      variant: item?.variant || scoreBand(score),
-    });
-  });
+  const source = topRiskModuleSource(data);
+  const rows = source.items.map(normalizeTopRiskModule).filter(Boolean);
 
-  const rows = knownDashboardModules().map((name) => {
-    const key = moduleKey(name);
-    return scoreMap.get(key) || {
-      key,
-      name: canonicalDashboardModuleName(key, name),
-      score: 0,
-      variant: scoreBand(0),
-    };
-  }).sort((a, b) => safeNumber(a.score) - safeNumber(b.score) || a.name.localeCompare(b.name));
+  if (rows.length === 0) {
+    host.innerHTML = `<div class="empty-state executive-empty top-risk-modules-empty">${escapeHtml(t('top_risk_modules_empty'))}</div>`;
+    return;
+  }
 
-  host.innerHTML = rows.map((item) => `
-    <article class="module-score-card">
-      <div class="module-score-title">${escapeHtml(item.name)}</div>
-      <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${item.score}">
-        <div>
-          <strong>${formatNumber(item.score)}</strong>
-          <span>/100</span>
+  const sourceLabel = source.source === 'top'
+    ? t('top_risk_modules_payload_top')
+    : t('top_risk_modules_payload_fallback');
+
+  host.innerHTML = rows.map((item, index) => {
+    const metric = topRiskModuleMetric(item);
+    const scoreValue = item.score === null ? 0 : item.score;
+    return `
+      <article class="module-score-card top-risk-module-card">
+        <div class="top-risk-module-rank"><span>${escapeHtml(t('top_risk_modules_rank'))}</span><strong>${formatNumber(index + 1)}</strong></div>
+        <div class="module-score-title">${escapeHtml(item.name)}</div>
+        <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${scoreValue}">
+          <div>
+            <strong>${item.score === null ? '-' : formatNumber(item.score)}</strong>
+            <span>/100</span>
+          </div>
         </div>
-      </div>
-      <div class="module-score-status ${escapeHtml(item.variant)}">${escapeHtml(scoreLabel(item.score))}</div>
-    </article>
-  `).join('');
+        <div class="module-score-status ${escapeHtml(item.variant)}">${escapeHtml(item.score === null ? t('top_risk_modules_not_available') : scoreLabel(item.score))}</div>
+        <div class="top-risk-module-meta"><span>${escapeHtml(metric.label)}</span><strong>${escapeHtml(metric.value)}</strong></div>
+        <p class="top-risk-module-context">${escapeHtml(t('top_risk_modules_context'))}</p>
+        <small class="top-risk-module-source">${escapeHtml(sourceLabel)}</small>
+      </article>
+    `;
+  }).join('');
 }
 
 function renderIssueGroups(items, emptyMessage = t('no_module_data', 'No module data is available for this scan.')) {

@@ -5193,6 +5193,111 @@ body.dashboard-dark .health-score-context {
 }
 
 
+
+/* BUILD 06 - Top Risk Modules Experience */
+.top-risk-module-card {
+  align-content: start;
+  min-height: 238px;
+  text-align: center;
+}
+
+.top-risk-module-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 6px;
+  border: 1px solid #d6e2f3;
+  border-radius: 999px;
+  background: #f7faff;
+  padding: 4px 9px;
+  color: #60738f;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.top-risk-module-rank strong {
+  color: #07173a;
+  font-size: 12px;
+}
+
+.top-risk-module-meta {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  border-top: 1px solid #edf1f7;
+  padding-top: 10px;
+}
+
+.top-risk-module-meta span,
+.top-risk-module-source,
+.top-risk-module-context {
+  color: #60738f;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.top-risk-module-meta strong {
+  color: #07173a;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.top-risk-module-context {
+  margin: 0;
+}
+
+.top-risk-module-source {
+  display: block;
+  font-weight: 700;
+}
+
+.top-risk-modules-empty {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 980px) {
+  .top-risk-module-card {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 720px) {
+  .overview-module-score-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .top-risk-module-card {
+    min-height: 0;
+  }
+}
+
+html.dashboard-dark .top-risk-module-rank,
+body.dashboard-dark .top-risk-module-rank {
+  border-color: #2a3f63;
+  background: #14233a;
+  color: #dbe7fb;
+}
+
+html.dashboard-dark .top-risk-module-rank strong,
+html.dashboard-dark .top-risk-module-meta strong,
+body.dashboard-dark .top-risk-module-rank strong,
+body.dashboard-dark .top-risk-module-meta strong {
+  color: #f5f8ff;
+}
+
+html.dashboard-dark .top-risk-module-meta,
+body.dashboard-dark .top-risk-module-meta {
+  border-color: #263a5d;
+}
+
+html.dashboard-dark .top-risk-module-meta span,
+html.dashboard-dark .top-risk-module-source,
+html.dashboard-dark .top-risk-module-context,
+body.dashboard-dark .top-risk-module-meta span,
+body.dashboard-dark .top-risk-module-source,
+body.dashboard-dark .top-risk-module-context {
+  color: #a9b9d2;
+}
 /* BUILD 05 - Business Impact Experience */
 .business-impact-summary {
   display: flex;
