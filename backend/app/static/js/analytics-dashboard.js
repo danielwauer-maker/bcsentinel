@@ -70,6 +70,15 @@ const LOCAL_DASHBOARD_UI = {
     top_risk_modules_payload_top: 'Prioritized by dashboard payload.',
     top_risk_modules_payload_fallback: 'Shown from module scores because no top risk module payload is available.',
     top_risk_modules_not_available: 'Not available',
+    executive_issue_list_title: 'Executive Issue List',
+    executive_issue_list_subtitle: 'Prioritized findings from the current scan context.',
+    executive_issue_list_empty: 'Executive findings will appear after the next scan.',
+    executive_issue_list_free_note: 'Limited preview based on available free scan findings.',
+    executive_issue_list_full_note: 'Full analysis view based on available scan findings.',
+    executive_issue_list_monitoring_note: 'Monitoring context uses the latest available findings without adding monitoring widgets.',
+    executive_issue_list_source_note: 'Existing dashboard preview data.',
+    executive_issue_list_status_open: 'Open',
+    executive_issue_list_status_review: 'Review',
     settings_subtitle: 'Configure your account and preferences',
   },
   de: {
@@ -134,13 +143,22 @@ const LOCAL_DASHBOARD_UI = {
     top_risk_modules_payload_top: 'Durch Dashboard-Payload priorisiert.',
     top_risk_modules_payload_fallback: 'Aus Modul-Scores angezeigt, weil kein Top-Risk-Module-Payload verfuegbar ist.',
     top_risk_modules_not_available: 'Nicht verfuegbar',
-    settings_subtitle: 'Account und PrÃ¤ferenzen konfigurieren',
+    executive_issue_list_title: 'Executive Issue List',
+    executive_issue_list_subtitle: 'Priorisierte Findings aus dem aktuellen Scan-Kontext.',
+    executive_issue_list_empty: 'Executive Findings erscheinen nach dem naechsten Scan.',
+    executive_issue_list_free_note: 'Begrenzte Vorschau aus verfuegbaren Free-Scan-Findings.',
+    executive_issue_list_full_note: 'Full-Analysis-Sicht auf verfuegbare Scan-Findings.',
+    executive_issue_list_monitoring_note: 'Monitoring-Kontext nutzt die letzten verfuegbaren Findings ohne Monitoring Widgets.',
+    executive_issue_list_source_note: 'Bestehende Dashboard-Preview-Daten.',
+    executive_issue_list_status_open: 'Offen',
+    executive_issue_list_status_review: 'Pruefung',
+    settings_subtitle: 'Account und Präferenzen konfigurieren',
   },
 };
 
 const STATIC_TEXT_TRANSLATIONS = [
   ['static_active_issues', 'Active Issues', 'Aktive Issues'],
-  ['static_recent_critical_issues', 'Recent Critical Issues', 'Aktuelle kritische Issues'],
+  ['static_recent_critical_issues', 'Executive Issue List', 'Executive Issue List'],
   ['static_recent_critical_helper', 'Highest impact findings from the selected scan', 'Findings mit hÃ¶chstem Impact aus dem ausgewÃ¤hlten Scan'],
   ['static_recommended_actions', 'Recommended Actions', 'Empfohlene Aktionen'],
   ['static_recommended_actions_helper', 'Highest impact actions based on the selected scan.', 'Aktionen mit hÃ¶chstem Impact basierend auf dem ausgewÃ¤hlten Scan.'],
@@ -437,6 +455,8 @@ function applyDashboardUi(ui, language) {
   setTextContent('#top-risk-modules-subtitle', t('top_risk_modules_subtitle'));
   const topRiskModulesBadge = byId('top-risk-modules-badge');
   if (topRiskModulesBadge) topRiskModulesBadge.setAttribute('title', t('top_risk_modules_info'));
+  setTextContent('[data-dashboard-slot="critical-issues"] h3', t('executive_issue_list_title'));
+  setTextContent('[data-dashboard-slot="critical-issues"] .muted', t('executive_issue_list_subtitle'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header h3', t('score_trend', 'Score Trend'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
   setTextContent('#analytics-tab article:nth-child(2) .panel-header h3', t('estimated_loss_trend', 'Estimated Loss Trend'));
@@ -1492,42 +1512,72 @@ function renderModuleDistribution(data) {
   if (viewButton) viewButton.addEventListener('click', () => switchTab('analytics'));
 }
 
-function renderOverviewRecentIssues(data) {
+function executiveIssueSourceItems(data) {
+  const sources = [
+    data?.issue_preview,
+    data?.top_findings,
+    data?.free_insights?.top_findings,
+    data?.premium_preview_findings,
+  ];
+  const source = sources.find((items) => Array.isArray(items) && items.length > 0);
+  return Array.isArray(source) ? source : [];
+}
+
+function executiveIssueAccessNote(data) {
+  if (data?.product_access?.monitoring_active) return t('executive_issue_list_monitoring_note');
+  if (data?.visibility?.is_premium) return t('executive_issue_list_full_note');
+  return t('executive_issue_list_free_note');
+}
+
+function normalizeExecutiveIssue(item, index) {
+  const title = item?.title || item?.issue || item?.name || `${t('static_issue', 'Issue')} ${index + 1}`;
+  const category = item?.group || item?.module || item?.area || t('static_module_category', 'Module / Category');
+  const severity = normalizeIssueSeverity(item?.severity || item?.priority);
+  const status = String(item?.status || '').trim() || t('executive_issue_list_status_open', 'Open');
+  return {
+    title,
+    category,
+    severity,
+    severityLabel: issueSeverityLabel(severity, item?.severity_label || item?.priority_label),
+    status,
+  };
+}
+
+function renderExecutiveIssueList(data) {
   const host = byId('overview-recent-issues');
   if (!host) return;
-  const isPremium = Boolean(data?.visibility?.is_premium);
-  const premiumItems = Array.isArray(data?.top_findings) ? data.top_findings : [];
-  const freeItems = Array.isArray(data?.free_insights?.top_findings) ? data.free_insights.top_findings : [];
-  const severityRank = { critical: 0, high: 1, medium: 2, low: 3 };
-  const sourceItems = (isPremium ? premiumItems : freeItems)
+  const severityRank = { critical: 0, high: 1, medium: 2, low: 3, unknown: 4 };
+  const items = executiveIssueSourceItems(data)
     .filter(Boolean)
-    .sort((a, b) => {
-      const severityA = severityRank[String(a?.severity || '').toLowerCase()] ?? 9;
-      const severityB = severityRank[String(b?.severity || '').toLowerCase()] ?? 9;
-      return severityA - severityB || safeNumber(b?.impact_eur) - safeNumber(a?.impact_eur);
-    });
-  const priorityItems = sourceItems.filter((item) => ['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
-  const fallbackItems = sourceItems.filter((item) => !['critical', 'high'].includes(String(item?.severity || '').toLowerCase()));
-  const items = [...priorityItems, ...fallbackItems].slice(0, 5);
+    .map((item, index) => normalizeExecutiveIssue(item, index))
+    .sort((a, b) => (severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9))
+    .slice(0, data?.visibility?.is_premium ? 5 : 3);
 
   if (items.length === 0) {
-    host.innerHTML = `<div class="empty-state executive-empty">Recent critical issues will appear after the next scan.</div>`;
+    host.innerHTML = `<div class="empty-state executive-empty">${escapeHtml(t('executive_issue_list_empty'))}</div>`;
     return;
   }
 
-  host.innerHTML = items.map((item, index) => {
-    const title = item?.title || `Issue ${index + 1}`;
-    const count = safeNumber(item?.count);
-    return `
-      <div class="recent-critical-row">
-        <span class="recent-critical-dot" aria-hidden="true"></span>
-        <span class="recent-critical-title">${escapeHtml(title)}</span>
-        <span class="recent-critical-count">${formatNumber(count)}</span>
-      </div>
-    `;
-  }).join('') + `<button type="button" class="recent-critical-link" data-jump-tab="issues">View all issues <span aria-hidden="true">&rarr;</span></button>`;
-  const link = host.querySelector('.recent-critical-link');
-  if (link) link.addEventListener('click', () => switchTab('issues'));
+  host.innerHTML = `
+    <div class="executive-issue-list-note">${escapeHtml(executiveIssueAccessNote(data))}</div>
+    ${items.map((item) => `
+      <article class="executive-issue-row executive-issue-${escapeHtml(item.severity)}">
+        <div class="executive-issue-main">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.category)}</span>
+        </div>
+        <div class="executive-issue-meta" aria-label="${escapeHtml(t('static_status', 'Status'))}">
+          <span class="severity severity-${escapeHtml(item.severity)}">${escapeHtml(item.severityLabel)}</span>
+          <span class="status-badge status-open">${escapeHtml(item.status)}</span>
+        </div>
+      </article>
+    `).join('')}
+    <div class="executive-issue-list-source">${escapeHtml(t('executive_issue_list_source_note'))}</div>
+  `;
+}
+
+function renderOverviewRecentIssues(data) {
+  renderExecutiveIssueList(data);
 }
 
 function overviewActionCandidates(data) {
