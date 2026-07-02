@@ -161,7 +161,7 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_recent_critical_issues', 'Executive Issue List', 'Executive Issue List'],
   ['static_recent_critical_helper', 'Highest impact findings from the selected scan', 'Findings mit hÃ¶chstem Impact aus dem ausgewÃ¤hlten Scan'],
   ['static_recommended_actions', 'Recommended Actions', 'Empfohlene Aktionen'],
-  ['static_recommended_actions_helper', 'Highest impact actions based on the selected scan.', 'Aktionen mit hÃ¶chstem Impact basierend auf dem ausgewÃ¤hlten Scan.'],
+  ['static_recommended_actions_helper', 'Executive next steps based on the selected scan.', 'Executive Next Steps basierend auf dem ausgewÃ¤hlten Scan.'],
   ['static_module_distribution_records', 'Module Distribution & Records', 'Modulverteilung & DatensÃ¤tze'],
   ['static_issue_distribution_percent', 'Issue Distribution (by %)', 'Issue-Verteilung (in %)'],
   ['static_records_by_module', 'Records by Module', 'DatensÃ¤tze nach Modul'],
@@ -1588,9 +1588,8 @@ function overviewActionCandidates(data) {
   return sourceItems
     .filter(Boolean)
     .map((item) => ({
-      title: item?.title || item?.issue || item?.name || 'Recommended action',
+      title: item?.title || item?.issue || item?.name || t('static_recommended_actions', 'Recommended Actions'),
       saving: safeNumber(item?.potential_saving_eur ?? item?.potential_savings_eur ?? item?.impact_eur ?? item?.estimated_loss_eur),
-      openInBcUrl: String(item?.open_in_bc_url || item?.open_in_business_central_url || item?.bc_url || ''),
       severity: normalizeIssueSeverity(item?.severity || item?.priority),
     }))
     .sort((a, b) => safeNumber(b.saving) - safeNumber(a.saving));
@@ -1602,31 +1601,25 @@ function renderRecommendedActions(data) {
   const items = overviewActionCandidates(data).slice(0, 3);
 
   if (items.length === 0) {
-    host.innerHTML = `<div class="empty-state executive-empty">Recommended actions will appear after scan insights are available.</div>`;
+    host.innerHTML = `<div class="empty-state executive-empty">${escapeHtml(t('recommended_actions_empty', 'Recommended actions will appear after scan insights are available.'))}</div>`;
     return;
   }
 
-  host.innerHTML = items.map((item, index) => {
-    const bcAction = item.openInBcUrl
-      ? `<a href="${escapeHtml(item.openInBcUrl)}" class="pager-button recommended-action-bc" target="_blank" rel="noopener noreferrer">Open in BC</a>`
-      : `<button type="button" class="pager-button recommended-action-bc" disabled>BC link unavailable</button>`;
-    return `
+  host.innerHTML = `
+    ${items.map((item, index) => `
       <article class="recommended-action-row recommended-action-${escapeHtml(item.severity)}">
-        <div class="recommended-action-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 4 21 20H3z"/><path d="M12 9v5"/><path d="M12 17h.01"/></svg>
-        </div>
+        <div class="recommended-action-rank" aria-hidden="true">${index + 1}</div>
         <div class="recommended-action-main">
           <strong>${escapeHtml(item.title)}</strong>
           <span>${escapeHtml(issueSeverityLabel(item.severity))}</span>
         </div>
         <div class="recommended-action-saving">
-          <span>Potential Saving</span>
-          <strong>${item.saving > 0 ? formatKpiCurrency(item.saving) : 'Calculated after full analysis'}</strong>
+          <span>${escapeHtml(t('static_potential_saving', 'Potential Saving'))}</span>
+          <strong>${item.saving > 0 ? formatKpiCurrency(item.saving) : escapeHtml(t('static_not_calculated_yet', 'Not calculated yet'))}</strong>
         </div>
-        ${bcAction}
       </article>
-    `;
-  }).join('');
+    `).join('')}
+  `;
 }
 
 function businessImpactIcon(name) {
