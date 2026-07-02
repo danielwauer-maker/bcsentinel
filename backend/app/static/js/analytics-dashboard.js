@@ -34,6 +34,30 @@ const LOCAL_DASHBOARD_UI = {
     subscription_subtitle: 'Manage your product access, monitoring status and available scan credits.',
     subscription_no_products_title: 'No additional subscription needed',
     subscription_no_products_body: 'Monitoring is active. All current dashboard features are already available for this tenant.',
+    business_impact_title: 'Business Impact',
+    business_impact_subtitle: 'Executive view of current business effects.',
+    business_impact_info: 'Estimated business impact based on current scan context',
+    business_impact_summary_free: 'Limited preview of financial, operational and governance impact based on the available scan context.',
+    business_impact_summary_full: 'Executive impact view based on the current full analysis. Values are estimates and support prioritization.',
+    business_impact_summary_monitoring: 'Business impact remains visible as an executive control signal for the active monitoring context.',
+    business_impact_summary_empty: 'Business impact appears after scan results are available.',
+    business_impact_financial: 'Financial Impact',
+    business_impact_financial_helper: 'Estimated annual exposure from the current scan context.',
+    business_impact_operational: 'Operational Impact',
+    business_impact_operational_helper: 'Affected records indicate operational review pressure.',
+    business_impact_governance: 'Governance Impact',
+    business_impact_governance_helper: 'Business control relevance derived from the current score band.',
+    business_impact_potential: 'Potential Saving',
+    business_impact_potential_helper: 'Estimated potential, not a guaranteed result.',
+    business_impact_not_available: 'Not available',
+    business_impact_records: 'records',
+    business_impact_signals: 'signals',
+    business_impact_review_needed: 'Review needed',
+    business_impact_elevated: 'Elevated',
+    business_impact_stable: 'Stable',
+    business_impact_estimate_label: 'Estimate',
+    business_impact_estimate_note: 'Amounts are estimates based on available scan context and are not guaranteed results.',
+    business_impact_demo_note: 'Demo Preview uses sample data.',
     settings_subtitle: 'Configure your account and preferences',
   },
   de: {
@@ -62,6 +86,30 @@ const LOCAL_DASHBOARD_UI = {
     subscription_subtitle: 'Verwalte Produktzugriff, Monitoring-Status und verfÃ¼gbare Scan Credits.',
     subscription_no_products_title: 'Keine weitere Subscription erforderlich',
     subscription_no_products_body: 'Monitoring ist aktiv. Alle aktuellen Dashboard-Funktionen sind fuer diesen Tenant bereits verfuegbar.',
+    business_impact_title: 'Business Impact',
+    business_impact_subtitle: 'Executive-Sicht auf aktuelle geschaeftliche Auswirkungen.',
+    business_impact_info: 'Geschaetzter Business Impact auf Basis des aktuellen Scan-Kontexts',
+    business_impact_summary_free: 'Begrenzte Vorschau auf finanziellen, operativen und Governance-Impact aus dem verfuegbaren Scan-Kontext.',
+    business_impact_summary_full: 'Executive Impact View aus der aktuellen Full Analysis. Werte sind Schaetzungen und unterstuetzen die Priorisierung.',
+    business_impact_summary_monitoring: 'Business Impact bleibt als Executive-Kontrollsignal fuer den aktiven Monitoring-Kontext sichtbar.',
+    business_impact_summary_empty: 'Business Impact erscheint, sobald Scan-Ergebnisse verfuegbar sind.',
+    business_impact_financial: 'Financial Impact',
+    business_impact_financial_helper: 'Geschaetzte jaehrliche Auswirkung aus dem aktuellen Scan-Kontext.',
+    business_impact_operational: 'Operational Impact',
+    business_impact_operational_helper: 'Betroffene Datensaetze zeigen operativen Pruefdruck.',
+    business_impact_governance: 'Governance Impact',
+    business_impact_governance_helper: 'Business-Control-Relevanz aus dem aktuellen Score-Band.',
+    business_impact_potential: 'Potential Saving',
+    business_impact_potential_helper: 'Geschaetztes Potenzial, kein garantiertes Ergebnis.',
+    business_impact_not_available: 'Nicht verfuegbar',
+    business_impact_records: 'Datensaetze',
+    business_impact_signals: 'Signale',
+    business_impact_review_needed: 'Pruefung erforderlich',
+    business_impact_elevated: 'Erhoeht',
+    business_impact_stable: 'Stabil',
+    business_impact_estimate_label: 'Schaetzung',
+    business_impact_estimate_note: 'Betraege sind Schaetzungen auf Basis des verfuegbaren Scan-Kontexts und keine garantierten Ergebnisse.',
+    business_impact_demo_note: 'Demo Preview verwendet Beispieldaten.',
     settings_subtitle: 'Account und PrÃ¤ferenzen konfigurieren',
   },
 };
@@ -357,6 +405,10 @@ function applyDashboardUi(ui, language) {
   setTextContent('#score-trend-panel .muted', t('score_trend_helper', 'History of selected scans'));
   setTextContent('#loss-trend-panel h3', t('loss_trend', 'Loss Trend'));
   setTextContent('#loss-trend-panel .muted', t('loss_trend_helper', 'Estimated annual impact'));
+  setTextContent('#business-impact-title', t('business_impact_title'));
+  setTextContent('#business-impact-subtitle', t('business_impact_subtitle'));
+  const businessImpactBadge = byId('business-impact-badge');
+  if (businessImpactBadge) businessImpactBadge.setAttribute('title', t('business_impact_info'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header h3', t('score_trend', 'Score Trend'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
   setTextContent('#analytics-tab article:nth-child(2) .panel-header h3', t('estimated_loss_trend', 'Estimated Loss Trend'));
@@ -1516,37 +1568,90 @@ function businessImpactRows(data) {
   });
 }
 
+function businessImpactVariant(data) {
+  if (data?.product_access?.monitoring_active || data?.monitoring_preview?.status === 'active') return 'monitoring';
+  if (data?.visibility?.is_premium) return 'full';
+  return 'free';
+}
+
+function businessImpactCurrencyValue(value) {
+  const amount = safeNumber(value);
+  return amount > 0 ? formatKpiCurrency(amount) : t('business_impact_not_available');
+}
+
+function businessImpactOperationalValue(kpis) {
+  const affectedRecords = safeNumber(kpis?.affected_records);
+  const issueSignals = safeNumber(kpis?.issues_count);
+  if (affectedRecords > 0) return `${formatNumber(Math.round(affectedRecords))} ${t('business_impact_records', 'records')}`;
+  if (issueSignals > 0) return `${formatNumber(Math.round(issueSignals))} ${t('business_impact_signals', 'signals')}`;
+  return t('business_impact_not_available');
+}
+
+function businessImpactGovernanceValue(score, hasScanContext = true) {
+  if (!hasScanContext) return t('business_impact_not_available');
+  const band = scoreBand(score);
+  if (band === 'critical' || band === 'warning') return t('business_impact_review_needed');
+  if (band === 'moderate') return t('business_impact_elevated');
+  if (band === 'good' || band === 'excellent') return t('business_impact_stable');
+  return t('business_impact_not_available');
+}
+
 function renderBusinessImpact(data) {
   const host = byId('overview-business-impact');
   if (!host) return;
-  const rows = businessImpactRows(data);
 
-  if (!data?.selected_scan_id || rows.length === 0) {
-    host.innerHTML = `<div class="empty-state executive-empty">Business impact will be calculated after scan results are available.</div>`;
-    return;
+  const summaryHost = byId('business-impact-summary');
+  const kpis = data?.kpis || {};
+  const hasScanContext = Boolean(data?.selected_scan_id || data?.is_demo || safeNumber(kpis?.checks_run) > 0 || safeNumber(kpis?.health_score) > 0);
+  const variant = businessImpactVariant(data);
+  const summaryKey = hasScanContext ? `business_impact_summary_${variant}` : 'business_impact_summary_empty';
+  const demoNote = data?.is_demo || data?.data_source === 'demo_preview'
+    ? `<span class="business-impact-demo-note">${escapeHtml(t('business_impact_demo_note'))}</span>`
+    : '';
+
+  if (summaryHost) {
+    summaryHost.innerHTML = `
+      <p>${escapeHtml(t(summaryKey))}</p>
+      ${demoNote}
+    `;
   }
 
-  const maxImpact = Math.max(...rows.map((item) => item.impact), 1);
-  const impactColors = getWeightedPalette(rows, (item) => item.impact, (item) => item.key);
+  const cards = [
+    {
+      label: t('business_impact_financial'),
+      value: businessImpactCurrencyValue(kpis?.estimated_loss_eur),
+      helper: t('business_impact_financial_helper'),
+    },
+    {
+      label: t('business_impact_operational'),
+      value: businessImpactOperationalValue(kpis),
+      helper: t('business_impact_operational_helper'),
+    },
+    {
+      label: t('business_impact_governance'),
+      value: businessImpactGovernanceValue(kpis?.health_score, hasScanContext),
+      helper: t('business_impact_governance_helper'),
+    },
+    {
+      label: t('business_impact_potential'),
+      value: businessImpactCurrencyValue(kpis?.potential_saving_eur),
+      helper: t('business_impact_potential_helper'),
+    },
+  ];
 
   host.innerHTML = `
-    <div class="business-impact-breakdown">
-      ${rows.map((item) => {
-        const color = impactColors.get(item.key) || WEIGHTED_ZERO_COLOR;
-        return `
-        <div class="business-impact-row">
-          <span class="business-impact-icon">${businessImpactIcon(item.name)}</span>
-          <span class="business-impact-name">${escapeHtml(item.name)}</span>
-          <div class="distribution-track"><div class="distribution-fill" style="--weighted-color:${color};width:${item.impact > 0 ? Math.max((item.impact / maxImpact) * 100, 5) : 0}%"></div></div>
-          <strong style="color:${color}">${formatKpiCurrency(item.impact)}</strong>
+    ${cards.map((card) => `
+      <article class="business-impact-card">
+        <div class="business-impact-card-header">
+          <span>${escapeHtml(card.label)}</span>
+          <small>${escapeHtml(t('business_impact_estimate_label'))}</small>
         </div>
-      `;
-      }).join('')}
-    </div>
-    <button type="button" class="business-impact-report-button">View full impact report <span aria-hidden="true">&rarr;</span></button>
+        <strong>${escapeHtml(card.value)}</strong>
+        <p>${escapeHtml(card.helper)}</p>
+      </article>
+    `).join('')}
+    <p class="business-impact-estimate-note">${escapeHtml(t('business_impact_estimate_note'))}</p>
   `;
-  const reportButton = host.querySelector('.business-impact-report-button');
-  if (reportButton) reportButton.addEventListener('click', () => switchTab('reports'));
 }
 
 function renderRecentScans(items) {
@@ -2756,6 +2861,7 @@ function renderDashboardFromState(data) {
 
   renderOverviewKpis(data);
   renderScoreBreakdown(data);
+  renderBusinessImpact(data);
   renderRecommendedActions(data);
   renderOverviewModuleScores(data);
   renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
@@ -2771,7 +2877,6 @@ function renderDashboardFromState(data) {
   renderIssueDistribution(data);
   renderModuleDistribution(data);
   renderOverviewRecentIssues(data);
-  renderBusinessImpact(data);
   renderFindings(data?.top_findings || [], Boolean(data?.visibility?.is_premium));
   renderUnlockPanel(data);
   renderSubscription(data);

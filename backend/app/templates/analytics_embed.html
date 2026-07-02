@@ -168,6 +168,18 @@
         <div id="score-breakdown-grid" class="score-breakdown-grid"></div>
       </section>
 
+      <section class="panel business-impact-panel" data-dashboard-slot="business-impact" aria-label="Business impact">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3 id="business-impact-title">Business Impact</h3>
+            <span id="business-impact-subtitle" class="muted">Executive view of current business effects.</span>
+          </div>
+          <span id="business-impact-badge" class="panel-info-icon" title="Estimated business impact based on current scan context">i</span>
+        </div>
+        <div id="business-impact-summary" class="business-impact-summary"></div>
+        <div id="overview-business-impact" class="business-impact-card-grid"></div>
+      </section>
+
       <section class="panel overview-module-score-panel" data-dashboard-slot="top-risks">
         <div class="panel-header">
           <div class="panel-title-block">
@@ -219,16 +231,6 @@
             <span class="panel-info-icon" title="Affected findings and records by Business Central module">i</span>
           </div>
           <div id="overview-module-distribution" class="module-distribution"></div>
-        </article>
-
-        <article class="panel" data-dashboard-slot="business-impact">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Business Impact Breakdown <span class="panel-title-unit">(â‚¬/Year)</span></h3>
-            </div>
-            <span id="business-impact-badge" class="panel-info-icon" title="Estimated annual business impact by module">i</span>
-          </div>
-          <div id="overview-business-impact" class="business-impact-panel"></div>
         </article>
       </section>
 

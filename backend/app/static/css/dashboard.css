@@ -5192,6 +5192,144 @@ body.dashboard-dark .health-score-context {
   color: #a9b9d2;
 }
 
+
+/* BUILD 05 - Business Impact Experience */
+.business-impact-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  color: #52627a;
+  line-height: 1.55;
+}
+
+.business-impact-summary p {
+  max-width: 760px;
+  margin: 0;
+}
+
+.business-impact-demo-note {
+  flex: 0 0 auto;
+  border: 1px solid #d6e2f3;
+  border-radius: 999px;
+  background: #f7faff;
+  padding: 6px 10px;
+  color: #52627a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.business-impact-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.business-impact-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 168px;
+  border: 1px solid #dde6f3;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px;
+  box-shadow: 0 14px 28px rgba(7, 27, 77, .07);
+}
+
+.business-impact-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.business-impact-card-header span {
+  color: #52627a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.business-impact-card-header small {
+  border: 1px solid #d6e2f3;
+  border-radius: 999px;
+  background: #f7faff;
+  padding: 4px 8px;
+  color: #60738f;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.business-impact-card strong {
+  color: #07173a;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.12;
+}
+
+.business-impact-card p,
+.business-impact-estimate-note {
+  margin: 0;
+  color: #60738f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.business-impact-estimate-note {
+  grid-column: 1 / -1;
+  border-top: 1px solid #edf1f7;
+  padding-top: 12px;
+}
+
+@media (max-width: 1180px) {
+  .business-impact-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .business-impact-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .business-impact-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+html.dashboard-dark .business-impact-card,
+body.dashboard-dark .business-impact-card {
+  border-color: #263a5d;
+  background: #101d32;
+}
+
+html.dashboard-dark .business-impact-summary,
+html.dashboard-dark .business-impact-card-header span,
+html.dashboard-dark .business-impact-card p,
+html.dashboard-dark .business-impact-estimate-note,
+body.dashboard-dark .business-impact-summary,
+body.dashboard-dark .business-impact-card-header span,
+body.dashboard-dark .business-impact-card p,
+body.dashboard-dark .business-impact-estimate-note {
+  color: #a9b9d2;
+}
+
+html.dashboard-dark .business-impact-card strong,
+body.dashboard-dark .business-impact-card strong {
+  color: #f5f8ff;
+}
+
+html.dashboard-dark .business-impact-demo-note,
+html.dashboard-dark .business-impact-card-header small,
+body.dashboard-dark .business-impact-demo-note,
+body.dashboard-dark .business-impact-card-header small {
+  border-color: #2a3f63;
+  background: #14233a;
+  color: #dbe7fb;
+}
 html.dashboard-dark .health-score-interpretation,
 body.dashboard-dark .health-score-interpretation {
   color: #eef4ff;
