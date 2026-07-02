@@ -927,6 +927,103 @@ function renderHealthScoreExperience(data) {
   const healthScoreEl = byId('kpi-health-score');
   if (healthScoreEl) healthScoreEl.className = `stat-value score-value ${band}`;
 }
+function scoreBreakdownStatus(score) {
+  const band = scoreBand(score);
+  const copy = {
+    critical: 'Critical influence',
+    warning: 'Needs attention',
+    moderate: 'Watch area',
+    good: 'Healthy influence',
+    excellent: 'Strong influence',
+  };
+  return copy[band] || 'Not available';
+}
+
+function scoreBreakdownMeaning(score) {
+  const band = scoreBand(score);
+  const copy = {
+    critical: 'This area is currently a negative influence on the Data Health Score.',
+    warning: 'This area likely reduces confidence in the current score.',
+    moderate: 'This area has visible quality signals and should stay under review.',
+    good: 'This area currently supports a healthier score.',
+    excellent: 'This area is currently a strong positive signal for the score.',
+  };
+  return copy[band] || 'No score signal is available for this area yet.';
+}
+
+function normalizeScoreBreakdown(data) {
+  const moduleScores = Array.isArray(data?.module_scores) ? data.module_scores.filter(Boolean) : [];
+  const topRiskModules = Array.isArray(data?.top_risk_modules) ? data.top_risk_modules.filter(Boolean) : [];
+  const modules = moduleScores.length ? moduleScores : topRiskModules;
+  return modules
+    .map((item) => {
+      const rawScore = Number(item?.score ?? item?.value);
+      if (!Number.isFinite(rawScore)) return null;
+      const score = Math.max(0, Math.min(100, rawScore));
+      const label = item?.label || item?.name || item?.module || '';
+      if (!label) return null;
+      const band = item?.variant || scoreBand(score);
+      return {
+        label,
+        score,
+        band,
+        status: scoreBreakdownStatus(score),
+        meaning: scoreBreakdownMeaning(score),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.score - b.score || a.label.localeCompare(b.label));
+}
+
+function scoreBreakdownSummaryCopy(data, items, visibleItems) {
+  if (!data?.selected_scan_id) return 'No completed scan is available yet. Score influences will appear after scan results are available.';
+  if (!items.length) return 'No score influence areas are available for this scan yet.';
+  const variant = executiveSummaryVariant(data);
+  const lowest = visibleItems[0];
+  const suffix = lowest ? ` ${lowest.label} currently needs the most attention.` : '';
+  if (variant === 'monitoring') return `Monitoring uses the same visible score influences without adding widgets or history in this view.${suffix}`;
+  if (variant === 'full') return `Full Analysis shows the available influence areas behind the current Data Health Score.${suffix}`;
+  return `Free view shows a limited preview of the strongest visible score influences.${suffix} Full Analysis shows all available influence areas.`;
+}
+
+function renderScoreBreakdown(data) {
+  const summary = byId('score-breakdown-summary');
+  const grid = byId('score-breakdown-grid');
+  if (!summary || !grid) return;
+
+  const items = normalizeScoreBreakdown(data);
+  const hasScan = Boolean(data?.selected_scan_id);
+  const variant = executiveSummaryVariant(data);
+  const visibleItems = variant === 'free' ? items.slice(0, 3) : items;
+  const isDemo = Boolean(data?.is_demo || data?.data_source === 'demo_preview');
+
+  summary.innerHTML = `
+    <div class="score-breakdown-copy">
+      <span class="score-breakdown-eyebrow">${escapeHtml(isDemo ? 'Demo Preview - Score influences' : 'Score influences')}</span>
+      <p>${escapeHtml(scoreBreakdownSummaryCopy(data, items, visibleItems))}</p>
+      <span class="score-breakdown-note">No formulas, internal weights or rule-engine details are shown.</span>
+    </div>
+  `;
+
+  if (!hasScan || !items.length) {
+    grid.innerHTML = `<div class="empty-state executive-empty">Score breakdown becomes available after scan results include score influence areas.</div>`;
+    return;
+  }
+
+  grid.innerHTML = visibleItems.map((item) => `
+    <article class="score-breakdown-card ${escapeHtml(item.band)}" aria-label="${escapeHtml(item.label)} score influence ${formatNumber(item.score)} of 100, ${escapeHtml(item.status)}">
+      <div class="score-breakdown-card-header">
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${escapeHtml(formatNumber(item.score))}<small>/100</small></strong>
+      </div>
+      <div class="score-breakdown-bar" aria-hidden="true">
+        <span style="width:${Math.max(item.score, 4)}%"></span>
+      </div>
+      <div class="score-breakdown-status ${escapeHtml(item.band)}">${escapeHtml(item.status)}</div>
+      <p>${escapeHtml(item.meaning)}</p>
+    </article>
+  `).join('');
+}
 function renderOverviewKpis(data) {
   const kpis = data?.kpis || {};
   const totalRecords = safeNumber(kpis.total_records);
@@ -2601,6 +2698,7 @@ function applyDashboardTheme(isDark) {
 const DASHBOARD_SHELL_SLOTS = [
   'executive-summary',
   'health-score',
+  'score-breakdown',
   'business-impact',
   'top-risks',
   'critical-issues',
@@ -2657,6 +2755,7 @@ function renderDashboardFromState(data) {
   renderExecutiveHero(data);
 
   renderOverviewKpis(data);
+  renderScoreBreakdown(data);
   renderRecommendedActions(data);
   renderOverviewModuleScores(data);
   renderProfileCards(data?.module_scores || [], data?.profile_cards || []);
