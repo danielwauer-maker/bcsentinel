@@ -285,6 +285,26 @@
       </section>
 
       <section id="monitoring-overview-panels" class="overview-grid monitoring-only-grid hidden" data-dashboard-slot="monitoring">
+        <article class="panel monitoring-executive-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Monitoring Status</h3>
+              <span class="muted">Executive view of monitoring availability and latest change</span>
+            </div>
+            <span id="monitoring-status-badge" class="placeholder-status">Monitoring</span>
+          </div>
+          <div id="monitoring-status-card" class="monitoring-status-card"></div>
+          <div id="monitoring-trend-summary" class="monitoring-trend-summary"></div>
+        </article>
+        <article class="panel monitoring-activity-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Recent Monitoring Activity</h3>
+              <span class="muted">Latest scan context from the existing dashboard payload</span>
+            </div>
+          </div>
+          <div id="monitoring-activity-list" class="monitoring-activity-list"></div>
+        </article>
         <article class="panel" id="scan-table-panel">
           <div class="panel-header">
             <div class="panel-title-block">

@@ -202,6 +202,29 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_back_to_issues', 'Back to Issues', 'ZurÃ¼ck zu Issues'],
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
   ['static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'],
+  ['static_monitoring_executive_helper', 'Executive view of monitoring availability and latest change', 'Executive-Sicht auf Monitoring-Verfuegbarkeit und letzte Veraenderung'],
+  ['static_recent_monitoring_activity', 'Recent Monitoring Activity', 'Aktuelle Monitoring-Aktivitaet'],
+  ['static_recent_monitoring_activity_helper', 'Latest scan context from the existing dashboard payload', 'Letzter Scan-Kontext aus dem vorhandenen Dashboard-Payload'],
+  ['static_monitoring_active', 'Monitoring Active', 'Monitoring aktiv'],
+  ['static_monitoring_not_available', 'Monitoring not available', 'Monitoring nicht verfuegbar'],
+  ['static_monitoring_required', 'Monitoring required', 'Monitoring erforderlich'],
+  ['static_last_successful_scan', 'Last successful scan', 'Letzter erfolgreicher Scan'],
+  ['static_last_scan', 'Last scan', 'Letzter Scan'],
+  ['static_since_previous_scan', 'since previous scan', 'seit dem vorherigen Scan'],
+  ['static_data_health', 'Data Health', 'Data Health'],
+  ['static_estimated_financial_impact', 'Estimated Financial Impact', 'Geschaetzter finanzieller Impact'],
+  ['static_improved', 'improved', 'verbessert'],
+  ['static_declined', 'declined', 'verschlechtert'],
+  ['static_reduced', 'reduced', 'gesunken'],
+  ['static_increased', 'increased', 'gestiegen'],
+  ['static_stable', 'stable', 'stabil'],
+  ['static_review_change', 'Review change', 'Veraenderung pruefen'],
+  ['static_no_monitoring_access', 'Monitoring access is not active for this tenant.', 'Monitoring-Zugriff ist fuer diesen Tenant nicht aktiv.'],
+  ['static_monitoring_no_history', 'Monitoring needs at least two scans to show change.', 'Monitoring benoetigt mindestens zwei Scans fuer eine Veraenderungsanzeige.'],
+  ['static_monitoring_no_trend_data', 'No trend data is available from the current payload.', 'Im aktuellen Payload sind keine Trenddaten verfuegbar.'],
+  ['static_latest_scan', 'Latest Scan', 'Letzter Scan'],
+  ['static_previous_scan', 'Previous Scan', 'Vorheriger Scan'],
+  ['static_comparison_date', 'Comparison Date', 'Vergleichsdatum'],
   ['static_scan_credits', 'Scan Credits', 'Scan Credits'],
   ['static_available_scan_credits', 'Available Scan Credits', 'VerfÃ¼gbare Scan Credits'],
   ['static_products', 'Products', 'Produkte'],
@@ -1856,6 +1879,136 @@ function renderRecentScansPagination(pagination) {
   container.classList.toggle('hidden', totalItems <= RECENT_SCANS_PAGE_SIZE);
 }
 
+function latestMonitoringTrendPair(items) {
+  if (!Array.isArray(items) || items.length < 2) return null;
+  const points = items
+    .map((item) => ({
+      value: Number(item?.value),
+      label: item?.label || item?.generated_at || item?.date || '',
+    }))
+    .filter((item) => Number.isFinite(item.value));
+  if (points.length < 2) return null;
+  return {
+    previous: points[points.length - 2],
+    current: points[points.length - 1],
+  };
+}
+
+function monitoringAccessActive(data) {
+  const access = data?.product_access || {};
+  return Boolean(access?.monitoring_active || access?.can_use_monitoring || data?.monitoring_status === 'active');
+}
+
+function monitoringTrendState(pair, higherIsBetter = true) {
+  if (!pair) return 'empty';
+  const delta = pair.current.value - pair.previous.value;
+  if (delta === 0) return 'stable';
+  return (higherIsBetter ? delta > 0 : delta < 0) ? 'positive' : 'negative';
+}
+
+function monitoringDeltaLabel(pair, asCurrency = false) {
+  if (!pair) return td('static_not_available', 'Not available', 'Nicht verfuegbar');
+  const delta = pair.current.value - pair.previous.value;
+  if (delta === 0) return td('static_stable', 'stable', 'stabil');
+  const prefix = delta > 0 ? '+' : '-';
+  const value = Math.abs(delta);
+  return `${prefix}${asCurrency ? formatCurrency(value) : formatNumber(Math.round(value))}`;
+}
+
+function monitoringTrendCopy(pair, higherIsBetter, positiveWordKey, negativeWordKey, subjectKey, subjectFallbackEn, subjectFallbackDe) {
+  if (!pair) return td('static_monitoring_no_trend_data', 'No trend data is available from the current payload.', 'Im aktuellen Payload sind keine Trenddaten verfuegbar.');
+  const state = monitoringTrendState(pair, higherIsBetter);
+  const subject = td(subjectKey, subjectFallbackEn, subjectFallbackDe);
+  if (state === 'stable') {
+    return `${subject} ${td('static_stable', 'stable', 'stabil')} ${td('static_since_previous_scan', 'since previous scan', 'seit dem vorherigen Scan')}.`;
+  }
+  const word = state === 'positive'
+    ? td(positiveWordKey, 'improved', 'verbessert')
+    : td(negativeWordKey, 'declined', 'verschlechtert');
+  return `${subject} ${word} ${td('static_since_previous_scan', 'since previous scan', 'seit dem vorherigen Scan')}.`;
+}
+
+function renderMonitoringExperience(data) {
+  const statusCard = byId('monitoring-status-card');
+  const trendSummary = byId('monitoring-trend-summary');
+  const activityList = byId('monitoring-activity-list');
+  const statusBadge = byId('monitoring-status-badge');
+  if (!statusCard || !trendSummary || !activityList) return;
+
+  const recentScans = Array.isArray(data?.recent_scans) ? data.recent_scans : [];
+  const latestScan = recentScans.find((item) => item?.is_valid !== false) || recentScans[0] || null;
+  const previousScan = recentScans.find((item) => item && item !== latestScan) || recentScans[1] || null;
+  const scorePair = latestMonitoringTrendPair(data?.score_trend || []);
+  const lossPair = latestMonitoringTrendPair(data?.loss_trend || []);
+  const monitoringActive = monitoringAccessActive(data);
+  const hasHistory = recentScans.length > 1 || Boolean(scorePair || lossPair);
+  const hasTrendData = Boolean(scorePair || lossPair);
+  const scoreState = monitoringTrendState(scorePair, true);
+  const lossState = monitoringTrendState(lossPair, false);
+  const reviewNeeded = scoreState === 'negative' || lossState === 'negative';
+  const statusLabel = monitoringActive
+    ? td('static_monitoring_active', 'Monitoring Active', 'Monitoring aktiv')
+    : td('static_monitoring_not_available', 'Monitoring not available', 'Monitoring nicht verfuegbar');
+  const emptyMessage = !monitoringActive
+    ? td('static_no_monitoring_access', 'Monitoring access is not active for this tenant.', 'Monitoring-Zugriff ist fuer diesen Tenant nicht aktiv.')
+    : (!hasHistory
+      ? td('static_monitoring_no_history', 'Monitoring needs at least two scans to show change.', 'Monitoring benoetigt mindestens zwei Scans fuer eine Veraenderungsanzeige.')
+      : (!hasTrendData ? td('static_monitoring_no_trend_data', 'No trend data is available from the current payload.', 'Im aktuellen Payload sind keine Trenddaten verfuegbar.') : ''));
+
+  if (statusBadge) {
+    statusBadge.textContent = statusLabel;
+    statusBadge.classList.toggle('is-monitoring-active', monitoringActive);
+    statusBadge.classList.toggle('is-monitoring-inactive', !monitoringActive);
+  }
+
+  statusCard.innerHTML = `
+    <div class="monitoring-status-main">
+      <span>${escapeHtml(td('static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'))}</span>
+      <strong>${escapeHtml(statusLabel)}</strong>
+      <p>${escapeHtml(emptyMessage || (reviewNeeded
+        ? td('static_review_change', 'Review change', 'Veraenderung pruefen')
+        : td('static_stable', 'stable', 'stabil')))}</p>
+    </div>
+    <div class="monitoring-status-meta">
+      <div>
+        <span>${escapeHtml(td('static_last_successful_scan', 'Last successful scan', 'Letzter erfolgreicher Scan'))}</span>
+        <strong>${escapeHtml(latestScan ? formatDateTime(latestScan.generated_at || latestScan.created_at || data?.last_updated) : formatDateTime(data?.last_updated))}</strong>
+      </div>
+      <div>
+        <span>${escapeHtml(td('static_review_change', 'Review change', 'Veraenderung pruefen'))}</span>
+        <strong>${escapeHtml(reviewNeeded ? td('static_review_change', 'Review change', 'Veraenderung pruefen') : td('static_stable', 'stable', 'stabil'))}</strong>
+      </div>
+    </div>
+  `;
+
+  trendSummary.innerHTML = `
+    ${emptyMessage ? `<div class="monitoring-empty-state">${escapeHtml(emptyMessage)}</div>` : ''}
+    <article class="monitoring-trend-card monitoring-trend-${escapeHtml(scoreState)}">
+      <span>${escapeHtml(td('static_data_health', 'Data Health', 'Data Health'))}</span>
+      <strong>${escapeHtml(monitoringDeltaLabel(scorePair, false))}</strong>
+      <p>${escapeHtml(monitoringTrendCopy(scorePair, true, 'static_improved', 'static_declined', 'static_data_health', 'Data Health', 'Data Health'))}</p>
+    </article>
+    <article class="monitoring-trend-card monitoring-trend-${escapeHtml(lossState)}">
+      <span>${escapeHtml(td('static_estimated_financial_impact', 'Estimated Financial Impact', 'Geschaetzter finanzieller Impact'))}</span>
+      <strong>${escapeHtml(monitoringDeltaLabel(lossPair, true))}</strong>
+      <p>${escapeHtml(monitoringTrendCopy(lossPair, false, 'static_reduced', 'static_increased', 'static_estimated_financial_impact', 'Estimated Financial Impact', 'Geschaetzter finanzieller Impact'))}</p>
+    </article>
+  `;
+
+  const activityRows = [
+    [td('static_latest_scan', 'Latest Scan', 'Letzter Scan'), latestScan ? formatDateTime(latestScan.generated_at || latestScan.created_at) : formatDateTime(data?.last_updated)],
+    [td('static_previous_scan', 'Previous Scan', 'Vorheriger Scan'), previousScan ? formatDateTime(previousScan.generated_at || previousScan.created_at) : td('static_not_available', 'Not available', 'Nicht verfuegbar')],
+    [td('static_data_health', 'Data Health', 'Data Health'), scorePair ? `${formatNumber(scorePair.current.value)} / ${formatNumber(scorePair.previous.value)}` : td('static_not_available', 'Not available', 'Nicht verfuegbar')],
+    [td('static_estimated_financial_impact', 'Estimated Financial Impact', 'Geschaetzter finanzieller Impact'), lossPair ? `${formatCurrency(lossPair.current.value)} / ${formatCurrency(lossPair.previous.value)}` : td('static_not_available', 'Not available', 'Nicht verfuegbar')],
+  ];
+  activityList.innerHTML = activityRows.map(([label, value]) => `
+    <div class="monitoring-activity-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `).join('');
+}
+
 function renderFindings(items, isPremium) {
   const host = byId('findings-body');
   if (!host) return;
@@ -3112,6 +3265,7 @@ function renderDashboardFromState(data) {
   renderModuleVolume(data);
   renderRecentScans(data?.recent_scans || []);
   renderRecentScansPagination(data?.recent_scans_pagination || {});
+  renderMonitoringExperience(data);
   renderScansPage(data);
   updateOverviewTrendVisibility(data);
   renderTrend('trend-chart', data?.score_trend || [], false, t('score_history_after_scans', 'Score history appears after at least two scans. Monitoring keeps this trend useful over time.'));
@@ -3215,7 +3369,7 @@ function applyPlanState(data) {
   }
 
   if (accessUnlock) accessUnlock.classList.add('hidden');
-  if (monitoringPanels) monitoringPanels.classList.toggle('hidden', !monitoringActive);
+  if (monitoringPanels) monitoringPanels.classList.remove('hidden');
   if (findingsPanel) findingsPanel.classList.toggle('hidden', !hasPaidAccess);
 }
 

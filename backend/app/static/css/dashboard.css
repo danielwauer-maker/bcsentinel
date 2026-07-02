@@ -328,6 +328,135 @@ button { font: inherit; }
   grid-template-columns: 1.2fr .8fr;
 }
 
+.monitoring-executive-panel,
+.monitoring-activity-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.monitoring-status-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, .55fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.monitoring-status-main,
+.monitoring-status-meta > div,
+.monitoring-trend-card,
+.monitoring-activity-card,
+.monitoring-empty-state {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.monitoring-status-main {
+  padding: 18px;
+}
+
+.monitoring-status-main span,
+.monitoring-status-meta span,
+.monitoring-trend-card span,
+.monitoring-activity-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.monitoring-status-main strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--navy);
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.monitoring-status-main p,
+.monitoring-trend-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.monitoring-status-meta {
+  display: grid;
+  gap: 12px;
+}
+
+.monitoring-status-meta > div,
+.monitoring-activity-card {
+  padding: 14px;
+}
+
+.monitoring-status-meta strong,
+.monitoring-activity-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--navy);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.monitoring-trend-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.monitoring-trend-card {
+  padding: 16px;
+  border-left: 4px solid #64748b;
+}
+
+.monitoring-trend-card strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--navy);
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.monitoring-trend-positive {
+  border-left-color: var(--green);
+}
+
+.monitoring-trend-negative {
+  border-left-color: var(--red);
+}
+
+.monitoring-trend-stable {
+  border-left-color: var(--blue);
+}
+
+.monitoring-empty-state {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.monitoring-activity-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.placeholder-status.is-monitoring-active {
+  border-color: rgba(31, 154, 102, .24);
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.placeholder-status.is-monitoring-inactive {
+  border-color: rgba(100, 116, 139, .24);
+  background: #f8fafc;
+  color: #475569;
+}
+
 .trend-stack {
   display: grid;
   gap: 18px;
@@ -1931,6 +2060,9 @@ thead th { color: var(--muted); font-weight: 600; }
   .issue-detail-grid,
   .unlock-grid,
   .subscription-grid { grid-template-columns: 1fr; }
+  .monitoring-status-card,
+  .monitoring-trend-summary,
+  .monitoring-activity-list { grid-template-columns: 1fr; }
   .issues-severity-grid,
   .actions-summary-grid,
   .reports-summary-grid,
@@ -4879,6 +5011,45 @@ body.dashboard-dark .table-wrap {
   border-color: #263a59;
   background: #101b2d;
   box-shadow: 0 18px 38px rgba(0, 0, 0, .35);
+}
+
+html.dashboard-dark .monitoring-status-main,
+html.dashboard-dark .monitoring-status-meta > div,
+html.dashboard-dark .monitoring-trend-card,
+html.dashboard-dark .monitoring-activity-card,
+html.dashboard-dark .monitoring-empty-state,
+body.dashboard-dark .monitoring-status-main,
+body.dashboard-dark .monitoring-status-meta > div,
+body.dashboard-dark .monitoring-trend-card,
+body.dashboard-dark .monitoring-activity-card,
+body.dashboard-dark .monitoring-empty-state {
+  border-color: #263a59;
+  background: #14233a;
+}
+
+html.dashboard-dark .monitoring-status-main strong,
+html.dashboard-dark .monitoring-status-meta strong,
+html.dashboard-dark .monitoring-trend-card strong,
+html.dashboard-dark .monitoring-activity-card strong,
+body.dashboard-dark .monitoring-status-main strong,
+body.dashboard-dark .monitoring-status-meta strong,
+body.dashboard-dark .monitoring-trend-card strong,
+body.dashboard-dark .monitoring-activity-card strong {
+  color: #f8fafc;
+}
+
+html.dashboard-dark .placeholder-status.is-monitoring-active,
+body.dashboard-dark .placeholder-status.is-monitoring-active {
+  border-color: rgba(52, 211, 153, .28);
+  background: rgba(6, 78, 59, .38);
+  color: #86efac;
+}
+
+html.dashboard-dark .placeholder-status.is-monitoring-inactive,
+body.dashboard-dark .placeholder-status.is-monitoring-inactive {
+  border-color: rgba(148, 163, 184, .28);
+  background: rgba(15, 23, 42, .7);
+  color: #cbd5e1;
 }
 
 html.dashboard-dark .executive-summary-hero,
