@@ -211,7 +211,40 @@
           </div>
           <div id="overview-recommended-actions" class="recommended-actions-list"></div>
         </article>
+      </section>
 
+      <section id="monitoring-overview-panels" class="overview-grid monitoring-only-grid hidden" data-dashboard-slot="monitoring">
+        <article class="panel monitoring-executive-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Monitoring Status</h3>
+              <span class="muted">Executive view of monitoring availability and latest change</span>
+            </div>
+            <span id="monitoring-status-badge" class="placeholder-status">Monitoring</span>
+          </div>
+          <div id="monitoring-status-card" class="monitoring-status-card"></div>
+          <div id="monitoring-trend-summary" class="monitoring-trend-summary"></div>
+        </article>
+        <article class="panel monitoring-activity-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Recent Monitoring Activity</h3>
+              <span class="muted">Latest scan context from the existing dashboard payload</span>
+            </div>
+          </div>
+          <div id="monitoring-activity-list" class="monitoring-activity-list"></div>
+        </article>
+      </section>
+
+      <section class="overview-deep-insights" aria-label="Explore deeper insights">
+        <div class="overview-deep-insights-header">
+          <div>
+            <h3>Explore deeper insights</h3>
+            <p>Detail areas remain available after the executive decision flow.</p>
+          </div>
+        </div>
+
+      <section class="overview-grid overview-distribution-grid">
         <article class="panel overview-legacy-panel">
           <div class="panel-header">
             <div class="panel-title-block">
@@ -221,9 +254,6 @@
           </div>
           <div id="overview-issue-distribution" class="severity-distribution"></div>
         </article>
-      </section>
-
-      <section class="overview-grid overview-distribution-grid">
         <article class="panel">
           <div class="panel-header">
             <div class="panel-title-block">
@@ -283,28 +313,7 @@
           </table>
         </div>
       </section>
-
-      <section id="monitoring-overview-panels" class="overview-grid monitoring-only-grid hidden" data-dashboard-slot="monitoring">
-        <article class="panel monitoring-executive-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Monitoring Status</h3>
-              <span class="muted">Executive view of monitoring availability and latest change</span>
-            </div>
-            <span id="monitoring-status-badge" class="placeholder-status">Monitoring</span>
-          </div>
-          <div id="monitoring-status-card" class="monitoring-status-card"></div>
-          <div id="monitoring-trend-summary" class="monitoring-trend-summary"></div>
-        </article>
-        <article class="panel monitoring-activity-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Recent Monitoring Activity</h3>
-              <span class="muted">Latest scan context from the existing dashboard payload</span>
-            </div>
-          </div>
-          <div id="monitoring-activity-list" class="monitoring-activity-list"></div>
-        </article>
+      <section class="overview-grid overview-scan-history-grid">
         <article class="panel" id="scan-table-panel">
           <div class="panel-header">
             <div class="panel-title-block">
@@ -326,6 +335,7 @@
             <button type="button" class="pager-button" id="recent-scans-next">Next</button>
           </div>
         </article>
+      </section>
       </section>
 
       <section id="access-unlock-panel" class="panel unlock-panel hidden">

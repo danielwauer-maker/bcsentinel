@@ -202,6 +202,8 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_back_to_issues', 'Back to Issues', 'ZurÃ¼ck zu Issues'],
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
   ['static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'],
+  ['static_explore_deeper_insights', 'Explore deeper insights', 'Weitere Insights erkunden'],
+  ['static_deeper_insights_helper', 'Detail areas remain available after the executive decision flow.', 'Detailbereiche bleiben nach dem Executive-Entscheidungsfluss verfuegbar.'],
   ['static_monitoring_executive_helper', 'Executive view of monitoring availability and latest change', 'Executive-Sicht auf Monitoring-Verfuegbarkeit und letzte Veraenderung'],
   ['static_recent_monitoring_activity', 'Recent Monitoring Activity', 'Aktuelle Monitoring-Aktivitaet'],
   ['static_recent_monitoring_activity_helper', 'Latest scan context from the existing dashboard payload', 'Letzter Scan-Kontext aus dem vorhandenen Dashboard-Payload'],
@@ -504,6 +506,8 @@ function applyDashboardUi(ui, language) {
   if (topRiskModulesBadge) topRiskModulesBadge.setAttribute('title', t('top_risk_modules_info'));
   setTextContent('[data-dashboard-slot="critical-issues"] h3', t('executive_issue_list_title'));
   setTextContent('[data-dashboard-slot="critical-issues"] .muted', t('executive_issue_list_subtitle'));
+  setTextContent('.overview-deep-insights-header h3', t('static_explore_deeper_insights', 'Explore deeper insights'));
+  setTextContent('.overview-deep-insights-header p', t('static_deeper_insights_helper', 'Detail areas remain available after the executive decision flow.'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header h3', t('score_trend', 'Score Trend'));
   setTextContent('#analytics-tab article:nth-child(1) .panel-header .muted', t('premium_analytics', 'Premium analytics'));
   setTextContent('#analytics-tab article:nth-child(2) .panel-header h3', t('estimated_loss_trend', 'Estimated Loss Trend'));

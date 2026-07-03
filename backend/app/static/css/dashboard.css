@@ -5875,6 +5875,256 @@ body.dashboard-dark .issue-priority-label {
   margin-bottom: 14px;
 }
 
+/* BUILD 10X - Executive layout cleanup */
+#overview-tab {
+  display: grid;
+  gap: 14px;
+}
+
+#overview-tab > .panel,
+#overview-tab > .overview-grid {
+  margin-bottom: 0;
+}
+
+.executive-summary-hero {
+  margin-bottom: 0;
+  min-height: 112px;
+  padding: 18px 22px;
+}
+
+.executive-summary-hero .hero-title {
+  font-size: clamp(24px, 1.9vw, 32px);
+  line-height: 1.12;
+}
+
+.executive-summary-hero .overview-summary {
+  max-width: 960px;
+  font-size: 14px;
+}
+
+.overview-kpi-grid {
+  grid-template-columns: minmax(220px, 1.2fr) repeat(2, minmax(180px, 1fr)) repeat(2, minmax(140px, .72fr));
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.overview-kpi-grid .kpi-card {
+  min-height: 148px;
+  padding: 15px;
+}
+
+.overview-kpi-grid .kpi-score-card {
+  min-height: 188px;
+}
+
+.overview-kpi-grid .accent-red,
+.overview-kpi-grid .accent-green {
+  min-height: 148px;
+  box-shadow: 0 16px 34px rgba(9, 23, 58, .09);
+}
+
+.overview-kpi-grid .accent-red .stat-value,
+.overview-kpi-grid .accent-green .stat-value {
+  font-size: clamp(32px, 2.4vw, 44px);
+}
+
+.overview-kpi-grid .compact-stat {
+  min-height: 136px;
+}
+
+.overview-kpi-grid .compact-stat .stat-value {
+  font-size: clamp(26px, 2vw, 34px);
+}
+
+.score-breakdown-panel,
+.business-impact-panel,
+.overview-module-score-panel,
+.overview-issue-grid > .panel,
+.monitoring-only-grid > .panel {
+  box-shadow: 0 14px 30px rgba(9, 23, 58, .08);
+}
+
+.score-breakdown-panel,
+.business-impact-panel,
+.overview-module-score-panel {
+  padding: 16px;
+}
+
+.overview-issue-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.overview-actions-card .recommended-action-row {
+  min-height: 64px;
+}
+
+.monitoring-only-grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+}
+
+.monitoring-status-card,
+.monitoring-trend-summary,
+.monitoring-activity-list {
+  gap: 10px;
+}
+
+.overview-deep-insights {
+  display: grid;
+  gap: 14px;
+  margin-top: 2px;
+  padding-top: 18px;
+  border-top: 1px solid #dfe8f5;
+}
+
+.overview-deep-insights-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.overview-deep-insights-header h3 {
+  margin: 0;
+  color: #07173a;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.overview-deep-insights-header p {
+  margin: 4px 0 0;
+  color: #5f7190;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.overview-deep-insights .panel {
+  border-color: #e4ebf5;
+  background: #fbfdff;
+  box-shadow: 0 8px 18px rgba(9, 23, 58, .05);
+}
+
+.overview-deep-insights .panel-header h3 {
+  font-size: 16px;
+}
+
+.overview-scan-history-grid {
+  grid-template-columns: 1fr;
+}
+
+.overview-products-panel,
+.overview-feature-comparison-panel {
+  margin-bottom: 0;
+}
+
+.overview-product-card {
+  min-height: 206px;
+  padding: 16px;
+}
+
+.overview-product-card p {
+  min-height: 0;
+}
+
+.overview-feature-comparison-panel {
+  padding: 16px;
+}
+
+.overview-feature-comparison-panel .table-wrap {
+  max-height: 230px;
+  overflow: auto;
+}
+
+.overview-feature-comparison-panel .feature-comparison-table th,
+.overview-feature-comparison-panel .feature-comparison-table td {
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.unlock-panel {
+  padding: 16px;
+  border-color: #e4ebf5;
+  background: #fbfdff;
+  box-shadow: 0 8px 18px rgba(9, 23, 58, .05);
+}
+
+.unlock-header {
+  margin-bottom: 12px;
+}
+
+.unlock-header h3 {
+  font-size: 20px;
+}
+
+.unlock-copy {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.unlock-left,
+.unlock-right {
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+}
+
+html.dashboard-dark .overview-deep-insights,
+body.dashboard-dark .overview-deep-insights {
+  border-top-color: #263a59;
+}
+
+html.dashboard-dark .overview-deep-insights-header h3,
+body.dashboard-dark .overview-deep-insights-header h3 {
+  color: #f5f8ff;
+}
+
+html.dashboard-dark .overview-deep-insights-header p,
+body.dashboard-dark .overview-deep-insights-header p {
+  color: #a8b4c7;
+}
+
+html.dashboard-dark .overview-deep-insights .panel,
+html.dashboard-dark .unlock-panel,
+body.dashboard-dark .overview-deep-insights .panel,
+body.dashboard-dark .unlock-panel {
+  border-color: #263a59;
+  background: #101b2d;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .24);
+}
+
+html.dashboard-dark .unlock-left,
+html.dashboard-dark .unlock-right,
+body.dashboard-dark .unlock-left,
+body.dashboard-dark .unlock-right {
+  border-color: #263a59;
+  background: #14233a;
+}
+
+@media (max-width: 1280px) {
+  .overview-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-issue-grid,
+  .monitoring-only-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  #overview-tab {
+    gap: 12px;
+  }
+
+  .executive-summary-hero {
+    padding: 16px;
+  }
+
+  .overview-kpi-grid,
+  .overview-products-panel .subscription-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 820px) {
   .overview-actions-card .recommended-action-row {
     grid-template-columns: 38px minmax(0, 1fr);
