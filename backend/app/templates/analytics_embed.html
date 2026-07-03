@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
-  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260703-3">
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260703-4">
 </head>
 <body class="dashboard-body" data-dashboard-shell="loading">
   <div id="dashboard-root" class="dashboard-layout dashboard-root" data-dashboard-root>
@@ -88,7 +88,6 @@
           <p id="overview-summary" class="overview-summary">Your current data quality score requires attention.</p>
           <div id="overview-context" class="overview-context"></div>
         </div>
-        <ul id="hero-points" class="hero-points hidden"></ul>
       </section>
 
       <section class="stats-grid overview-kpi-grid" data-shell-section="kpi-area">
@@ -137,45 +136,13 @@
 
         <article class="stat-card panel kpi-card compact-stat">
           <div class="kpi-card-header">
-            <div class="stat-label" id="kpi-records-label-title">Total Records</div>
-            <span class="kpi-info-icon" title="Total analyzed records">i</span>
+            <div class="stat-label" id="kpi-records-label-title">Affected Records</div>
+            <span class="kpi-info-icon" title="Records affected by current findings">i</span>
           </div>
           <div class="stat-value" id="kpi-records">0</div>
           <div class="kpi-card-divider"></div>
-          <div class="stat-helper kpi-trend-line" id="kpi-records-helper">Records analyzed</div>
+          <div class="stat-helper kpi-trend-line" id="kpi-records-helper">Affected records</div>
         </article>
-
-        <article class="stat-card panel kpi-card compact-stat">
-          <div class="kpi-card-header">
-            <div class="stat-label" id="kpi-checks-label-title">Validation Checks</div>
-            <span class="kpi-info-icon" title="Validation checks executed for the selected scan">i</span>
-          </div>
-          <div class="stat-value" id="kpi-checks">0</div>
-          <div class="kpi-card-divider"></div>
-          <div class="stat-helper kpi-trend-line" id="kpi-checks-helper">Validation checks run</div>
-        </article>
-      </section>
-
-      <section class="panel score-breakdown-panel" data-dashboard-slot="score-breakdown" aria-label="Score breakdown">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            <h3>Score Breakdown</h3>
-            <span class="muted">Main drivers behind the current score.</span>
-          </div>
-        </div>
-        <div id="score-breakdown-summary" class="score-breakdown-summary"></div>
-        <div id="score-breakdown-grid" class="score-breakdown-grid"></div>
-      </section>
-
-      <section class="panel business-impact-panel" data-dashboard-slot="business-impact" aria-label="Business impact">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            <h3 id="business-impact-title">Business Impact</h3>
-            <span id="business-impact-subtitle" class="muted">Executive business statements from the current scan.</span>
-          </div>
-        </div>
-        <div id="business-impact-summary" class="business-impact-summary"></div>
-        <div id="overview-business-impact" class="business-impact-card-grid"></div>
       </section>
 
       <section class="panel overview-module-score-panel" data-dashboard-slot="top-risks">
@@ -244,11 +211,15 @@
         <nav class="overview-deep-insight-cards" aria-label="Dashboard detail navigation">
           <button type="button" class="overview-deep-card" data-jump-tab="issues">
             <span>Issues</span>
-            <strong>Review findings</strong>
+            <strong>View all issues</strong>
           </button>
           <button type="button" class="overview-deep-card" data-jump-tab="analytics">
             <span>Analytics</span>
-            <strong>Inspect trends</strong>
+            <strong>Analyze drivers</strong>
+          </button>
+          <button type="button" class="overview-deep-card" data-jump-tab="actions">
+            <span>Actions</span>
+            <strong>View all actions</strong>
           </button>
           <button type="button" class="overview-deep-card" data-jump-tab="scans">
             <span>Scans</span>
@@ -263,52 +234,6 @@
             <strong>Manage access</strong>
           </button>
         </nav>
-
-      <section class="overview-grid overview-distribution-grid">
-        <article class="panel overview-legacy-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Active Issues</h3>
-              <span class="muted">Detail signal from the existing dashboard.</span>
-            </div>
-          </div>
-          <div id="overview-issue-distribution" class="severity-distribution"></div>
-        </article>
-        <article class="panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Module Distribution &amp; Records</h3>
-            </div>
-            <span class="panel-info-icon" title="Affected findings and records by Business Central module">i</span>
-          </div>
-          <div id="overview-module-distribution" class="module-distribution"></div>
-        </article>
-      </section>
-
-      <section id="overview-trend-section" class="overview-grid overview-trend-grid hidden">
-        <article class="panel" id="score-trend-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Score Trend</h3>
-              <span class="muted">Historical score movement when scan history is available</span>
-            </div>
-            <span id="score-trend-badge" class="placeholder-status">Monitoring</span>
-          </div>
-          <div id="trend-chart" class="trend-chart"></div>
-        </article>
-
-        <article class="panel" id="loss-trend-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Loss Trend</h3>
-              <span class="muted">Estimated annual impact over available scans</span>
-            </div>
-            <span id="loss-trend-badge" class="placeholder-status">Monitoring</span>
-          </div>
-          <div id="loss-chart" class="trend-chart"></div>
-        </article>
-      </section>
-
       </section>
 
       <section id="access-unlock-panel" class="panel unlock-panel hidden">
@@ -362,6 +287,50 @@
     </section>
 
     <section id="analytics-tab" class="tab-panel hidden" data-shell-section="analytics">
+      <section class="panel score-breakdown-panel" data-dashboard-slot="score-breakdown" aria-label="Score breakdown">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3>Score Breakdown</h3>
+            <span class="muted">Main drivers behind the current score.</span>
+          </div>
+        </div>
+        <div id="score-breakdown-summary" class="score-breakdown-summary"></div>
+        <div id="score-breakdown-grid" class="score-breakdown-grid"></div>
+      </section>
+
+      <section class="panel business-impact-panel" data-dashboard-slot="business-impact" aria-label="Business impact">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <h3 id="business-impact-title">Business Impact</h3>
+            <span id="business-impact-subtitle" class="muted">Executive business statements from the current scan.</span>
+          </div>
+        </div>
+        <div id="business-impact-summary" class="business-impact-summary"></div>
+        <div id="overview-business-impact" class="business-impact-card-grid"></div>
+      </section>
+
+      <section class="overview-grid overview-distribution-grid analytics-distribution-grid">
+        <article class="panel overview-legacy-panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Active Issues</h3>
+              <span class="muted">Issue severity context for analytical review.</span>
+            </div>
+          </div>
+          <div id="overview-issue-distribution" class="severity-distribution"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <h3>Module Distribution &amp; Records</h3>
+              <span class="muted">Module-level distribution based on available payload fields.</span>
+            </div>
+            <span class="panel-info-icon" title="Affected findings and records by Business Central module">i</span>
+          </div>
+          <div id="overview-module-distribution" class="module-distribution"></div>
+        </article>
+      </section>
+
       <section class="overview-grid overview-grid-top">
         <article class="panel">
           <div class="panel-header"><h3>Score Trend</h3><span class="muted">Premium analytics</span></div>
@@ -370,6 +339,28 @@
         <article class="panel">
           <div class="panel-header"><h3>Estimated Loss Trend</h3><span class="muted">Premium analytics</span></div>
           <div class="locked-region" data-lock-section="analytics"><div id="analytics-loss-trend" class="trend-chart"></div></div>
+        </article>
+      </section>
+
+      <section class="overview-grid analytics-context-grid">
+        <article class="stat-card panel kpi-card compact-stat">
+          <div class="kpi-card-header">
+            <div class="stat-label">Total Records</div>
+            <span class="kpi-info-icon" title="Total analyzed records">i</span>
+          </div>
+          <div class="stat-value" id="analytics-total-records">0</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="analytics-records-helper">Records analyzed</div>
+        </article>
+
+        <article class="stat-card panel kpi-card compact-stat">
+          <div class="kpi-card-header">
+            <div class="stat-label" id="kpi-checks-label-title">Validation Checks</div>
+            <span class="kpi-info-icon" title="Validation checks executed for the selected scan">i</span>
+          </div>
+          <div class="stat-value" id="kpi-checks">0</div>
+          <div class="kpi-card-divider"></div>
+          <div class="stat-helper kpi-trend-line" id="kpi-checks-helper">Validation checks run</div>
         </article>
       </section>
     </section>
@@ -586,7 +577,7 @@
       </footer>
     </main>
   </div>
-  <script src="/static/js/analytics-dashboard.js?v=20260703-3"></script>
+  <script src="/static/js/analytics-dashboard.js?v=20260703-4"></script>
 </body>
 </html>
 

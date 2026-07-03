@@ -756,11 +756,15 @@ function renderOverviewModuleScores(data) {
     ? t('top_risk_modules_payload_top')
     : t('top_risk_modules_payload_fallback');
 
-  host.innerHTML = rows.map((item, index) => {
+  const visibleRows = rows.slice(0, 3);
+  const overflowCount = Math.max(rows.length - visibleRows.length, 0);
+
+  host.innerHTML = `
+    ${visibleRows.map((item, index) => {
     const metric = topRiskModuleMetric(item);
     const scoreValue = item.score === null ? 0 : item.score;
     return `
-      <article class="module-score-card top-risk-module-card ${index < 3 ? 'is-primary-risk' : 'is-secondary-risk'}">
+      <article class="module-score-card top-risk-module-card is-primary-risk">
         <div class="top-risk-module-rank"><span>${escapeHtml(t('top_risk_modules_rank'))}</span><strong>${formatNumber(index + 1)}</strong></div>
         <div class="module-score-title">${escapeHtml(item.name)}</div>
         <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${scoreValue}">
@@ -775,7 +779,15 @@ function renderOverviewModuleScores(data) {
         <small class="top-risk-module-source">${escapeHtml(sourceLabel)}</small>
       </article>
     `;
-  }).join('');
+  }).join('')}
+    ${overflowCount > 0 ? `
+      <button type="button" class="top-risk-modules-more" data-jump-tab="analytics">
+        ${escapeHtml(formatNumber(overflowCount))} more modules in Analytics <span aria-hidden="true">&rarr;</span>
+      </button>
+    ` : ''}
+  `;
+  const moreButton = host.querySelector('.top-risk-modules-more');
+  if (moreButton) moreButton.addEventListener('click', () => switchTab('analytics'));
 }
 
 function renderIssueGroups(items, emptyMessage = t('no_module_data', 'No module data is available for this scan.')) {
@@ -942,18 +954,71 @@ function executiveTrendCopy(data) {
 }
 
 function executiveTopRiskLabel(data) {
-  const risks = Array.isArray(data?.top_risk_modules) && data.top_risk_modules.length > 0
-    ? data.top_risk_modules
-    : (Array.isArray(data?.module_scores) ? data.module_scores : []);
-  const normalized = risks
-    .map((item) => ({
-      label: item?.label || item?.name || item?.module || '',
-      score: safeNumber(item?.score ?? item?.value, 100),
-    }))
-    .filter((item) => item.label)
-    .sort((a, b) => a.score - b.score);
+  const source = topRiskModuleSource(data);
+  const normalized = source.items
+    .map(normalizeTopRiskModule)
+    .filter(Boolean)
+    .sort((a, b) => topRiskModulePriority(a) - topRiskModulePriority(b) || (a.score ?? 100) - (b.score ?? 100));
   if (!normalized.length) return 'No module risk is available yet.';
-  return `${normalized[0].label} is the top risk area.`;
+  return `${normalized[0].name} is the top risk area.`;
+}
+
+function executiveHeroFacts(data, config) {
+  const kpis = data?.kpis || {};
+  const healthScore = Math.max(0, Math.min(100, safeNumber(kpis.health_score)));
+  const affectedRecords = safeNumber(kpis.affected_records);
+  const criticalIssues = safeNumber(data?.free_insights?.active_issues_summary?.critical);
+  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
+  const topRisk = executiveTopRiskLabel(data);
+  const accessLabel = config?.accessLabel || 'Access context active';
+
+  return [
+    {
+      label: 'Health status',
+      value: scoreLabel(healthScore),
+    },
+    {
+      label: 'Business impact',
+      value: estimatedLoss > 0 ? formatKpiCurrency(estimatedLoss) : 'Not calculated yet',
+    },
+    {
+      label: 'Highest risk area',
+      value: topRisk.replace(/\.$/, ''),
+    },
+    {
+      label: 'Affected records',
+      value: affectedRecords > 0 ? formatNumber(affectedRecords) : `${formatNumber(criticalIssues)} critical findings`,
+    },
+    {
+      label: 'Access',
+      value: accessLabel,
+    },
+  ];
+}
+
+function renderExecutiveHeroFacts(data, config) {
+  const facts = executiveHeroFacts(data, config);
+  return `
+    <div class="executive-summary-facts" aria-label="Executive dashboard facts">
+      ${facts.map((fact) => `
+        <div class="executive-summary-fact">
+          <span>${escapeHtml(fact.label)}</span>
+          <strong>${escapeHtml(fact.value)}</strong>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function executiveHeroTopRiskCopy(data) {
+  const source = topRiskModuleSource(data);
+  const normalized = source.items
+    .map(normalizeTopRiskModule)
+    .filter(Boolean)
+    .sort((a, b) => topRiskModulePriority(a) - topRiskModulePriority(b) || (a.score ?? 100) - (b.score ?? 100));
+  if (!normalized.length) return null;
+  const item = normalized[0];
+  return `${item.name} should be reviewed first.`;
 }
 
 function renderExecutiveHero(data) {
@@ -963,29 +1028,26 @@ function renderExecutiveHero(data) {
   const band = scoreBand(healthScore);
   const variant = executiveSummaryVariant(data);
   const isDemo = Boolean(data?.is_demo || data?.data_source === 'demo_preview');
-  const totalIssues = safeNumber(kpis.issues_count);
-  const affectedRecords = safeNumber(kpis.affected_records);
-  const checksRun = safeNumber(kpis.checks_run);
-  const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
-  const potentialSaving = safeNumber(kpis.potential_saving_eur);
   const monitoringPreview = data?.monitoring_preview || {};
 
   const config = {
     free: {
       eyebrow: isDemo ? 'Demo Preview - Executive Summary' : 'Executive Summary - Free Dashboard',
       summary: hasScan
-        ? `Executive signal ready. ${executiveTopRiskLabel(data)} Full Analysis unlocks record-level evidence.`
+        ? `Executive signal ready. ${executiveHeroTopRiskCopy(data) || executiveTopRiskLabel(data)} Full Analysis unlocks record-level evidence.`
         : 'Run the first scan to generate an executive overview of data quality, business risk and next action.',
       ctaLabel: 'Unlock Full Analysis',
       ctaTab: 'subscription',
       note: 'Limited visibility: free view shows executive signals, not full issue evidence.',
+      accessLabel: 'Free Scan',
     },
     full: {
       eyebrow: 'Executive Summary - Full Analysis',
-      summary: `Business risk is visible. ${executiveTopRiskLabel(data)} Priority evidence is ready for review.`,
+      summary: `Business risk is visible. ${executiveHeroTopRiskCopy(data) || executiveTopRiskLabel(data)} Priority evidence is ready for review.`,
       ctaLabel: 'Review Critical Risks',
       ctaTab: 'issues',
       note: 'Full Analysis access is active. Monitoring is not active yet.',
+      accessLabel: 'Full Analysis',
     },
     monitoring: {
       eyebrow: 'Executive Summary - Monitoring',
@@ -993,6 +1055,7 @@ function renderExecutiveHero(data) {
       ctaLabel: 'Review Critical Changes',
       ctaTab: 'issues',
       note: monitoringPreview?.frequency || 'Monitoring status is summarized here; detailed widgets remain outside this build.',
+      accessLabel: 'Monitoring active',
     },
   }[variant];
 
@@ -1015,15 +1078,6 @@ function renderExecutiveHero(data) {
     highlight.classList.toggle('hidden', !headlineHighlight);
   }
 
-  const points = hasScan
-    ? [
-        `${formatNumber(totalIssues)} issues across ${formatNumber(affectedRecords)} affected records.`,
-        `${formatNumber(checksRun)} checks evaluated for the current executive view.`,
-        executiveTopRiskLabel(data),
-      ]
-    : ['No scan data is available yet.', 'The dashboard will use real scan data as soon as it exists.'];
-  renderHeroPoints(points);
-
   const context = byId('overview-context');
   if (!context) return;
   context.classList.remove('hidden');
@@ -1034,6 +1088,7 @@ function renderExecutiveHero(data) {
       ${isDemo ? '<span class="executive-summary-badge is-demo">Demo Preview</span>' : ''}
       <span class="executive-summary-updated">${escapeHtml(formatDateTime(data?.last_updated))}</span>
     </div>
+    ${hasScan ? renderExecutiveHeroFacts(data, config) : ''}
     <p class="executive-summary-note">${escapeHtml(config.note)}</p>
     <button type="button" class="primary-button executive-summary-cta" data-executive-target="${escapeHtml(config.ctaTab)}">
       ${escapeHtml(config.ctaLabel)}
@@ -1213,6 +1268,7 @@ function renderOverviewKpis(data) {
   const kpis = data?.kpis || {};
   const totalRecords = safeNumber(kpis.total_records);
   const checksRun = safeNumber(kpis.checks_run);
+  const affectedRecords = safeNumber(kpis.affected_records);
   const estimatedLoss = safeNumber(kpis.estimated_loss_eur);
   const potentialSaving = safeNumber(kpis.potential_saving_eur);
   const hasScan = Boolean(data?.selected_scan_id);
@@ -1224,7 +1280,7 @@ function renderOverviewKpis(data) {
   renderHealthScoreExperience(data);
   setText('kpi-loss-label-title', 'Estimated Loss');
   setText('kpi-savings-label-title', 'Potential Savings');
-  setText('kpi-records-label-title', 'Total Records');
+  setText('kpi-records-label-title', 'Affected Records');
   setText('kpi-checks-label-title', 'Validation Checks');
   const scanTrendLabel = 'Historical trends available after additional scans';
 
@@ -1235,8 +1291,10 @@ function renderOverviewKpis(data) {
   });
   setText('kpi-savings', hasScan ? formatKpiCurrency(potentialSaving) : 'Not calculated yet');
   renderKpiTrend('kpi-savings-helper', hasScan && potentialSaving > 0 ? savingsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Run a validation check to unlock this KPI' });
-  setText('kpi-records', hasScan ? formatNumber(totalRecords) : 'Not calculated yet');
-  renderKpiTrend('kpi-records-helper', hasScan && totalRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Available after scan sync' });
+  setText('kpi-records', hasScan ? formatNumber(affectedRecords) : 'Not calculated yet');
+  renderKpiTrend('kpi-records-helper', hasScan && affectedRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Available after scan sync' });
+  setText('analytics-total-records', hasScan ? formatNumber(totalRecords) : 'Not calculated yet');
+  renderKpiTrend('analytics-records-helper', hasScan && totalRecords > 0 ? recordsTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Available after scan sync' });
   setText('kpi-checks', hasScan ? formatNumber(checksRun) : 'Not calculated yet');
   renderKpiTrend('kpi-checks-helper', hasScan && checksRun > 0 ? checksTrend : null, { emptyLabel: hasScan ? scanTrendLabel : 'Run a validation check to unlock this KPI' });
 }
