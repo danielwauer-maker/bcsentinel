@@ -6105,7 +6105,8 @@ body.dashboard-dark .unlock-right {
   }
 
   .overview-issue-grid,
-  .monitoring-only-grid {
+  .monitoring-only-grid,
+  .overview-distribution-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -6134,5 +6135,336 @@ body.dashboard-dark .unlock-right {
     grid-column: 2 / -1;
     justify-items: start;
     text-align: left;
+  }
+}
+
+/* BUILD 10Z - Premium executive dashboard polish */
+.executive-summary-context {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 14px;
+}
+
+.executive-summary-note {
+  margin: 0;
+  color: #5f7190;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.executive-summary-cta {
+  justify-self: end;
+  min-height: 40px;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+.executive-summary-metrics {
+  display: none !important;
+}
+
+.hero-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.hero-points li {
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #e4ebf5;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .72);
+  color: #32435f;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.overview-kpi-grid .kpi-score-card {
+  grid-row: span 2;
+  border-color: rgba(47, 107, 255, .22);
+  background:
+    linear-gradient(145deg, rgba(47, 107, 255, .08), rgba(255, 255, 255, .96) 48%),
+    #fff;
+  box-shadow: 0 22px 46px rgba(7, 27, 77, .12);
+}
+
+.overview-kpi-grid .compact-stat {
+  opacity: .82;
+}
+
+.overview-kpi-grid .compact-stat .kpi-info-icon,
+.overview-kpi-grid .accent-red .kpi-info-icon,
+.overview-kpi-grid .accent-green .kpi-info-icon {
+  display: none;
+}
+
+.kpi-card-divider {
+  margin: 12px 0 10px;
+}
+
+.health-score-detail {
+  gap: 6px;
+}
+
+.score-breakdown-panel .panel-header,
+.business-impact-panel .panel-header,
+.overview-module-score-panel .panel-header {
+  margin-bottom: 12px;
+}
+
+.score-breakdown-grid {
+  gap: 10px;
+}
+
+.score-breakdown-card {
+  min-height: 132px;
+  padding: 13px;
+  border-radius: 12px;
+  box-shadow: 0 10px 22px rgba(7, 27, 77, .06);
+}
+
+.score-breakdown-card p {
+  display: none;
+}
+
+.score-breakdown-bar {
+  height: 9px;
+  border-radius: 999px;
+  background: #edf2f8;
+  overflow: hidden;
+}
+
+.score-breakdown-bar span {
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--score-breakdown-color), color-mix(in srgb, var(--score-breakdown-color), #ffffff 30%));
+}
+
+.business-impact-summary {
+  margin-bottom: 12px;
+}
+
+.business-impact-card-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.business-impact-card {
+  min-height: 132px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #fbfcff 100%);
+}
+
+.overview-module-score-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.top-risk-module-card.is-primary-risk {
+  grid-column: span 2;
+  min-height: 176px;
+  padding: 15px;
+  border-color: rgba(239, 23, 23, .2);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 247, .94) 0%, #fff 100%);
+  box-shadow: 0 18px 34px rgba(7, 27, 77, .1);
+}
+
+.top-risk-module-card.is-secondary-risk {
+  min-height: 126px;
+  opacity: .86;
+}
+
+.top-risk-module-card.is-secondary-risk .top-risk-module-context,
+.top-risk-module-card.is-secondary-risk .top-risk-module-source {
+  display: none;
+}
+
+.top-risk-module-card.is-primary-risk .module-score-gauge {
+  width: 90px;
+  height: 54px;
+}
+
+.overview-distribution-grid {
+  grid-template-columns: minmax(280px, .72fr) minmax(0, 1.28fr);
+  align-items: stretch;
+}
+
+.overview-legacy-panel {
+  min-height: 0;
+}
+
+.active-issues-list {
+  gap: 8px;
+}
+
+.active-issue-row {
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 38px;
+}
+
+.active-issue-count {
+  width: 40px;
+  min-height: 34px;
+  font-size: 20px;
+}
+
+.active-issues-link {
+  margin-top: 14px;
+}
+
+.module-distribution {
+  gap: 18px;
+}
+
+.module-donut-wrap {
+  grid-template-columns: minmax(170px, .8fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.module-donut {
+  width: min(190px, 100%);
+}
+
+.module-legend {
+  align-content: center;
+}
+
+.module-record-row {
+  gap: 12px;
+}
+
+.trend-chart {
+  min-height: 230px;
+  overflow: visible;
+}
+
+.trend-svg {
+  overflow: visible;
+}
+
+.trend-axis-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.overview-deep-insight-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.overview-deep-card {
+  display: grid;
+  gap: 5px;
+  min-height: 88px;
+  padding: 15px;
+  border: 1px solid #dfe8f5;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .98) 0%, rgba(247, 250, 255, .96) 100%);
+  color: #07173a;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(7, 27, 77, .07);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.overview-deep-card span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.overview-deep-card strong {
+  color: #071b4d;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.overview-deep-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(47, 107, 255, .34);
+  box-shadow: 0 18px 34px rgba(7, 27, 77, .11);
+}
+
+.overview-feature-comparison-panel,
+.overview-scan-history-grid,
+#access-findings-panel,
+#overview-products-panel {
+  display: none !important;
+}
+
+html.dashboard-dark .hero-points li,
+body.dashboard-dark .hero-points li,
+html.dashboard-dark .overview-deep-card,
+body.dashboard-dark .overview-deep-card {
+  border-color: #263a59;
+  background: #14233a;
+  color: #dbe6f5;
+}
+
+html.dashboard-dark .overview-deep-card strong,
+body.dashboard-dark .overview-deep-card strong {
+  color: #f5f8ff;
+}
+
+html.dashboard-dark .overview-deep-card span,
+body.dashboard-dark .overview-deep-card span {
+  color: #9fb0c8;
+}
+
+html.dashboard-dark .score-breakdown-bar,
+body.dashboard-dark .score-breakdown-bar {
+  background: #223652;
+}
+
+@media (max-width: 1280px) {
+  .business-impact-card-grid,
+  .overview-deep-insight-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-module-score-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .overview-distribution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .top-risk-module-card.is-primary-risk {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 820px) {
+  .executive-summary-context {
+    grid-template-columns: 1fr;
+  }
+
+  .executive-summary-cta {
+    justify-self: stretch;
+  }
+
+  .hero-points,
+  .business-impact-card-grid,
+  .overview-deep-insight-cards,
+  .overview-distribution-grid,
+  .overview-module-score-grid,
+  .module-donut-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-kpi-grid .kpi-score-card {
+    grid-row: auto;
   }
 }

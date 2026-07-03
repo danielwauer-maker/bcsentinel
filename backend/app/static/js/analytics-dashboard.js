@@ -203,7 +203,7 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_current_access', 'Current Access', 'Aktueller Zugriff'],
   ['static_monitoring_status', 'Monitoring Status', 'Monitoring-Status'],
   ['static_explore_deeper_insights', 'Explore deeper insights', 'Weitere Insights erkunden'],
-  ['static_deeper_insights_helper', 'Detail areas remain available after the executive decision flow.', 'Detailbereiche bleiben nach dem Executive-Entscheidungsfluss verfuegbar.'],
+  ['static_deeper_insights_helper', 'Open the detail areas when the executive decision flow needs evidence.', 'Detailbereiche oeffnen, wenn der Executive-Entscheidungsfluss Evidenz benoetigt.'],
   ['static_monitoring_executive_helper', 'Executive view of monitoring availability and latest change', 'Executive-Sicht auf Monitoring-Verfuegbarkeit und letzte Veraenderung'],
   ['static_recent_monitoring_activity', 'Recent Monitoring Activity', 'Aktuelle Monitoring-Aktivitaet'],
   ['static_recent_monitoring_activity_helper', 'Latest scan context from the existing dashboard payload', 'Letzter Scan-Kontext aus dem vorhandenen Dashboard-Payload'],
@@ -698,6 +698,7 @@ function normalizeTopRiskModule(item) {
   const variant = item?.variant || (score === null ? 'moderate' : scoreBand(score));
   const share = firstFiniteNumber([item?.risk_share, item?.share, item?.risk_percent, item?.percent]);
   const impact = firstFiniteNumber([item?.impact_eur, item?.estimated_loss_eur, item?.estimated_impact_eur]);
+  const severity = normalizeIssueSeverity(item?.severity || item?.priority || item?.severity_label);
   return {
     key,
     name: canonicalDashboardModuleName(key, rawName),
@@ -705,7 +706,16 @@ function normalizeTopRiskModule(item) {
     variant,
     share,
     impact,
+    severity,
   };
+}
+
+function topRiskModulePriority(item) {
+  const severityRank = { critical: 0, high: 12, medium: 28, low: 42, unknown: 50 };
+  const scoreRisk = item.score === null ? 50 : Math.max(0, 100 - item.score);
+  const impactRisk = item.impact === null ? 0 : Math.min(30, Math.log10(Math.max(item.impact, 1)) * 4);
+  const shareRisk = item.share === null ? 0 : Math.min(30, safeNumber(item.share) / 3);
+  return (severityRank[item.severity] ?? severityRank.unknown) - scoreRisk - impactRisk - shareRisk;
 }
 
 function topRiskModuleMetric(item) {
@@ -732,7 +742,10 @@ function renderOverviewModuleScores(data) {
   if (!host) return;
 
   const source = topRiskModuleSource(data);
-  const rows = source.items.map(normalizeTopRiskModule).filter(Boolean);
+  const rows = source.items
+    .map(normalizeTopRiskModule)
+    .filter(Boolean)
+    .sort((a, b) => topRiskModulePriority(a) - topRiskModulePriority(b) || (a.score ?? 100) - (b.score ?? 100));
 
   if (rows.length === 0) {
     host.innerHTML = `<div class="empty-state executive-empty top-risk-modules-empty">${escapeHtml(t('top_risk_modules_empty'))}</div>`;
@@ -747,7 +760,7 @@ function renderOverviewModuleScores(data) {
     const metric = topRiskModuleMetric(item);
     const scoreValue = item.score === null ? 0 : item.score;
     return `
-      <article class="module-score-card top-risk-module-card">
+      <article class="module-score-card top-risk-module-card ${index < 3 ? 'is-primary-risk' : 'is-secondary-risk'}">
         <div class="top-risk-module-rank"><span>${escapeHtml(t('top_risk_modules_rank'))}</span><strong>${formatNumber(index + 1)}</strong></div>
         <div class="module-score-title">${escapeHtml(item.name)}</div>
         <div class="module-score-gauge ${escapeHtml(item.variant)}" style="--score:${scoreValue}">
@@ -820,19 +833,22 @@ function renderTrend(containerId, items, asCurrency = false, emptyMessage = t('n
     is_selected: Boolean(item?.is_selected),
   }));
 
-  const width = 560;
+  const width = asCurrency ? 640 : 560;
   const height = 220;
-  const paddingX = 34;
+  const paddingX = asCurrency ? 92 : 34;
   const paddingTop = 24;
   const paddingBottom = 39;
   const usableWidth = width - paddingX * 2;
   const usableHeight = height - paddingTop - paddingBottom;
-  const maxValue = Math.max(...safeItems.map((item) => item.value), 1);
+  const values = safeItems.map((item) => item.value);
+  const minValue = Math.min(...values, 0);
+  const maxValue = Math.max(...values, 1);
+  const valueRange = Math.max(maxValue - minValue, 1);
   const stepX = safeItems.length > 1 ? usableWidth / (safeItems.length - 1) : 0;
 
   const points = safeItems.map((item, index) => {
     const x = paddingX + stepX * index;
-    const ratio = item.value / maxValue;
+    const ratio = (item.value - minValue) / valueRange;
     const y = paddingTop + (usableHeight - usableHeight * ratio);
     return { ...item, x, y };
   });
@@ -842,7 +858,7 @@ function renderTrend(containerId, items, asCurrency = false, emptyMessage = t('n
 
   const gridLines = [0, 0.5, 1].map((ratio) => {
     const y = paddingTop + usableHeight - usableHeight * ratio;
-    const labelValue = maxValue * ratio;
+    const labelValue = minValue + valueRange * ratio;
     const label = asCurrency ? formatCurrency(labelValue).replace(',00', '') : formatNumber(Math.round(labelValue));
     return `
       <line x1="${paddingX}" y1="${y}" x2="${width - paddingX}" y2="${y}" class="trend-grid-line"></line>
@@ -947,9 +963,6 @@ function renderExecutiveHero(data) {
   const band = scoreBand(healthScore);
   const variant = executiveSummaryVariant(data);
   const isDemo = Boolean(data?.is_demo || data?.data_source === 'demo_preview');
-  const issueSummary = data?.free_insights?.active_issues_summary || data?.critical_issues_summary || {};
-  const criticalCount = safeNumber(issueSummary.critical);
-  const highCount = safeNumber(issueSummary.high);
   const totalIssues = safeNumber(kpis.issues_count);
   const affectedRecords = safeNumber(kpis.affected_records);
   const checksRun = safeNumber(kpis.checks_run);
@@ -961,7 +974,7 @@ function renderExecutiveHero(data) {
     free: {
       eyebrow: isDemo ? 'Demo Preview - Executive Summary' : 'Executive Summary - Free Dashboard',
       summary: hasScan
-        ? `Health Score ${formatNumber(healthScore)} (${scoreLabel(healthScore)}). Full Analysis is required to unlock record-level evidence and prioritized remediation.`
+        ? `Executive signal ready. ${executiveTopRiskLabel(data)} Full Analysis unlocks record-level evidence.`
         : 'Run the first scan to generate an executive overview of data quality, business risk and next action.',
       ctaLabel: 'Unlock Full Analysis',
       ctaTab: 'subscription',
@@ -969,14 +982,14 @@ function renderExecutiveHero(data) {
     },
     full: {
       eyebrow: 'Executive Summary - Full Analysis',
-      summary: `Business risk is visible: ${formatKpiCurrency(estimatedLoss)} estimated annual loss and ${formatKpiCurrency(potentialSaving)} potential savings are currently in scope.`,
+      summary: `Business risk is visible. ${executiveTopRiskLabel(data)} Priority evidence is ready for review.`,
       ctaLabel: 'Review Critical Risks',
       ctaTab: 'issues',
       note: 'Full Analysis access is active. Monitoring is not active yet.',
     },
     monitoring: {
       eyebrow: 'Executive Summary - Monitoring',
-      summary: monitoringPreview?.alert || `Monitoring context is active. ${executiveTrendCopy(data)}`,
+      summary: monitoringPreview?.alert || `Stable monitoring context. ${executiveTrendCopy(data)}`,
       ctaLabel: 'Review Critical Changes',
       ctaTab: 'issues',
       note: monitoringPreview?.frequency || 'Monitoring status is summarized here; detailed widgets remain outside this build.',
@@ -1005,7 +1018,7 @@ function renderExecutiveHero(data) {
   const points = hasScan
     ? [
         `${formatNumber(totalIssues)} issues across ${formatNumber(affectedRecords)} affected records.`,
-        `${formatNumber(checksRun)} checks evaluated in the selected scan.`,
+        `${formatNumber(checksRun)} checks evaluated for the current executive view.`,
         executiveTopRiskLabel(data),
       ]
     : ['No scan data is available yet.', 'The dashboard will use real scan data as soon as it exists.'];
@@ -1020,24 +1033,6 @@ function renderExecutiveHero(data) {
       <span class="executive-summary-badge ${escapeHtml(band)}">${escapeHtml(scoreLabel(healthScore))}</span>
       ${isDemo ? '<span class="executive-summary-badge is-demo">Demo Preview</span>' : ''}
       <span class="executive-summary-updated">${escapeHtml(formatDateTime(data?.last_updated))}</span>
-    </div>
-    <div class="executive-summary-metrics" aria-label="Executive summary metrics">
-      <div class="executive-summary-metric">
-        <span>Health Score</span>
-        <strong class="${escapeHtml(band)}">${hasScan ? escapeHtml(formatNumber(healthScore)) : '-'}</strong>
-      </div>
-      <div class="executive-summary-metric">
-        <span>Estimated Loss</span>
-        <strong>${hasScan ? escapeHtml(formatKpiCurrency(estimatedLoss)) : '-'}</strong>
-      </div>
-      <div class="executive-summary-metric">
-        <span>Potential Savings</span>
-        <strong>${hasScan ? escapeHtml(formatKpiCurrency(potentialSaving)) : '-'}</strong>
-      </div>
-      <div class="executive-summary-metric">
-        <span>Critical / High</span>
-        <strong>${escapeHtml(formatNumber(criticalCount + highCount))}</strong>
-      </div>
     </div>
     <p class="executive-summary-note">${escapeHtml(config.note)}</p>
     <button type="button" class="primary-button executive-summary-cta" data-executive-target="${escapeHtml(config.ctaTab)}">
@@ -1171,10 +1166,10 @@ function scoreBreakdownSummaryCopy(data, items, visibleItems) {
   if (!items.length) return 'No score influence areas are available for this scan yet.';
   const variant = executiveSummaryVariant(data);
   const lowest = visibleItems[0];
-  const suffix = lowest ? ` ${lowest.label} currently needs the most attention.` : '';
-  if (variant === 'monitoring') return `Monitoring uses the same visible score influences without adding widgets or history in this view.${suffix}`;
-  if (variant === 'full') return `Full Analysis shows the available influence areas behind the current Data Health Score.${suffix}`;
-  return `Free view shows a limited preview of the strongest visible score influences.${suffix} Full Analysis shows all available influence areas.`;
+  const suffix = lowest ? ` ${lowest.label} needs the most attention.` : '';
+  if (variant === 'monitoring') return `Main drivers behind the current score.${suffix}`;
+  if (variant === 'full') return `Current score drivers, sorted by executive relevance.${suffix}`;
+  return `Limited preview of the strongest visible score drivers.${suffix}`;
 }
 
 function renderScoreBreakdown(data) {
@@ -1190,9 +1185,8 @@ function renderScoreBreakdown(data) {
 
   summary.innerHTML = `
     <div class="score-breakdown-copy">
-      <span class="score-breakdown-eyebrow">${escapeHtml(isDemo ? 'Demo Preview - Score influences' : 'Score influences')}</span>
+      <span class="score-breakdown-eyebrow">${escapeHtml(isDemo ? 'Demo Preview - Score drivers' : 'Score drivers')}</span>
       <p>${escapeHtml(scoreBreakdownSummaryCopy(data, items, visibleItems))}</p>
-      <span class="score-breakdown-note">No formulas, internal weights or rule-engine details are shown.</span>
     </div>
   `;
 

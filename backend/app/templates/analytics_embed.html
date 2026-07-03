@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
-  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260702-1">
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260703-3">
 </head>
 <body class="dashboard-body" data-dashboard-shell="loading">
   <div id="dashboard-root" class="dashboard-layout dashboard-root" data-dashboard-root>
@@ -160,9 +160,8 @@
         <div class="panel-header">
           <div class="panel-title-block">
             <h3>Score Breakdown</h3>
-            <span class="muted">These areas currently influence your Data Health Score.</span>
+            <span class="muted">Main drivers behind the current score.</span>
           </div>
-          <span class="panel-info-icon" title="Visible score influence areas without internal scoring logic">i</span>
         </div>
         <div id="score-breakdown-summary" class="score-breakdown-summary"></div>
         <div id="score-breakdown-grid" class="score-breakdown-grid"></div>
@@ -172,9 +171,8 @@
         <div class="panel-header">
           <div class="panel-title-block">
             <h3 id="business-impact-title">Business Impact</h3>
-            <span id="business-impact-subtitle" class="muted">Executive view of current business effects.</span>
+            <span id="business-impact-subtitle" class="muted">Executive business statements from the current scan.</span>
           </div>
-          <span id="business-impact-badge" class="panel-info-icon" title="Estimated business impact based on current scan context">i</span>
         </div>
         <div id="business-impact-summary" class="business-impact-summary"></div>
         <div id="overview-business-impact" class="business-impact-card-grid"></div>
@@ -186,7 +184,6 @@
             <h3 id="top-risk-modules-title">Top Risk Modules</h3>
             <span id="top-risk-modules-subtitle" class="muted">Executive ranking of the modules with the highest current risk.</span>
           </div>
-          <span id="top-risk-modules-badge" class="panel-info-icon" title="Top risk modules from the existing dashboard payload">i</span>
         </div>
         <div id="overview-module-score-grid" class="overview-module-score-grid"></div>
       </section>
@@ -240,9 +237,32 @@
         <div class="overview-deep-insights-header">
           <div>
             <h3>Explore deeper insights</h3>
-            <p>Detail areas remain available after the executive decision flow.</p>
+            <p>Open the detail areas when the executive decision flow needs evidence.</p>
           </div>
         </div>
+
+        <nav class="overview-deep-insight-cards" aria-label="Dashboard detail navigation">
+          <button type="button" class="overview-deep-card" data-jump-tab="issues">
+            <span>Issues</span>
+            <strong>Review findings</strong>
+          </button>
+          <button type="button" class="overview-deep-card" data-jump-tab="analytics">
+            <span>Analytics</span>
+            <strong>Inspect trends</strong>
+          </button>
+          <button type="button" class="overview-deep-card" data-jump-tab="scans">
+            <span>Scans</span>
+            <strong>Compare history</strong>
+          </button>
+          <button type="button" class="overview-deep-card" data-jump-tab="reports">
+            <span>Reports</span>
+            <strong>Open reports</strong>
+          </button>
+          <button type="button" class="overview-deep-card" data-jump-tab="subscription">
+            <span>Subscription</span>
+            <strong>Manage access</strong>
+          </button>
+        </nav>
 
       <section class="overview-grid overview-distribution-grid">
         <article class="panel overview-legacy-panel">
@@ -289,53 +309,6 @@
         </article>
       </section>
 
-      <section id="overview-products-panel" class="panel overview-products-panel">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            <h3>Unlock the next step</h3>
-            <span class="muted">Choose the access level that matches what you want to do next.</span>
-          </div>
-        </div>
-        <div id="overview-product-grid" class="subscription-product-grid overview-product-grid"></div>
-      </section>
-
-      <section id="overview-feature-comparison-panel" class="panel overview-feature-comparison-panel">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            <h3>Feature Comparison</h3>
-            <span class="muted">Free Score, paid scan access and Monitoring at a glance.</span>
-          </div>
-        </div>
-        <div class="table-wrap feature-comparison-wrap">
-          <table class="feature-comparison-table">
-            <thead><tr><th>Feature</th><th>Free</th><th>Full Analysis</th><th>Validation Check</th><th>Monitoring</th></tr></thead>
-            <tbody id="overview-feature-comparison-body"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="overview-grid overview-scan-history-grid">
-        <article class="panel" id="scan-table-panel">
-          <div class="panel-header">
-            <div class="panel-title-block">
-              <h3>Recent Scans</h3>
-            </div>
-            <span class="muted">Click a scan to load it</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Date</th><th>Type</th><th>Score</th><th>Issues</th><th>Headline</th></tr>
-              </thead>
-              <tbody id="recent-scans-body"></tbody>
-            </table>
-          </div>
-          <div class="table-pagination" id="recent-scans-pagination">
-            <button type="button" class="pager-button" id="recent-scans-prev">Previous</button>
-            <span class="muted" id="recent-scans-page-info">Page 1 / 1</span>
-            <button type="button" class="pager-button" id="recent-scans-next">Next</button>
-          </div>
-        </article>
-      </section>
       </section>
 
       <section id="access-unlock-panel" class="panel unlock-panel hidden">
@@ -386,23 +359,6 @@
         </div>
       </section>
 
-      <section id="access-findings-panel" class="panel findings-panel hidden" data-dashboard-slot="issue-list">
-        <div class="panel-header">
-          <div class="panel-title-block">
-            
-            <h3>Findings</h3>
-          </div>
-          <span class="muted">Visible with paid scan access, actionable in Business Central</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Issue</th><th>Area</th><th>Severity</th><th>Count</th><th>Impact</th><th>Access</th></tr>
-            </thead>
-            <tbody id="findings-body"></tbody>
-          </table>
-        </div>
-      </section>
     </section>
 
     <section id="analytics-tab" class="tab-panel hidden" data-shell-section="analytics">
@@ -445,7 +401,7 @@
 
       <section id="issues-severity-cards" class="issues-severity-grid"></section>
 
-      <article class="panel issues-list-panel">
+      <article class="panel issues-list-panel" data-dashboard-slot="issue-list">
         <div class="panel-header">
           <div class="panel-title-block">
             <h3>Issues</h3>
@@ -630,7 +586,7 @@
       </footer>
     </main>
   </div>
-  <script src="/static/js/analytics-dashboard.js?v=20260702-1"></script>
+  <script src="/static/js/analytics-dashboard.js?v=20260703-3"></script>
 </body>
 </html>
 
