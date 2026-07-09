@@ -5,8 +5,10 @@ import math
 import textwrap
 from datetime import datetime, timezone
 from io import BytesIO
+from pathlib import Path
 
 from fastapi import HTTPException
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -47,6 +49,9 @@ FREE_REPORT_MODULE_FALLBACKS = {
 }
 FREE_REPORT_MODULE_ORDER = ["Inventory", "Finance", "Purchasing", "Sales", "Manufacturing", "CRM", "System"]
 FREE_REPORT_CHECKS_TOTAL = 165
+TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
+FREE_REPORT_TEMPLATE = "executive_report.html"
+FREE_REPORT_CSS = Path(__file__).resolve().parent.parent / "static" / "reports" / "executive-free-report.css"
 
 MASTER_DATA_MODULES = {"CRM", "Purchasing", "Inventory", "Sales"}
 FINANCIAL_CATEGORIES = {"Finance", "Sales", "Purchasing", "Inventory"}
@@ -413,10 +418,54 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
     )
 
 
+def render_executive_report_html(report: ExecutiveReport, *, inline_css: bool = False) -> str:
+    env = Environment(
+        loader=FileSystemLoader(str(TEMPLATE_DIR)),
+        autoescape=select_autoescape(("html", "xml")),
+    )
+    rendered = env.get_template(FREE_REPORT_TEMPLATE).render(report=report)
+    if not inline_css:
+        return rendered
+
+    css = FREE_REPORT_CSS.read_text(encoding="utf-8")
+    stylesheet_link = '<link rel="stylesheet" href="/static/reports/executive-free-report.css">'
+    return rendered.replace(stylesheet_link, f"<style>\n{css}\n</style>")
+
+
 def render_executive_report_pdf(report: ExecutiveReport) -> bytes:
+    try:
+        return _render_executive_report_html_pdf(report)
+    except Exception:
+        return _render_executive_report_pdf_fallback(report)
+
+
+def _render_executive_report_html_pdf(report: ExecutiveReport) -> bytes:
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:
+        raise RuntimeError("Playwright is not installed.") from exc
+
+    document = render_executive_report_html(report, inline_css=True)
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 794, "height": 1123}, device_scale_factor=1)
+            page.set_content(document, wait_until="load")
+            return page.pdf(
+                format="A4",
+                print_background=True,
+                prefer_css_page_size=True,
+                margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
+            )
+        finally:
+            browser.close()
+
+
+def _render_executive_report_pdf_fallback(report: ExecutiveReport) -> bytes:
     language = getattr(report, "language", "en")
     lines = [
         "BCSentinel Executive Report (Free)",
+        "HTML-to-PDF renderer unavailable; using emergency Free Report text fallback.",
         f"Scan: {report.scan_id}",
         f"Environment: {report.environment_label}",
         f"Generated: {report.generated_at_utc.strftime('%Y-%m-%d %H:%M UTC')}",
@@ -439,7 +488,22 @@ def render_executive_report_pdf(report: ExecutiveReport) -> bytes:
         ),
     ]
     lines.extend(["", "Recommended Next Steps" if language == "en" else "Empfohlene naechste Schritte"])
-    lines.extend(f"- {step}" for step in report.next_steps)
+    if language == "en":
+        lines.extend(
+            [
+                "- Plan an upgrade to Full Analysis or Monitoring for detailed insights.",
+                "- Review trends and alerts continuously with Monitoring.",
+                "- Use the aggregated score, module overview, and severity distribution to align next steps.",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "- Upgrade zu Full Analysis oder Monitoring fuer vollstaendige Einblicke planen.",
+                "- Trends und Alerts mit Monitoring kontinuierlich verfolgen.",
+                "- Aggregierten Score, Moduluebersicht und Severity-Verteilung fuer die naechsten Schritte nutzen.",
+            ]
+        )
     return _simple_pdf(lines)
 
 

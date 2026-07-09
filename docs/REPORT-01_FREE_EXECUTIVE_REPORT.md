@@ -2,7 +2,7 @@
 
 ## Scope
 
-Der Executive Free Report wurde als eigenstaendiges 3-seitiges DIN-A4-Hochformat-Layout umgesetzt. Die Aenderung betrifft nur den bestehenden Executive-Report-HTML-Endpunkt und die dafuer benoetigte Free-Report-Datenaufbereitung.
+Der Executive Free Report wurde als eigenstaendiges 2-seitiges DIN-A4-Hochformat-Layout umgesetzt. Die Aenderung betrifft nur den bestehenden Executive-Report-HTML/PDF-Endpunkt und die dafuer benoetigte Free-Report-Datenaufbereitung.
 
 Nicht Bestandteil dieser Aenderung:
 
@@ -13,11 +13,10 @@ Nicht Bestandteil dieser Aenderung:
 
 ## Layout
 
-Das Template `backend/app/templates/executive_report.html` rendert exakt drei `.report-page`-Abschnitte:
+Das Template `backend/app/templates/executive_report.html` rendert exakt zwei `.report-page`-Abschnitte:
 
-1. Executive Overview mit Brand, Titel, Score, Management-Zusammenfassung, vier KPI-Kacheln und genau einem Upgrade-CTA.
-2. Data Quality Overview mit Modul-Balkendiagramm, Severity-Donut und Free-Report-Hinweisbox.
-3. Next Steps mit Upgrade-Pfad, Monitoring-Nutzen, CTA und Report Information.
+1. Data Health Ueberblick mit Brand, kompakter Free-Report-Hinweisbox, Score, Management-Zusammenfassung, vier KPI-Kacheln, Modul-Balkendiagramm und Severity-Donut.
+2. Next Steps & Report Information mit Upgrade-Pfad, Monitoring-Nutzen, CTA-Karte und Report Information.
 
 Die Druck- und PDF-Basis liegt in `backend/app/static/reports/executive-free-report.css`:
 
@@ -55,6 +54,19 @@ Die bestehenden Aktionen im Scan-Monitor `DH Deep Scan Monitor` verwenden weiter
 
 Der Share-Link-Endpunkt und die HTML/PDF-Renderpfade liefern jetzt den Free Executive Report und benoetigen fuer den eigenen Scan keinen aktiven Full-Analysis-, Validation- oder Monitoring-Zugriff. Die JSON-Detailroute `/reports/executive/{scan_id}` bleibt weiterhin hinter der bisherigen Report-Berechtigung, damit Detaildaten nicht ueber den Free-Report freigegeben werden.
 
-## PDF-Hinweis
+## PDF-Verhalten
 
-Das HTML/CSS ist fuer Chromium- bzw. Playwright-Rendering vorbereitet. Der bestehende `/pdf`-Endpunkt erzeugt weiterhin einen einfachen Text-PDF-Export, damit die bestehende API-Kompatibilitaet erhalten bleibt. Dieser Fallback enthaelt ebenfalls nur die Free-Report-Management-Zusammenfassung und keine Detail-Findings. Ein spaeterer Wechsel auf Playwright kann das neue HTML direkt als Renderquelle verwenden.
+Der `/pdf`-Endpunkt nutzt denselben Report-Inhalt wie der HTML-Endpunkt. `render_executive_report_pdf()` rendert `executive_report.html` mit inline eingebettetem `executive-free-report.css` und erzeugt daraus per Playwright/Chromium ein A4-PDF:
+
+- Format: A4
+- CSS-Seitengroesse bevorzugt
+- `print_background=True`
+- Rand: `0`
+
+`playwright` ist in `backend/requirements.txt` eingetragen. Fuer Runtime-Images muss zusaetzlich Chromium installiert sein, typischerweise mit `playwright install chromium`.
+
+Wenn Playwright oder Chromium zur Laufzeit nicht verfuegbar ist, greift ein Notfall-Fallback. Dieser Fallback ist bewusst auf Free-Scope begrenzt, enthaelt keine Top-10-Findings, keine Quick Wins, keine Finding-Tabellen und keine konkreten Detail-Empfehlungen. Er ist nur eine technische Ausfallsicherung, nicht der Zielpfad.
+
+## Spaetere Erweiterung
+
+Full Analysis und Monitoring koennen spaeter eigene Templates oder zusaetzliche Detailseiten erhalten. Der Free Report zeigt absichtlich nur aggregierte Management-Kennzahlen, Modul-Scores, Severity-Verteilung, Next Steps, Upgrade-Hinweise und Report Information.

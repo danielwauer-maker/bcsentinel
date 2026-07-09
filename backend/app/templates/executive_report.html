@@ -31,7 +31,7 @@
   {% set low_pct = (low_count / severity_total * 100) if severity_total else 0 %}
 
   {% macro shield_logo() -%}
-  <span class="brand-mark" aria-hidden="true">
+  <span class="brand-logo" aria-hidden="true">
     <svg viewBox="0 0 48 56" role="img">
       <path d="M24 2 43 9v14c0 14-7.7 24-19 31C12.7 47 5 37 5 23V9l19-7Z" fill="url(#shieldGradient)"/>
       <path d="M24 12v32" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".78"/>
@@ -39,7 +39,7 @@
       <defs>
         <linearGradient id="shieldGradient" x1="7" y1="8" x2="42" y2="49" gradientUnits="userSpaceOnUse">
           <stop stop-color="#1f78b4"/>
-          <stop offset="1" stop-color="#008767"/>
+          <stop offset="1" stop-color="#08785f"/>
         </linearGradient>
       </defs>
     </svg>
@@ -56,8 +56,6 @@
     <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>
     {% elif kind == 'checks' %}
     <svg viewBox="0 0 24 24"><path d="M8 4h8l2 3v13H6V7l2-3Z"/><path d="m9 13 2 2 4-5"/><path d="M9 7h6"/></svg>
-    {% elif kind == 'info' %}
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7h.01"/></svg>
     {% elif kind == 'lock' %}
     <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
     {% elif kind == 'trend' %}
@@ -66,156 +64,156 @@
     <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
     {% elif kind == 'target' %}
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m15 9 5-5"/><path d="M18 4h2v2"/></svg>
+    {% elif kind == 'clock' %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    {% elif kind == 'link' %}
+    <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>
+    {% elif kind == 'shield' %}
+    <svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-2.8 8.5-7 10-4.2-1.5-7-5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-5"/></svg>
+    {% elif kind == 'globe' %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+    {% elif kind == 'user' %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
     {% else %}
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7h.01"/></svg>
     {% endif %}
   </span>
   {%- endmacro %}
 
   <section class="report-page page-one">
     <header class="report-header">
-      <div class="brand">
-        {{ shield_logo() }}
-        <div>
-          <strong>BCSentinel</strong>
-          <span>Data Health Management</span>
+      <div class="hero-copy">
+        <div class="brand-row">
+          {{ shield_logo() }}
+          <div>
+            <div class="brand-title">BCSentinel</div>
+            <div class="brand-subtitle">Data Health Management</div>
+          </div>
         </div>
+        <p class="report-kicker">BCSentinel Executive Report (Free)</p>
+        <h1 class="report-title">Data Health &Uuml;berblick</h1>
+        <p class="report-intro">Dieser Report bietet einen &Uuml;berblick &uuml;ber die Datenqualit&auml;t in Ihrer Business Central Umgebung und zeigt die wichtigsten Kennzahlen sowie erste Hinweise zum Handlungsbedarf.</p>
       </div>
+
+      <aside class="free-report-box">
+        <div class="free-report-box-inner">
+          <span class="free-report-icon">i</span>
+          <div>
+            <p class="free-report-text">Dieser Free-Report zeigt ausschlie&szlig;lich eine Management-Zusammenfassung. Detailanalysen, betroffene Datens&auml;tze und konkrete Handlungsempfehlungen sind Bestandteil der Full Analysis bzw. des Monitoring-Plans.</p>
+            <a class="free-report-button" href="#">{{ icon('lock') }} Upgrade zu Full Analysis oder Monitoring</a>
+          </div>
+        </div>
+      </aside>
     </header>
 
-    <main class="page-content">
-      <p class="eyebrow">BCSentinel Executive Report (Free)</p>
-      <h1>Data Health &Uuml;berblick</h1>
-      <p class="lead">Dieser Report bietet einen &Uuml;berblick &uuml;ber die Datenqualit&auml;t in Ihrer Business Central Umgebung und zeigt die wichtigsten Kennzahlen sowie erste Hinweise zum Handlungsbedarf.</p>
-
-      <div class="overview-grid">
+    <main class="report-page-content">
+      <div class="hero-grid">
         <article class="card score-card">
           <div>
-            <h2>Gesamter Data Health Score</h2>
-            <div class="score-number">{{ score }} <span>/100</span></div>
-            <strong class="status-critical">{{ status }}</strong>
+            <h2 class="card-title">Gesamter Data Health Score</h2>
+            <div><span class="score-value">{{ score }}</span><span class="score-max">/100</span></div>
+            <div class="score-status">{{ status }}</div>
           </div>
-          <div class="score-ring" style="--score: {{ score }};">
-            <span>{{ score }}</span>
+          <div class="score-ring" style="--score: {{ score }}%;">
+            <span class="score-ring-value">{{ score }}</span>
           </div>
         </article>
 
         <article class="card summary-card">
-          <h2>Management-Zusammenfassung</h2>
-          <p>Der aktuelle BCSentinel-Scan zeigt einen Data Health Score von {{ score }}/100. Das aktuelle Datenqualit&auml;tsprofil erzeugt einen gesch&auml;tzten Jahresimpact von {{ impact }}. Management-Aufmerksamkeit wird empfohlen, da betr&auml;chtliches Verbesserungspotenzial und Risiken in operativ relevanten Business-Central-Bereichen bestehen.</p>
-          <div class="warning-line"><span>!</span> Deep scan completed with critical findings.</div>
+          <h2 class="card-title">Management-Zusammenfassung</h2>
+          <p>Der aktuelle BCSentinel-Scan zeigt einen Data Health Score von <strong>{{ score }}/100</strong>.</p>
+          <p>Das aktuelle Datenqualit&auml;tsprofil erzeugt einen gesch&auml;tzten Jahresimpact von <strong>{{ impact }}</strong>.</p>
+          <p>Management-Aufmerksamkeit wird empfohlen, da betr&auml;chtliches Verbesserungspotenzial und Risiken in operativ relevanten Business-Central-Bereichen bestehen.</p>
+          <div class="warning-line"><span class="warning-icon">!</span> Deep scan completed with critical findings.</div>
         </article>
       </div>
 
       <div class="kpi-grid">
-        <article class="kpi-card kpi-impact">{{ icon('impact') }}<div><h3>Gesch&auml;tzter Jahresimpact</h3><strong>{{ impact }}</strong><p>Finanzieller Einfluss aufgrund von Datenqualit&auml;tsproblemen</p></div></article>
-        <article class="kpi-card kpi-saving">{{ icon('saving') }}<div><h3>Potenzielle Einsparung</h3><strong>{{ saving }}</strong><p>Realisierbares Verbesserungspotenzial</p></div></article>
-        <article class="kpi-card kpi-records">{{ icon('records') }}<div><h3>Betroffene Datens&auml;tze</h3><strong>{{ affected }}</strong><p>&Uuml;ber {{ severity_total }} Findings in kritischen Bereichen</p></div></article>
-        <article class="kpi-card kpi-checks">{{ icon('checks') }}<div><h3>Pr&uuml;fungen durchgef&uuml;hrt</h3><strong>{{ report.checks_count }} / {{ checks_total }}</strong><p>Erfolgreich ausgef&uuml;hrte Datenpr&uuml;fungen</p></div></article>
+        <article class="card kpi-card kpi-impact">{{ icon('impact') }}<div><h3>Gesch&auml;tzter Jahresimpact</h3><strong>{{ impact }}</strong><p>Finanzieller Einfluss aufgrund von Datenqualit&auml;tsproblemen</p></div></article>
+        <article class="card kpi-card kpi-saving">{{ icon('saving') }}<div><h3>Potenzielle Einsparung</h3><strong>{{ saving }}</strong><p>Realisierbares Verbesserungspotenzial</p></div></article>
+        <article class="card kpi-card kpi-records">{{ icon('records') }}<div><h3>Betroffene Datens&auml;tze</h3><strong>{{ affected }}</strong><p>&Uuml;ber {{ severity_total }} Findings in kritischen Bereichen</p></div></article>
+        <article class="card kpi-card kpi-checks">{{ icon('checks') }}<div><h3>Pr&uuml;fungen durchgef&uuml;hrt</h3><strong>{{ report.checks_count }} / {{ checks_total }}</strong><p>Erfolgreich ausgef&uuml;hrte Datenpr&uuml;fungen</p></div></article>
       </div>
 
-      <aside class="notice-box">
-        {{ icon('info') }}
-        <p>Dieser Free-Report zeigt ausschlie&szlig;lich eine Management-Zusammenfassung. Detailanalysen, betroffene Datens&auml;tze und konkrete Handlungsempfehlungen sind Bestandteil der Full Analysis bzw. des Monitoring-Plans.</p>
-        <a class="cta-primary" href="#">Upgrade zu Full Analysis oder Monitoring</a>
-      </aside>
+      <div class="overview-grid">
+        <article class="card chart-card module-card">
+          <h2 class="chart-title">Data Health Score nach Bereichen</h2>
+          {% for row in report.data_quality %}
+          <div class="module-row">
+            <span>{{ row.name }}</span>
+            <div class="module-track"><i class="module-fill fill-{{ 'red' if row.score < 35 else 'orange' if row.score < 50 else 'yellow' if row.score < 70 else 'green' }}" style="width: {{ row.score }}%;"></i></div>
+            <strong>{{ row.score }}/100</strong>
+          </div>
+          {% endfor %}
+          <div class="axis-row"><span></span><div class="axis-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><span></span></div>
+        </article>
+
+        <article class="card chart-card severity-card">
+          <h2 class="chart-title">Severity-Verteilung</h2>
+          <div class="severity-layout">
+            <div class="severity-donut" style="--critical: {{ critical_pct }}%; --high: {{ critical_pct + high_pct }}%; --medium: {{ critical_pct + high_pct + medium_pct }}%;">
+              <span class="severity-center"><strong>{{ severity_total }}</strong>Findings</span>
+            </div>
+            <div class="legend">
+              <div class="legend-row"><i class="legend-dot dot-critical"></i><span>Kritisch</span><strong>{{ critical_count }} ({{ '{:.1f}'.format(critical_pct).replace('.', ',') }}%)</strong></div>
+              <div class="legend-row"><i class="legend-dot dot-high"></i><span>Hoch</span><strong>{{ high_count }} ({{ '{:.1f}'.format(high_pct).replace('.', ',') }}%)</strong></div>
+              <div class="legend-row"><i class="legend-dot dot-medium"></i><span>Mittel</span><strong>{{ medium_count }} ({{ '{:.1f}'.format(medium_pct).replace('.', ',') }}%)</strong></div>
+              <div class="legend-row"><i class="legend-dot dot-low"></i><span>Niedrig</span><strong>{{ low_count }} ({{ '{:.1f}'.format(low_pct).replace('.', ',') }}%)</strong></div>
+            </div>
+          </div>
+        </article>
+      </div>
     </main>
 
-    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 1 von 3</span></footer>
+    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 1 von 2</span></footer>
   </section>
 
   <section class="report-page page-two">
-    <main class="page-content compact">
-      <p class="eyebrow">Data Quality Overview</p>
-      <h2 class="section-title">Datenqualit&auml;t auf einen Blick</h2>
-
-      <div class="quality-grid">
-        <article class="card module-card">
-          <h3>Data Health Score nach Bereichen</h3>
-          <div class="bar-chart">
-            {% for row in report.data_quality %}
-            <div class="bar-row">
-              <span>{{ row.name }}</span>
-              <div class="bar-track"><i class="bar-fill score-{{ 'red' if row.score < 35 else 'orange' if row.score < 65 else 'green' }}" style="width: {{ row.score }}%;"></i></div>
-              <strong>{{ row.score }}/100</strong>
-            </div>
-            {% endfor %}
-          </div>
-          <div class="axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-        </article>
-
-        <article class="card severity-card">
-          <h3>Severity-Verteilung</h3>
-          <div class="severity-donut" style="--critical: {{ critical_pct }}%; --high: {{ critical_pct + high_pct }}%; --medium: {{ critical_pct + high_pct + medium_pct }}%;">
-            <span>{{ severity_total }}<small>Findings</small></span>
-          </div>
-          <div class="legend">
-            <div><i class="dot critical"></i><span>Kritisch</span><strong>{{ critical_count }} ({{ '{:.1f}'.format(critical_pct).replace('.', ',') }}%)</strong></div>
-            <div><i class="dot high"></i><span>Hoch</span><strong>{{ high_count }} ({{ '{:.1f}'.format(high_pct).replace('.', ',') }}%)</strong></div>
-            <div><i class="dot medium"></i><span>Mittel</span><strong>{{ medium_count }} ({{ '{:.1f}'.format(medium_pct).replace('.', ',') }}%)</strong></div>
-            <div><i class="dot low"></i><span>Niedrig</span><strong>{{ low_count }} ({{ '{:.1f}'.format(low_pct).replace('.', ',') }}%)</strong></div>
-          </div>
-        </article>
-      </div>
-
-      <aside class="lock-note">
-        {{ icon('lock') }}
-        <p>F&uuml;r detaillierte Risikoanalysen, betroffene Datens&auml;tze und konkrete Handlungsempfehlungen ben&ouml;tigen Sie einen Full Analysis- oder Monitoring-Plan.</p>
-      </aside>
-    </main>
-
-    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 2 von 3</span></footer>
-  </section>
-
-  <section class="report-page page-three">
-    <main class="page-content compact">
-      <p class="eyebrow">N&auml;chste Schritte</p>
-      <h2 class="section-title">So geht es weiter</h2>
-
-      <div class="next-grid">
-        <article class="card timeline-card">
-          <ol class="timeline">
-            <li><span>1</span><div><h3>Upgrade planen</h3><p>Wechseln Sie zu Full Analysis oder Monitoring f&uuml;r vollst&auml;ndige Einblicke.</p></div></li>
-            <li><span>2</span><div><h3>Detaillierte Analyse erhalten</h3><p>Alle Findings, betroffene Datens&auml;tze und finanzielle Auswirkungen einsehen.</p></div></li>
-            <li><span>3</span><div><h3>Ma&szlig;nahmen ableiten</h3><p>Konkrete Empfehlungen umsetzen und Datenqualit&auml;t gezielt verbessern.</p></div></li>
-            <li><span>4</span><div><h3>Folgescan durchf&uuml;hren</h3><p>Fortschritte messen und Ver&auml;nderungen transparent nachvollziehen.</p></div></li>
-            <li><span>5</span><div><h3>Kontinuierliche Verbesserung</h3><p>Mit Monitoring Trends erkennen, Alerts nutzen und Qualit&auml;t sichern.</p></div></li>
+    <main class="report-page-content">
+      <div class="second-page-grid">
+        <section class="steps-panel">
+          <p class="section-kicker">N&auml;chste Schritte</p>
+          <h2 class="section-title-small">So geht es weiter</h2>
+          <ol class="steps-list">
+            <li class="step-item"><span class="step-number">1</span>{{ icon('saving') }}<div><h3>Upgrade planen</h3><p>Wechseln Sie zu Full Analysis oder Monitoring f&uuml;r vollst&auml;ndige Einblicke.</p></div></li>
+            <li class="step-item"><span class="step-number">2</span>{{ icon('info') }}<div><h3>Detaillierte Analyse erhalten</h3><p>Alle Findings, betroffene Datens&auml;tze und finanzielle Auswirkungen einsehen.</p></div></li>
+            <li class="step-item"><span class="step-number">3</span>{{ icon('checks') }}<div><h3>Ma&szlig;nahmen ableiten</h3><p>Konkrete Empfehlungen umsetzen und Datenqualit&auml;t gezielt verbessern.</p></div></li>
+            <li class="step-item"><span class="step-number">4</span>{{ icon('alert') }}<div><h3>Folgescan durchf&uuml;hren</h3><p>Fortschritte messen und Ver&auml;nderungen transparent nachvollziehen.</p></div></li>
+            <li class="step-item"><span class="step-number">5</span>{{ icon('trend') }}<div><h3>Kontinuierliche Verbesserung</h3><p>Mit Monitoring Trends erkennen, Alerts nutzen und Qualit&auml;t sichern.</p></div></li>
           </ol>
-        </article>
+        </section>
 
-        <article class="card monitoring-card">
-          <h3>Warum Monitoring?</h3>
-          <p>Der kontinuierliche Weg zu besserer Datenqualit&auml;t.</p>
-          <div class="benefit">{{ icon('trend') }}<div><strong>Trendanalysen</strong><span>Erkennen Sie Entwicklungen fr&uuml;hzeitig und messen Sie Fortschritte &uuml;ber die Zeit.</span></div></div>
-          <div class="benefit">{{ icon('alert') }}<div><strong>Alerts &amp; Benachrichtigungen</strong><span>Erhalten Sie automatische Hinweise bei neuen Risiken und kritischen &Auml;nderungen.</span></div></div>
-          <div class="benefit">{{ icon('target') }}<div><strong>Kontinuierliche Verbesserung</strong><span>Sichern Sie nachhaltige Datenqualit&auml;t und steigern Sie Ihren Unternehmenserfolg.</span></div></div>
-        </article>
+        <section class="card monitoring-card">
+          <p class="section-kicker">Warum Monitoring?</p>
+          <h2 class="section-title-small">Der kontinuierliche Weg zu besserer Datenqualit&auml;t.</h2>
+          <div class="benefit-item">{{ icon('trend') }}<div><h3>Trendanalysen</h3><p>Erkennen Sie Entwicklungen fr&uuml;hzeitig und messen Sie Fortschritte &uuml;ber die Zeit.</p></div></div>
+          <div class="benefit-item">{{ icon('alert') }}<div><h3>Alerts &amp; Benachrichtigungen</h3><p>Erhalten Sie automatische Hinweise bei neuen Risiken und kritischen &Auml;nderungen.</p></div></div>
+          <div class="benefit-item">{{ icon('target') }}<div><h3>Kontinuierliche Verbesserung</h3><p>Sichern Sie nachhaltige Datenqualit&auml;t und steigern Sie Ihren Unternehmenserfolg.</p></div></div>
+        </section>
+
+        <aside class="card cta-card">
+          <div class="cta-lock">{{ icon('lock') }}</div>
+          <h2>Entdecken Sie das volle Potenzial von BCSentinel</h2>
+          <p>Schalten Sie alle detaillierten Analysen, Trends, Alerts und Empfehlungen frei und verbessern Sie nachhaltig Ihre Datenqualit&auml;t.</p>
+          <a class="report-button" href="#">Jetzt upgraden</a>
+        </aside>
       </div>
 
-      <aside class="cta-box">
-        {{ icon('lock') }}
-        <div>
-          <h3>Entdecken Sie das volle Potenzial von BCSentinel</h3>
-          <p>Schalten Sie alle detaillierten Analysen, Trends, Alerts und Empfehlungen frei und verbessern Sie nachhaltig Ihre Datenqualit&auml;t.</p>
+      <section class="card report-info-card">
+        <h2 class="chart-title">Report Information</h2>
+        <div class="report-info-grid">
+          <div class="report-info-item">{{ icon('clock') }}<div><span>Generiert am</span><strong>{{ generated_at }}</strong></div></div>
+          <div class="report-info-item">{{ icon('link') }}<div><span>Scan-ID</span><strong>{{ report.scan_id }}</strong></div></div>
+          <div class="report-info-item">{{ icon('shield') }}<div><span>Scan-Art</span><strong>{{ report.scan_type }}</strong></div></div>
+          <div class="report-info-item">{{ icon('globe') }}<div><span>Umgebung</span><strong>{{ report.environment_label or 'BC Cloud' }}</strong></div></div>
+          <div class="report-info-item">{{ icon('user') }}<div><span>Tenant-ID</span><strong>{{ report.tenant_id }}</strong></div></div>
+          <div class="report-info-item">{{ icon('shield') }}<div><span>BCSentinel Version</span><strong>{{ report.app_version }}</strong></div></div>
+          <p class="report-disclaimer">Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Sch&auml;tzung dar und ersetzen keine individuelle Fachbeurteilung.</p>
         </div>
-        <a class="cta-primary" href="#">Jetzt upgraden</a>
-      </aside>
-
-      <section class="report-info">
-        <h2>Report Information</h2>
-        <div class="info-grid">
-          <div><span>Generiert am</span><strong>{{ generated_at }}</strong></div>
-          <div><span>Scan-ID</span><strong>{{ report.scan_id }}</strong></div>
-          <div><span>Scan-Art</span><strong>{{ report.scan_type }}</strong></div>
-          <div><span>Umgebung</span><strong>{{ report.environment_label or 'BC Cloud' }}</strong></div>
-          <div><span>Tenant-ID</span><strong>{{ report.tenant_id }}</strong></div>
-          <div><span>BCSentinel Version</span><strong>{{ report.app_version }}</strong></div>
-        </div>
-        <p class="fineprint">Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Sch&auml;tzung dar und ersetzen keine individuelle Fachbeurteilung.</p>
       </section>
     </main>
 
-    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 3 von 3</span></footer>
+    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 2 von 2</span></footer>
   </section>
 </body>
 </html>
