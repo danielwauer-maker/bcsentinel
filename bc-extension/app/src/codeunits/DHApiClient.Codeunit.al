@@ -299,10 +299,16 @@ codeunit 53100 "DH API Client"
         if JsonResponse.Get('monitoring_active', Token) then
             Setup."Monitoring Active" := GetJsonTokenBoolean(Token, false);
 
-        if JsonResponse.Get('dashboard_access_until', Token) then
+        if JsonResponse.Get('dashboard_access_until_bc', Token) then
             Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
 
-        if JsonResponse.Get('issue_access_until', Token) then
+        if (Setup."Dashboard Access Until" = '') and JsonResponse.Get('dashboard_access_until', Token) then
+            Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+
+        if JsonResponse.Get('issue_access_until_bc', Token) then
+            Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+
+        if (Setup."Issue Access Until" = '') and JsonResponse.Get('issue_access_until', Token) then
             Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
 
         if JsonResponse.Get('can_run_deep_scan', Token) then
@@ -324,6 +330,30 @@ codeunit 53100 "DH API Client"
             ProductAccess := ProductAccessToken.AsObject();
             if ProductAccess.Get('access_model', Token) then
                 Setup."Product Access Model" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Product Access Model"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('dashboard_access_until_bc', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('dashboard_access_until', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('premium_access_until_bc', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('premium_access_until', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('subscription_end_bc', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('subscription_end', Token) then
+                Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('issue_access_until_bc', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('issue_access_until', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('premium_access_until_bc', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('premium_access_until', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('subscription_end_bc', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
+            if (Setup."Issue Access Until" = '') and ProductAccess.Get('subscription_end', Token) then
+                Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
         end;
 
         if Setup."Product Access Model" = '' then

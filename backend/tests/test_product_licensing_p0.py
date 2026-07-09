@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.db import SessionLocal
-from app.models import TenantProductEntitlement, TenantScanCredit
+from app.models import Subscription, TenantProductEntitlement, TenantScanCredit
 
 
 def _admin_auth_header() -> dict[str, str]:
@@ -88,7 +88,7 @@ def test_product_checkout_uses_expected_stripe_mode(
     expected_mode,
     expected_product_code,
 ):
-    tenant = tenant_factory(plan="free", license_status="trial")
+    tenant = tenant_factory(plan="premium", license_status="active")
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
         **{settings_key: price_id},
@@ -125,7 +125,7 @@ def test_checkout_completed_grants_scan_credit_for_one_time_product(
     product_code,
     expected_product_code,
 ):
-    tenant = tenant_factory(plan="free", license_status="trial")
+    tenant = tenant_factory(plan="premium", license_status="active")
 
     response = client.post(
         "/billing/webhook",
@@ -226,7 +226,123 @@ def test_license_status_exposes_scan_credits_and_product_entitlements(
     assert "executive_report" in payload["features"]
 
 
-def test_legacy_premium_tenant_still_gets_monitoring_features(
+def test_license_status_uses_single_end_of_day_access_date_for_one_time_products(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    client.post(
+        f"/admin/tenants/{tenant['tenant_id']}/product-grant",
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
+            "product_code": "full_analysis",
+        },
+        follow_redirects=False,
+    )
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["dashboard_access_until"] == payload["issue_access_until"]
+    assert payload["dashboard_access_until"] == payload["premium_access_until"]
+    access_until = datetime.fromisoformat(payload["dashboard_access_until"].replace("Z", "+00:00"))
+    assert access_until.hour == 23
+    assert access_until.minute == 59
+    assert payload["product_access"]["subscription_end"] == payload["dashboard_access_until"]
+
+
+def test_expired_monitoring_period_is_not_active_even_when_provider_status_is_active(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="premium", license_status="active")
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            Subscription(
+                tenant_id=tenant["tenant_id"],
+                provider="stripe",
+                provider_subscription_id="sub_expired_active",
+                status="active",
+                plan_code="monitoring_monthly",
+                currency="EUR",
+                amount_monthly=149.0,
+                current_period_start_utc=now - timedelta(days=40),
+                current_period_end_utc=now - timedelta(days=1),
+                cancel_at_period_end=False,
+                canceled_at_utc=None,
+                created_at_utc=now - timedelta(days=40),
+                updated_at_utc=now,
+            )
+        )
+        db.commit()
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["plan"] == "free"
+    assert payload["license_status"] == "expired"
+    assert payload["monitoring_active"] is False
+    assert payload["can_use_monitoring"] is False
+    assert payload["can_run_deep_scan"] is False
+    assert "monitoring_monthly" not in payload["active_products"]
+    assert "analytics_full" not in payload["features"]
+    assert "recommendations" not in payload["features"]
+
+
+def test_active_monitoring_without_period_end_gets_fallback_access_end_dates(
+    client,
+    tenant_factory,
+    auth_header_factory,
+):
+    tenant = tenant_factory(plan="premium", license_status="active")
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            Subscription(
+                tenant_id=tenant["tenant_id"],
+                provider="stripe",
+                provider_subscription_id="sub_missing_period_end",
+                status="active",
+                plan_code="monitoring_monthly",
+                currency="EUR",
+                amount_monthly=149.0,
+                current_period_start_utc=now,
+                current_period_end_utc=None,
+                cancel_at_period_end=False,
+                canceled_at_utc=None,
+                created_at_utc=now,
+                updated_at_utc=now,
+            )
+        )
+        db.commit()
+
+    response = client.get("/license/status", headers=auth_header_factory(tenant))
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["monitoring_active"] is True
+    assert payload["dashboard_access_until"]
+    assert payload["issue_access_until"]
+    assert payload["premium_access_until"]
+    assert payload["subscription_end"]
+    assert payload["subscription_end_utc"]
+    assert payload["monitoring_access_until"]
+    assert payload["monitoring_period_end"]
+    assert payload["dashboard_access_until"] == payload["issue_access_until"]
+    assert payload["dashboard_access_until"] == payload["premium_access_until"]
+    assert payload["dashboard_access_until_bc"]
+    access_until = datetime.fromisoformat(payload["dashboard_access_until"].replace("Z", "+00:00"))
+    assert access_until.hour == 23
+    assert access_until.minute == 59
+
+
+def test_legacy_premium_tenant_without_product_record_does_not_get_open_ended_monitoring(
     client,
     tenant_factory,
     auth_header_factory,
@@ -237,11 +353,11 @@ def test_legacy_premium_tenant_still_gets_monitoring_features(
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["monitoring_active"] is True
-    assert "monitoring_active" in payload["features"]
-    assert "billing_portal" in payload["features"]
-    assert payload["can_run_deep_scan"] is True
-    assert payload["can_view_dashboard"] is True
+    assert payload["monitoring_active"] is False
+    assert "monitoring_active" not in payload["features"]
+    assert payload["can_run_deep_scan"] is False
+    assert payload["can_view_dashboard"] is False
+    assert payload["dashboard_access_until"] is None
 
 
 def test_free_insights_are_available_after_scan_without_premium_details(
@@ -757,6 +873,12 @@ def test_consumed_assessment_access_expires_after_seven_days(
     with SessionLocal() as db:
         credit = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).one()
         credit.consumed_at_utc = expired_at
+        entitlement = (
+            db.query(TenantProductEntitlement)
+            .filter(TenantProductEntitlement.tenant_id == tenant["tenant_id"])
+            .one()
+        )
+        entitlement.valid_until_utc = expired_at
         db.commit()
 
     license_response = client.get("/license/status", headers=auth_header_factory(tenant))

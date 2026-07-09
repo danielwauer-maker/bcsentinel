@@ -390,7 +390,7 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
     assert response.json()["checkout_url"] == "https://stripe.example/session"
 
 
-def test_full_analysis_checkout_webhook_grants_access_without_scan_credit(
+def test_full_analysis_checkout_webhook_grants_access_and_scan_credit(
     client,
     tenant_factory,
 ):
@@ -425,7 +425,8 @@ def test_full_analysis_checkout_webhook_grants_access_without_scan_credit(
             )
         )
 
-    assert credits == []
+    assert len(credits) == 1
+    assert credits[0].product_code == "full_analysis"
     assert entitlement is not None
 
 
@@ -568,7 +569,7 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
                 "status": "active",
                 "currency": "EUR",
                 "amount_monthly": 99.0,
-                "current_period_end_utc": "2026-02-15T12:00:00Z",
+                "current_period_end_utc": "2026-08-15T12:00:00Z",
             },
         },
     )
@@ -606,6 +607,10 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
     assert "monitoring_annual" in annual_payload["active_products"]
     assert annual_payload["dashboard_access_until"]
     assert annual_payload["issue_access_until"]
+    assert annual_payload["dashboard_access_until"] == annual_payload["issue_access_until"]
+    annual_access_until = datetime.fromisoformat(annual_payload["dashboard_access_until"].replace("Z", "+00:00"))
+    assert annual_access_until.hour == 23
+    assert annual_access_until.minute == 59
     assert monthly_payload["monitoring_active"] is True
     assert "monitoring_monthly" in monthly_payload["active_products"]
 

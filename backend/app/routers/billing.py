@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import logging
 from html import escape
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 
 import stripe
@@ -36,9 +36,10 @@ from app.services.product_license_service import (
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
-    ONE_TIME_ACCESS_DAYS,
     PRODUCT_VALIDATION_CHECK,
     build_product_access_snapshot,
+    calculate_access_window_until,
+    calculate_product_access_until,
     grant_product_entitlement,
     grant_scan_credit,
     is_monitoring_product,
@@ -315,7 +316,7 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
         return set()
     if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["can_view_issues"]:
         return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    return {PRODUCT_FULL_ANALYSIS, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+    return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
 
 
 def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
@@ -340,6 +341,17 @@ def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, so
                 source_purchase_id=purchase.id,
             )
     elif product_code == PRODUCT_FULL_ANALYSIS:
+        existing_credit = db.scalar(
+            select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
+        )
+        if existing_credit is None:
+            grant_scan_credit(
+                db,
+                tenant_id=tenant_id,
+                product_code=product_code,
+                source=source,
+                source_purchase_id=purchase.id,
+            )
         existing_entitlement = db.scalar(
             select(TenantProductEntitlement).where(
                 TenantProductEntitlement.tenant_id == tenant_id,
@@ -357,7 +369,7 @@ def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, so
                 tenant_id=tenant_id,
                 product_code=product_code,
                 source=source,
-                valid_until_utc=utc_now() + timedelta(days=ONE_TIME_ACCESS_DAYS),
+                valid_until_utc=calculate_product_access_until(product_code),
             )
 
 
@@ -487,7 +499,14 @@ def _process_normalized_webhook(
                 tenant_id=tenant.tenant_id,
                 product_code=subscription.plan_code,
                 source="stripe_subscription",
-                valid_until_utc=subscription.current_period_end_utc,
+                valid_until_utc=(
+                    calculate_access_window_until(days=0, anchor=subscription.current_period_end_utc)
+                    if subscription.current_period_end_utc is not None
+                    else calculate_product_access_until(
+                        subscription.plan_code,
+                        subscription.current_period_start_utc or subscription.created_at_utc,
+                    )
+                ),
             )
 
     if event_type == "checkout.session.completed":

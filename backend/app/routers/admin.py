@@ -83,6 +83,8 @@ from app.services.product_license_service import (
     MONITORING_PRODUCTS,
     ONE_TIME_PRODUCTS,
     active_entitlement_product_codes,
+    calculate_access_window_until,
+    calculate_product_access_until,
     grant_product_entitlement,
     grant_scan_credit,
     build_license_snapshot,
@@ -215,13 +217,23 @@ def _fmt_product_access_dates(product_access: dict) -> dict:
     formatted = dict(product_access or {})
     for key in [
         "dashboard_access_until",
+        "dashboard_access_until_bc",
         "issue_access_until",
+        "issue_access_until_bc",
         "assessment_access_until",
         "full_analysis_access_until",
         "validation_access_until",
         "validation_check_access_until",
         "monitoring_access_until",
+        "monitoring_access_until_bc",
+        "monitoring_period_end",
+        "monitoring_period_end_bc",
         "premium_access_until",
+        "premium_access_until_bc",
+        "product_access_until",
+        "subscription_end",
+        "subscription_end_bc",
+        "subscription_end_utc",
     ]:
         raw = formatted.get(key)
         if not raw:
@@ -506,6 +518,7 @@ def _grant_monitoring(db, tenant: Tenant, product_code: str) -> TenantProductEnt
         tenant_id=tenant.tenant_id,
         product_code=product_code,
         source="admin_manual",
+        valid_until_utc=calculate_product_access_until(product_code),
     )
     tenant.current_plan = "premium"
     tenant.license_status = "active"
@@ -519,7 +532,7 @@ def _extend_one_time_access(db, tenant_id: str, days: int) -> TenantProductEntit
         tenant_id=tenant_id,
         product_code=PRODUCT_FULL_ANALYSIS,
         source="admin_access_window",
-        valid_until_utc=now + timedelta(days=days),
+        valid_until_utc=calculate_access_window_until(days=days, anchor=now),
     )
 
 
@@ -1014,12 +1027,18 @@ def grant_tenant_product(
             )
             action = "tenant.scan_credit.grant"
         elif normalized_product_code == PRODUCT_FULL_ANALYSIS:
+            grant_scan_credit(
+                db,
+                tenant_id=tenant.tenant_id,
+                product_code=normalized_product_code,
+                source="admin_manual",
+            )
             grant_product_entitlement(
                 db,
                 tenant_id=tenant.tenant_id,
                 product_code=normalized_product_code,
                 source="admin_manual",
-                valid_until_utc=utc_now() + timedelta(days=7),
+                valid_until_utc=calculate_product_access_until(normalized_product_code),
             )
             action = "tenant.product_entitlement.grant"
         else:

@@ -556,7 +556,8 @@ function updatePageHeader(tab) {
 
 function formatDateTime(value) {
   const raw = String(value || '').trim();
-  if (!raw || raw === 'â€”') return 'â€”';
+  if (!raw || raw === '-' || raw.indexOf('\u00C3') >= 0 || raw.indexOf('\u00E2') >= 0) return '-';
+  if (!raw || raw === '-') return '-';
 
   const isoLike = raw.includes('T') ? raw : raw.replace(/ UTC$/, 'Z').replace(', ', 'T');
   const parsed = new Date(isoLike);
@@ -2840,10 +2841,11 @@ function renderSettingsPageLegacy(data) {
     ['Last Scan', formatDateTime(settings.last_scan)],
     ['Connection Status', settings.connection_status || ''],
   ];
-  host.innerHTML = rows.map(([label, value]) => `
+  const displayRows = rows.map(([label, value]) => [label, value || '-']);
+  host.innerHTML = displayRows.map(([label, value]) => `
     <div class="subscription-card">
       <div class="stat-label">${escapeHtml(label)}</div>
-      <div class="subscription-value stat-value-small">${escapeHtml(value || 'â€”')}</div>
+      <div class="subscription-value stat-value-small">${escapeHtml(value || '-')}</div>
     </div>
   `).join('');
 }
@@ -2945,8 +2947,12 @@ function renderSettingsPage(data) {
 function accessStatus({ active = false, until = null, trial = false } = {}) {
   const rawUntil = String(until || '').trim();
   if (trial) return { label: 'Trial', className: 'trial' };
+  if (active && rawUntil) {
+    const formattedUntil = formatDateTime(rawUntil);
+    if (formattedUntil && formattedUntil !== '-') return { label: `Active until ${formattedUntil}`, className: 'active' };
+  }
   if (active) return { label: 'Active', className: 'active' };
-  if (rawUntil && rawUntil !== 'Ã¢â‚¬â€') {
+  if (rawUntil && rawUntil !== '-') {
     const parsed = new Date(rawUntil.includes('T') ? rawUntil : rawUntil.replace(/ UTC$/, 'Z').replace(', ', 'T'));
     if (!Number.isNaN(parsed.getTime()) && parsed.getTime() < Date.now()) {
       return { label: 'Expired', className: 'expired' };

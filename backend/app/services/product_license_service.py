@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+import calendar
+from datetime import datetime, time, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -94,11 +95,51 @@ def _as_utc(value: datetime | None) -> datetime | None:
     return value.astimezone(timezone.utc)
 
 
+def _end_of_day_utc(value: datetime | None) -> datetime | None:
+    normalized = _as_utc(value)
+    if normalized is None:
+        return None
+    return datetime.combine(normalized.date(), time(23, 59), tzinfo=timezone.utc)
+
+
+def _add_months(value: datetime, months: int) -> datetime:
+    normalized = _as_utc(value) or utc_now()
+    month_index = normalized.month - 1 + months
+    year = normalized.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(normalized.day, calendar.monthrange(year, month)[1])
+    return normalized.replace(year=year, month=month, day=day)
+
+
+def calculate_product_access_until(product_code: str, anchor: datetime | None = None) -> datetime | None:
+    normalized_product = normalize_product_code(product_code)
+    start = _as_utc(anchor) or utc_now()
+    if normalized_product in ONE_TIME_PRODUCTS:
+        return calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=start)
+    if normalized_product == PRODUCT_MONITORING_MONTHLY:
+        return _end_of_day_utc(_add_months(start, 1))
+    if normalized_product == PRODUCT_MONITORING_ANNUAL:
+        return _end_of_day_utc(_add_months(start, 12))
+    return None
+
+
+def calculate_access_window_until(*, days: int, anchor: datetime | None = None) -> datetime:
+    start = _as_utc(anchor) or utc_now()
+    return _end_of_day_utc(start + timedelta(days=max(int(days or 0), 0))) or start
+
+
 def _iso(value: datetime | None) -> str | None:
     normalized = _as_utc(value)
     if normalized is None:
         return None
     return normalized.isoformat().replace("+00:00", "Z")
+
+
+def _bc_datetime(value: datetime | None) -> str | None:
+    normalized = _as_utc(value)
+    if normalized is None:
+        return None
+    return normalized.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def _max_datetime(values: list[datetime | None]) -> datetime | None:
@@ -165,7 +206,7 @@ def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     ).all()
     product_codes = []
     for row in rows:
-        valid_until = _as_utc(row.valid_until_utc)
+        valid_until = _end_of_day_utc(row.valid_until_utc)
         if valid_until is not None and valid_until < now:
             continue
         product_codes.append(normalize_product_code(row.product_code))
@@ -211,6 +252,24 @@ def _has_legacy_premium_access(tenant: Tenant) -> bool:
     return plan == "premium" and status in {"trial", "active"}
 
 
+def _has_monitoring_records(db, tenant_id: str) -> bool:
+    subscriptions = db.scalars(
+        select(Subscription).where(Subscription.tenant_id == tenant_id)
+    ).all()
+    for subscription in subscriptions:
+        if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
+            return True
+
+    entitlements = db.scalars(
+        select(TenantProductEntitlement).where(TenantProductEntitlement.tenant_id == tenant_id)
+    ).all()
+    for entitlement in entitlements:
+        if normalize_product_code(entitlement.product_code) in MONITORING_PRODUCTS:
+            return True
+
+    return False
+
+
 def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) -> datetime | None:
     normalized_product = normalize_product_code(product_code)
     storage_aliases = product_code_storage_aliases(normalized_product)
@@ -227,7 +286,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
         anchor = _as_utc(anchor)
         if anchor is not None:
-            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+            access_until_values.append(calculate_product_access_until(normalized_product, anchor))
 
     purchases = db.scalars(
         select(TenantProductPurchase).where(
@@ -239,7 +298,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     for purchase in purchases:
         anchor = _as_utc(purchase.created_at_utc)
         if anchor is not None:
-            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+            access_until_values.append(calculate_product_access_until(normalized_product, anchor))
 
     entitlements = db.scalars(
         select(TenantProductEntitlement).where(
@@ -250,9 +309,9 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     ).all()
     for entitlement in entitlements:
         if entitlement.valid_until_utc is None:
-            access_until_values.append(utc_now() + timedelta(days=ONE_TIME_ACCESS_DAYS))
+            access_until_values.append(calculate_product_access_until(normalized_product))
         else:
-            access_until_values.append(entitlement.valid_until_utc)
+            access_until_values.append(_end_of_day_utc(entitlement.valid_until_utc))
 
     return _max_datetime(access_until_values)
 
@@ -265,8 +324,18 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
-        if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
-            values.append(subscription.current_period_end_utc)
+        product_code = normalize_product_code(subscription.plan_code)
+        if product_code in MONITORING_PRODUCTS:
+            period_end = _end_of_day_utc(subscription.current_period_end_utc)
+            if period_end is None:
+                anchor = (
+                    _as_utc(subscription.current_period_start_utc)
+                    or _as_utc(subscription.created_at_utc)
+                    or _as_utc(subscription.updated_at_utc)
+                    or utc_now()
+                )
+                period_end = calculate_product_access_until(product_code, anchor)
+            values.append(period_end)
 
     entitlements = db.scalars(
         select(TenantProductEntitlement).where(
@@ -275,11 +344,16 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
         )
     ).all()
     for entitlement in entitlements:
-        if normalize_product_code(entitlement.product_code) in MONITORING_PRODUCTS:
-            values.append(entitlement.valid_until_utc)
+        product_code = normalize_product_code(entitlement.product_code)
+        if product_code in MONITORING_PRODUCTS:
+            valid_until = _end_of_day_utc(entitlement.valid_until_utc)
+            if valid_until is None:
+                anchor = _as_utc(entitlement.created_at_utc) or _as_utc(entitlement.updated_at_utc) or utc_now()
+                valid_until = calculate_product_access_until(product_code, anchor)
+            values.append(valid_until)
 
-    if (has_active_monitoring_subscription(db, tenant) or _has_legacy_premium_access(tenant)) and not values:
-        return None
+    if has_active_monitoring_subscription(db, tenant) and not values:
+        return calculate_product_access_until(PRODUCT_MONITORING_MONTHLY, utc_now())
     return _max_datetime(values)
 
 
@@ -287,10 +361,10 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
-    monitoring_active = _has_legacy_premium_access(tenant) or has_active_monitoring_subscription(db, tenant) or bool(
-        set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
-    )
     monitoring_until = _monitoring_access_until(db, tenant)
+    monitoring_active = has_active_monitoring_subscription(db, tenant) or (
+        monitoring_until is not None and monitoring_until >= now
+    )
 
     one_time_until = _max_datetime([full_analysis_until, validation_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
@@ -316,13 +390,20 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "full_analysis_access_active": full_analysis_active,
         "validation_check_access_active": validation_active,
         "premium_access_until": _iso(premium_access_until),
+        "premium_access_until_bc": _bc_datetime(premium_access_until),
+        "product_access_until": _iso(premium_access_until),
+        "subscription_end": _iso(monitoring_until if monitoring_active else premium_access_until),
+        "subscription_end_bc": _bc_datetime(monitoring_until if monitoring_active else premium_access_until),
+        "subscription_end_utc": _iso(monitoring_until if monitoring_active else premium_access_until),
         "record_count": record_count,
         "pricing_tier": pricing_tier,
         "assessment_access_active": full_analysis_active,
         "validation_access_active": validation_active,
         "monitoring_active": monitoring_active,
         "dashboard_access_until": _iso(premium_access_until),
+        "dashboard_access_until_bc": _bc_datetime(premium_access_until),
         "issue_access_until": _iso(premium_access_until),
+        "issue_access_until_bc": _bc_datetime(premium_access_until),
         "report_access_until": _iso(premium_access_until),
         "can_run_deep_scan": monitoring_active or credits_available > 0,
         "can_view_dashboard": premium_access_active,
@@ -335,12 +416,13 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "validation_access_until": _iso(validation_until),
         "validation_check_access_until": _iso(validation_until),
         "monitoring_access_until": _iso(monitoring_until),
+        "monitoring_access_until_bc": _bc_datetime(monitoring_until),
+        "monitoring_period_end": _iso(monitoring_until),
+        "monitoring_period_end_bc": _bc_datetime(monitoring_until),
     }
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
-    if _has_legacy_premium_access(tenant):
-        return True
     subscriptions = db.scalars(
         select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
     ).all()
@@ -348,6 +430,9 @@ def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
         if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
+            period_end = _end_of_day_utc(subscription.current_period_end_utc)
+            if period_end is not None and period_end < utc_now():
+                continue
             return True
     return False
 
@@ -361,7 +446,8 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
         product_code = normalize_product_code(subscription.plan_code)
-        if product_code in MONITORING_PRODUCTS:
+        period_end = _end_of_day_utc(subscription.current_period_end_utc)
+        if product_code in MONITORING_PRODUCTS and (period_end is None or period_end >= utc_now()):
             product_codes.append(product_code)
     return sorted(set(product_codes))
 
@@ -377,6 +463,19 @@ def resolve_product_features(db, tenant: Tenant) -> set[str]:
         features.update(MONITORING_FEATURES)
     elif product_codes.intersection(ONE_TIME_PRODUCTS):
         features.update(PAID_SCAN_FEATURES)
+
+    has_provider_subscription = (
+        db.scalar(
+            select(Subscription.id).where(
+                Subscription.tenant_id == tenant.tenant_id,
+                Subscription.provider_subscription_id.is_not(None),
+                Subscription.status.in_(["trialing", "active", "past_due", "incomplete"]),
+            )
+        )
+        is not None
+    )
+    if has_provider_subscription:
+        features.add("billing_portal")
 
     return features
 
@@ -527,6 +626,17 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "dashboard_access_until": access["dashboard_access_until"],
         "issue_access_until": access["issue_access_until"],
         "premium_access_until": access["premium_access_until"],
+        "premium_access_until_bc": access["premium_access_until_bc"],
+        "product_access_until": access["product_access_until"],
+        "subscription_end": access["subscription_end"],
+        "subscription_end_bc": access["subscription_end_bc"],
+        "subscription_end_utc": access["subscription_end_utc"],
+        "monitoring_access_until": access["monitoring_access_until"],
+        "monitoring_access_until_bc": access["monitoring_access_until_bc"],
+        "monitoring_period_end": access["monitoring_period_end"],
+        "monitoring_period_end_bc": access["monitoring_period_end_bc"],
+        "dashboard_access_until_bc": access["dashboard_access_until_bc"],
+        "issue_access_until_bc": access["issue_access_until_bc"],
         "can_run_deep_scan": access["can_run_deep_scan"],
         "can_view_dashboard": access["can_view_dashboard"],
         "can_view_issue_details": access["can_view_issue_details"],
