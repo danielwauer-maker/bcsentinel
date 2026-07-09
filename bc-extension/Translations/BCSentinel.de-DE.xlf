@@ -2605,6 +2605,72 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 241708881" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <target state="translated">Abgeschlossen</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Abgeschlossen"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3238454627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Critical</source>
+          <target state="translated">Kritisch</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Kritisch"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CriticalLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <target state="translated">Fehlgeschlagen</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Fehlgeschlagen"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType FailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 2270900971" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Scan</source>
+          <target state="translated">Kostenloser Scan</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Kostenloser Scan"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType FreeScanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 202961339" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Good</source>
+          <target state="translated">Gut</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Gut"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType GoodLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 2671405529" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manual Scan</source>
+          <target state="translated">Manueller Scan</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Manueller Scan"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ManualScanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1286981729" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Medium</source>
+          <target state="translated">Mittel</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Mittel"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MediumLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 4194160851" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Scan</source>
+          <target state="translated">Monitoring-Scan</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Monitoring-Scan"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitoringScanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 803195271" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Running</source>
+          <target state="translated">Wird ausgeführt</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Wird ausgeführt"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType RunningLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1773691126" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <target state="translated">Unbekannt</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Unbekannt"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType UnknownLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1188650306" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Scan</source>
+          <target state="translated">Validierungs-Scan</target>
+          <note from="Developer" annotates="general" priority="2">DEU="Validierungs-Scan"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ValidationScanLbl</note>
+        </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 4020887741" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 scan(s) deleted.</source>
           <target state="translated">%1 Scan(s) gelöscht.</target>
@@ -2664,6 +2730,42 @@
           <target state="translated">Die BCSentinel Einrichtung wurde nicht gefunden.</target>
           <note from="Developer" annotates="general" priority="2">DEU="Die BCSentinel Einrichtung wurde nicht gefunden."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType SetupNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3270557785 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies Checks Count.</source>
+          <target state="translated">Gibt Checks an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ChecksDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3270557785 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Checks</source>
+          <target state="translated">Checks</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ChecksDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3549086973 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies completed modules compared with configured modules.</source>
+          <target state="translated">Gibt ausgeführte Module im Verhältnis zu allen Modulen an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ModulesDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3549086973 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Modules</source>
+          <target state="translated">Module</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ModulesDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 4030592910 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies Score.</source>
+          <target state="translated">Gibt Score an.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ScoreDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 4030592910 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score</source>
+          <target state="translated">Score</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ScoreDisplay - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 1926566482 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Checks Count.</source>

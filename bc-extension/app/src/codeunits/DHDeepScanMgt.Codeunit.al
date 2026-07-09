@@ -34,10 +34,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
         DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
-        if ShowStartedMessage then
-            DeepScanRun."Scan Mode" := 'deep'
-        else
-            DeepScanRun."Scan Mode" := 'monitoring';
+        DeepScanRun."Scan Mode" := GetDeepScanMode(Setup, ShowStartedMessage);
         DeepScanRun."Headline" := 'Deep scan queued';
         DeepScanRun."Current Module" := 'Preparing';
         DeepScanRun."Progress %" := 0;
@@ -224,6 +221,27 @@ codeunit 53124 "DH Deep Scan Mgt."
         if not Setup."Can Run Deep Scan" then
             if not Setup.IsPremiumLicenseActive() then
                 Error('No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.');
+    end;
+
+    local procedure GetDeepScanMode(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Text[30]
+    var
+        AccessModel: Text;
+    begin
+        if not ShowStartedMessage then
+            exit('monitoring');
+
+        AccessModel := LowerCase(Setup."Product Access Model");
+        case AccessModel of
+            'one_time', 'validation', 'validation_scan', 'full_analysis', 'credit':
+                exit('validation');
+            'monitoring', 'subscription':
+                exit('monitoring');
+        end;
+
+        if Setup."Monitoring Active" then
+            exit('monitoring');
+
+        exit('validation');
     end;
 
     local procedure GetNextRunEntryNo(): Integer

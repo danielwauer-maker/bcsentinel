@@ -48,14 +48,6 @@
                     ToolTip = 'Specifies the customer-facing scan type.';
                 }
 
-                field(ResultDisplay; ResultTxt)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Result';
-                    ToolTip = 'Specifies the scan result.';
-                    StyleExpr = ResultStyle;
-                }
-
                 field(RatingDisplay; RatingTxt)
                 {
                     ApplicationArea = All;
@@ -64,7 +56,7 @@
                     StyleExpr = RatingStyle;
                 }
 
-                field("Data Score"; Rec."Data Score")
+                field(ScoreDisplay; ScoreTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Score';
@@ -72,9 +64,17 @@
                     StyleExpr = ScoreStyle;
                 }
 
-                field("Checks Count"; Rec."Checks Count")
+                field(ModulesDisplay; ModulesTxt)
                 {
                     ApplicationArea = All;
+                    Caption = 'Modules';
+                    ToolTip = 'Specifies completed modules compared with configured modules.';
+                }
+
+                field(ChecksDisplay; ChecksTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Checks';
                     ToolTip = 'Specifies Checks Count.';
                 }
 
@@ -96,6 +96,15 @@
                     ApplicationArea = All;
                     Caption = 'Technical Message';
                     ToolTip = 'Specifies the technical backend message.';
+                    Visible = false;
+                }
+
+                field(ResultDisplay; ResultTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Result';
+                    ToolTip = 'Specifies the scan result.';
+                    StyleExpr = ResultStyle;
                 }
 
                 /*field("Premium"; GetIsPremiumRun())
@@ -251,6 +260,9 @@
     trigger OnAfterGetRecord()
     begin
         ScoreStyle := GetScoreStyle();
+        ScoreTxt := GetScoreText();
+        ModulesTxt := GetModulesText();
+        ChecksTxt := GetChecksText();
         ResultTxt := GetResultText();
         ResultStyle := GetResultStyle();
         RatingTxt := GetRatingText(Rec."Rating");
@@ -264,8 +276,11 @@
         ResultStyle: Text[30];
         RatingStyle: Text[30];
         RunIdStyle: Text[30];
-        ResultTxt: Text[80];
+        ChecksTxt: Text[30];
+        ModulesTxt: Text[30];
         RatingTxt: Text[30];
+        ResultTxt: Text[30];
+        ScoreTxt: Text[30];
         ScanTypeTxt: Text[50];
 
         SelectScanErr: Label 'Please select a scan first.', Comment = 'DEU="Bitte wählen Sie zuerst einen Scan aus."';
@@ -276,8 +291,19 @@
         DeleteManyQst: Label 'Do you want to delete %1 selected scans?', Comment = 'DEU="Möchten Sie %1 ausgewählte Scans löschen?"';
         DeleteOneMsg: Label 'Scan deleted.', Comment = 'DEU="Scan gelöscht."';
         DeleteManyMsg: Label '%1 scan(s) deleted.', Comment = 'DEU="%1 Scan(s) gelöscht."';
+        CompletedLbl: Label 'Completed', Comment = 'DEU="Abgeschlossen"';
+        CriticalLbl: Label 'Critical', Comment = 'DEU="Kritisch"';
+        FailedLbl: Label 'Failed', Comment = 'DEU="Fehlgeschlagen"';
+        FreeScanLbl: Label 'Free Scan', Comment = 'DEU="Kostenloser Scan"';
+        GoodLbl: Label 'Good', Comment = 'DEU="Gut"';
+        ManualScanLbl: Label 'Manual Scan', Comment = 'DEU="Manueller Scan"';
+        MediumLbl: Label 'Medium', Comment = 'DEU="Mittel"';
+        MonitoringScanLbl: Label 'Monitoring Scan', Comment = 'DEU="Monitoring-Scan"';
         ReconcileQst: Label 'This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?', Comment = 'DEU="Dies gleicht die Backend-Scan-Historie mit der aktuellen Business-Central-Scanliste ab und entfernt verwaiste Backend-Scans. Fortfahren?"';
         ReconcileMsg: Label 'Scan history successfully synchronized with the backend.', Comment = 'DEU="Scan-Historie erfolgreich mit dem Backend abgeglichen."';
+        RunningLbl: Label 'Running', Comment = 'DEU="Wird ausgeführt"';
+        UnknownLbl: Label 'Unknown', Comment = 'DEU="Unbekannt"';
+        ValidationScanLbl: Label 'Validation Scan', Comment = 'DEU="Validierungs-Scan"';
 
     local procedure OpenMonitorForCurrentScan()
     var
@@ -377,71 +403,126 @@
         exit('Standard');
     end;
 
+    local procedure GetScoreText(): Text[30]
+    begin
+        if Rec."Data Score" <= 0 then
+            exit('');
+
+        exit(CopyStr(StrSubstNo('%1 / 100', Rec."Data Score"), 1, 30));
+    end;
+
+    local procedure GetModulesText(): Text[30]
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+        DisplayModules: Integer;
+        HasDeepRun: Boolean;
+        TotalModules: Integer;
+    begin
+        HasDeepRun := FindDeepScanRun(DeepScanRun);
+        if HasDeepRun then begin
+            DisplayModules := DeepScanRun."Completed Modules";
+            if DisplayModules = 0 then
+                DisplayModules := DeepScanRun."Total Modules";
+
+            TotalModules := GetTotalDeepScanModules();
+        end;
+
+        if not HasDeepRun then
+            exit('');
+
+        if TotalModules = 0 then
+            TotalModules := 10;
+
+        if DisplayModules = 0 then
+            if Rec."Scan Type" = Rec."Scan Type"::Quick then
+                exit('');
+
+        if (DisplayModules = 0) and (TotalModules = 0) then
+            exit('');
+
+        if TotalModules = 0 then
+            exit(CopyStr(StrSubstNo('%1 / ?', DisplayModules), 1, 30));
+
+        exit(CopyStr(StrSubstNo('%1 / %2', DisplayModules, TotalModules), 1, 30));
+    end;
+
+    local procedure GetChecksText(): Text[30]
+    var
+        Setup: Record "DH Setup";
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+        TotalChecks: Integer;
+    begin
+        if Rec."Checks Count" = 0 then
+            exit('');
+
+        if Setup.Get('SETUP') then
+            TotalChecks := ScanCheckMgt.GetTotalModuleChecksCount(Setup);
+
+        if TotalChecks = 0 then
+            exit(CopyStr(StrSubstNo('%1 / ?', Rec."Checks Count"), 1, 30));
+
+        if TotalChecks < Rec."Checks Count" then
+            TotalChecks := Rec."Checks Count";
+
+        exit(CopyStr(StrSubstNo('%1 / %2', Rec."Checks Count", TotalChecks), 1, 30));
+    end;
+
     local procedure GetScanTypeText(): Text[50]
     var
         DeepScanRun: Record "DH Deep Scan Run";
         ScanMode: Text;
     begin
         if Rec."Scan Type" = Rec."Scan Type"::Quick then
-            exit(CopyStr(LocalizeText('Free Scan', 'Kostenloser Scan'), 1, 50));
+            exit(CopyStr(FreeScanLbl, 1, 50));
 
         if FindDeepScanRun(DeepScanRun) then
             ScanMode := LowerCase(DeepScanRun."Scan Mode")
         else
-            exit(CopyStr(LocalizeText('Manual Scan', 'Manueller Scan'), 1, 50));
+            exit(CopyStr(ManualScanLbl, 1, 50));
+
+        if HasMonitoringRunMarker(DeepScanRun) then
+            exit(CopyStr(MonitoringScanLbl, 1, 50));
 
         case ScanMode of
             'data_health_score', 'free':
-                exit(CopyStr(LocalizeText('Free Scan', 'Kostenloser Scan'), 1, 50));
+                exit(CopyStr(FreeScanLbl, 1, 50));
             'monitoring', 'scheduled':
-                exit(CopyStr(LocalizeText('Monitoring Scan', 'Monitoring-Scan'), 1, 50));
-            'deep', 'validation', 'full_analysis', 'one_time':
-                exit(CopyStr(LocalizeText('Validation Scan', 'Validierungs-Scan'), 1, 50));
+                exit(CopyStr(MonitoringScanLbl, 1, 50));
+            'validation', 'validation_scan', 'full_analysis', 'one_time', 'credit':
+                exit(CopyStr(ValidationScanLbl, 1, 50));
+            'deep':
+                exit(CopyStr(ManualScanLbl, 1, 50));
         end;
 
-        if Rec."Scan Type" = Rec."Scan Type"::Deep then
-            exit(CopyStr(LocalizeText('Validation Scan', 'Validierungs-Scan'), 1, 50));
-
-        exit(CopyStr(LocalizeText('Manual Scan', 'Manueller Scan'), 1, 50));
+        exit(CopyStr(ManualScanLbl, 1, 50));
     end;
 
-    local procedure GetResultText(): Text[80]
+    local procedure GetResultText(): Text[30]
     var
         DeepScanRun: Record "DH Deep Scan Run";
     begin
-        if Rec."Scan Type" = Rec."Scan Type"::Quick then begin
-            if HasCriticalFindings() then
-                exit(CopyStr(LocalizeText('Completed with critical findings', 'Abgeschlossen mit kritischen Befunden'), 1, 80));
-
-            exit(CopyStr(LocalizeText('Completed', 'Abgeschlossen'), 1, 80));
-        end;
+        if Rec."Scan Type" = Rec."Scan Type"::Quick then
+            exit(CopyStr(CompletedLbl, 1, 30));
 
         if not FindDeepScanRun(DeepScanRun) then
-            exit(CopyStr(LocalizeText('Unknown', 'Unbekannt'), 1, 80));
+            exit(CopyStr(UnknownLbl, 1, 30));
 
         if IsDeepScanFailed(DeepScanRun) then
-            exit(CopyStr(LocalizeText('Failed', 'Fehlgeschlagen'), 1, 80));
+            exit(CopyStr(FailedLbl, 1, 30));
 
         if IsDeepScanRunning(DeepScanRun) then
-            exit(CopyStr(LocalizeText('Running', 'Wird ausgeführt'), 1, 80));
+            exit(CopyStr(RunningLbl, 1, 30));
 
-        if IsDeepScanCompleted(DeepScanRun) then begin
-            if HasCriticalFindings() then
-                exit(CopyStr(LocalizeText('Completed with critical findings', 'Abgeschlossen mit kritischen Befunden'), 1, 80));
+        if IsDeepScanCompleted(DeepScanRun) then
+            exit(CopyStr(CompletedLbl, 1, 30));
 
-            exit(CopyStr(LocalizeText('Completed', 'Abgeschlossen'), 1, 80));
-        end;
-
-        exit(CopyStr(LocalizeText('Unknown', 'Unbekannt'), 1, 80));
+        exit(CopyStr(UnknownLbl, 1, 30));
     end;
 
     local procedure GetResultStyle(): Text[30]
     var
         DeepScanRun: Record "DH Deep Scan Run";
     begin
-        if HasCriticalFindings() then
-            exit('Unfavorable');
-
         if Rec."Scan Type" = Rec."Scan Type"::Quick then
             exit('Favorable');
 
@@ -464,17 +545,17 @@
     begin
         case LowerCase(Format(RatingValue)) of
             'good', 'excellent':
-                exit(CopyStr(LocalizeText('Good', 'Gut'), 1, 30));
+                exit(CopyStr(GoodLbl, 1, 30));
             'medium', 'moderate', 'warning', 'high':
-                exit(CopyStr(LocalizeText('Medium', 'Mittel'), 1, 30));
+                exit(CopyStr(MediumLbl, 1, 30));
             'critical':
-                exit(CopyStr(LocalizeText('Critical', 'Kritisch'), 1, 30));
+                exit(CopyStr(CriticalLbl, 1, 30));
         end;
 
         if RatingValue = '' then
-            exit(CopyStr(LocalizeText('Unknown', 'Unbekannt'), 1, 30));
+            exit(CopyStr(UnknownLbl, 1, 30));
 
-        exit(CopyStr(LocalizeText('Unknown', 'Unbekannt'), 1, 30));
+        exit(CopyStr(UnknownLbl, 1, 30));
     end;
 
     local procedure GetRatingStyle(RatingValue: Code[20]): Text[30]
@@ -489,30 +570,6 @@
         end;
 
         exit('Standard');
-    end;
-
-    local procedure HasCriticalFindings(): Boolean
-    var
-        DashboardIssue: Record "DH Dashboard Issue";
-        DeepScanFinding: Record "DH Deep Scan Finding";
-        DeepScanRun: Record "DH Deep Scan Run";
-    begin
-        if LowerCase(Format(Rec."Rating")) = 'critical' then
-            exit(true);
-
-        DashboardIssue.SetRange("Dashboard Scan Entry No.", Rec."Entry No.");
-        DashboardIssue.SetFilter(Severity, '%1|%2', 'critical', 'CRITICAL');
-        if not DashboardIssue.IsEmpty() then
-            exit(true);
-
-        if FindDeepScanRun(DeepScanRun) then begin
-            DeepScanFinding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
-            DeepScanFinding.SetFilter(Severity, '%1|%2', 'critical', 'CRITICAL');
-            if not DeepScanFinding.IsEmpty() then
-                exit(true);
-        end;
-
-        exit(false);
     end;
 
     local procedure FindDeepScanRun(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
@@ -551,6 +608,24 @@
         exit(false);
     end;
 
+    local procedure HasMonitoringRunMarker(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    var
+        RecentEvents: Text;
+        ScanMode: Text;
+    begin
+        ScanMode := LowerCase(DeepScanRun."Scan Mode");
+        if ScanMode in ['monitoring', 'scheduled'] then
+            exit(true);
+
+        RecentEvents := LowerCase(DeepScanRun."Recent Events");
+        exit((StrPos(RecentEvents, 'monitoring') > 0) or (StrPos(RecentEvents, 'skipped checks') > 0));
+    end;
+
+    local procedure GetTotalDeepScanModules(): Integer
+    begin
+        exit(10);
+    end;
+
     local procedure IsDeepScanFailed(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
     begin
         if DeepScanRun.Status in [DeepScanRun.Status::Failed, DeepScanRun.Status::Canceled] then
@@ -562,29 +637,6 @@
         end;
 
         exit(false);
-    end;
-
-    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
-    begin
-        if IsGermanLanguage() then
-            exit(GermanText);
-
-        exit(EnglishText);
-    end;
-
-    local procedure IsGermanLanguage(): Boolean
-    begin
-        case GlobalLanguage() of
-            1031, 2055, 3079, 4103, 5127:
-                exit(true);
-        end;
-
-        exit(false);
-    end;
-
-    local procedure GetIsPremiumRun(): Boolean
-    begin
-        exit(Rec."Scan Type" = Rec."Scan Type"::Deep);
     end;
 
     local procedure HasApiToken(var Setup: Record "DH Setup"): Boolean
