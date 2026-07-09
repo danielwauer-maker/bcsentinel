@@ -147,6 +147,7 @@
                     trigger OnValidate()
                     begin
                         UpdateSchedulerVisibility();
+                        RescheduleEnabledScheduler();
                     end;
                 }
                 field("Schedule Time"; Rec."Schedule Time")
@@ -154,19 +155,87 @@
                     ApplicationArea = All;
                     Editable = CanEditSchedulerDetails;
                     ToolTip = 'Specifies the local time for scheduled scans.';
+
+                    trigger OnValidate()
+                    begin
+                        RescheduleEnabledScheduler();
+                    end;
                 }
                 group(WeeklyDays)
                 {
                     Caption = 'Weekly Days';
                     Visible = ShowWeeklySchedulerFields;
 
-                    field("Schedule Monday"; Rec."Schedule Monday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Tuesday"; Rec."Schedule Tuesday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Wednesday"; Rec."Schedule Wednesday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Thursday"; Rec."Schedule Thursday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Friday"; Rec."Schedule Friday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Saturday"; Rec."Schedule Saturday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
-                    field("Schedule Sunday"; Rec."Schedule Sunday") { ApplicationArea = All; Editable = CanEditSchedulerDetails; }
+                    field("Schedule Monday"; Rec."Schedule Monday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Tuesday"; Rec."Schedule Tuesday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Wednesday"; Rec."Schedule Wednesday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Thursday"; Rec."Schedule Thursday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Friday"; Rec."Schedule Friday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Saturday"; Rec."Schedule Saturday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
+                    field("Schedule Sunday"; Rec."Schedule Sunday")
+                    {
+                        ApplicationArea = All;
+                        Editable = CanEditSchedulerDetails;
+
+                        trigger OnValidate()
+                        begin
+                            RescheduleEnabledScheduler();
+                        end;
+                    }
                 }
                 field("Monthly Schedule Day"; Rec."Monthly Schedule Day")
                 {
@@ -174,6 +243,11 @@
                     Editable = CanEditSchedulerDetails;
                     Visible = ShowMonthlySchedulerFields;
                     ToolTip = 'Specifies the day of month for monthly scheduled scans.';
+
+                    trigger OnValidate()
+                    begin
+                        RescheduleEnabledScheduler();
+                    end;
                 }
                 field("Next Scheduled Scan"; Rec."Next Scheduled Scan")
                 {
@@ -215,6 +289,12 @@
                     MultiLine = true;
                     StyleExpr = ScheduledFailureStyle;
                     ToolTip = 'Specifies the last scheduled scan error.';
+                }
+                field("Scheduled Scan Task ID"; Rec."Scheduled Scan Task ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the Business Central TaskScheduler task that will start the next scheduled scan.';
                 }
             }
 
@@ -1104,6 +1184,19 @@
     begin
         ShowWeeklySchedulerFields := Rec."Schedule Frequency" = Rec."Schedule Frequency"::Weekly;
         ShowMonthlySchedulerFields := Rec."Schedule Frequency" = Rec."Schedule Frequency"::Monthly;
+    end;
+
+    local procedure RescheduleEnabledScheduler()
+    var
+        SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
+    begin
+        if not Rec."Scheduled Scans Enabled" then
+            exit;
+
+        SchedulerMgt.RescheduleSilently(Rec);
+        UpdateActionState();
+        UpdateDisplayValues();
+        CurrPage.Update(false);
     end;
 
     local procedure LoadLastScan(var LastRun: Record "DH Deep Scan Run")

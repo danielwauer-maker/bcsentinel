@@ -1,12 +1,21 @@
 codeunit 53124 "DH Deep Scan Mgt."
 {
     procedure QueueDeepScan(var Setup: Record "DH Setup"): Integer
+    begin
+        exit(QueueDeepScanInternal(Setup, true));
+    end;
+
+    procedure QueueDeepScanInBackground(var Setup: Record "DH Setup"): Integer
+    begin
+        exit(QueueDeepScanInternal(Setup, false));
+    end;
+
+    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Integer
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
         ApiClient: Codeunit "DH API Client";
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
-        TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
         ScanStartedMsg: Label 'Scan started. Opening the monitor. Run ID: %1';
@@ -49,7 +58,8 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         RunDeepScanNow(DeepScanRun);
 
-        Message(ScanStartedMsg, DeepScanRun."Run ID");
+        if ShowStartedMessage then
+            Message(ScanStartedMsg, DeepScanRun."Run ID");
 
         exit(EntryNo);
     end;

@@ -4981,6 +4981,10 @@
           <source>Specifies the scheduled scan failure count.</source>
           <target state="translated">Gibt die Anzahl fehlgeschlagener geplanter Scans an.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scan Failure Count - Property ToolTip</note>
+        </trans-unit><trans-unit id="Page 392523509 - Control 3139893018 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Business Central TaskScheduler task that will start the next scheduled scan.</source>
+          <target state="translated">Gibt den Business Central TaskScheduler-Task an, der den naechsten geplanten Scan startet.</target><note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scan Task ID - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1487759236 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether scheduled scans are enabled.</source>
           <target state="translated">Gibt an, ob geplante Scans aktiviert sind.</target><note from="Developer" annotates="general" priority="2" />

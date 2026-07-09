@@ -1253,10 +1253,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDataHealthScore - NamedType ScanStartedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 950078217 - Method 1618803454 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 950078217 - Method 1396950335 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan started. Opening the monitor. Run ID: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScan - NamedType ScanStartedMsg</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScanInternal - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2002389332" size-unit="char" translate="yes" xml:space="preserve">
           <source>Selecting individual checks is only available with active Monitoring.</source>
@@ -4187,6 +4187,11 @@
           <source>Specifies the scheduled scan failure count.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scan Failure Count - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3139893018 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Business Central TaskScheduler task that will start the next scheduled scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scan Task ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 1487759236 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether scheduled scans are enabled.</source>
