@@ -72,12 +72,12 @@ table 53128 "DH Deep Scan Run"
         }
         field(17; "Estimated Loss (EUR)"; Decimal)
         {
-            Caption = 'Estimated Loss (EUR)';
+            Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
         field(18; "Potential Saving (EUR)"; Decimal)
         {
-            Caption = 'Potential Saving (EUR)';
+            Caption = 'Potential Saving';
             DecimalPlaces = 0 : 2;
         }
         field(19; "Current Module"; Text[50])
@@ -191,7 +191,7 @@ table 53128 "DH Deep Scan Run"
         }
         field(46; "Est. Premium Price"; Decimal)
         {
-            Caption = 'Monitoring EUR/Month';
+            Caption = 'Monitoring / Month';
             DecimalPlaces = 0 : 2;
         }
         field(47; "ROI"; Decimal)

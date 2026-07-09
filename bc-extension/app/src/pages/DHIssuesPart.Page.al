@@ -55,11 +55,11 @@
                     end;
                 }
 
-                field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
+                field(ImpactDisplay; ImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact EUR';
-                    ToolTip = 'Specifies Impact EUR.';
+                    Caption = 'Impact';
+                    ToolTip = 'Specifies the estimated impact in local currency.';
                 }
 
                 field("Recommendation Preview"; Rec."Recommendation Preview")
@@ -96,6 +96,7 @@
     trigger OnAfterGetRecord()
     begin
         SeverityStyle := GetSeverityStyle();
+        ImpactTxt := GetImpactText();
     end;
 
     trigger OnOpenPage()
@@ -118,6 +119,7 @@
 
     var
         SeverityStyle: Text[30];
+        ImpactTxt: Text[50];
 
     local procedure EnsureSortFields()
     var
@@ -174,6 +176,13 @@
         end;
 
         exit('Standard');
+    end;
+
+    local procedure GetImpactText(): Text[50]
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.FormatLocalAmount(Rec."Estimated Impact (EUR)"));
     end;
 }
 

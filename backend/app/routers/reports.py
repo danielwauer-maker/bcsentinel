@@ -35,17 +35,18 @@ class ExecutiveReportShareLinkResponse(BaseModel):
     url: str
 
 
-def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
+def _load_report(scan_id: str, tenant_auth: tuple[str, str], *, require_paid_access: bool = True) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         report = build_executive_report(db, tenant, scan_id)
-        access = build_product_access_snapshot(db, tenant)
-        if not access["can_view_executive_report"]:
-            raise HTTPException(
-                status_code=402,
-                detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
-            )
+        if require_paid_access:
+            access = build_product_access_snapshot(db, tenant)
+            if not access["can_view_executive_report"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
+                )
         return report
 
 
@@ -89,9 +90,6 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
         if tenant is None:
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         report = build_executive_report(db, tenant, scan_id)
-        access = build_product_access_snapshot(db, tenant)
-        if not access["can_view_executive_report"]:
-            raise HTTPException(status_code=403, detail="Report access is no longer active.")
         return report
 
 
@@ -124,12 +122,6 @@ def create_executive_report_share_link(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         build_executive_report(db, tenant, scan_id)
-        access = build_product_access_snapshot(db, tenant)
-        if not access["can_view_executive_report"]:
-            raise HTTPException(
-                status_code=402,
-                detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
-            )
 
     token = _create_share_token(
         tenant_id=header_tenant_id,
@@ -147,7 +139,7 @@ def render_executive_report_html(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ):
-    report = _load_report(scan_id, tenant_auth)
+    report = _load_report(scan_id, tenant_auth, require_paid_access=False)
     return templates.TemplateResponse(
         name="executive_report.html",
         context={"request": request, "report": report},
@@ -172,7 +164,7 @@ def export_executive_report_pdf(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ):
-    report = _load_report(scan_id, tenant_auth)
+    report = _load_report(scan_id, tenant_auth, require_paid_access=False)
     pdf_bytes = render_executive_report_pdf(report)
     return Response(
         content=pdf_bytes,

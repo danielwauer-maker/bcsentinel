@@ -34,9 +34,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Entry No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 269943723 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Impact (EUR)</source>
-          <target state="translated">Geschaetzte Auswirkung (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 269943723 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -124,9 +124,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Entry No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1068438358 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Impact (EUR)</source>
-          <target state="translated">Geschaetzte Auswirkung (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1068438358 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -250,15 +250,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Error Message - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Monitoring EUR/Month</source>
-          <target state="translated">Monitoring EUR/Monat</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Monitoring / Month</source>
+          <target state="translated">Monitoring / Monat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Est. Premium Price - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 2790312758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Loss (EUR)</source>
-          <target state="translated">Geschaetzter Verlust (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Estimated Loss (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 3306425847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -364,9 +364,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Manufacturing Score - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 3337727601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Potential Saving (EUR)</source>
-          <target state="translated">Potenzielle Einsparung (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Potential Saving</source>
+          <target state="translated">Potenzielle Einsparung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Potential Saving (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 2265692604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -754,21 +754,21 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Entry No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Loss €</source>
-          <target state="translated">Geschaetzter Verlust EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Loss - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Monitoring EUR/Month</source>
-          <target state="translated">Monitoring EUR/Monat</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Monitoring / Month</source>
+          <target state="translated">Monitoring / Monat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Est. Premium Price - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2790312758 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Loss (EUR)</source>
-          <target state="translated">Geschaetzter Verlust (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Estimated Loss (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 1564385708 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -814,15 +814,15 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Manufacturing Score - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 588157408 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Potential Saving €</source>
-          <target state="translated">Potenzielle Einsparung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Potential Saving</source>
+          <target state="translated">Potenzielle Einsparung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 3337727601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Potential Saving (EUR)</source>
-          <target state="translated">Potenzielle Einsparung (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Potential Saving</source>
+          <target state="translated">Potenzielle Einsparung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2071971934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -916,9 +916,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Entry No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4030804838 - Field 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Impact (EUR)</source>
-          <target state="translated">Geschaetzte Auswirkung (EUR)</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Estimated Impact</source>
+          <target state="translated">Geschaetzte Auswirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4030804838 - Field 4021179392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -1538,18 +1538,6 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Affected Count - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3003571318 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3003571318 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Estimated Impact (EUR) - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 3003571318 - Control 1052890917 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Recommendation.</source>
           <target state="translated">Gibt Empfehlung an.</target>
@@ -1603,18 +1591,6 @@
           <target state="translated">Anzahl</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Affected Count - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3740536628 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3740536628 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3740536628 - Control 1052890917 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Recommendation.</source>
@@ -1717,30 +1693,6 @@
           <target state="translated">Run-ID</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control DisplayRunId - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2843720318 - Control 524832041 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Loss EUR.</source>
-          <target state="translated">Gibt Verlust EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2843720318 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Loss EUR</source>
-          <target state="translated">Verlust EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Loss - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2843720318 - Control 2214286462 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Monitoring EUR/Month.</source>
-          <target state="translated">Gibt Monitoring EUR/Monat an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Premium Price - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2843720318 - Control 2214286462 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Monitoring EUR/Month</source>
-          <target state="translated">Monitoring EUR/Monat</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control Est. Premium Price - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 4112444282 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Headline.</source>
@@ -1886,18 +1838,6 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Category - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 204865987 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 204865987 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Estimated Impact (EUR) - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 204865987 - Control 4021179392 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Issue Code.</source>
           <target state="translated">Gibt Problemcode an.</target>
@@ -1951,18 +1891,6 @@
           <target state="translated">Gibt Kategorie an.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Category - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 177555053 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 177555053 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 177555053 - Control 4021179392 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Issue Code.</source>
@@ -2803,12 +2731,6 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2477485063 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact LCY</source>
-          <target state="translated">Auswirkung LCY</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 2477485063 - Control 4112444282 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the technical backend message.</source>
           <target state="translated">Gibt die technische Backend-Meldung an.</target>
@@ -3149,18 +3071,6 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Affected Count - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1900111907 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1900111907 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issues Part - Control Estimated Impact (EUR) - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 1900111907 - Control 33250709 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Recommendation Preview.</source>
           <target state="translated">Gibt Empfehlungsvorschau an.</target>
@@ -3474,21 +3384,21 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control EstimatedLossCue - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1886032213 - Control 1195313527 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Monitoring / Month.</source>
-          <target state="translated">Gibt Monitoring / Monat an.</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Specifies the estimated monitoring amount per month in local currency.</source>
+          <target state="translated">Gibt den geschaetzten Monitoring-Betrag pro Monat in Mandantenwaehrung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control PremiumPriceCue - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1886032213 - Control 1195313527 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Monitoring / Month</source>
           <target state="translated">Monitoring / Monat</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control PremiumPriceCue - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1886032213 - Control 1528855513 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies ROI.</source>
-          <target state="translated">Gibt ROI an.</target>
-          <note from="Developer" annotates="general" priority="2" />
+          <source>Specifies ROI in local currency.</source>
+          <target state="translated">Gibt ROI in Mandantenwaehrung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Key Metrics Part - Control ROICue - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1886032213 - Control 1528855513 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
@@ -3772,18 +3682,6 @@
           <target state="translated">Gibt Betroffene Anzahl an.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Affected Count - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4215110451 - Control 4217968805 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Impact EUR.</source>
-          <target state="translated">Gibt Auswirkung EUR an.</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Estimated Impact (EUR) - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4215110451 - Control 4217968805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Impact EUR</source>
-          <target state="translated">Auswirkung EUR</target>
-          <note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control Estimated Impact (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4215110451 - Control 4021179392 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Issue Code.</source>
@@ -5007,14 +4905,6 @@
           <source>Last Scan Date</source>
           <target state="translated">Letztes Scan-Datum</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanDate - Property Caption</note>
-        </trans-unit><trans-unit id="Page 392523509 - Control 3957536704 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the estimated loss from the last scan.</source>
-          <target state="translated">Gibt den geschaetzten Verlust aus dem letzten Scan an.</target><note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedLoss - Property ToolTip</note>
-        </trans-unit><trans-unit id="Page 392523509 - Control 3957536704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Estimated Loss EUR</source>
-          <target state="translated">Geschaetzter Verlust EUR</target><note from="Developer" annotates="general" priority="2" />
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedLoss - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2777469809 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the issue count from the last scan.</source>
           <target state="translated">Gibt die Anzahl der Fehler aus dem letzten Scan an.</target><note from="Developer" annotates="general" priority="2" />

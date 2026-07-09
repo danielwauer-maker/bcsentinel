@@ -56,25 +56,25 @@
                     ToolTip = 'Specifies Issues Count.';
                 }
 
-                field("Est. Premium Price"; Rec."Est. Premium Price")
+                field(MonitoringAmountDisplay; MonitoringAmountTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Monitoring EUR/Month';
-                    ToolTip = 'Specifies Monitoring EUR/Month.';
+                    Caption = 'Monitoring / Month';
+                    ToolTip = 'Specifies the estimated monitoring amount per month in local currency.';
                 }
 
-                field("Est. Loss"; Rec."Estimated Loss (EUR)")
+                field(ImpactDisplay; ImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Loss EUR';
-                    ToolTip = 'Specifies Loss EUR.';
+                    Caption = 'Impact';
+                    ToolTip = 'Specifies the estimated impact in local currency.';
                 }
 
-                field("ROI"; Rec."ROI")
+                field(ROIDisplay; ROITxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'ROI EUR';
-                    ToolTip = 'Specifies ROI EUR.';
+                    Caption = 'ROI';
+                    ToolTip = 'Specifies ROI in local currency.';
                 }
 
                 field("Headline"; Rec."Headline")
@@ -239,6 +239,18 @@
         Rec.Ascending(false);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        MonitoringAmountTxt := GetLocalAmountText(Rec."Est. Premium Price");
+        ImpactTxt := GetLocalAmountText(Rec."Estimated Loss (EUR)");
+        ROITxt := GetLocalAmountText(Rec."ROI");
+    end;
+
+    var
+        ImpactTxt: Text[50];
+        MonitoringAmountTxt: Text[50];
+        ROITxt: Text[50];
+
     local procedure GetBackendDeleteId(): Code[50]
     begin
         if Rec."Backend Scan Id" <> '' then
@@ -252,6 +264,13 @@
         SecretMgt: Codeunit "DH Secret Mgt.";
     begin
         exit(SecretMgt.HasApiToken(Setup));
+    end;
+
+    local procedure GetLocalAmountText(Amount: Decimal): Text[50]
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.FormatLocalAmount(Amount));
     end;
 }
 

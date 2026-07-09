@@ -31,7 +31,15 @@
                 field(Contact; Rec.Contact) { ApplicationArea = All; ToolTip = 'Specifies Contact.'; }
                 field("Home Page"; Rec."Home Page") { ApplicationArea = All; ToolTip = 'Specifies Home Page.'; }
                 field("VAT Registration No."; Rec."VAT Registration No.") { ApplicationArea = All; ToolTip = 'Specifies VAT Registration No.'; }
-                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)") { ApplicationArea = All; ToolTip = 'Specifies Credit Limit (LCY).'; }
+                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Credit Limit';
+                    ToolTip = 'Specifies Credit Limit.';
+                    AutoFormatType = 1;
+                    AutoFormatExpression = GetLocalCurrencyCode();
+                    DecimalPlaces = 2 : 2;
+                }
                 field(Blocked; Rec.Blocked) { ApplicationArea = All; ToolTip = 'Specifies Blocked.'; }
             }
         }
@@ -202,6 +210,13 @@
             exit('CUSTOMERS_MISSING_CREDIT_LIMIT');
 
         exit('');
+    end;
+
+    local procedure GetLocalCurrencyCode(): Text
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.GetLocalCurrencyCode());
     end;
 }
 

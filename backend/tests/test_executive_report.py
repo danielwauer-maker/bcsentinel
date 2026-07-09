@@ -6,12 +6,30 @@ from jose import jwt
 
 from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord
+from app.models import Scan, ScanIssueRecord, TenantProductEntitlement
 from app.routers.reports import REPORT_SHARE_ALGORITHM, REPORT_SHARE_TOKEN_TYPE
+
+
+def _grant_report_access(tenant_id: str) -> None:
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            TenantProductEntitlement(
+                tenant_id=tenant_id,
+                product_code="full_analysis",
+                status="active",
+                source="test",
+                valid_until_utc=now + timedelta(days=7),
+                created_at_utc=now,
+                updated_at_utc=now,
+            )
+        )
+        db.commit()
 
 
 def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_factory, scan_factory):
     tenant = tenant_factory(plan="premium", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_1")
     with SessionLocal() as db:
         scan = db.query(Scan).filter(Scan.scan_id == "scan_exec_1").one()
@@ -59,19 +77,67 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert len(payload["top_risks"]) >= 3
     assert payload["top_risks"][0]["title"] == "Ledger setup gap"
     assert payload["critical_findings"][0]["title"] == "Customers missing email"
+    assert payload["scan_type"] == "Manual Scan"
+    assert payload["checks_total"] == 165
+    assert {bucket["key"] for bucket in payload["severity_distribution"]} == {
+        "critical",
+        "high",
+        "medium",
+        "low",
+    }
 
     html_response = client.get("/reports/executive/scan_exec_1/html", headers=auth_header_factory(tenant))
 
     assert html_response.status_code == 200
-    assert "BCSentinel Executive Management Report" in html_response.text
-    assert "Top 10 Risks" in html_response.text
-    assert "EUR 42,000.00" in html_response.text
+    assert "BCSentinel Executive Report (Free)" in html_response.text
+    assert "Data Health &Uuml;berblick" in html_response.text
+    assert html_response.text.count('class="report-page') == 3
+    assert "42.000,00 EUR" in html_response.text
+    assert "Upgrade zu Full Analysis oder Monitoring" in html_response.text
+    assert "Report Information" in html_response.text
+    assert "Top 10 Risks" not in html_response.text
+    assert "Quick Wins" not in html_response.text
+    assert "Critical Findings" not in html_response.text
+    assert "Priority Matrix" not in html_response.text
 
     pdf_response = client.get("/reports/executive/scan_exec_1/pdf", headers=auth_header_factory(tenant))
 
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert pdf_response.content.startswith(b"%PDF-1.4")
+
+
+def test_executive_report_free_html_pdf_share_link_does_not_require_paid_access(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    scan_factory,
+    settings_state,
+):
+    settings_state(APP_BASE_URL="https://app.bcsentinel.com")
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_free")
+
+    json_response = client.get("/reports/executive/scan_exec_free", headers=auth_header_factory(tenant))
+    html_response = client.get("/reports/executive/scan_exec_free/html", headers=auth_header_factory(tenant))
+    pdf_response = client.get("/reports/executive/scan_exec_free/pdf", headers=auth_header_factory(tenant))
+    share_link_response = client.post(
+        "/reports/executive/scan_exec_free/share-link",
+        headers=auth_header_factory(tenant),
+        json={"report_type": "html"},
+    )
+
+    assert json_response.status_code == 402
+    assert html_response.status_code == 200
+    assert "BCSentinel Executive Report (Free)" in html_response.text
+    assert pdf_response.status_code == 200
+    assert pdf_response.headers["content-type"] == "application/pdf"
+    assert share_link_response.status_code == 200
+
+    shared_html_response = client.get(share_link_response.json()["url"])
+
+    assert shared_html_response.status_code == 200
+    assert "BCSentinel Executive Report (Free)" in shared_html_response.text
 
 
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):
@@ -103,6 +169,7 @@ def test_executive_report_share_links_open_without_headers(
 ):
     settings_state(APP_BASE_URL="https://app.bcsentinel.com")
     tenant = tenant_factory(plan="premium", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_shared")
 
     html_link_response = client.post(
@@ -133,7 +200,7 @@ def test_executive_report_share_links_open_without_headers(
     pdf_response = client.get(pdf_url)
 
     assert html_response.status_code == 200
-    assert "BCSentinel Executive Management Report" in html_response.text
+    assert "BCSentinel Executive Report (Free)" in html_response.text
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert pdf_response.content.startswith(b"%PDF-1.4")
@@ -146,6 +213,7 @@ def test_executive_report_shared_token_is_bound_to_type_and_scan(
     scan_factory,
 ):
     tenant = tenant_factory(plan="premium", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_bound_1")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_bound_2")
 

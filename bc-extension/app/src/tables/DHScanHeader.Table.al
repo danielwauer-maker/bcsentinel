@@ -52,12 +52,12 @@ table 53120 "DH Scan Header"
         }
         field(12; "Estimated Loss (EUR)"; Decimal)
         {
-            Caption = 'Estimated Loss (EUR)';
+            Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
         field(13; "Potential Saving (EUR)"; Decimal)
         {
-            Caption = 'Potential Saving (EUR)';
+            Caption = 'Potential Saving';
             DecimalPlaces = 0 : 2;
         }
         field(20; "Total Records"; Integer)
@@ -66,15 +66,15 @@ table 53120 "DH Scan Header"
         }
         field(21; "Est. Premium Price"; Decimal)
         {
-            Caption = 'Monitoring EUR/Month';
+            Caption = 'Monitoring / Month';
         }
         field(22; "Est. Loss"; Decimal)
         {
-            Caption = 'Estimated Loss €';
+            Caption = 'Estimated Impact';
         }
         field(23; "Potential Saving"; Decimal)
         {
-            Caption = 'Potential Saving €';
+            Caption = 'Potential Saving';
         }
         field(24; "ROI"; Decimal)
         {

@@ -30,12 +30,18 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Unit Price.';
+                    AutoFormatType = 1;
+                    AutoFormatExpression = GetLocalCurrencyCode();
+                    DecimalPlaces = 2 : 2;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Unit Cost.';
                     Editable = false;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = GetLocalCurrencyCode();
+                    DecimalPlaces = 2 : 2;
                 }
                 field(Inventory; Rec.Inventory)
                 {
@@ -96,5 +102,12 @@
             }
         }
     }
+
+    local procedure GetLocalCurrencyCode(): Text
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.GetLocalCurrencyCode());
+    end;
 }
 

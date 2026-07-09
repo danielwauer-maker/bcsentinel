@@ -453,13 +453,13 @@
                     StyleExpr = LastScanIssuesStyle;
                     ToolTip = 'Specifies the issue count from the last scan.';
                 }
-                field(LastScanEstimatedLoss; LastScanEstimatedLossValue)
+                field(LastScanEstimatedImpact; LastScanEstimatedImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Estimated Loss EUR';
+                    Caption = 'Estimated Impact';
                     Editable = false;
                     StyleExpr = LastScanLossStyle;
-                    ToolTip = 'Specifies the estimated loss from the last scan.';
+                    ToolTip = 'Specifies the estimated impact from the last scan in local currency.';
                 }
                 field(LastScanDuration; LastScanDurationTxt)
                 {
@@ -939,7 +939,7 @@
         LastScanDateValue: DateTime;
         LastScanScoreTxt: Text[30];
         LastScanIssuesValue: Integer;
-        LastScanEstimatedLossValue: Decimal;
+        LastScanEstimatedImpactTxt: Text[50];
         LastScanDurationTxt: Text[50];
         LastScanStatusTxt: Text[100];
         SystemModuleScoreTxt: Text[50];
@@ -1206,7 +1206,7 @@
         LastScanDateValue := 0DT;
         LastScanScoreTxt := '';
         LastScanIssuesValue := 0;
-        LastScanEstimatedLossValue := 0;
+        LastScanEstimatedImpactTxt := '';
         LastScanDurationTxt := '';
         LastScanStatusTxt := '';
         ShowNoScanNotice := true;
@@ -1227,7 +1227,7 @@
         LastScanDateValue := LastRun."Requested At";
         LastScanScoreTxt := StrSubstNo('%1 / 100', LastRun."Deep Score");
         LastScanIssuesValue := LastRun."Issues Count";
-        LastScanEstimatedLossValue := LastRun."Estimated Loss (EUR)";
+        LastScanEstimatedImpactTxt := GetLocalAmountText(LastRun."Estimated Loss (EUR)");
         LastScanDurationTxt := GetDurationText(LastRun);
         LastScanStatusTxt := GetDeepScanStatusDisplay(LastRun);
         LastScanScoreStyle := GetScoreStyle(LastRun."Deep Score");
@@ -1300,6 +1300,13 @@
         if Amount > 0 then
             exit('Unfavorable');
         exit('Standard');
+    end;
+
+    local procedure GetLocalAmountText(Amount: Decimal): Text[50]
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.FormatLocalAmount(Amount));
     end;
 
     local procedure GetRunStatusStyle(var DeepScanRun: Record "DH Deep Scan Run"): Text[30]

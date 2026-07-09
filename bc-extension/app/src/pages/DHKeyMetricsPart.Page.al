@@ -31,30 +31,27 @@
                     StyleExpr = RecordsStyle;
                 }
 
-                field(PremiumPriceCue; Rec."Est. Premium Price")
+                field(PremiumPriceCue; PremiumPriceTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Monitoring / Month';
-                    ToolTip = 'Specifies Monitoring / Month.';
-                    AutoFormatType = 1;
+                    ToolTip = 'Specifies the estimated monitoring amount per month in local currency.';
                     StyleExpr = PremiumPriceStyle;
                 }
 
-                field(EstimatedLossCue; Rec."Estimated Loss (EUR)")
+                field(EstimatedImpactCue; EstimatedImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Potential Loss';
-                    ToolTip = 'Specifies Potential Loss.';
-                    AutoFormatType = 1;
+                    Caption = 'Estimated Impact';
+                    ToolTip = 'Specifies the estimated impact in local currency.';
                     StyleExpr = LossStyle;
                 }
 
-                field(ROICue; Rec."ROI")
+                field(ROICue; ROITxt)
                 {
                     ApplicationArea = All;
                     Caption = 'ROI';
-                    ToolTip = 'Specifies ROI.';
-                    AutoFormatType = 1;
+                    ToolTip = 'Specifies ROI in local currency.';
                     StyleExpr = ROIStyle;
                 }
             }
@@ -77,6 +74,9 @@
         PremiumPriceStyle: Text[30];
         LossStyle: Text[30];
         ROIStyle: Text[30];
+        EstimatedImpactTxt: Text[50];
+        PremiumPriceTxt: Text[50];
+        ROITxt: Text[50];
 
     local procedure BuildStyles()
     begin
@@ -85,6 +85,9 @@
         PremiumPriceStyle := 'Ambiguous';
         LossStyle := 'Unfavorable';
         ROIStyle := GetROIStyle(Rec."ROI");
+        PremiumPriceTxt := GetLocalAmountText(Rec."Est. Premium Price");
+        EstimatedImpactTxt := GetLocalAmountText(Rec."Estimated Loss (EUR)");
+        ROITxt := GetLocalAmountText(Rec."ROI");
     end;
 
     local procedure GetScoreStyle(ScoreValue: Integer): Text
@@ -103,6 +106,13 @@
         if ROIValue < 0 then
             exit('Unfavorable');
         exit('Standard');
+    end;
+
+    local procedure GetLocalAmountText(Amount: Decimal): Text[50]
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.FormatLocalAmount(Amount));
     end;
 }
 

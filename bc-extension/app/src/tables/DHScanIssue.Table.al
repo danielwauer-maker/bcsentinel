@@ -47,7 +47,7 @@ table 53121 "DH Scan Issue"
         }
         field(11; "Estimated Impact (EUR)"; Decimal)
         {
-            Caption = 'Estimated Impact (EUR)';
+            Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
     }

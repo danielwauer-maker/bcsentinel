@@ -29,6 +29,13 @@ class ReportCategoryScore(BaseModel):
     affected_count: int = 0
 
 
+class ReportSeverityBucket(BaseModel):
+    label: str
+    key: str
+    count: int = Field(ge=0)
+    percentage: float = 0.0
+
+
 class ReportPriorityItem(BaseModel):
     priority: str
     focus: str
@@ -42,15 +49,18 @@ class ExecutiveReport(BaseModel):
     tenant_id: str
     language: str = "en"
     scan_id: str
+    scan_type: str = "Manual Scan"
     generated_at_utc: datetime
     scan_generated_at_utc: datetime
     company_label: str
     environment_label: str
+    app_version: str = "1.0.0"
     executive_summary: str
     data_health_score: int = Field(ge=0, le=100)
     score_status: str
     total_records: int = Field(ge=0)
     checks_count: int = Field(ge=0)
+    checks_total: int = Field(ge=0, default=165)
     issues_count: int = Field(ge=0)
     affected_records: int = Field(ge=0)
     estimated_loss_eur: float = 0.0
@@ -64,6 +74,7 @@ class ExecutiveReport(BaseModel):
     quick_wins: List[ReportFinding] = Field(default_factory=list)
     critical_findings: List[ReportFinding] = Field(default_factory=list)
     data_quality: List[ReportCategoryScore] = Field(default_factory=list)
+    severity_distribution: List[ReportSeverityBucket] = Field(default_factory=list)
     master_data_quality: List[ReportCategoryScore] = Field(default_factory=list)
     financial_risks: List[ReportFinding] = Field(default_factory=list)
     recommended_actions: List[str] = Field(default_factory=list)

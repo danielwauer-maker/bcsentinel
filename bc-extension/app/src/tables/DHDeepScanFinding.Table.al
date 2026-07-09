@@ -51,7 +51,7 @@ table 53129 "DH Deep Scan Finding"
         }
         field(12; "Estimated Impact (EUR)"; Decimal)
         {
-            Caption = 'Estimated Impact (EUR)';
+            Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
     }

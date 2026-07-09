@@ -52,6 +52,9 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Direct Unit Cost.';
+                    AutoFormatType = 1;
+                    AutoFormatExpression = GetLocalCurrencyCode();
+                    DecimalPlaces = 2 : 2;
                 }
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
@@ -230,5 +233,11 @@
         Message('The correction was not logged because no master data record could be assigned.');
     end;
 
+    local procedure GetLocalCurrencyCode(): Text
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.GetLocalCurrencyCode());
+    end;
 }
 

@@ -84,10 +84,10 @@
                     ToolTip = 'Specifies Issues Count.';
                 }
 
-                field("Est. Loss"; Rec."Estimated Loss (EUR)")
+                field(ImpactDisplay; ImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact LCY';
+                    Caption = 'Impact';
                     ToolTip = 'Specifies the estimated business impact in local currency.';
                 }
 
@@ -263,6 +263,7 @@
         ScoreTxt := GetScoreText();
         ModulesTxt := GetModulesText();
         ChecksTxt := GetChecksText();
+        ImpactTxt := GetImpactText();
         ResultTxt := GetResultText();
         ResultStyle := GetResultStyle();
         RatingTxt := GetRatingText(Rec."Rating");
@@ -278,6 +279,7 @@
         RunIdStyle: Text[30];
         ChecksTxt: Text[30];
         ModulesTxt: Text[30];
+        ImpactTxt: Text[50];
         RatingTxt: Text[30];
         ResultTxt: Text[30];
         ScoreTxt: Text[30];
@@ -465,6 +467,13 @@
             TotalChecks := Rec."Checks Count";
 
         exit(CopyStr(StrSubstNo('%1 / %2', Rec."Checks Count", TotalChecks), 1, 30));
+    end;
+
+    local procedure GetImpactText(): Text[50]
+    var
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+    begin
+        exit(CurrencyMgt.FormatLocalAmount(Rec."Estimated Loss (EUR)"));
     end;
 
     local procedure GetScanTypeText(): Text[50]

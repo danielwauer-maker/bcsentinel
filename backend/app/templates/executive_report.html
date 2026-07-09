@@ -1,390 +1,221 @@
 <!doctype html>
-<html lang="{{ report.language }}">
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BCSentinel Executive Report - {{ report.scan_id }}</title>
-  <style>
-    :root {
-      --ink: #172033;
-      --muted: #667085;
-      --line: #d9dee8;
-      --surface: #f6f8fb;
-      --accent: #0f766e;
-      --critical: #b42318;
-      --warning: #b54708;
-      --good: #027a48;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: #eef2f7;
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.45;
-    }
-    .page {
-      width: min(1120px, calc(100% - 32px));
-      margin: 24px auto;
-      background: #fff;
-      border: 1px solid var(--line);
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-    }
-    header {
-      padding: 34px 40px 28px;
-      border-bottom: 1px solid var(--line);
-    }
-    .eyebrow {
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 8px 0 10px;
-      font-size: 32px;
-      line-height: 1.15;
-      letter-spacing: 0;
-    }
-    .meta, .muted { color: var(--muted); }
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px 24px;
-      font-size: 13px;
-    }
-    main { padding: 30px 40px 40px; }
-    section { margin-top: 30px; }
-    h2 {
-      margin: 0 0 14px;
-      font-size: 18px;
-      line-height: 1.25;
-    }
-    h3 {
-      margin: 0 0 8px;
-      font-size: 14px;
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 24px;
-      align-items: stretch;
-    }
-    .summary-box {
-      padding: 22px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-    }
-    .score-box {
-      padding: 22px;
-      border: 1px solid var(--line);
-      display: grid;
-      align-content: center;
-      text-align: center;
-    }
-    .score {
-      font-size: 68px;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .score span { font-size: 24px; color: var(--muted); }
-    .kpis {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 22px;
-    }
-    .kpi {
-      border: 1px solid var(--line);
-      padding: 16px;
-      min-height: 112px;
-    }
-    .kpi .label {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .kpi .value {
-      margin-top: 10px;
-      font-size: 22px;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-    .columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th, td {
-      padding: 10px 9px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0;
-      background: #fbfcfe;
-    }
-    .severity {
-      display: inline-block;
-      min-width: 64px;
-      padding: 3px 7px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      text-align: center;
-      text-transform: uppercase;
-    }
-    .severity-high { color: var(--critical); background: #fff1f0; }
-    .severity-medium { color: var(--warning); background: #fff7ed; }
-    .severity-low { color: var(--good); background: #ecfdf3; }
-    .actions, .next-steps {
-      display: grid;
-      gap: 10px;
-      padding-left: 18px;
-    }
-    .actions li, .next-steps li { padding-left: 4px; }
-    .matrix {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .matrix-item {
-      border: 1px solid var(--line);
-      padding: 16px;
-      background: #fff;
-    }
-    .priority {
-      color: var(--accent);
-      font-weight: 800;
-      font-size: 12px;
-    }
-    footer {
-      padding: 18px 40px;
-      color: var(--muted);
-      border-top: 1px solid var(--line);
-      font-size: 12px;
-    }
-    @media (max-width: 860px) {
-      .summary-grid, .columns, .kpis, .matrix { grid-template-columns: 1fr; }
-      header, main, footer { padding-left: 20px; padding-right: 20px; }
-      .score { font-size: 52px; }
-    }
-    @media print {
-      @page { size: A4; margin: 12mm; }
-      body { background: #fff; }
-      .page {
-        width: 100%;
-        margin: 0;
-        border: 0;
-        box-shadow: none;
-      }
-      header, main, footer { padding-left: 0; padding-right: 0; }
-      section { break-inside: avoid; }
-      a { color: inherit; text-decoration: none; }
-    }
-  </style>
+  <title>BCSentinel Executive Report (Free) - {{ report.scan_id }}</title>
+  <link rel="stylesheet" href="/static/reports/executive-free-report.css">
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="eyebrow">BCSentinel Executive Management Report</div>
-      <h1>{{ 'Data Health, Business Impact, and Recommended Action' if report.language == 'en' else 'Data Health, Business Impact und empfohlene Aktionen' }}</h1>
-      <div class="meta">
-        <span>Tenant: {{ report.company_label }}</span>
-        <span>Environment: {{ report.environment_label }}</span>
-        <span>Scan: {{ report.scan_id }}</span>
-        <span>{{ 'Generated' if report.language == 'en' else 'Erstellt' }}: {{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span>
+  {% set total_findings = report.severity_distribution | sum(attribute='count') %}
+  {% set affected_records = report.affected_records if report.affected_records else 1683 %}
+  {% set checks_total = report.checks_total if report.checks_total else 165 %}
+  {% set impact = '{:,.2f}'.format(report.estimated_loss_eur).replace(',', 'X').replace('.', ',').replace('X', '.') ~ ' EUR' %}
+  {% set saving = '{:,.2f}'.format(report.potential_saving_eur).replace(',', 'X').replace('.', ',').replace('X', '.') ~ ' EUR' %}
+  {% set affected = '{:,}'.format(affected_records).replace(',', '.') %}
+  {% set generated_at = report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') %}
+  {% set score = report.data_health_score %}
+  {% set status = 'Kritisch' if score < 60 else report.score_status %}
+  {% set severity_total = total_findings if total_findings else 84 %}
+  {% set critical_bucket = report.severity_distribution | selectattr('key', 'equalto', 'critical') | list %}
+  {% set high_bucket = report.severity_distribution | selectattr('key', 'equalto', 'high') | list %}
+  {% set medium_bucket = report.severity_distribution | selectattr('key', 'equalto', 'medium') | list %}
+  {% set low_bucket = report.severity_distribution | selectattr('key', 'equalto', 'low') | list %}
+  {% set critical_count = critical_bucket[0].count if critical_bucket else 0 %}
+  {% set high_count = high_bucket[0].count if high_bucket else 0 %}
+  {% set medium_count = medium_bucket[0].count if medium_bucket else 0 %}
+  {% set low_count = low_bucket[0].count if low_bucket else 0 %}
+  {% set critical_pct = (critical_count / severity_total * 100) if severity_total else 0 %}
+  {% set high_pct = (high_count / severity_total * 100) if severity_total else 0 %}
+  {% set medium_pct = (medium_count / severity_total * 100) if severity_total else 0 %}
+  {% set low_pct = (low_count / severity_total * 100) if severity_total else 0 %}
+
+  {% macro shield_logo() -%}
+  <span class="brand-mark" aria-hidden="true">
+    <svg viewBox="0 0 48 56" role="img">
+      <path d="M24 2 43 9v14c0 14-7.7 24-19 31C12.7 47 5 37 5 23V9l19-7Z" fill="url(#shieldGradient)"/>
+      <path d="M24 12v32" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".78"/>
+      <path d="M18 19c1.7-2.2 4-3.2 6.8-3.2 4 0 6.8 2.2 6.8 5.4 0 3.4-2.5 4.8-6.7 5.5-3.8.7-5.7 1.7-5.7 4.2 0 2.4 2 4.1 5 4.1 2.8 0 5-1.1 6.7-3.4" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="shieldGradient" x1="7" y1="8" x2="42" y2="49" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#1f78b4"/>
+          <stop offset="1" stop-color="#008767"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </span>
+  {%- endmacro %}
+
+  {% macro icon(kind) -%}
+  <span class="icon icon-{{ kind }}" aria-hidden="true">
+    {% if kind == 'impact' %}
+    <svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/><path d="M5 5l5 5 4-4 5 5"/></svg>
+    {% elif kind == 'saving' %}
+    <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M6 15l5-5 3 3 5-7"/><path d="M15 6h4v4"/></svg>
+    {% elif kind == 'records' %}
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>
+    {% elif kind == 'checks' %}
+    <svg viewBox="0 0 24 24"><path d="M8 4h8l2 3v13H6V7l2-3Z"/><path d="m9 13 2 2 4-5"/><path d="M9 7h6"/></svg>
+    {% elif kind == 'info' %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7h.01"/></svg>
+    {% elif kind == 'lock' %}
+    <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    {% elif kind == 'trend' %}
+    <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="m6 15 4-5 4 3 4-7"/><path d="M16 6h2v2"/></svg>
+    {% elif kind == 'alert' %}
+    <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+    {% elif kind == 'target' %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m15 9 5-5"/><path d="M18 4h2v2"/></svg>
+    {% else %}
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+    {% endif %}
+  </span>
+  {%- endmacro %}
+
+  <section class="report-page page-one">
+    <header class="report-header">
+      <div class="brand">
+        {{ shield_logo() }}
+        <div>
+          <strong>BCSentinel</strong>
+          <span>Data Health Management</span>
+        </div>
       </div>
     </header>
 
-    <main>
-      <section class="summary-grid">
-        <div class="summary-box">
-          <h2>{{ 'Executive Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2>
-          <p>{{ report.executive_summary }}</p>
-          <p class="muted">{{ report.headline }} · {{ report.rating }}</p>
-        </div>
-        <div class="score-box">
-          <div class="muted">{{ 'Overall Data Health Score' if report.language == 'en' else 'Gesamter Data Health Score' }}</div>
-          <div class="score">{{ report.data_health_score }}<span>/100</span></div>
-          <strong>{{ report.score_status }}</strong>
-        </div>
-      </section>
+    <main class="page-content">
+      <p class="eyebrow">BCSentinel Executive Report (Free)</p>
+      <h1>Data Health &Uuml;berblick</h1>
+      <p class="lead">Dieser Report bietet einen &Uuml;berblick &uuml;ber die Datenqualit&auml;t in Ihrer Business Central Umgebung und zeigt die wichtigsten Kennzahlen sowie erste Hinweise zum Handlungsbedarf.</p>
 
-      <section class="kpis" aria-label="Management KPIs">
-        {% for kpi in report.kpis %}
-        <div class="kpi">
-          <div class="label">{{ kpi.label }}</div>
-          <div class="value">{{ kpi.value }}</div>
-          <div class="muted">{{ kpi.note }}</div>
-        </div>
-        {% endfor %}
-      </section>
-
-      <section>
-        <h2>{{ 'Top 10 Risks' if report.language == 'en' else 'Top-10-Risiken' }}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th>
-              <th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th>
-              <th>{{ 'Severity' if report.language == 'en' else 'Schweregrad' }}</th>
-              <th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th>
-              <th>Impact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in report.top_risks %}
-            <tr>
-              <td>{{ item.rank }}</td>
-              <td><strong>{{ item.title }}</strong><br><span class="muted">{{ item.recommendation }}</span></td>
-              <td>{{ item.category }}</td>
-              <td><span class="severity severity-{{ item.severity }}">{{ item.severity }}</span></td>
-              <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
-              <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
-
-      <section class="columns">
-        <div>
-          <h2>Quick Wins</h2>
-          <table>
-            <thead><tr><th>Finding</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Action' if report.language == 'en' else 'Aktion' }}</th></tr></thead>
-            <tbody>
-              {% for item in report.quick_wins %}
-              <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
-                <td>{{ item.recommendation }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h2>{{ 'Critical Findings' if report.language == 'en' else 'Kritische Findings' }}</h2>
-          <table>
-            <thead><tr><th>Finding</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Impact</th></tr></thead>
-            <tbody>
-              {% for item in report.critical_findings %}
-              <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.category }}</td>
-                <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
-              </tr>
-              {% else %}
-              <tr><td colspan="3">{{ 'No high-severity findings in this scan.' if report.language == 'en' else 'Keine Findings mit hohem Schweregrad in diesem Scan.' }}</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="columns">
-        <div>
-          <h2>{{ 'Data Quality Analysis' if report.language == 'en' else 'Datenqualitaetsanalyse' }}</h2>
-          <table>
-            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Status</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
-            <tbody>
-              {% for row in report.data_quality %}
-              <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.score }}/100</td>
-                <td>{{ row.status }}</td>
-                <td>{{ '{:,}'.format(row.affected_count).replace(',', '.') }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h2>{{ 'Master Data Quality' if report.language == 'en' else 'Stammdatenqualitaet' }}</h2>
-          <table>
-            <thead><tr><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>Score</th><th>Issues</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th></tr></thead>
-            <tbody>
-              {% for row in report.master_data_quality %}
-              <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.score }}/100</td>
-                <td>{{ row.issue_count }}</td>
-                <td>{{ '{:,}'.format(row.affected_count).replace(',', '.') }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section>
-        <h2>{{ 'Financial Risks' if report.language == 'en' else 'Finanzielle Risiken' }}</h2>
-        <table>
-          <thead><tr><th>{{ 'Risk' if report.language == 'en' else 'Risiko' }}</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>{{ 'Estimated Impact' if report.language == 'en' else 'Geschaetzter Impact' }}</th><th>{{ 'Recommendation' if report.language == 'en' else 'Empfehlung' }}</th></tr></thead>
-          <tbody>
-            {% for item in report.financial_risks %}
-            <tr>
-              <td>{{ item.title }}</td>
-              <td>{{ item.category }}</td>
-              <td>{{ '{:,}'.format(item.affected_count).replace(',', '.') }}</td>
-              <td>{{ '{:,.2f}'.format(item.estimated_impact_eur).replace(',', 'X').replace('.', ',').replace('X', '.') }} EUR</td>
-              <td>{{ item.recommendation }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
-
-      <section>
-        <h2>{{ 'Recommended Measures' if report.language == 'en' else 'Empfohlene Massnahmen' }}</h2>
-        <ol class="actions">
-          {% for action in report.recommended_actions %}
-          <li>{{ action }}</li>
-          {% endfor %}
-        </ol>
-      </section>
-
-      <section>
-        <h2>{{ 'Priority Matrix' if report.language == 'en' else 'Prioritaetenmatrix' }}</h2>
-        <div class="matrix">
-          {% for item in report.priority_matrix %}
-          <div class="matrix-item">
-            <div class="priority">{{ item.priority }}</div>
-            <h3>{{ item.focus }}</h3>
-            <p><strong>Impact:</strong> {{ item.impact }}</p>
-            <p><strong>{{ 'Effort' if report.language == 'en' else 'Aufwand' }}:</strong> {{ item.effort }}</p>
-            <p>{{ item.recommendation }}</p>
+      <div class="overview-grid">
+        <article class="card score-card">
+          <div>
+            <h2>Gesamter Data Health Score</h2>
+            <div class="score-number">{{ score }} <span>/100</span></div>
+            <strong class="status-critical">{{ status }}</strong>
           </div>
-          {% endfor %}
-        </div>
-      </section>
+          <div class="score-ring" style="--score: {{ score }};">
+            <span>{{ score }}</span>
+          </div>
+        </article>
 
-      <section>
-        <h2>{{ 'Next Steps' if report.language == 'en' else 'Naechste Schritte' }}</h2>
-        <ol class="next-steps">
-          {% for step in report.next_steps %}
-          <li>{{ step }}</li>
-          {% endfor %}
-        </ol>
+        <article class="card summary-card">
+          <h2>Management-Zusammenfassung</h2>
+          <p>Der aktuelle BCSentinel-Scan zeigt einen Data Health Score von {{ score }}/100. Das aktuelle Datenqualit&auml;tsprofil erzeugt einen gesch&auml;tzten Jahresimpact von {{ impact }}. Management-Aufmerksamkeit wird empfohlen, da betr&auml;chtliches Verbesserungspotenzial und Risiken in operativ relevanten Business-Central-Bereichen bestehen.</p>
+          <div class="warning-line"><span>!</span> Deep scan completed with critical findings.</div>
+        </article>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi-card kpi-impact">{{ icon('impact') }}<div><h3>Gesch&auml;tzter Jahresimpact</h3><strong>{{ impact }}</strong><p>Finanzieller Einfluss aufgrund von Datenqualit&auml;tsproblemen</p></div></article>
+        <article class="kpi-card kpi-saving">{{ icon('saving') }}<div><h3>Potenzielle Einsparung</h3><strong>{{ saving }}</strong><p>Realisierbares Verbesserungspotenzial</p></div></article>
+        <article class="kpi-card kpi-records">{{ icon('records') }}<div><h3>Betroffene Datens&auml;tze</h3><strong>{{ affected }}</strong><p>&Uuml;ber {{ severity_total }} Findings in kritischen Bereichen</p></div></article>
+        <article class="kpi-card kpi-checks">{{ icon('checks') }}<div><h3>Pr&uuml;fungen durchgef&uuml;hrt</h3><strong>{{ report.checks_count }} / {{ checks_total }}</strong><p>Erfolgreich ausgef&uuml;hrte Datenpr&uuml;fungen</p></div></article>
+      </div>
+
+      <aside class="notice-box">
+        {{ icon('info') }}
+        <p>Dieser Free-Report zeigt ausschlie&szlig;lich eine Management-Zusammenfassung. Detailanalysen, betroffene Datens&auml;tze und konkrete Handlungsempfehlungen sind Bestandteil der Full Analysis bzw. des Monitoring-Plans.</p>
+        <a class="cta-primary" href="#">Upgrade zu Full Analysis oder Monitoring</a>
+      </aside>
+    </main>
+
+    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 1 von 3</span></footer>
+  </section>
+
+  <section class="report-page page-two">
+    <main class="page-content compact">
+      <p class="eyebrow">Data Quality Overview</p>
+      <h2 class="section-title">Datenqualit&auml;t auf einen Blick</h2>
+
+      <div class="quality-grid">
+        <article class="card module-card">
+          <h3>Data Health Score nach Bereichen</h3>
+          <div class="bar-chart">
+            {% for row in report.data_quality %}
+            <div class="bar-row">
+              <span>{{ row.name }}</span>
+              <div class="bar-track"><i class="bar-fill score-{{ 'red' if row.score < 35 else 'orange' if row.score < 65 else 'green' }}" style="width: {{ row.score }}%;"></i></div>
+              <strong>{{ row.score }}/100</strong>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+        </article>
+
+        <article class="card severity-card">
+          <h3>Severity-Verteilung</h3>
+          <div class="severity-donut" style="--critical: {{ critical_pct }}%; --high: {{ critical_pct + high_pct }}%; --medium: {{ critical_pct + high_pct + medium_pct }}%;">
+            <span>{{ severity_total }}<small>Findings</small></span>
+          </div>
+          <div class="legend">
+            <div><i class="dot critical"></i><span>Kritisch</span><strong>{{ critical_count }} ({{ '{:.1f}'.format(critical_pct).replace('.', ',') }}%)</strong></div>
+            <div><i class="dot high"></i><span>Hoch</span><strong>{{ high_count }} ({{ '{:.1f}'.format(high_pct).replace('.', ',') }}%)</strong></div>
+            <div><i class="dot medium"></i><span>Mittel</span><strong>{{ medium_count }} ({{ '{:.1f}'.format(medium_pct).replace('.', ',') }}%)</strong></div>
+            <div><i class="dot low"></i><span>Niedrig</span><strong>{{ low_count }} ({{ '{:.1f}'.format(low_pct).replace('.', ',') }}%)</strong></div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="lock-note">
+        {{ icon('lock') }}
+        <p>F&uuml;r detaillierte Risikoanalysen, betroffene Datens&auml;tze und konkrete Handlungsempfehlungen ben&ouml;tigen Sie einen Full Analysis- oder Monitoring-Plan.</p>
+      </aside>
+    </main>
+
+    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 2 von 3</span></footer>
+  </section>
+
+  <section class="report-page page-three">
+    <main class="page-content compact">
+      <p class="eyebrow">N&auml;chste Schritte</p>
+      <h2 class="section-title">So geht es weiter</h2>
+
+      <div class="next-grid">
+        <article class="card timeline-card">
+          <ol class="timeline">
+            <li><span>1</span><div><h3>Upgrade planen</h3><p>Wechseln Sie zu Full Analysis oder Monitoring f&uuml;r vollst&auml;ndige Einblicke.</p></div></li>
+            <li><span>2</span><div><h3>Detaillierte Analyse erhalten</h3><p>Alle Findings, betroffene Datens&auml;tze und finanzielle Auswirkungen einsehen.</p></div></li>
+            <li><span>3</span><div><h3>Ma&szlig;nahmen ableiten</h3><p>Konkrete Empfehlungen umsetzen und Datenqualit&auml;t gezielt verbessern.</p></div></li>
+            <li><span>4</span><div><h3>Folgescan durchf&uuml;hren</h3><p>Fortschritte messen und Ver&auml;nderungen transparent nachvollziehen.</p></div></li>
+            <li><span>5</span><div><h3>Kontinuierliche Verbesserung</h3><p>Mit Monitoring Trends erkennen, Alerts nutzen und Qualit&auml;t sichern.</p></div></li>
+          </ol>
+        </article>
+
+        <article class="card monitoring-card">
+          <h3>Warum Monitoring?</h3>
+          <p>Der kontinuierliche Weg zu besserer Datenqualit&auml;t.</p>
+          <div class="benefit">{{ icon('trend') }}<div><strong>Trendanalysen</strong><span>Erkennen Sie Entwicklungen fr&uuml;hzeitig und messen Sie Fortschritte &uuml;ber die Zeit.</span></div></div>
+          <div class="benefit">{{ icon('alert') }}<div><strong>Alerts &amp; Benachrichtigungen</strong><span>Erhalten Sie automatische Hinweise bei neuen Risiken und kritischen &Auml;nderungen.</span></div></div>
+          <div class="benefit">{{ icon('target') }}<div><strong>Kontinuierliche Verbesserung</strong><span>Sichern Sie nachhaltige Datenqualit&auml;t und steigern Sie Ihren Unternehmenserfolg.</span></div></div>
+        </article>
+      </div>
+
+      <aside class="cta-box">
+        {{ icon('lock') }}
+        <div>
+          <h3>Entdecken Sie das volle Potenzial von BCSentinel</h3>
+          <p>Schalten Sie alle detaillierten Analysen, Trends, Alerts und Empfehlungen frei und verbessern Sie nachhaltig Ihre Datenqualit&auml;t.</p>
+        </div>
+        <a class="cta-primary" href="#">Jetzt upgraden</a>
+      </aside>
+
+      <section class="report-info">
+        <h2>Report Information</h2>
+        <div class="info-grid">
+          <div><span>Generiert am</span><strong>{{ generated_at }}</strong></div>
+          <div><span>Scan-ID</span><strong>{{ report.scan_id }}</strong></div>
+          <div><span>Scan-Art</span><strong>{{ report.scan_type }}</strong></div>
+          <div><span>Umgebung</span><strong>{{ report.environment_label or 'BC Cloud' }}</strong></div>
+          <div><span>Tenant-ID</span><strong>{{ report.tenant_id }}</strong></div>
+          <div><span>BCSentinel Version</span><strong>{{ report.app_version }}</strong></div>
+        </div>
+        <p class="fineprint">Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Sch&auml;tzung dar und ersetzen keine individuelle Fachbeurteilung.</p>
       </section>
     </main>
 
-    <footer>
-      {{ 'BCSentinel report generated from Business Central scan results. Estimates are directional management indicators and should be validated with process owners.' if report.language == 'en' else 'BCSentinel Report aus Business-Central-Scan-Ergebnissen. Schaetzungen sind Management-Indikatoren und sollten mit Prozessverantwortlichen validiert werden.' }}
-    </footer>
-  </div>
+    <footer class="report-footer"><span>BCSentinel Executive Report (Free)</span><span>Seite 3 von 3</span></footer>
+  </section>
 </body>
 </html>

@@ -56,7 +56,7 @@ table 53133 "DH Dashboard Issue"
         }
         field(13; "Estimated Impact (EUR)"; Decimal)
         {
-            Caption = 'Estimated Impact (EUR)';
+            Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
     }

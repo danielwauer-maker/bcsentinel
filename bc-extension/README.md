@@ -83,10 +83,19 @@ See `APP_SOURCE_READINESS.md` for the current P2.13 P0 baseline and remaining Ap
 
 The scan history page now uses customer-facing display columns for go-live:
 
-- Run ID, Scan Date, Scan Type, Result, Rating, Score, Checks Count, Issues Count, Impact LCY
+- Run ID, Scan Date, Scan Type, Rating, Score, Modules, Checks, Issues Count, Impact, Result
 - Scan Type is derived from the existing scan type and deep scan mode where available.
 - Result and Rating are displayed with localized English/German values on the page.
-- The former Headline column is kept as Technical Message later in the list.
+- The former Headline column is hidden from the standard list view.
 - Delete actions require confirmation and show clear completion messages.
 
-Currency-specific amount handling remains intentionally out of scope for EXT-04 and should be completed in EXT-05.
+## EXT-05 currency and amount formatting
+
+Customer-facing financial values are displayed with two decimals and the tenant local currency code from Business Central `General Ledger Setup`.`LCY Code` when available.
+
+- Visible amount captions avoid hard-coded EUR terminology.
+- Scan history and issue lists show formatted impact values, for example `21.908,42 EUR`.
+- Setup shows the last scan amount as Estimated Impact.
+- Internal legacy field names that still contain `EUR` are kept for upgrade safety.
+
+See `docs/EXT-05_CURRENCY_AMOUNT_FORMATTING.md` for the implementation notes and manual verification checklist.
