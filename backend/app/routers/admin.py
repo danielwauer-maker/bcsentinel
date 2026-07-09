@@ -213,6 +213,16 @@ def _fmt_dt(value) -> str:
     return value.strftime("%d.%m.%Y %H:%M:%S")
 
 
+def _fmt_product_access_date(value) -> str:
+    if not value:
+        return "-"
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return str(value)
+    return parsed.strftime("%d.%m.%Y %H:%M:%S")
+
+
 def _fmt_product_access_dates(product_access: dict) -> dict:
     formatted = dict(product_access or {})
     for key in [
@@ -238,11 +248,7 @@ def _fmt_product_access_dates(product_access: dict) -> dict:
         raw = formatted.get(key)
         if not raw:
             continue
-        try:
-            parsed = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
-        except ValueError:
-            continue
-        formatted[key] = _fmt_dt(parsed)
+        formatted[key] = _fmt_product_access_date(raw)
     return formatted
 
 

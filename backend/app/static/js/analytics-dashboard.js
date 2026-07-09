@@ -574,6 +574,23 @@ function formatDateTime(value) {
   return raw;
 }
 
+function formatProductAccessDate(...values) {
+  const raw = String(firstPresent(...values) || '').trim();
+  if (!raw || raw === '-' || raw.indexOf('\u00C3') >= 0 || raw.indexOf('\u00E2') >= 0) return '-';
+
+  const isoDateTime = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (isoDateTime) {
+    return `${isoDateTime[3]}.${isoDateTime[2]}.${isoDateTime[1]} ${isoDateTime[4]}:${isoDateTime[5]}:${isoDateTime[6] || '00'}`;
+  }
+
+  const localDateTime = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})[,\s]+(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (localDateTime) {
+    return `${localDateTime[1]}.${localDateTime[2]}.${localDateTime[3]} ${localDateTime[4]}:${localDateTime[5]}:${localDateTime[6] || '00'}`;
+  }
+
+  return formatDateTime(raw);
+}
+
 function escapeHtml(value) {
   return String(value || '')
     .replaceAll('&', '&amp;')
@@ -2913,6 +2930,18 @@ function renderSettingsPage(data) {
         ['Monitoring alerts', 'Notification settings are not configured yet'],
         ['Report available', 'Notification settings are not configured yet'],
       ];
+  const dashboardAccessUntil = firstPresent(
+    access.dashboard_access_until_bc,
+    data?.subscription?.dashboard_access_until_bc,
+    access.dashboard_access_until,
+    data?.subscription?.dashboard_access_until,
+  );
+  const issueAccessUntil = firstPresent(
+    access.issue_access_until_bc,
+    data?.subscription?.issue_access_until_bc,
+    access.issue_access_until,
+    data?.subscription?.issue_access_until,
+  );
 
   host.innerHTML = [
     renderSection('Company & Tenant', 'Read-only tenant context', [
@@ -2930,8 +2959,8 @@ function renderSettingsPage(data) {
     ]),
     renderSection('Dashboard Preferences', 'Access follows current product state', [
       ['Theme', theme],
-      ['Dashboard Access', dashboardAccess ? 'Available' : 'Locked', accessStatus({ active: dashboardAccess, until: access.dashboard_access_until })],
-      ['Issue Access', issueAccess ? 'Available' : 'Locked', accessStatus({ active: issueAccess, until: access.issue_access_until })],
+      ['Dashboard Access', dashboardAccess ? 'Available' : 'Locked', accessStatus({ active: dashboardAccess, until: dashboardAccessUntil })],
+      ['Issue Access', issueAccess ? 'Available' : 'Locked', accessStatus({ active: issueAccess, until: issueAccessUntil })],
       ['Record Details Access', recordAccess ? 'Available' : 'Locked', accessStatus({ active: recordAccess })],
       ['Monitoring Status', monitoringActive ? 'Active' : 'Inactive', accessStatus({ active: monitoringActive })],
     ]),
@@ -2948,7 +2977,7 @@ function accessStatus({ active = false, until = null, trial = false } = {}) {
   const rawUntil = String(until || '').trim();
   if (trial) return { label: 'Trial', className: 'trial' };
   if (active && rawUntil) {
-    const formattedUntil = formatDateTime(rawUntil);
+    const formattedUntil = formatProductAccessDate(rawUntil);
     if (formattedUntil && formattedUntil !== '-') return { label: `Active until ${formattedUntil}`, className: 'active' };
   }
   if (active) return { label: 'Active', className: 'active' };
@@ -3022,6 +3051,18 @@ function renderSubscriptionAccess(data) {
   if (!host) return;
   const access = data?.product_access || {};
   const trial = String(data?.license_status || '').toLowerCase() === 'trial' || String(data?.current_plan || '').toLowerCase() === 'trial';
+  const dashboardAccessUntil = firstPresent(
+    access.dashboard_access_until_bc,
+    data?.subscription?.dashboard_access_until_bc,
+    access.dashboard_access_until,
+    data?.subscription?.dashboard_access_until,
+  );
+  const issueAccessUntil = firstPresent(
+    access.issue_access_until_bc,
+    data?.subscription?.issue_access_until_bc,
+    access.issue_access_until,
+    data?.subscription?.issue_access_until,
+  );
   const rows = [
     {
       label: 'Current Plan',
@@ -3037,15 +3078,15 @@ function renderSubscriptionAccess(data) {
     },
     {
       label: 'Dashboard Access',
-      value: formatDateTime(access.dashboard_access_until),
+      value: formatProductAccessDate(dashboardAccessUntil),
       helper: access.can_view_dashboard ? 'Dashboard access is available.' : 'Dashboard access is limited.',
-      status: accessStatus({ active: Boolean(access.can_view_dashboard), until: access.dashboard_access_until, trial }),
+      status: accessStatus({ active: Boolean(access.can_view_dashboard), until: dashboardAccessUntil, trial }),
     },
     {
       label: 'Issue Access',
-      value: formatDateTime(access.issue_access_until),
+      value: formatProductAccessDate(issueAccessUntil),
       helper: access.can_view_issues || access.can_view_record_details ? 'Issue details are available.' : 'Issue details are locked.',
-      status: accessStatus({ active: Boolean(access.can_view_issues || access.can_view_record_details || access.can_view_issue_details), until: access.issue_access_until, trial }),
+      status: accessStatus({ active: Boolean(access.can_view_issues || access.can_view_record_details || access.can_view_issue_details), until: issueAccessUntil, trial }),
     },
   ];
 
@@ -3074,12 +3115,21 @@ function renderSubscriptionMonitoring(data) {
   }
 
   const renewal = firstPresent(access.monitoring_renewal_date, data?.monitoring_renewal_date, data?.subscription?.renewal_date);
-  const periodEnd = firstPresent(access.monitoring_period_end, data?.monitoring_period_end, data?.subscription?.period_end, access.dashboard_access_until);
+  const periodEnd = firstPresent(
+    access.monitoring_period_end_bc,
+    data?.monitoring_period_end_bc,
+    data?.subscription?.period_end_bc,
+    access.monitoring_period_end,
+    data?.monitoring_period_end,
+    data?.subscription?.period_end,
+    access.dashboard_access_until_bc,
+    access.dashboard_access_until,
+  );
   host.innerHTML = `
     <div class="subscription-status-value">${escapeHtml(monitoringActive ? 'Active' : 'Inactive')}</div>
     <div class="subscription-status-details">
-      <div><span>Renewal Date</span><strong>${escapeHtml(renewal ? formatDateTime(renewal) : 'Not available')}</strong></div>
-      <div><span>Period End</span><strong>${escapeHtml(periodEnd ? formatDateTime(periodEnd) : 'Not available')}</strong></div>
+      <div><span>Renewal Date</span><strong>${escapeHtml(renewal ? formatProductAccessDate(renewal) : 'Not available')}</strong></div>
+      <div><span>Period End</span><strong>${escapeHtml(periodEnd ? formatProductAccessDate(periodEnd) : 'Not available')}</strong></div>
     </div>
   `;
 }
