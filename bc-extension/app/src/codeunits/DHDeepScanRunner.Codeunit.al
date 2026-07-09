@@ -2481,6 +2481,9 @@ codeunit 53128 "DH Deep Scan Runner"
         if LowerCase(DeepScanRun."Scan Mode") = 'data_health_score' then
             exit('data_health_score');
 
+        if LowerCase(DeepScanRun."Scan Mode") = 'monitoring' then
+            exit('monitoring');
+
         exit('deep');
     end;
 

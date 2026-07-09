@@ -78,3 +78,15 @@ The repo still contains dev/build artifacts that should not be treated as releas
 They are already ignored in the root `.gitignore`, but existing tracked artifacts should be cleaned up separately to reduce the risk of shipping the wrong output.
 
 See `APP_SOURCE_READINESS.md` for the current P2.13 P0 baseline and remaining AppSource items.
+
+## EXT-04 scan history
+
+The scan history page now uses customer-facing display columns for go-live:
+
+- Run ID, Scan Date, Scan Type, Result, Rating, Score, Checks Count, Issues Count, Impact LCY
+- Scan Type is derived from the existing scan type and deep scan mode where available.
+- Result and Rating are displayed with localized English/German values on the page.
+- The former Headline column is kept as Technical Message later in the list.
+- Delete actions require confirmation and show clear completion messages.
+
+Currency-specific amount handling remains intentionally out of scope for EXT-04 and should be completed in EXT-05.

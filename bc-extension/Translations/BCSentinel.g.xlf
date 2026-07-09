@@ -2433,6 +2433,56 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 4020887741" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 scan(s) deleted.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="%1 Scan(s) gelöscht."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteManyMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 2561293048" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to delete %1 selected scans?</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Möchten Sie %1 ausgewählte Scans löschen?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteManyQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1720004424" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan deleted.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Scan gelöscht."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteOneMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 45967885" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to delete scan %1?</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Möchten Sie Scan %1 löschen?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteOneQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 4141112443" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan monitor is only available for deep scans.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Der Scan-Monitor ist nur für Deep-Scans verfügbar."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitorDeepOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 688073990" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan monitor could not find details for scan %1.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Der Scan-Monitor konnte keine Details für Scan %1 finden."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitorNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 905897921" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan history successfully synchronized with the backend.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Scan-Historie erfolgreich mit dem Backend abgeglichen."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ReconcileMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1053623508" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Dies gleicht die Backend-Scan-Historie mit der aktuellen Business-Central-Scanliste ab und entfernt verwaiste Backend-Scans. Fortfahren?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ReconcileQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1349902198" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please select a scan first.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Bitte wählen Sie zuerst einen Scan aus."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType SelectScanErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel setup was not found.</source>
+          <note from="Developer" annotates="general" priority="2">DEU="Die BCSentinel Einrichtung wurde nicht gefunden."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType SetupNotFoundErr</note>
+        </trans-unit>
         <trans-unit id="Page 2477485063 - Control 1926566482 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Checks Count.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2459,29 +2509,49 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control DisplayRunId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 524832041 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Loss EUR.</source>
+          <source>Specifies the estimated business impact in local currency.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 524832041 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Loss EUR</source>
+          <source>Impact LCY</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Est. Loss - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 4112444282 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Headline.</source>
+          <source>Specifies the technical backend message.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Headline - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 4112444282 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Technical Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Headline - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 3788725523 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Issues Count.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Issues Count - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2477485063 - Control 2689469945 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Rating.</source>
+        <trans-unit id="Page 2477485063 - Control 3893460031 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the rating.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Rating - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control RatingDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3893460031 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control RatingDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3700829301 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the scan result.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ResultDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 3700829301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Result</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ResultDisplay - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 1605091794 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Scan Date.</source>
@@ -2493,8 +2563,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control Scan DateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 1022111903 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the customer-facing scan type.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ScanTypeDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 1022111903 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control ScanTypeDisplay - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2477485063 - Action 1126870729 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Delete This Scan.</source>
+          <source>Deletes the current scan history entry after confirmation.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteCurrentScan - Property ToolTip</note>
         </trans-unit>
@@ -2504,7 +2584,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteCurrentScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 4075568953 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Delete Selected Scan(s).</source>
+          <source>Deletes the selected scan history entries after confirmation.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteSelectedScan - Property ToolTip</note>
         </trans-unit>
@@ -2514,7 +2594,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action DeleteSelectedScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 2333456897 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Open Issues.</source>
+          <source>Opens issues for the selected scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenAllIssues - Property ToolTip</note>
         </trans-unit>
@@ -2524,7 +2604,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenAllIssues - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 1042901874 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Open Scan.</source>
+          <source>Opens the selected scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenDashboardAction - Property ToolTip</note>
         </trans-unit>
@@ -2544,7 +2624,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitor - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 489835437 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Reconcile Scan History.</source>
+          <source>Synchronizes the Business Central scan history with the backend.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action ReconcileScanHistory - Property ToolTip</note>
         </trans-unit>
@@ -2554,7 +2634,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action ReconcileScanHistory - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Action 2026913255 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Runs Refresh.</source>
+          <source>Refreshes the scan history.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action Refresh - Property ToolTip</note>
         </trans-unit>

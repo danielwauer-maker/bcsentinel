@@ -34,7 +34,10 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
         DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
-        DeepScanRun."Scan Mode" := 'deep';
+        if ShowStartedMessage then
+            DeepScanRun."Scan Mode" := 'deep'
+        else
+            DeepScanRun."Scan Mode" := 'monitoring';
         DeepScanRun."Headline" := 'Deep scan queued';
         DeepScanRun."Current Module" := 'Preparing';
         DeepScanRun."Progress %" := 0;
