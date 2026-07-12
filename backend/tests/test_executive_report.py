@@ -10,7 +10,13 @@ from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import Scan, ScanIssueRecord, Tenant, TenantProductEntitlement
 from app.routers.reports import REPORT_SHARE_ALGORITHM, REPORT_SHARE_TOKEN_TYPE
-from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
+from app.services.executive_report_service import (
+    build_executive_report,
+    environment_label,
+    render_executive_report_html,
+    render_executive_report_pdf,
+    scan_type_label,
+)
 
 
 def _grant_report_access(tenant_id: str) -> None:
@@ -92,19 +98,38 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     html_response = client.get("/reports/executive/scan_exec_1/html", headers=auth_header_factory(tenant))
 
     assert html_response.status_code == 200
-    assert "BCSentinel Executive Report (Free)" in html_response.text
-    assert "Data Health &Uuml;berblick" in html_response.text
+    assert "EXECUTIVE REPORT" in html_response.text
+    assert "MANAGEMENT-ZUSAMMENFASSUNG" in html_response.text
     assert html_response.text.count('<section class="report-page') == 2
-    assert "Seite 1 von 2" in html_response.text
-    assert "Seite 2 von 2" in html_response.text
-    assert "Seite 3 von 3" not in html_response.text
+    assert ">01</b>" in html_response.text
+    assert ">02</b>" in html_response.text
     assert "42.000,00 EUR" in html_response.text
-    assert "Dieser Free-Report zeigt ausschlie&szlig;lich eine Management-Zusammenfassung" in html_response.text
-    assert "Upgrade zu Full Analysis oder Monitoring" in html_response.text
-    assert "Jetzt upgraden" in html_response.text
-    assert "Report Information" in html_response.text
-    assert "Scan-ID</span>" in html_response.text
-    assert "Erstellt am" not in html_response.text
+    assert "Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Schätzung dar und ersetzen keine individuelle Fachberatung." in html_response.text
+    analysis = html_response.text.split('class="upgrade analysis"', 1)[1].split('class="upgrade monitoring"', 1)[0]
+    assert "Vollständige Findings" in analysis
+    assert "Monitoring" not in analysis
+    assert "Alerts bei Datenqualitätsproblemen" in html_response.text
+    assert "Trendanalysen und Prognosen" in html_response.text
+    assert "BERICHTSINFORMATIONEN" in html_response.text
+    assert 'icon warning' not in html_response.text
+    assert "name == 'warning'" not in html_response.text
+    assert '<path d="M10.4 3.8' in html_response.text
+    assert ">!</" not in html_response.text
+    assert "Business Central</b>" not in html_response.text
+    assert "Dauer des Scans" not in html_response.text
+    assert "Extension-Version" in html_response.text
+    assert "fonts.googleapis.com" not in html_response.text
+    assert "fontawesome" not in html_response.text.lower()
+    assert "\u00ad" not in html_response.text
+    assert "\u2010" not in html_response.text
+    assert "\u2011" not in html_response.text
+    kpis = html_response.text.split('<div class="kpis">', 1)[1].split('<div class="charts">', 1)[0]
+    assert "Datenqualitäts" not in kpis
+    assert kpis.index("Finanzielle Auswirkung") < kpis.index("Potenzielle Einsparung")
+    assert kpis.index("Potenzielle Einsparung") < kpis.index("Betroffene Datensätze")
+    assert kpis.index("Betroffene Datensätze") < kpis.index("Prüfungen durchgeführt")
+    assert "21.000,00 EUR" in kpis
+    assert "Potenzielle jährliche Einsparungen" in kpis
     assert "Top 10 Risks" not in html_response.text
     assert "Quick Wins" not in html_response.text
     assert "Critical Findings" not in html_response.text
@@ -142,7 +167,7 @@ def test_executive_report_free_html_pdf_share_link_does_not_require_paid_access(
 
     assert json_response.status_code == 402
     assert html_response.status_code == 200
-    assert "BCSentinel Executive Report (Free)" in html_response.text
+    assert "EXECUTIVE REPORT" in html_response.text
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert b"Top 10" not in pdf_response.content
@@ -151,7 +176,7 @@ def test_executive_report_free_html_pdf_share_link_does_not_require_paid_access(
     shared_html_response = client.get(share_link_response.json()["url"])
 
     assert shared_html_response.status_code == 200
-    assert "BCSentinel Executive Report (Free)" in shared_html_response.text
+    assert "EXECUTIVE REPORT" in shared_html_response.text
 
 
 def test_executive_report_pdf_prefers_html_renderer(
@@ -171,6 +196,9 @@ def test_executive_report_pdf_prefers_html_renderer(
         def pdf(self, **kwargs):
             captured["pdf_kwargs"] = repr(kwargs)
             return b"%PDF-1.4\nhtml-rendered"
+
+        def evaluate(self, expression: str) -> None:
+            captured["evaluate"] = expression
 
     class FakeBrowser:
         def new_page(self, **kwargs):
@@ -202,10 +230,56 @@ def test_executive_report_pdf_prefers_html_renderer(
 
     assert pdf == b"%PDF-1.4\nhtml-rendered"
     assert "<style>" in captured["document"]
+    assert "data:font/woff2;base64," in captured["document"]
+    assert "font-family:Inter,sans-serif" in captured["document"]
     assert "executive-free-report.css" not in captured["document"]
-    assert "Seite 1 von 2" in captured["document"]
+    assert captured["document"].count('<section class="report-page') == 2
+    assert captured["evaluate"] == "document.fonts.ready"
     assert "format': 'A4'" in captured["pdf_kwargs"]
     assert "print_background': True" in captured["pdf_kwargs"]
+
+
+def test_executive_report_visual_edge_cases(tenant_factory, scan_factory):
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_visual_edges")
+    with SessionLocal() as db:
+        tenant_row = db.query(Tenant).filter(Tenant.tenant_id == tenant["tenant_id"]).one()
+        tenant_row.preferred_language = "de"
+        report = build_executive_report(db, tenant_row, "scan_exec_visual_edges")
+
+    for score in (0, 100):
+        html = render_executive_report_html(report.model_copy(update={"data_health_score": score}))
+        assert f"<strong>{score}</strong>" in html
+
+    empty_html = render_executive_report_html(
+        report.model_copy(
+            update={
+                "company_label": "Ein außergewöhnlich langes deutsches Beispielunternehmen für Business Central Datenqualität GmbH",
+                "severity_distribution": [
+                    bucket.model_copy(update={"count": 0, "percentage": 0})
+                    for bucket in report.severity_distribution
+                ],
+            }
+        )
+    )
+    assert "Keine Probleme erkannt." in empty_html
+    assert "Ein außergewöhnlich langes deutsches Beispielunternehmen" in empty_html
+
+    missing_optional_html = render_executive_report_html(
+        report.model_copy(update={"company_label": "", "environment_label": "", "app_version": ""})
+    )
+    assert "Extension-Version" not in missing_optional_html
+    assert "<span>–</span>" not in missing_optional_html
+
+
+def test_executive_report_german_metadata_labels():
+    assert scan_type_label("manual", "de") == "Manueller Scan"
+    assert scan_type_label("scheduled", "de") == "Geplanter Scan"
+    assert scan_type_label("monitoring", "de") == "Monitoring-Scan"
+    assert scan_type_label("unknown_internal_value", "de") == "Scan"
+    assert environment_label("production", "de") == "Produktivumgebung"
+    assert environment_label("development", "de") == "Entwicklungsumgebung"
+    assert environment_label("test", "de") == "Testumgebung"
 
 
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):
@@ -268,7 +342,7 @@ def test_executive_report_share_links_open_without_headers(
     pdf_response = client.get(pdf_url)
 
     assert html_response.status_code == 200
-    assert "BCSentinel Executive Report (Free)" in html_response.text
+    assert "EXECUTIVE REPORT" in html_response.text
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert pdf_response.content.startswith(b"%PDF-1.4")

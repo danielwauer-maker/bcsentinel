@@ -17,7 +17,7 @@ from app.db import SessionLocal
 from app.models import Tenant
 from app.schemas.report import ExecutiveReport
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
-from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
+from app.services.executive_report_service import build_executive_report, render_executive_report_html as build_report_html, render_executive_report_pdf
 from app.services.product_license_service import build_product_access_snapshot
 
 router = APIRouter(prefix="/reports", tags=["reports"])
@@ -140,10 +140,7 @@ def render_executive_report_html(
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ):
     report = _load_report(scan_id, tenant_auth, require_paid_access=False)
-    return templates.TemplateResponse(
-        name="executive_report.html",
-        context={"request": request, "report": report},
-    )
+    return HTMLResponse(build_report_html(report))
 
 
 @router.get("/executive/{scan_id}/html/shared", response_class=HTMLResponse)
@@ -153,10 +150,7 @@ def render_shared_executive_report_html(
     token: str,
 ):
     report = _load_shared_report(scan_id, "html", token)
-    return templates.TemplateResponse(
-        name="executive_report.html",
-        context={"request": request, "report": report},
-    )
+    return HTMLResponse(build_report_html(report))
 
 
 @router.get("/executive/{scan_id}/pdf")

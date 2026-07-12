@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import html
 import math
 import textwrap
@@ -12,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Scan, ScanIssueRecord, Tenant
+from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.schemas.report import (
     ExecutiveReport,
     ReportCategoryScore,
@@ -52,6 +53,9 @@ FREE_REPORT_CHECKS_TOTAL = 165
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 FREE_REPORT_TEMPLATE = "executive_report.html"
 FREE_REPORT_CSS = Path(__file__).resolve().parent.parent / "static" / "reports" / "executive-free-report.css"
+FREE_REPORT_LOGO = Path(__file__).resolve().parent.parent / "static" / "img" / "bcsentinel-report-logo.png"
+FREE_REPORT_FONT = Path(__file__).resolve().parent.parent / "static" / "fonts" / "InterVariable.woff2"
+FREE_REPORT_FONT_STATIC = Path(__file__).resolve().parent.parent / "static" / "fonts" / "Inter-Regular.woff2"
 
 MASTER_DATA_MODULES = {"CRM", "Purchasing", "Inventory", "Sales"}
 FINANCIAL_CATEGORIES = {"Finance", "Sales", "Purchasing", "Inventory"}
@@ -94,6 +98,52 @@ def score_status(score: int, language: str = "en") -> str:
     if score < 95:
         return "Gut" if language == "de" else "Good"
     return "Exzellent" if language == "de" else "Excellent"
+
+
+def scan_type_label(value: str | None, language: str = "de") -> str:
+    raw = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if language != "de":
+        labels = {
+            "manual": "Manual Scan",
+            "manual_scan": "Manual Scan",
+            "quick": "Manual Scan",
+            "deep": "Manual Scan",
+            "scheduled": "Scheduled Scan",
+            "scheduled_scan": "Scheduled Scan",
+            "monitoring": "Monitoring Scan",
+            "monitoring_scan": "Monitoring Scan",
+            "assessment": "Assessment",
+            "data_health_score": "Data Quality Assessment",
+        }
+        return labels.get(raw, "Scan")
+    labels = {
+        "manual": "Manueller Scan",
+        "manual_scan": "Manueller Scan",
+        "quick": "Manueller Scan",
+        "deep": "Manueller Scan",
+        "scheduled": "Geplanter Scan",
+        "scheduled_scan": "Geplanter Scan",
+        "monitoring": "Monitoring-Scan",
+        "monitoring_scan": "Monitoring-Scan",
+        "assessment": "Assessment",
+        "data_health_score": "Datenqualitätsbewertung",
+    }
+    return labels.get(raw, "Scan")
+
+
+def environment_label(value: str | None, language: str = "de") -> str:
+    text = str(value or "").strip()
+    if not text or language != "de":
+        return text
+    labels = {
+        "production": "Produktivumgebung",
+        "prod": "Produktivumgebung",
+        "sandbox": "Sandbox",
+        "development": "Entwicklungsumgebung",
+        "dev": "Entwicklungsumgebung",
+        "test": "Testumgebung",
+    }
+    return labels.get(text.lower(), text)
 
 
 def _normalize_category(category: str | None, code: str) -> str:
@@ -197,8 +247,6 @@ def _category_scores(scan: Scan, findings: list[ReportFinding], language: str = 
     for name in FREE_REPORT_MODULE_ORDER:
         attr = attr_by_module[name]
         score = max(0, min(100, _safe_int(getattr(scan, attr, 100), 100)))
-        if score == 0:
-            score = FREE_REPORT_MODULE_FALLBACKS[name]
         bucket = by_category.get(name, {"issues": 0, "affected": 0})
         rows.append(
             ReportCategoryScore(
@@ -224,16 +272,13 @@ def _severity_distribution(findings: list[ReportFinding], language: str = "en") 
         key = finding.severity if finding.severity in counts else "low"
         counts[key] += 1
 
-    if sum(counts.values()) == 0:
-        counts = {"critical": 25, "high": 28, "medium": 21, "low": 10}
-
-    total = max(1, sum(counts.values()))
+    total = sum(counts.values())
     return [
         ReportSeverityBucket(
             label=labels[key],
             key=key,
             count=counts[key],
-            percentage=round((counts[key] / total) * 100, 1),
+            percentage=round((counts[key] / total) * 100, 1) if total else 0.0,
         )
         for key in ["critical", "high", "medium", "low"]
     ]
@@ -325,6 +370,7 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         raise HTTPException(status_code=403, detail="Scan does not belong to authenticated tenant.")
 
     issues = db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all()
+    scan_run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan.scan_id))
     findings = [_finding(index + 1, issue, language) for index, issue in enumerate(_sorted_issues(list(issues)))]
     affected_records = sum(finding.affected_count for finding in findings)
 
@@ -379,12 +425,15 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         tenant_id=tenant.tenant_id,
         language=language,
         scan_id=scan.scan_id,
-        scan_type="Manueller Scan" if language == "de" else "Manual Scan",
+        scan_type=scan_type_label(scan.scan_type, language),
         generated_at_utc=datetime.now(timezone.utc),
         scan_generated_at_utc=scan.generated_at_utc,
-        company_label=tenant.tenant_id,
-        environment_label=tenant.environment_name,
-        app_version=tenant.app_version or "1.0.0",
+        company_label=(scan_run.company_name or "") if scan_run else "",
+        environment_label=environment_label(
+            (scan_run.environment_name or tenant.environment_name or "") if scan_run else (tenant.environment_name or ""),
+            language,
+        ),
+        app_version=str(tenant.app_version or "").strip(),
         executive_summary=_build_summary(scan, estimated_loss, potential_saving, len(critical), language),
         data_health_score=max(0, min(100, _safe_int(scan.data_score))),
         score_status=score_status(_safe_int(scan.data_score), language),
@@ -423,11 +472,25 @@ def render_executive_report_html(report: ExecutiveReport, *, inline_css: bool = 
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(("html", "xml")),
     )
-    rendered = env.get_template(FREE_REPORT_TEMPLATE).render(report=report)
+    logo_data = ""
+    if FREE_REPORT_LOGO.exists():
+        logo_data = "data:image/png;base64," + base64.b64encode(FREE_REPORT_LOGO.read_bytes()).decode("ascii")
+    rendered = env.get_template(FREE_REPORT_TEMPLATE).render(
+        report=report,
+        logo_data=logo_data,
+        money=lambda value: _money(value, "de"),
+        number=lambda value: _number(value, "de"),
+    )
     if not inline_css:
         return rendered
 
     css = FREE_REPORT_CSS.read_text(encoding="utf-8")
+    if FREE_REPORT_FONT.exists():
+        font_data = "data:font/woff2;base64," + base64.b64encode(FREE_REPORT_FONT.read_bytes()).decode("ascii")
+        css = css.replace("/static/fonts/InterVariable.woff2", font_data)
+    if FREE_REPORT_FONT_STATIC.exists():
+        static_font_data = "data:font/woff2;base64," + base64.b64encode(FREE_REPORT_FONT_STATIC.read_bytes()).decode("ascii")
+        css = css.replace("/static/fonts/Inter-Regular.woff2", static_font_data)
     stylesheet_link = '<link rel="stylesheet" href="/static/reports/executive-free-report.css">'
     return rendered.replace(stylesheet_link, f"<style>\n{css}\n</style>")
 
@@ -451,6 +514,7 @@ def _render_executive_report_html_pdf(report: ExecutiveReport) -> bytes:
         try:
             page = browser.new_page(viewport={"width": 794, "height": 1123}, device_scale_factor=1)
             page.set_content(document, wait_until="load")
+            page.evaluate("document.fonts.ready")
             return page.pdf(
                 format="A4",
                 print_background=True,
