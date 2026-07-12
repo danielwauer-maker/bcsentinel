@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import html
+import logging
 import math
 import textwrap
 from datetime import datetime, timezone
@@ -24,6 +25,9 @@ from app.schemas.report import (
 )
 from app.services.impact_service import normalize_stored_commercials
 from app.services.localization_service import tenant_language
+
+
+logger = logging.getLogger(__name__)
 
 
 MODULES = [
@@ -499,6 +503,10 @@ def render_executive_report_pdf(report: ExecutiveReport) -> bytes:
     try:
         return _render_executive_report_html_pdf(report)
     except Exception:
+        logger.exception(
+            "HTML-to-PDF renderer unavailable; using emergency text fallback.",
+            extra={"scan_id": report.scan_id, "report_id": report.report_id},
+        )
         return _render_executive_report_pdf_fallback(report)
 
 

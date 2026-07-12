@@ -63,7 +63,7 @@ Der `/pdf`-Endpunkt nutzt denselben Report-Inhalt wie der HTML-Endpunkt. `render
 - `print_background=True`
 - Rand: `0`
 
-`playwright` ist in `backend/requirements.txt` eingetragen. Fuer Runtime-Images muss zusaetzlich Chromium installiert sein, typischerweise mit `playwright install chromium`.
+`playwright` ist in `backend/requirements.txt` fest gepinnt. Das Backend-Dockerfile installiert Chromium und seine Linux-Abhaengigkeiten dauerhaft mit `python -m playwright install --with-deps chromium` in `/ms-playwright`; manuelle Installationen im laufenden Container sind nicht erforderlich. Details und Smoke-Test: `docs/reports/REPORT-RUNTIME-01_PLAYWRIGHT_CHROMIUM.md`.
 
 Wenn Playwright oder Chromium zur Laufzeit nicht verfuegbar ist, greift ein Notfall-Fallback. Dieser Fallback ist bewusst auf Free-Scope begrenzt, enthaelt keine Top-10-Findings, keine Quick Wins, keine Finding-Tabellen und keine konkreten Detail-Empfehlungen. Er ist nur eine technische Ausfallsicherung, nicht der Zielpfad.
 
