@@ -13,6 +13,7 @@ from app.routers.reports import REPORT_SHARE_ALGORITHM, REPORT_SHARE_TOKEN_TYPE
 from app.services.executive_report_service import (
     build_executive_report,
     environment_label,
+    module_label,
     render_executive_report_html,
     render_executive_report_pdf,
     scan_type_label,
@@ -113,7 +114,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert "BERICHTSINFORMATIONEN" in html_response.text
     assert 'icon warning' not in html_response.text
     assert "name == 'warning'" not in html_response.text
-    assert '<path d="M10.4 3.8' in html_response.text
+    assert '<circle cx="12" cy="12" r="9"' in html_response.text
     assert ">!</" not in html_response.text
     assert "Business Central</b>" not in html_response.text
     assert "Dauer des Scans" not in html_response.text
@@ -130,6 +131,15 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert kpis.index("Betroffene Datensätze") < kpis.index("Prüfungen durchgeführt")
     assert "21.000,00 EUR" in kpis
     assert "Potenzielle jährliche Einsparungen" in kpis
+    assert 'class="kpi-value kpi-value-money' in kpis
+    assert "Potentielle Einsparung" not in html_response.text
+    assert "Inventory" not in html_response.text
+    assert "Purchasing" not in html_response.text
+    assert "Manufacturing" not in html_response.text
+    assert "Finance" not in html_response.text
+    assert "Sales" not in html_response.text
+    for label in ("Lager", "Einkauf", "Produktion", "Finanzen", "Vertrieb"):
+        assert label in html_response.text
     assert "Top 10 Risks" not in html_response.text
     assert "Quick Wins" not in html_response.text
     assert "Critical Findings" not in html_response.text
@@ -247,9 +257,20 @@ def test_executive_report_visual_edge_cases(tenant_factory, scan_factory):
         tenant_row.preferred_language = "de"
         report = build_executive_report(db, tenant_row, "scan_exec_visual_edges")
 
-    for score in (0, 100):
+    expected_states = {0: "critical", 49: "critical", 50: "critical", 79: "warning", 80: "warning", 100: "good"}
+    for score, state in expected_states.items():
         html = render_executive_report_html(report.model_copy(update={"data_health_score": score}))
         assert f"<strong>{score}</strong>" in html
+        assert f'class="card score-hero hero-{state}"' in html
+        assert f'class="report-page page-one hero-{state}"' not in html
+        assert f'<body class="hero-{state}"' not in html
+
+    large_money_html = render_executive_report_html(
+        report.model_copy(update={"estimated_loss_eur": 1_250_480.75, "potential_saving_eur": 125_480.75})
+    )
+    assert "1.250.480,75 EUR" in large_money_html
+    assert "125.480,75 EUR" in large_money_html
+    assert large_money_html.count("money-long") >= 1
 
     empty_html = render_executive_report_html(
         report.model_copy(
@@ -280,6 +301,13 @@ def test_executive_report_german_metadata_labels():
     assert environment_label("production", "de") == "Produktivumgebung"
     assert environment_label("development", "de") == "Entwicklungsumgebung"
     assert environment_label("test", "de") == "Testumgebung"
+    assert module_label("Inventory", "de") == "Lager"
+    assert module_label("purchasing", "de") == "Einkauf"
+    assert module_label("MANUFACTURING", "de") == "Produktion"
+    assert module_label("finance", "de") == "Finanzen"
+    assert module_label("sales", "de") == "Vertrieb"
+    assert module_label("custom_quality_area", "de") == "Custom Quality Area"
+    assert module_label(None, "de") == "Bereich"
 
 
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):

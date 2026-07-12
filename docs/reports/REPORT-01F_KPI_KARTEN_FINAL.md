@@ -1,5 +1,7 @@
 # REPORT-01F - Finale KPI-Karten
 
+> Hinweis: Das visuelle Nachfolge-Release ist in `REPORT-01G_FINAL_EXECUTIVE_VISUAL_DESIGN.md` dokumentiert. Die fachliche KPI-Reihenfolge aus REPORT-01F bleibt erhalten.
+
 ## Ziel
 
 Letzte Go-Live-Anpassung der vier KPI-Karten unter der Management-Zusammenfassung. Alle anderen Reportbereiche bleiben unverändert.

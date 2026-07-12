@@ -64,6 +64,30 @@ FREE_REPORT_FONT_STATIC = Path(__file__).resolve().parent.parent / "static" / "f
 MASTER_DATA_MODULES = {"CRM", "Purchasing", "Inventory", "Sales"}
 FINANCIAL_CATEGORIES = {"Finance", "Sales", "Purchasing", "Inventory"}
 SEVERITY_WEIGHT = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+MODULE_LABELS_DE = {
+    "inventory": "Lager",
+    "lager": "Lager",
+    "warehouse": "Lager",
+    "items": "Lager",
+    "purchasing": "Einkauf",
+    "einkauf": "Einkauf",
+    "purchase": "Einkauf",
+    "vendors": "Einkauf",
+    "manufacturing": "Produktion",
+    "produktion": "Produktion",
+    "production": "Produktion",
+    "finance": "Finanzen",
+    "finanzen": "Finanzen",
+    "financials": "Finanzen",
+    "sales": "Vertrieb",
+    "vertrieb": "Vertrieb",
+    "selling": "Vertrieb",
+    "crm": "Kunden & Kontakte",
+    "service": "Service",
+    "jobs": "Projekte",
+    "hr": "Personal",
+    "system": "System",
+}
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -123,10 +147,12 @@ def scan_type_label(value: str | None, language: str = "de") -> str:
     labels = {
         "manual": "Manueller Scan",
         "manual_scan": "Manueller Scan",
+        "manueller_scan": "Manueller Scan",
         "quick": "Manueller Scan",
         "deep": "Manueller Scan",
         "scheduled": "Geplanter Scan",
         "scheduled_scan": "Geplanter Scan",
+        "geplanter_scan": "Geplanter Scan",
         "monitoring": "Monitoring-Scan",
         "monitoring_scan": "Monitoring-Scan",
         "assessment": "Assessment",
@@ -148,6 +174,21 @@ def environment_label(value: str | None, language: str = "de") -> str:
         "test": "Testumgebung",
     }
     return labels.get(text.lower(), text)
+
+
+def module_label(value: str | None, language: str = "de") -> str:
+    """Return a readable, localized module label without leaking technical codes."""
+    text = str(value or "").strip()
+    if not text:
+        return "Bereich" if language == "de" else "Area"
+    if language != "de":
+        return text.replace("_", " ").replace("-", " ").strip().title()
+    normalized = text.lower().replace("_", " ").replace("-", " ").strip()
+    compact = normalized.replace(" ", "")
+    for key, label in MODULE_LABELS_DE.items():
+        if normalized == key or compact == key.replace(" ", ""):
+            return label
+    return " ".join(part.capitalize() for part in normalized.split()) or "Bereich"
 
 
 def _normalize_category(category: str | None, code: str) -> str:
@@ -254,7 +295,7 @@ def _category_scores(scan: Scan, findings: list[ReportFinding], language: str = 
         bucket = by_category.get(name, {"issues": 0, "affected": 0})
         rows.append(
             ReportCategoryScore(
-                name=name,
+                name=module_label(name, language),
                 score=score,
                 status=score_status(score, language),
                 issue_count=bucket["issues"],
@@ -395,7 +436,8 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
     ][:5]
     financial = [finding for finding in findings if finding.category in FINANCIAL_CATEGORIES][:8]
     category_scores = _category_scores(scan, findings, language)
-    master_data = [row for row in category_scores if row.name in MASTER_DATA_MODULES]
+    master_data_labels = {module_label(name, language) for name in MASTER_DATA_MODULES}
+    master_data = [row for row in category_scores if row.name in master_data_labels]
 
     if language == "de":
         recommended_actions = [
@@ -479,8 +521,18 @@ def render_executive_report_html(report: ExecutiveReport, *, inline_css: bool = 
     logo_data = ""
     if FREE_REPORT_LOGO.exists():
         logo_data = "data:image/png;base64," + base64.b64encode(FREE_REPORT_LOGO.read_bytes()).decode("ascii")
+    display_report = report.model_copy(
+        update={
+            "scan_type": scan_type_label(report.scan_type, "de"),
+            "environment_label": environment_label(report.environment_label, "de"),
+            "data_quality": [
+                row.model_copy(update={"name": module_label(row.name, "de")})
+                for row in report.data_quality
+            ],
+        }
+    )
     rendered = env.get_template(FREE_REPORT_TEMPLATE).render(
-        report=report,
+        report=display_report,
         logo_data=logo_data,
         money=lambda value: _money(value, "de"),
         number=lambda value: _number(value, "de"),

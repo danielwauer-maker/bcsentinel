@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- REPORT-01G setzt das finale Executive-Report-Design um: Referenzlayout über zwei A4-Seiten, ausschließlich am Hero dynamische Statusfarben, vollständig sichtbare EUR-KPIs, zentrale deutsche Modullokalisierung, überarbeitete SVG-Diagramme, Executive Recommendations und hochwertige Produktsignaturen.
 - REPORT-RUNTIME-01 installiert Playwright Chromium und alle Linux-Abhängigkeiten reproduzierbar im Backend-Image, verifiziert den PDF-Renderer beim Build und protokolliert Ursachen vor dem Emergency-Fallback.
 - REPORT-01F finalisiert die KPI-Reihe mit finanzieller Auswirkung, potenzieller Einsparung, betroffenen Datensätzen und durchgeführten Prüfungen in der freigegebenen Farb- und Inhaltslogik.
 - REPORT-01E finalisiert den Free Executive Report mit kompakterer Seite 2, zentral lokalisierten Scan-/Umgebungswerten, eindeutiger Extension-Version, dynamisch bereinigten Metadaten, sicherem ASCII-Bindestrich und besser lesbarem Footer.

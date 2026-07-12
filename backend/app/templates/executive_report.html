@@ -3,100 +3,100 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BCSentinel Executive Report - {{ report.scan_id }}</title>
+  <title>BCSentinel Executive Report – {{ report.scan_id or 'Report' }}</title>
   <link rel="stylesheet" href="/static/reports/executive-free-report.css">
 </head>
-<body class="status-{{ 'critical' if report.data_health_score < 60 else 'warning' if report.data_health_score < 85 else 'good' }}">
+<body>
 {% set score = report.data_health_score %}
+{% set hero_state = 'critical' if score < 60 else 'warning' if score < 85 else 'good' %}
 {% set total = report.severity_distribution | sum(attribute='count') %}
 {% set urgent = report.severity_distribution | selectattr('key','in',['critical','high']) | sum(attribute='count') %}
 {% set urgent_pct = ((urgent / total * 100) | round | int) if total else 0 %}
 {% set score_offset = 339.292 * (100 - score) / 100 %}
 
 {% macro icon(name, extra='') %}
-<svg class="icon {{ extra }}" aria-hidden="true" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<svg class="icon {{ extra }}" aria-hidden="true" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
 {% if name == 'calendar' %}<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18m-14 4h2m4 0h2m-8 4h2m4 0h2"/>
-{% elif name == 'warning' %}<path d="M10.4 3.8 2.7 17.2A1.9 1.9 0 0 0 4.3 20h15.4a1.9 1.9 0 0 0 1.6-2.8L13.6 3.8a1.85 1.85 0 0 0-3.2 0Z"/><path d="M12 8v5m0 3h.01"/>
-{% elif name == 'chart' %}<path d="M4 20V11h4v9m4 0V6h4v14m4 0V3M3 20h19M5 8l5-4 4 3 7-5"/>
-{% elif name == 'euro' %}<circle cx="12" cy="12" r="9"/><path d="M15 7.5c-4-2-7 1-7 4.5s3 6.5 7 4.5M6 10h7m-7 4h7"/>
+{% elif name == 'warning' %}<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5m0 3.5h.01"/>
+{% elif name == 'chart' %}<path d="M4 19V11m5 8V7m5 12v-5m5 5V4"/><path d="m4 8 5-4 5 4 6-6"/>
+{% elif name == 'euro' %}<circle cx="12" cy="12" r="9"/><path d="M16 7.5c-4.5-2-8 1-8 4.5s3.5 6.5 8 4.5M6 10h7m-7 4h7"/>
 {% elif name == 'shield' %}<path d="M12 2 20 5v6c0 5-3.1 9-8 11-4.9-2-8-6-8-11V5l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/>
 {% elif name == 'database' %}<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7"/>
-{% elif name == 'check' %}<rect x="5" y="3" width="14" height="19" rx="2"/><path d="m8 9 1.5 1.5L12 8m-4 7 1.5 1.5L12 14m2-5h2m-2 6h2"/>
-{% elif name == 'monitor' %}<path d="M3 19h18M5 16V9m5 7V5m5 11v-4m5 4V3"/><path d="m4 6 5-3 5 4 7-5"/>
+{% elif name == 'check' %}<rect x="5" y="3" width="14" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8m-4 7 1.5 1.5L12 14m2-5h2m-2 6h2"/>
+{% elif name == 'monitor' %}<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4m-6-8 4-4 3 2 5-5"/>
 {% elif name == 'gear' %}<circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.6-.7-1.7 1-1.8-2.1-2.1-1.8 1-1.7-.7L11 2H8l-.6 2.6-1.7.7-1.8-1-2.1 2.1 1 1.8-.7 1.7-2 .6v3l2 .6.7 1.7-1 1.8 2.1 2.1 1.8-1 1.7.7L8 22h3l.6-2.6 1.7-.7 1.8 1 2.1-2.1-1-1.8.7-1.7 2.1-.6Z"/>
 {% elif name == 'target' %}<circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4"/><path d="m14 10 7-7m-4 0h4v4"/>
-{% elif name == 'analysis' %}<circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5 5M7 10h6m-3-3v6"/>
+{% elif name == 'analysis' %}<path d="M5 3h10l4 4v14H5zM15 3v5h5"/><path d="M8 16l3-3 2 2 4-5"/>
+{% elif name == 'benefits' %}<path d="M4 20V10m5 10V5m5 15v-7m5 7V8"/>
+{% elif name == 'info' %}<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>
 {% else %}<circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/>{% endif %}
 </g></svg>
 {% endmacro %}
 
-{% macro header() %}
-<header class="report-header">
-  <div class="brand">{% if logo_data %}<img src="{{ logo_data }}" alt="BCSentinel">{% else %}<strong>BCSentinel</strong>{% endif %}</div>
-  <div class="report-title"><h1>EXECUTIVE REPORT</h1><p>Datenqualitätsbewertung für Microsoft Dynamics 365 Business Central</p></div>
-  <div class="datebox">{{ icon('calendar') }}<span>Bericht erstellt am<strong>{{ report.generated_at_utc.strftime('%d.%m.%Y · %H:%M UTC') }}</strong></span></div>
-</header>
+{% macro product_signature() %}
+<div class="product-signature">{{ icon('shield') }}<span><strong>BCSentinel</strong> – Ihr Schutzschild für saubere und zuverlässige Business Central Daten</span></div>
 {% endmacro %}
 
 <section class="report-page page-one">
-  {{ header() }}
+  <header class="report-header">
+    <div class="brand">{% if logo_data %}<img src="{{ logo_data }}" alt="BCSentinel">{% else %}<strong>BCSentinel</strong>{% endif %}</div>
+    <div class="report-title"><h1>EXECUTIVE REPORT</h1><p>Datenqualitätsbewertung für Microsoft Dynamics 365 Business Central</p></div>
+    <div class="datebox">{{ icon('calendar') }}<span>Bericht erstellt am<strong>{{ report.generated_at_utc.strftime('%d.%m.%Y · %H:%M UTC') }}</strong></span></div>
+  </header>
   <main class="page-one-content">
     <div class="top-grid">
-      <article class="card score-hero">
-        <h2>{{ icon('warning') }}<span>{{ 'KRITISCHER DATENZUSTAND' if score < 60 else 'ERHÖHTER HANDLUNGSBEDARF' if score < 85 else 'STABILER DATENZUSTAND' }}</span></h2>
-        <div class="score-ring"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-value" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="{{ score_offset }}"/></svg><div><strong>{{ score }}</strong><span>/100</span></div></div>
-        <h3>{{ report.score_status | upper }}</h3>
-        <b>{{ 'Sofortiger Handlungsbedarf empfohlen' if score < 60 else 'Gezielte Verbesserungen empfohlen' if score < 85 else 'Datenqualität weiter sichern' }}</b>
-        <p class="alert">Ihre Datenqualität birgt Risiken für den reibungslosen Geschäftsbetrieb und kann finanzielle Verluste verursachen.</p>
+      <article class="card score-hero hero-{{ hero_state }}">
+        <div class="hero-wave" aria-hidden="true"></div>
+        <div class="hero-main"><div class="score-ring"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-value" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="{{ score_offset }}"/></svg><div><strong>{{ score }}</strong><span>/100</span></div></div><div class="hero-copy"><h2>{{ 'KRITISCHER DATENZUSTAND' if hero_state == 'critical' else 'ERHÖHTER HANDLUNGSBEDARF' if hero_state == 'warning' else 'STABILER DATENZUSTAND' }}</h2><div class="status-badge">{{ icon('warning') }}<span>{{ report.score_status | upper }}</span></div><b>{{ 'Sofortiger Handlungsbedarf empfohlen' if hero_state == 'critical' else 'Gezielte Verbesserungen empfohlen' if hero_state == 'warning' else 'Datenqualität nachhaltig sichern' }}</b><p class="hero-message">{{ 'Ihre Datenqualität birgt erhebliche Risiken für den Geschäftsbetrieb und kann finanzielle Verluste verursachen.' if hero_state == 'critical' else 'Gezielte Maßnahmen reduzieren operative Risiken und erhöhen die Verlässlichkeit Ihrer Daten.' if hero_state == 'warning' else 'Die Datenbasis ist stabil. Kontinuierliche Qualitätssicherung schützt dieses Niveau.' }}</p></div></div>
       </article>
-      <div class="executive-column">
-        <article class="card summary">
-          <h2><span class="insight">i</span>MANAGEMENT-ZUSAMMENFASSUNG</h2>
+      <article class="card summary">
+          <h2>{{ icon('chart') }}MANAGEMENT-ZUSAMMENFASSUNG</h2>
           <div class="summary-cols">
-            <div>{{ icon('chart') }}<p>Ihr Unternehmen erzielt einen Datenqualitäts-Score von <strong>{{ score }}/100</strong>. Dies weist auf {{ 'erhebliche' if score < 60 else 'erkennbare' if score < 85 else 'begrenzte' }} Risiken hin.</p></div>
-            <div>{{ icon('euro') }}<p>Die jährliche finanzielle Auswirkung beträgt <strong>{{ money(report.estimated_loss_eur) }}</strong>, mit einem Potenzial von <strong>{{ money(report.potential_saving_eur) }}</strong>.</p></div>
-            <div>{{ icon('shield') }}<p>Es wird empfohlen, zeitnah Maßnahmen zu ergreifen, Ineffizienzen zu reduzieren und die Datenzuverlässigkeit zu erhöhen.</p></div>
+            <div><span class="summary-icon red">{{ icon('chart') }}</span><h3>Datenqualität</h3><p>Ihr Unternehmen erzielt einen Datenqualitäts-Score von <strong class="red-text">{{ score }}/100</strong>. Dies weist auf {{ 'erhebliche' if score < 60 else 'erkennbare' if score < 85 else 'begrenzte' }} Risiken hin.</p></div>
+            <div><span class="summary-icon green">{{ icon('euro') }}</span><h3>Finanzielle Auswirkungen</h3><p>Die jährliche finanzielle Auswirkung beträgt <strong class="green-text">{{ money(report.estimated_loss_eur) }}</strong>, mit einem Potenzial von <strong class="green-text">{{ money(report.potential_saving_eur) }}</strong>.</p></div>
+            <div><span class="summary-icon blue">{{ icon('shield') }}</span><h3>Handlungsempfehlung</h3><p>Es wird empfohlen, zeitnah Maßnahmen zu ergreifen, Ineffizienzen zu reduzieren und die Datenzuverlässigkeit zu erhöhen.</p></div>
           </div>
-        </article>
-        <div class="kpis">
-          <article class="card financial">{{ icon('euro') }}<h3>Finanzielle Auswirkung</h3><strong>{{ money(report.estimated_loss_eur) }}</strong><b>JÄHRLICH</b><p>Geschätzte jährliche finanzielle Auswirkung</p></article>
-          <article class="card saving">{{ icon('chart') }}<h3>Potenzielle Einsparung</h3><strong>{{ money(report.potential_saving_eur) }}</strong><b>POTENZIAL</b><p>Potenzielle jährliche Einsparungen</p></article>
-          <article class="card blue">{{ icon('database') }}<h3>Betroffene Datensätze</h3><strong>{{ number(report.affected_records) }}</strong><b>GESAMT</b><p>Datensätze mit erkannter Qualitätsproblematik</p></article>
-          <article class="card blue checks">{{ icon('check') }}<h3>Prüfungen durchgeführt</h3><strong>{{ number(report.checks_count) }}</strong><b>DURCHGEFÜHRT</b><p>Automatisierte Datenprüfungen und Validierungen</p></article>
-        </div>
-      </div>
+      </article>
+    </div>
+    <div class="kpis">
+          {% set loss = money(report.estimated_loss_eur) %}{% set saving = money(report.potential_saving_eur) %}
+          <article class="card kpi financial"><span class="kpi-icon">{{ icon('euro') }}</span><h3>Finanzielle Auswirkung</h3><strong class="kpi-value kpi-value-money{% if loss|length > 15 %} money-long{% endif %}">{{ loss }}</strong><b>JÄHRLICH</b><p>Geschätzte jährliche finanzielle Auswirkung</p></article>
+          <article class="card kpi saving"><span class="kpi-icon">{{ icon('chart') }}</span><h3>Potenzielle Einsparung</h3><strong class="kpi-value kpi-value-money{% if saving|length > 15 %} money-long{% endif %}">{{ saving }}</strong><b>POTENZIAL</b><p>Potenzielle jährliche Einsparungen</p></article>
+          <article class="card kpi blue"><span class="kpi-icon">{{ icon('database') }}</span><h3>Betroffene Datensätze</h3><strong class="kpi-value">{{ number(report.affected_records) }}</strong><b>GESAMT</b><p>Datensätze mit erkannter Qualitätsproblematik</p></article>
+          <article class="card kpi blue"><span class="kpi-icon">{{ icon('check') }}</span><h3>Prüfungen durchgeführt</h3><strong class="kpi-value">{{ number(report.checks_count) }}</strong><b>DURCHGEFÜHRT</b><p>Automatisierte Prüfungen und Validierungen</p></article>
     </div>
     <div class="charts">
-      <article class="card categories"><h2>DATENQUALITÄT NACH BEREICH</h2>{% for row in report.data_quality[:5] | sort(attribute='score') %}<div class="bar-row"><b>{{ row.name }}</b><span><i class="score-{{ 'bad' if row.score < 50 else 'mid' if row.score < 70 else 'good' }}" style="width:{{ row.score }}%"></i></span><em>{{ row.score }}/100</em></div>{% else %}<p>Keine Bereichsdaten verfügbar.</p>{% endfor %}<div class="axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></article>
-      <article class="card severity"><h2>PROBLEME NACH SCHWEREGRAD</h2><div class="severity-body"><div class="donut"><svg viewBox="0 0 42 42">{% set ns = namespace(offset=25) %}<circle class="donut-track" cx="21" cy="21" r="15.9155"/>{% for bucket in report.severity_distribution %}<circle class="donut-segment segment-{{ bucket.key }}" cx="21" cy="21" r="15.9155" stroke-dasharray="{{ bucket.percentage }} {{ 100 - bucket.percentage }}" stroke-dashoffset="{{ ns.offset }}"/>{% set ns.offset = ns.offset - bucket.percentage %}{% endfor %}</svg><span><strong>{{ total }}</strong>GESAMT</span></div><div class="legend">{% for bucket in report.severity_distribution %}<p class="{{ bucket.key }}"><i></i><b>{{ bucket.label | upper }}</b><span>{{ bucket.count }} ({{ bucket.percentage | round | int }}%)</span></p>{% endfor %}</div></div><p class="alert">{% if total %}{{ urgent_pct }} % der gefundenen Probleme haben hohe oder kritische Priorität und sollten zeitnah behoben werden.{% else %}Keine Probleme erkannt.{% endif %}</p></article>
+      <article class="card categories"><h2>{{ icon('benefits') }}DATENQUALITÄT NACH BEREICH</h2><div class="bar-chart">{% for row in report.data_quality[:5] | sort(attribute='score') %}<div class="bar-row"><b>{{ row.name }}</b><span><i class="score-{{ 'bad' if row.score < 50 else 'risk' if row.score < 60 else 'mid' if row.score < 85 else 'good' }}" style="width:{{ row.score }}%"></i></span><em>{{ row.score }}/100</em></div>{% else %}<p class="empty-state">Keine Bereichsdaten verfügbar.</p>{% endfor %}<div class="axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div></article>
+      <article class="card severity"><h2>PROBLEME NACH SCHWEREGRAD</h2><div class="severity-body"><div class="donut"><svg viewBox="0 0 42 42">{% set ns = namespace(offset=25) %}<circle class="donut-track" cx="21" cy="21" r="15.9155"/>{% for bucket in report.severity_distribution %}{% if bucket.percentage %}<circle class="donut-segment segment-{{ bucket.key }}" cx="21" cy="21" r="15.9155" stroke-dasharray="{{ bucket.percentage }} {{ 100 - bucket.percentage }}" stroke-dashoffset="{{ ns.offset }}"/>{% endif %}{% set ns.offset = ns.offset - bucket.percentage %}{% endfor %}</svg><span><strong>{{ total }}</strong><b>Probleme</b><small>Gesamt</small></span></div><div class="legend">{% for bucket in report.severity_distribution %}<p class="{{ bucket.key }}"><i></i><b>{{ bucket.label | upper }}</b><span>{{ bucket.count }} ({{ bucket.percentage | round | int }}%)</span></p>{% endfor %}<div class="severity-note">{% if total %}<strong>{{ urgent_pct }} %</strong> der gefundenen Probleme haben hohe oder kritische Priorität und sollten zeitnah behoben werden.{% else %}Keine Probleme erkannt.{% endif %}</div></div></div></article>
     </div>
   </main>
-  <footer class="page-footer page-number-only"><span></span><b>01</b></footer>
+  <footer class="page-footer">{{ product_signature() }}<b class="page-number">01</b></footer>
 </section>
 
 <section class="report-page page-two">
   <main class="page-two-content">
-    <div class="page2-grid">
-      <section class="upgrade-column"><h2>NÄCHSTE SCHRITTE: VOLLES POTENZIAL ENTFALTEN</h2><p class="intro">Wählen Sie das passende Upgrade für Ihre Anforderungen.</p>
-        <article class="upgrade analysis"><div class="upgrade-head"><span class="upgrade-icon">{{ icon('analysis') }}</span><div><h3>Upgrade zur vollständigen Analyse</h3><p>Erhalten Sie die vollständige Analyse und konkrete Handlungsempfehlungen.</p></div><a href="/billing">ZUR VOLLSTÄNDIGEN ANALYSE <span>›</span></a></div><ul><li>Vollständige Findings</li><li>Detaillierte Ursachenanalyse</li><li>Konkrete Handlungsempfehlungen</li><li>Priorisierte Maßnahmen</li></ul></article>
-        <article class="upgrade monitoring"><div class="upgrade-head"><span class="upgrade-icon">{{ icon('monitor') }}</span><div><h3>Upgrade zum Monitoring</h3><p>Überwachen Sie Ihre Datenqualität kontinuierlich und proaktiv.</p></div><a href="/billing">ZUM MONITORING UPGRADEN <span>›</span></a></div><ul><li>Kontinuierliche Überwachung</li><li>Alerts bei Datenqualitätsproblemen</li><li>Trendanalysen und Prognosen</li><li>Dashboards und Berichte</li></ul></article>
-        <p class="premium">Verfügbar in den BCSentinel Premium-Angeboten</p>
-      </section>
-      <section class="benefits"><h2>IHR NUTZEN</h2>
-        <article>{{ icon('euro') }}<div><h3>KOSTEN REDUZIEREN</h3><p>Beheben Sie Datenprobleme und reduzieren Sie vermeidbare operative Kosten.</p></div>{{ icon('chart','benefit-tail') }}</article>
-        <article>{{ icon('gear') }}<div><h3>EFFIZIENZ STEIGERN</h3><p>Saubere Daten unterstützen effizientere Prozesse und eine höhere Mitarbeiterproduktivität.</p></div>{{ icon('monitor','benefit-tail') }}</article>
-        <article>{{ icon('shield') }}<div><h3>RISIKEN MINIMIEREN</h3><p>Reduzieren Sie Compliance- und Prozessrisiken und vermeiden Sie kostspielige Fehler.</p></div>{{ icon('warning','benefit-tail') }}</article>
-        <article>{{ icon('target') }}<div><h3>BESSERE ENTSCHEIDUNGEN TREFFEN</h3><p>Vertrauen Sie auf zuverlässige Daten für fundierte Geschäftsentscheidungen.</p></div>{{ icon('analysis','benefit-tail') }}</article>
-      </section>
-    </div>
-    <section class="card report-info"><h2>BERICHTSINFORMATIONEN</h2><div class="report-info-grid">
+    <header class="recommendations-title"><span>{{ icon('calendar') }}</span><div><h1>EMPFOHLENE NÄCHSTE SCHRITTE</h1><p>Wählen Sie den nächsten Schritt, um das volle Potenzial Ihrer Daten zu nutzen.</p></div></header>
+    <section class="recommendation-grid">
+      <article class="upgrade analysis"><div class="recommendation-head"><span class="recommendation-icon">{{ icon('analysis') }}</span><div><h2>Upgrade zur vollständigen Analyse</h2><p>Erhalten Sie die vollständige Analyse und konkrete Handlungsempfehlungen.</p><a href="/billing">ZUR VOLLSTÄNDIGEN ANALYSE <span>›</span></a></div></div><ul><li>Vollständige Findings</li><li>Detaillierte Ursachenanalyse</li><li>Konkrete Handlungsempfehlungen</li><li>Priorisierte Maßnahmen</li></ul></article>
+      <article class="upgrade monitoring"><div class="recommendation-head"><span class="recommendation-icon">{{ icon('monitor') }}</span><div><h2>Upgrade zum Monitoring</h2><p>Überwachen Sie Ihre Datenqualität kontinuierlich und proaktiv.</p><a href="/billing">ZUM MONITORING UPGRADEN <span>›</span></a></div></div><ul><li>Kontinuierliche Überwachung</li><li>Alerts bei Datenqualitätsproblemen</li><li>Trendanalysen und Prognosen</li><li>Dashboards und Berichte</li></ul></article>
+    </section>
+    <p class="premium">Verfügbar in den BCSentinel Premium-Angeboten</p>
+    <section class="card benefits"><h2>{{ icon('benefits') }}IHR NUTZEN</h2><div class="benefit-grid">
+      <article><span class="benefit-icon red">{{ icon('euro') }}</span><div><h3>KOSTEN REDUZIEREN</h3><p>Beheben Sie Datenprobleme und reduzieren Sie vermeidbare operative Kosten.</p></div></article>
+      <article><span class="benefit-icon green">{{ icon('gear') }}</span><div><h3>EFFIZIENZ STEIGERN</h3><p>Saubere Daten unterstützen effizientere Prozesse und eine höhere Mitarbeiterproduktivität.</p></div></article>
+      <article><span class="benefit-icon blue">{{ icon('shield') }}</span><div><h3>RISIKEN MINIMIEREN</h3><p>Reduzieren Sie Compliance- und Prozessrisiken und vermeiden Sie kostspielige Fehler.</p></div></article>
+      <article><span class="benefit-icon blue">{{ icon('target') }}</span><div><h3>BESSERE ENTSCHEIDUNGEN TREFFEN</h3><p>Vertrauen Sie auf zuverlässige Daten für fundierte Geschäftsentscheidungen.</p></div></article>
+    </div></section>
+    <section class="card report-info"><h2>{{ icon('info') }}BERICHTSINFORMATIONEN</h2><div class="report-info-grid">
       {% if report.environment_label %}<p><b>Umgebung</b><span>{{ report.environment_label }}</span></p>{% endif %}
       {% if report.company_label %}<p><b>Unternehmen</b><span>{{ report.company_label }}</span></p>{% endif %}
-      <p><b>Scan-Art</b><span>{{ report.scan_type }}</span></p><p><b>Scan-ID</b><span>{{ report.scan_id }}</span></p>
+      {% if report.scan_type %}<p><b>Scan-Art</b><span>{{ report.scan_type }}</span></p>{% endif %}
+      {% if report.scan_id %}<p><b>Scan-ID</b><span>{{ report.scan_id }}</span></p>{% endif %}
       {% if report.app_version %}<p><b>Extension-Version</b><span>{{ report.app_version }}</span></p>{% endif %}
       <p><b>Generiert am</b><span>{{ report.generated_at_utc.strftime('%d.%m.%Y · %H:%M UTC') }}</span></p>
     </div></section>
   </main>
-  <footer class="page-footer footer2"><p><strong>BCSentinel</strong> - Ihr Schutzschild für saubere und zuverlässige Business Central Daten</p><p class="legal">Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Schätzung dar und ersetzen keine individuelle Fachberatung.</p><b>02</b></footer>
+  <footer class="page-footer footer2"><div class="footer-brand">{{ icon('shield') }}<strong>BCSentinel</strong></div><p class="legal">Dieser Report wurde automatisch generiert und basiert auf dem Stand zum Zeitpunkt des Scans. Die Ergebnisse stellen eine Schätzung dar und ersetzen keine individuelle Fachberatung.</p><b class="page-number">02</b></footer>
 </section>
-</body></html>
+</body>
+</html>
