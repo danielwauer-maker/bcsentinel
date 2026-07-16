@@ -118,6 +118,25 @@ Aktueller Befund: Der lokale AL-Compiler fehlt. Das vorhandene Paket 1.0.2.6 bes
 | Stufe | Minimale Voraussetzung |
 |---|---|
 | NO-GO | mindestens ein P0 offen oder Build/CAT nicht verifizierbar – aktueller Zustand |
+
+## Gate-Delta GL-EXT-P0A (16. Juli 2026)
+
+Die ursprüngliche Checkliste bleibt als Audit-Baseline erhalten. Nur P0A-betroffene Gates wurden neu bewertet:
+
+- [x] Production HTTP wird in AL-Konfiguration, jedem AL-Request und am produktiven Backend-Eingang blockiert.
+- [x] Dev-HTTP ist auf non-production plus exakte Loopback-Hosts begrenzt.
+- [x] Registrierung ist an Entra Tenant, Environment und Company SystemId gebunden.
+- [x] Identische, parallele und Timeout-Retry-Registrierung erzeugt keine Duplikate.
+- [x] Portaluser wird nicht dupliziert; Invite-Resend ist explizit und authentisiert.
+- [x] Dashboard-Token verlangt für gebundene Tenants den exakt registrierten Plattformkontext.
+- [x] Reset besitzt Default Nein und erhält Tenant-ID, Token, Käufe und Historie.
+- [x] Migration funktioniert frisch und von 0021 mit erhaltenem Legacy-Bestand.
+- [x] AL ReleaseCloud Compile sowie CodeCop/PerTenantExtensionCop ohne Fehler.
+- [ ] AppSourceCop grün: bestehende Manifest-/ID-Range-Gaps bleiben offen.
+- [ ] Reproduzierbarer 10-Punkte-BC-Sandbox-CAT ausgeführt: Sandbox nicht verfügbar.
+- [ ] Docker-Testimage gebaut: Docker Desktop Linux Engine war nicht gestartet.
+
+P0A-Entscheidung: **P0-01 und P0-02 geschlossen; bereit für GL-EXT-P0B.** Produkt-Gate bleibt **BLOCKED / NO-GO**, bis die übrigen P0 und der Sandbox-CAT geschlossen sind.
 | CONDITIONAL GO | keine P0; nur zeitlich begrenzte, akzeptierte P1 außerhalb des Pilotumfangs |
 | PILOT GO | P0/P1 im Pilotumfang geschlossen; Build, Upgrade und CAT grün; enges Monitoring |
 | CUSTOMER GO | vollständige Betriebs-, Support-, Security- und Upgradeevidenz |

@@ -127,10 +127,11 @@
         EnvironmentValue: Text;
         TenantValue: Text;
         ScanModeValue: Text;
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
         BaseUrl := BuildUrl(Setup."API Base URL", '/analytics/get-token');
         CompanyValue := EncodeUrlValue(CompanyName());
-        EnvironmentValue := EncodeUrlValue('BC Cloud');
+        EnvironmentValue := EncodeUrlValue(IdentityMgt.GetEnvironmentName());
         TenantValue := EncodeUrlValue(Setup."Tenant ID");
         ScanModeValue := EncodeUrlValue(GetScanMode(Setup));
 
@@ -138,6 +139,9 @@
             BaseUrl +
             '?company=' + CompanyValue +
             '&environment=' + EnvironmentValue +
+            '&environment_type=' + EncodeUrlValue(IdentityMgt.GetEnvironmentType()) +
+            '&entra_tenant_id=' + EncodeUrlValue(IdentityMgt.GetEntraTenantId()) +
+            '&company_id=' + EncodeUrlValue(IdentityMgt.GetCompanyId()) +
             '&tenant_id=' + TenantValue +
             '&scan_mode=' + ScanModeValue +
             '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
@@ -180,8 +184,10 @@
     end;
 
     local procedure BuildUrl(BaseUrl: Text; RelativePath: Text): Text
+    var
+        ApiUrlPolicy: Codeunit "DH API URL Policy";
     begin
-        exit(RemoveTrailingSlash(BaseUrl) + RelativePath);
+        exit(ApiUrlPolicy.BuildUrl(BaseUrl, RelativePath));
     end;
 
     local procedure RemoveTrailingSlash(Value: Text): Text

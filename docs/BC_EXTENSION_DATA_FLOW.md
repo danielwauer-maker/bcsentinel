@@ -46,6 +46,20 @@ Positiv ist, dass Quick Scans nur Aggregate übertragen und Deep Scans keine vol
 
 - HTTPS-only mit Allowlist für Produktionsendpunkte.
 - stabile, serverseitig verifizierte Tenant-/Environment-/Company-Bindung.
+
+## Datenfluss-Delta GL-EXT-P0A (16. Juli 2026)
+
+Die ursprüngliche Tabelle oben dokumentiert den Audit-Ausgangszustand. Seit P0A gelten für die betroffenen Flows folgende Korrekturen:
+
+| Flow | Neuer Datenvertrag | Serververarbeitung | Schutz/Idempotenz | Aktueller Status |
+|---|---|---|---|---|
+| Registrierung | Entra Tenant ID, Environment Name/Type, Company SystemId/Name, echte App-Version, Kontakt/Sprache, optional bestehende Tenant-ID | Normalisierung, SHA-256 Identity-Key, Unique Constraint, transaktionaler Upsert | stabiler Tenant/Token; Legacy-Bindung nur mit gültigen Authheadern | P0-02 geschlossen |
+| Transport | absolute API-Basis-URL ohne Credentials/Query/Fragment | Production-Middleware prüft HTTPS/Forwarded Proto; Settings durchlaufen dieselbe Policy | HTTP nur non-production auf exakt localhost/127.0.0.1/::1 | P0-01 geschlossen |
+| Portal-Einladung | Kontakt-E-Mail am bestehenden Tenant | genau ein DashboardUser; Erstinvite nur bei Neuanlage; expliziter authentisierter Resend | Mailfehler rollt Registrierung nicht zurück; Retry sendet nicht erneut | Registrierungspfad vollständig |
+| Dashboard-Token | Tenant-Auth plus Entra-/Environment-/Company-Kontext | exact match gegen gebundene Backend-Identität vor Tokenausgabe | 409 bei fehlendem Kontext, 403 bei Mismatch; Query-Tenant allein genügt nie | Kontextbindung vollständig |
+| Reset/Reconcile | Tenant-ID und API-Token bleiben lokal erhalten | idempotente Re-Registrierung findet denselben Backend-Tenant | Reset löscht nur Caches; Confirm Default Nein; Käufe/History bleiben | P0-02 geschlossen |
+
+Der Backend-Token liegt weiterhin nur gehasht vor; der AL-Token bleibt wie zuvor im Company-scope Isolated Storage. Legacy-Datensätze erhalten nullable Identity-Felder und werden nicht automatisch zugeordnet.
 - Tokenrotation, Revocation, Recovery und sichere Löschung des verwendeten Invite Codes.
 - atomare Credit-Transaktion mit Unique-Constraint auf verbrauchte Scan-ID/Credit-Zuordnung.
 - frische Access-Prüfung vor jeder lokalen Anzeige oder Aktion mit Premiumdaten.

@@ -8,6 +8,9 @@ from app.db import Base
 
 class Tenant(Base):
     __tablename__ = "tenants"
+    __table_args__ = (
+        UniqueConstraint("registration_identity_key", name="uq_tenants_registration_identity_key"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
@@ -21,6 +24,12 @@ class Tenant(Base):
     last_seen_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     current_plan: Mapped[str] = mapped_column(String(20), default="free")
     license_status: Mapped[str] = mapped_column(String(20), default="trial")
+    registration_identity_key: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    entra_tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    bc_environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    bc_environment_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    bc_company_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    bc_company_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     scans: Mapped[list["Scan"]] = relationship(
         back_populates="tenant",

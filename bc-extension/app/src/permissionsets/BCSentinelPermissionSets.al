@@ -30,7 +30,9 @@ permissionset 53190 "BCSENTINEL VIEWER"
         page "DH Dashboard Issues List" = X,
         page "DHM Analytics" = X,
         codeunit "DH Dashboard Mgt." = X,
-        codeunit "DH Issue Drilldown Mgt." = X;
+        codeunit "DH Issue Drilldown Mgt." = X,
+        codeunit "DH API URL Policy" = X,
+        codeunit "DH Tenant Identity Mgt." = X;
 }
 
 permissionset 53191 "BCSENTINEL SCAN"
@@ -83,6 +85,8 @@ permissionset 53191 "BCSENTINEL SCAN"
         codeunit "DH Scheduled Scan Runner" = X,
         codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
+        codeunit "DH API URL Policy" = X,
+        codeunit "DH Tenant Identity Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
 }
@@ -104,7 +108,9 @@ permissionset 53192 "BCSENTINEL SETUP"
         codeunit "DH Scheduled Scan Runner" = X,
         codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
-        codeunit "DH Run ID Mgt." = X;
+        codeunit "DH Run ID Mgt." = X,
+        codeunit "DH API URL Policy" = X,
+        codeunit "DH Tenant Identity Mgt." = X;
 }
 
 permissionset 53193 "BCSENTINEL ADMIN"
@@ -174,6 +180,8 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Scheduled Scan Runner" = X,
         codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
+        codeunit "DH API URL Policy" = X,
+        codeunit "DH Tenant Identity Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
 }

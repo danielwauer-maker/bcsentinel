@@ -1,6 +1,8 @@
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.security.url_policy import UnsafeUrlError, normalize_service_base_url
 
 
 class Settings(BaseSettings):
@@ -57,15 +59,11 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-def _normalize_url(value: str | None) -> str | None:
-    normalized = (value or "").strip()
-    if not normalized:
-        return None
-
-    parsed = urlparse(normalized)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise RuntimeError(f"Invalid URL configured: {normalized}")
-    return normalized.rstrip("/")
+def _normalize_url(value: str | None, *, allow_query: bool = False) -> str | None:
+    try:
+        return normalize_service_base_url(value, environment=settings.ENV, allow_query=allow_query)
+    except UnsafeUrlError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def _default_dev_app_base_url() -> str:
@@ -102,7 +100,7 @@ def resolve_billing_url(setting_name: str) -> str:
     if setting_name not in explicit_mapping:
         raise RuntimeError(f"Unsupported billing URL setting: {setting_name}")
 
-    explicit_url = _normalize_url(explicit_mapping[setting_name])
+    explicit_url = _normalize_url(explicit_mapping[setting_name], allow_query=True)
     if explicit_url:
         return explicit_url
 
@@ -138,6 +136,9 @@ def validate_settings() -> None:
     if settings.APP_BASE_URL:
         _normalize_url(settings.APP_BASE_URL)
 
+    if settings.PARTNER_RESET_URL_BASE:
+        _normalize_url(settings.PARTNER_RESET_URL_BASE)
+
     for setting_name in (
         "BILLING_SUCCESS_URL",
         "BILLING_CANCEL_URL",
@@ -145,7 +146,7 @@ def validate_settings() -> None:
     ):
         configured_value = getattr(settings, setting_name)
         if configured_value:
-            _normalize_url(configured_value)
+            _normalize_url(configured_value, allow_query=True)
 
     insecure_secret_values = {"changeme", "change-me", "dev_only_secret_key_change_me"}
     insecure_admin_password_values = {"changeme", "changeme-now", "admin", "password"}
@@ -159,6 +160,8 @@ def validate_settings() -> None:
             raise RuntimeError("CORS_ALLOW_ORIGINS must not contain '*' in production.")
         if "https://dev.bcsentinel.com" in configured_origins:
             raise RuntimeError("CORS_ALLOW_ORIGINS must not contain dev origins in production.")
+        for configured_origin in configured_origins:
+            _normalize_url(configured_origin)
 
         if not _resolve_base_url():
             raise RuntimeError("APP_BASE_URL is required in production.")

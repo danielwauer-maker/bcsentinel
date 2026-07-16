@@ -9,12 +9,26 @@ from app.models import DashboardUser, Tenant
 from app.security.token_hash import verify_api_token
 
 
+def _registration_payload(**overrides):
+    payload = {
+        "entra_tenant_id": "11111111-1111-1111-1111-111111111111",
+        "environment_name": "Production",
+        "environment_type": "production",
+        "company_id": "22222222-2222-2222-2222-222222222222",
+        "company_name": "CRONUS DE",
+        "app_version": "1.0.0",
+        "contact_email": "pilot.customer@example.com",
+    }
+    payload.update(overrides)
+    return payload
+
+
 def test_tenant_registration_requires_invite_when_configured(client, settings_state):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
 
     response = client.post(
         "/tenant/register",
-        json={"environment_name": "BC Cloud", "app_version": "1.0.0"},
+        json=_registration_payload(),
     )
 
     assert response.status_code == 403
@@ -26,7 +40,7 @@ def test_tenant_registration_with_valid_invite_requires_contact_email(client, se
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={"environment_name": "BC Cloud", "app_version": "1.0.0"},
+        json=_registration_payload(contact_email=None),
     )
 
     assert response.status_code == 422
@@ -38,11 +52,7 @@ def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_has
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={
-            "environment_name": "BC Cloud",
-            "app_version": "1.0.0",
-            "contact_email": "pilot.customer@example.com",
-        },
+        json=_registration_payload(),
     )
 
     assert response.status_code == 200
@@ -72,11 +82,7 @@ def test_tenant_registration_stores_optional_contact_email(client, settings_stat
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={
-            "environment_name": "BC Cloud",
-            "app_version": "1.0.0",
-            "contact_email": " Pilot.Customer@Example.COM ",
-        },
+        json=_registration_payload(contact_email=" Pilot.Customer@Example.COM "),
     )
 
     assert response.status_code == 200
@@ -96,11 +102,7 @@ def test_tenant_registration_rejects_invalid_contact_email(client, settings_stat
     response = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={
-            "environment_name": "BC Cloud",
-            "app_version": "1.0.0",
-            "contact_email": "not-valid",
-        },
+        json=_registration_payload(contact_email="not-valid"),
     )
 
     assert response.status_code == 422
@@ -112,22 +114,18 @@ def test_tenant_registration_rejects_dashboard_email_for_other_tenant(client, se
     first = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={
-            "environment_name": "BC Cloud",
-            "app_version": "1.0.0",
-            "contact_email": "shared@example.com",
-        },
+        json=_registration_payload(contact_email="shared@example.com"),
     )
     assert first.status_code == 200
 
     second = client.post(
         "/tenant/register",
         headers={"X-Registration-Invite": "pilot-secret"},
-        json={
-            "environment_name": "BC Cloud",
-            "app_version": "1.0.0",
-            "contact_email": "shared@example.com",
-        },
+        json=_registration_payload(
+            contact_email="shared@example.com",
+            company_id="33333333-3333-3333-3333-333333333333",
+            company_name="OTHER",
+        ),
     )
 
     assert second.status_code == 409
@@ -141,7 +139,7 @@ def test_tenant_registration_rate_limit_returns_429(client, settings_state):
         TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS=300,
     )
 
-    payload = {"environment_name": "BC Cloud", "app_version": "1.0.0"}
+    payload = _registration_payload()
     headers = {"X-Registration-Invite": "wrong"}
 
     assert client.post("/tenant/register", headers=headers, json=payload).status_code == 403

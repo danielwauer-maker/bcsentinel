@@ -158,3 +158,16 @@ Umfang: P1-08 bis P1-11, P1-14, CAT-01 bis CAT-23, relevante P2-Gaps.
 `FIX-01 Identity/Access` → `FIX-02 Credits/Scans` → `FIX-03 Permissions/Data` → `QA-04 Build/Upgrade/Tests` → `REL-05 CAT/Operations` → `APP-06 AppSource`.
 
 Die ersten fünf Sprints sind keine optionalen Komfortpakete: Sie bilden zusammen die minimale Route von `NO-GO` zu einer belastbaren erneuten Pilotentscheidung.
+
+## Status-Delta GL-EXT-P0A (16. Juli 2026)
+
+Die ursprünglichen Gap-Zeilen bleiben als Audit-Historie erhalten.
+
+| Gap | Ursprünglicher Status | Korrektur und Evidenz | Aktueller Status |
+|---|---|---|---|
+| P0-01 | offen: beliebiges HTTP möglich | zentrale URL-Policy in AL und Backend; produktive Transport-Middleware; Transport-Negativtests; AL-Build grün | **geschlossen** |
+| P0-02 | offen: zufällige, nicht gebundene Registrierung | kanonische Entra-/Environment-/Company-Identität; Unique Constraint; transaktionaler Upsert; Parallel-/Retry-/Migrationstests | **geschlossen** |
+| P1-10 | offen | nicht erweitert; deterministischer P0A-Registration-Retry ersetzt keine allgemeine Rotate/Revoke-Funktion | **offen** |
+| P2-05 | offen | Dashboard-Kontextbindung gehärtet; initiale Tokenübergabe in URL unverändert | **offen** |
+
+Verbleibende P0: P0-03 Credit-Atomizität, P0-04 Scanstatus-Lifecycle und P0-05 lokaler Findings-Zugriffsschutz. Gesamtentscheidung daher weiterhin **NO-GO**.

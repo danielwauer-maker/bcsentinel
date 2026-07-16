@@ -41,7 +41,7 @@ services:
       - "127.0.0.1:8000:8000"
 
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)\""]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; request=urllib.request.Request('http://127.0.0.1:8000/health/ready', headers={'X-Forwarded-Proto':'https'}); urllib.request.urlopen(request, timeout=5)\""]
       interval: 30s
       timeout: 10s
       retries: 5

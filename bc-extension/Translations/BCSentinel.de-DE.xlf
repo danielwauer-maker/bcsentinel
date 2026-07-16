@@ -5711,6 +5711,54 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RegisterTenant - Method OnAction - NamedType ContactEmailRequiredMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 1839404523" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The API Base URL must not contain a query string or fragment.</source>
+          <target state="translated">Die API-Basis-URL darf keine Abfragezeichenfolge und kein Fragment enthalten.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType BaseUrlQueryFragmentErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 4289134389" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please configure the API Base URL first.</source>
+          <target state="translated">Bitte konfigurieren Sie zuerst die API-Basis-URL.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType ConfigureApiBaseUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 640208245" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The API Base URL must not contain embedded credentials.</source>
+          <target state="translated">Die API-Basis-URL darf keine eingebetteten Anmeldedaten enthalten.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType EmbeddedCredentialsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 1215640286" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The API Base URL is invalid. Enter an absolute HTTPS URL.</source>
+          <target state="translated">Die API-Basis-URL ist ungültig. Geben Sie eine absolute HTTPS-URL ein.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType InvalidApiBaseUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 118065903" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The API request path is invalid.</source>
+          <target state="translated">Der API-Anforderungspfad ist ungültig.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType InvalidRelativePathErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4249321513 - NamedType 3516453011" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unsafe API connection blocked. HTTPS is required for production environments.</source>
+          <target state="translated">Unsichere API-Verbindung blockiert. Für Produktionsumgebungen ist HTTPS erforderlich.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType UnsafeApiConnectionErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1816819866 - NamedType 2059299764" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Business Central company identity is missing.</source>
+          <target state="translated">Die Business-Central-Firmenidentität fehlt.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Tenant Identity Mgt. - NamedType CompanyIdentityMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1816819866 - NamedType 134556582" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Information must exist before BCSentinel registration.</source>
+          <target state="translated">Die Firmendaten müssen vor der BCSentinel-Registrierung vorhanden sein.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Tenant Identity Mgt. - NamedType CompanyInformationMissingErr</note>
+        </trans-unit>
     </body>
   </file>
 </xliff>

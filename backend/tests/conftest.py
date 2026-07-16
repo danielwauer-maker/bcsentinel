@@ -39,7 +39,9 @@ def reset_database():
 def client(monkeypatch):
     monkeypatch.setattr(app_main, "wait_for_database", lambda: None)
     monkeypatch.setattr(app_main, "ensure_schema_is_migrated", lambda: None)
-    with TestClient(app_main.app) as test_client:
+    # Production runs behind the TLS-terminating reverse proxy. Individual
+    # transport-policy tests override this header to exercise plain HTTP.
+    with TestClient(app_main.app, headers={"X-Forwarded-Proto": "https"}) as test_client:
         yield test_client
 
 

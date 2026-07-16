@@ -137,6 +137,7 @@ codeunit 53100 "DH API Client"
         Client: HttpClient;
         Content: HttpContent;
         Headers: HttpHeaders;
+        RequestHeaders: HttpHeaders;
         Response: HttpResponseMessage;
         RequestText: Text;
         ResponseText: Text;
@@ -148,6 +149,8 @@ codeunit 53100 "DH API Client"
         DashboardInviteEmail: Text;
         DashboardInviteError: Text;
         DashboardInviteSent: Boolean;
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        SecretMgt: Codeunit "DH Secret Mgt.";
     begin
         EnsureSetupLoaded(Setup);
 
@@ -159,17 +162,29 @@ codeunit 53100 "DH API Client"
 
         Setup.EnsureValidContactEmail();
 
-        JsonRequest.Add('environment_name', 'BC Cloud');
-        JsonRequest.Add('app_version', '0.4.0');
+        JsonRequest.Add('entra_tenant_id', IdentityMgt.GetEntraTenantId());
+        JsonRequest.Add('environment_name', IdentityMgt.GetEnvironmentName());
+        JsonRequest.Add('environment_type', IdentityMgt.GetEnvironmentType());
+        JsonRequest.Add('company_id', IdentityMgt.GetCompanyId());
+        JsonRequest.Add('company_name', IdentityMgt.GetCompanyName());
+        JsonRequest.Add('app_version', IdentityMgt.GetAppVersion());
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('contact_email', Setup."Contact Email");
         JsonRequest.Add('invite_code', Setup."Registration Invite Code");
+        if Setup."Tenant ID" <> '' then
+            JsonRequest.Add('existing_tenant_id', Setup."Tenant ID");
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);
         Content.GetHeaders(Headers);
         Headers.Clear();
         Headers.Add('Content-Type', 'application/json');
+
+        if (Setup."Tenant ID" <> '') and SecretMgt.HasApiToken(Setup) then begin
+            RequestHeaders := Client.DefaultRequestHeaders();
+            RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+            RequestHeaders.Add('X-Api-Token', SecretMgt.GetApiToken(Setup));
+        end;
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/tenant/register'), Content, Response) then
             Error(BackendRequestNotSentLbl);
@@ -727,6 +742,7 @@ codeunit 53100 "DH API Client"
         RequestText: Text;
         ResponseText: Text;
         JsonRequest: JsonObject;
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
         EnsureTenantAccessConfigured(Setup);
 
@@ -739,7 +755,7 @@ codeunit 53100 "DH API Client"
         JsonRequest.Add('scan_mode', ScanMode);
         JsonRequest.Add('total_modules', TotalModules);
         JsonRequest.Add('company_name', CompanyName());
-        JsonRequest.Add('environment_name', 'BC Cloud');
+        JsonRequest.Add('environment_name', IdentityMgt.GetEnvironmentName());
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);
@@ -1022,13 +1038,17 @@ codeunit 53100 "DH API Client"
         Headers: HttpHeaders;
         JsonResponse: JsonObject;
         TokenValue: JsonToken;
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
         EnsureTenantAccessConfigured(Setup);
 
         Url :=
             BuildUrl(Setup."API Base URL", '/analytics/get-token') +
             '?company=' + EncodeUrlValue(CompanyName()) +
-            '&environment=' + EncodeUrlValue('BC Cloud') +
+            '&environment=' + EncodeUrlValue(IdentityMgt.GetEnvironmentName()) +
+            '&environment_type=' + EncodeUrlValue(IdentityMgt.GetEnvironmentType()) +
+            '&entra_tenant_id=' + EncodeUrlValue(IdentityMgt.GetEntraTenantId()) +
+            '&company_id=' + EncodeUrlValue(IdentityMgt.GetCompanyId()) +
             '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") +
             '&preferred_language=' + EncodeUrlValue(GetPreferredLanguage()) +
             '&scan_mode=' + EncodeUrlValue(GetAnalyticsScanMode(Setup)) +
@@ -1177,8 +1197,10 @@ codeunit 53100 "DH API Client"
     end;
 
     local procedure BuildUrl(BaseUrl: Text; RelativePath: Text): Text
+    var
+        ApiUrlPolicy: Codeunit "DH API URL Policy";
     begin
-        exit(RemoveTrailingSlash(BaseUrl) + RelativePath);
+        exit(ApiUrlPolicy.BuildUrl(BaseUrl, RelativePath));
     end;
 
     local procedure MaskTenantId(TenantId: Text): Text

@@ -25,7 +25,7 @@ from app.core.observability import (
 )
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
-from app.models import Scan, ScanIssueRecord, Tenant
+from app.models import DashboardUser, Scan, ScanIssueRecord, Tenant
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
@@ -48,7 +48,6 @@ from app.security.tenant import (
     load_authenticated_tenant,
     require_tenant_headers,
 )
-from app.security.token_hash import hash_api_token
 from app.security.rate_limit import require_rate_limit
 from app.security.csrf import CSRF_COOKIE_NAME, CSRF_FORM_FIELD, verify_csrf_token
 from app.services.cost_service import ensure_default_issue_costs
@@ -60,11 +59,18 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
-from app.services.dashboard_invite_service import ensure_dashboard_user_invite
+from app.services.dashboard_invite_service import DashboardEmailConflictError, send_dashboard_user_invite
 from app.services.email_template_service import ensure_default_email_templates
-from app.services.localization_service import normalize_language, update_tenant_language
+from app.services.localization_service import update_tenant_language
 from app.services.scoring_service import calculate_quick_scan_result
 from app.services.scan_status_service import create_or_get_scan_run, update_scan_progress
+from app.services.tenant_registration_service import (
+    RegistrationAuthenticationError,
+    RegistrationConflictError,
+    build_registration_identity,
+    upsert_tenant_registration,
+)
+from app.security.url_policy import request_uses_secure_transport
 from fastapi.responses import RedirectResponse
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -149,6 +155,23 @@ app.include_router(public_router)
 app.include_router(reports_router)
 app.include_router(scans_router)
 app.include_router(license_router)
+
+
+@app.middleware("http")
+async def enforce_production_https(request: Request, call_next):
+    if not request_uses_secure_transport(
+        scheme=request.url.scheme,
+        forwarded_proto=request.headers.get("X-Forwarded-Proto"),
+        environment=settings.ENV,
+    ):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail": "Unsafe API connection blocked. HTTPS is required for production environments.",
+                "request_id": request.headers.get("X-Request-Id"),
+            },
+        )
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -289,6 +312,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 class TenantRegisterRequest(BaseModel):
     environment_name: str
+    environment_type: str | None = None
+    entra_tenant_id: str | None = None
+    company_id: str | None = None
+    company_name: str | None = None
+    existing_tenant_id: str | None = None
     app_version: str
     invite_code: str | None = None
     preferred_language: str | None = None
@@ -301,6 +329,8 @@ class TenantRegisterResponse(BaseModel):
     dashboard_invite_sent: bool = False
     dashboard_invite_email: str | None = None
     dashboard_invite_error: str | None = None
+    dashboard_invite_status: str = "pending"
+    registration_status: str
 
 
 @app.get("/health")
@@ -362,6 +392,8 @@ def register_tenant(
     payload: TenantRegisterRequest,
     request: Request,
     x_registration_invite: str | None = Header(default=None, alias="X-Registration-Invite"),
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+    x_api_token: str | None = Header(default=None, alias="X-Api-Token"),
 ) -> TenantRegisterResponse:
     require_rate_limit(
         request,
@@ -372,44 +404,93 @@ def register_tenant(
     _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
     contact_email = _normalize_contact_email(payload.contact_email)
 
-    tenant_id = f"ten_{uuid4().hex[:12]}"
-    api_token = f"tok_{uuid4().hex}"
-    now_utc = datetime.now(timezone.utc)
     invite_sent = False
     invite_error: str | None = None
+    invite_status = "pending"
 
     with SessionLocal() as db:
         ensure_default_email_templates(db)
-        tenant = Tenant(
-            tenant_id=tenant_id,
-            api_token=None,
-            api_token_hash=hash_api_token(api_token),
-            environment_name=payload.environment_name,
-            app_version=payload.app_version,
-            contact_email=contact_email,
-            preferred_language=normalize_language(payload.preferred_language),
-            created_at_utc=now_utc,
-            last_seen_at_utc=now_utc,
-            current_plan="free",
-            license_status="trial",
-        )
-        db.add(tenant)
         try:
-            invite_result = ensure_dashboard_user_invite(db, tenant=tenant, email=contact_email)
-            invite_sent = invite_result.mail_sent
-            invite_error = invite_result.mail_error
-        except ValueError as exc:
+            identity = build_registration_identity(
+                entra_tenant_id=payload.entra_tenant_id,
+                environment_name=payload.environment_name,
+                environment_type=payload.environment_type,
+                company_id=payload.company_id,
+                company_name=payload.company_name,
+            )
+            registration = upsert_tenant_registration(
+                db,
+                identity=identity,
+                app_version=payload.app_version,
+                contact_email=contact_email,
+                preferred_language=payload.preferred_language,
+                existing_tenant_id=payload.existing_tenant_id,
+                header_tenant_id=x_tenant_id,
+                header_api_token=x_api_token,
+            )
+        except RegistrationAuthenticationError as exc:
+            db.rollback()
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+        except (DashboardEmailConflictError, RegistrationConflictError) as exc:
             db.rollback()
             raise HTTPException(status_code=409, detail=str(exc)) from exc
-        db.commit()
+        except ValueError as exc:
+            db.rollback()
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    if registration.dashboard_user_created:
+        with SessionLocal() as db:
+            tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == registration.tenant_id))
+            user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == registration.tenant_id))
+            if tenant is not None and user is not None:
+                invite_result = send_dashboard_user_invite(db, tenant=tenant, user=user)
+                invite_sent = invite_result.mail_sent
+                invite_error = invite_result.mail_error
+                invite_status = user.invite_mail_status
+                db.commit()
+    else:
+        with SessionLocal() as db:
+            user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == registration.tenant_id))
+            if user is not None:
+                invite_status = user.invite_mail_status
 
     return TenantRegisterResponse(
-        tenant_id=tenant_id,
-        api_token=api_token,
+        tenant_id=registration.tenant_id,
+        api_token=registration.api_token,
         dashboard_invite_sent=invite_sent,
         dashboard_invite_email=contact_email,
         dashboard_invite_error=invite_error,
+        dashboard_invite_status=invite_status,
+        registration_status=registration.registration_status,
     )
+
+
+class DashboardInviteResendRequest(BaseModel):
+    contact_email: str | None = None
+
+
+@app.post("/tenant/dashboard-invite/resend")
+def resend_dashboard_invite(
+    payload: DashboardInviteResendRequest,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> dict[str, object]:
+    tenant_id, api_token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, api_token)
+        email = _normalize_contact_email(payload.contact_email or tenant.contact_email)
+        user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == tenant.tenant_id))
+        if user is None:
+            raise HTTPException(status_code=404, detail="Dashboard user not found.")
+        if user.email != email:
+            raise HTTPException(status_code=409, detail="Contact email does not match the registered dashboard user.")
+        invite_result = send_dashboard_user_invite(db, tenant=tenant, user=user)
+        db.commit()
+        return {
+            "dashboard_invite_sent": invite_result.mail_sent,
+            "dashboard_invite_email": user.email,
+            "dashboard_invite_status": user.invite_mail_status,
+            "dashboard_invite_error": invite_result.mail_error,
+        }
 
 
 @app.post("/scan/quick", response_model=QuickScanResponse)

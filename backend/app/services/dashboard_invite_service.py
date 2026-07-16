@@ -25,7 +25,18 @@ class DashboardInviteResult:
     mail_error: str | None = None
 
 
-def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> DashboardInviteResult:
+class DashboardEmailConflictError(ValueError):
+    pass
+
+
+@dataclass(frozen=True)
+class DashboardUserPreparation:
+    user: DashboardUser
+    created: bool
+    email_changed: bool
+
+
+def prepare_dashboard_user(db: Session, *, tenant: Tenant, email: str) -> DashboardUserPreparation:
     normalized_email = (email or "").strip().lower()
     if not normalized_email:
         raise ValueError("contact_email is required.")
@@ -37,15 +48,16 @@ def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> 
         )
     )
     if existing_other_tenant is not None:
-        raise ValueError("contact_email already belongs to another tenant dashboard user.")
+        raise DashboardEmailConflictError("contact_email already belongs to another tenant dashboard user.")
 
     now = utc_now()
     user = db.scalar(
         select(DashboardUser).where(
             DashboardUser.tenant_id == tenant.tenant_id,
-            DashboardUser.email == normalized_email,
         )
     )
+    created = user is None
+    email_changed = user is not None and user.email != normalized_email
     if user is None:
         user = DashboardUser(
             tenant_id=tenant.tenant_id,
@@ -58,6 +70,18 @@ def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> 
             invite_mail_status="pending",
         )
         db.add(user)
+    elif email_changed:
+        user.email = normalized_email
+        user.updated_at_utc = now
+        user.invite_mail_status = "pending"
+        user.invite_mail_error = None
+
+    db.flush()
+    return DashboardUserPreparation(user=user, created=created, email_changed=email_changed)
+
+
+def send_dashboard_user_invite(db: Session, *, tenant: Tenant, user: DashboardUser) -> DashboardInviteResult:
+    now = utc_now()
 
     invite_token = secrets.token_urlsafe(32)
     user.invite_token_hash = hash_api_token(invite_token)
@@ -79,6 +103,11 @@ def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> 
     user.updated_at_utc = utc_now()
     db.flush()
     return DashboardInviteResult(user=user, mail_sent=mail_sent, mail_error=user.invite_mail_error)
+
+
+def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> DashboardInviteResult:
+    preparation = prepare_dashboard_user(db, tenant=tenant, email=email)
+    return send_dashboard_user_invite(db, tenant=tenant, user=preparation.user)
 
 
 def _send_dashboard_invite_email(

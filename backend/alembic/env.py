@@ -58,6 +58,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         ensure_version_table_supports_long_revisions(connection)
+        # Creating the custom version table opens an implicit SQLAlchemy 2.x
+        # transaction. Commit it before Alembic starts its managed migration
+        # transaction, otherwise SQLite rolls back version stamps and ALTERs.
+        connection.commit()
         context.configure(
             connection=connection,
             target_metadata=target_metadata,

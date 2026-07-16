@@ -549,11 +549,6 @@
                         ApiClient: Codeunit "DH API Client";
                         RegistrationMessage: Text;
                     begin
-                        if Rec."Tenant ID" <> '' then begin
-                            Message(LocalizeText('BCSentinel tenant is already registered.', 'Der BCSentinel Tenant ist bereits registriert.'));
-                            exit;
-                        end;
-
                         if Rec."Contact Email" = '' then begin
                             Message(LocalizeText(
                                 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.',
@@ -564,11 +559,6 @@
                         Rec.EnsureValidContactEmail();
 
                         if Rec.Registered then begin
-                            if HasStoredApiToken() then begin
-                                Message(LocalizeText('BCSentinel tenant is already registered.', 'Der BCSentinel Tenant ist bereits registriert.'));
-                                exit;
-                            end;
-
                             Message(LocalizeText('BCSentinel registration data is incomplete. Registration will request a fresh API token.', 'Die BCSentinel Registrierungsdaten sind unvollständig. Die Registrierung fordert einen neuen API-Token an.'));
                         end;
 
@@ -584,7 +574,7 @@
                 action(ResetRegistration)
                 {
                     Caption = 'Reset Registration';
-                    ToolTip = 'Clears the local BCSentinel registration state, stored API token, and scan history so the tenant can be registered again.';
+                    ToolTip = 'Clears cached registration status while preserving the stable tenant binding, API token, purchases, and scan history.';
                     ApplicationArea = All;
                     Image = ResetStatus;
                     Enabled = CanResetRegistration;
@@ -593,16 +583,15 @@
                     trigger OnAction()
                     begin
                         if not Confirm(LocalizeText(
-                            'Reset BCSentinel registration? This creates a new tenant identity. Existing purchases, credits, Full Analysis, Validation Check, and Monitoring will no longer be linked to this Business Central company. Continue only if you understand this.',
-                            'BCSentinel Registrierung zurücksetzen? Dadurch wird eine neue Tenant-Identität erstellt. Bestehende Käufe, Guthaben, Full Analysis, Validation Check und Monitoring sind dann nicht mehr mit dieser Business-Central-Firma verknüpft. Fahren Sie nur fort, wenn Sie dies verstanden haben.'), false) then
+                            'Reset the cached BCSentinel registration status? The stable tenant binding, API token, purchases, and scan history are preserved. Use Register afterwards to reconcile with the backend.',
+                            'Den zwischengespeicherten BCSentinel-Registrierungsstatus zurücksetzen? Die stabile Tenant-Bindung, der API-Token, Käufe und die Scan-Historie bleiben erhalten. Verwenden Sie anschließend Registrieren für den Abgleich mit dem Backend.'), false) then
                             exit;
 
-                        DeleteScanHistoryForReset();
                         ResetLocalRegistrationState();
                         UpdateActionState();
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        Message(LocalizeText('Local BCSentinel registration and scan history were reset. Please register again.', 'Die lokale BCSentinel Registrierung und Scan-Historie wurden zurückgesetzt. Bitte registrieren Sie sich erneut.'));
+                        Message(LocalizeText('Cached registration status was reset without changing the tenant identity. Please register again to reconcile.', 'Der zwischengespeicherte Registrierungsstatus wurde zurückgesetzt, ohne die Tenant-Identität zu ändern. Bitte registrieren Sie erneut für den Abgleich.'));
                     end;
                 }
 
@@ -1020,7 +1009,6 @@
 
     local procedure ResetLocalRegistrationState()
     begin
-        Rec."Tenant ID" := '';
         Rec.Registered := false;
         Rec."Registration Date" := 0DT;
         Rec."Can Run Data Health Score" := true;
@@ -1033,7 +1021,6 @@
         Rec."Can View Dashboard" := false;
         Rec."Can View Issue Details" := false;
         Rec."Product Access Model" := '';
-        DeleteStoredApiToken();
         Rec.Modify(true);
     end;
 
@@ -1081,7 +1068,7 @@
             Rec."Can View Issue Details" or
             Rec."Premium Enabled" or
             (LowerCase(Rec."Product Access Model") = 'one_time');
-        CanRegisterTenant := (Rec."Tenant ID" = '') and Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
+        CanRegisterTenant := Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
         CanResetRegistration :=
             Rec.Registered or
             (Rec."Tenant ID" <> '') or
@@ -1476,6 +1463,9 @@
     end;
 
     local procedure GetTokenUrl(var Setup: Record "DH Setup"): Text
+    var
+        ApiUrlPolicy: Codeunit "DH API URL Policy";
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
         if Setup."API Base URL" = '' then
             Error(LocalizeText('Please configure the API Base URL first.', 'Bitte konfigurieren Sie zuerst die API-Basis-URL.'));
@@ -1483,7 +1473,7 @@
         if Setup."Tenant ID" = '' then
             Error(LocalizeText('Tenant is not registered yet.', 'Der Tenant ist noch nicht registriert.'));
 
-        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/get-token?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue('BC Cloud') + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
+        exit(ApiUrlPolicy.BuildUrl(Setup."API Base URL", '/analytics/get-token') + '?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue(IdentityMgt.GetEnvironmentName()) + '&environment_type=' + EncodeUrlValue(IdentityMgt.GetEnvironmentType()) + '&entra_tenant_id=' + EncodeUrlValue(IdentityMgt.GetEntraTenantId()) + '&company_id=' + EncodeUrlValue(IdentityMgt.GetCompanyId()) + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
 
     local procedure GetScanMode(var Setup: Record "DH Setup"): Text
@@ -1494,8 +1484,10 @@
     end;
 
     local procedure GetDashboardUrl(var Setup: Record "DH Setup"; Token: Text): Text
+    var
+        ApiUrlPolicy: Codeunit "DH API URL Policy";
     begin
-        exit(RemoveTrailingSlash(Setup."API Base URL") + '/analytics/embed?embed_token=' + EncodeUrlValue(Token));
+        exit(ApiUrlPolicy.BuildUrl(Setup."API Base URL", '/analytics/embed') + '?embed_token=' + EncodeUrlValue(Token));
     end;
 
     local procedure GetIssueDrilldownLaunchUrl(): Text

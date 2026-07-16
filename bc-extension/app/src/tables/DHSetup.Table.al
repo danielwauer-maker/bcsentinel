@@ -382,23 +382,11 @@ table 53100 "DH Setup"
 
     procedure NormalizeApiBaseUrl(Value: Text): Text[250]
     var
-        NormalizedValue: Text;
+        ApiUrlPolicy: Codeunit "DH API URL Policy";
     begin
-        NormalizedValue := DelChr(Value, '<>', ' ');
-
-        if NormalizedValue = '' then
+        if DelChr(Value, '<>', ' ') = '' then
             exit(GetDefaultApiBaseUrl());
-
-        NormalizedValue := RemoveTrailingSlash(NormalizedValue);
-
-        if StrPos(LowerCase(NormalizedValue), 'http://') <> 1 then
-            if StrPos(LowerCase(NormalizedValue), 'https://') <> 1 then
-                Error(LocalizeText('API Base URL must start with http:// or https://', 'Die API-Basis-URL muss mit http:// oder https:// beginnen.'));
-
-        if StrLen(NormalizedValue) > MaxStrLen("API Base URL") then
-            Error(LocalizeText('API Base URL is too long.', 'Die API-Basis-URL ist zu lang.'));
-
-        exit(CopyStr(NormalizedValue, 1, MaxStrLen("API Base URL")));
+        exit(ApiUrlPolicy.NormalizeAndValidateBaseUrl(Value));
     end;
 
     local procedure RemoveTrailingSlash(Value: Text): Text

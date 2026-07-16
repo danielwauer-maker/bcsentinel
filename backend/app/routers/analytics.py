@@ -1510,6 +1510,9 @@ def _build_dashboard_payload(
 def get_analytics_token(
     company: str = Query(default="CRONUS DE"),
     environment: str = Query(default="BC Cloud"),
+    environment_type: str | None = Query(default=None),
+    entra_tenant_id: str | None = Query(default=None),
+    company_id: str | None = Query(default=None),
     tenant_id: str | None = Query(default=None),
     preferred_language: str | None = Query(default=None),
     scan_mode: str | None = Query(default=None),
@@ -1524,6 +1527,30 @@ def get_analytics_token(
 
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        if tenant.registration_identity_key:
+            context_values = {
+                "entra_tenant_id": (entra_tenant_id or "").strip().lower(),
+                "environment": (environment or "").strip().lower(),
+                "environment_type": (environment_type or "").strip().lower(),
+                "company_id": (company_id or "").strip().strip("{}").lower(),
+            }
+            expected_values = {
+                "entra_tenant_id": (tenant.entra_tenant_id or "").strip().lower(),
+                "environment": (tenant.bc_environment_name or "").strip().lower(),
+                "environment_type": (tenant.bc_environment_type or "").strip().lower(),
+                "company_id": (tenant.bc_company_id or "").strip().strip("{}").lower(),
+            }
+            missing = [name for name, value in context_values.items() if not value]
+            if missing:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Registered Business Central context is required for dashboard access.",
+                )
+            if context_values != expected_values:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Business Central registration context does not match this tenant.",
+                )
         update_tenant_language(tenant, x_preferred_language or preferred_language)
         resolved_tenant_id = tenant.tenant_id
         resolved_language = tenant_language(tenant)

@@ -159,6 +159,20 @@ Warnungen: 61 im Gesamtlauf, insbesondere Starlette-`TemplateResponse`- und `dat
 
 **NO-GO.** Die Einstufungen `CONDITIONAL GO`, `PILOT GO`, `CUSTOMER GO` und `APPSOURCE READY` sind wegen der fünf offenen P0-Gaps sowie der fehlenden AL-/Sandbox-Releaseevidenz nicht vertretbar.
 
+## Status-Delta GL-EXT-P0A (16. Juli 2026)
+
+Die ursprünglichen Auditfeststellungen und die historische 48-%-Bewertung bleiben oben unverändert. Dieser Delta-Nachweis bewertet nur P0-01/P0-02; eine vollständige Neugewichtung war nicht Teil des Sprints.
+
+| Requirement | Ursprünglicher Auditstatus | Umgesetzte Korrektur | Neue Evidenz | Aktueller Status |
+|---|---|---|---|---|
+| R-03 / P0-01 Transport | DEFECTIVE | zentrale AL-/Backend-URL-Policy, produktive HTTPS-Middleware, enge Loopback-Ausnahme | P0A Transporttests; AL ReleaseCloud Compile; CodeCop/PTE-Cop 0 Fehler | **COMPLETE – P0 behoben** |
+| R-04 / P0-02 Registrierung | DEFECTIVE | Entra+Environment+Company Identity-Key, DB-Constraint, transaktionaler Upsert, authentisierte Legacy-Bindung | Parallel-/Retry-/Identity-/Migrationstests | **COMPLETE – P0 behoben** |
+| R-05 App-Version | DEFECTIVE | AL liest aktuelle `ModuleInfo.AppVersion()` | AL Compile und Registration-Payloadtests | **COMPLETE** |
+| R-06 Portal-Recovery | PARTIAL | Portaluser-Deduplizierung, Invite-Status, authentisierter expliziter Resend | Portal-/Resend-/Mailfehler-Tests | **COMPLETE für Registrierung; breitere Token-Recovery bleibt P1** |
+| R-08 Dashboard-Kontext | PARTIAL | tatsächlicher Entra-/Environment-/Company-Kontext; serverseitiger Exact Match | Dashboard-Kontext Positiv-/Negativtests | **COMPLETE für Tenant Context** |
+
+Gesamtentscheidung bleibt **NO-GO**: P0-03, P0-04 und P0-05 sowie der BC-Sandbox-CAT sind weiterhin offen. P0A ist bereit für den Folgesprint GL-EXT-P0B. Vollständige Evidenz: `docs/GL_EXT_P0A_HTTPS_TENANT_REGISTRATION.md`.
+
 Ein erneutes Gate darf frühestens erfolgen, wenn:
 
 1. alle P0-Gaps mit automatisierten Regressionstests geschlossen sind;
