@@ -20,6 +20,8 @@ class LicenseStatusResponse(BaseModel):
     features: list[str]
     active_products: list[str] = []
     scan_credits_available: int = 0
+    assessment_scan_credits_available: int = 0
+    validation_scan_credits_available: int = 0
     monitoring_active: bool = False
     product_access: dict = {}
     assessment_access_active: bool = False
@@ -88,6 +90,8 @@ def get_license_status(
             features=features,
             active_products=snapshot["active_products"],
             scan_credits_available=snapshot["scan_credits_available"],
+            assessment_scan_credits_available=snapshot["assessment_scan_credits_available"],
+            validation_scan_credits_available=snapshot["validation_scan_credits_available"],
             monitoring_active=snapshot["monitoring_active"],
             product_access=snapshot["product_access"],
             assessment_access_active=snapshot["assessment_access_active"],

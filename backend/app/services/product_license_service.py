@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy import select
 
 from app.models import (
+    CreditLedgerEntry,
     Scan,
     Subscription,
     Tenant,
@@ -196,6 +197,18 @@ def scan_credit_count(db, tenant_id: str) -> int:
     )
 
 
+def scan_credit_count_for_product(db, tenant_id: str, product_code: str) -> int:
+    return int(
+        db.query(TenantScanCredit)
+        .filter(
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.status == "available",
+            TenantScanCredit.product_code.in_(sorted(product_code_storage_aliases(product_code))),
+        )
+        .count()
+    )
+
+
 def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     now = utc_now()
     rows = db.scalars(
@@ -373,6 +386,8 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     one_time_active = full_analysis_active or validation_active
     premium_access_active = monitoring_active or one_time_active
     credits_available = scan_credit_count(db, tenant.tenant_id)
+    assessment_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
+    validation_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
     has_completed_data_health_score = _tenant_has_completed_data_health_score(db, tenant.tenant_id)
     record_count = _latest_scan_record_count(db, tenant.tenant_id)
@@ -410,6 +425,8 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "can_view_issue_details": premium_access_active,
         "can_view_executive_report": premium_access_active,
         "scan_credits_available": credits_available,
+        "assessment_scan_credits_available": assessment_credits_available,
+        "validation_scan_credits_available": validation_credits_available,
         "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else "none"),
         "assessment_access_until": _iso(full_analysis_until),
         "full_analysis_access_until": _iso(full_analysis_until),
@@ -498,6 +515,20 @@ def grant_scan_credit(
     )
     db.add(credit)
     db.flush()
+    operation = "MANUAL_ADJUSTMENT" if source.startswith("admin") else "PURCHASE_GRANTED"
+    db.add(
+        CreditLedgerEntry(
+            tenant_id=tenant_id,
+            credit_id=credit.id,
+            source_purchase_id=source_purchase_id,
+            product_code=credit.product_code,
+            operation_type=operation,
+            amount=1,
+            balance_after=scan_credit_count(db, tenant_id),
+            reason="Manual credit grant" if operation == "MANUAL_ADJUSTMENT" else "Credit granted from completed purchase",
+            created_at_utc=utc_now(),
+        )
+    )
     return credit
 
 
@@ -572,31 +603,6 @@ def record_product_purchase(
     return existing
 
 
-def consume_scan_credit_for_scan(db, *, tenant_id: str, scan_id: str) -> TenantScanCredit | None:
-    existing = db.scalar(
-        select(TenantScanCredit).where(
-            TenantScanCredit.tenant_id == tenant_id,
-            TenantScanCredit.consumed_scan_id == scan_id,
-        )
-    )
-    if existing is not None:
-        return existing
-
-    credit = db.scalar(
-        select(TenantScanCredit)
-        .where(TenantScanCredit.tenant_id == tenant_id, TenantScanCredit.status == "available")
-        .order_by(TenantScanCredit.created_at_utc.asc(), TenantScanCredit.id.asc())
-        .limit(1)
-    )
-    if credit is None:
-        return None
-
-    credit.status = "consumed"
-    credit.consumed_scan_id = scan_id
-    credit.consumed_at_utc = utc_now()
-    return credit
-
-
 def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     from app.services.product_pricing_service import ensure_default_product_pricing, list_product_pricing
 
@@ -617,6 +623,8 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "features": features,
         "active_products": active_products,
         "scan_credits_available": access["scan_credits_available"],
+        "assessment_scan_credits_available": access["assessment_scan_credits_available"],
+        "validation_scan_credits_available": access["validation_scan_credits_available"],
         "monitoring_active": access["monitoring_active"],
         "product_access": access,
         "assessment_access_active": access["assessment_access_active"],

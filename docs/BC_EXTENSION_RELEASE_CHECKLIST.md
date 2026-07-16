@@ -137,6 +137,23 @@ Die ursprüngliche Checkliste bleibt als Audit-Baseline erhalten. Nur P0A-betrof
 - [ ] Docker-Testimage gebaut: Docker Desktop Linux Engine war nicht gestartet.
 
 P0A-Entscheidung: **P0-01 und P0-02 geschlossen; bereit für GL-EXT-P0B.** Produkt-Gate bleibt **BLOCKED / NO-GO**, bis die übrigen P0 und der Sandbox-CAT geschlossen sind.
+
+## Gate-Delta GL-EXT-P0B (16. Juli 2026)
+
+- [x] Assessment und Validation claimen genau einen passenden Credit.
+- [x] Monitoring mit aktiver Laufzeit und Free Score erzeugen keine Creditbuchung.
+- [x] Tenant + Client Request GUID ist persistenter Idempotency-Scope; Payload-Mismatch ergibt 409.
+- [x] Scan, Runstatus, Creditclaim, Request und Ledger committen oder rollen gemeinsam zurück.
+- [x] Parallele identische und unterschiedliche Starts sind mit echten Threads/separaten Sessions getestet.
+- [x] AL speichert die GUID vor HTTP und verwendet sie für Pending-/Timeout-/Scheduler-Retry wieder.
+- [x] Migration 0023 ist frisch und von 0022 mit Legacy-Bestand getestet.
+- [x] P0B-Suite 12/12 und relevante Regression 76/76 bestanden.
+- [x] AL ReleaseCloud Compile sowie CodeCop/PerTenantExtensionCop ohne Fehler.
+- [ ] PostgreSQL-Concurrency-/Restart-Test im Staging: Docker Engine lokal nicht verfügbar.
+- [ ] Zehn BC-Sandbox-CATs: vorbereitet, Sandbox nicht verfügbar.
+- [ ] AppSourceCop: bekannte EULA-/Logo-/Help-URL-/ID-Range-Gaps.
+
+P0B-Entscheidung: **P0-03 geschlossen; bereit für GL-EXT-P0C.** Produkt-Gate bleibt **NO-GO** wegen P0-04 und P0-05.
 | CONDITIONAL GO | keine P0; nur zeitlich begrenzte, akzeptierte P1 außerhalb des Pilotumfangs |
 | PILOT GO | P0/P1 im Pilotumfang geschlossen; Build, Upgrade und CAT grün; enges Monitoring |
 | CUSTOMER GO | vollständige Betriebs-, Support-, Security- und Upgradeevidenz |

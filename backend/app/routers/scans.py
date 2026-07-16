@@ -3,12 +3,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 from typing import List, Optional
+from uuid import NAMESPACE_URL, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
 from app.models import Scan, ScanIssueRecord, ScanRunStatus
@@ -25,7 +27,13 @@ from app.services.impact_service import (
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.localization_service import update_tenant_language
-from app.services.product_license_service import consume_scan_credit_for_scan, scan_credit_count
+from app.services.atomic_scan_start_service import (
+    FreeScanAlreadyUsedError,
+    MonitoringInactiveError,
+    ScanCreditUnavailableError,
+    ScanStartConflictError,
+    accept_scan_start,
+)
 from app.services.scan_status_service import (
     create_or_get_scan_run,
     mark_stalled_scans,
@@ -104,6 +112,7 @@ class ScanStartPayload(BaseModel):
     tenant_id: str
     preferred_language: Optional[str] = None
     run_id: str
+    client_request_id: Optional[str] = None
     scan_mode: str = "deep"
     total_modules: int = 0
     company_name: Optional[str] = None
@@ -219,61 +228,31 @@ def start_scan(
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
 
-    normalized_scan_mode = _normalize_scan_type(payload.scan_mode)
-    if normalized_scan_mode not in {"deep", "data_health_score"}:
-        raise HTTPException(status_code=400, detail="Only Deep Scan and Data Health Score starts are supported.")
-
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         update_tenant_language(tenant, payload.preferred_language)
-        tenant_features = get_tenant_features(db, tenant)
         require_tenant_feature(db, tenant, "scan_sync")
-
-        existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.run_id))
-        if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
-            raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
-
-        is_monitoring = "monitoring_active" in tenant_features
-        is_free_score = _is_free_data_health_score_scan(normalized_scan_mode)
-        if existing_scan is None and not is_free_score and not is_monitoring and scan_credit_count(db, tenant.tenant_id) <= 0:
-            raise HTTPException(
-                status_code=402,
-                detail="A scan credit or active monitoring subscription is required for Deep Scan.",
+        try:
+            result = accept_scan_start(
+                db,
+                tenant=tenant,
+                client_request_id=payload.client_request_id
+                or str(uuid5(NAMESPACE_URL, f"bcsentinel-legacy-start:{payload.tenant_id}:{payload.run_id}")),
+                run_id=payload.run_id,
+                scan_mode=payload.scan_mode,
+                total_modules=payload.total_modules,
+                company_name=payload.company_name,
+                environment_name=payload.environment_name,
             )
-
-        run = create_or_get_scan_run(
-            db,
-            run_id=payload.run_id,
-            tenant_id=payload.tenant_id,
-            scan_mode=normalized_scan_mode,
-            status="queued",
-            total_modules=max(int(payload.total_modules or 0), 0),
-        )
-        run.company_name = payload.company_name or run.company_name
-        run.environment_name = payload.environment_name or run.environment_name
-        run.current_module = run.current_module or "Preparing"
-        run.current_step = "Waiting to start"
-
-        if existing_scan is None:
-            scan = Scan(
-                scan_id=payload.run_id,
-                tenant_id=payload.tenant_id,
-                scan_type=normalized_scan_mode,
-                generated_at_utc=datetime.now(timezone.utc),
-                data_score=0,
-                checks_count=0,
-                issues_count=0,
-                premium_available=is_premium_actions_enabled(tenant_features),
-                summary_headline="Data Health Score queued" if is_free_score else "Deep scan queued",
-                summary_rating="Pending",
-                enabled_modules=None,
-            )
-            db.add(scan)
-            if not is_free_score and not is_monitoring:
-                consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.run_id)
-
-        tenant.last_seen_at_utc = datetime.now(timezone.utc)
-        db.commit()
+        except (ScanStartConflictError, FreeScanAlreadyUsedError) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except (ScanCreditUnavailableError, MonitoringInactiveError) as exc:
+            raise HTTPException(status_code=402, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except IntegrityError as exc:
+            logger.exception("Atomic scan start failed because of a database conflict.")
+            raise HTTPException(status_code=503, detail="The scan could not be accepted due to a temporary database conflict. Retry with the same client_request_id.") from exc
 
     logger.info(
         "Deep scan start accepted.",
@@ -283,9 +262,11 @@ def start_scan(
         content={
             "status": "queued",
             "scan_id": payload.run_id,
-            "scan_mode": normalized_scan_mode,
-            "credit_consumed": not is_free_score and not is_monitoring and existing_scan is None,
-            "free_data_health_score": is_free_score,
+            "scan_mode": result.scan_mode,
+            "product_code": result.product_code,
+            "credit_consumed": result.credit_consumed,
+            "free_data_health_score": result.scan_mode == "data_health_score",
+            "idempotent_replay": result.idempotent_replay,
         }
     )
 
@@ -311,22 +292,32 @@ def sync_scan(
         if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
 
+        normalized_scan_type = _normalize_scan_type(payload.scan_type)
+        if existing_scan is None and normalized_scan_type in {"deep", "data_health_score"}:
+            legacy_request_id = str(
+                uuid5(NAMESPACE_URL, f"bcsentinel-legacy-sync:{payload.tenant_id}:{payload.scan_id}")
+            )
+            try:
+                accept_scan_start(
+                    db,
+                    tenant=tenant,
+                    client_request_id=legacy_request_id,
+                    run_id=payload.scan_id,
+                    scan_mode=payload.scan_type,
+                    total_modules=len(payload.enabled_modules or []),
+                    company_name=None,
+                    environment_name=None,
+                )
+            except (ScanCreditUnavailableError, MonitoringInactiveError) as exc:
+                raise HTTPException(status_code=402, detail=str(exc)) from exc
+            except (ScanStartConflictError, FreeScanAlreadyUsedError) as exc:
+                raise HTTPException(status_code=409, detail=str(exc)) from exc
+            existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id))
+
         scan = existing_scan
         scan_created_without_start = False
         normalized_generated_at = _normalize_utc(payload.generated_at_utc)
-        normalized_scan_type = _normalize_scan_type(payload.scan_type)
         is_free_score = _is_free_data_health_score_scan(normalized_scan_type)
-        if (
-            scan is None
-            and normalized_scan_type == "deep"
-            and "monitoring_active" not in tenant_features
-            and scan_credit_count(db, tenant.tenant_id) <= 0
-        ):
-            raise HTTPException(
-                status_code=402,
-                detail="A scan credit or active monitoring subscription is required for Deep Scan.",
-            )
-
         if scan is None:
             scan_created_without_start = True
             scan = Scan(
@@ -407,9 +398,6 @@ def sync_scan(
             total_modules=len(payload.enabled_modules or []),
             completed_modules=len(payload.enabled_modules or []),
         )
-        if scan_created_without_start and normalized_scan_type == "deep" and not is_free_score and "monitoring_active" not in tenant_features:
-            consume_scan_credit_for_scan(db, tenant_id=payload.tenant_id, scan_id=payload.scan_id)
-
         for issue in recalculated_issues:
             db.add(
                 ScanIssueRecord(

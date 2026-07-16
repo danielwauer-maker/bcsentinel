@@ -25,11 +25,19 @@ codeunit 53124 "DH Deep Scan Mgt."
         if TotalModules <= 0 then
             Error('Please enable at least one scan module on the BCSentinel setup page.');
 
+        if FindUnacceptedRun(GetDeepScanMode(Setup, ShowStartedMessage), DeepScanRun) then begin
+            StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
+            RunDeepScanNow(DeepScanRun);
+            exit(DeepScanRun."Entry No.");
+        end;
+
         EntryNo := GetNextRunEntryNo();
 
         DeepScanRun.Init();
         DeepScanRun."Entry No." := EntryNo;
         DeepScanRun."Run ID" := RunIdMgt.GetNextRunId(Setup);
+        DeepScanRun."Client Request ID" := CreateGuid();
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;
         DeepScanRun.Status := DeepScanRun.Status::Queued;
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
@@ -50,7 +58,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         CreateOrUpdateScanHeader(DeepScanRun);
         Commit();
 
-        ApiClient.StartDeepScan(Setup, DeepScanRun."Run ID", TotalModules);
+        StartBackendScanWithRecovery(Setup, DeepScanRun, TotalModules);
 
         TryUpdateBackendQueued(Setup, DeepScanRun);
 
@@ -84,11 +92,19 @@ codeunit 53124 "DH Deep Scan Mgt."
         if TotalModules <= 0 then
             Error('Please enable at least one scan module on the BCSentinel setup page.');
 
+        if FindUnacceptedRun('data_health_score', DeepScanRun) then begin
+            StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
+            RunDeepScanNow(DeepScanRun);
+            exit(DeepScanRun."Entry No.");
+        end;
+
         EntryNo := GetNextRunEntryNo();
 
         DeepScanRun.Init();
         DeepScanRun."Entry No." := EntryNo;
         DeepScanRun."Run ID" := RunIdMgt.GetNextRunId(Setup);
+        DeepScanRun."Client Request ID" := CreateGuid();
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;
         DeepScanRun.Status := DeepScanRun.Status::Queued;
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
@@ -109,7 +125,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         CreateOrUpdateScanHeader(DeepScanRun);
         Commit();
 
-        ApiClient.StartDataHealthScore(Setup, DeepScanRun."Run ID", TotalModules);
+        StartBackendScanWithRecovery(Setup, DeepScanRun, TotalModules);
         TryUpdateBackendQueued(Setup, DeepScanRun);
         Commit();
 
@@ -137,6 +153,54 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRunner: Codeunit "DH Deep Scan Runner";
     begin
         DeepScanRunner.Run(DeepScanRun);
+    end;
+
+    local procedure StartBackendScanWithRecovery(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    var
+        StartFailedErr: Label 'The scan start could not be confirmed. Retry the same scan from the start action. The existing request ID will be reused. Details: %1';
+        ErrorText: Text;
+    begin
+        DeepScanRun."Start Attempt Count" += 1;
+        DeepScanRun."Last Start Attempt" := CurrentDateTime();
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;
+        DeepScanRun.Modify(true);
+        Commit();
+
+        if not TrySendBackendScanStart(Setup, DeepScanRun, TotalModules) then begin
+            ErrorText := CopyStr(GetLastErrorText(), 1, MaxStrLen(DeepScanRun."Error Message"));
+            DeepScanRun.Get(DeepScanRun."Entry No.");
+            DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::RetryRequired;
+            DeepScanRun."Error Message" := ErrorText;
+            DeepScanRun.Modify(true);
+            Commit();
+            Error(StartFailedErr, ErrorText);
+        end;
+
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Accepted;
+        DeepScanRun."Backend Run Id" := DeepScanRun."Run ID";
+        DeepScanRun."Error Message" := '';
+        DeepScanRun.Modify(true);
+        Commit();
+    end;
+
+    [TryFunction]
+    local procedure TrySendBackendScanStart(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ApiClient.StartDeepScan(Setup, DeepScanRun, TotalModules);
+    end;
+
+    local procedure FindUnacceptedRun(ScanMode: Text; var DeepScanRun: Record "DH Deep Scan Run"): Boolean
+    var
+        EmptyGuid: Guid;
+    begin
+        DeepScanRun.Reset();
+        DeepScanRun.SetRange("Scan Mode", ScanMode);
+        DeepScanRun.SetFilter("Client Request ID", '<>%1', EmptyGuid);
+        DeepScanRun.SetFilter("Start Request Status", '%1|%2', DeepScanRun."Start Request Status"::Pending, DeepScanRun."Start Request Status"::RetryRequired);
+        exit(DeepScanRun.FindLast());
     end;
 
     local procedure CreateOrUpdateScanHeader(var DeepScanRun: Record "DH Deep Scan Run")
@@ -230,10 +294,17 @@ codeunit 53124 "DH Deep Scan Mgt."
         if not ShowStartedMessage then
             exit('monitoring');
 
+        if Setup."Validation Credits Available" > 0 then
+            exit('validation');
+        if Setup."Assessment Credits Available" > 0 then
+            exit('assessment');
+
         AccessModel := LowerCase(Setup."Product Access Model");
         case AccessModel of
-            'one_time', 'validation', 'validation_scan', 'full_analysis', 'credit':
+            'validation', 'validation_scan':
                 exit('validation');
+            'one_time', 'full_analysis', 'credit':
+                exit('assessment');
             'monitoring', 'subscription':
                 exit('monitoring');
         end;

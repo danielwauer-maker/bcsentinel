@@ -171,3 +171,13 @@ Die ursprünglichen Gap-Zeilen bleiben als Audit-Historie erhalten.
 | P2-05 | offen | Dashboard-Kontextbindung gehärtet; initiale Tokenübergabe in URL unverändert | **offen** |
 
 Verbleibende P0: P0-03 Credit-Atomizität, P0-04 Scanstatus-Lifecycle und P0-05 lokaler Findings-Zugriffsschutz. Gesamtentscheidung daher weiterhin **NO-GO**.
+
+## Status-Delta GL-EXT-P0B (16. Juli 2026)
+
+| Gap | Ursprünglicher Status | Korrektur und Evidenz | Aktueller Status |
+|---|---|---|---|
+| P0-03 | offen: nicht atomarer Check-then-consume-Pfad | `scan_start_requests`, append-only Ledger, DB-Sperre/Conditional Update, Unique Constraints, stabile AL-GUID, Thread-/Rollback-/Migrationstests | **geschlossen** |
+| P0-04 | offen | bewusst nicht bearbeitet | **offen** |
+| P0-05 | offen | bewusst nicht bearbeitet | **offen** |
+
+Verbleibende P0: P0-04 Scanstatus-Lifecycle und P0-05 lokaler Findings-Zugriffsschutz. Empfohlener nächster Sprint ist **GL-EXT-P0C – terminaler Scan-Lifecycle und kontrollierte Recovery**. Definition of Done: jeder angenommene Run erreicht terminal `Completed`, `Failed` oder `Cancelled`; Heartbeat/Stall-Detection und Restart-Recovery sind getestet; Refund bleibt explizit und ledgerbasiert; AL und Backend zeigen denselben Endstatus; Parallel-/Crash-/Timeouttests und BC-Sandbox-CAT sind grün. Danach folgt P0D für den Findings-Zugriffsschutz.

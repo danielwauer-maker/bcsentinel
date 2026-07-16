@@ -66,3 +66,16 @@ Der Backend-Token liegt weiterhin nur gehasht vor; der AL-Token bleibt wie zuvor
 - dokumentierte und technisch erzwungene Retention für Scans, Events, Findings und Einladungen.
 - Redaction für Token in URLs/Logs sowie durchgängige Request-ID im AL-Fehlerdialog.
 - keine Roh-Exception-/SMTP-Fehler an Endnutzer; strukturierte Fehlercodes und Supportpfad.
+
+## Datenfluss-Delta GL-EXT-P0B (16. Juli 2026)
+
+| Flow | Neuer Vertrag | Atomare Speicherung | Retry/Schutz |
+|---|---|---|---|
+| manueller/Scheduler-Start | Tenant + stabile Client Request GUID + Run-ID + Modus + Kontext | Request, passender Credit, Scan, Runstatus und Ledger in einem Commit | gleicher Payload liefert denselben Scan; anderer Payload 409 |
+| Assessment | ausschließlich Assessment-/`full_analysis`-Credit | Claim per Row Lock und bedingtem Statusupdate | genau eine `SCAN_CONSUMED`-Buchung |
+| Validation | ausschließlich `validation_check` | identische Transaktionsgrenze | kein Assessment-Fallback |
+| Monitoring | aktive Subscription/Entitlement im authentisierten Tenant | Scan/Request ohne Creditbuchung | Ablauf blockiert neue Starts |
+| Free Score | serverseitiger Tenant-Free-Slot | Unique `(tenant, free_scan_slot)` | ein Start, beliebig sichere identische Retries |
+| Legacy Sync | deterministische tenant-/scanbasierte UUIDv5 | nutzt denselben Startservice | kein zweiter Consume-Pfad |
+
+AL speichert nur die nicht sensitive Request-GUID sowie Status-/Versuchsdaten. Das Ledger enthält keine Secrets oder personenbezogenen Daten. P0-04-Lifecycle und P0-05-Findingschutz bleiben unverändert.

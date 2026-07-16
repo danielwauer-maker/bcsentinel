@@ -18,6 +18,7 @@ from app.db import SessionLocal
 from app.models import (
     AdminAuditEvent,
     BillingWebhookEvent,
+    CreditLedgerEntry,
     ImpactSettingsConfig,
     Invoice,
     IssueCostConfig,
@@ -1149,6 +1150,18 @@ def remove_tenant_scan_credit(
         removed = 0
         for credit in credits:
             credit.status = "revoked"
+            db.flush()
+            db.add(CreditLedgerEntry(
+                tenant_id=tenant.tenant_id,
+                credit_id=credit.id,
+                source_purchase_id=credit.source_purchase_id,
+                product_code=credit.product_code,
+                operation_type="MANUAL_ADJUSTMENT",
+                amount=-1,
+                balance_after=scan_credit_count(db, tenant.tenant_id),
+                reason="Credit revoked by administrator",
+                created_at_utc=utc_now(),
+            ))
             removed += 1
         log_admin_event(
             db,
@@ -1175,6 +1188,18 @@ def reset_tenant_scan_credits(tenant_id: str, admin_username: str = Depends(requ
         ).all()
         for credit in credits:
             credit.status = "revoked"
+            db.flush()
+            db.add(CreditLedgerEntry(
+                tenant_id=tenant.tenant_id,
+                credit_id=credit.id,
+                source_purchase_id=credit.source_purchase_id,
+                product_code=credit.product_code,
+                operation_type="MANUAL_ADJUSTMENT",
+                amount=-1,
+                balance_after=scan_credit_count(db, tenant.tenant_id),
+                reason="Available credits reset by administrator",
+                created_at_utc=utc_now(),
+            ))
         log_admin_event(
             db,
             admin_username=admin_username,

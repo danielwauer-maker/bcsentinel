@@ -182,3 +182,15 @@ Ein erneutes Gate darf frühestens erfolgen, wenn:
 5. Backendtests vollständig grün und das Releasepaket aus CI reproduzierbar erzeugt ist.
 
 Die konkrete Abarbeitung steht in `BC_EXTENSION_OPEN_GAPS.md`, die Abnahmetests in `BC_EXTENSION_CUSTOMER_ACCEPTANCE_TEST.md` und die Release-Gates in `BC_EXTENSION_RELEASE_CHECKLIST.md`.
+
+## Status-Delta GL-EXT-P0B (16. Juli 2026)
+
+Die historische 48-%-Bewertung bleibt unverändert; P0B bewertet ausschließlich P0-03.
+
+| Requirement | Ursprünglicher Status | Korrektur | Evidenz | Aktuell |
+|---|---|---|---|---|
+| R-13 / P0-03 atomarer Creditverbrauch | DEFECTIVE | tenantgebundene Idempotency, DB-Lock plus Conditional Update, atomarer Scan-/Credit-/Ledger-Commit | 12 P0B-Tests, 76 relevante Regressionstests, Migration und AL-Build | **COMPLETE – P0 behoben** |
+| Assessment/Validation | PARTIAL/unklar | getrennte Credittypen und Snapshot-Zähler | Produkt- und Paralleltests | **COMPLETE für Charging** |
+| Monitoring/Free | PARTIAL | aktives Monitoring ohne Credit; Free-Slot einmal je Tenant | Ablauf-, Retry- und Free-Slot-Tests | **COMPLETE für Startannahme** |
+
+Der technische P0-Fortschritt beträgt damit **3 von 5 P0-Gaps (60 %) geschlossen**. Die Gesamtentscheidung bleibt **NO-GO**, da P0-04 und P0-05 offen sind; die ursprüngliche Gesamtreadiness wird erst nach der P0-Serie und einem Sandbox-Gate neu gewichtet. Detailnachweis: `docs/GL_EXT_P0B_ATOMIC_CREDIT_CONSUMPTION.md`.

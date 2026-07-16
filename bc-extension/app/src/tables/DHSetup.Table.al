@@ -335,6 +335,16 @@ table 53100 "DH Setup"
             Caption = 'Scheduled Scan Task ID';
             DataClassification = SystemMetadata;
         }
+        field(57; "Assessment Credits Available"; Integer)
+        {
+            Caption = 'Assessment Credits Available';
+            DataClassification = SystemMetadata;
+        }
+        field(58; "Validation Credits Available"; Integer)
+        {
+            Caption = 'Validation Credits Available';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

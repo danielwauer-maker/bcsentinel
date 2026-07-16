@@ -364,6 +364,9 @@ class TenantProductPurchase(Base):
 
 class TenantScanCredit(Base):
     __tablename__ = "tenant_scan_credits"
+    __table_args__ = (
+        UniqueConstraint("consumed_scan_id", name="uq_tenant_scan_credits_consumed_scan_id"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
@@ -376,6 +379,49 @@ class TenantScanCredit(Base):
     consumed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     tenant: Mapped["Tenant"] = relationship(back_populates="scan_credits")
+
+
+class ScanStartRequest(Base):
+    __tablename__ = "scan_start_requests"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "client_request_id", name="uq_scan_start_tenant_client_request"),
+        UniqueConstraint("tenant_id", "free_scan_slot", name="uq_scan_start_tenant_free_slot"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    client_request_id: Mapped[str] = mapped_column(String(36), index=True)
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    scan_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    requested_scan_mode: Mapped[str] = mapped_column(String(30))
+    resolved_product_code: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    credit_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_scan_credits.id"), nullable=True, index=True)
+    free_scan_slot: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="accepted", index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class CreditLedgerEntry(Base):
+    __tablename__ = "credit_ledger_entries"
+    __table_args__ = (
+        UniqueConstraint("scan_start_request_id", "operation_type", name="uq_credit_ledger_request_operation"),
+        UniqueConstraint("scan_id", "operation_type", name="uq_credit_ledger_scan_operation"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    credit_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_scan_credits.id"), nullable=True, index=True)
+    source_purchase_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_product_purchases.id"), nullable=True, index=True)
+    scan_start_request_id: Mapped[int | None] = mapped_column(ForeignKey("scan_start_requests.id"), nullable=True, index=True)
+    scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    product_code: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    operation_type: Mapped[str] = mapped_column(String(30), index=True)
+    amount: Mapped[int] = mapped_column(Integer)
+    balance_after: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    reason: Mapped[str] = mapped_column(String(160))
+    metadata_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 
 class TenantProductEntitlement(Base):

@@ -231,6 +231,27 @@ table 53128 "DH Deep Scan Run"
         {
             Caption = 'Scan Mode';
         }
+        field(56; "Client Request ID"; Guid)
+        {
+            Caption = 'Client Request ID';
+            DataClassification = SystemMetadata;
+        }
+        field(57; "Start Request Status"; Option)
+        {
+            Caption = 'Start Request Status';
+            OptionMembers = Pending,Accepted,RetryRequired;
+            DataClassification = SystemMetadata;
+        }
+        field(58; "Start Attempt Count"; Integer)
+        {
+            Caption = 'Start Attempt Count';
+            DataClassification = SystemMetadata;
+        }
+        field(59; "Last Start Attempt"; DateTime)
+        {
+            Caption = 'Last Start Attempt';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {
@@ -245,6 +266,9 @@ table 53128 "DH Deep Scan Run"
         {
         }
         key(Key4; "Run ID")
+        {
+        }
+        key(Key5; "Client Request ID")
         {
         }
     }

@@ -293,6 +293,8 @@ codeunit 53100 "DH API Client"
         Setup."Last License Check" := CurrentDateTime();
         Setup."Premium Enabled" := false;
         Setup."Scan Credits Available" := 0;
+        Setup."Assessment Credits Available" := 0;
+        Setup."Validation Credits Available" := 0;
         Setup."Monitoring Active" := false;
         Setup."Dashboard Access Until" := '';
         Setup."Issue Access Until" := '';
@@ -310,6 +312,10 @@ codeunit 53100 "DH API Client"
 
         if JsonResponse.Get('scan_credits_available', Token) then
             Setup."Scan Credits Available" := GetJsonTokenInteger(Token, 0);
+        if JsonResponse.Get('assessment_scan_credits_available', Token) then
+            Setup."Assessment Credits Available" := GetJsonTokenInteger(Token, 0);
+        if JsonResponse.Get('validation_scan_credits_available', Token) then
+            Setup."Validation Credits Available" := GetJsonTokenInteger(Token, 0);
 
         if JsonResponse.Get('monitoring_active', Token) then
             Setup."Monitoring Active" := GetJsonTokenBoolean(Token, false);
@@ -722,17 +728,17 @@ codeunit 53100 "DH API Client"
             Error('Backend scan history cleanup failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
-    procedure StartDeepScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
+    procedure StartDeepScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
     begin
-        StartBackendScan(Setup, RunId, TotalModules, 'deep');
+        StartBackendScan(Setup, DeepScanRun, TotalModules);
     end;
 
-    procedure StartDataHealthScore(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer)
+    procedure StartDataHealthScore(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
     begin
-        StartBackendScan(Setup, RunId, TotalModules, 'data_health_score');
+        StartBackendScan(Setup, DeepScanRun, TotalModules);
     end;
 
-    local procedure StartBackendScan(var Setup: Record "DH Setup"; RunId: Code[50]; TotalModules: Integer; ScanMode: Text)
+    local procedure StartBackendScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -746,13 +752,16 @@ codeunit 53100 "DH API Client"
     begin
         EnsureTenantAccessConfigured(Setup);
 
-        if RunId = '' then
+        if DeepScanRun."Run ID" = '' then
             Error('Scan could not be started because the run id is empty.');
+        if IsNullGuid(DeepScanRun."Client Request ID") then
+            Error('Scan could not be started because the client request id is empty.');
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
-        JsonRequest.Add('run_id', Format(RunId));
-        JsonRequest.Add('scan_mode', ScanMode);
+        JsonRequest.Add('run_id', Format(DeepScanRun."Run ID"));
+        JsonRequest.Add('client_request_id', Format(DeepScanRun."Client Request ID"));
+        JsonRequest.Add('scan_mode', DeepScanRun."Scan Mode");
         JsonRequest.Add('total_modules', TotalModules);
         JsonRequest.Add('company_name', CompanyName());
         JsonRequest.Add('environment_name', IdentityMgt.GetEnvironmentName());

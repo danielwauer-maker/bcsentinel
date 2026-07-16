@@ -189,3 +189,20 @@ Ziel: reproduzierbarer Kundenabnahmelauf in einer Business-Central-Sandbox
 ## 4. Abnahmekriterium
 
 Für `PILOT GO` müssen CAT-01 bis CAT-23 ausgeführt sein; kein P0/P1-Test darf fehlschlagen. `NOT_EXECUTED`, `BLOCKED` oder `FAIL_EXPECTED` zählt nicht als bestanden. Für `CUSTOMER GO` sind zusätzlich Upgrade, Retention, Permissions und Recovery mit produktionsnaher Datenmenge zu wiederholen. Für `APPSOURCE READY` kommen AppSourceCop, technische Validierung, Marketing-/Privacy-Artefakte und Einreichungscheck hinzu.
+
+## CAT-Delta GL-EXT-P0B – Credit und Idempotenz
+
+Alle folgenden Tests sind vorbereitet und mangels BC-Sandbox/PostgreSQL-Staging **NOT_EXECUTED**. Pro Test sind AL Request-ID, Backend Scan-ID, Creditstatus und Ledgerzeile zu sichern.
+
+| Test | Schritte | Erwartung |
+|---|---|---|
+| P0B-CAT-01 Assessment | einen Credit grantieren, Scan starten | ein Scan, Credit consumed, ein Ledger `-1` |
+| P0B-CAT-02 Doppelklick | Startaktion unmittelbar doppelt auslösen | dieselbe Request-/Scan-ID, keine zweite Buchung |
+| P0B-CAT-03 Timeout | Antwort nach Backend-Commit unterbrechen, erneut starten | lokaler Retry nutzt dieselbe GUID; Replay |
+| P0B-CAT-04 Parallelstart | zwei verschiedene Starts bei einem Credit | genau einer angenommen, einer No Credit |
+| P0B-CAT-05 Validation | passenden Validation-Credit verwenden | Validation verbraucht ihn, keinen Assessment-Credit |
+| P0B-CAT-06 Validation ohne Credit | nur Assessment-Credit bereitstellen | 402/verständlicher No-Credit-Fehler, Bestand unverändert |
+| P0B-CAT-07 Monitoring aktiv | aktive Subscription, Start und Retry | kein Credit, ein Scan |
+| P0B-CAT-08 Monitoring abgelaufen | Laufzeit beenden, neuen Start versuchen | blockiert, keine Teilanlage |
+| P0B-CAT-09 Scheduler doppelt | dieselbe geplante Ausführung zweimal triggern | dieselbe gespeicherte GUID, ein Scan/eine Buchung |
+| P0B-CAT-10 Restart | Backend nach Commit vor Antwort neu starten | Retry findet persistiertes Ergebnis |

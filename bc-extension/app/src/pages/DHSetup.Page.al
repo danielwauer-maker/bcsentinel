@@ -1014,6 +1014,8 @@
         Rec."Can Run Data Health Score" := true;
         Rec."Data Health Score Completed" := false;
         Rec."Scan Credits Available" := 0;
+        Rec."Assessment Credits Available" := 0;
+        Rec."Validation Credits Available" := 0;
         Rec."Monitoring Active" := false;
         Rec."Dashboard Access Until" := '';
         Rec."Issue Access Until" := '';
