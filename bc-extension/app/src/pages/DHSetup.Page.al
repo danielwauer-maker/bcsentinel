@@ -708,8 +708,10 @@
                     trigger OnAction()
                     var
                         ApiClient: Codeunit "DH API Client";
+                        AccessGuard: Codeunit "DH Access Guard";
                         Token: Text;
                     begin
+                        AccessGuard.EnsureDashboardAccess();
                         Token := ApiClient.GetAnalyticsDashboardToken(Rec);
                         Hyperlink(GetDashboardUrl(Rec, Token));
                     end;

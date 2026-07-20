@@ -360,11 +360,14 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
     auth_header_factory,
     settings_state,
     monkeypatch,
+    product_access_factory,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    product_access_factory(tenant_id=tenant["tenant_id"], product_code="validation_check")
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
         STRIPE_PRICE_ID_ASSESSMENT="price_assessment",
+        STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring",
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
     )
@@ -384,7 +387,9 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
         lambda **kwargs: SimpleNamespace(id="cs_analytics", url="https://stripe.example/session"),
     )
 
-    response = client.post(f"/analytics/billing/checkout?embed_token={analytics_token}")
+    response = client.post(
+        f"/analytics/billing/checkout?embed_token={analytics_token}&product_code=monitoring_monthly"
+    )
 
     assert response.status_code == 200
     assert response.json()["checkout_url"] == "https://stripe.example/session"

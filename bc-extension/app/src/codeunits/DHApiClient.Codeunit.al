@@ -253,8 +253,27 @@ codeunit 53100 "DH API Client"
         Features: JsonArray;
         ProductAccessToken: JsonToken;
         ProductAccess: JsonObject;
+        CapabilitiesToken: JsonToken;
+        Capabilities: JsonObject;
+        TenantContextToken: JsonToken;
+        TenantContext: JsonObject;
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        ProductAccessGranted: Boolean;
+        DashboardAccessGranted: Boolean;
+        IssuesAccessGranted: Boolean;
+        ReportAccessGranted: Boolean;
+        MonitoringAccessGranted: Boolean;
+        SubscriptionGranted: Boolean;
+        ScanStartGranted: Boolean;
+        ServerTimeUtc: DateTime;
+        SnapshotExpiresAt: DateTime;
     begin
         EnsureTenantAccessConfigured(Setup);
+
+        // Invalidate and persist old positive authorization before any network operation.
+        Setup.InvalidateAccessSnapshot();
+        Setup.Modify(true);
+        Commit();
 
         Headers := Client.DefaultRequestHeaders();
         if Headers.Contains('X-Tenant-Id') then
@@ -281,6 +300,61 @@ codeunit 53100 "DH API Client"
 
         if not JsonResponse.ReadFrom(ResponseText) then
             Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
+
+        if not JsonResponse.Get('snapshot_version', Token) then
+            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+        Setup."Access Snapshot Version" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Version"));
+        if Setup."Access Snapshot Version" = '' then
+            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+
+        if not JsonResponse.Get('current_time_utc', Token) then
+            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+        ServerTimeUtc := ParseJsonDateTime(GetJsonTokenText(Token));
+        if ServerTimeUtc = 0DT then
+            Error('The backend returned an invalid server time. Detailed access remains blocked.');
+
+        if not JsonResponse.Get('snapshot_expires_at_utc', Token) then
+            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+        SnapshotExpiresAt := ParseJsonDateTime(GetJsonTokenText(Token));
+        if (SnapshotExpiresAt = 0DT) or (SnapshotExpiresAt <= ServerTimeUtc) then
+            Error('The backend returned an invalid access snapshot expiry. Detailed access remains blocked.');
+
+        if not JsonResponse.Get('tenant_context', TenantContextToken) then
+            Error('The backend returned no tenant context. Detailed access remains blocked.');
+        TenantContext := TenantContextToken.AsObject();
+        if not TenantContext.Get('tenant_id', Token) then
+            Error('The backend returned an incomplete tenant context. Detailed access remains blocked.');
+        Setup."Access Snapshot Tenant ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Tenant ID"));
+        if LowerCase(Setup."Access Snapshot Tenant ID") <> LowerCase(Setup."Tenant ID") then
+            Error('The access snapshot belongs to a different tenant. Detailed access remains blocked.');
+        if not TenantContext.Get('environment_name', Token) then
+            Error('The backend returned an incomplete environment context. Detailed access remains blocked.');
+        Setup."Access Snapshot Environment" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Environment"));
+        if LowerCase(Setup."Access Snapshot Environment") <> LowerCase(IdentityMgt.GetEnvironmentName()) then
+            Error('The access snapshot belongs to a different environment. Detailed access remains blocked.');
+        if not TenantContext.Get('environment_type', Token) then
+            Error('The backend returned an incomplete environment context. Detailed access remains blocked.');
+        Setup."Access Snapshot Env. Type" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Env. Type"));
+        if LowerCase(Setup."Access Snapshot Env. Type") <> LowerCase(IdentityMgt.GetEnvironmentType()) then
+            Error('The access snapshot belongs to a different environment type. Detailed access remains blocked.');
+        if not TenantContext.Get('company_id', Token) then
+            Error('The backend returned an incomplete company context. Detailed access remains blocked.');
+        Setup."Access Snapshot Company ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Company ID"));
+        if LowerCase(DelChr(Setup."Access Snapshot Company ID", '=', '{}')) <> LowerCase(DelChr(IdentityMgt.GetCompanyId(), '=', '{}')) then
+            Error('The access snapshot belongs to a different company. Detailed access remains blocked.');
+
+        if not JsonResponse.Get('capabilities', CapabilitiesToken) then
+            Error('The backend returned no capability decisions. Detailed access remains blocked.');
+        Capabilities := CapabilitiesToken.AsObject();
+        if not TryGetCapabilityGranted(Capabilities, 'product_access', ProductAccessGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'dashboard_access', DashboardAccessGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'issues_access', IssuesAccessGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'report_access', ReportAccessGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'monitoring_access', MonitoringAccessGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'subscription_active', SubscriptionGranted) or
+           not TryGetCapabilityGranted(Capabilities, 'scan_start_access', ScanStartGranted)
+        then
+            Error('The backend returned an incomplete capability set. Detailed access remains blocked.');
 
         if JsonResponse.Get('plan', Token) then
             if not IsJsonNull(Token) then
@@ -309,6 +383,14 @@ codeunit 53100 "DH API Client"
             Features := FeaturesToken.AsArray();
             Setup."Premium Enabled" := HasPremiumActionFeatures(Features);
         end;
+
+        Setup."Premium Enabled" := ProductAccessGranted;
+        Setup."Can View Dashboard" := DashboardAccessGranted;
+        Setup."Can View Issue Details" := IssuesAccessGranted;
+        Setup."Can View Reports" := ReportAccessGranted;
+        Setup."Can Use Monitoring" := MonitoringAccessGranted;
+        Setup."Subscription Active" := SubscriptionGranted;
+        Setup."Can Run Deep Scan" := ScanStartGranted;
 
         if JsonResponse.Get('scan_credits_available', Token) then
             Setup."Scan Credits Available" := GetJsonTokenInteger(Token, 0);
@@ -386,7 +468,45 @@ codeunit 53100 "DH API Client"
                 else
                     Setup."Product Access Model" := 'none';
 
+        Setup."Access Snapshot Received At" := CurrentDateTime();
+        Setup."Access Server Time UTC" := ServerTimeUtc;
+        Setup."Access Snapshot Expires At" := SnapshotExpiresAt;
+        Setup."Access Snapshot API URL" := CopyStr(Setup."API Base URL", 1, MaxStrLen(Setup."Access Snapshot API URL"));
+        if JsonResponse.Get('correlation_id', Token) then
+            Setup."Access Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Correlation ID"));
+        Setup."Report Access Until" := CopyStr(FormatJsonDateTimeText(GetCapabilityUntil(Capabilities, 'report_access')), 1, MaxStrLen(Setup."Report Access Until"));
+
         Setup.Modify(true);
+    end;
+
+    local procedure TryGetCapabilityGranted(var Capabilities: JsonObject; CapabilityName: Text; var Granted: Boolean): Boolean
+    var
+        CapabilityToken: JsonToken;
+        Capability: JsonObject;
+        GrantedToken: JsonToken;
+    begin
+        Granted := false;
+        if not Capabilities.Get(CapabilityName, CapabilityToken) then
+            exit(false);
+        Capability := CapabilityToken.AsObject();
+        if not Capability.Get('granted', GrantedToken) then
+            exit(false);
+        Granted := GetJsonTokenBoolean(GrantedToken, false);
+        exit(true);
+    end;
+
+    local procedure GetCapabilityUntil(var Capabilities: JsonObject; CapabilityName: Text): Text
+    var
+        CapabilityToken: JsonToken;
+        Capability: JsonObject;
+        UntilToken: JsonToken;
+    begin
+        if not Capabilities.Get(CapabilityName, CapabilityToken) then
+            exit('');
+        Capability := CapabilityToken.AsObject();
+        if not Capability.Get('valid_until_utc', UntilToken) then
+            exit('');
+        exit(GetJsonTokenText(UntilToken));
     end;
 
     procedure EnsureReadyForScan(var Setup: Record "DH Setup")

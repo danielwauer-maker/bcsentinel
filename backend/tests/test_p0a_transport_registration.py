@@ -203,10 +203,11 @@ def test_portal_account_is_not_duplicated_and_resend_is_explicit(client, setting
     assert send_count == 2
 
 
-def test_dashboard_token_requires_exact_registered_context(client, settings_state):
+def test_dashboard_token_requires_exact_registered_context(client, settings_state, product_access_factory):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
     registration = register(client).json()
     headers = {"X-Tenant-Id": registration["tenant_id"], "X-Api-Token": registration["api_token"]}
+    product_access_factory(tenant_id=registration["tenant_id"])
     valid_params = {
         "tenant_id": registration["tenant_id"],
         "company": "CRONUS DE",

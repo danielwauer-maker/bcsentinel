@@ -108,5 +108,12 @@
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
+    end;
 }
 

@@ -381,7 +381,9 @@
                 trigger OnAction()
                 var
                     Finding: Record "DH Deep Scan Finding";
+                    AccessGuard: Codeunit "DH Access Guard";
                 begin
+                    AccessGuard.EnsureIssuesAccess();
                     if Rec."Entry No." = 0 then
                         Error('No deep scan run is available.');
 
@@ -1174,8 +1176,10 @@
     var
         Setup: Record "DH Setup";
         ApiClient: Codeunit "DH API Client";
+        AccessGuard: Codeunit "DH Access Guard";
         Token: Text;
     begin
+        AccessGuard.EnsureDashboardAccess();
         LoadSetupOrError(Setup);
 
         Token := ApiClient.GetAnalyticsDashboardToken(Setup);
@@ -1189,9 +1193,11 @@
     local procedure OpenExecutiveReportForCurrentScan(OpenPdf: Boolean)
     var
         Setup: Record "DH Setup";
+        AccessGuard: Codeunit "DH Access Guard";
         ReportUrl: Text;
         ReportType: Text;
     begin
+        AccessGuard.EnsureReportAccess();
         if not CanOpenExecutiveReport() then
             exit;
 

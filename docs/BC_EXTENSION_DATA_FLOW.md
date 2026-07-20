@@ -92,3 +92,16 @@ AL speichert nur die nicht sensitive Request-GUID sowie Status-/Versuchsdaten. D
 | BC Polling/Scheduler | Status plus Recoveryhinweis, Attempt/Lease/Correlation | technischer Retry verwendet dieselbe Client Request GUID | Terminalstatus beendet Polling; stale Run blockiert Folgetermin nicht dauerhaft |
 
 Neue Metadaten enthalten keine Secrets. Worker-ID und Correlation ID sind technische Pseudoreferenzen; Tokenwerte werden weder in Events noch Logs geschrieben. P0-05-Datenzugriff und Retention bleiben außerhalb P0C offen.
+
+## Datenfluss-Delta GL-EXT-P0D (20. Juli 2026)
+
+| Flow | Autorität und Bindung | Cache/Token | Fail-Closed-/Revocationwirkung |
+|---|---|---|---|
+| License Snapshot | authentifizierter Tenant; Backend-UTC; Entra/Environment/Type/Company | Version `p0d-v1`, 60 s, Correlation-ID | Teilantwort/Fehler/Context-Mismatch schreibt keine positive Entscheidung |
+| lokale Findings | `DH Access Guard` erzwingt `issues_access` vor Page/Action/Drilldown | lokale Details bleiben gespeichert; positiver Cache maximal 60 s, kritischer Weg fresh | Backend nicht erreichbar oder revoked → blockiert |
+| Dashboard | Backend prüft `dashboard_access` bei Ausgabe und jedem Abruf | 5-min Token, max. 15-min Cookie; Audience/Tenant/Company/Capability | bestehendes Token wird nach Revocation beim nächsten Request 403 |
+| Issues/Actions/Reports im Dashboard | explizite `issues_access` bzw. `report_access` | kein Vertrauen in Client-Lock | keine Payload bei fehlender Capability |
+| Executive Report | Report-Capability vor Reportaufbau | 15-min Share-Token, an Tenant/Company/Scan/Typ gebunden | JSON, HTML, PDF und Shared Download revalidieren |
+| Company/API-Wechsel | Snapshotfelder company-scoped mit API-/Context-Referenz | Legacy/fehlende Metadaten invalid | keine Wiederverwendung zwischen Companies/Environments |
+
+Freie Health-Score-Summaries und Scan-History dürfen gespeichert bzw. nach Produktvertrag sichtbar bleiben; Premiumdetails und Dateien nicht. Bereits heruntergeladene PDFs sind technisch nicht widerrufbar.

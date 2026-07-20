@@ -2,6 +2,7 @@
 {
     PageType = List;
     SourceTable = "DH Scan Issue";
+    Permissions = tabledata "DH Scan Issue" = R;
     ApplicationArea = All;
     UsageCategory = None;
     Caption = 'Scan Issues';
@@ -64,7 +65,10 @@
     end;
 
     trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureIssuesAccess();
         EnsureSortFields();
         Rec.SetCurrentKey("Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
@@ -129,6 +133,13 @@
         end;
 
         exit('Standard');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
     end;
 
     local procedure GetImpactText(): Text[50]

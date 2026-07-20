@@ -10,8 +10,11 @@ def test_security_headers_are_set(client):
     assert "frame-ancestors" in response.headers["Content-Security-Policy"]
 
 
-def test_analytics_embed_keeps_business_central_frame_ancestor(client, tenant_factory, auth_header_factory):
+def test_analytics_embed_keeps_business_central_frame_ancestor(
+    client, tenant_factory, auth_header_factory, product_access_factory
+):
     tenant = tenant_factory()
+    product_access_factory(tenant_id=tenant["tenant_id"])
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
 
     assert token_response.status_code == 200

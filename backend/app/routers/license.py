@@ -6,6 +6,7 @@ from app.services.billing_service import resolve_effective_license
 from app.services.entitlement_service import resolve_features
 from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
+from app.services.access_control_service import build_authoritative_access_snapshot
 from app.services.product_license_service import build_license_snapshot
 
 router = APIRouter(tags=["license"])
@@ -56,6 +57,13 @@ class LicenseStatusResponse(BaseModel):
     record_count: int | None = None
     pricing_tier: str | None = None
     products: list[dict] = []
+    snapshot_version: str
+    current_time_utc: str
+    snapshot_expires_at_utc: str
+    cache_ttl_seconds: int
+    correlation_id: str | None = None
+    tenant_context: dict
+    capabilities: dict
 
 
 @router.get("/license/status", response_model=LicenseStatusResponse)
@@ -71,6 +79,7 @@ def get_license_status(
             db.flush()
         features = sorted(get_tenant_features(db, tenant))
         snapshot = build_license_snapshot(db, tenant)
+        authoritative = build_authoritative_access_snapshot(db, tenant)
         normalized_plan, normalized_license_status = resolve_effective_license(db, tenant)
         if (
             normalized_plan == "premium"
@@ -126,6 +135,13 @@ def get_license_status(
             record_count=snapshot["record_count"],
             pricing_tier=snapshot["pricing_tier"],
             products=snapshot["products"],
+            snapshot_version=authoritative["snapshot_version"],
+            current_time_utc=authoritative["current_time_utc"],
+            snapshot_expires_at_utc=authoritative["snapshot_expires_at_utc"],
+            cache_ttl_seconds=authoritative["cache_ttl_seconds"],
+            correlation_id=authoritative["correlation_id"],
+            tenant_context=authoritative["tenant_context"],
+            capabilities=authoritative["capabilities"],
         )
         db.commit()
         return response

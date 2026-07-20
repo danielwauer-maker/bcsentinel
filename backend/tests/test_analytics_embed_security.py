@@ -1,16 +1,37 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 
 from app.core.settings import settings
 from app.routers.analytics import ANALYTICS_EMBED_TOKEN_TYPE
 from app.security.token import ALGORITHM, create_token
+from app.db import SessionLocal
+from app.models import TenantProductEntitlement
+from app.services.access_control_service import TOKEN_AUDIENCE
+
+
+def _grant_dashboard_access(tenant_id: str) -> None:
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            TenantProductEntitlement(
+                tenant_id=tenant_id,
+                product_code="full_analysis",
+                status="active",
+                source="analytics_test",
+                valid_until_utc=now + timedelta(days=7),
+                created_at_utc=now,
+                updated_at_utc=now,
+            )
+        )
+        db.commit()
 
 
 def test_analytics_get_token_returns_short_lived_embed_token(client, tenant_factory, auth_header_factory):
     tenant = tenant_factory()
+    _grant_dashboard_access(tenant["tenant_id"])
 
     response = client.get(
         "/analytics/get-token?company=CRONUS&environment=BC%20Cloud&tenant_id="
@@ -23,7 +44,7 @@ def test_analytics_get_token_returns_short_lived_embed_token(client, tenant_fact
     assert body["token_type"] == ANALYTICS_EMBED_TOKEN_TYPE
     assert body["expires_in_seconds"] == 300
 
-    payload = jwt.decode(body["token"], settings.SECRET_KEY, algorithms=[ALGORITHM])
+    payload = jwt.decode(body["token"], settings.SECRET_KEY, algorithms=[ALGORITHM], audience=TOKEN_AUDIENCE)
     assert payload["type"] == ANALYTICS_EMBED_TOKEN_TYPE
     assert payload["scope"] == "analytics:embed"
     assert payload["tenant_id"] == tenant["tenant_id"]
@@ -41,6 +62,7 @@ def test_analytics_embed_token_sets_cookie_and_redirects_without_token_in_locati
     auth_header_factory,
 ):
     tenant = tenant_factory()
+    _grant_dashboard_access(tenant["tenant_id"])
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
     embed_token = token_response.json()["token"]
 
@@ -64,6 +86,7 @@ def test_analytics_data_rejects_generic_non_embed_token(client, tenant_factory):
 
 
 def _analytics_embed_token(client, tenant, auth_header_factory):
+    _grant_dashboard_access(tenant["tenant_id"])
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
     assert token_response.status_code == 200
     return token_response.json()["token"]

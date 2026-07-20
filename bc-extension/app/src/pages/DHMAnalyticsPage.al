@@ -40,8 +40,10 @@
                 var
                     Setup: Record "DH Setup";
                     ApiClient: Codeunit "DH API Client";
+                    AccessGuard: Codeunit "DH Access Guard";
                     Token: Text;
                 begin
+                    AccessGuard.EnsureDashboardAccess();
                     LoadSetupOrError(Setup);
 
                     Token := ApiClient.GetAnalyticsDashboardToken(Setup);

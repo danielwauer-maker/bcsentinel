@@ -207,3 +207,16 @@ Die historische 48-%-Bewertung und die EXT-01-bis-EXT-08-Bewertungen bleiben unv
 | BC Monitor / Scheduler | PARTIAL | Terminalstatus-Healing, RetryRequired mit demselben Run/Request, kein zweiter Credit, lokale Failure-Persistenz | AL Compile; P0B-Regression und Lifecycle-Tests | **COMPLETE auf Codeebene; Sandbox offen** |
 
 P0-Fortschritt: **4 von 5 (80 %)**. P0C ist bereit für GL-EXT-P0D. Die Entscheidung bleibt **NO-GO**, weil P0-05, BC-Sandbox/PostgreSQL-Staging und weitere P1-Releasegates offen sind. Vollständige Evidenz: `docs/GL_EXT_P0C_SCAN_LIFECYCLE_RECOVERY.md`.
+
+## Status-Delta GL-EXT-P0D (20. Juli 2026)
+
+Die ursprüngliche Auditmatrix und 48-%-Baseline bleiben als Historie bestehen. P0D schließt P0-05 auf Codeebene.
+
+| Requirement | Ursprünglicher Status | Korrektur | Evidenz | Aktuell |
+|---|---|---|---|---|
+| R-10 / P0-05 lokale Rechte nach Ablauf | DEFECTIVE | versionierter 60-s-Snapshot, Backend-UTC, Context-Bindung, persistente Vorab-Invalidation, zentraler Fresh Access Guard | 51 P0D-Szenarien, AL ReleaseCloud Compile | **COMPLETE auf Codeebene** |
+| R-21 Findings-Schutz | DEFECTIVE | Page-, Recordwechsel-, Action- und Dispatcher-Guards; Backend-Recheck | direkte Page-/Drilldown-/Revocationtests | **COMPLETE auf Codeebene; Sandbox offen** |
+| R-23 Report | PARTIAL hinsichtlich Ablauf | JSON/HTML/PDF/Share-Link benötigen Report-Capability; Share-Token wird bei Abruf revalidiert | Report-Regressionen und Revocationtest | **COMPLETE für Authorization** |
+| R-25 Permissions | PARTIAL | Viewer ohne direkte geschützte TableData-Rechte; indirekter Pagezugriff plus SaaS-Guard | Source-Contract und AL Compile | **PARTIAL; negative Sandboxtests offen** |
+
+Funktionaler P0-Fortschritt: **5 von 5 (100 %)**. Die neu gewichtete Code-/Release-Readiness beträgt **64 %**: Transport, Registrierung, Credits, Lifecycle und Access Enforcement sind deutlich verbessert; Install/Upgrade, AL-Test-App, Sandbox, Schedulerrollen, Currency, Localization und AppSource bleiben niedrig bewertet. Das Produkt-Gate bleibt **NO-GO** für Pilot/Kunde, nicht wegen eines offenen funktionalen P0, sondern wegen fehlender Sandbox-/Upgrade-/P1-Releaseevidenz. P0D ist bereit für GL-EXT-P0E. Detail: `docs/GL_EXT_P0D_FRESH_ACCESS_ENFORCEMENT.md`.

@@ -44,6 +44,13 @@ from app.services.product_pricing_service import (
     build_tier_pricing_payload,
     get_public_product_pricing_payload,
 )
+from app.services.access_control_service import (
+    CAPABILITY_DASHBOARD,
+    CAPABILITY_ISSUES,
+    CAPABILITY_REPORT,
+    TOKEN_AUDIENCE,
+    require_capability,
+)
 
 router = APIRouter(tags=["analytics"])
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -1552,7 +1559,9 @@ def get_analytics_token(
                     detail="Business Central registration context does not match this tenant.",
                 )
         update_tenant_language(tenant, x_preferred_language or preferred_language)
+        require_capability(db, tenant, CAPABILITY_DASHBOARD, denial_event="token_issuance_denied")
         resolved_tenant_id = tenant.tenant_id
+        resolved_company_id = tenant.bc_company_id
         resolved_language = tenant_language(tenant)
         db.commit()
 
@@ -1560,6 +1569,7 @@ def get_analytics_token(
         company=company,
         environment=environment,
         tenant_id=resolved_tenant_id,
+        company_id=resolved_company_id,
         language=resolved_language,
         scan_mode=scan_mode,
         bc_issue_launch_url=bc_issue_launch_url,
@@ -1594,12 +1604,14 @@ def get_analytics_data(
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
-
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found.")
-
-    return JSONResponse(
-        content=_build_dashboard_payload(
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
+        token_company_id = str(payload.get("company_id") or "").strip().strip("{}").lower()
+        tenant_company_id = str(tenant.bc_company_id or "").strip().strip("{}").lower()
+        if token_company_id != tenant_company_id:
+            raise HTTPException(status_code=403, detail="Analytics token company context is invalid.")
+        require_capability(db, tenant, CAPABILITY_DASHBOARD)
+        content = _build_dashboard_payload(
             company=payload.get("company", "BCSentinel"),
             environment=payload.get("environment", "BC Cloud"),
             tenant=tenant,
@@ -1609,7 +1621,7 @@ def get_analytics_data(
             recent_scans_page_size=recent_scans_page_size,
             bc_issue_launch_url=payload.get("bc_issue_launch_url"),
         )
-    )
+    return JSONResponse(content=content)
 
 
 def _load_dashboard_payload_from_embed_token(
@@ -1618,6 +1630,7 @@ def _load_dashboard_payload_from_embed_token(
     embed_token: str | None,
     analytics_cookie_token: str | None,
     scan_id: str | None = None,
+    capability: str = CAPABILITY_DASHBOARD,
 ) -> dict[str, Any]:
     effective_token = embed_token or token or analytics_cookie_token
     if not effective_token:
@@ -1630,18 +1643,21 @@ def _load_dashboard_payload_from_embed_token(
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
-
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found.")
-
-    return _build_dashboard_payload(
-        company=payload.get("company", "BCSentinel"),
-        environment=payload.get("environment", "BC Cloud"),
-        tenant=tenant,
-        scan_mode=payload.get("scan_mode"),
-        selected_scan_id=scan_id,
-        bc_issue_launch_url=payload.get("bc_issue_launch_url"),
-    )
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
+        token_company_id = str(payload.get("company_id") or "").strip().strip("{}").lower()
+        tenant_company_id = str(tenant.bc_company_id or "").strip().strip("{}").lower()
+        if token_company_id != tenant_company_id:
+            raise HTTPException(status_code=403, detail="Analytics token company context is invalid.")
+        require_capability(db, tenant, capability)
+        return _build_dashboard_payload(
+            company=payload.get("company", "BCSentinel"),
+            environment=payload.get("environment", "BC Cloud"),
+            tenant=tenant,
+            scan_mode=payload.get("scan_mode"),
+            selected_scan_id=scan_id,
+            bc_issue_launch_url=payload.get("bc_issue_launch_url"),
+        )
 
 
 @router.get("/analytics/embed/{section}", response_class=JSONResponse)
@@ -1661,12 +1677,13 @@ def get_analytics_section(
         embed_token=embed_token,
         analytics_cookie_token=analytics_cookie_token,
         scan_id=scan_id,
+        capability=CAPABILITY_REPORT if normalized_section == "reports" else CAPABILITY_ISSUES,
     )
     page_key = f"{normalized_section}_page"
     page_payload = payload.get(page_key, {})
     if page_payload.get("locked"):
         raise HTTPException(
-            status_code=402,
+            status_code=403,
             detail=f"{normalized_section.title()} require active Full Analysis, Validation Check, or Monitoring access.",
         )
     return JSONResponse(content=page_payload)
@@ -1757,6 +1774,7 @@ def _create_analytics_embed_token(
     language: str,
     scan_mode: str | None,
     bc_issue_launch_url: str | None,
+    company_id: str | None = None,
 ) -> str:
     return create_token(
         {
@@ -1764,6 +1782,9 @@ def _create_analytics_embed_token(
             "company": company,
             "environment": environment,
             "tenant_id": tenant_id,
+            "company_id": company_id,
+            "capability": CAPABILITY_DASHBOARD,
+            "aud": TOKEN_AUDIENCE,
             "preferred_language": normalize_language(language),
             "scan_mode": scan_mode,
             "bc_issue_launch_url": bc_issue_launch_url,
@@ -1774,7 +1795,7 @@ def _create_analytics_embed_token(
 
 
 def _verify_analytics_embed_payload(token: str) -> dict[str, Any]:
-    payload = verify_token(token)
+    payload = verify_token(token, audience=TOKEN_AUDIENCE)
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid or expired analytics embed token.")
 
@@ -1783,6 +1804,9 @@ def _verify_analytics_embed_payload(token: str) -> dict[str, Any]:
 
     if str(payload.get("scope") or "") != "analytics:embed":
         raise HTTPException(status_code=401, detail="Invalid analytics embed token scope.")
+
+    if str(payload.get("capability") or "") != CAPABILITY_DASHBOARD:
+        raise HTTPException(status_code=401, detail="Invalid analytics embed token capability.")
 
     tenant_id = str(payload.get("tenant_id") or "").strip()
     if not tenant_id:
@@ -1808,9 +1832,9 @@ def render_analytics_dashboard(
 
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
-
-        if tenant is None:
-            raise HTTPException(status_code=404, detail="Tenant not found.")
+            if tenant is None:
+                raise HTTPException(status_code=404, detail="Tenant not found.")
+            require_capability(db, tenant, CAPABILITY_DASHBOARD)
 
         response = RedirectResponse(url="/analytics/embed", status_code=303)
         response.set_cookie(
@@ -1835,9 +1859,9 @@ def render_analytics_dashboard(
 
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
-
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found.")
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found.")
+        require_capability(db, tenant, CAPABILITY_DASHBOARD)
 
     return TEMPLATES.TemplateResponse(
         name="analytics_embed.html",
@@ -1846,3 +1870,5 @@ def render_analytics_dashboard(
             "page_title": "BCSentinel Analytics",
         },
     )
+    if str(payload.get("capability") or "") != CAPABILITY_DASHBOARD:
+        raise HTTPException(status_code=401, detail="Invalid analytics embed token capability.")

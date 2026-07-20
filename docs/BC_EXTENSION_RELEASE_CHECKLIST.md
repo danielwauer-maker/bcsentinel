@@ -177,3 +177,23 @@ P0C-Entscheidung: **P0-04 geschlossen; bereit für GL-EXT-P0D.** Produkt-Gate bl
 | PILOT GO | P0/P1 im Pilotumfang geschlossen; Build, Upgrade und CAT grün; enges Monitoring |
 | CUSTOMER GO | vollständige Betriebs-, Support-, Security- und Upgradeevidenz |
 | APPSOURCE READY | Customer Go plus AppSourceCop/Submission/Legal/Marketing vollständig |
+
+## Gate-Delta GL-EXT-P0D (20. Juli 2026)
+
+- [x] kanonische sieben Capabilities und serverseitige UTC-Entscheidung vorhanden.
+- [x] License Snapshot versioniert, 60 Sekunden TTL, tenant-/environment-/company-/API-gebunden.
+- [x] alte positive Werte vor Netzwerkzugriff persistiert invalidiert; Partial/Offline fail closed.
+- [x] zentrale AL-Codeunit schützt direkte Pages, Recordwechsel, Actions und Drilldowns.
+- [x] Dashboard-/Issues-/Report-Endpunkte autorisieren unabhängig vom AL-Client.
+- [x] Dashboard- und Reporttokens besitzen Type, Audience, IAT, EXP, Capability, Tenant und Company.
+- [x] ausgestellte Tokens werden pro Request gegen Revocation revalidiert.
+- [x] Viewer besitzt keine direkten Leserechte auf die drei geschützten Findingtabellen.
+- [x] neue EN/DE-Guardtexte und Snapshot-Captions in XLF ergänzt.
+- [x] 51 P0D-Szenarien implementiert; fokussierte Analytics-/Report-Regression 17/17 grün.
+- [x] AL ReleaseCloud Compile des aktuellen 82-Dateien-Workspace grün.
+- [x] Backend 255/255, Compileall, JSON/XLF, Migration fresh und 0023→0024, CodeCop/PTE und `git diff --check` grün.
+- [ ] 15 BC-Sandbox-CATs ohne SUPER ausführen.
+- [ ] PostgreSQL-/Docker-Mehrinstanz und Restart verifizieren.
+- [ ] Install-/Upgrade-N-1, AL-Test-App, Currency, Localization-Baseline und AppSource-Gates schließen.
+
+P0D-Entscheidung: **P0-05 auf Codeebene geschlossen; alle funktionalen P0 geschlossen; bereit für GL-EXT-P0E.** Aktuelles Produkt-Gate bleibt **NO-GO**, bis Sandbox und releaseblockierende P1-Gates bestanden oder formal akzeptiert sind.

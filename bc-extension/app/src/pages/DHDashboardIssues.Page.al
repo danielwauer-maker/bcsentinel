@@ -2,6 +2,7 @@
 {
     PageType = ListPart;
     SourceTable = "DH Dashboard Issue";
+    Permissions = tabledata "DH Dashboard Issue" = R;
     ApplicationArea = All;
     UsageCategory = None;
     Caption = 'BCSentinel Issues';
@@ -93,7 +94,10 @@
     end;
 
     trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureIssuesAccess();
         EnsureSortFields();
         UpdateAccessState();
         Rec.SetCurrentKey("Dashboard Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
@@ -175,6 +179,13 @@
                 ShowPremiumDetails := true;
                 AccessText := 'Unlocked';
             end;
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
     end;
 
     local procedure GetImpactText(): Text[50]

@@ -88,8 +88,11 @@ def test_license_refresh_updates_preferred_language(client, tenant_factory, auth
         assert row.preferred_language == "de"
 
 
-def test_analytics_payload_uses_tenant_language(client, tenant_factory, auth_header_factory, scan_factory):
+def test_analytics_payload_uses_tenant_language(
+    client, tenant_factory, auth_header_factory, scan_factory, product_access_factory
+):
     tenant = tenant_factory()
+    product_access_factory(tenant_id=tenant["tenant_id"])
     with SessionLocal() as db:
         row = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
         assert row is not None

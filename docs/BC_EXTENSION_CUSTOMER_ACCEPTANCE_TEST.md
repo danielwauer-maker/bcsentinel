@@ -225,3 +225,25 @@ Alle folgenden Tests sind vorbereitet und mangels BC-Sandbox/PostgreSQL-Staging 
 | P0C-CAT-10 neuer Scan nach Fehler | ersten Run terminal fehlschlagen, bewusst neu starten | neue Request-/Run-ID nur für bewussten neuen Scan |
 | P0C-CAT-11 Creditstabilität | Recovery und Start-Replay mehrfach auslösen | genau eine Consumption-/Ledgerzeile, keine automatische Erstattung |
 | P0C-CAT-12 Findingstabilität | Retry nach Partial-/Finalsync durchführen | eindeutige Codes, keine doppelten Findings, Completion erst konsistent |
+
+## CAT-Delta GL-EXT-P0D – Fresh Access und Revocation
+
+Alle Tests sind mangels BC-Sandbox **NOT_EXECUTED**. Pro Fall sind Benutzer, Company, Environment, Capability, Serverzeit, Snapshot-Version/Received/Expiry und Correlation-ID zu sichern; Tokens niemals protokollieren.
+
+| Test | Schritte | Erwartung |
+|---|---|---|
+| P0D-CAT-01 aktiver Zugriff | Findings List/Card und Drilldown mit aktivem Full Analysis öffnen | Details sichtbar; frischer `p0d-v1`-Snapshot |
+| P0D-CAT-02 regulärer Ablauf | Server-Endzeit überschreiten, Page neu öffnen | deutsch/englisch verständlich blockiert; Daten bleiben gespeichert |
+| P0D-CAT-03 direkter Bookmark | Finding-Page-ID/Bookmark nach Ablauf öffnen | Guard blockiert vor nutzbarer Detailanzeige |
+| P0D-CAT-04 History Drilldown | Scan History → Issues nach Ablauf | Action-Level-Check blockiert |
+| P0D-CAT-05 Backend offline | positiven Snapshot ablaufen lassen, Backend stoppen, Finding öffnen | fail closed; alter positiver Wert wird nicht verwendet |
+| P0D-CAT-06 lokale Uhr | BC-/Hostzeit deutlich vor/zurück setzen, Zugriff serverseitig entziehen | kritischer Refresh folgt Backend-UTC; kein Grant durch lokale Zeit |
+| P0D-CAT-07 Admin-Revocation | aktiven Zugriff im Backend widerrufen, Finding/Action erneut öffnen | nächster Check 403/blockiert |
+| P0D-CAT-08 Reaktivierung | Zugriff erneut grantieren/verlängern | Fresh Check erlaubt Details wieder, keine Datenwiederherstellung nötig |
+| P0D-CAT-09 Dashboard abgelaufen | Dashboardaction nach Ablauf ausführen | kein Analytics-Token, kein Dashboardpayload |
+| P0D-CAT-10 Report abgelaufen | HTML/PDF/Share-Link nach Ablauf aufrufen | 403; keine Datei und kein neuer Share-Link |
+| P0D-CAT-11 Companywechsel | Snapshot in Company A laden, zu Company B wechseln | Snapshot A unbrauchbar; B benötigt eigenen Fresh Check |
+| P0D-CAT-12 Environmentwechsel | Sandbox kopieren/Environment wechseln | Context-Mismatch blockiert bis gültiger Registrierung/Snapshot |
+| P0D-CAT-13 offene Page | Finding-Page vor Ablauf offen halten; nach Ablauf Record wechseln, Refresh/Action | spätestens bei jedem dieser Ereignisse blockiert |
+| P0D-CAT-14 ohne BC-Permission | Benutzer ohne BCSentinel-Permission öffnet Page-ID | BC-Berechtigung blockiert unabhängig von SaaS-Zugriff |
+| P0D-CAT-15 Permission ohne SaaS | Viewer/Scan-Permission, aber keine Capability | Guard blockiert; keine direkte geschützte TableData-Ansicht |

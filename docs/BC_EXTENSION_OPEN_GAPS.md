@@ -191,3 +191,14 @@ Verbleibende P0: P0-04 Scanstatus-Lifecycle und P0-05 lokaler Findings-Zugriffss
 | P1 PostgreSQL/Sandbox-Evidenz | offen | Testfälle und Konfiguration vorbereitet | **offen / NOT_EXECUTED** |
 
 Verbleibender P0 ist ausschließlich P0-05: lokale Findings müssen vor jeder Anzeige/Aktion mit einem frischen Access-Snapshot geschützt werden. Empfohlener Folgesprint ist **GL-EXT-P0D – Fresh Findings Access Enforcement**. Definition of Done: server- und AL-seitiger frischer Lizenzcheck auf Liste, Card, FactBox, Drilldown, direkte Page-URL und Aktionen; abgelaufener Zugriff wird ohne stale Cache blockiert; Offline-/Backendfehler fail-closed mit verständlichem Recoverypfad; Rollen-/Negativtests ohne SUPER; Sandbox-CAT grün. Produkt-Gate bleibt NO-GO.
+
+## Status-Delta GL-EXT-P0D (20. Juli 2026)
+
+| Gap | Ursprünglicher Status | Korrektur und Evidenz | Aktueller Status |
+|---|---|---|---|
+| P0-05 | stale lokale Booleans, ungeschützte Reportdownloads/Tokenausgabe | serverautoritärer Snapshot, zentraler AL Guard, Page-/Action-/Endpoint-Checks, kurze revalidierte Tokens, Least-Privilege-Viewer, 51 Szenarien | **geschlossen auf Codeebene** |
+| P1 Sandbox/Permission-Evidenz | offen | 15 P0D-CATs detailliert vorbereitet | **offen / NOT_EXECUTED** |
+| P1 Install/Upgrade/AL-Test-App | offen | außerhalb P0D unverändert | **offen** |
+| P1 AL/Admin-Access-Telemetrie | implizit | Backendevents ergänzt; explizite Cache-/Page-/Revocation-Events noch zu vervollständigen | **offen, nicht autorisierungsblockierend** |
+
+Alle fünf funktionalen P0-Gaps sind damit codebasiert geschlossen. Empfohlener Folgesprint: **GL-EXT-P0E – Sandbox Release Gate & Upgrade Evidence**. Definition of Done: Install und Upgrade N-1 in BC-Sandbox, alle P0A–P0D-CATs ohne SUPER, negative Rollenmatrix, Scheduler unter Servicebenutzer, PostgreSQL-Mehrinstanz/Restart, reproduzierbares signiertes Paket und vollständige Evidenz. Produkt-Gate bleibt bis dahin **NO-GO**.

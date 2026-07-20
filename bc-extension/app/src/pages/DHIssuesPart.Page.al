@@ -2,6 +2,7 @@
 {
     PageType = ListPart;
     SourceTable = "DH Dashboard Issue";
+    Permissions = tabledata "DH Dashboard Issue" = R;
     ApplicationArea = All;
     Caption = 'Issues';
     Editable = false;
@@ -100,7 +101,10 @@
     end;
 
     trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureIssuesAccess();
         EnsureSortFields();
         Rec.SetCurrentKey("Dashboard Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
@@ -176,6 +180,13 @@
         end;
 
         exit('Standard');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
     end;
 
     local procedure GetImpactText(): Text[50]

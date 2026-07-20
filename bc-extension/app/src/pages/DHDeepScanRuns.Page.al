@@ -144,7 +144,9 @@
                 var
                     DashboardIssue: Record "DH Dashboard Issue";
                     DashboardMgt: Codeunit "DH Dashboard Mgt.";
+                    AccessGuard: Codeunit "DH Access Guard";
                 begin
+                    AccessGuard.EnsureIssuesAccess();
                     DashboardMgt.RefreshDashboardIssueCache(Rec);
                     DashboardIssue.SetRange("Dashboard Scan Entry No.", Rec."Entry No.");
                     Page.Run(Page::"DH Dashboard Issues List", DashboardIssue);

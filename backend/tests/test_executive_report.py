@@ -155,7 +155,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert b"Start with the top 10 findings" not in pdf_response.content
 
 
-def test_executive_report_free_html_pdf_share_link_does_not_require_paid_access(
+def test_executive_report_free_html_pdf_share_link_requires_report_access(
     client,
     tenant_factory,
     auth_header_factory,
@@ -175,18 +175,10 @@ def test_executive_report_free_html_pdf_share_link_does_not_require_paid_access(
         json={"report_type": "html"},
     )
 
-    assert json_response.status_code == 402
-    assert html_response.status_code == 200
-    assert "EXECUTIVE REPORT" in html_response.text
-    assert pdf_response.status_code == 200
-    assert pdf_response.headers["content-type"] == "application/pdf"
-    assert b"Top 10" not in pdf_response.content
-    assert share_link_response.status_code == 200
-
-    shared_html_response = client.get(share_link_response.json()["url"])
-
-    assert shared_html_response.status_code == 200
-    assert "EXECUTIVE REPORT" in shared_html_response.text
+    assert json_response.status_code == 403
+    assert html_response.status_code == 403
+    assert pdf_response.status_code == 403
+    assert share_link_response.status_code == 403
 
 
 def test_executive_report_pdf_prefers_html_renderer(

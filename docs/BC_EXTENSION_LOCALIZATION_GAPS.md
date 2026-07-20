@@ -59,3 +59,6 @@ Der Backendfehler ist als veraltete Testerwartung zu korrigieren. Das Produktver
 - Backend-Lokalisierungstest erwartet `Überblick` und die gesamte Suite ist grün.
 - CAT-13 und CAT-14 bestehen in einer Sandbox mit EN-US und DE-DE.
 
+## Delta GL-EXT-P0D (20. Juli 2026)
+
+P0D ergänzt ausschließlich neue Access-Snapshot-Captions und Guard-Fehlertexte. Die sechs kundensichtbaren Guardmeldungen sowie vierzehn neue technische Snapshot-/Capability-Captions besitzen deutsche Targets in `BCSentinel.de-DE.xlf`. Besonders geprüft sind die geforderten Texte für abgelaufene bzw. nicht bestätigbare Findings, Dashboard und Reports. Die XLF muss im Abschlusslauf strukturell geparst werden; die historische, breitere Localization-Baseline bleibt unverändert offen und wird nicht durch P0D als gelöst markiert.

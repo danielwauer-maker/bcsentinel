@@ -18,7 +18,11 @@ from app.models import Tenant
 from app.schemas.report import ExecutiveReport
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.executive_report_service import build_executive_report, render_executive_report_html as build_report_html, render_executive_report_pdf
-from app.services.product_license_service import build_product_access_snapshot
+from app.services.access_control_service import (
+    CAPABILITY_REPORT,
+    TOKEN_AUDIENCE,
+    require_capability,
+)
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -35,36 +39,39 @@ class ExecutiveReportShareLinkResponse(BaseModel):
     url: str
 
 
-def _load_report(scan_id: str, tenant_auth: tuple[str, str], *, require_paid_access: bool = True) -> ExecutiveReport:
+def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
-        report = build_executive_report(db, tenant, scan_id)
-        if require_paid_access:
-            access = build_product_access_snapshot(db, tenant)
-            if not access["can_view_executive_report"]:
-                raise HTTPException(
-                    status_code=402,
-                    detail="Executive Report access requires active Full Analysis, Validation Check, or Monitoring access.",
-                )
-        return report
+        require_capability(db, tenant, CAPABILITY_REPORT)
+        return build_executive_report(db, tenant, scan_id)
 
 
-def _create_share_token(*, tenant_id: str, scan_id: str, report_type: str) -> str:
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=REPORT_SHARE_TOKEN_MINUTES)
+def _create_share_token(*, tenant: Tenant, scan_id: str, report_type: str) -> str:
+    issued_at = datetime.now(timezone.utc)
+    expires_at = issued_at + timedelta(minutes=REPORT_SHARE_TOKEN_MINUTES)
     payload = {
         "type": REPORT_SHARE_TOKEN_TYPE,
-        "tenant_id": tenant_id,
+        "tenant_id": tenant.tenant_id,
+        "company_id": tenant.bc_company_id,
         "scan_id": scan_id,
         "report_type": report_type,
+        "capability": CAPABILITY_REPORT,
+        "aud": TOKEN_AUDIENCE,
+        "iat": issued_at,
         "exp": expires_at,
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=REPORT_SHARE_ALGORITHM)
 
 
-def _verify_share_token(token: str, *, scan_id: str, report_type: str) -> tuple[str, str]:
+def _verify_share_token(token: str, *, scan_id: str, report_type: str) -> tuple[str, str, str]:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[REPORT_SHARE_ALGORITHM])
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[REPORT_SHARE_ALGORITHM],
+            audience=TOKEN_AUDIENCE,
+        )
     except JWTError:
         raise HTTPException(status_code=403, detail="Invalid or expired report share token.")
 
@@ -72,25 +79,30 @@ def _verify_share_token(token: str, *, scan_id: str, report_type: str) -> tuple[
     token_scan_id = str(payload.get("scan_id") or "")
     token_report_type = str(payload.get("report_type") or "")
     token_type = str(payload.get("type") or "")
+    token_capability = str(payload.get("capability") or "")
+    company_id = str(payload.get("company_id") or "")
     if (
         token_type != REPORT_SHARE_TOKEN_TYPE
+        or token_capability != CAPABILITY_REPORT
         or not tenant_id
         or token_scan_id != scan_id
         or token_report_type != report_type
     ):
         raise HTTPException(status_code=403, detail="Invalid report share token.")
 
-    return tenant_id, token_scan_id
+    return tenant_id, token_scan_id, company_id
 
 
 def _load_shared_report(scan_id: str, report_type: str, token: str) -> ExecutiveReport:
-    tenant_id, _ = _verify_share_token(token, scan_id=scan_id, report_type=report_type)
+    tenant_id, _, company_id = _verify_share_token(token, scan_id=scan_id, report_type=report_type)
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
             raise HTTPException(status_code=403, detail="Invalid report share token.")
-        report = build_executive_report(db, tenant, scan_id)
-        return report
+        if company_id.strip().strip("{}").lower() != str(tenant.bc_company_id or "").strip().strip("{}").lower():
+            raise HTTPException(status_code=403, detail="Invalid report share token.")
+        require_capability(db, tenant, CAPABILITY_REPORT)
+        return build_executive_report(db, tenant, scan_id)
 
 
 def _shared_report_url(request: Request, scan_id: str, report_type: str, token: str) -> str:
@@ -121,13 +133,9 @@ def create_executive_report_share_link(
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        require_capability(db, tenant, CAPABILITY_REPORT, denial_event="token_issuance_denied")
         build_executive_report(db, tenant, scan_id)
-
-    token = _create_share_token(
-        tenant_id=header_tenant_id,
-        scan_id=scan_id,
-        report_type=selected_type,
-    )
+        token = _create_share_token(tenant=tenant, scan_id=scan_id, report_type=selected_type)
     return ExecutiveReportShareLinkResponse(
         url=_shared_report_url(request, scan_id, selected_type, token)
     )
@@ -139,7 +147,7 @@ def render_executive_report_html(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ):
-    report = _load_report(scan_id, tenant_auth, require_paid_access=False)
+    report = _load_report(scan_id, tenant_auth)
     return HTMLResponse(build_report_html(report))
 
 
@@ -158,7 +166,7 @@ def export_executive_report_pdf(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ):
-    report = _load_report(scan_id, tenant_auth, require_paid_access=False)
+    report = _load_report(scan_id, tenant_auth)
     pdf_bytes = render_executive_report_pdf(report)
     return Response(
         content=pdf_bytes,

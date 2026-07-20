@@ -101,7 +101,9 @@
     trigger OnOpenPage()
     var
         DuplicateWorklistMgt: Codeunit "DH Duplicate Worklist Mgt.";
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureIssuesAccess();
         DuplicateWorklistMgt.BuildWorklist(Rec);
     end;
 }

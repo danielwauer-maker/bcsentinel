@@ -33,6 +33,7 @@
         SetupRef: RecordRef;
         IssueCodeField: FieldRef;
         IssueDrilldownDispatcher: Codeunit "DH Issue Drilldown Dispatcher";
+        AccessGuard: Codeunit "DH Access Guard";
     begin
         SetupRef.GetTable(Rec);
         IssueCodeField := SetupRef.Field(26);
@@ -43,11 +44,7 @@
         if not Rec.Get('SETUP') then
             Error('Setup not found.');
 
-        if not Rec."Premium Enabled" then begin
-            Message('Paid scan access is required.');
-            CurrPage.Close();
-            exit;
-        end;
+        AccessGuard.EnsureIssuesAccess();
 
         CurrPage.Close();
         IssueDrilldownDispatcher.OpenByIssueCode(IssueCode);

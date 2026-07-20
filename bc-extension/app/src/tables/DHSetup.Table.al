@@ -25,6 +25,7 @@ table 53100 "DH Setup"
             trigger OnValidate()
             begin
                 "API Base URL" := NormalizeApiBaseUrl("API Base URL");
+                InvalidateAccessSnapshot();
             end;
         }
 
@@ -345,6 +346,76 @@ table 53100 "DH Setup"
             Caption = 'Validation Credits Available';
             DataClassification = SystemMetadata;
         }
+        field(59; "Access Snapshot Received At"; DateTime)
+        {
+            Caption = 'Access Snapshot Received At';
+            DataClassification = SystemMetadata;
+        }
+        field(60; "Access Server Time UTC"; DateTime)
+        {
+            Caption = 'Access Server Time UTC';
+            DataClassification = SystemMetadata;
+        }
+        field(61; "Access Snapshot Expires At"; DateTime)
+        {
+            Caption = 'Access Snapshot Expires At';
+            DataClassification = SystemMetadata;
+        }
+        field(62; "Access Snapshot Version"; Text[30])
+        {
+            Caption = 'Access Snapshot Version';
+            DataClassification = SystemMetadata;
+        }
+        field(63; "Access Snapshot Tenant ID"; Text[100])
+        {
+            Caption = 'Access Snapshot Tenant ID';
+            DataClassification = SystemMetadata;
+        }
+        field(64; "Access Snapshot Environment"; Text[100])
+        {
+            Caption = 'Access Snapshot Environment';
+            DataClassification = SystemMetadata;
+        }
+        field(65; "Access Snapshot Env. Type"; Text[20])
+        {
+            Caption = 'Access Snapshot Environment Type';
+            DataClassification = SystemMetadata;
+        }
+        field(66; "Access Snapshot Company ID"; Text[50])
+        {
+            Caption = 'Access Snapshot Company ID';
+            DataClassification = SystemMetadata;
+        }
+        field(67; "Access Snapshot API URL"; Text[250])
+        {
+            Caption = 'Access Snapshot API URL';
+            DataClassification = SystemMetadata;
+        }
+        field(68; "Can View Reports"; Boolean)
+        {
+            Caption = 'Can View Reports';
+            DataClassification = SystemMetadata;
+        }
+        field(69; "Can Use Monitoring"; Boolean)
+        {
+            Caption = 'Can Use Monitoring';
+            DataClassification = SystemMetadata;
+        }
+        field(70; "Subscription Active"; Boolean)
+        {
+            Caption = 'Subscription Active';
+            DataClassification = SystemMetadata;
+        }
+        field(71; "Report Access Until"; Text[50])
+        {
+            Caption = 'Report Access Until';
+            DataClassification = SystemMetadata;
+        }
+        field(72; "Access Correlation ID"; Text[50])
+        {
+            Caption = 'Access Correlation ID';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -410,6 +481,28 @@ table 53100 "DH Setup"
     procedure IsPremiumLicenseActive(): Boolean
     begin
         exit(("Current Plan" = "Current Plan"::Premium) and (("License Status" = "License Status"::Active) or ("License Status" = "License Status"::Trial)));
+    end;
+
+    procedure InvalidateAccessSnapshot()
+    begin
+        "Premium Enabled" := false;
+        "Monitoring Active" := false;
+        "Can Run Deep Scan" := false;
+        "Can View Dashboard" := false;
+        "Can View Issue Details" := false;
+        "Can View Reports" := false;
+        "Can Use Monitoring" := false;
+        "Subscription Active" := false;
+        "Access Snapshot Received At" := 0DT;
+        "Access Server Time UTC" := 0DT;
+        "Access Snapshot Expires At" := 0DT;
+        "Access Snapshot Version" := '';
+        "Access Snapshot Tenant ID" := '';
+        "Access Snapshot Environment" := '';
+        "Access Snapshot Env. Type" := '';
+        "Access Snapshot Company ID" := '';
+        "Access Snapshot API URL" := '';
+        "Access Correlation ID" := '';
     end;
 
     procedure GetFeatureAccessText(): Text[100]

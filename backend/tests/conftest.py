@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -21,7 +21,7 @@ os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
 from app.core.settings import settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402
-from app.models import Scan, ScanIssueRecord, Subscription, Tenant  # noqa: E402
+from app.models import Scan, ScanIssueRecord, Subscription, Tenant, TenantProductEntitlement  # noqa: E402
 from app.security.token_hash import hash_api_token  # noqa: E402
 from app.security.rate_limit import clear_rate_limits  # noqa: E402
 import app.main as app_main  # noqa: E402
@@ -111,6 +111,26 @@ def auth_headers(tenant_info: dict[str, str]) -> dict[str, str]:
         "X-Tenant-Id": tenant_info["tenant_id"],
         "X-Api-Token": tenant_info["api_token"],
     }
+
+
+@pytest.fixture
+def product_access_factory():
+    def _grant(*, tenant_id: str, product_code: str = "full_analysis"):
+        now = datetime.now(timezone.utc)
+        with SessionLocal() as db:
+            db.add(
+                TenantProductEntitlement(
+                    tenant_id=tenant_id,
+                    product_code=product_code,
+                    status="active",
+                    source="test_fixture",
+                    valid_until_utc=now + timedelta(days=365),
+                    created_at_utc=now,
+                    updated_at_utc=now,
+                )
+            )
+            db.commit()
+    return _grant
 
 
 @pytest.fixture

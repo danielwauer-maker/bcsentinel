@@ -97,6 +97,13 @@
         }
     }
 
+    trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
+    end;
+
     local procedure GetLocalCurrencyCode(): Text
     var
         CurrencyMgt: Codeunit "DH Currency Mgt.";

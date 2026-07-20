@@ -147,7 +147,7 @@ def test_tenant_registration_rate_limit_returns_429(client, settings_state):
     assert client.post("/tenant/register", headers=headers, json=payload).status_code == 429
 
 
-def test_legacy_plaintext_token_is_migrated_after_successful_auth(client):
+def test_legacy_plaintext_token_is_migrated_after_successful_auth(client, product_access_factory):
     tenant_id = "ten_legacy_test"
     api_token = "tok_legacy_test_secret"
     with SessionLocal() as db:
@@ -165,6 +165,8 @@ def test_legacy_plaintext_token_is_migrated_after_successful_auth(client):
             )
         )
         db.commit()
+
+    product_access_factory(tenant_id=tenant_id)
 
     response = client.get("/analytics/get-token", headers={"X-Tenant-Id": tenant_id, "X-Api-Token": api_token})
 

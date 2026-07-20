@@ -33,7 +33,9 @@ codeunit 53143 "DH Issue Drilldown Dispatcher"
         PurchaseWorklist: Page "DH Purch. Line Worklist";
         CustomerWorklist: Page "DH Customer Issue List";
         VendorWorklist: Page "DH Vendor Issue List";
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureIssuesAccess();
         IssueCodeUpper := UpperCase(Format(IssueCode));
 
         case IssueCodeUpper of
