@@ -33,3 +33,24 @@ Noch in derselben Sandbox auszuführen:
 - [ ] identische Wiederholung idempotent
 
 Aktuelles Gate: **BLOCKED – Fix implementiert, erneuter Sandbox-CAT noch nicht ausgeführt.**
+
+## Delta GL-PILOT-01-FIX03
+
+Der erste kostenlose Scan scheiterte trotz gültigem Access Snapshot mit 409, weil die lokal erzeugte ID `RUN_20260720_000001` nicht tenantglobal eindeutig war, die Backend-Schlüssel aber global eindeutig sind. Zusätzlich blieb nach einer erwarteten Dashboard-Ablehnung der BC-Busy-Dialog sichtbar.
+
+- [x] Root Cause auf Code-/Schlüsselebene bestätigt
+- [x] global kollisionsfeste, lesbare BC-Run-ID implementiert
+- [x] Client-Request-ID bleibt über Retry stabil
+- [x] Same-Tenant-Pending-Orphan-Recovery streng abgesichert
+- [x] Fremd-Tenant-/Fremd-Request-Adoption weiterhin 409
+- [x] terminaler lokaler Reject-State mit `Finished At` und ohne Heartbeat
+- [x] strukturierte DE-/EN-409-Meldungen
+- [x] Dashboard-Access-Ablehnung beendet Action nach genau einer Meldung normal
+- [x] Extension-Version 1.0.2.9 und ReleaseCloud Compile PASS
+- [ ] fokussierte Backendtests und Gesamtsuite – BLOCKED durch lokales Docker-Nutzungslimit
+- [ ] `CAT-PILOT-SCAN-START` – Post-Fix BLOCKED
+- [ ] `CAT-PILOT-DASHBOARD-BUSY` – Post-Fix BLOCKED
+
+Detail und Retest-Anleitung: `docs/GL_PILOT_01_FIX03_SCAN_START_RECOVERY.md`.
+
+Aktuelles Gate bleibt **NO-GO**, bis Backendtests und beide realen BC-28.3-CATs PASS sind.

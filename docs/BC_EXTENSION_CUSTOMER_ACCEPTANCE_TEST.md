@@ -344,3 +344,12 @@ Zielumgebung: `BCSentinel-Pilot`, Business Central 28.3. Die Fälle sind vorbere
 | Suite | Fälle | Ausgeführt | PASS | FAIL | BLOCKED |
 |---|---:|---:|---:|---:|---:|
 | GL-PILOT-01-FIX01 | 15 | 0 | 0 | 0 | 15 |
+
+## GL-PILOT-01-FIX03 – Pilot Scan Start / Dashboard Busy CAT
+
+| ID | Initialzustand / Reproduktion | Erwartetes Post-Fix-Ergebnis | Aktuelles Ergebnis | Status |
+|---|---|---|---|---|
+| CAT-PILOT-SCAN-START | Registrierung und Snapshot PASS; erster Free-Run kollidiert mit globaler Scan-ID und bleibt queued | eindeutige Run-ID; genau eine Akzeptanz/Verbuchung; Retry idempotent; Konflikt lokal terminal | Vor Fix reproduziert; Post-Fix nicht ausgeführt | BLOCKED |
+| CAT-PILOT-DASHBOARD-BUSY | Dashboardzugriff absichtlich nicht verfügbar; nach Meldung bleibt „Wird bearbeitet …“ | genau eine lokalisierte Meldung; Busy endet; Page sofort bedienbar | Vor Fix reproduziert; Post-Fix nicht ausgeführt | BLOCKED |
+
+Für PASS sind Extension 1.0.2.9, Backend-FIX03, anonymisierte Request-/Ledger-Evidenz sowie DE-DE und EN-US erforderlich. Detail: `docs/GL_PILOT_01_FIX03_SCAN_START_RECOVERY.md`.

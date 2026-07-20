@@ -269,3 +269,17 @@ REPO-01A führt keine neuen Produktgaps ein. REPO-01B kann auf einem eindeutigen
 | Post-Fix-CAT BC 28.3 | kein Sandboxzugriff in diesem Lauf | **BLOCKED** |
 
 Nächster zwingender Schritt ist kein weiterer Refactor, sondern der dokumentierte Wiederholungstest in `BCSentinel-Pilot` mit Migration 0025, Extension-Upgrade, Multi-Tenant-Login und Datenisolationsnachweis.
+
+## Status-Delta GL-PILOT-01-FIX03 (20. Juli 2026)
+
+| Gap | Evidenz | Status |
+|---|---|---|
+| lokal kollidierende Scan-ID | Tageszähler um 29 GUID-Hexzeichen erweitert; AL Compile PASS | **geschlossen auf Codeebene** |
+| ungebundener Same-Tenant-Pending-Scan | Recovery verlangt leeren Scan, keinen Ledger/Request, identischen Tenant/Company-Kontext | **geschlossen auf Codeebene** |
+| Fremd-Tenant-/Fremd-Request-Adoption | strukturierte 409-Codes; Auth/Tenant-Match unverändert | **geschlossen auf Codeebene** |
+| lokaler Run bleibt nach 409 queued | `Rejected/Failed`, `Finished At`, leerer Heartbeat | **geschlossen auf Codeebene** |
+| Dashboard-Busy bleibt nach Access-Denied | TryFunction, genau eine Meldung, normaler Action-Exit | **geschlossen auf Codeebene** |
+| FIX03 Backend-Verhaltenstests | Tests erstellt; Docker-Nutzungslimit verhindert Ausführung | **BLOCKED** |
+| Post-Fix BC-28.3-CAT | kein Sandboxzugriff in diesem Lauf | **BLOCKED** |
+
+Keine Alembic-Migration. Vor Pilot-GO sind Backendtests und beide CATs zwingend nachzuholen.

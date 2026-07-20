@@ -297,3 +297,19 @@ REPO-01A-Entscheidung: **Sprint abgeschlossen; Duplicate-Object-Ursache behoben 
 - [ ] Post-Fix-CAT in `BCSentinel-Pilot` / BC 28.3 – `BLOCKED`.
 
 FIX01-Entscheidung: **Code-ready für Sandbox-Retest, aber Sprint nach formaler DoD noch nicht abgeschlossen.**
+
+## Gate-Delta GL-PILOT-01-FIX03 (20. Juli 2026)
+
+- [x] Root Cause: lokaler Tageszähler kollidiert mit global eindeutiger Backend-Scan-ID.
+- [x] Run-ID global kollisionsfest; Request-ID bei Retry unverändert.
+- [x] atomare Credit-/Ledger-Grenzen unverändert.
+- [x] sichere Same-Tenant-Orphan-Recovery; Fremd-Tenant-/Request-Adoption abgewiesen.
+- [x] bekannte 409 fachlich strukturiert und DE/EN lokalisiert.
+- [x] BC-Run bei terminaler Ablehnung `Rejected/Failed`, Finished At gesetzt, Heartbeat leer.
+- [x] Dashboard-Ablehnung: genau eine Meldung, normaler Action-Exit.
+- [x] Extension 1.0.2.9, ReleaseCloud Compile, CodeCop/PTECop und Localization PASS.
+- [ ] fokussierte Backendtests und Gesamtsuite – BLOCKED durch Docker-Nutzungslimit.
+- [ ] CAT-PILOT-SCAN-START – BLOCKED.
+- [ ] CAT-PILOT-DASHBOARD-BUSY – BLOCKED.
+
+FIX03-Entscheidung: **NO-GO bis Backendtests und beide Post-Fix-CATs PASS sind.**
