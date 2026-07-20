@@ -283,3 +283,17 @@ Nächster zwingender Schritt ist kein weiterer Refactor, sondern der dokumentier
 | Post-Fix BC-28.3-CAT | kein Sandboxzugriff in diesem Lauf | **BLOCKED** |
 
 Keine Alembic-Migration. Vor Pilot-GO sind Backendtests und beide CATs zwingend nachzuholen.
+
+## Status-Delta GL-PILOT-01-FIX04 (21. Juli 2026)
+
+| Gap | Evidenz | Status |
+|---|---|---|
+| Lease rotiert während legitimem BC-Scan | gültige Lease ist autoritativ; 4h Lease/Stale, 6h Hard Runtime | **geschlossen auf Codeebene** |
+| unstrukturierte Lease-Konflikte | vier stabile Codes, DE-/EN-Mapping | **geschlossen automatisiert** |
+| Tenantwechsel über Statuspfad | Besitzprüfung vor jeder Mutation, Negativtest mit gültigem fremdem Token | **geschlossen automatisiert** |
+| wiederholte Statuscalls nach Lease-409 | terminaler Syncstatus stoppt weitere Calls | **geschlossen auf AL-Codeebene** |
+| Completed im Monitor, Failed in Historie | lokaler Status und Backend-Sync-Status getrennt | **geschlossen auf AL-Codeebene** |
+| autoritative Pilot-DB-Untersuchung | lokale DB ist Revision 0021 und enthält den Run nicht | **BLOCKED** |
+| Post-Fix BC-28.3-CAT | neuer Run, vollständiger Sync und Dashboardöffnung erforderlich | **BLOCKED** |
+
+Keine Alembic-Migration. Extension-Upgrade auf 1.0.2.10 erforderlich. Pilot bleibt **NO-GO** bis Regression und CAT PASS sind.
