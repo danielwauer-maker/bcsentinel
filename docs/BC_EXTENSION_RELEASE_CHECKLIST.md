@@ -154,6 +154,25 @@ P0A-Entscheidung: **P0-01 und P0-02 geschlossen; bereit für GL-EXT-P0B.** Produ
 - [ ] AppSourceCop: bekannte EULA-/Logo-/Help-URL-/ID-Range-Gaps.
 
 P0B-Entscheidung: **P0-03 geschlossen; bereit für GL-EXT-P0C.** Produkt-Gate bleibt **NO-GO** wegen P0-04 und P0-05.
+
+## Gate-Delta GL-EXT-P0C (16. Juli 2026)
+
+- [x] kanonische Statusübergänge werden serverseitig validiert; Completion ohne Pflichtresultat ist blockiert.
+- [x] jeder neue nichtterminale Run hat Queuefrist oder aktive Lease/Heartbeat.
+- [x] Claim ist atomar; parallele Worker und Late Writer sind getestet.
+- [x] stale Queued/Running, Leaseverlust, Max Attempts und Backoff sind abgedeckt.
+- [x] Startup- und periodische Batch-Recovery sind implementiert und idempotent.
+- [x] Recovery verwendet denselben Run, denselben Startrequest und keinen neuen Credit/Ledgerposten.
+- [x] Findings und Module sind runbezogen eindeutig; Partial Result wird nicht Completed.
+- [x] AL persistiert Exceptions terminal und setzt lokalen Completed-Status erst nach Backend-Sync.
+- [x] AL ReleaseCloud Compile sowie CodeCop/PerTenantExtensionCop ohne Fehler.
+- [x] Migration 0024 frisch und von 0023 mit historischen Running-/Completed-Runs getestet.
+- [ ] finaler PostgreSQL-Mehrinstanz-/Restart-Test: lokale Docker-/PostgreSQL-Umgebung nicht verfügbar.
+- [ ] zwölf BC-Sandbox-CATs: vorbereitet, Sandbox nicht verfügbar.
+- [ ] AppSourceCop: bestehende EULA-/Logo-/Help-/ID-Range-Fehler.
+- [ ] P0-05 Findings-Zugriffsschutz geschlossen.
+
+P0C-Entscheidung: **P0-04 geschlossen; bereit für GL-EXT-P0D.** Produkt-Gate bleibt **NO-GO**, bis P0-05 und die externen Releasegates bestanden sind.
 | CONDITIONAL GO | keine P0; nur zeitlich begrenzte, akzeptierte P1 außerhalb des Pilotumfangs |
 | PILOT GO | P0/P1 im Pilotumfang geschlossen; Build, Upgrade und CAT grün; enges Monitoring |
 | CUSTOMER GO | vollständige Betriebs-, Support-, Security- und Upgradeevidenz |

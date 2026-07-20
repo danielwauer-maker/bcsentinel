@@ -885,6 +885,8 @@
         case LowerCase(Rec."Backend Status") of
             'completed':
                 exit('Completed');
+            'completed_with_warnings':
+                exit('Completed with warnings');
             'queued', 'preparing':
                 exit('');
         end;
@@ -1044,6 +1046,8 @@
                 exit('Failed');
             'stalled':
                 exit('Possibly stalled');
+            'expired':
+                exit('Expired');
             'cancelled':
                 exit('Cancelled');
         end;
@@ -1078,9 +1082,9 @@
                 exit('Ambiguous');
             'running':
                 exit('Favorable');
-            'completed':
+            'completed', 'completed_with_warnings':
                 exit('Strong');
-            'failed', 'stalled', 'cancelled':
+            'failed', 'stalled', 'expired', 'cancelled':
                 exit('Unfavorable');
         end;
 
@@ -1138,7 +1142,7 @@
     local procedure BackendStatusNeedsHealing(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
     begin
         case LowerCase(DeepScanRun."Backend Status") of
-            'completed', 'failed', 'cancelled', 'canceled':
+            'completed', 'completed_with_warnings', 'failed', 'expired', 'cancelled', 'canceled':
                 exit(false);
         end;
 

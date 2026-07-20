@@ -206,3 +206,22 @@ Alle folgenden Tests sind vorbereitet und mangels BC-Sandbox/PostgreSQL-Staging 
 | P0B-CAT-08 Monitoring abgelaufen | Laufzeit beenden, neuen Start versuchen | blockiert, keine Teilanlage |
 | P0B-CAT-09 Scheduler doppelt | dieselbe geplante Ausführung zweimal triggern | dieselbe gespeicherte GUID, ein Scan/eine Buchung |
 | P0B-CAT-10 Restart | Backend nach Commit vor Antwort neu starten | Retry findet persistiertes Ergebnis |
+
+## CAT-Delta GL-EXT-P0C – Scan Lifecycle und Recovery
+
+Alle folgenden Tests sind vorbereitet und mangels BC-Sandbox/PostgreSQL-Staging **NOT_EXECUTED**. Für jeden Test sind Run-ID, Client Request ID, Attempt, Execution-Token-Fingerprint (niemals Klartext im Protokoll), Correlation ID, Statusevents, Credit und Findingcodes zu sichern.
+
+| Test | Schritte | Erwartung |
+|---|---|---|
+| P0C-CAT-01 manueller Erfolg | Deep Scan manuell starten und Monitor beobachten | Queued→Running→Completed; Lease gelöscht; Resultat vollständig |
+| P0C-CAT-02 Backend-Ausfall | während Running API/Worker stoppen, Lease ablaufen lassen | gleicher Run wird kontrolliert recovered; kein Dauer-Running |
+| P0C-CAT-03 Backend-Neustart | Backend während aktivem Run neu starten | Startup-Recovery erkennt Run; kein zweiter Credit/Run |
+| P0C-CAT-04 Scanexception | Prüfroutine gezielt fehlschlagen lassen | lokaler und Backendstatus terminal Failed; Supportreferenz sichtbar |
+| P0C-CAT-05 stale Running | Heartbeats unterbrechen und Recoveryintervall abwarten | bounded Requeue mit Backoff oder terminal Failed bei Max Attempts |
+| P0C-CAT-06 Scheduler stale | geplanten Run stale werden lassen, nächsten Termin prüfen | Scheduler bleibt geplant; stale Run wird nicht dauerhaft als aktiv behandelt |
+| P0C-CAT-07 Job Queue Retry | Job-Queue-Fehler/Retry auslösen | dieselbe Client Request ID und Scan-ID; kein Minutentakt-Loop |
+| P0C-CAT-08 Monitor Recovery | Monitor vor und nach Tokenrotation aktualisieren | RetryRequired/Queued/Terminal verständlich; Polling endet terminal |
+| P0C-CAT-09 Postprocessing | Report-/Impact-Schritt nach Kernsync fehlschlagen lassen | Kernscan bleibt Completed/CompletedWithWarnings, nicht Running |
+| P0C-CAT-10 neuer Scan nach Fehler | ersten Run terminal fehlschlagen, bewusst neu starten | neue Request-/Run-ID nur für bewussten neuen Scan |
+| P0C-CAT-11 Creditstabilität | Recovery und Start-Replay mehrfach auslösen | genau eine Consumption-/Ledgerzeile, keine automatische Erstattung |
+| P0C-CAT-12 Findingstabilität | Retry nach Partial-/Finalsync durchführen | eindeutige Codes, keine doppelten Findings, Completion erst konsistent |

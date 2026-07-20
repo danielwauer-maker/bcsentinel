@@ -26,7 +26,8 @@ def test_scan_status_initializes_as_queued(db_session, tenant_factory):
     assert run.status == "queued"
     assert run.progress_percent == 0
     assert run.total_modules == 3
-    assert run.heartbeat_at_utc is not None
+    assert run.heartbeat_at_utc is None
+    assert run.lease_token
 
 
 def test_progress_update_sets_heartbeat(db_session, tenant_factory):
@@ -42,6 +43,7 @@ def test_progress_update_sets_heartbeat(db_session, tenant_factory):
         current_step="Checking item references",
         event_message="Inventory scan started",
         total_modules=5,
+        allow_unleased=True,
     )
     db_session.commit()
 
@@ -54,6 +56,13 @@ def test_progress_update_sets_heartbeat(db_session, tenant_factory):
 def test_completed_sets_completed_at(db_session, tenant_factory):
     tenant = tenant_factory()
     create_or_get_scan_run(db_session, run_id="run_status_3", tenant_id=tenant["tenant_id"], total_modules=2)
+    update_scan_progress(
+        db_session,
+        run_id="run_status_3",
+        tenant_id=tenant["tenant_id"],
+        status="running",
+        allow_unleased=True,
+    )
 
     run = update_scan_progress(
         db_session,
@@ -64,6 +73,8 @@ def test_completed_sets_completed_at(db_session, tenant_factory):
         total_modules=2,
         completed_modules=1,
         event_message="Scan completed",
+        allow_unleased=True,
+        result_is_persisted=True,
     )
     db_session.commit()
 
@@ -83,6 +94,13 @@ def test_completed_clears_warning_and_overrides_running_state(db_session, tenant
     run.status = "queued"
     run.warning_message = "Scan status could not be refreshed from the backend."
     run.error_message = "Stale local error"
+    update_scan_progress(
+        db_session,
+        run_id="run_status_completed_override",
+        tenant_id=tenant["tenant_id"],
+        status="running",
+        allow_unleased=True,
+    )
 
     run = update_scan_progress(
         db_session,
@@ -95,6 +113,8 @@ def test_completed_clears_warning_and_overrides_running_state(db_session, tenant
         total_modules=3,
         completed_modules=1,
         event_message="Scan completed",
+        allow_unleased=True,
+        result_is_persisted=True,
     )
     db_session.commit()
 
@@ -120,6 +140,7 @@ def test_failed_sets_failed_at_and_error(db_session, tenant_factory):
         error_message="Backend timeout",
         event_message="Scan failed",
         event_level="error",
+        allow_unleased=True,
     )
     db_session.commit()
 
@@ -129,11 +150,12 @@ def test_failed_sets_failed_at_and_error(db_session, tenant_factory):
     assert run.error_message == "Backend timeout"
 
 
-def test_watchdog_marks_old_running_scan_as_stalled(db_session, tenant_factory, settings_state):
+def test_watchdog_requeues_old_running_scan_for_controlled_recovery(db_session, tenant_factory, settings_state):
     settings_state(SCAN_STALLED_AFTER_SECONDS=180)
     tenant = tenant_factory()
     run = create_or_get_scan_run(db_session, run_id="run_status_5", tenant_id=tenant["tenant_id"], status="running")
     run.status = "running"
+    run.execution_attempt = 1
     run.heartbeat_at_utc = utc_now() - timedelta(seconds=300)
     db_session.commit()
 
@@ -141,12 +163,16 @@ def test_watchdog_marks_old_running_scan_as_stalled(db_session, tenant_factory, 
     db_session.commit()
 
     assert marked == 1
-    assert run.status == "stalled"
-    assert "heartbeat" in run.warning_message.lower()
+    assert run.status == "queued"
+    assert run.next_retry_at_utc is not None
+    assert run.error_code == "worker_lease_lost"
 
 
-def test_status_endpoint_returns_expected_structure(client, tenant_factory, auth_header_factory):
+def test_status_endpoint_returns_expected_structure(client, db_session, tenant_factory, auth_header_factory):
     tenant = tenant_factory()
+    run = create_or_get_scan_run(db_session, run_id="run_status_6", tenant_id=tenant["tenant_id"])
+    token = run.lease_token
+    db_session.commit()
     response = client.post(
         "/scan/status/update",
         headers=auth_header_factory(tenant),
@@ -161,6 +187,8 @@ def test_status_endpoint_returns_expected_structure(client, tenant_factory, auth
             "event_message": "Inventory scan started",
             "total_modules": 4,
             "completed_modules": 2,
+            "execution_token": token,
+            "worker_id": "bc-test-worker",
         },
     )
 
@@ -181,7 +209,7 @@ def test_status_endpoint_returns_expected_structure(client, tenant_factory, auth
     assert status_response.json()["current_step"] == "Checking item references"
 
 
-def test_completed_status_endpoint_returns_terminal_shape(client, tenant_factory, auth_header_factory):
+def test_completed_status_endpoint_rejects_missing_result_and_lease(client, tenant_factory, auth_header_factory):
     tenant = tenant_factory()
     response = client.post(
         "/scan/status/update",
@@ -202,15 +230,8 @@ def test_completed_status_endpoint_returns_terminal_shape(client, tenant_factory
         },
     )
 
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["status"] == "completed"
-    assert payload["progress_percent"] == 100
-    assert payload["current_module"] == "All modules completed"
-    assert payload["current_step"] == "Scan completed"
-    assert payload["completed_at"] is not None
-    assert payload["warning_message"] is None
-    assert payload["error_message"] is None
+    assert response.status_code == 409
+    assert "lease" in response.json()["detail"].lower() or "result" in response.json()["detail"].lower()
 
 
 def test_events_redact_email_addresses(db_session, tenant_factory):
@@ -223,6 +244,7 @@ def test_events_redact_email_addresses(db_session, tenant_factory):
         tenant_id=tenant["tenant_id"],
         status="running",
         event_message="Processed contact user@example.com",
+        allow_unleased=True,
     )
     db_session.commit()
 

@@ -47,12 +47,13 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Issues Count" := IssuesCount;
         DeepScanRun."Rating" := CopyStr(GetRating(Score), 1, MaxStrLen(DeepScanRun."Rating"));
         DeepScanRun."Headline" := CopyStr(GetHeadline(Score, IssuesCount), 1, MaxStrLen(DeepScanRun."Headline"));
-        DeepScanRun.Status := DeepScanRun.Status::Completed;
-        DeepScanRun."Finished At" := CurrentDateTime();
-        DeepScanRun."Current Module" := 'Completed';
-        DeepScanRun."Progress %" := 100;
+        DeepScanRun.Status := DeepScanRun.Status::Running;
+        DeepScanRun."Finished At" := 0DT;
+        DeepScanRun."Current Module" := 'Finalizing';
+        DeepScanRun."Current Step" := 'Persisting scan result';
+        DeepScanRun."Progress %" := 99;
         DeepScanRun."Completed Modules" := DeepScanRun."Total Modules";
-        DeepScanRun."ETA Text" := 'Completed';
+        DeepScanRun."ETA Text" := 'Finalizing';
         DeepScanRun."System Progress %" := 100;
         DeepScanRun."Finance Progress %" := 100;
         DeepScanRun."Sales Progress %" := 100;
@@ -64,22 +65,48 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Jobs Progress %" := 100;
         DeepScanRun."HR Progress %" := 100;
         DeepScanRun.Modify(true);
-        TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
-
-        EnsureDashboardHeaderForDeepScan(DeepScanRun);
         Commit();
 
-        if Setup.Get('SETUP') then begin
-            RequestText := BuildSyncPayload(Setup, DeepScanRun);
-            SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
-            ApplySyncCommercials(DeepScanRun, SyncResponseText);
-            ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
-            EnsureDashboardHeaderForDeepScan(DeepScanRun);
+        if not Setup.Get('SETUP') then
+            Error('The scan result could not be persisted because BCSentinel setup is missing.');
+
+        RequestText := BuildSyncPayload(Setup, DeepScanRun);
+        SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun.Status := DeepScanRun.Status::Completed;
+        DeepScanRun."Finished At" := CurrentDateTime();
+        DeepScanRun."Current Module" := 'Completed';
+        DeepScanRun."Current Step" := 'Scan completed';
+        DeepScanRun."Progress %" := 100;
+        DeepScanRun."ETA Text" := 'Completed';
+        DeepScanRun.Modify(true);
+        EnsureDashboardHeaderForDeepScan(DeepScanRun);
+        Commit();
+        if not TryApplySyncPostprocessing(DeepScanRun, SyncResponseText) then begin
+            DeepScanRun.Get(DeepScanRun."Entry No.");
+            DeepScanRun."Warning Message" := CopyStr('The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.', 1, MaxStrLen(DeepScanRun."Warning Message"));
+            DeepScanRun.Modify(true);
             Commit();
-            if not IsDataHealthScoreRun(DeepScanRun) then
-                ApiClient.RefreshLicenseStatus(Setup);
-            TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
         end;
+        if not IsDataHealthScoreRun(DeepScanRun) then
+            TryRefreshLicenseAfterCompletion(Setup);
+    end;
+
+    [TryFunction]
+    local procedure TryApplySyncPostprocessing(var DeepScanRun: Record "DH Deep Scan Run"; SyncResponseText: Text)
+    begin
+        ApplySyncCommercials(DeepScanRun, SyncResponseText);
+        ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
+        EnsureDashboardHeaderForDeepScan(DeepScanRun);
+        Commit();
+    end;
+
+    [TryFunction]
+    local procedure TryRefreshLicenseAfterCompletion(var Setup: Record "DH Setup")
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ApiClient.RefreshLicenseStatus(Setup);
     end;
 
     local procedure RunChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1686,7 +1713,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."HR Progress %" := 0;
         DeepScanRun.Modify(true);
         Commit();
-        TryUpdateBackendProgress(DeepScanRun, 'preparing', 'Initializing module progress', 'Scan preparation started');
+        TryUpdateBackendProgress(DeepScanRun, 'running', 'Initializing module progress', 'Scan preparation started');
     end;
 
     local procedure StartModule(var DeepScanRun: Record "DH Deep Scan Run"; ModuleName: Text[50]; ModuleNo: Integer)
@@ -2537,6 +2564,9 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
+        Payload.Add('execution_token', Format(DeepScanRun."Execution Token"));
+        Payload.Add('worker_id', Format(DeepScanRun."Client Request ID"));
+        Payload.Add('correlation_id', DeepScanRun."Correlation ID");
         Payload.Add('scan_type', GetRunScanMode(DeepScanRun));
         Payload.Add('generated_at_utc', Format(ScanDateTime, 0, 9));
         Payload.Add('data_score', DeepScanRun."Deep Score");

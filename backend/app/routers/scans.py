@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord, ScanRunStatus
+from app.models import Scan, ScanIssueRecord, ScanRunStatus, ScanStartRequest
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -35,7 +35,11 @@ from app.services.atomic_scan_start_service import (
     accept_scan_start,
 )
 from app.services.scan_status_service import (
+    InvalidScanTransitionError,
+    ScanLeaseConflictError,
+    ScanResultIncompleteError,
     create_or_get_scan_run,
+    mark_scan_result_persisted,
     mark_stalled_scans,
     serialize_scan_status,
     update_scan_progress,
@@ -106,6 +110,9 @@ class ScanSyncPayload(BaseModel):
     module_scores: ModuleScoresPayload = Field(default_factory=ModuleScoresPayload)
     enabled_modules: List[str] = Field(default_factory=list)
     issues: List[ScanIssuePayload] = Field(default_factory=list)
+    execution_token: Optional[str] = None
+    worker_id: Optional[str] = None
+    correlation_id: Optional[str] = None
 
 
 class ScanStartPayload(BaseModel):
@@ -141,6 +148,9 @@ class ScanStatusUpdatePayload(BaseModel):
     error_code: Optional[str] = None
     error_message: Optional[str] = None
     warning_message: Optional[str] = None
+    execution_token: Optional[str] = None
+    worker_id: Optional[str] = None
+    correlation_id: Optional[str] = None
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -267,6 +277,8 @@ def start_scan(
             "credit_consumed": result.credit_consumed,
             "free_data_health_score": result.scan_mode == "data_health_score",
             "idempotent_replay": result.idempotent_replay,
+            "execution_token": result.execution_token,
+            "correlation_id": result.correlation_id,
         }
     )
 
@@ -285,7 +297,9 @@ def sync_scan(
         tenant_features = get_tenant_features(db, tenant)
         require_tenant_feature(db, tenant, "scan_sync")
         commercials = _calculate_commercials(payload, db)
-        recalculated_issues = list(commercials["issues"])
+        recalculated_issues = list(
+            {str(issue["code"]): issue for issue in commercials["issues"]}.values()
+        )
 
         existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id))
 
@@ -385,19 +399,6 @@ def sync_scan(
         scan.warehouse_entries_count = _safe_int(payload.data_profile.warehouse_entries)
 
         tenant.last_seen_at_utc = datetime.now(timezone.utc)
-        update_scan_progress(
-            db,
-            run_id=payload.scan_id,
-            tenant_id=payload.tenant_id,
-            scan_mode=normalized_scan_type,
-            status="completed",
-            progress_percent=100,
-            current_module="Finalizing",
-            current_step="Scan synchronized",
-            event_message="Scan completed",
-            total_modules=len(payload.enabled_modules or []),
-            completed_modules=len(payload.enabled_modules or []),
-        )
         for issue in recalculated_issues:
             db.add(
                 ScanIssueRecord(
@@ -412,6 +413,78 @@ def sync_scan(
                     estimated_impact_eur=_safe_float(issue["estimated_impact_eur"]),
                 )
             )
+
+        db.flush()
+        run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == payload.scan_id))
+        if run is None:
+            raise HTTPException(status_code=409, detail="The scan lifecycle record is missing.")
+        request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == payload.scan_id))
+        legacy_request_id = str(uuid5(NAMESPACE_URL, f"bcsentinel-legacy-sync:{payload.tenant_id}:{payload.scan_id}"))
+        legacy_unleased = bool(request and request.client_request_id == legacy_request_id and not payload.execution_token)
+        if request is not None and not payload.execution_token and not legacy_unleased:
+            raise HTTPException(status_code=409, detail="The scan execution token is required. Refresh the original scan start and retry the same run.")
+        try:
+            if legacy_unleased and run.status in {"queued", "preparing"}:
+                update_scan_progress(
+                    db,
+                    run_id=payload.scan_id,
+                    tenant_id=payload.tenant_id,
+                    scan_mode=normalized_scan_type,
+                    status="running",
+                    progress_percent=99,
+                    current_module="Legacy sync",
+                    current_step="Persisting scan result",
+                    event_message="Legacy scan result received",
+                    allow_unleased=True,
+                )
+            elif payload.execution_token and run.status in {"queued", "preparing"}:
+                update_scan_progress(
+                    db,
+                    run_id=payload.scan_id,
+                    tenant_id=payload.tenant_id,
+                    scan_mode=normalized_scan_type,
+                    status="running",
+                    progress_percent=99,
+                    current_module="Finalizing",
+                    current_step="Persisting scan result",
+                    event_message="Final scan result received",
+                    lease_token=payload.execution_token,
+                    worker_id=payload.worker_id,
+                    correlation_id=payload.correlation_id,
+                )
+            mark_scan_result_persisted(db, run)
+            update_scan_progress(
+                db,
+                run_id=payload.scan_id,
+                tenant_id=payload.tenant_id,
+                scan_mode=normalized_scan_type,
+                status="completed",
+                progress_percent=100,
+                current_module="Finalizing",
+                current_step="Scan synchronized",
+                event_message="Scan completed",
+                total_modules=len(payload.enabled_modules or []),
+                completed_modules=len(payload.enabled_modules or []),
+                lease_token=payload.execution_token,
+                worker_id=payload.worker_id,
+                correlation_id=payload.correlation_id,
+                allow_unleased=legacy_unleased or request is None,
+                result_is_persisted=True,
+            )
+        except ScanLeaseConflictError as exc:
+            logger.warning(
+                "Late or unowned scan result rejected.",
+                extra={
+                    "event": "late_worker_result_rejected",
+                    "scan_id": payload.scan_id,
+                    "tenant_id": payload.tenant_id,
+                    "worker_id": payload.worker_id,
+                    "correlation_id": payload.correlation_id,
+                },
+            )
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
         db.commit()
 
@@ -524,26 +597,44 @@ def update_status(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_tenant_feature(db, tenant, "scan_sync")
-        run = update_scan_progress(
-            db,
-            run_id=payload.run_id,
-            tenant_id=payload.tenant_id,
-            scan_mode=payload.scan_mode,
-            status=payload.status,
-            progress_percent=payload.progress_percent,
-            current_module=payload.current_module,
-            current_step=payload.current_step,
-            event_message=payload.event_message,
-            event_level=payload.event_level,
-            total_modules=payload.total_modules,
-            completed_modules=payload.completed_modules,
-            failed_modules=payload.failed_modules,
-            error_code=payload.error_code,
-            error_message=payload.error_message,
-            warning_message=payload.warning_message,
-        )
+        try:
+            run = update_scan_progress(
+                db,
+                run_id=payload.run_id,
+                tenant_id=payload.tenant_id,
+                scan_mode=payload.scan_mode,
+                status=payload.status,
+                progress_percent=payload.progress_percent,
+                current_module=payload.current_module,
+                current_step=payload.current_step,
+                event_message=payload.event_message,
+                event_level=payload.event_level,
+                total_modules=payload.total_modules,
+                completed_modules=payload.completed_modules,
+                failed_modules=payload.failed_modules,
+                error_code=payload.error_code,
+                error_message=payload.error_message,
+                warning_message=payload.warning_message,
+                lease_token=payload.execution_token,
+                worker_id=payload.worker_id,
+                correlation_id=payload.correlation_id,
+            )
+        except ScanLeaseConflictError as exc:
+            logger.warning(
+                "Scan update rejected because the worker lease is not current.",
+                extra={
+                    "event": "late_worker_result_rejected",
+                    "scan_id": payload.run_id,
+                    "tenant_id": payload.tenant_id,
+                    "worker_id": payload.worker_id,
+                    "correlation_id": payload.correlation_id,
+                },
+            )
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
         db.commit()
-        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run)))
+        return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run, include_execution_token=True)))
 
 
 @router.get("/scan/status/latest")

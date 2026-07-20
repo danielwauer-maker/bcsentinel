@@ -20,16 +20,16 @@ codeunit 53124 "DH Deep Scan Mgt."
         TotalModules: Integer;
         ScanStartedMsg: Label 'Scan started. Opening the monitor. Run ID: %1';
     begin
-        EnsureDeepScanAllowed(Setup);
-        TotalModules := Setup.GetEnabledDeepScanModuleCount();
-        if TotalModules <= 0 then
-            Error('Please enable at least one scan module on the BCSentinel setup page.');
-
-        if FindUnacceptedRun(GetDeepScanMode(Setup, ShowStartedMessage), DeepScanRun) then begin
+        if FindUnacceptedRun('', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
             RunDeepScanNow(DeepScanRun);
             exit(DeepScanRun."Entry No.");
         end;
+
+        EnsureDeepScanAllowed(Setup);
+        TotalModules := Setup.GetEnabledDeepScanModuleCount();
+        if TotalModules <= 0 then
+            Error('Please enable at least one scan module on the BCSentinel setup page.');
 
         EntryNo := GetNextRunEntryNo();
 
@@ -150,6 +150,22 @@ codeunit 53124 "DH Deep Scan Mgt."
 
     local procedure RunDeepScanNow(var DeepScanRun: Record "DH Deep Scan Run")
     var
+        DeepScanFailure: Codeunit "DH Deep Scan Failure";
+        FailureText: Text;
+    begin
+        if TryRunDeepScan(DeepScanRun) then
+            exit;
+
+        FailureText := GetLastErrorText();
+        if FailureText = '' then
+            FailureText := 'The scan stopped because of an unexpected processing error.';
+        DeepScanFailure.MarkRunAsFailed(DeepScanRun, FailureText);
+        Error(FailureText);
+    end;
+
+    [TryFunction]
+    local procedure TryRunDeepScan(var DeepScanRun: Record "DH Deep Scan Run")
+    var
         DeepScanRunner: Codeunit "DH Deep Scan Runner";
     begin
         DeepScanRunner.Run(DeepScanRun);
@@ -197,7 +213,8 @@ codeunit 53124 "DH Deep Scan Mgt."
         EmptyGuid: Guid;
     begin
         DeepScanRun.Reset();
-        DeepScanRun.SetRange("Scan Mode", ScanMode);
+        if ScanMode <> '' then
+            DeepScanRun.SetRange("Scan Mode", ScanMode);
         DeepScanRun.SetFilter("Client Request ID", '<>%1', EmptyGuid);
         DeepScanRun.SetFilter("Start Request Status", '%1|%2', DeepScanRun."Start Request Status"::Pending, DeepScanRun."Start Request Status"::RetryRequired);
         exit(DeepScanRun.FindLast());

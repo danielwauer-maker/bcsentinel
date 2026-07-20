@@ -1,8 +1,9 @@
+import asyncio
 import os
 import secrets
 import logging
 import time
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs
@@ -25,7 +26,7 @@ from app.core.observability import (
 )
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
-from app.models import DashboardUser, Scan, ScanIssueRecord, Tenant
+from app.models import DashboardUser, Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
@@ -63,7 +64,7 @@ from app.services.dashboard_invite_service import DashboardEmailConflictError, s
 from app.services.email_template_service import ensure_default_email_templates
 from app.services.localization_service import update_tenant_language
 from app.services.scoring_service import calculate_quick_scan_result
-from app.services.scan_status_service import create_or_get_scan_run, update_scan_progress
+from app.services.scan_status_service import create_or_get_scan_run, mark_scan_result_persisted, recover_stale_runs, update_scan_progress
 from app.services.tenant_registration_service import (
     RegistrationAuthenticationError,
     RegistrationConflictError,
@@ -126,9 +127,31 @@ async def lifespan(app: FastAPI):
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
         ensure_default_email_templates(db)
+        recovery = recover_stale_runs(db)
+        db.commit()
+        log_event(logger, logging.INFO, "scan_startup_recovery", "Startup scan recovery completed.", **recovery)
 
-    yield
-    log_event(logger, logging.INFO, "app_shutdown", "Application shutdown completed.", environment=settings.ENV)
+    async def periodic_scan_recovery() -> None:
+        interval = max(10, int(settings.SCAN_RECOVERY_INTERVAL_SECONDS))
+        while True:
+            await asyncio.sleep(interval)
+            try:
+                with SessionLocal() as recovery_db:
+                    outcome = recover_stale_runs(recovery_db)
+                    recovery_db.commit()
+                if any(outcome[key] for key in ("requeued", "failed", "expired", "repaired")):
+                    log_event(logger, logging.WARNING, "scan_periodic_recovery", "Periodic scan recovery changed stale runs.", **outcome)
+            except Exception:
+                logger.exception("Periodic scan recovery failed.", extra={"event": "scan_recovery_failed"})
+
+    recovery_task = asyncio.create_task(periodic_scan_recovery(), name="scan-lifecycle-recovery")
+    try:
+        yield
+    finally:
+        recovery_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await recovery_task
+        log_event(logger, logging.INFO, "app_shutdown", "Application shutdown completed.", environment=settings.ENV)
 
 
 app = FastAPI(
@@ -532,6 +555,7 @@ def quick_scan(
             current_step="Calculating data quality score",
             event_message="Quick scan started",
             total_modules=1,
+            allow_unleased=True,
         )
 
         commercials = calculate_scan_commercials(
@@ -620,6 +644,12 @@ def quick_scan(
                 )
             )
 
+        db.flush()
+        quick_run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan_id))
+        if quick_run is None:
+            raise RuntimeError("Quick scan lifecycle record is missing.")
+        mark_scan_result_persisted(db, quick_run)
+
         tenant.last_seen_at_utc = generated_at_utc
         update_scan_progress(
             db,
@@ -633,6 +663,8 @@ def quick_scan(
             event_message="Scan completed",
             total_modules=1,
             completed_modules=1,
+            allow_unleased=True,
+            result_is_persisted=True,
         )
         db.commit()
 

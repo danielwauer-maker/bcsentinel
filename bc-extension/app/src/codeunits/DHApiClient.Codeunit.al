@@ -786,6 +786,27 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
             Error('Scan start failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+
+        ParseScanStartLifecycle(ResponseText, DeepScanRun);
+        DeepScanRun.Modify(true);
+    end;
+
+    local procedure ParseScanStartLifecycle(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        ExecutionToken: Guid;
+    begin
+        if not JsonResponse.ReadFrom(ResponseText) then
+            Error('The scan start response is not valid JSON. Retry the same scan request.');
+        if not JsonResponse.Get('execution_token', Token) then
+            Error('The scan start response has no execution token. Retry the same scan request.');
+        if not Evaluate(ExecutionToken, GetJsonTokenText(Token)) then
+            Error('The scan start response contains an invalid execution token. Retry the same scan request.');
+
+        DeepScanRun."Execution Token" := ExecutionToken;
+        if JsonResponse.Get('correlation_id', Token) then
+            DeepScanRun."Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Correlation ID"));
     end;
 
     procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
@@ -816,6 +837,11 @@ codeunit 53100 "DH API Client"
         JsonRequest.Add('total_modules', DeepScanRun."Total Modules");
         JsonRequest.Add('completed_modules', DeepScanRun."Completed Modules");
         JsonRequest.Add('failed_modules', DeepScanRun."Failed Modules");
+        if not IsNullGuid(DeepScanRun."Execution Token") then
+            JsonRequest.Add('execution_token', Format(DeepScanRun."Execution Token"));
+        JsonRequest.Add('worker_id', Format(DeepScanRun."Client Request ID"));
+        if DeepScanRun."Correlation ID" <> '' then
+            JsonRequest.Add('correlation_id', DeepScanRun."Correlation ID");
         if DeepScanRun."Error Message" <> '' then
             JsonRequest.Add('error_message', DeepScanRun."Error Message");
         if DeepScanRun."Warning Message" <> '' then
@@ -938,6 +964,15 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Completed Modules" := GetJsonTokenInteger(Token, DeepScanRun."Completed Modules");
         if JsonResponse.Get('failed_modules', Token) then
             DeepScanRun."Failed Modules" := GetJsonTokenInteger(Token, DeepScanRun."Failed Modules");
+        if JsonResponse.Get('execution_attempt', Token) then
+            DeepScanRun."Execution Attempt" := GetJsonTokenInteger(Token, DeepScanRun."Execution Attempt");
+        if JsonResponse.Get('lease_expires_at', Token) then
+            DeepScanRun."Lease Expires At" := ParseJsonDateTime(GetJsonTokenText(Token));
+        if JsonResponse.Get('correlation_id', Token) then
+            DeepScanRun."Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Correlation ID"));
+        if JsonResponse.Get('recovery_required', Token) then
+            if GetJsonTokenBoolean(Token, false) then
+                DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::RetryRequired;
         if JsonResponse.Get('error_message', Token) then
             DeepScanRun."Error Message" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Error Message"));
         if JsonResponse.Get('warning_message', Token) then
@@ -1288,9 +1323,9 @@ codeunit 53100 "DH API Client"
                 DeepScanRun.Status := DeepScanRun.Status::Queued;
             'running', 'finalizing':
                 DeepScanRun.Status := DeepScanRun.Status::Running;
-            'completed':
+            'completed', 'completed_with_warnings':
                 DeepScanRun.Status := DeepScanRun.Status::Completed;
-            'failed', 'stalled':
+            'failed', 'stalled', 'expired':
                 DeepScanRun.Status := DeepScanRun.Status::Failed;
             'cancelled', 'canceled':
                 DeepScanRun.Status := DeepScanRun.Status::Canceled;
@@ -1322,7 +1357,7 @@ codeunit 53100 "DH API Client"
                     if DeepScanRun."Current Step" = '' then
                         DeepScanRun."Current Step" := 'Preparing scan';
                 end;
-            'completed':
+            'completed', 'completed_with_warnings':
                 begin
                     DeepScanRun."Progress %" := 100;
                     DeepScanRun."Current Module" := 'All modules completed';
@@ -1331,7 +1366,7 @@ codeunit 53100 "DH API Client"
                     if DeepScanRun."Total Modules" > 0 then
                         DeepScanRun."Completed Modules" := DeepScanRun."Total Modules";
                 end;
-            'failed':
+            'failed', 'expired':
                 begin
                     if DeepScanRun."Current Module" = '' then
                         DeepScanRun."Current Module" := 'Failed';

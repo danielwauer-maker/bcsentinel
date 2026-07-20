@@ -252,6 +252,26 @@ table 53128 "DH Deep Scan Run"
             Caption = 'Last Start Attempt';
             DataClassification = SystemMetadata;
         }
+        field(60; "Execution Token"; Guid)
+        {
+            Caption = 'Execution Token';
+            DataClassification = SystemMetadata;
+        }
+        field(61; "Correlation ID"; Text[50])
+        {
+            Caption = 'Correlation ID';
+            DataClassification = SystemMetadata;
+        }
+        field(62; "Execution Attempt"; Integer)
+        {
+            Caption = 'Execution Attempt';
+            DataClassification = SystemMetadata;
+        }
+        field(63; "Lease Expires At"; DateTime)
+        {
+            Caption = 'Lease Expires At';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {

@@ -194,3 +194,16 @@ Die historische 48-%-Bewertung bleibt unverändert; P0B bewertet ausschließlich
 | Monitoring/Free | PARTIAL | aktives Monitoring ohne Credit; Free-Slot einmal je Tenant | Ablauf-, Retry- und Free-Slot-Tests | **COMPLETE für Startannahme** |
 
 Der technische P0-Fortschritt beträgt damit **3 von 5 P0-Gaps (60 %) geschlossen**. Die Gesamtentscheidung bleibt **NO-GO**, da P0-04 und P0-05 offen sind; die ursprüngliche Gesamtreadiness wird erst nach der P0-Serie und einem Sandbox-Gate neu gewichtet. Detailnachweis: `docs/GL_EXT_P0B_ATOMIC_CREDIT_CONSUMPTION.md`.
+
+## Status-Delta GL-EXT-P0C (16. Juli 2026)
+
+Die historische 48-%-Bewertung und die EXT-01-bis-EXT-08-Bewertungen bleiben unverändert. P0C bewertet ausschließlich P0-04.
+
+| Requirement | Ursprünglicher Status | Korrektur | Evidenz | Aktuell |
+|---|---|---|---|---|
+| R-15 / P0-04 terminaler Scan-Lifecycle | DEFECTIVE | kanonische State Machine, serverseitige Übergangsprüfung, Worker-Lease/Heartbeat, Execution Token und terminaler AL-Exception-Handler | P0C-/Scanstatus-Tests, AL ReleaseCloud Compile | **COMPLETE – P0 behoben** |
+| stale Run / Backendrestart | MISSING/PARTIAL | Startup- plus periodische Batch-Recovery, begrenzter Retry/Backoff, Max Attempts und CAS gegen Doppel-Recovery | Parallel-/Recovery-/Legacy-Migrationstests | **COMPLETE auf Codeebene** |
+| Completion / Findings | PARTIAL | Completion erst nach transaktionalem Pflichtresultat; Unique Findingcode/Modul; Late-Writer-Schutz | Partial-/Complete-/Duplicate-/Tokenrotationstests | **COMPLETE auf Codeebene** |
+| BC Monitor / Scheduler | PARTIAL | Terminalstatus-Healing, RetryRequired mit demselben Run/Request, kein zweiter Credit, lokale Failure-Persistenz | AL Compile; P0B-Regression und Lifecycle-Tests | **COMPLETE auf Codeebene; Sandbox offen** |
+
+P0-Fortschritt: **4 von 5 (80 %)**. P0C ist bereit für GL-EXT-P0D. Die Entscheidung bleibt **NO-GO**, weil P0-05, BC-Sandbox/PostgreSQL-Staging und weitere P1-Releasegates offen sind. Vollständige Evidenz: `docs/GL_EXT_P0C_SCAN_LIFECYCLE_RECOVERY.md`.

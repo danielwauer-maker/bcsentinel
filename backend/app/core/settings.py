@@ -46,8 +46,14 @@ class Settings(BaseSettings):
     BILLING_SUCCESS_URL: str | None = None
     BILLING_CANCEL_URL: str | None = None
     BILLING_PORTAL_RETURN_URL: str | None = None
-    SCAN_STALLED_AFTER_SECONDS: int = 180
+    SCAN_STALLED_AFTER_SECONDS: int = 900
     SCAN_MAX_RUNTIME_SECONDS: int | None = None
+    SCAN_LEASE_SECONDS: int = 1200
+    SCAN_QUEUED_TIMEOUT_SECONDS: int = 600
+    SCAN_MAX_ATTEMPTS: int = 3
+    SCAN_RETRY_BACKOFF_SECONDS: int = 30
+    SCAN_RECOVERY_INTERVAL_SECONDS: int = 60
+    SCAN_RECOVERY_BATCH_SIZE: int = 100
     ANALYTICS_DEMO_MODE: bool = False
 
     model_config = SettingsConfigDict(

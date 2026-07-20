@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -81,7 +81,7 @@ class DashboardUser(Base):
     invite_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=True)
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     last_invited_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     invite_mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
@@ -143,6 +143,9 @@ class Scan(Base):
 
 class ScanIssueRecord(Base):
     __tablename__ = "scan_issues"
+    __table_args__ = (
+        UniqueConstraint("scan_id", "code", name="uq_scan_issues_scan_code"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id"), index=True)
@@ -168,6 +171,9 @@ class ScanRunStatus(Base):
     environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     scan_mode: Mapped[str] = mapped_column(String(20), default="deep")
     status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
+    )
     progress_percent: Mapped[int] = mapped_column(Integer, default=0)
     current_module: Mapped[str | None] = mapped_column(String(80), nullable=True)
     current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
@@ -183,6 +189,16 @@ class ScanRunStatus(Base):
     total_modules: Mapped[int] = mapped_column(Integer, default=0)
     completed_modules: Mapped[int] = mapped_column(Integer, default=0)
     failed_modules: Mapped[int] = mapped_column(Integer, default=0)
+    lease_owner: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
+    lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True, unique=True, index=True)
+    lease_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    execution_attempt: Mapped[int] = mapped_column(Integer, default=0)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    next_retry_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    correlation_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    recovery_count: Mapped[int] = mapped_column(Integer, default=0)
+    lifecycle_version: Mapped[int] = mapped_column(Integer, default=0)
+    result_persisted_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     modules: Mapped[list["ScanRunModule"]] = relationship(
         back_populates="run",
@@ -196,6 +212,9 @@ class ScanRunStatus(Base):
 
 class ScanRunModule(Base):
     __tablename__ = "scan_run_modules"
+    __table_args__ = (
+        UniqueConstraint("run_id", "name", name="uq_scan_run_modules_run_name"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
@@ -220,6 +239,11 @@ class ScanRunEvent(Base):
     module: Mapped[str | None] = mapped_column(String(80), nullable=True)
     step: Mapped[str | None] = mapped_column(String(160), nullable=True)
     message: Mapped[str] = mapped_column(String(255))
+    event_type: Mapped[str] = mapped_column(String(40), default="scan_progress", index=True)
+    attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    worker_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    correlation_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    metadata_json: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     run: Mapped["ScanRunStatus"] = relationship(back_populates="events")
 

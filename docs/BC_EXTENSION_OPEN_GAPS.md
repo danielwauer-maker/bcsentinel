@@ -181,3 +181,13 @@ Verbleibende P0: P0-03 Credit-Atomizität, P0-04 Scanstatus-Lifecycle und P0-05 
 | P0-05 | offen | bewusst nicht bearbeitet | **offen** |
 
 Verbleibende P0: P0-04 Scanstatus-Lifecycle und P0-05 lokaler Findings-Zugriffsschutz. Empfohlener nächster Sprint ist **GL-EXT-P0C – terminaler Scan-Lifecycle und kontrollierte Recovery**. Definition of Done: jeder angenommene Run erreicht terminal `Completed`, `Failed` oder `Cancelled`; Heartbeat/Stall-Detection und Restart-Recovery sind getestet; Refund bleibt explizit und ledgerbasiert; AL und Backend zeigen denselben Endstatus; Parallel-/Crash-/Timeouttests und BC-Sandbox-CAT sind grün. Danach folgt P0D für den Findings-Zugriffsschutz.
+
+## Status-Delta GL-EXT-P0C (16. Juli 2026)
+
+| Gap | Ursprünglicher Status | Korrektur und Evidenz | Aktueller Status |
+|---|---|---|---|
+| P0-04 | offen: Runs konnten unkontrolliert nichtterminal bleiben | State Machine, Lease/Heartbeat, atomarer Claim, Tokenrotation, Startup-/periodische Recovery, bounded Retry, Pflichtresultat-Gate, AL Failure Handler; automatisierte Parallel-/Recoverytests und AL-Compile | **geschlossen auf Codeebene** |
+| P0-05 | offen | bewusst nicht bearbeitet | **offen** |
+| P1 PostgreSQL/Sandbox-Evidenz | offen | Testfälle und Konfiguration vorbereitet | **offen / NOT_EXECUTED** |
+
+Verbleibender P0 ist ausschließlich P0-05: lokale Findings müssen vor jeder Anzeige/Aktion mit einem frischen Access-Snapshot geschützt werden. Empfohlener Folgesprint ist **GL-EXT-P0D – Fresh Findings Access Enforcement**. Definition of Done: server- und AL-seitiger frischer Lizenzcheck auf Liste, Card, FactBox, Drilldown, direkte Page-URL und Aktionen; abgelaufener Zugriff wird ohne stale Cache blockiert; Offline-/Backendfehler fail-closed mit verständlichem Recoverypfad; Rollen-/Negativtests ohne SUPER; Sandbox-CAT grün. Produkt-Gate bleibt NO-GO.

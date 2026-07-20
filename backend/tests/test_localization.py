@@ -105,7 +105,7 @@ def test_analytics_payload_uses_tenant_language(client, tenant_factory, auth_hea
     assert response.status_code == 200
     body = response.json()
     assert body["language"] == "de"
-    assert body["ui"]["overview"] == "Ueberblick"
+    assert body["ui"]["overview"] == "Überblick"
 
 
 def test_executive_report_uses_tenant_language():

@@ -240,7 +240,7 @@ def test_admin_product_management_grant_and_revoke_product(client, tenant_factor
     snapshot_after_revoke = _license_snapshot(tenant["tenant_id"])
 
     assert grant_response.status_code == 303
-    assert snapshot_after_grant["scan_credits_available"] == 0
+    assert snapshot_after_grant["scan_credits_available"] == 1
     assert snapshot_after_grant["assessment_access_active"] is True
     assert revoke_response.status_code == 303
     assert snapshot_after_revoke["scan_credits_available"] == 0

@@ -10,7 +10,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import CreditLedgerEntry, Scan, ScanStartRequest, Tenant, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
 from app.services.product_license_service import (
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_VALIDATION_CHECK,
@@ -46,6 +46,8 @@ class ScanStartResult:
     product_code: str | None
     credit_consumed: bool
     idempotent_replay: bool
+    execution_token: str
+    correlation_id: str
 
 
 def _now() -> datetime:
@@ -89,13 +91,18 @@ def build_payload_hash(*, run_id: str, scan_mode: str, total_modules: int, compa
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def _result_from_request(request: ScanStartRequest, *, replay: bool) -> ScanStartResult:
+def _result_from_request(db: Session, request: ScanStartRequest, *, replay: bool) -> ScanStartResult:
+    run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == request.scan_id))
+    if run is None or not run.lease_token:
+        raise RuntimeError("Accepted scan start is missing its lifecycle execution token.")
     return ScanStartResult(
         scan_id=request.scan_id,
         scan_mode=request.requested_scan_mode,
         product_code=request.resolved_product_code,
         credit_consumed=request.credit_id is not None,
         idempotent_replay=replay,
+        execution_token=run.lease_token,
+        correlation_id=run.correlation_id or "",
     )
 
 
@@ -112,7 +119,7 @@ def _existing_result(db: Session, *, tenant_id: str, client_request_id: str, pay
         raise ScanStartConflictError(
             "This client_request_id was already used with a different scan payload. Reuse the original payload or start a new scan."
         )
-    return _result_from_request(request, replay=True)
+    return _result_from_request(db, request, replay=True)
 
 
 def _claim_credit(db: Session, *, tenant_id: str, scan_id: str, product_codes: set[str] | None) -> TenantScanCredit | None:
@@ -207,6 +214,15 @@ def accept_scan_start(
 
     existing_scan = db.scalar(select(Scan).where(Scan.scan_id == normalized_run_id))
     if existing_scan is not None:
+        # A concurrent identical request may have committed between the first
+        # idempotency lookup and this scan lookup. Restart the read snapshot so
+        # the durable request binding becomes visible before declaring conflict.
+        db.rollback()
+        replay = _existing_result(
+            db, tenant_id=tenant.tenant_id, client_request_id=request_id, payload_hash=payload_hash
+        )
+        if replay is not None:
+            return replay
         raise ScanStartConflictError("scan_id already exists and is not bound to this client request.")
 
     now = _now()
@@ -291,4 +307,4 @@ def accept_scan_start(
         db.rollback()
         raise
 
-    return _result_from_request(request, replay=False)
+    return _result_from_request(db, request, replay=False)

@@ -79,3 +79,16 @@ Der Backend-Token liegt weiterhin nur gehasht vor; der AL-Token bleibt wie zuvor
 | Legacy Sync | deterministische tenant-/scanbasierte UUIDv5 | nutzt denselben Startservice | kein zweiter Consume-Pfad |
 
 AL speichert nur die nicht sensitive Request-GUID sowie Status-/Versuchsdaten. Das Ledger enthält keine Secrets oder personenbezogenen Daten. P0-04-Lifecycle und P0-05-Findingschutz bleiben unverändert.
+
+## Datenfluss-Delta GL-EXT-P0C (16. Juli 2026)
+
+| Flow | Neuer Vertrag | Atomizität / Schutz | Terminal-/Recoverywirkung |
+|---|---|---|---|
+| Scan-Start | Antwort enthält Execution Token und Correlation ID; AL hält beide im Run | Token ist rungebunden und wird nicht über Status-GET offengelegt | `queued` besitzt feste Claimfrist |
+| Worker-Claim | Run-ID, Tenant, aktueller Token und Worker-ID | Conditional Update auf Status, Token und Lifecycle-Version; genau ein Claim | setzt `running`, Attempt, Heartbeat und Lease |
+| Fortschritt | Status, Modul, Prozent, Worker, Token, Correlation | Übergang und Lease serverseitig validiert; Eventtexte redigiert | Heartbeat verlängert Lease |
+| Resultat-Sync | Aggregate plus eindeutige Findingcodes, Token und Worker | Findingersatz und Pflichtresultat-Markierung in derselben Transaktion; alter Token 409 | erst danach `completed`/`completed_with_warnings` |
+| Recovery | indexierter Batch auf Status/Lease/Retry | `SKIP LOCKED` plus Lifecycle-CAS; Tokenrotation; gleicher Scan/Credit | stale Queue expired; stale Worker bounded requeue/fail; persistiertes Resultat finalisiert |
+| BC Polling/Scheduler | Status plus Recoveryhinweis, Attempt/Lease/Correlation | technischer Retry verwendet dieselbe Client Request GUID | Terminalstatus beendet Polling; stale Run blockiert Folgetermin nicht dauerhaft |
+
+Neue Metadaten enthalten keine Secrets. Worker-ID und Correlation ID sind technische Pseudoreferenzen; Tokenwerte werden weder in Events noch Logs geschrieben. P0-05-Datenzugriff und Retention bleiben außerhalb P0C offen.

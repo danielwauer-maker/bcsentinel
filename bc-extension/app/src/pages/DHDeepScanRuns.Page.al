@@ -597,7 +597,7 @@
             exit(true);
 
         case LowerCase(DeepScanRun."Backend Status") of
-            'completed':
+            'completed', 'completed_with_warnings':
                 exit(true);
         end;
 
@@ -641,7 +641,7 @@
             exit(true);
 
         case LowerCase(DeepScanRun."Backend Status") of
-            'failed', 'error', 'stalled', 'cancelled', 'canceled':
+            'failed', 'error', 'stalled', 'expired', 'cancelled', 'canceled':
                 exit(true);
         end;
 
