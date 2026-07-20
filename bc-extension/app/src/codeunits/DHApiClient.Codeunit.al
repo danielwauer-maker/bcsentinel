@@ -911,16 +911,29 @@ codeunit 53100 "DH API Client"
     end;
 
     procedure StartDeepScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    var
+        FailureMessage: Text;
+        TerminalFailure: Boolean;
     begin
-        StartBackendScan(Setup, DeepScanRun, TotalModules);
+        if not TryStartDeepScan(Setup, DeepScanRun, TotalModules, FailureMessage, TerminalFailure) then
+            Error(FailureMessage);
     end;
 
     procedure StartDataHealthScore(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    var
+        FailureMessage: Text;
+        TerminalFailure: Boolean;
     begin
-        StartBackendScan(Setup, DeepScanRun, TotalModules);
+        if not TryStartDeepScan(Setup, DeepScanRun, TotalModules, FailureMessage, TerminalFailure) then
+            Error(FailureMessage);
     end;
 
-    local procedure StartBackendScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    procedure TryStartDeepScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer; var FailureMessage: Text; var TerminalFailure: Boolean): Boolean
+    begin
+        exit(TryStartBackendScan(Setup, DeepScanRun, TotalModules, FailureMessage, TerminalFailure));
+    end;
+
+    local procedure TryStartBackendScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer; var FailureMessage: Text; var TerminalFailure: Boolean): Boolean
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -932,12 +945,20 @@ codeunit 53100 "DH API Client"
         JsonRequest: JsonObject;
         IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
+        Clear(FailureMessage);
+        TerminalFailure := false;
         EnsureTenantAccessConfigured(Setup);
 
-        if DeepScanRun."Run ID" = '' then
-            Error('Scan could not be started because the run id is empty.');
-        if IsNullGuid(DeepScanRun."Client Request ID") then
-            Error('Scan could not be started because the client request id is empty.');
+        if DeepScanRun."Run ID" = '' then begin
+            FailureMessage := ScanStartInvalidRequestLbl;
+            TerminalFailure := true;
+            exit(false);
+        end;
+        if IsNullGuid(DeepScanRun."Client Request ID") then begin
+            FailureMessage := ScanStartInvalidRequestLbl;
+            TerminalFailure := true;
+            exit(false);
+        end;
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
@@ -962,18 +983,67 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
-        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/start'), Content, Response) then
-            Error('Scan start could not be sent. Please verify the network connection.');
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/start'), Content, Response) then begin
+            FailureMessage := ScanStartNetworkErrorLbl;
+            exit(false);
+        end;
 
         Response.Content.ReadAs(ResponseText);
-        if not Response.IsSuccessStatusCode() then
-            Error('Scan start failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+        if not Response.IsSuccessStatusCode() then begin
+            FailureMessage := GetScanStartErrorMessage(Response.HttpStatusCode(), ResponseText, TerminalFailure);
+            exit(false);
+        end;
 
-        ParseScanStartLifecycle(ResponseText, DeepScanRun);
+        if not TryParseScanStartLifecycle(ResponseText, DeepScanRun) then begin
+            FailureMessage := ScanStartInvalidResponseLbl;
+            exit(false);
+        end;
         DeepScanRun.Modify(true);
+        exit(true);
     end;
 
-    local procedure ParseScanStartLifecycle(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
+    local procedure GetScanStartErrorMessage(StatusCode: Integer; ResponseText: Text; var TerminalFailure: Boolean): Text
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        ErrorCode: Text;
+    begin
+        TerminalFailure := (StatusCode >= 400) and (StatusCode < 500);
+        if JsonResponse.ReadFrom(ResponseText) then
+            if JsonResponse.Get('code', Token) then
+                if not IsJsonNull(Token) and Token.IsValue() then
+                    ErrorCode := UpperCase(Token.AsValue().AsText());
+
+        case ErrorCode of
+            'SCAN_ID_TENANT_CONFLICT', 'SCAN_ID_REQUEST_CONFLICT', 'SCAN_ID_CONFLICT':
+                exit(ScanIdConflictLbl);
+            'SCAN_REQUEST_PAYLOAD_CONFLICT':
+                exit(ScanRequestConflictLbl);
+            'FREE_SCAN_ALREADY_USED':
+                exit(FreeScanAlreadyUsedLbl);
+        end;
+
+        case StatusCode of
+            400, 422:
+                exit(ScanStartInvalidRequestLbl);
+            401, 403:
+                exit(ScanStartPermissionDeniedLbl);
+            409:
+                exit(ScanStartConflictLbl);
+            500 .. 599:
+                begin
+                    TerminalFailure := false;
+                    exit(ScanStartTemporaryErrorLbl);
+                end;
+            else begin
+                TerminalFailure := false;
+                exit(ScanStartTemporaryErrorLbl);
+            end;
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryParseScanStartLifecycle(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
     var
         JsonResponse: JsonObject;
         Token: JsonToken;
@@ -1955,6 +2025,15 @@ codeunit 53100 "DH API Client"
         RegistrationUnexpectedErrorLbl: Label 'The registration could not be completed because of an internal error. Try again later or contact BCSentinel support.';
         RegistrationExistingUserAddedLbl: Label 'This email address is already linked to a BCSentinel account. The environment "%1" was added successfully. After signing in, you can switch between your available BCSentinel dashboards.', Comment = '%1 = Business Central environment name';
         RegistrationExistingMembershipLbl: Label 'This Business Central environment is already linked to the existing BCSentinel dashboard account.';
+        ScanStartNetworkErrorLbl: Label 'BCSentinel could not send the scan start request. Check the API connection and retry the same scan.';
+        ScanStartInvalidRequestLbl: Label 'The scan could not be started because the request identity or required scan data is invalid. Start a new scan.';
+        ScanStartInvalidResponseLbl: Label 'BCSentinel accepted the connection but returned an incomplete scan start response. Retry the same scan.';
+        ScanStartPermissionDeniedLbl: Label 'The scan start was rejected because this environment is not authorized. Refresh product access and try again.';
+        ScanIdConflictLbl: Label 'This scan ID is already assigned to another scan. The local run was stopped safely. Start the scan again to create a new unique run.';
+        ScanRequestConflictLbl: Label 'This scan request was already used with different start data. The local run was stopped safely. Start a new scan.';
+        FreeScanAlreadyUsedLbl: Label 'The one-time free Data Health Score has already been started for this environment.';
+        ScanStartConflictLbl: Label 'The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.';
+        ScanStartTemporaryErrorLbl: Label 'BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.';
         RegistrationCompletedInviteSentLbl: Label 'BCSentinel tenant registration completed. Dashboard access was sent to %1.', Comment = '%1 = runtime value';
         RegistrationCompletedInviteFailedLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', Comment = '%1 = runtime value';
         RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.';

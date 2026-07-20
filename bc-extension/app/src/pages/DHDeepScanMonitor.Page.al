@@ -1178,8 +1178,12 @@
         ApiClient: Codeunit "DH API Client";
         AccessGuard: Codeunit "DH Access Guard";
         Token: Text;
+        AccessError: Text;
     begin
-        AccessGuard.EnsureDashboardAccess();
+        if not AccessGuard.TryEnsureDashboardAccess(AccessError) then begin
+            Message(AccessError);
+            exit;
+        end;
         LoadSetupOrError(Setup);
 
         Token := ApiClient.GetAnalyticsDashboardToken(Setup);
@@ -1447,4 +1451,3 @@
         exit(SecretMgt.GetApiToken(Setup));
     end;
 }
-

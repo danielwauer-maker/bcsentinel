@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from app.db import SessionLocal
-from app.models import CreditLedgerEntry, Scan, ScanStartRequest, Subscription, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanRunStatus, ScanStartRequest, Subscription, TenantScanCredit
 from app.services.atomic_scan_start_service import accept_scan_start
 from app.services.product_license_service import grant_scan_credit
 
@@ -103,8 +103,111 @@ def test_same_key_different_payload_is_conflict(client, tenant_factory):
     _grant(tenant["tenant_id"], "full_analysis")
     request_id = str(uuid4())
     assert _start(client, tenant, request_id=request_id, run_id="RUN_PAYLOAD_A").status_code == 200
-    assert _start(client, tenant, request_id=request_id, run_id="RUN_PAYLOAD_B").status_code == 409
+    conflict = _start(client, tenant, request_id=request_id, run_id="RUN_PAYLOAD_B")
+    assert conflict.status_code == 409
+    assert conflict.json()["code"] == "SCAN_REQUEST_PAYLOAD_CONFLICT"
     assert _counts(tenant["tenant_id"])["consumed"] == 1
+
+
+def test_same_scan_id_with_different_request_is_controlled_conflict_without_second_credit(client, tenant_factory):
+    tenant = tenant_factory()
+    _grant(tenant["tenant_id"], "full_analysis", 2)
+    run_id = "RUN_SCAN_ID_REUSE"
+    first = _start(client, tenant, request_id=str(uuid4()), run_id=run_id)
+    conflict = _start(client, tenant, request_id=str(uuid4()), run_id=run_id)
+
+    assert first.status_code == 200
+    assert conflict.status_code == 409
+    assert conflict.json()["code"] == "SCAN_ID_REQUEST_CONFLICT"
+    assert _counts(tenant["tenant_id"])["consumed"] == 1
+    assert _counts(tenant["tenant_id"])["available"] == 1
+
+
+def test_same_scan_id_in_another_tenant_is_not_adopted(client, tenant_factory):
+    owner = tenant_factory()
+    other = tenant_factory()
+    _grant(owner["tenant_id"], "full_analysis")
+    _grant(other["tenant_id"], "full_analysis")
+    run_id = "RUN_CROSS_TENANT_COLLISION"
+
+    assert _start(client, owner, run_id=run_id).status_code == 200
+    conflict = _start(client, other, run_id=run_id)
+
+    assert conflict.status_code == 409
+    assert conflict.json()["code"] == "SCAN_ID_TENANT_CONFLICT"
+    assert _counts(other["tenant_id"])["available"] == 1
+    assert _counts(other["tenant_id"])["consumed"] == 0
+    with SessionLocal() as db:
+        assert db.query(ScanRunStatus).filter_by(tenant_id=other["tenant_id"]).count() == 0
+
+
+def test_same_tenant_unbound_pending_scan_is_recovered_atomically(client, tenant_factory):
+    tenant = tenant_factory()
+    _grant(tenant["tenant_id"], "full_analysis")
+    run_id = "RUN_RECOVERABLE_ORPHAN"
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            Scan(
+                scan_id=run_id,
+                tenant_id=tenant["tenant_id"],
+                scan_type="deep",
+                generated_at_utc=now,
+                data_score=0,
+                checks_count=0,
+                issues_count=0,
+                premium_available=True,
+                summary_headline="Deep scan queued",
+                summary_rating="Pending",
+                enabled_modules=None,
+            )
+        )
+        db.commit()
+
+    request_id = str(uuid4())
+    accepted = _start(client, tenant, request_id=request_id, run_id=run_id)
+    replay = _start(client, tenant, request_id=request_id, run_id=run_id)
+
+    assert accepted.status_code == replay.status_code == 200
+    assert replay.json()["idempotent_replay"] is True
+    assert _counts(tenant["tenant_id"]) == {
+        "available": 0,
+        "consumed": 1,
+        "scans": 1,
+        "requests": 1,
+        "consumption_ledger": 1,
+    }
+
+
+def test_completed_unbound_scan_is_not_recovered_or_charged(client, tenant_factory):
+    tenant = tenant_factory()
+    _grant(tenant["tenant_id"], "full_analysis")
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            Scan(
+                scan_id="RUN_NON_RECOVERABLE_ORPHAN",
+                tenant_id=tenant["tenant_id"],
+                scan_type="deep",
+                generated_at_utc=now,
+                data_score=80,
+                checks_count=10,
+                issues_count=2,
+                premium_available=True,
+                summary_headline="Completed scan",
+                summary_rating="Good",
+                enabled_modules=None,
+            )
+        )
+        db.commit()
+
+    conflict = _start(client, tenant, run_id="RUN_NON_RECOVERABLE_ORPHAN")
+    assert conflict.status_code == 409
+    assert conflict.json()["code"] == "SCAN_ID_CONFLICT"
+    assert _counts(tenant["tenant_id"])["available"] == 1
+    assert _counts(tenant["tenant_id"])["requests"] == 0
+    with SessionLocal() as db:
+        assert db.query(ScanRunStatus).filter_by(run_id="RUN_NON_RECOVERABLE_ORPHAN").count() == 0
 
 
 def test_parallel_identical_requests_create_one_scan_and_ledger(client, tenant_factory):

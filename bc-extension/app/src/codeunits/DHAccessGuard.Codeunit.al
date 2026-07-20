@@ -12,6 +12,20 @@ codeunit 53195 "DH Access Guard"
         EnsureCapability('dashboard_access', true);
     end;
 
+    procedure TryEnsureDashboardAccess(var AccessError: Text): Boolean
+    begin
+        Clear(AccessError);
+        ClearLastError();
+        if TryEnsureDashboardAccessInternal() then
+            exit(true);
+
+        AccessError := GetLastErrorText();
+        ClearLastError();
+        if AccessError = '' then
+            AccessError := DashboardAccessExpiredErr;
+        exit(false);
+    end;
+
     procedure EnsureReportAccess()
     begin
         EnsureCapability('report_access', true);
@@ -81,6 +95,12 @@ codeunit 53195 "DH Access Guard"
         ApiClient: Codeunit "DH API Client";
     begin
         ApiClient.RefreshLicenseStatus(Setup);
+    end;
+
+    [TryFunction]
+    local procedure TryEnsureDashboardAccessInternal()
+    begin
+        EnsureDashboardAccess();
     end;
 
     local procedure IsSnapshotFreshAndBound(var Setup: Record "DH Setup"): Boolean

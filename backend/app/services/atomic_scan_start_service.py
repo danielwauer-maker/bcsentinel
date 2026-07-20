@@ -10,7 +10,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import CreditLedgerEntry, Scan, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanIssueRecord, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
 from app.services.product_license_service import (
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_VALIDATION_CHECK,
@@ -24,7 +24,10 @@ from app.services.scan_status_service import create_or_get_scan_run
 
 
 class ScanStartConflictError(ValueError):
-    pass
+    def __init__(self, message: str, *, code: str, message_de: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message_de = message_de
 
 
 class ScanCreditUnavailableError(ValueError):
@@ -117,9 +120,75 @@ def _existing_result(db: Session, *, tenant_id: str, client_request_id: str, pay
         return None
     if request.payload_hash != payload_hash:
         raise ScanStartConflictError(
-            "This client_request_id was already used with a different scan payload. Reuse the original payload or start a new scan."
+            "This client request was already used with a different scan payload. Reuse the original payload or start a new scan.",
+            code="SCAN_REQUEST_PAYLOAD_CONFLICT",
+            message_de="Diese Scan-Anfrage wurde bereits mit anderen Startdaten verwendet. Verwenden Sie die ursprüngliche Anfrage oder starten Sie einen neuen Scan.",
         )
     return _result_from_request(db, request, replay=True)
+
+
+def _same_text(left: str | None, right: str | None) -> bool:
+    return (left or "").strip().casefold() == (right or "").strip().casefold()
+
+
+def _assert_recoverable_orphan_scan(
+    db: Session,
+    *,
+    scan: Scan,
+    tenant: Tenant,
+    requested_mode: str,
+    company_name: str | None,
+    environment_name: str | None,
+) -> None:
+    if scan.tenant_id != tenant.tenant_id:
+        raise ScanStartConflictError(
+            "The scan ID is already owned by another tenant. Start a new scan with a new scan ID.",
+            code="SCAN_ID_TENANT_CONFLICT",
+            message_de="Die Scan-ID gehört bereits zu einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
+        )
+
+    bound_request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == scan.scan_id))
+    if bound_request is not None:
+        raise ScanStartConflictError(
+            "The scan ID is already bound to another client request. Retry the original request or start a new scan.",
+            code="SCAN_ID_REQUEST_CONFLICT",
+            message_de="Die Scan-ID ist bereits mit einer anderen Client-Anfrage verbunden. Wiederholen Sie die ursprüngliche Anfrage oder starten Sie einen neuen Scan.",
+        )
+
+    ledger_entry = db.scalar(select(CreditLedgerEntry.id).where(CreditLedgerEntry.scan_id == scan.scan_id).limit(1))
+    issue_record = db.scalar(select(ScanIssueRecord.id).where(ScanIssueRecord.scan_id == scan.scan_id).limit(1))
+    expected_scan_type = "data_health_score" if requested_mode == "data_health_score" else "deep"
+    if (
+        ledger_entry is not None
+        or issue_record is not None
+        or scan.scan_type != expected_scan_type
+        or scan.data_score != 0
+        or scan.checks_count != 0
+        or scan.issues_count != 0
+        or (scan.summary_rating or "").strip().casefold() != "pending"
+    ):
+        raise ScanStartConflictError(
+            "The scan ID already represents a non-recoverable scan. Start a new scan with a new scan ID.",
+            code="SCAN_ID_CONFLICT",
+            message_de="Die Scan-ID gehört bereits zu einem nicht wiederherstellbaren Scan. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
+        )
+
+    run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan.scan_id))
+    if run is None:
+        return
+    if (
+        run.tenant_id != tenant.tenant_id
+        or run.status != "queued"
+        or run.result_persisted_at_utc is not None
+        or run.lease_owner is not None
+        or (run.company_name and not _same_text(run.company_name, company_name))
+        or (run.environment_name and not _same_text(run.environment_name, environment_name))
+    ):
+        raise ScanStartConflictError(
+            "The existing scan lifecycle cannot be safely adopted by this request. Start a new scan.",
+            code="SCAN_ID_CONFLICT",
+            message_de="Der vorhandene Scan-Lebenszyklus kann dieser Anfrage nicht sicher zugeordnet werden. Starten Sie einen neuen Scan.",
+        )
 
 
 def _claim_credit(db: Session, *, tenant_id: str, scan_id: str, product_codes: set[str] | None) -> TenantScanCredit | None:
@@ -223,7 +292,31 @@ def accept_scan_start(
         )
         if replay is not None:
             return replay
-        raise ScanStartConflictError("scan_id already exists and is not bound to this client request.")
+        existing_scan = db.scalar(select(Scan).where(Scan.scan_id == normalized_run_id))
+        if existing_scan is None:
+            raise RuntimeError("The existing scan disappeared while its start request was being reconciled.")
+        _assert_recoverable_orphan_scan(
+            db,
+            scan=existing_scan,
+            tenant=tenant,
+            requested_mode=requested_mode,
+            company_name=company_name,
+            environment_name=environment_name,
+        )
+    else:
+        existing_run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == normalized_run_id))
+        if existing_run is not None:
+            if existing_run.tenant_id != tenant.tenant_id:
+                raise ScanStartConflictError(
+                    "The scan ID is already owned by another tenant. Start a new scan with a new scan ID.",
+                    code="SCAN_ID_TENANT_CONFLICT",
+                    message_de="Die Scan-ID gehört bereits zu einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
+                )
+            raise ScanStartConflictError(
+                "The scan ID already has an unbound lifecycle and cannot be adopted safely. Start a new scan.",
+                code="SCAN_ID_CONFLICT",
+                message_de="Für die Scan-ID besteht bereits ein nicht gebundener Lebenszyklus, der nicht sicher übernommen werden kann. Starten Sie einen neuen Scan.",
+            )
 
     now = _now()
     request = ScanStartRequest(
@@ -247,22 +340,23 @@ def accept_scan_start(
         request.credit_id = credit.id if credit is not None else None
         request.status = "accepted"
 
-        stored_scan_type = "data_health_score" if requested_mode == "data_health_score" else "deep"
-        db.add(
-            Scan(
-                scan_id=normalized_run_id,
-                tenant_id=tenant.tenant_id,
-                scan_type=stored_scan_type,
-                generated_at_utc=now,
-                data_score=0,
-                checks_count=0,
-                issues_count=0,
-                premium_available=requested_mode != "data_health_score",
-                summary_headline="Data Health Score queued" if requested_mode == "data_health_score" else "Deep scan queued",
-                summary_rating="Pending",
-                enabled_modules=None,
+        if existing_scan is None:
+            stored_scan_type = "data_health_score" if requested_mode == "data_health_score" else "deep"
+            db.add(
+                Scan(
+                    scan_id=normalized_run_id,
+                    tenant_id=tenant.tenant_id,
+                    scan_type=stored_scan_type,
+                    generated_at_utc=now,
+                    data_score=0,
+                    checks_count=0,
+                    issues_count=0,
+                    premium_available=requested_mode != "data_health_score",
+                    summary_headline="Data Health Score queued" if requested_mode == "data_health_score" else "Deep scan queued",
+                    summary_rating="Pending",
+                    enabled_modules=None,
+                )
             )
-        )
         create_or_get_scan_run(
             db,
             run_id=normalized_run_id,
@@ -298,6 +392,15 @@ def accept_scan_start(
         )
         if replay is not None:
             return replay
+        conflicting_request = db.scalar(
+            select(ScanStartRequest).where(ScanStartRequest.scan_id == normalized_run_id)
+        )
+        if conflicting_request is not None:
+            raise ScanStartConflictError(
+                "The scan ID is already bound to another client request. Retry the original request or start a new scan.",
+                code="SCAN_ID_REQUEST_CONFLICT",
+                message_de="Die Scan-ID ist bereits mit einer anderen Client-Anfrage verbunden. Wiederholen Sie die ursprüngliche Anfrage oder starten Sie einen neuen Scan.",
+            )
         if requested_mode == "data_health_score":
             raise FreeScanAlreadyUsedError(
                 "The one-time free Data Health Score has already been started for this tenant."

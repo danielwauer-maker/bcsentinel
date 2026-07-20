@@ -239,7 +239,7 @@ table 53128 "DH Deep Scan Run"
         field(57; "Start Request Status"; Option)
         {
             Caption = 'Start Request Status';
-            OptionMembers = Pending,Accepted,RetryRequired;
+            OptionMembers = Pending,Accepted,RetryRequired,Rejected;
             DataClassification = SystemMetadata;
         }
         field(58; "Start Attempt Count"; Integer)

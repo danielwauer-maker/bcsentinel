@@ -174,7 +174,10 @@ codeunit 53124 "DH Deep Scan Mgt."
     local procedure StartBackendScanWithRecovery(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
     var
         StartFailedErr: Label 'The scan start could not be confirmed. Retry the same scan from the start action. The existing request ID will be reused. Details: %1';
+        StartUnexpectedErr: Label 'The scan start could not be confirmed because of an unexpected error. Retry the same scan.';
         ErrorText: Text;
+        StartAccepted: Boolean;
+        TerminalFailure: Boolean;
     begin
         DeepScanRun."Start Attempt Count" += 1;
         DeepScanRun."Last Start Attempt" := CurrentDateTime();
@@ -182,13 +185,21 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun.Modify(true);
         Commit();
 
-        if not TrySendBackendScanStart(Setup, DeepScanRun, TotalModules) then begin
+        if not TrySendBackendScanStart(Setup, DeepScanRun, TotalModules, StartAccepted, TerminalFailure, ErrorText) then begin
             ErrorText := CopyStr(GetLastErrorText(), 1, MaxStrLen(DeepScanRun."Error Message"));
-            DeepScanRun.Get(DeepScanRun."Entry No.");
-            DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::RetryRequired;
-            DeepScanRun."Error Message" := ErrorText;
-            DeepScanRun.Modify(true);
-            Commit();
+            if ErrorText = '' then
+                ErrorText := StartUnexpectedErr;
+            MarkStartAsRetryRequired(DeepScanRun, ErrorText);
+            Error(StartFailedErr, ErrorText);
+        end;
+
+        if not StartAccepted then begin
+            ErrorText := CopyStr(ErrorText, 1, MaxStrLen(DeepScanRun."Error Message"));
+            if TerminalFailure then begin
+                MarkStartAsRejected(DeepScanRun, ErrorText);
+                Error(ErrorText);
+            end;
+            MarkStartAsRetryRequired(DeepScanRun, ErrorText);
             Error(StartFailedErr, ErrorText);
         end;
 
@@ -201,11 +212,40 @@ codeunit 53124 "DH Deep Scan Mgt."
     end;
 
     [TryFunction]
-    local procedure TrySendBackendScanStart(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
+    local procedure TrySendBackendScanStart(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer; var StartAccepted: Boolean; var TerminalFailure: Boolean; var ErrorText: Text)
     var
         ApiClient: Codeunit "DH API Client";
     begin
-        ApiClient.StartDeepScan(Setup, DeepScanRun, TotalModules);
+        StartAccepted := ApiClient.TryStartDeepScan(Setup, DeepScanRun, TotalModules, ErrorText, TerminalFailure);
+    end;
+
+    local procedure MarkStartAsRetryRequired(var DeepScanRun: Record "DH Deep Scan Run"; ErrorText: Text)
+    begin
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::RetryRequired;
+        DeepScanRun."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(DeepScanRun."Error Message"));
+        DeepScanRun.Modify(true);
+        Commit();
+    end;
+
+    local procedure MarkStartAsRejected(var DeepScanRun: Record "DH Deep Scan Run"; ErrorText: Text)
+    var
+        StartRejectedLbl: Label 'Scan start rejected';
+    begin
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Rejected;
+        DeepScanRun.Status := DeepScanRun.Status::Failed;
+        DeepScanRun."Finished At" := CurrentDateTime();
+        DeepScanRun.Headline := StartRejectedLbl;
+        DeepScanRun."Current Module" := '';
+        DeepScanRun."Current Step" := StartRejectedLbl;
+        DeepScanRun."Backend Status" := 'rejected';
+        DeepScanRun."ETA Text" := 'Stopped';
+        Clear(DeepScanRun."Last Heartbeat");
+        DeepScanRun."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(DeepScanRun."Error Message"));
+        DeepScanRun.Modify(true);
+        CreateOrUpdateScanHeader(DeepScanRun);
+        Commit();
     end;
 
     local procedure FindUnacceptedRun(ScanMode: Text; var DeepScanRun: Record "DH Deep Scan Run"): Boolean

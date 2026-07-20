@@ -7323,6 +7323,72 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationUnexpectedErrorLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1802602996" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The one-time free Data Health Score has already been started for this environment.</source>
+          <target state="translated">Der einmalige kostenlose Data Health Score wurde für diese Umgebung bereits gestartet.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType FreeScanAlreadyUsedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 388789250" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This scan ID is already assigned to another scan. The local run was stopped safely. Start the scan again to create a new unique run.</source>
+          <target state="translated">Diese Scan-ID ist bereits einem anderen Scan zugeordnet. Der lokale Lauf wurde sicher beendet. Starten Sie den Scan erneut, um einen neuen eindeutigen Lauf zu erzeugen.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanIdConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3913285534" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This scan request was already used with different start data. The local run was stopped safely. Start a new scan.</source>
+          <target state="translated">Diese Scan-Anfrage wurde bereits mit anderen Startdaten verwendet. Der lokale Lauf wurde sicher beendet. Starten Sie einen neuen Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanRequestConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3979838341" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.</source>
+          <target state="translated">Der Scanstart steht im Konflikt mit einer vorhandenen Anfrage. Der lokale Lauf wurde sicher beendet. Starten Sie einen neuen Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3275498335" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan could not be started because the request identity or required scan data is invalid. Start a new scan.</source>
+          <target state="translated">Der Scan konnte nicht gestartet werden, weil die Anfrageidentität oder erforderliche Scandaten ungültig sind. Starten Sie einen neuen Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidRequestLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 341166009" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel accepted the connection but returned an incomplete scan start response. Retry the same scan.</source>
+          <target state="translated">BCSentinel hat die Verbindung angenommen, aber eine unvollständige Scanstart-Antwort zurückgegeben. Wiederholen Sie denselben Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidResponseLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2428831021" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not send the scan start request. Check the API connection and retry the same scan.</source>
+          <target state="translated">BCSentinel konnte die Scanstart-Anfrage nicht senden. Prüfen Sie die API-Verbindung und wiederholen Sie denselben Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2846578603" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start was rejected because this environment is not authorized. Refresh product access and try again.</source>
+          <target state="translated">Der Scanstart wurde abgelehnt, weil diese Umgebung nicht berechtigt ist. Aktualisieren Sie den Produktzugriff und versuchen Sie es erneut.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartPermissionDeniedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2094335354" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.</source>
+          <target state="translated">BCSentinel konnte den Scanstart wegen eines vorübergehenden Backendfehlers nicht bestätigen. Wiederholen Sie dieselbe Scan-Anfrage.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartTemporaryErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 3391027939 - NamedType 1772449976" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan start rejected</source>
+          <target state="translated">Scanstart abgelehnt</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method MarkStartAsRejected - NamedType StartRejectedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 562213518 - NamedType 2287188572" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start could not be confirmed because of an unexpected error. Retry the same scan.</source>
+          <target state="translated">Der Scanstart konnte aufgrund eines unerwarteten Fehlers nicht bestätigt werden. Wiederholen Sie denselben Scan.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
+        </trans-unit>
       </group>
     </body>
   </file>

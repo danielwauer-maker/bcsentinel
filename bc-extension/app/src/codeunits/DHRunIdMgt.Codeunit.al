@@ -5,6 +5,7 @@ codeunit 53145 "DH Run ID Mgt."
         RunDate: Date;
         NextCounter: Integer;
         CounterText: Text;
+        UniqueSuffix: Text;
     begin
         RunDate := Today();
 
@@ -26,7 +27,11 @@ codeunit 53145 "DH Run ID Mgt."
         Setup.Modify(true);
 
         CounterText := PadLeft(Format(NextCounter), 6, '0');
-        exit(CopyStr('RUN_' + Format(RunDate, 0, '<Year4><Month,2><Day,2>') + '_' + CounterText, 1, 50));
+        UniqueSuffix := DelChr(LowerCase(Format(CreateGuid())), '=', '{}-');
+        exit(CopyStr(
+            'RUN_' + Format(RunDate, 0, '<Year4><Month,2><Day,2>') + '_' + CounterText + '_' + CopyStr(UniqueSuffix, 1, 29),
+            1,
+            50));
     end;
 
     local procedure PadLeft(Value: Text; TargetLength: Integer; PadChar: Text[1]): Text

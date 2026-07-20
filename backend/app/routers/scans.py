@@ -254,8 +254,26 @@ def start_scan(
                 company_name=payload.company_name,
                 environment_name=payload.environment_name,
             )
-        except (ScanStartConflictError, FreeScanAlreadyUsedError) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except ScanStartConflictError as exc:
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "code": exc.code,
+                    "message": str(exc),
+                    "message_de": exc.message_de,
+                    "details": {"retry_same_request": exc.code == "SCAN_REQUEST_PAYLOAD_CONFLICT"},
+                },
+            )
+        except FreeScanAlreadyUsedError as exc:
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "code": "FREE_SCAN_ALREADY_USED",
+                    "message": str(exc),
+                    "message_de": "Der einmalige kostenlose Data Health Score wurde für diesen Mandanten bereits gestartet.",
+                    "details": {"retry_same_request": False},
+                },
+            )
         except (ScanCreditUnavailableError, MonitoringInactiveError) as exc:
             raise HTTPException(status_code=402, detail=str(exc)) from exc
         except ValueError as exc:
