@@ -158,6 +158,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Backend Status - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2110464213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Error</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Backend Sync Error - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3873965305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Backend Sync Status - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2181053114 - Field 1926566482 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Checks Count</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1568,6 +1578,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanIdConflictLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3424487903" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanLeaseRejectedLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 3913285534" size-unit="char" translate="yes" xml:space="preserve">
           <source>This scan request was already used with different start data. The local run was stopped safely. Start a new scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1602,6 +1617,26 @@
           <source>BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartTemporaryErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 4091633886" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan status update failed. Status: %1. Run ID: %2. %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = run ID, %3 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1041036785" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan status could not be sent to BCSentinel. The local scan continues and synchronization will be retried.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3049414763" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanSyncFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 890351568" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanSyncNetworkErrorLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4249321513 - NamedType 1839404523" size-unit="char" translate="yes" xml:space="preserve">
           <source>The API Base URL must not contain a query string or fragment.</source>
@@ -1657,6 +1692,16 @@
           <source>The scan start could not be confirmed because of an unexpected error. Retry the same scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 23154622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan completed locally; backend synchronization failed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType LocalCompleteSyncFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3231997172" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType SyncUnexpectedFailureLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2031230494" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
@@ -2478,6 +2523,31 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1833375810" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SyncFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3145417184" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronized</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SynchronizedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2449134427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not started</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SyncNotStartedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3049806726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pending</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SyncPendingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 701894368" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retry required</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SyncRetryRequiredLbl</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - Method 3864462274 - NamedType 1945231236" size-unit="char" translate="yes" xml:space="preserve">
           <source>0% queued</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2723,6 +2793,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control Overview - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the locally completed scan was accepted by the BCSentinel backend.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control BackendSyncStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control BackendSyncStatus - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - Control 678382053 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Current Module.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2807,6 +2887,16 @@
           <source>Status Details</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control StatusDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies why backend synchronization failed or must be retried.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control BackendSyncError - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Control BackendSyncError - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Control 2763291245 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Error.</source>
@@ -3007,6 +3097,11 @@
           <source>Completed</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3905923197" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; sync failed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedSyncFailedLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 3238454627" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
@@ -6152,63 +6247,6 @@
           <source>BCSentinel Viewer</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2181053114 - Field 2110464213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Backend Sync Error</source>
-        </trans-unit>
-        <trans-unit id="Table 2181053114 - Field 3873965305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Backend Sync Status</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3424487903" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 4091633886" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan status update failed. Status: %1. Run ID: %2. %3</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 1041036785" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan status could not be sent to BCSentinel. The local scan continues and synchronization will be retried.</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3049414763" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The local scan completed, but backend synchronization failed. Status: %1. %2</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 890351568" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 4097836441 - NamedType 23154622" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan completed locally; backend synchronization failed.</source>
-        </trans-unit>
-        <trans-unit id="Codeunit 4097836441 - NamedType 3231997172" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 1833375810" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Failed</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 3145417184" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Synchronized</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 2449134427" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Not started</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 3049806726" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Pending</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 701894368" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Retry required</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies whether the locally completed scan was accepted by the BCSentinel backend.</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Synchronization Status</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies why backend synchronization failed or must be retried.</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Synchronization Message</source>
-        </trans-unit>
-        <trans-unit id="Page 2477485063 - NamedType 3905923197" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Completed; sync failed</source>
         </trans-unit>
       </group>
     </body>
