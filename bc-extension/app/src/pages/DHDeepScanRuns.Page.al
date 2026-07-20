@@ -287,27 +287,27 @@
         ScoreTxt: Text[30];
         ScanTypeTxt: Text[50];
 
-        SelectScanErr: Label 'Please select a scan first.', Comment = 'DEU="Bitte wählen Sie zuerst einen Scan aus."';
-        SetupNotFoundErr: Label 'BCSentinel setup was not found.', Comment = 'DEU="Die BCSentinel Einrichtung wurde nicht gefunden."';
-        MonitorDeepOnlyErr: Label 'The scan monitor is only available for deep scans.', Comment = 'DEU="Der Scan-Monitor ist nur für Deep-Scans verfügbar."';
-        MonitorNotFoundErr: Label 'The scan monitor could not find details for scan %1.', Comment = 'DEU="Der Scan-Monitor konnte keine Details für Scan %1 finden."';
-        DeleteOneQst: Label 'Do you want to delete scan %1?', Comment = 'DEU="Möchten Sie Scan %1 löschen?"';
-        DeleteManyQst: Label 'Do you want to delete %1 selected scans?', Comment = 'DEU="Möchten Sie %1 ausgewählte Scans löschen?"';
-        DeleteOneMsg: Label 'Scan deleted.', Comment = 'DEU="Scan gelöscht."';
-        DeleteManyMsg: Label '%1 scan(s) deleted.', Comment = 'DEU="%1 Scan(s) gelöscht."';
-        CompletedLbl: Label 'Completed', Comment = 'DEU="Abgeschlossen"';
-        CriticalLbl: Label 'Critical', Comment = 'DEU="Kritisch"';
-        FailedLbl: Label 'Failed', Comment = 'DEU="Fehlgeschlagen"';
-        FreeScanLbl: Label 'Free Scan', Comment = 'DEU="Kostenloser Scan"';
-        GoodLbl: Label 'Good', Comment = 'DEU="Gut"';
-        ManualScanLbl: Label 'Manual Scan', Comment = 'DEU="Manueller Scan"';
-        MediumLbl: Label 'Medium', Comment = 'DEU="Mittel"';
-        MonitoringScanLbl: Label 'Monitoring Scan', Comment = 'DEU="Monitoring-Scan"';
-        ReconcileQst: Label 'This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?', Comment = 'DEU="Dies gleicht die Backend-Scan-Historie mit der aktuellen Business-Central-Scanliste ab und entfernt verwaiste Backend-Scans. Fortfahren?"';
-        ReconcileMsg: Label 'Scan history successfully synchronized with the backend.', Comment = 'DEU="Scan-Historie erfolgreich mit dem Backend abgeglichen."';
-        RunningLbl: Label 'Running', Comment = 'DEU="Wird ausgeführt"';
-        UnknownLbl: Label 'Unknown', Comment = 'DEU="Unbekannt"';
-        ValidationScanLbl: Label 'Validation Scan', Comment = 'DEU="Validierungs-Scan"';
+        SelectScanErr: Label 'Please select a scan first.';
+        SetupNotFoundErr: Label 'BCSentinel setup was not found.';
+        MonitorDeepOnlyErr: Label 'The scan monitor is only available for deep scans.';
+        MonitorNotFoundErr: Label 'The scan monitor could not find details for scan %1.', Comment = '%1 = runtime value';
+        DeleteOneQst: Label 'Do you want to delete scan %1?', Comment = '%1 = runtime value';
+        DeleteManyQst: Label 'Do you want to delete %1 selected scans?', Comment = '%1 = runtime value';
+        DeleteOneMsg: Label 'Scan deleted.';
+        DeleteManyMsg: Label '%1 scan(s) deleted.', Comment = '%1 = runtime value';
+        CompletedLbl: Label 'Completed';
+        CriticalLbl: Label 'Critical';
+        FailedLbl: Label 'Failed';
+        FreeScanLbl: Label 'Free Scan';
+        GoodLbl: Label 'Good';
+        ManualScanLbl: Label 'Manual Scan';
+        MediumLbl: Label 'Medium';
+        MonitoringScanLbl: Label 'Monitoring Scan';
+        ReconcileQst: Label 'This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?';
+        ReconcileMsg: Label 'Scan history successfully synchronized with the backend.';
+        RunningLbl: Label 'Running';
+        UnknownLbl: Label 'Unknown';
+        ValidationScanLbl: Label 'Validation Scan';
 
     local procedure OpenMonitorForCurrentScan()
     var

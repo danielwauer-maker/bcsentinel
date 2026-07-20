@@ -395,27 +395,27 @@ page 53172 "DH Scan Modules"
         ActiveModulesStyle := GetOkStyle(Rec.HasAnyModuleEnabled());
         ActiveChecksStyle := GetOkStyle(EnabledChecks > 0);
         if not Rec.HasAnyModuleEnabled() then begin
-            ModuleSelectionStatusTxt := LocalizeText('Scan not possible. At least one module must be active.', 'Scan nicht möglich. Mindestens ein Modul muss aktiv sein.');
+            ModuleSelectionStatusTxt := ScanNotPossibleAtLeastOneModuleLbl;
             ModuleSelectionStatusStyle := 'Unfavorable';
         end else
             if EnabledChecks = 0 then begin
-                ModuleSelectionStatusTxt := LocalizeText('Scan not possible. At least one check must be active.', 'Scan nicht möglich. Mindestens ein Check muss aktiv sein.');
+                ModuleSelectionStatusTxt := ScanNotPossibleAtLeastOneCheckLbl;
                 ModuleSelectionStatusStyle := 'Unfavorable';
             end else begin
-                ModuleSelectionStatusTxt := LocalizeText('Scan possible. Required modules and checks are available.', 'Scan möglich. Erforderliche Module und Checks sind verfügbar.');
+                ModuleSelectionStatusTxt := ScanPossibleRequiredModulesAndChecksAreLbl;
                 ModuleSelectionStatusStyle := 'Favorable';
             end;
 
-        SystemDescriptionTxt := LocalizeText('System, setup, dimensions and core configuration.', 'System, Einrichtung, Dimensionen und Kernkonfiguration.');
-        FinanceDescriptionTxt := LocalizeText('Finance, posting setup, VAT and ledger quality checks.', 'Finanzen, Buchungseinrichtung, MwSt. und Sachpostenqualitaet.');
-        SalesDescriptionTxt := LocalizeText('Sales master data and sales document quality checks.', 'Verkaufsstammdaten und Qualitätspruefungen für Verkaufsbelege.');
-        PurchasingDescriptionTxt := LocalizeText('Purchasing master data and purchase document quality checks.', 'Einkaufsstammdaten und Qualitätspruefungen für Einkaufsbelege.');
-        InventoryDescriptionTxt := LocalizeText('Inventory, item master data and stock value checks.', 'Lager, Artikelstammdaten und Lagerwertpruefungen.');
-        CRMDescriptionTxt := LocalizeText('Contacts, relationships and CRM data quality checks.', 'Kontakte, Beziehungen und CRM-Datenqualitaetspruefungen.');
-        ManufacturingDescriptionTxt := LocalizeText('Manufacturing and production master data checks.', 'Fertigungs- und Produktionsstammdatenpruefungen.');
-        ServiceDescriptionTxt := LocalizeText('Service management data quality checks.', 'Datenqualitaetspruefungen im Servicemanagement.');
-        JobsDescriptionTxt := LocalizeText('Jobs and project-related planning checks.', 'Projekt- und auftragsbezogene Planungspruefungen.');
-        HRDescriptionTxt := LocalizeText('Employees and resources data quality checks.', 'Datenqualitaetspruefungen für Mitarbeiter und Ressourcen.');
+        SystemDescriptionTxt := SystemSetupDimensionsAndCoreConfigurationLbl;
+        FinanceDescriptionTxt := FinancePostingSetupVATAndLedgerQualityLbl;
+        SalesDescriptionTxt := SalesMasterDataAndSalesDocumentQualityLbl;
+        PurchasingDescriptionTxt := PurchasingMasterDataAndPurchaseDocumentQualiLbl;
+        InventoryDescriptionTxt := InventoryItemMasterDataAndStockValueLbl;
+        CRMDescriptionTxt := ContactsRelationshipsAndCRMDataQualityChecksLbl;
+        ManufacturingDescriptionTxt := ManufacturingAndProductionMasterDataChecksLbl;
+        ServiceDescriptionTxt := ServiceManagementDataQualityChecksLbl;
+        JobsDescriptionTxt := JobsAndProjectRelatedPlanningChecksLbl;
+        HRDescriptionTxt := EmployeesAndResourcesDataQualityChecksLbl;
 
         SystemChecksTxt := GetModuleChecksText('SYSTEM');
         FinanceChecksTxt := GetModuleChecksText('FINANCE');
@@ -478,7 +478,7 @@ page 53172 "DH Scan Modules"
         TotalCount := ScanCheck.Count();
         ScanCheck.SetRange(Enabled, true);
         ActiveCount := ScanCheck.Count();
-        exit(StrSubstNo(LocalizeText('%1 / %2 active', '%1 / %2 aktiv'), ActiveCount, TotalCount));
+        exit(StrSubstNo(ActiveCountLbl, ActiveCount, TotalCount));
     end;
 
     local procedure OpenChecksForModule(ModuleName: Text[100])
@@ -512,23 +512,6 @@ page 53172 "DH Scan Modules"
         exit('Unfavorable');
     end;
 
-    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
-    begin
-        if IsGermanLanguage() then
-            exit(GermanText);
-
-        exit(EnglishText);
-    end;
-
-    local procedure IsGermanLanguage(): Boolean
-    begin
-        case GlobalLanguage() of
-            1031, 2055, 3079, 4103, 5127:
-                exit(true);
-        end;
-
-        exit(false);
-    end;
 
     local procedure GetScoreStyle(Score: Integer): Text[30]
     begin
@@ -540,4 +523,20 @@ page 53172 "DH Scan Modules"
             exit('Unfavorable');
         exit('Standard');
     end;
+
+    var
+        ScanNotPossibleAtLeastOneModuleLbl: Label 'Scan not possible. At least one module must be active.';
+        ScanNotPossibleAtLeastOneCheckLbl: Label 'Scan not possible. At least one check must be active.';
+        ScanPossibleRequiredModulesAndChecksAreLbl: Label 'Scan possible. Required modules and checks are available.';
+        SystemSetupDimensionsAndCoreConfigurationLbl: Label 'System, setup, dimensions and core configuration.';
+        FinancePostingSetupVATAndLedgerQualityLbl: Label 'Finance, posting setup, VAT and ledger quality checks.';
+        SalesMasterDataAndSalesDocumentQualityLbl: Label 'Sales master data and sales document quality checks.';
+        PurchasingMasterDataAndPurchaseDocumentQualiLbl: Label 'Purchasing master data and purchase document quality checks.';
+        InventoryItemMasterDataAndStockValueLbl: Label 'Inventory, item master data and stock value checks.';
+        ContactsRelationshipsAndCRMDataQualityChecksLbl: Label 'Contacts, relationships and CRM data quality checks.';
+        ManufacturingAndProductionMasterDataChecksLbl: Label 'Manufacturing and production master data checks.';
+        ServiceManagementDataQualityChecksLbl: Label 'Service management data quality checks.';
+        JobsAndProjectRelatedPlanningChecksLbl: Label 'Jobs and project-related planning checks.';
+        EmployeesAndResourcesDataQualityChecksLbl: Label 'Employees and resources data quality checks.';
+        ActiveCountLbl: Label '%1 / %2 active', Comment = '%1 = active count, %2 = total count';
 }

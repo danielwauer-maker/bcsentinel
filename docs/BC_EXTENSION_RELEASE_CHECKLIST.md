@@ -241,3 +241,38 @@ P0E-Entscheidung: **NO-GO**. PostgreSQL-Staging ist grün, aber ein Pilot erford
 - [ ] Screenshots/kleine Viewports/FastTab-Collapsezustand in Sandbox verifiziert.
 
 UX01-Entscheidung: **Sprint auf Codeebene abgeschlossen und bereit für UX02; Produkt-Gate bleibt NO-GO**, bis Sandbox-, Install-, Upgrade-, Rollen- und CAT-Gates bestanden sind.
+
+## Gate-Delta GL-EXT-UX02 (20. Juli 2026)
+
+- [x] 81/81 Baseline-Treffer klassifiziert und behoben; Checker 0.
+- [x] 71 `LocalizeText`-Paare als Labels; keine `DEU=`-Übersetzung in AL.
+- [x] 1.208/1.208 deutsche XLF-Targets nichtleer.
+- [x] 20 Backend-Quick-Issues über stabile Codes DE/EN; EN-Fallback getestet.
+- [x] keine fragile Issue-Volltext-/Wortersetzung; historische Daten unverändert.
+- [x] ReleaseCloud Compile und CodeCop/PTE ohne Fehler.
+- [x] Backend-Gesamtsuite: 258 bestanden, 6 übersprungen; UX02-Zieltests 3/3.
+- [ ] 193 weitere AL-Issue-Codes vollständig DE/EN.
+- [ ] 155 englische Kundenliterale als Labels und Checker verschärfen.
+- [ ] AppSourceCop-Baseline und 20 UX02-Sandbox-CATs schließen.
+
+UX02-Entscheidung: **nicht vollständig; NO-GO und nicht bereit für UX03**.
+
+## Gate-Delta REPO-01A (20. Juli 2026)
+
+- [x] lokaler Sicherheitstag `pre-repo-01a-build-hygiene` auf Ausgangscommit erstellt.
+- [x] 315 generierte Dateien/51 Verzeichnisse ausschließlich unter `bc-extension/.build` inventarisiert und entfernt.
+- [x] 84 kanonische AL-Dateien/88 Objekte unverändert; Codeunit/Page/Table 53100 je exakt einmal.
+- [x] Standardworkspace `.build/bc-extension/<Profile>` außerhalb des AL-Projekts.
+- [x] unsichere absolute, relative, case-insensitive und `..`-Outputpfade werden vor Anlage abgewiesen.
+- [x] Allow-List statt Repository-/Projekt-Vollkopie; P0E-Releaseoutput ebenfalls extern abgesichert.
+- [x] Duplicate-Source-Guard PASS; temporärer Kollisionsfall erwartungsgemäß FAIL und vollständig entfernt.
+- [x] `.gitignore` enthält `/.build/`; keine generierten AL-/Symbol-/Snapshot-/APP-Artefakte getrackt.
+- [x] ReleaseCloud Compile 84 Dateien, Exit 0.
+- [x] CodeCop/PTECop Exit 0; bestehender Warnungsbestand, keine Fehler.
+- [x] XLF/JSON parsebar; Source-Hashdiff 0; Python `compileall` Exit 0.
+- [x] vollständige Backend-Suite: 258 bestanden, 6 übersprungen, Exit 0.
+- [x] `git diff --check`: Exit 0; nur nicht blockierende LF/CRLF-Hinweise.
+- [ ] Publish/Install in BC-Sandbox: `BLOCKED`.
+- [ ] AppSourceCop: bekannte EULA-/Logo-/Help-/ID-Range-/A.I.-Baseline bleibt offen.
+
+REPO-01A-Entscheidung: **Sprint abgeschlossen; Duplicate-Object-Ursache behoben und Buildprozess dauerhaft abgesichert; bereit für REPO-01B.** Das Produkt-Gate bleibt unabhängig davon **NO-GO**, bis die bestehenden Sandbox-, Install-/Upgrade-, Rollen-, CAT-, Localization- und AppSource-Gates erfüllt sind.

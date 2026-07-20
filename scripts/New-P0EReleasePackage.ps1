@@ -1,19 +1,28 @@
 [CmdletBinding()]
 param(
-    [string]$AppPath = "bc-extension/.build/BCSentinel_1.0.2.7_P0E.app",
-    [string]$OutputRoot = "bc-extension/.build/release"
+    [string]$AppPath = ".build/bc-extension/ReleaseCloud/BCSentinel.app",
+    [string]$OutputRoot = ".build/bc-extension/release"
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
+$alProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot "bc-extension")).TrimEnd('\', '/')
 $resolvedApp = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $AppPath))
-$resolvedOutputRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutputRoot))
+$resolvedOutputRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutputRoot)).TrimEnd('\', '/')
+$repoRoot = $repoRoot.TrimEnd('\', '/')
+$comparison = [System.StringComparison]::OrdinalIgnoreCase
+$repoPrefix = $repoRoot + [System.IO.Path]::DirectorySeparatorChar
+$alProjectPrefix = $alProjectRoot + [System.IO.Path]::DirectorySeparatorChar
 
 if (-not (Test-Path -LiteralPath $resolvedApp)) {
     throw "Compiled app not found: $resolvedApp"
 }
-if (-not $resolvedOutputRoot.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-    throw "OutputRoot must stay inside the repository workspace."
+if (-not $resolvedOutputRoot.StartsWith($repoPrefix, $comparison)) {
+    throw "OutputRoot must be a child of the repository workspace."
+}
+if ($resolvedOutputRoot.Equals($alProjectRoot, $comparison) -or
+    $resolvedOutputRoot.StartsWith($alProjectPrefix, $comparison)) {
+    throw "OutputRoot must not be inside the AL project root."
 }
 
 $manifest = Get-Content (Join-Path $repoRoot "bc-extension/app.json") -Raw | ConvertFrom-Json

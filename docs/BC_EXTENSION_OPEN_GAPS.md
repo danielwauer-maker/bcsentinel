@@ -231,3 +231,28 @@ Verbleibender Gate-Sprint: **GL-EXT-P0F – BC Sandbox Execution & Signed Pilot 
 | UX01 Runtime/CAT | 20 Fälle, keine Sandbox | **BLOCKED** |
 
 Empfohlener Carry-over in **GL-EXT-P0F**: 20 UX01-CATs gemeinsam mit den 47 P0A–P0D-Fällen ausführen. Definition of Done: 67/67 Sandboxfälle ohne `SUPER`, EN-US/DE-DE, Fresh Install/N-1-Upgrade, Screenshots, API-Call-/Performancebeobachtung und formelle Pilotfreigabe. Erst danach GL-EXT-UX02 beginnen oder parallel ausschließlich nicht-releasekritische Politur durchführen.
+
+## Status-Delta GL-EXT-UX02 (20. Juli 2026)
+
+| Gap | Evidenz | Status |
+|---|---|---|
+| ursprüngliche 81 Treffer | Labels/XLF, Checker 0 | **geschlossen** |
+| XLF | 1.208 Source-/DE-Units, keine leeren Targets | **geschlossen strukturell** |
+| Backend Top-Issues | 20 stabile Codes DE/EN, EN-Fallback, 3 Tests | **geschlossen** |
+| AL-Issue-Katalog | 199 Codes; 6 als Labels, 193 EN-Fallback | **P1 offen** |
+| direkte englische Kundenliterale | 155 in 23 Dateien | **P1 offen** |
+| UX02 Runtime | 20 CATs ohne Sandbox | **BLOCKED** |
+
+Nächster Sprint: **GL-EXT-UX02B**. DoD: 199/199 AL-Codes redaktionell DE/EN, 155 Kundenliterale als Labels, verschärfter Checker, große Finding-Liste performant und 20/20 UX02-CATs.
+
+## Status-Delta REPO-01A (20. Juli 2026)
+
+| Gap | Evidenz | Status |
+|---|---|---|
+| generierte AL-Quellen im Projektstamm | 246 Dateien/3 Source-Kopien entfernt; danach Guard PASS | **geschlossen** |
+| rekursiver P0E-N-1-Baum | kein eingecheckter N-1-Erzeuger; Workspace-/Releasepfade extern und Allow-List | **geschlossen auf Skriptebene** |
+| erneute Source-Duplikation | OutputPath-Hard-Guard und `Test-ALSourceUniqueness.ps1`; Negativtest Exit 1 | **geschlossen** |
+| BC Publish/Install | keine Sandbox in diesem Lauf | **BLOCKED, unverändert** |
+| AppSource-Metadaten/ID-Range/Telemetrie/Signierung | Baseline weiterhin rot | **offen, außerhalb REPO-01A** |
+
+REPO-01A führt keine neuen Produktgaps ein. REPO-01B kann auf einem eindeutigen AL-Quellbaum aufsetzen; Sandbox-, UX02B- und AppSource-Gaps bleiben unabhängig davon offen.

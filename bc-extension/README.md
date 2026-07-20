@@ -28,7 +28,7 @@ Additional manifests are kept for explicit non-default scenarios:
 - The repository default `app.json` is no longer the DEV profile.
 - To prepare an isolated DEV build workspace without mutating the repo manifest, run:
   - `powershell -ExecutionPolicy Bypass -File .\bc-extension\scripts\New-BCBuildWorkspace.ps1 -Profile DevCloud`
-- Use the generated workspace at `bc-extension\.build\DevCloud\`.
+- Use the generated workspace at `.build\bc-extension\DevCloud\` in the repository root.
 
 ### PROD / release cloud
 
@@ -36,14 +36,14 @@ Additional manifests are kept for explicit non-default scenarios:
 - Do not replace it with `app.cloud.json` during release packaging.
 - To prepare an isolated release build workspace, run:
   - `powershell -ExecutionPolicy Bypass -File .\bc-extension\scripts\New-BCBuildWorkspace.ps1 -Profile ReleaseCloud`
-- Use the generated workspace at `bc-extension\.build\ReleaseCloud\`.
+- Use the generated workspace at `.build\bc-extension\ReleaseCloud\` in the repository root.
 
 ### OnPrem BC19
 
 - Use `app.onprem.bc19.json` only for explicit BC19 on-prem builds.
 - To prepare an isolated BC19 OnPrem workspace, run:
   - `powershell -ExecutionPolicy Bypass -File .\bc-extension\scripts\New-BCBuildWorkspace.ps1 -Profile OnPremBc19`
-- Use the generated workspace at `bc-extension\.build\OnPremBc19\`.
+- Use the generated workspace at `.build\bc-extension\OnPremBc19\` in the repository root.
 
 ## What The Script Does
 
@@ -51,11 +51,12 @@ Additional manifests are kept for explicit non-default scenarios:
 - copies the selected manifest into that workspace as `app.json`
 - copies `app.ruleset.json` into that workspace
 - copies `AppSourceCop.json` into that workspace
+- copies the project `Translations/` directory when present
 - copies `.vscode/settings.json` so CodeCop, AppSourceCop and PerTenantExtensionCop are enabled when available
 - copies `.alpackages/` when present
 - copies `.vscode/launch.json` for the DEV cloud profile
 
-This keeps `bc-extension/app.json` as the release-safe default in the repo while making DEV and PROD packaging paths explicit.
+The script rejects every output path that is the AL project, lies below it, or contains it. This keeps generated `.al` files and manifests outside the active AL source root while preserving `bc-extension/app.json` as the release-safe default.
 
 ## AppSource readiness baseline
 

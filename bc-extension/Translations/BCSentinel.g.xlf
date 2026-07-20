@@ -958,6 +958,106 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 4120106161" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType AScanCreditIsAvailableRunDeepLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2251788189" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType AvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 4114418579" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType BuyFullAnalysisValidationCheckOrMonitoringLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 697520602" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free access active</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType FreeAccessActiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 1961122110" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Data Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType FreeDataHealthScoreLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2113854013" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Full Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType FullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 1127996734" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring active</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType MonitoringActiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 1825692497" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Annual</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType MonitoringAnnualLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 386733619" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring is active. Scans and dashboard details are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType MonitoringIsActiveScansAndDashboardDetailsLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 4257687357" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Monthly</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType MonitoringMonthlyLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2375457378" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not available</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType NotAvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 561520081" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not registered</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType NotRegisteredLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2079427521" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paid recommendations and scan actions are available for this tenant.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidRecommendationsAndScanActionsAreAvailablLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2491277579" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paid scan access active</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidScanAccessActiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 825130146" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please enter a valid contact email before registering.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PleaseEnterAValidContactEmailBeforeLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2560582608" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant and unlock Full Analysis or Monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType RegisterTheTenantAndUnlockFullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2244378022" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 scan credit(s) available</source>
+          <note from="Developer" annotates="general" priority="2">%1 = available scan credit count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType ScanCreditsAvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 3389345438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scheduled scans require active Monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType ScheduledScansRequireActiveMonitoringLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 4063578511" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unlimited</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType UnlimitedLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 2618058289" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType ValidationCheckLbl</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - Field 259479571 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Access Correlation ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1350,52 +1450,57 @@
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 1235214537" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend returned an invalid JSON response. Contact BCSentinel support if this continues.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Das Backend hat eine ungültige JSON-Antwort geliefert. Kontaktieren Sie den BCSentinel Support, falls dies weiterhin auftritt."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendInvalidJsonLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 2056020267" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend response does not contain an api_token.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Die Backend-Antwort enthält keinen api_token."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendMissingApiTokenLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 3007887501" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend response does not contain a tenant_id.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Die Backend-Antwort enthält keine tenant_id."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendMissingTenantIdLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 2032092618" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend request could not be sent. Please verify the network connection.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Die Backend-Anfrage konnte nicht gesendet werden. Bitte prüfen Sie die Netzwerkverbindung."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendRequestNotSentLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 1205850872" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please configure the API Base URL first.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Bitte konfigurieren Sie zuerst die API-Basis-URL."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ConfigureApiBaseUrlLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 50469090" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please enable Data Processing Consent before registering the tenant.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Bitte aktivieren Sie die Einwilligung zur Datenverarbeitung, bevor Sie den Tenant registrieren."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType EnableDataProcessingConsentBeforeRegisterLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 881538698" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please enable Data Processing Consent first.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Bitte aktivieren Sie zuerst die Einwilligung zur Datenverarbeitung."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType EnableDataProcessingConsentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 909194175" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType NoScanCreditOrActiveMonitoringAvailableLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 799528912" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1</source>
-          <note from="Developer" annotates="general" priority="2">DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht gesendet werden. Bitte senden Sie die Einladung im Admin-Dashboard erneut. Details: %1"</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationCompletedInviteFailedLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 1115883445" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel tenant registration completed. Dashboard access was sent to %1.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="BCSentinel Tenant-Registrierung abgeschlossen. Der Dashboard-Zugang wurde an %1 gesendet."</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationCompletedInviteSentLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 427339361" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="BCSentinel Tenant-Registrierung abgeschlossen, aber die Dashboard-Einladungs-E-Mail konnte nicht bestätigt werden. Bitte prüfen Sie das Admin-Dashboard."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationCompletedInviteUnknownLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4249321513 - NamedType 1839404523" size-unit="char" translate="yes" xml:space="preserve">
@@ -1443,6 +1548,81 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartFailedErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2031230494" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Critical</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CriticalRiskLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2858114200" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CRM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CrmModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 1049739944" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CustomerModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 531775378" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers with duplicate email addresses</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CustomersDuplicateEmailLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 151106022" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers with the same name, post code and city</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CustomersDuplicateNamePostCityLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2389004867" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers with duplicate VAT registration numbers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType CustomersDuplicateVatLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 1133421428" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType FinanceModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 977432801" size-unit="char" translate="yes" xml:space="preserve">
+          <source>High</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType HighRiskLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 1473230182" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Human Resources</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType HrModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 3121127670" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType InventoryModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2843655640" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Projects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType JobsModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2721690455" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger Entries</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType LedgerModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2321875327" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Low</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType LowRiskLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 1715826956" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType ManufacturingModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 3444616216" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Medium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType MediumRiskLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2002389332" size-unit="char" translate="yes" xml:space="preserve">
           <source>Selecting individual checks is only available with active Monitoring.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1453,6 +1633,51 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType NoChecksEnabledErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 3044808669" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType PurchaseModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 3812400447" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review and correct: %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = localized finding title</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType ReviewAndCorrectLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 67371324" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType SalesModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2682438231" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType ServiceModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 661571439" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType SystemModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2870449856" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType VendorModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 4006377514" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors with duplicate email addresses</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType VendorsDuplicateEmailLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 754513694" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors with the same name, post code and city</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType VendorsDuplicateNamePostCityLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1373361887 - NamedType 2112099787" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors with duplicate VAT registration numbers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - NamedType VendorsDuplicateVatLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1373361887 - Method 1515343267 - NamedType 2158976906" size-unit="char" translate="yes" xml:space="preserve">
           <source>Active checks loaded: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1462,6 +1687,41 @@
           <source>Active checks loaded: %1 | Skipped checks: %2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - Method BuildCheckSelectionEventText - NamedType ActiveAndSkippedChecksLoadedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 2895191655" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 / %2 active</source>
+          <note from="Developer" annotates="general" priority="2">%1 = active count, %2 = total count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType ActiveCountLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 1361857047" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next scheduled scan planned for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType NextScheduledScanPlannedFor1Lbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 1475107716" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan module is active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType NoScanModuleIsActiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 263945106" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please enable at least one scan module on the BCSentinel setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType PleaseEnableAtLeastOneScanModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 118929163" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scheduled scans are not enabled.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType ScheduledScansAreNotEnabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 446047547" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scheduled scans require an active Monitoring subscription.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType ScheduledScansRequireAnActiveMonitoringSubscLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2400674024 - NamedType 3420777856" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The next scheduled scan was calculated, but automatic TaskScheduler planning is not available in this client context. Use Run now or schedule from an active Business Central session.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - NamedType TheNextScheduledScanWasCalculatedButLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 1816819866 - NamedType 2059299764" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Business Central company identity is missing.</source>
@@ -2635,107 +2895,107 @@
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 241708881" size-unit="char" translate="yes" xml:space="preserve">
           <source>Completed</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Abgeschlossen"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 3238454627" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Kritisch"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CriticalLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 4020887741" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 scan(s) deleted.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="%1 Scan(s) gelöscht."</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteManyMsg</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 2561293048" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to delete %1 selected scans?</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Möchten Sie %1 ausgewählte Scans löschen?"</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteManyQst</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1720004424" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan deleted.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Scan gelöscht."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteOneMsg</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 45967885" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to delete scan %1?</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Möchten Sie Scan %1 löschen?"</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType DeleteOneQst</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Fehlgeschlagen"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType FailedLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 2270900971" size-unit="char" translate="yes" xml:space="preserve">
           <source>Free Scan</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Kostenloser Scan"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType FreeScanLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 202961339" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Gut"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType GoodLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 2671405529" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manual Scan</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Manueller Scan"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ManualScanLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1286981729" size-unit="char" translate="yes" xml:space="preserve">
           <source>Medium</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Mittel"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MediumLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 4141112443" size-unit="char" translate="yes" xml:space="preserve">
           <source>The scan monitor is only available for deep scans.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Der Scan-Monitor ist nur für Deep-Scans verfügbar."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitorDeepOnlyErr</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 4194160851" size-unit="char" translate="yes" xml:space="preserve">
           <source>Monitoring Scan</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Monitoring-Scan"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitoringScanLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 688073990" size-unit="char" translate="yes" xml:space="preserve">
           <source>The scan monitor could not find details for scan %1.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Der Scan-Monitor konnte keine Details für Scan %1 finden."</note>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitorNotFoundErr</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 905897921" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan history successfully synchronized with the backend.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Scan-Historie erfolgreich mit dem Backend abgeglichen."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ReconcileMsg</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1053623508" size-unit="char" translate="yes" xml:space="preserve">
           <source>This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Dies gleicht die Backend-Scan-Historie mit der aktuellen Business-Central-Scanliste ab und entfernt verwaiste Backend-Scans. Fortfahren?"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ReconcileQst</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 803195271" size-unit="char" translate="yes" xml:space="preserve">
           <source>Running</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Wird ausgeführt"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType RunningLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1349902198" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please select a scan first.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Bitte wählen Sie zuerst einen Scan aus."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType SelectScanErr</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel setup was not found.</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Die BCSentinel Einrichtung wurde nicht gefunden."</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType SetupNotFoundErr</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1773691126" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unknown</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Unbekannt"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType UnknownLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 1188650306" size-unit="char" translate="yes" xml:space="preserve">
           <source>Validation Scan</source>
-          <note from="Developer" annotates="general" priority="2">DEU="Validierungs-Scan"</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ValidationScanLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 3270557785 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
@@ -3733,6 +3993,76 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 2895191655" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 / %2 active</source>
+          <note from="Developer" annotates="general" priority="2">%1 = active count, %2 = total count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ActiveCountLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 1278767187" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contacts, relationships and CRM data quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ContactsRelationshipsAndCRMDataQualityChecksLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 2128918563" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Employees and resources data quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType EmployeesAndResourcesDataQualityChecksLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 3648448895" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance, posting setup, VAT and ledger quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType FinancePostingSetupVATAndLedgerQualityLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 1855017771" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory, item master data and stock value checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType InventoryItemMasterDataAndStockValueLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 3020133089" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs and project-related planning checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType JobsAndProjectRelatedPlanningChecksLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 1794348637" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing and production master data checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ManufacturingAndProductionMasterDataChecksLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 869762729" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing master data and purchase document quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType PurchasingMasterDataAndPurchaseDocumentQualiLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 1895024289" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales master data and sales document quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType SalesMasterDataAndSalesDocumentQualityLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 3912674703" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan not possible. At least one check must be active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ScanNotPossibleAtLeastOneCheckLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 662659515" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan not possible. At least one module must be active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ScanNotPossibleAtLeastOneModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 4117639580" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan possible. Required modules and checks are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ScanPossibleRequiredModulesAndChecksAreLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 701630128" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service management data quality checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType ServiceManagementDataQualityChecksLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 844134062 - NamedType 1810245077" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System, setup, dimensions and core configuration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Modules - NamedType SystemSetupDimensionsAndCoreConfigurationLbl</note>
+        </trans-unit>
         <trans-unit id="Page 844134062 - Control 2272152210 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>CRM</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4233,6 +4563,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 4221996966" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel registration data is incomplete. Registration will request a fresh API token.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType BCSentinelRegistrationDataIsIncompleteRegistLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3307091239" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel tenant registration started.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType BCSentinelTenantRegistrationStartedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 2798107313" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType BeforeRegistrationOrScansBCSentinelRequiresYLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3426554468" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cached registration status was reset without changing the tenant identity. Please register again to reconcile.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType CachedRegistrationStatusWasResetWithoutChangLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3673961535" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Canceled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType CanceledLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 241708881" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType CompletedLbl</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 2601013356" size-unit="char" translate="yes" xml:space="preserve">
           <source>Configured</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4243,6 +4603,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ConnectionNotConfiguredLbl</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 880711966" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 709875892" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DoYouWantToStartTheFreeLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType FailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 118358982" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next scheduled scan: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NextScheduledScan1Lbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 946319342" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No deep scan run is available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NoDeepScanRunIsAvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 4109645679" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan available yet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NoScanAvailableYetLbl</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 93778928" size-unit="char" translate="yes" xml:space="preserve">
           <source>No scan yet</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4252,6 +4642,31 @@
           <source>Not registered</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NotRegisteredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 397021947" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please configure the API Base URL first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType PleaseConfigureTheAPIBaseURLFirstLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 374246999" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType PleaseEnterAContactEmailAddressFirstLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1900907342" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please register the tenant first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType PleaseRegisterTheTenantFirstLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 210596987" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Product access refreshed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ProductAccessRefreshedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 542310721" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Queued</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType QueuedLbl</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 3463888835" size-unit="char" translate="yes" xml:space="preserve">
           <source>Excellent</source>
@@ -4283,10 +4698,70 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ResetRegistrationQst</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1838904888" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset the cached BCSentinel registration status? The stable tenant binding, API token, purchases, and scan history are preserved. Use Register afterwards to reconcile with the backend.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ResetTheCachedBCSentinelRegistrationStatusThLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 803195271" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Running</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RunningLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3912674703" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan not possible. At least one check must be active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ScanNotPossibleAtLeastOneCheckLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 662659515" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan not possible. At least one module must be active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ScanNotPossibleAtLeastOneModuleLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 4117639580" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan possible. Required modules and checks are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ScanPossibleRequiredModulesAndChecksAreLbl</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 3265954307" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduled scans are executed through the Business Central job queue. The user does not need to remain signed in.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType SchedulerJobQueueNoticeLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3306272166" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Skipped</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType SkippedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3854350619" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType SuccessLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1863939187" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tenant is not registered yet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType TenantIsNotRegisteredYetLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 2647677102" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token field is missing in the response.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType TheTokenFieldIsMissingInTheLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 4055029630" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token response is not valid JSON.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType TheTokenResponseIsNotValidJSONLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1773691126" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType UnknownLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3624320851" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Waiting</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType WaitingLbl</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 2530904310 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Advanced Information</source>

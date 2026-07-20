@@ -531,7 +531,8 @@ def quick_scan(
         require_tenant_feature(db, tenant, "quick_scan")
 
         data_score, checks_count, issues_count, summary, issues = calculate_quick_scan_result(
-            payload.metrics
+            payload.metrics,
+            tenant.preferred_language,
         )
         scan_id = (payload.bc_run_id or "").strip() or f"scan_{uuid4().hex[:12]}"
         generated_at_utc = datetime.now(timezone.utc)

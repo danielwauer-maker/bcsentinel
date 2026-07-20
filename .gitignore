@@ -49,6 +49,7 @@ Thumbs.db
 **/__pycache__/
 
 # BC build/output
+/.build/
 bc-extension/.alpackages/
 bc-extension/.build/
 bc-extension/.snapshots/

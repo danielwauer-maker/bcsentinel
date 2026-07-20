@@ -236,3 +236,15 @@ UX01 ordnet die Setup-Page kundenorientiert, ohne Backend-, Datenmodell-, Permis
 Automatisierte Evidenz: ReleaseCloud Compile 84/84 Dateien und CodeCop/PTECop ohne Fehler; Setup-XLF 0 fehlende/0 leere/0 abweichende Targets; Backend 255 bestanden/6 übersprungen. AppSourceCop und globale Localization bleiben mit denselben Gapklassen rot. 20 UX01-Sandbox-CATs sind `BLOCKED`.
 
 Die UX-Dimension steigt codebasiert, daraus ergibt sich als nachvollziehbare Delta-Schätzung **Gesamt 69 %, Pilot 60 %, Customer 49 %, AppSource 28 %**. Das Gate bleibt **NO-GO**: UX-Politur ersetzt weder Fresh-Install-/Upgrade-/Rollen-CAT noch die 47 P0A–P0D- und 20 UX01-Sandboxfälle. Detail: `docs/GL_EXT_UX01_SETUP_PAGE_REFINEMENT.md`.
+
+## Status-Delta GL-EXT-UX02 (20. Juli 2026)
+
+UX02 schließt die konkrete 81-Treffer-Baseline (Checker 0), synchronisiert 1.208 vollständige DE-Targets und führt für 20 Backend-Quick-Checks stabile tenantsprachige Codeauflösung ein. Historische Findings bleiben unverändert; fragile AL-Wortersetzung ist entfernt. Compile, CodeCop/PTE, 3/3 Zieltests und die Backend-Gesamtsuite mit 258 bestanden/6 übersprungen sind grün.
+
+Offen bleiben 193 AL-Issue-Codes ohne vollständigen deutschen Katalog, 155 direkte englische Kundenliterale und 20 BLOCKED Sandbox-CATs. Neubewertung: **Gesamt 70 %, Pilot 61 %, Customer 50 %, AppSource 28 %**. Entscheidung **NO-GO**; UX02B ist vor UX03 erforderlich.
+
+## Status-Delta REPO-01A (20. Juli 2026)
+
+REPO-01A beseitigt die Ursache der lokalen AL-Duplicate-Object-Fehler: 246 generierte AL-Dateien und drei zusätzliche Manifeste wurden ausschließlich aus `bc-extension/.build` entfernt. Der kanonische Bestand bleibt bei 84 Dateien/88 Objekten; App-ID, Name, Publisher, ID-Range und Fachlogik sind unverändert. Der Buildworkspace liegt nun außerhalb des AL-Projekts unter `.build/bc-extension/<Profile>`, unsichere Ziele werden vor jeder Anlage abgewiesen und ein automatischer Source-Uniqueness-Guard ist positiv und negativ verifiziert.
+
+ReleaseCloud Compile, CodeCop/PTECop, XLF/JSON, Source-Hashdiff und Python-Compile sind grün. AppSourceCop zeigt nur die bekannte Baseline. Das Readiness-Gate und die UX02-Prozentwerte bleiben unverändert, weil Repository-Hygiene keine fehlende Sandbox-/Install-/Upgrade-Evidenz ersetzt. Detailnachweis: `docs/GL_REPO_01A_BUILD_HYGIENE.md`.

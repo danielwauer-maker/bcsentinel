@@ -6,7 +6,48 @@ param(
     [string]$OutputPath
 )
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$ErrorActionPreference = "Stop"
+
+function Get-NormalizedPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$BasePath
+    )
+
+    $candidate = if ([System.IO.Path]::IsPathRooted($Path)) {
+        $Path
+    }
+    else {
+        Join-Path $BasePath $Path
+    }
+
+    return [System.IO.Path]::GetFullPath($candidate).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar
+    )
+}
+
+function Test-IsSameOrChildPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Candidate,
+        [Parameter(Mandatory = $true)]
+        [string]$Parent
+    )
+
+    $comparison = [System.StringComparison]::OrdinalIgnoreCase
+    if ($Candidate.Equals($Parent, $comparison)) {
+        return $true
+    }
+
+    $parentWithSeparator = $Parent + [System.IO.Path]::DirectorySeparatorChar
+    return $Candidate.StartsWith($parentWithSeparator, $comparison)
+}
+
+$alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
+$repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
 
 $manifestByProfile = @{
     DevCloud = "app.cloud.json"
@@ -15,56 +56,71 @@ $manifestByProfile = @{
 }
 
 $manifestName = $manifestByProfile[$Profile]
-$manifestPath = Join-Path $repoRoot $manifestName
+$manifestPath = Join-Path $alProjectRoot $manifestName
 
-if (-not (Test-Path -LiteralPath $manifestPath)) {
+if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Manifest not found: $manifestPath"
 }
 
 if (-not $OutputPath) {
-    $OutputPath = Join-Path $repoRoot ".build\$Profile"
+    $OutputPath = Join-Path $repositoryRoot ".build\bc-extension\$Profile"
 }
 
-$outputRoot = [System.IO.Path]::GetFullPath($OutputPath)
-$repoRootFull = [System.IO.Path]::GetFullPath($repoRoot)
+$outputRoot = Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot
+
+# The guard must run before New-Item or Remove-Item. It rejects the project itself,
+# every project child (including app and .alpackages), and project ancestors.
+if ((Test-IsSameOrChildPath -Candidate $outputRoot -Parent $alProjectRoot) -or
+    (Test-IsSameOrChildPath -Candidate $alProjectRoot -Parent $outputRoot)) {
+    throw "Unsafe OutputPath '$outputRoot'. Build workspaces must be outside the AL project root '$alProjectRoot' and must not contain it."
+}
 
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 
-foreach ($path in @("app", ".alpackages", ".vscode", "app.json", "app.ruleset.json", "AppSourceCop.json")) {
+# Only these generated entries are managed. No repository or project tree is copied recursively.
+$managedEntries = @(
+    "app",
+    "Translations",
+    ".alpackages",
+    ".vscode",
+    "app.json",
+    "app.ruleset.json",
+    "AppSourceCop.json"
+)
+foreach ($path in $managedEntries) {
     $generatedPath = Join-Path $outputRoot $path
-    if ((Test-Path -LiteralPath $generatedPath) -and $outputRoot.StartsWith($repoRootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+    if (Test-Path -LiteralPath $generatedPath) {
         Remove-Item -LiteralPath $generatedPath -Recurse -Force
     }
 }
 
-Copy-Item -LiteralPath (Join-Path $repoRoot "app") -Destination (Join-Path $outputRoot "app") -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $alProjectRoot "app") -Destination (Join-Path $outputRoot "app") -Recurse -Force
 Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $outputRoot "app.json") -Force
 
-$rulesetPath = Join-Path $repoRoot "app.ruleset.json"
-if (Test-Path -LiteralPath $rulesetPath) {
-    Copy-Item -LiteralPath $rulesetPath -Destination (Join-Path $outputRoot "app.ruleset.json") -Force
+foreach ($fileName in @("app.ruleset.json", "AppSourceCop.json")) {
+    $sourcePath = Join-Path $alProjectRoot $fileName
+    if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
+        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $outputRoot $fileName) -Force
+    }
 }
 
-$appSourceCopPath = Join-Path $repoRoot "AppSourceCop.json"
-if (Test-Path -LiteralPath $appSourceCopPath) {
-    Copy-Item -LiteralPath $appSourceCopPath -Destination (Join-Path $outputRoot "AppSourceCop.json") -Force
+foreach ($directoryName in @("Translations", ".alpackages")) {
+    $sourcePath = Join-Path $alProjectRoot $directoryName
+    if (Test-Path -LiteralPath $sourcePath -PathType Container) {
+        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $outputRoot $directoryName) -Recurse -Force
+    }
 }
 
-$packageCachePath = Join-Path $repoRoot ".alpackages"
-if (Test-Path -LiteralPath $packageCachePath) {
-    Copy-Item -LiteralPath $packageCachePath -Destination (Join-Path $outputRoot ".alpackages") -Recurse -Force
-}
-
-$launchPath = Join-Path $repoRoot ".vscode\launch.json"
-if ($Profile -eq "DevCloud" -and (Test-Path -LiteralPath $launchPath)) {
-    New-Item -ItemType Directory -Path (Join-Path $outputRoot ".vscode") -Force | Out-Null
-    Copy-Item -LiteralPath $launchPath -Destination (Join-Path $outputRoot ".vscode\launch.json") -Force
-}
-
-$settingsPath = Join-Path $repoRoot ".vscode\settings.json"
-if (Test-Path -LiteralPath $settingsPath) {
+$settingsPath = Join-Path $alProjectRoot ".vscode\settings.json"
+if (Test-Path -LiteralPath $settingsPath -PathType Leaf) {
     New-Item -ItemType Directory -Path (Join-Path $outputRoot ".vscode") -Force | Out-Null
     Copy-Item -LiteralPath $settingsPath -Destination (Join-Path $outputRoot ".vscode\settings.json") -Force
+}
+
+$launchPath = Join-Path $alProjectRoot ".vscode\launch.json"
+if ($Profile -eq "DevCloud" -and (Test-Path -LiteralPath $launchPath -PathType Leaf)) {
+    New-Item -ItemType Directory -Path (Join-Path $outputRoot ".vscode") -Force | Out-Null
+    Copy-Item -LiteralPath $launchPath -Destination (Join-Path $outputRoot ".vscode\launch.json") -Force
 }
 
 Write-Host "Prepared build workspace:"

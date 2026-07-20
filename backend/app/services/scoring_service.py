@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 
 from app.schemas.scan import ScanIssue, ScanSummary
 from app.services.cost_service import DEFAULT_ISSUE_COSTS
+from app.services.issue_text_service import issue_text, summary_headline
 
 
 @dataclass(frozen=True)
@@ -10,8 +11,6 @@ class QuickCheckDefinition:
     metric_key: str
     total_key: str
     code: str
-    title: str
-    recommendation_preview: str
     points_minor: int
     points_major: int
     premium_only: bool = False
@@ -22,8 +21,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_postcode",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_POSTCODE",
-        title="Kunden ohne Postleitzahl",
-        recommendation_preview="Adressdaten der betroffenen Debitoren vervollständigen.",
         points_minor=4,
         points_major=8,
     ),
@@ -31,8 +28,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_payment_terms",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_PAYMENT_TERMS",
-        title="Kunden ohne Zahlungsbedingung",
-        recommendation_preview="Zahlungsbedingungen bei betroffenen Debitoren pflegen.",
         points_minor=6,
         points_major=12,
     ),
@@ -40,8 +35,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_country_code",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_COUNTRY_CODE",
-        title="Kunden ohne Länder-/Regionscode",
-        recommendation_preview="Länder-/Regionscode für betroffene Debitoren pflegen.",
         points_minor=4,
         points_major=8,
     ),
@@ -49,8 +42,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_vat_reg_no",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_VAT_REG_NO",
-        title="Kunden ohne USt-IdNr.",
-        recommendation_preview="USt-IdNr. für betroffene Debitoren prüfen und ergänzen.",
         points_minor=5,
         points_major=10,
     ),
@@ -58,8 +49,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_email",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_EMAIL",
-        title="Kunden ohne E-Mail",
-        recommendation_preview="E-Mail-Adressen für betroffene Debitoren ergänzen.",
         points_minor=3,
         points_major=6,
     ),
@@ -67,8 +56,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_phone_no",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_PHONE_NO",
-        title="Kunden ohne Telefonnummer",
-        recommendation_preview="Telefonnummern für betroffene Debitoren pflegen.",
         points_minor=2,
         points_major=5,
     ),
@@ -76,8 +63,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_customer_posting_group",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_CUSTOMER_POSTING_GROUP",
-        title="Kunden ohne Debitorenbuchungsgruppe",
-        recommendation_preview="Debitorenbuchungsgruppen für betroffene Debitoren pflegen.",
         points_minor=6,
         points_major=12,
     ),
@@ -85,8 +70,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="customers_missing_gen_bus_posting_group",
         total_key="customers_total",
         code="CUSTOMERS_MISSING_GEN_BUS_POSTING_GROUP",
-        title="Kunden ohne Geschäftsbuchungsgruppe",
-        recommendation_preview="Geschäftsbuchungsgruppen für betroffene Debitoren pflegen.",
         points_minor=5,
         points_major=10,
     ),
@@ -94,8 +77,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_payment_terms",
         total_key="vendors_total",
         code="VENDORS_MISSING_PAYMENT_TERMS",
-        title="Lieferanten ohne Zahlungsbedingung",
-        recommendation_preview="Zahlungsbedingungen bei betroffenen Kreditoren pflegen.",
         points_minor=5,
         points_major=10,
     ),
@@ -103,8 +84,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_country_code",
         total_key="vendors_total",
         code="VENDORS_MISSING_COUNTRY_CODE",
-        title="Lieferanten ohne Länder-/Regionscode",
-        recommendation_preview="Länder-/Regionscode für betroffene Kreditoren pflegen.",
         points_minor=4,
         points_major=8,
     ),
@@ -112,8 +91,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_email",
         total_key="vendors_total",
         code="VENDORS_MISSING_EMAIL",
-        title="Lieferanten ohne E-Mail",
-        recommendation_preview="E-Mail-Adressen für betroffene Kreditoren ergänzen.",
         points_minor=3,
         points_major=6,
     ),
@@ -121,8 +98,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_phone_no",
         total_key="vendors_total",
         code="VENDORS_MISSING_PHONE_NO",
-        title="Lieferanten ohne Telefonnummer",
-        recommendation_preview="Telefonnummern für betroffene Kreditoren pflegen.",
         points_minor=2,
         points_major=5,
     ),
@@ -130,8 +105,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_vendor_posting_group",
         total_key="vendors_total",
         code="VENDORS_MISSING_VENDOR_POSTING_GROUP",
-        title="Lieferanten ohne Kreditorenbuchungsgruppe",
-        recommendation_preview="Kreditorenbuchungsgruppen für betroffene Kreditoren pflegen.",
         points_minor=6,
         points_major=12,
     ),
@@ -139,8 +112,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="vendors_missing_gen_bus_posting_group",
         total_key="vendors_total",
         code="VENDORS_MISSING_GEN_BUS_POSTING_GROUP",
-        title="Lieferanten ohne Geschäftsbuchungsgruppe",
-        recommendation_preview="Geschäftsbuchungsgruppen für betroffene Kreditoren pflegen.",
         points_minor=5,
         points_major=10,
     ),
@@ -148,8 +119,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_category",
         total_key="items_total",
         code="ITEMS_MISSING_CATEGORY",
-        title="Artikel ohne Kategorie",
-        recommendation_preview="Artikelkategorien für betroffene Artikel ergänzen.",
         points_minor=8,
         points_major=15,
     ),
@@ -157,8 +126,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_base_unit",
         total_key="items_total",
         code="ITEMS_MISSING_BASE_UNIT",
-        title="Artikel ohne Basiseinheit",
-        recommendation_preview="Basiseinheit für betroffene Artikel ergänzen.",
         points_minor=6,
         points_major=12,
     ),
@@ -166,8 +133,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_gen_prod_posting_group",
         total_key="items_total",
         code="ITEMS_MISSING_GEN_PROD_POSTING_GROUP",
-        title="Artikel ohne Produktbuchungsgruppe",
-        recommendation_preview="Produktbuchungsgruppen für betroffene Artikel pflegen.",
         points_minor=6,
         points_major=12,
     ),
@@ -175,8 +140,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_inventory_posting_group",
         total_key="items_total",
         code="ITEMS_MISSING_INVENTORY_POSTING_GROUP",
-        title="Artikel ohne Lagerbuchungsgruppe",
-        recommendation_preview="Lagerbuchungsgruppen für betroffene Artikel pflegen.",
         points_minor=6,
         points_major=12,
     ),
@@ -184,8 +147,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_vat_prod_posting_group",
         total_key="items_total",
         code="ITEMS_MISSING_VAT_PROD_POSTING_GROUP",
-        title="Artikel ohne MwSt.-Produktbuchungsgruppe",
-        recommendation_preview="MwSt.-Produktbuchungsgruppen für betroffene Artikel pflegen.",
         points_minor=5,
         points_major=10,
     ),
@@ -193,8 +154,6 @@ QUICK_CHECKS: List[QuickCheckDefinition] = [
         metric_key="items_missing_vendor_no",
         total_key="items_total",
         code="ITEMS_MISSING_VENDOR_NO",
-        title="Artikel ohne Kreditorennr.",
-        recommendation_preview="Standard-Kreditor für betroffene Artikel prüfen und ergänzen.",
         points_minor=2,
         points_major=5,
     ),
@@ -232,19 +191,19 @@ def _deduction_from_ratio(ratio: float, points_minor: int, points_major: int) ->
     return 0
 
 
-def _build_summary(score: int) -> ScanSummary:
+def _build_summary(score: int, language: object | None) -> ScanSummary:
     if score >= 90:
         return ScanSummary(
-            headline="Gute Datenqualität mit einzelnen Lücken",
+            headline=summary_headline(score, language),
             rating="good",
         )
     if score >= 75:
         return ScanSummary(
-            headline="Ordentliche Datenqualität mit erkennbarem Verbesserungsbedarf",
+            headline=summary_headline(score, language),
             rating="fair",
         )
     return ScanSummary(
-        headline="Erhöhter Handlungsbedarf bei der Datenqualität",
+        headline=summary_headline(score, language),
         rating="critical",
     )
 
@@ -256,6 +215,7 @@ def _default_issue_impact(issue_code: str, affected_count: int) -> float:
 
 def calculate_quick_scan_result(
     metrics: Dict[str, int],
+    language: object | None = None,
 ) -> Tuple[int, int, int, ScanSummary, List[ScanIssue]]:
     score = 100
     all_issues: List[ScanIssue] = []
@@ -272,14 +232,15 @@ def calculate_quick_scan_result(
         )
 
         if affected_count > 0:
+            localized_text = issue_text(check.code, language)
             all_issues.append(
                 ScanIssue(
                     code=check.code,
-                    title=check.title,
+                    title=localized_text.title,
                     severity=_severity_from_ratio(ratio),
                     affected_count=affected_count,
                     premium_only=check.premium_only,
-                    recommendation_preview=check.recommendation_preview,
+                    recommendation_preview=localized_text.recommendation,
                     estimated_impact_eur=_default_issue_impact(check.code, affected_count),
                 )
             )
@@ -289,7 +250,7 @@ def calculate_quick_scan_result(
 
     checks_count = len(QUICK_CHECKS)
     issues_count = len(all_issues)
-    summary = _build_summary(score)
+    summary = _build_summary(score, language)
 
     return (
         score,

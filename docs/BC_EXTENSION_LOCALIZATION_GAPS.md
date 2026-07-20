@@ -74,3 +74,9 @@ Status bleibt **P1 releaseblockierend für Customer Go**. Vor Pilot sind mindest
 UX01 verwendet für neue Status-, Bewertungs-, Scheduler- und Confirmtexte AL-`Label`; Captions und Tooltips werden über die compilererzeugte XLF geführt. Der finale Source-XLF wurde nach dem Compile synchronisiert. Für Page 53100 gilt: **0 fehlende Units, 0 Source-Mismatches, 0 leere DE-Targets, 0 doppelte IDs**. Neue Texte enthalten keinen hartcodierten deutschen AL-Text.
 
 Der globale Checker meldet **81** historische Treffer und bleibt rot. Die Verringerung gegenüber dem P0E-Stand 82 ist keine vollständige Bereinigung; `LocalizeText(EN, DE)`, deutsche Comment-Metadaten und Alttexte in Setup, Scheduler, Historie und Modulen bleiben. Status: **UX01-Lokalisierung vollständig; globales P1 weiterhin offen**. EN-US/DE-DE-Runtimeprüfung ist `BLOCKED`.
+
+## Delta GL-EXT-UX02 (20. Juli 2026)
+
+Die 81 Baselinebefunde sind vollständig klassifiziert und behoben: 48 UI-Meldungen, 32 `DEU=`-Metadaten und ein AL-Issue-Pfad. 71 eindeutige Doppelstrings wurden Labels; der unveränderte Checker meldet 0. Beide XLF-Dateien sind parsebar, 1.208/1.208 deutsche Targets nichtleer.
+
+20 produktive Backend-Quick-Checks sind nun über stabile Codes vollständig DE/EN; die fragile AL-Wortersetzung ist entfernt. Offen bleiben 193 AL-Deep-Scan-Codes ohne redaktionellen DE-Katalog sowie 155 direkte englische Kundenliterale, die der bisherige Checker nicht erkennt. Status: **P1 für Customer Go offen**. Detail: `GL_EXT_UX02_LOCALIZATION_AND_ISSUE_TEXTS.md`.

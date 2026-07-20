@@ -293,3 +293,28 @@ Keine Business-Central-Sandbox ist angebunden. Alle Fälle sind **BLOCKED**, nic
 |---|---:|---:|---:|---:|---:|
 | UX01 | 20 | 0 | 0 | 0 | 20 |
 | P0A–P0D + UX01 gesamt | 67 | 0 | 0 | 0 | 67 |
+
+## GL-EXT-UX02 – DE/EN Localization CAT Register (20. Juli 2026)
+
+Keine authentisierte BC-Sandbox ist angebunden. Alle Fälle sind **BLOCKED**, nicht bestanden. Historische Findings dürfen beim Sprachwechsel nicht mutiert werden.
+
+| ID | Prüfung | Status |
+|---|---|---|
+| UX02-CAT-01/02 | BC-Sprache Deutsch / Englisch | BLOCKED |
+| UX02-CAT-03/04 | Setup vollständig DE / EN | BLOCKED |
+| UX02-CAT-05/06 | Scanstart DE / EN | BLOCKED |
+| UX02-CAT-07/08 | Scan Monitor DE / EN | BLOCKED |
+| UX02-CAT-09/10 | große Finding List DE / EN, Performance | BLOCKED |
+| UX02-CAT-11/12 | Finding Detail und Empfehlung DE / EN | BLOCKED |
+| UX02-CAT-13/14 | Exceptions und Confirms DE / EN | BLOCKED |
+| UX02-CAT-15 | Dashboard-Fehlermeldung DE/EN | BLOCKED |
+| UX02-CAT-16 | Access-Ablauf DE/EN, fail-closed | BLOCKED |
+| UX02-CAT-17 | Reset-Confirm DE/EN, Abbruch ohne Mutation | BLOCKED |
+| UX02-CAT-18 | Schedulerstatus und Hinweis DE/EN | BLOCKED |
+| UX02-CAT-19 | neuer Scan nach Sprachwechsel | BLOCKED |
+| UX02-CAT-20 | historische Findings nach Sprachwechsel unverändert | BLOCKED |
+
+| Suite | Fälle | Ausgeführt | PASS | FAIL | BLOCKED |
+|---|---:|---:|---:|---:|---:|
+| UX02 | 20 | 0 | 0 | 0 | 20 |
+| P0A–P0D + UX01 + UX02 gesamt | 87 | 0 | 0 | 0 | 87 |

@@ -755,19 +755,17 @@
                         RegistrationMessage: Text;
                     begin
                         if Rec."Contact Email" = '' then begin
-                            Message(LocalizeText(
-                                'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.',
-                                'Bitte geben Sie zuerst eine Kontakt-E-Mail-Adresse ein. Sie wird für den Dashboard-Zugang und wichtige BCSentinel Benachrichtigungen benötigt.'));
+                            Message(PleaseEnterAContactEmailAddressFirstLbl);
                             exit;
                         end;
 
                         Rec.EnsureValidContactEmail();
 
                         if Rec.Registered then begin
-                            Message(LocalizeText('BCSentinel registration data is incomplete. Registration will request a fresh API token.', 'Die BCSentinel Registrierungsdaten sind unvollständig. Die Registrierung fordert einen neuen API-Token an.'));
+                            Message(BCSentinelRegistrationDataIsIncompleteRegistLbl);
                         end;
 
-                        Message(LocalizeText('BCSentinel tenant registration started.', 'BCSentinel Tenant-Registrierung wurde gestartet.'));
+                        Message(BCSentinelTenantRegistrationStartedLbl);
                         RegistrationMessage := ApiClient.RegisterTenant(Rec);
                         ApiClient.RefreshLicenseStatus(Rec);
                         UpdateActionState();
@@ -787,16 +785,14 @@
 
                     trigger OnAction()
                     begin
-                        if not Confirm(LocalizeText(
-                            'Reset the cached BCSentinel registration status? The stable tenant binding, API token, purchases, and scan history are preserved. Use Register afterwards to reconcile with the backend.',
-                            'Den zwischengespeicherten BCSentinel-Registrierungsstatus zurücksetzen? Die stabile Tenant-Bindung, der API-Token, Käufe und die Scan-Historie bleiben erhalten. Verwenden Sie anschließend Registrieren für den Abgleich mit dem Backend.'), false) then
+                        if not Confirm(ResetTheCachedBCSentinelRegistrationStatusThLbl, false) then
                             exit;
 
                         ResetLocalRegistrationState();
                         UpdateActionState();
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        Message(LocalizeText('Cached registration status was reset without changing the tenant identity. Please register again to reconcile.', 'Der zwischengespeicherte Registrierungsstatus wurde zurückgesetzt, ohne die Tenant-Identität zu ändern. Bitte registrieren Sie erneut für den Abgleich.'));
+                        Message(CachedRegistrationStatusWasResetWithoutChangLbl);
                     end;
                 }
 
@@ -814,11 +810,11 @@
                         ApiClient: Codeunit "DH API Client";
                     begin
                         if Rec."Tenant ID" = '' then
-                            Error(LocalizeText('Please register the tenant first.', 'Bitte registrieren Sie zuerst den Tenant.'));
+                            Error(PleaseRegisterTheTenantFirstLbl);
 
                         ApiClient.RefreshLicenseStatus(Rec);
                         CurrPage.Update(false);
-                        Message(LocalizeText('Product access refreshed.', 'Produktzugriff wurde aktualisiert.'));
+                        Message(ProductAccessRefreshedLbl);
                     end;
                 }
             }
@@ -1022,7 +1018,7 @@
                         NextRun := SchedulerMgt.CalculateNextRun(Rec);
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        Message(LocalizeText('Next scheduled scan: %1', 'Nächster geplanter Scan: %1'), NextRun);
+                        Message(NextScheduledScan1Lbl, NextRun);
                     end;
                 }
 
@@ -1423,9 +1419,7 @@
 
     local procedure UpdateNoticeTexts()
     begin
-        DataProcessingNoticeTxt := LocalizeText(
-            'Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.',
-            'Vor der Registrierung oder vor Scans benoetigt BCSentinel Ihre Einwilligung zur Übermittlung und Verarbeitung von Mandanten- und Unternehmensdaten, Metadaten, Konfigurationsdaten, Scan-Ergebnissen, Findings und aggregierten Qualitätskennzahlen. Die Daten werden für Data-Health-Analysen, Dashboards, Executive Reports und Lizenzpruefungen verwendet.');
+        DataProcessingNoticeTxt := BeforeRegistrationOrScansBCSentinelRequiresYLbl;
 
         InviteNoticeTxt := '';
     end;
@@ -1448,14 +1442,14 @@
         TotalChecks := ScanCheckMgt.GetTotalModuleChecksCount(Rec);
 
         if not Rec.HasAnyModuleEnabled() then begin
-            ScanConfigurationStatusTxt := LocalizeText('Scan not possible. At least one module must be active.', 'Scan nicht möglich. Mindestens ein Modul muss aktiv sein.');
+            ScanConfigurationStatusTxt := ScanNotPossibleAtLeastOneModuleLbl;
             ScanConfigurationStyle := 'Unfavorable';
         end else
             if Rec."Monitoring Active" and (EnabledChecks = 0) and (TotalChecks > 0) then begin
-                ScanConfigurationStatusTxt := LocalizeText('Scan not possible. At least one check must be active.', 'Scan nicht möglich. Mindestens ein Check muss aktiv sein.');
+                ScanConfigurationStatusTxt := ScanNotPossibleAtLeastOneCheckLbl;
                 ScanConfigurationStyle := 'Unfavorable';
             end else begin
-                ScanConfigurationStatusTxt := LocalizeText('Scan possible. Required modules and checks are available.', 'Scan möglich. Erforderliche Module und Checks sind verfügbar.');
+                ScanConfigurationStatusTxt := ScanPossibleRequiredModulesAndChecksAreLbl;
                 ScanConfigurationStyle := 'Favorable';
             end;
 
@@ -1599,13 +1593,13 @@
         LastScanDurationTxt := '';
         LastScanStatusTxt := '';
         ShowNoScanNotice := true;
-        ModuleScoresNoticeTxt := LocalizeText('No scan available yet.', 'Noch kein Scan verfügbar.');
+        ModuleScoresNoticeTxt := NoScanAvailableYetLbl;
 
         LastRun.Reset();
         LastRun.SetCurrentKey("Requested At");
         LastRun.Ascending(false);
         if not LastRun.FindFirst() then begin
-            LastScanStatusTxt := LocalizeText('No scan available yet.', 'Noch kein Scan verfügbar.');
+            LastScanStatusTxt := NoScanAvailableYetLbl;
             LastScanStatusStyle := 'Standard';
             exit;
         end;
@@ -1739,59 +1733,42 @@
     begin
         case Rec."Last Scheduled Scan Result" of
             Rec."Last Scheduled Scan Result"::None:
-                exit(LocalizeText('Unknown', 'Unbekannt'));
+                exit(UnknownLbl);
             Rec."Last Scheduled Scan Result"::Queued:
-                exit(LocalizeText('Waiting', 'Wartet'));
+                exit(WaitingLbl);
             Rec."Last Scheduled Scan Result"::Completed:
-                exit(LocalizeText('Success', 'Erfolgreich'));
+                exit(SuccessLbl);
             Rec."Last Scheduled Scan Result"::Failed:
-                exit(LocalizeText('Failed', 'Fehlgeschlagen'));
+                exit(FailedLbl);
             Rec."Last Scheduled Scan Result"::SkippedMonitoringInactive:
-                exit(LocalizeText('Skipped', 'Übersprungen'));
+                exit(SkippedLbl);
             Rec."Last Scheduled Scan Result"::SkippedConfiguration:
-                exit(LocalizeText('Skipped', 'Übersprungen'));
+                exit(SkippedLbl);
             Rec."Last Scheduled Scan Result"::Disabled:
-                exit(LocalizeText('Disabled', 'Deaktiviert'));
+                exit(DisabledLbl);
         end;
 
-        exit(LocalizeText('Unknown', 'Unbekannt'));
+        exit(UnknownLbl);
     end;
 
     local procedure GetDeepScanStatusDisplay(var DeepScanRun: Record "DH Deep Scan Run"): Text[100]
     begin
         case DeepScanRun.Status of
             DeepScanRun.Status::Queued:
-                exit(LocalizeText('Queued', 'In Warteschlange'));
+                exit(QueuedLbl);
             DeepScanRun.Status::Running:
-                exit(LocalizeText('Running', 'Wird ausgeführt'));
+                exit(RunningLbl);
             DeepScanRun.Status::Completed:
-                exit(LocalizeText('Completed', 'Abgeschlossen'));
+                exit(CompletedLbl);
             DeepScanRun.Status::Failed:
-                exit(LocalizeText('Failed', 'Fehlgeschlagen'));
+                exit(FailedLbl);
             DeepScanRun.Status::Canceled:
-                exit(LocalizeText('Canceled', 'Abgebrochen'));
+                exit(CanceledLbl);
         end;
 
         exit('');
     end;
 
-    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
-    begin
-        if IsGermanLanguage() then
-            exit(GermanText);
-
-        exit(EnglishText);
-    end;
-
-    local procedure IsGermanLanguage(): Boolean
-    begin
-        case GlobalLanguage() of
-            1031, 2055, 3079, 4103, 5127:
-                exit(true);
-        end;
-
-        exit(false);
-    end;
 
     local procedure LastDeepScanRunExists(): Boolean
     var
@@ -1815,9 +1792,7 @@
         Setup := Rec;
 
         if ShowStartFreeDataHealthScore and CanStartFreeDataHealthScore then begin
-            if not Confirm(LocalizeText(
-                'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.',
-                'Möchten Sie den kostenlosen Data Health Score jetzt starten? Die Leistung kann im laufenden Betrieb beeinträchtigt werden. Wir empfehlen die Ausführung außerhalb der Geschäftszeiten.'), false) then
+            if not Confirm(DoYouWantToStartTheFreeLbl, false) then
                 exit;
 
             EntryNo := DeepScanMgt.QueueDataHealthScore(Setup);
@@ -1845,7 +1820,7 @@
         DeepScanRun.SetCurrentKey("Requested At");
         DeepScanRun.Ascending(false);
         if not DeepScanRun.FindFirst() then
-            Error(LocalizeText('No deep scan run is available.', 'Es ist kein Deep-Scan-Lauf verfügbar.'));
+            Error(NoDeepScanRunIsAvailableLbl);
 
         Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
     end;
@@ -1870,10 +1845,10 @@
         IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
     begin
         if Setup."API Base URL" = '' then
-            Error(LocalizeText('Please configure the API Base URL first.', 'Bitte konfigurieren Sie zuerst die API-Basis-URL.'));
+            Error(PleaseConfigureTheAPIBaseURLFirstLbl);
 
         if Setup."Tenant ID" = '' then
-            Error(LocalizeText('Tenant is not registered yet.', 'Der Tenant ist noch nicht registriert.'));
+            Error(TenantIsNotRegisteredYetLbl);
 
         exit(ApiUrlPolicy.BuildUrl(Setup."API Base URL", '/analytics/get-token') + '?company=' + EncodeUrlValue(CompanyName()) + '&environment=' + EncodeUrlValue(IdentityMgt.GetEnvironmentName()) + '&environment_type=' + EncodeUrlValue(IdentityMgt.GetEnvironmentType()) + '&entra_tenant_id=' + EncodeUrlValue(IdentityMgt.GetEntraTenantId()) + '&company_id=' + EncodeUrlValue(IdentityMgt.GetCompanyId()) + '&tenant_id=' + EncodeUrlValue(Setup."Tenant ID") + '&scan_mode=' + EncodeUrlValue(GetScanMode(Setup)) + '&bc_issue_launch_url=' + EncodeUrlValue(GetIssueDrilldownLaunchUrl()));
     end;
@@ -1903,10 +1878,10 @@
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error(LocalizeText('The token response is not valid JSON.', 'Die Token-Antwort ist kein gültiges JSON.'));
+            Error(TheTokenResponseIsNotValidJSONLbl);
 
         if not JsonObj.Get('token', JsonToken) then
-            Error(LocalizeText('The token field is missing in the response.', 'Das Token-Feld fehlt in der Antwort.'));
+            Error(TheTokenFieldIsMissingInTheLbl);
 
         exit(JsonToken.AsValue().AsText());
     end;
@@ -1931,5 +1906,36 @@
         exit(Value);
     end;
 
+
+    var
+        PleaseEnterAContactEmailAddressFirstLbl: Label 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.';
+        BCSentinelRegistrationDataIsIncompleteRegistLbl: Label 'BCSentinel registration data is incomplete. Registration will request a fresh API token.';
+        BCSentinelTenantRegistrationStartedLbl: Label 'BCSentinel tenant registration started.';
+        ResetTheCachedBCSentinelRegistrationStatusThLbl: Label 'Reset the cached BCSentinel registration status? The stable tenant binding, API token, purchases, and scan history are preserved. Use Register afterwards to reconcile with the backend.';
+        CachedRegistrationStatusWasResetWithoutChangLbl: Label 'Cached registration status was reset without changing the tenant identity. Please register again to reconcile.';
+        PleaseRegisterTheTenantFirstLbl: Label 'Please register the tenant first.';
+        ProductAccessRefreshedLbl: Label 'Product access refreshed.';
+        NextScheduledScan1Lbl: Label 'Next scheduled scan: %1', Comment = '%1 = runtime value';
+        BeforeRegistrationOrScansBCSentinelRequiresYLbl: Label 'Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.';
+        ScanNotPossibleAtLeastOneModuleLbl: Label 'Scan not possible. At least one module must be active.';
+        ScanNotPossibleAtLeastOneCheckLbl: Label 'Scan not possible. At least one check must be active.';
+        ScanPossibleRequiredModulesAndChecksAreLbl: Label 'Scan possible. Required modules and checks are available.';
+        NoScanAvailableYetLbl: Label 'No scan available yet.';
+        UnknownLbl: Label 'Unknown';
+        WaitingLbl: Label 'Waiting';
+        SuccessLbl: Label 'Success';
+        FailedLbl: Label 'Failed';
+        SkippedLbl: Label 'Skipped';
+        DisabledLbl: Label 'Disabled';
+        QueuedLbl: Label 'Queued';
+        RunningLbl: Label 'Running';
+        CompletedLbl: Label 'Completed';
+        CanceledLbl: Label 'Canceled';
+        DoYouWantToStartTheFreeLbl: Label 'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
+        NoDeepScanRunIsAvailableLbl: Label 'No deep scan run is available.';
+        PleaseConfigureTheAPIBaseURLFirstLbl: Label 'Please configure the API Base URL first.';
+        TenantIsNotRegisteredYetLbl: Label 'Tenant is not registered yet.';
+        TheTokenResponseIsNotValidJSONLbl: Label 'The token response is not valid JSON.';
+        TheTokenFieldIsMissingInTheLbl: Label 'The token field is missing in the response.';
 }
 

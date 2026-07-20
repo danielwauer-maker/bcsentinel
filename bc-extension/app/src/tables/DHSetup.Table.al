@@ -508,15 +508,15 @@ table 53100 "DH Setup"
     procedure GetFeatureAccessText(): Text[100]
     begin
         if "Monitoring Active" then
-            exit(LocalizeText('Monitoring active', 'Monitoring aktiv'));
+            exit(MonitoringActiveLbl);
 
         if "Scan Credits Available" > 0 then
-            exit(StrSubstNo(LocalizeText('%1 scan credit(s) available', '%1 Scan-Guthaben verfügbar'), "Scan Credits Available"));
+            exit(StrSubstNo(ScanCreditsAvailableLbl, "Scan Credits Available"));
 
         if "Premium Enabled" then
-            exit(LocalizeText('Paid scan access active', 'Bezahlter Scan-Zugang aktiv'));
+            exit(PaidScanAccessActiveLbl);
 
-        exit(LocalizeText('Register the tenant and unlock Full Analysis or Monitoring.', 'Registrieren Sie den Tenant und schalten Sie Full Analysis oder Monitoring frei.'));
+        exit(RegisterTheTenantAndUnlockFullAnalysisLbl);
     end;
 
     procedure GetProductAccessDisplay(): Text[100]
@@ -526,67 +526,67 @@ table 53100 "DH Setup"
         if "Monitoring Active" then begin
             AccessModel := LowerCase("Product Access Model");
             if AccessModel.Contains('annual') then
-                exit(LocalizeText('Monitoring Annual', 'Monitoring Jahresabo'));
-            exit(LocalizeText('Monitoring Monthly', 'Monitoring Monatsabo'));
+                exit(MonitoringAnnualLbl);
+            exit(MonitoringMonthlyLbl);
         end;
 
         if "Can View Issue Details" or "Premium Enabled" then begin
             if "Scan Credits Available" > 0 then
-                exit(LocalizeText('Validation Check', 'Validation Check'));
-            exit(LocalizeText('Full Analysis', 'Full Analysis'));
+                exit(ValidationCheckLbl);
+            exit(FullAnalysisLbl);
         end;
 
-        exit(LocalizeText('Free Data Health Score', 'Kostenloser Data Health Score'));
+        exit(FreeDataHealthScoreLbl);
     end;
 
     procedure GetDeepScanAccessDisplay(): Text[100]
     begin
         if "Monitoring Active" then
-            exit(LocalizeText('Unlimited', 'Unbegrenzt'));
+            exit(UnlimitedLbl);
 
         if "Can Run Deep Scan" then begin
             if "Scan Credits Available" > 0 then
-                exit(StrSubstNo(LocalizeText('%1 scan credit(s) available', '%1 Scan-Guthaben verfügbar'), "Scan Credits Available"));
-            exit(LocalizeText('Available', 'Verf?gbar'));
+                exit(StrSubstNo(ScanCreditsAvailableLbl, "Scan Credits Available"));
+            exit(AvailableLbl);
         end;
 
-        exit(LocalizeText('Not available', 'Nicht verfügbar'));
+        exit(NotAvailableLbl);
     end;
 
     procedure GetScheduledScanAccessDisplay(): Text[100]
     begin
         if "Monitoring Active" then
-            exit(LocalizeText('Available', 'Verf?gbar'));
+            exit(AvailableLbl);
 
-        exit(LocalizeText('Scheduled scans require active Monitoring.', 'Geplante Scans erfordern aktives Monitoring.'));
+        exit(ScheduledScansRequireActiveMonitoringLbl);
     end;
 
     procedure GetSubscriptionStatusDisplay(): Text[100]
     begin
         if "Monitoring Active" then
-            exit(LocalizeText('Monitoring active', 'Monitoring aktiv'));
+            exit(MonitoringActiveLbl);
 
         if "Can View Issue Details" or "Premium Enabled" then
-            exit(LocalizeText('Paid scan access active', 'Bezahlter Scan-Zugang aktiv'));
+            exit(PaidScanAccessActiveLbl);
 
         if Registered then
-            exit(LocalizeText('Free access active', 'Kostenloser Zugang aktiv'));
+            exit(FreeAccessActiveLbl);
 
-        exit(LocalizeText('Not registered', 'Nicht registriert'));
+        exit(NotRegisteredLbl);
     end;
 
     procedure GetUpgradeHintText(): Text[250]
     begin
         if "Monitoring Active" then
-            exit(LocalizeText('Monitoring is active. Scans and dashboard details are available.', 'Monitoring ist aktiv. Scans und Dashboard-Details sind verfügbar.'));
+            exit(MonitoringIsActiveScansAndDashboardDetailsLbl);
 
         if "Scan Credits Available" > 0 then
-            exit(LocalizeText('A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.', 'Ein Scan-Guthaben ist verfügbar. Starten Sie einen Deep Scan, um es zu verwenden und das 7-Tage-Reportfenster zu öffnen.'));
+            exit(AScanCreditIsAvailableRunDeepLbl);
 
         if "Premium Enabled" then
-            exit(LocalizeText('Paid recommendations and scan actions are available for this tenant.', 'Bezahlte Empfehlungen und Scan-Aktionen sind für diesen Tenant verfügbar.'));
+            exit(PaidRecommendationsAndScanActionsAreAvailablLbl);
 
-        exit(LocalizeText('Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.', 'Kaufen Sie Full Analysis, Validation Check oder Monitoring, um Empfehlungen, Drilldowns und Scan-Aktionen freizuschalten.'));
+        exit(BuyFullAnalysisValidationCheckOrMonitoringLbl);
     end;
 
     procedure HasValidContactEmail(): Boolean
@@ -617,7 +617,7 @@ table 53100 "DH Setup"
     procedure EnsureValidContactEmail()
     begin
         if not HasValidContactEmail() then
-            Error(LocalizeText('Please enter a valid contact email before registering.', 'Bitte geben Sie vor der Registrierung eine gültige Kontakt-E-Mail-Adresse ein.'));
+            Error(PleaseEnterAValidContactEmailBeforeLbl);
     end;
 
     procedure EnsureModuleDefaults()
@@ -715,22 +715,27 @@ table 53100 "DH Setup"
         exit(EnabledCount);
     end;
 
-    local procedure LocalizeText(EnglishText: Text; GermanText: Text): Text
-    begin
-        if IsGermanLanguage() then
-            exit(GermanText);
 
-        exit(EnglishText);
-    end;
 
-    local procedure IsGermanLanguage(): Boolean
-    begin
-        case GlobalLanguage() of
-            1031, 2055, 3079, 4103, 5127:
-                exit(true);
-        end;
-
-        exit(false);
-    end;
-
+    var
+        MonitoringActiveLbl: Label 'Monitoring active';
+        ScanCreditsAvailableLbl: Label '%1 scan credit(s) available', Comment = '%1 = available scan credit count';
+        PaidScanAccessActiveLbl: Label 'Paid scan access active';
+        RegisterTheTenantAndUnlockFullAnalysisLbl: Label 'Register the tenant and unlock Full Analysis or Monitoring.';
+        MonitoringAnnualLbl: Label 'Monitoring Annual';
+        MonitoringMonthlyLbl: Label 'Monitoring Monthly';
+        ValidationCheckLbl: Label 'Validation Check';
+        FullAnalysisLbl: Label 'Full Analysis';
+        FreeDataHealthScoreLbl: Label 'Free Data Health Score';
+        UnlimitedLbl: Label 'Unlimited';
+        AvailableLbl: Label 'Available';
+        NotAvailableLbl: Label 'Not available';
+        ScheduledScansRequireActiveMonitoringLbl: Label 'Scheduled scans require active Monitoring.';
+        FreeAccessActiveLbl: Label 'Free access active';
+        NotRegisteredLbl: Label 'Not registered';
+        MonitoringIsActiveScansAndDashboardDetailsLbl: Label 'Monitoring is active. Scans and dashboard details are available.';
+        AScanCreditIsAvailableRunDeepLbl: Label 'A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.';
+        PaidRecommendationsAndScanActionsAreAvailablLbl: Label 'Paid recommendations and scan actions are available for this tenant.';
+        BuyFullAnalysisValidationCheckOrMonitoringLbl: Label 'Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.';
+        PleaseEnterAValidContactEmailBeforeLbl: Label 'Please enter a valid contact email before registering.';
 }
