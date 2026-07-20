@@ -1,6 +1,6 @@
 # Workflow-Inventur
 
-Die technischen Schrittketten stehen strukturiert in [data/workflows.yaml](data/workflows.yaml). Die 24 verlangten Workflowklassen wurden inventarisiert.
+Die technischen Schrittketten stehen strukturiert in [data/workflows.yaml](data/workflows.yaml). Alle 24 Workflows besitzen explizite `components`, einen `execution_mode` sowie Schritte mit gültigen `feature_id`-Referenzen.
 
 | Workflow | Status | Belegkette / nicht belegbarer Teil |
 |---|---|---|
@@ -21,7 +21,7 @@ Die technischen Schrittketten stehen strukturiert in [data/workflows.yaml](data/
 | Zugriff ablaufen lassen | implemented | Entitlement-/Access-Control-Services und frischer Access Snapshot |
 | Stripe-Webhook | implemented | Signaturprüfung, Idempotenz und Entitlement-Aktualisierung |
 | Scheduler erneut planen | implemented | `DHScanSchedulerMgt` und `DHSetup.RescheduleEnabledScheduler` |
-| E-Mail versenden | partial | SMTP-Code vorhanden; Zustellung/Clientdarstellung manuell |
+| E-Mail versenden | implemented | zusammenhängender SMTP-Code vorhanden; reale Zustellung/Clientdarstellung manuell |
 | Übersetzungen laden | implemented | Website-JSON, Dashboard-JSON/Service und AL-XLF |
 | Extension installieren/upgraden | implemented | Install-/Upgrade-Codeunits; reale Upgradeausführung manuell |
 

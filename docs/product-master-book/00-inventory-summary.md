@@ -21,9 +21,9 @@ Zusammenhängender Code ist für Registrierung, tenantgebundene API-Nutzung, Qui
 
 ## Abgrenzungen
 
-- `landingpage/` wird in `backend/Dockerfile` und Compose als ausgelieferter Sprach-/Website-Baum referenziert.
+- `landingpage/` wird im `backend/Dockerfile` paketiert und operativ referenziert; eine öffentliche Produktionsauslieferung des statischen Baums ist aus dem Repository allein nicht abschließend belegbar.
 - `landingpage_neu/` ist ein separater alternativer statischer Baum; eine Deployment-Referenz wurde nicht gefunden.
 - `go-live-readiness-2026/`, `docs/` und `output/pdf/` enthalten Nachweise und Beispielartefakte, sind aber kein Ersatz für Code- oder Laufzeitnachweise.
 - Der Root-`README.md` ist leer.
 
-Die Zählung nach Featurestatus steht in [03-feature-inventory.md](03-feature-inventory.md).
+Die normalisierte Zählung nach Ebene und Featurestatus steht in [03-feature-inventory.md](03-feature-inventory.md).

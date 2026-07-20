@@ -10,7 +10,7 @@ Overview, Analytics, Scans, Issues/Detail, Actions, Reports, Subscription und Se
 `dashboard_portal.html`, `analytics_embed.html`, `analytics-dashboard.js`, `dashboard.css`, Dashboard-/Analytics-Router.
 
 ## Vorhandene Features
-DASH-AUTH-001, DASH-TEN-001, DASH-OV-001, DASH-AN-001, DASH-GATE-001.
+AUTH-DASH-001, DASH-TEN-001, DASH-OV-001, DASH-AN-001, DASH-SCAN-001, DASH-FIND-001, DASH-ACT-001, DASH-GATE-001.
 
 ## Teilweise vorhandene Features
 DASH-PREF-001: Settings/Notification-State ist teilweise UI-abgeleitet und ohne eigene persistierte Preference-Entität.

@@ -1,7 +1,7 @@
 # Landingpage
 
 ## Zusammenfassung
-Zwei getrennte Vanilla-HTML/CSS/JS-Bäume; `landingpage/` wird vom Backendimage kopiert, `landingpage_neu/` nicht erkennbar deployed.
+Zwei getrennte Vanilla-HTML/CSS/JS-Bäume; `landingpage/` wird in das Backendimage kopiert und operativ referenziert, `landingpage_neu/` besitzt keine gefundene Deploymenteinbindung.
 
 ## Erkannte Verantwortlichkeiten
 Produktdarstellung, Pricing, Trust/Security, Support/Docs, Rechtstexte, Partnerportal, Billing-Erfolg/Abbruch und DE/EN.
@@ -31,10 +31,10 @@ Keine lokale DB; JSON-Sprachdateien und generierter `pricing-snapshot.js`.
 `landingpage_neu/README.md`, Designkonzepte und Smoke-Test-Dokument.
 
 ## Technische Auffälligkeiten
-Rechtstext-Platzhalter sind konkret im HTML sichtbar; produktiv verwendeter Baum ist aus Dockerfile belegbar.
+Rechtstext-Platzhalter sind konkret im HTML sichtbar. Das Dockerfile belegt die Paketierung von `landingpage/`, aber keine statisch nachweisbare öffentliche Produktionsauslieferung des Sitebaums.
 
 ## Manuell zu prüfen
-Welche Website kanonisch sein soll, Formulare/CTAs, Rechtstexte, mobile/visuelle Qualität.
+Welche Website kanonisch und öffentlich ausgeliefert sein soll, Formulare/CTAs, Rechtstexte, mobile/visuelle Qualität.
 
 ## Belegverzeichnis
 `landingpage/`; `landingpage_neu/`; `backend/Dockerfile`.

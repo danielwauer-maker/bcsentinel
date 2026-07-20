@@ -1,58 +1,103 @@
-- suite: backend-pytest
+- id: TEST-SUITE-BACKEND
+  name: Backend-Pytest-Suite
   type: [unit, api, integration, database]
   path: backend/tests
+  status: execution_unconfirmed
   files: 27
   test_functions: 224
-  database: SQLite by default; PostgreSQL when BCSENTINEL_TEST_DATABASE_URL is set
-  success_cases: true
-  failure_cases: true
-  ci_executed: false
-  sprint_execution_confirmed: false
-  command: python -m pytest -p no:cacheprovider tests
-  result: Not started; python missing from PATH. Bundled Python attempt failed because pytest module was absent.
-- suite: postgres-concurrency
+  database: SQLite standardmäßig; PostgreSQL mit BCSENTINEL_TEST_DATABASE_URL
+  alembic_behavior: Durch conftest.py standardmäßig umgangen; Tabellen entstehen per drop_all/create_all aus ORM-Metadaten.
+  infrastructure_specific: false
+  ci_status: none
+  execution:
+    confirmed: false
+    command: python -m pytest -p no:cacheprovider tests
+    result: Nicht ausgeführt; im verfügbaren Python fehlte das pytest-Modul.
+  related_features: [TEST-PY-001, BACK-CAP-001, SCAN-CAP-001, BILL-CAP-001, DASH-CAP-001, REP-CAP-001, SEC-CAP-001]
+  related_workflows: [WF-REG-001, WF-BILL-001, WF-SCAN-001, WF-REP-001, WF-DASH-002]
+  evidence:
+    - {path: backend/tests, note: 27 Testdateien und 224 Testfunktionen}
+    - {path: backend/tests/conftest.py, note: SQLite-/PostgreSQL-Fixture und Alembic-Bypass}
+- id: TEST-SUITE-POSTGRES-CONCURRENCY
+  name: PostgreSQL-Konkurrenztests
   type: [integration, database, security]
   path: backend/tests/test_p0e_postgres_concurrency.py
+  status: execution_unconfirmed
   files: 1
   test_functions: 7
-  database: PostgreSQL required
-  success_cases: true
-  failure_cases: true
-  ci_executed: false
-  sprint_execution_confirmed: false
-  result: Not run; BCSENTINEL_TEST_DATABASE_URL and runnable pytest environment unavailable.
-- suite: al-contract-via-python
+  database: PostgreSQL erforderlich
+  alembic_behavior: Test-Fixture erstellt das Schema aus ORM-Metadaten; kein Migrationslauf als Bestandteil der Suite.
+  infrastructure_specific: true
+  ci_status: none
+  execution:
+    confirmed: false
+    command: BCSENTINEL_TEST_DATABASE_URL=<postgres-url> python -m pytest tests/test_p0e_postgres_concurrency.py
+    result: Nicht ausgeführt; PostgreSQL-Test-URL und lauffähiges pytest waren nicht verfügbar.
+  related_features: [TEST-PG-001, BACK-TEN-001, BILL-CREDIT-001, BACK-JOB-001, SEC-TEN-001]
+  related_workflows: [WF-REG-002, WF-CREDIT-001, WF-SCAN-004]
+  evidence:
+    - {path: backend/tests/test_p0e_postgres_concurrency.py, note: sieben PostgreSQL-spezifische Tests}
+    - {path: backend/tests/conftest.py, note: BCSENTINEL_TEST_DATABASE_URL und Schemaaufbau}
+- id: TEST-SUITE-AL-CONTRACT
+  name: Statischer AL-Vertragstest via Python
   type: [static-contract]
   path: backend/tests/test_pilot_fix01_al_contract.py
+  status: execution_unconfirmed
   files: 1
   test_functions: 3
-  database: SQLite fixture initialized by suite
-  success_cases: true
-  failure_cases: false
-  ci_executed: false
-  sprint_execution_confirmed: false
-  result: Not run; pytest unavailable.
-- suite: al-test-app
+  database: SQLite-Fixture der Backend-Suite
+  alembic_behavior: Wie Backend-Pytest-Suite umgangen.
+  infrastructure_specific: false
+  ci_status: none
+  execution:
+    confirmed: false
+    command: python -m pytest tests/test_pilot_fix01_al_contract.py
+    result: Nicht ausgeführt; pytest war nicht verfügbar.
+  related_features: [TEST-PY-001, EXT-REG-001, EXT-SCAN-001, EXT-SCAN-002]
+  related_workflows: [WF-REG-001, WF-SCAN-001]
+  evidence: [{path: backend/tests/test_pilot_fix01_al_contract.py, note: statische Prüfung ausgewählter AL-Verträge}]
+- id: TEST-SUITE-AL-APP
+  name: AL-Test-App
   type: [business-central]
   path: bc-extension
+  status: none
   files: 0
   test_functions: 0
-  ci_executed: false
-  sprint_execution_confirmed: false
-  result: No AL test app or test codeunit found.
-- suite: frontend-browser-e2e
+  database: Business Central Test Toolkit erwartet
+  alembic_behavior: nicht anwendbar
+  infrastructure_specific: true
+  ci_status: none
+  execution: {confirmed: false, command: null, result: Keine AL-Test-App und keine Test-Codeunit gefunden.}
+  related_features: [TEST-AL-001, EXT-INSTALL-001, EXT-UPG-001]
+  related_workflows: [WF-EXT-001, WF-EXT-002]
+  evidence: [{path: bc-extension/app/src, note: Objektinventur ohne Subtype Test oder Test-Codeunit}]
+- id: TEST-SUITE-FRONTEND-E2E
+  name: Automatisierte Browser-End-to-End-Tests
   type: [end-to-end, browser]
   path: landingpage
+  status: none
   files: 0
   test_functions: 0
-  ci_executed: false
-  sprint_execution_confirmed: false
-  result: No automated browser E2E suite found; only smoke-test documentation.
-- suite: performance
+  database: nicht anwendbar
+  alembic_behavior: nicht anwendbar
+  infrastructure_specific: false
+  ci_status: none
+  execution: {confirmed: false, command: null, result: Keine automatisierte Browser-E2E-Suite gefunden; nur manuelle Smoke-Dokumentation.}
+  related_features: [WEB-SITE-001, DASH-CAP-001, TEST-CI-001]
+  related_workflows: [WF-DASH-002, WF-TRANS-001]
+  evidence: [{path: docs/LANDINGPAGE_SMOKE_TEST.md, note: manuelles Smoke-Test-Dokument}]
+- id: TEST-SUITE-PERFORMANCE
+  name: Last- und Performance-Tests
   type: [performance]
   path: backend/tests
+  status: none
   files: 0
   test_functions: 0
-  ci_executed: false
-  sprint_execution_confirmed: false
-  result: No load/performance test suite found.
+  database: nicht festgelegt
+  alembic_behavior: nicht festgelegt
+  infrastructure_specific: true
+  ci_status: none
+  execution: {confirmed: false, command: null, result: Keine Last- oder Performance-Test-Suite gefunden.}
+  related_features: [TEST-CI-001, OPS-CAP-001]
+  related_workflows: []
+  evidence: [{path: backend/tests, note: keine Performance-Suite in der Testinventur}]

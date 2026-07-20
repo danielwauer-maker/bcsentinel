@@ -10,7 +10,7 @@
 | Landingpage | partial | `landingpage/`, nicht eingebundenes `landingpage_neu/` | [Detail](components/landingpage.md) |
 | Executive Reporting/PDF | implemented | `reports.py`, `executive_report_service.py` | [Detail](components/executive-reporting.md) |
 | Lizenzierung/Billing | implemented | `billing.py`, Produkt-/Entitlement-Services | [Detail](components/licensing-billing.md) |
-| E-Mail/Notifications | partial | SMTP in Invite-/Partner-/Template-Code | [Detail](components/email-notifications.md) |
+| E-Mail/Notifications | partial | SMTP in Invite-/Partner-/Template-Code; reale Zustellung separat unbestätigt | [Detail](components/email-notifications.md) |
 | Übersetzungen | implemented | XLF, JSON, Translation-Services | [Detail](components/translations-localization.md) |
 | Authentifizierung/Benutzer | implemented | Tenant-Token, Dashboard-Sessions, Partner-JWT, Basic Admin | [Detail](components/authentication-users.md) |
 | Datenbank/Migrationen | implemented | `models.py`, 25 Alembic-Revisionen | [Detail](components/database-migrations.md) |

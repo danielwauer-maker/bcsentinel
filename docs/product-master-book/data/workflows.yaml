@@ -1,6 +1,8 @@
 - id: WF-REG-001
   name: Registrierung aus Business Central
   status: implemented
+  components: [business-central-extension, backend-api, authentication-users, email-notifications]
+  execution_mode: mixed
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHApiClient.Codeunit.al}]}
   steps:
     - {order: 1, description: BC-Identität und Kontakt erfassen, feature_id: EXT-REG-001}
@@ -14,6 +16,8 @@
 - id: WF-REG-002
   name: Tenant- und Environment-Bindung
   status: implemented
+  components: [business-central-extension, backend-api, database-migrations]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHTenantIdentityMgt.Codeunit.al}]}
   steps:
     - {order: 1, description: "Entra-, Environment- und Companykontext bilden", feature_id: EXT-REG-001}
@@ -26,6 +30,8 @@
 - id: WF-LIC-001
   name: Lizenzstatus abrufen
   status: implemented
+  components: [business-central-extension, backend-api, licensing-billing]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHApiClient.Codeunit.al}]}
   steps:
     - {order: 1, description: Tenant-/BC-Kontext authentifizieren, feature_id: AUTH-TEN-001}
@@ -39,6 +45,8 @@
 - id: WF-BILL-001
   name: Assessment kaufen
   status: implemented
+  components: [licensing-billing, backend-api, database-migrations]
+  execution_mode: asynchronous
   entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
   steps:
     - {order: 1, description: Assessmentpreis wählen und Checkout erzeugen, feature_id: BILL-CHECK-001}
@@ -52,6 +60,8 @@
 - id: WF-BILL-002
   name: Validation kaufen
   status: implemented
+  components: [licensing-billing, backend-api, database-migrations]
+  execution_mode: asynchronous
   entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
   steps:
     - {order: 1, description: Validation-Checkout erzeugen, feature_id: BILL-CHECK-001}
@@ -64,6 +74,8 @@
 - id: WF-BILL-003
   name: Monitoring abonnieren
   status: implemented
+  components: [licensing-billing, backend-api, database-migrations]
+  execution_mode: asynchronous
   entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
   steps:
     - {order: 1, description: monatlichen/jährlichen Subscription-Checkout erzeugen, feature_id: BILL-CHECK-001}
@@ -77,6 +89,8 @@
 - id: WF-SCAN-001
   name: Manuellen Scan starten
   status: implemented
+  components: [business-central-extension, scan-engine, backend-api, licensing-billing]
+  execution_mode: mixed
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/pages/DHSetup.Page.al}]}
   steps:
     - {order: 1, description: Zugriff prüfen und lokalen Run anlegen, feature_id: EXT-SCAN-002}
@@ -89,11 +103,13 @@
   uncertainties: [BC End-to-End]
 - id: WF-SCAN-002
   name: Geplanten Scan starten
-  status: partial
+  status: implemented
+  components: [business-central-extension, scan-engine]
+  execution_mode: asynchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHScanSchedulerMgt.Codeunit.al}]}
   steps:
     - {order: 1, description: TaskScheduler startet Runner, feature_id: EXT-SCHED-001}
-    - {order: 2, description: Dispatcher startet Scan, feature_id: SCAN-SCHED-001}
+    - {order: 2, description: Dispatcher startet Scan, feature_id: EXT-SCHED-001}
   data_objects: [DH Setup, DH Deep Scan Run]
   external_systems: [Business Central TaskScheduler]
   failure_paths: [Failure-Codeunit aktualisiert Setup]
@@ -102,6 +118,8 @@
 - id: WF-CREDIT-001
   name: Credit verbrauchen
   status: implemented
+  components: [scan-engine, licensing-billing, database-migrations]
+  execution_mode: synchronous
   entry_point: {component: backend-api, evidence: [{path: backend/app/services/atomic_scan_start_service.py}]}
   steps:
     - {order: 1, description: Client Request deduplizieren, feature_id: SCAN-DEEP-001}
@@ -114,6 +132,8 @@
 - id: WF-SCAN-003
   name: Scan erfolgreich abschließen
   status: implemented
+  components: [business-central-extension, scan-engine, backend-api, database-migrations]
+  execution_mode: mixed
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al}]}
   steps:
     - {order: 1, description: Resultat/Findings synchronisieren, feature_id: SCAN-SYNC-001}
@@ -126,6 +146,8 @@
 - id: WF-SCAN-004
   name: Scanfehler behandeln
   status: implemented
+  components: [business-central-extension, scan-engine, backend-api, database-migrations]
+  execution_mode: mixed
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHDeepScanFailure.Codeunit.al}]}
   steps:
     - {order: 1, description: Fehler lokal erfassen, feature_id: EXT-SCAN-002}
@@ -139,6 +161,8 @@
 - id: WF-SCAN-005
   name: Findings speichern
   status: implemented
+  components: [business-central-extension, scan-engine, database-migrations]
+  execution_mode: mixed
   entry_point: {component: scan-engine, evidence: [{path: backend/app/routers/scans.py}]}
   steps:
     - {order: 1, description: AL-Findings erzeugen, feature_id: EXT-SCAN-002}
@@ -152,6 +176,8 @@
 - id: WF-SCORE-001
   name: Health Score berechnen
   status: implemented
+  components: [business-central-extension, scan-engine]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHQuickScanMgt.Codeunit.al}]}
   steps:
     - {order: 1, description: Counts/Findings und Module erfassen, feature_id: EXT-SCAN-001}
@@ -164,6 +190,8 @@
 - id: WF-REP-001
   name: Report erzeugen
   status: implemented
+  components: [executive-reporting, licensing-billing, database-migrations]
+  execution_mode: synchronous
   entry_point: {component: executive-reporting, evidence: [{path: backend/app/routers/reports.py}]}
   steps:
     - {order: 1, description: Produktzugriff und Scanbindung prüfen, feature_id: BILL-ENT-001}
@@ -177,10 +205,12 @@
 - id: WF-DASH-001
   name: Dashboardzugriff erzeugen
   status: implemented
+  components: [business-central-extension, authentication-users, customer-dashboard, licensing-billing]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/pages/DHSetup.Page.al}]}
   steps:
     - {order: 1, description: exakten Tenant-/BC-Kontext senden, feature_id: AUTH-TEN-001}
-    - {order: 2, description: kurzlebigen Embedtoken erzeugen, feature_id: DASH-AUTH-001}
+    - {order: 2, description: kurzlebigen Embedtoken erzeugen, feature_id: AUTH-DASH-001}
   data_objects: [Tenant, TenantProductEntitlement]
   external_systems: [Business Central]
   failure_paths: [staler/fremder Kontext]
@@ -189,9 +219,11 @@
 - id: WF-DASH-002
   name: Dashboard öffnen
   status: implemented
+  components: [customer-dashboard, authentication-users, backend-api]
+  execution_mode: synchronous
   entry_point: {component: customer-dashboard, evidence: [{path: backend/app/routers/analytics.py}]}
   steps:
-    - {order: 1, description: Einmaltoken in Embedcookie überführen, feature_id: DASH-AUTH-001}
+    - {order: 1, description: Einmaltoken in Embedcookie überführen, feature_id: AUTH-DASH-001}
     - {order: 2, description: Shell und tenantgebundene Daten laden, feature_id: DASH-OV-001}
   data_objects: [Dashboard session, Scan]
   external_systems: [Browser]
@@ -201,6 +233,8 @@
 - id: WF-DASH-003
   name: Analytics öffnen
   status: implemented
+  components: [customer-dashboard, backend-api, licensing-billing]
+  execution_mode: synchronous
   entry_point: {component: customer-dashboard, evidence: [{path: backend/app/static/js/analytics-dashboard.js}]}
   steps:
     - {order: 1, description: Analytics-Tab wählen, feature_id: DASH-AN-001}
@@ -213,6 +247,8 @@
 - id: WF-LIC-002
   name: Lizenz oder Zugriff ablaufen lassen
   status: implemented
+  components: [licensing-billing, customer-dashboard, business-central-extension]
+  execution_mode: synchronous
   entry_point: {component: licensing-billing, evidence: [{path: backend/app/services/access_control_service.py}]}
   steps:
     - {order: 1, description: Gültigkeit/Subscriptionperiode gegen Serverzeit prüfen, feature_id: BILL-ENT-001}
@@ -225,6 +261,8 @@
 - id: WF-BILL-004
   name: Stripe-Webhook verarbeiten
   status: implemented
+  components: [licensing-billing, backend-api, database-migrations]
+  execution_mode: asynchronous
   entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
   steps:
     - {order: 1, description: Signatur prüfen/normalisieren, feature_id: BILL-WEB-001}
@@ -237,11 +275,13 @@
   uncertainties: [Live-Zustellung]
 - id: WF-SCHED-001
   name: Scheduler erneut planen
-  status: partial
+  status: implemented
+  components: [business-central-extension]
+  execution_mode: asynchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHScanSchedulerMgt.Codeunit.al}]}
   steps:
     - {order: 1, description: nächsten Termin aus Frequenz/Tagen/Uhrzeit berechnen, feature_id: EXT-SCHED-001}
-    - {order: 2, description: Task aktualisieren und ID in Setup speichern, feature_id: SCAN-SCHED-001}
+    - {order: 2, description: Task aktualisieren und ID in Setup speichern, feature_id: EXT-SCHED-001}
   data_objects: [DH Setup]
   external_systems: [Business Central TaskScheduler]
   failure_paths: [Failure Count/Error im Setup]
@@ -249,7 +289,9 @@
   uncertainties: [BC Runtime]
 - id: WF-MAIL-001
   name: E-Mail versenden
-  status: partial
+  status: implemented
+  components: [email-notifications, backend-api]
+  execution_mode: synchronous
   entry_point: {component: email-notifications, evidence: [{path: backend/app/services/dashboard_invite_service.py}]}
   steps:
     - {order: 1, description: Template/Fallback rendern, feature_id: MAIL-TPL-001}
@@ -262,6 +304,8 @@
 - id: WF-TRANS-001
   name: Übersetzungen laden
   status: implemented
+  components: [landingpage, translations-localization, customer-dashboard]
+  execution_mode: synchronous
   entry_point: {component: landingpage, evidence: [{path: landingpage/js/i18n.js}]}
   steps:
     - {order: 1, description: DE/EN auswählen und JSON laden, feature_id: TRANS-SITE-001}
@@ -274,6 +318,8 @@
 - id: WF-EXT-001
   name: Extension installieren
   status: implemented
+  components: [business-central-extension]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHInstall.Codeunit.al}]}
   steps:
     - {order: 1, description: Setup erzeugen oder Defaults anwenden, feature_id: EXT-INSTALL-001}
@@ -286,6 +332,8 @@
 - id: WF-EXT-002
   name: Extension upgraden
   status: implemented
+  components: [business-central-extension]
+  execution_mode: synchronous
   entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHUpgrade.Codeunit.al}]}
   steps:
     - {order: 1, description: Setup sicherstellen, feature_id: EXT-UPG-001}

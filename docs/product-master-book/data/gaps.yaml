@@ -41,7 +41,7 @@
   related_features: [WEB-SUPPORT-001]
   manual_product_review_required: true
 - id: GAP-MAIL-001
-  title: E-Mail-Zustellung nicht automatisiert belegt
+  title: Reale E-Mail-Zustellung nicht automatisiert verifiziert
   component: email-notifications
   type: external_integration_unverified
   severity: unassessed
@@ -64,7 +64,7 @@
   type: missing_repository_entry_documentation
   severity: unassessed
   evidence: [{path: README.md, note: Dateigröße 0 Bytes am Stichtag}]
-  related_features: [DOC-ROOT-001]
+  related_features: [DOC-CAP-001]
   manual_product_review_required: false
 - id: GAP-DB-001
   title: Standardtests umgehen Migrationslauf
@@ -75,12 +75,12 @@
   related_features: [DB-CHECK-001]
   manual_product_review_required: true
 - id: GAP-OPS-002
-  title: Kein separater Recovery-Worker im Stack
+  title: Scan-Recovery läuft nur als In-Process-Task
   component: infrastructure-operations
   type: in_process_background_job
   severity: unassessed
   evidence:
     - {path: backend/app/main.py, note: Recovery als In-Process-Task}
-    - {path: docker-compose.prod.yml, note: Kein Worker-Service}
+    - {path: docker-compose.prod.yml, note: Kein separater Worker-Service}
   related_features: [BACK-JOB-001]
   manual_product_review_required: true

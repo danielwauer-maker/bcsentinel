@@ -1,7 +1,7 @@
 # Datenbank und Migrationen
 
 ## Zusammenfassung
-22 SQLAlchemy-Modelle und 25 lineare Alembic-Revisionen für PostgreSQL.
+29 SQLAlchemy-ORM-Klassen und 25 lineare Alembic-Revisionen für PostgreSQL.
 
 ## Erkannte Verantwortlichkeiten
 Tenant/Scan, Lifecycle, Pricing/Billing, Partner, Audit, E-Mail, Produktlizenzierung, Websitevisibility und Dashboardusers.

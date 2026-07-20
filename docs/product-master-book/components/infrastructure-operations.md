@@ -13,7 +13,7 @@ Dockerfile, drei Compose-Dateien, Nginx, Workflow, `scripts/`, `docs/ops/`.
 OPS-CONT-001, OPS-DEP-001, OPS-HEALTH-001.
 
 ## Teilweise vorhandene Features
-OPS-BACKUP-001 ist nur dokumentiert; CI enthält keine Tests; Rollback ist extern/manuell.
+OPS-BACKUP-001 ist nur dokumentiert; CI-Testausführung fehlt als `TEST-CI-001`; Rollback ist extern/manuell.
 
 ## Stubs oder statische Inhalte
 Keine Infrastruktur-Stubs; `.env.example` enthält Konfigurationsvorlage.

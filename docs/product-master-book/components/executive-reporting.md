@@ -10,7 +10,7 @@ KPI-/Findingaggregation, Lokalisierung, Zugriffsprüfung, Shared Tokens, Jinja-R
 `reports.py`, `executive_report_service.py`, Schema, Template, CSS, lokale Fonts/Bilder.
 
 ## Vorhandene Features
-REP-DATA-001, REP-HTML-001, REP-PDF-001, REP-SHARE-001.
+REP-DATA-001 als primäres Feature; REP-HTML-001, REP-PDF-001 und REP-SHARE-001 als Subfeatures.
 
 ## Teilweise vorhandene Features
 Keine statisch erkennbare Teilimplementierung; Laufzeitdarstellung bleibt manuell.

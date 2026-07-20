@@ -4,7 +4,7 @@
 Transport-, Token-, Tenant-, CSRF-, Rate-Limit-, URL-, Header- und Entitlementkontrollen sind im Code vorhanden; Compliance umfasst zusätzlich Dokumentation.
 
 ## Erkannte Verantwortlichkeiten
-Tenantisolation, Secret-/Tokenhashing, sichere URLs/HTTPS, Sessions, CSRF, Adminauth, Audit, Datenschutz und Retention.
+Tenantisolation, Secret-/Tokenhashing, sichere URLs/HTTPS, Sessions, CSRF, Adminauth, Security Header, Log-Redaction, Audit, Datenschutz und Retention.
 
 ## Erkannte Unterbereiche
 `backend/app/security/`, Middleware in `main.py`, AL URL/Secret/Access Guards, Privacy-Dokumente.
@@ -22,7 +22,7 @@ Keine Security-Stubs; Rechtstexte enthalten unfertige Platzhalter.
 HTTPS-Proxyheader, Headerauth, Cookies/JWT/Basic, CSRF-Token, Stripe-Signatur.
 
 ## Datenmodelle
-Tokenhash, AuditEvent, WebhookEvent, Memberships/Entitlements.
+Tokenhash, Memberships/Entitlements sowie getrennt davon persistente Admin-/Webhook-Auditentitäten.
 
 ## Tests
 Security Header, Tenantregistration/isolation, Embed-Security, Transportpolicy, Tokenmigration und PostgreSQL-Konkurrenz.

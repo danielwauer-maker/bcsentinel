@@ -13,7 +13,9 @@
 | Feature zugeordnet | Ja, in `data/features.yaml` und `data/tests.yaml` |
 | Erfolgs-/Fehlerfälle | Beide in mehreren Suites, z. B. `test_p0a_*`, `test_p0c_*`, `test_billing.py` |
 | CI-Ausführung | Nicht nachgewiesen; `.github/workflows/deploy.yml` enthält nur Paketierung/Deployment/Healthchecks |
-| Ausführung in BOOK-000B bestätigt | Nein |
+| Ausführung in BOOK-000C bestätigt | Nein |
+
+Die normalisierten Suite- und Feature-Teststatus lauten ausschließlich `none`, `identified`, `partial`, `broad`, `manual_only` und `execution_unconfirmed`. Vorhandene, in diesem Sprint nicht ausgeführte Suites stehen auf `execution_unconfirmed`; fehlende Suites auf `none`.
 
 ## Ausführungsversuche
 

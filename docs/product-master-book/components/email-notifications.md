@@ -10,10 +10,10 @@ HTML-Mail, Versandstatus/-fehler, Templateverwaltung und Testversand.
 `dashboard_invite_service.py`, SMTP-Helfer in `partners.py`, `email_template_service.py`, Admin-Template-Routen.
 
 ## Vorhandene Features
-MAIL-TPL-001.
+MAIL-TPL-001, MAIL-INV-001, MAIL-PART-001.
 
 ## Teilweise vorhandene Features
-MAIL-INV-001, MAIL-PART-001: Code und Statuspersistenz vorhanden; externe Zustellung nicht bestätigt.
+Keine statisch unvollständige Mailfunktion. Die reale SMTP-Zustellung ist eine externe Laufzeitunsicherheit und nicht automatisiert verifiziert.
 
 ## Stubs oder statische Inhalte
 Fallbacktexte sind im Code hinterlegt; bei fehlendem SMTP wird Versand protokolliert/übersprungen.

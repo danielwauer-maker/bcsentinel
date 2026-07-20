@@ -10,10 +10,10 @@ Tenantregistrierung, Scanannahme/-persistenz, Lizenz/Billing, Dashboard/Admin/Pa
 `main.py`, neun Routermodule, Security-, Schema- und Servicemodule.
 
 ## Vorhandene Features
-BACK-API-001, BACK-TEN-001, BACK-OBS-001, BACK-HEALTH-001.
+BACK-TEN-001, BACK-OBS-001, BACK-HEALTH-001, BACK-JOB-001.
 
 ## Teilweise vorhandene Features
-BACK-JOB-001: Lifecycle-Recovery läuft in-process; kein separater Worker im Compose-Stack.
+Keine statisch unvollständige Backend-Funktion; Lifecycle-Recovery ist implementiert, läuft jedoch in-process statt in einem separaten Worker.
 
 ## Stubs oder statische Inhalte
 Root-Route liefert statischen Servicehinweis.
@@ -22,7 +22,7 @@ Root-Route liefert statischen Servicehinweis.
 Vollständig in [api-endpoints.md](../evidence/api-endpoints.md); Stripe, SMTP, PostgreSQL und Playwright/Chromium.
 
 ## Datenmodelle
-22 ORM-Klassen in `backend/app/models.py`.
+29 ORM-Klassen in `backend/app/models.py`.
 
 ## Tests
 27 Testdateien; API-, Security-, Billing-, Lifecycle- und Reportingtests.

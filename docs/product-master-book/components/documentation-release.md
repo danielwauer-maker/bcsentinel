@@ -13,7 +13,7 @@ Systemerklärung, Check-/Pricingmodell, Runbooks, Readiness, Change-/Auditnachwe
 DOC-ARCH-001, DOC-OPS-001.
 
 ## Teilweise vorhandene Features
-DOC-ROOT-001: Root-README ohne Inhalt.
+Keine eigene Teilfunktion. Das leere Root-README ist als Dokumentationslücke `GAP-DOC-001` erfasst, nicht als Feature.
 
 ## Stubs oder statische Inhalte
 Designkonzepte und Beispiel-PDFs sind ausdrücklich Entwurfs-/Beispielartefakte.

@@ -1,7 +1,7 @@
 # Testing und Quality
 
 ## Zusammenfassung
-224 Pytest-Funktionen; statische AL-/Pricing-/Localization-Skripte; keine bestätigte Ausführung in BOOK-000B.
+224 Pytest-Funktionen; statische AL-/Pricing-/Localization-Skripte; keine bestätigte Ausführung in BOOK-000C.
 
 ## Erkannte Verantwortlichkeiten
 Unit-/API-/Integrationsverträge, Security, Billing, Scanstatus, Report, Migration, Deployment und PostgreSQL-Konkurrenz.
@@ -13,7 +13,7 @@ Unit-/API-/Integrationsverträge, Security, Billing, Scanstatus, Report, Migrati
 TEST-PY-001, TEST-PG-001.
 
 ## Teilweise vorhandene Features
-TEST-CI-001: kein CI-Testjob.
+Keine Teilimplementierung: `TEST-CI-001` hat Status `not_found`, weil der vorhandene Workflow keinen Testjob enthält.
 
 ## Stubs oder statische Inhalte
 TEST-AL-001: Status `not_found`, keine AL-Test-App.

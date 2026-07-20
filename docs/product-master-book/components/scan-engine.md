@@ -10,10 +10,10 @@ Quick Scan, Data Health Score/Deep Scan, Modulauswahl, Findings, Status/Heartbea
 `DHQuickScanMgt`, `DHDeepScanMgt`, `DHDeepScanRunner`, `DHScanCheckMgt`, `DHDataProfilingMgt`, `scans.py`, `scan_status_service.py`, `scoring_service.py`.
 
 ## Vorhandene Features
-SCAN-QUICK-001, SCAN-DEEP-001, SCAN-SYNC-001, SCAN-LIFE-001, SCAN-REC-001, SCAN-SCORE-001.
+EXT-SCAN-001, EXT-SCAN-002, EXT-SCHED-001, SCAN-DEEP-001, SCAN-SYNC-001, SCAN-LIFE-001, SCAN-REC-001, SCAN-SCORE-001.
 
 ## Teilweise vorhandene Features
-SCAN-SCHED-001 ist auf BC TaskScheduler angewiesen und statisch nicht End-to-End bestätigt.
+Keine statisch unvollständige Scan-Funktion; reale Laufzeit, Datenmenge und Scheduler-Ausführung bleiben manuell zu verifizieren.
 
 ## Stubs oder statische Inhalte
 Keine eindeutigen Scan-Stubs gefunden.

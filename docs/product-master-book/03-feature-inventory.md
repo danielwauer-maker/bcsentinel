@@ -1,15 +1,21 @@
 # Feature-Inventur
 
-Die strukturierte Quelle ist [data/features.yaml](data/features.yaml). Insgesamt wurden **81 Features** erfasst:
+Die strukturierte Quelle ist [data/features.yaml](data/features.yaml). Insgesamt wurden **93 hierarchische Inventareinträge** erfasst:
+
+| Ebene | Anzahl |
+|---|---:|
+| `capability` | 16 |
+| `feature` | 65 |
+| `subfeature` | 12 |
 
 | Status | Anzahl |
 |---|---:|
-| `implemented` | 61 |
-| `partial` | 13 |
+| `implemented` | 71 |
+| `partial` | 16 |
 | `stub` | 2 |
 | `documented_only` | 1 |
-| `not_found` | 1 |
-| `manual_review` | 3 |
+| `not_found` | 2 |
+| `manual_review` | 1 |
 
 ## Bereiche
 
@@ -20,4 +26,4 @@ Die strukturierte Quelle ist [data/features.yaml](data/features.yaml). Insgesamt
 - `AUTH`/`SEC`: Tenant-, Dashboard-, Partner- und Adminzugriff sowie Schutzkontrollen.
 - `TRANS`/`DB`/`OPS`/`TEST`/`DOC`: Lokalisierung, Persistenz, Betrieb, Qualität und Dokumentation.
 
-Eine `high`-Konfidenz wird nur bei mehreren eindeutigen Codebelegen verwendet. Teststatus in einem Feature bedeutet vorhandene Zuordnung, nicht bestätigte Ausführung.
+Capabilities sind keine zusätzlichen Produktversprechen, sondern stabile Eltern der Komponentenstruktur. Eine `high`-Konfidenz wird nur bei eindeutigen Codebelegen verwendet. Teststatus in einem Feature bedeutet vorhandene Zuordnung, nicht bestätigte Ausführung.
