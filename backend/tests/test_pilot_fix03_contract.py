@@ -1,10 +1,41 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
 
-ROOT = Path(__file__).resolve().parents[2]
+def _project_root() -> Path:
+    candidates: list[Path] = []
+    configured_root = os.environ.get("PROJECT_ROOT")
+    if configured_root:
+        candidates.append(Path(configured_root).expanduser().resolve())
+
+    for anchor in (Path(__file__).resolve(), Path.cwd().resolve()):
+        candidates.extend((anchor, *anchor.parents))
+
+    required_paths = (
+        Path("backend/app"),
+        Path("bc-extension/app/src"),
+        Path("bc-extension/Translations"),
+    )
+    checked: set[Path] = set()
+    for candidate in candidates:
+        if candidate in checked:
+            continue
+        checked.add(candidate)
+        if all((candidate / required_path).is_dir() for required_path in required_paths):
+            return candidate
+
+    searched = ", ".join(str(candidate) for candidate in checked)
+    raise RuntimeError(
+        "Could not locate the BCSentinel project root containing backend/app, "
+        "bc-extension/app/src and bc-extension/Translations. "
+        f"Set PROJECT_ROOT when the repository is mounted elsewhere. Searched: {searched}"
+    )
+
+
+ROOT = _project_root()
 AL_ROOT = ROOT / "bc-extension" / "app" / "src"
 XLIFF_NS = {"x": "urn:oasis:names:tc:xliff:document:1.2"}
 
