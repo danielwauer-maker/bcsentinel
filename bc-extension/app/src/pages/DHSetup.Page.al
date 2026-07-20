@@ -10,9 +10,84 @@
     {
         area(Content)
         {
+            group(OverviewStatus)
+            {
+                Caption = 'Overview and Status';
+
+                field(ConnectionStatusDisplay; ConnectionStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Connection Status';
+                    Editable = false;
+                    StyleExpr = ConnectionStatusStyle;
+                    ToolTip = 'Shows whether the BCSentinel connection is configured. Use Test Connection to verify that the service is reachable.';
+                }
+                field(RegistrationStatusDisplay; RegistrationStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Registration Status';
+                    Editable = false;
+                    StyleExpr = RegistrationStatusStyle;
+                    ToolTip = 'Shows whether this Business Central company is registered with BCSentinel.';
+                }
+                field(CurrentProductPlanDisplay; ProductAccessTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Current Product Plan';
+                    Editable = false;
+                    ToolTip = 'Shows the current product access from the locally stored access snapshot.';
+                }
+                field(LatestDataHealthScoreDisplay; LastScanScoreTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Latest Data Health Score';
+                    Editable = false;
+                    StyleExpr = LastScanScoreStyle;
+                    ToolTip = 'Shows the Data Health Score from the latest locally stored scan. No backend request is made when the page opens.';
+                }
+                field(LatestRatingDisplay; LatestRatingTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Rating';
+                    Editable = false;
+                    StyleExpr = LastScanScoreStyle;
+                    ToolTip = 'Shows the rating derived from the latest locally stored Data Health Score.';
+                }
+                field(LatestScanDisplay; LastScanDateValue)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Scan';
+                    Editable = false;
+                    ToolTip = 'Shows when the latest locally stored scan was requested.';
+                }
+                field(LatestScanStatusDisplay; LastScanStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scan Status';
+                    Editable = false;
+                    StyleExpr = LastScanStatusStyle;
+                    ToolTip = 'Shows the status of the latest locally stored scan.';
+                }
+                field(NextScheduledScanDisplay; Rec."Next Scheduled Scan")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Next Scheduled Scan';
+                    Editable = false;
+                    ToolTip = 'Shows the next scheduled scan. The value is empty when no run is scheduled.';
+                }
+                field(MonitoringEnabledDisplay; Rec."Monitoring Active")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Monitoring Enabled';
+                    Editable = false;
+                    StyleExpr = MonitoringStyle;
+                    ToolTip = 'Shows whether the current product access includes Monitoring.';
+                }
+            }
+
             group(SubscriptionStatus)
             {
-                Caption = 'Subscription & Status';
+                Caption = 'Product and Access';
 
                 field(SubscriptionStatusDisplay; SubscriptionStatusTxt)
                 {
@@ -35,6 +110,27 @@
                     ToolTip = 'Specifies Monitoring Active.';
                     Editable = false;
                     StyleExpr = MonitoringStyle;
+                }
+                field("Assessment Credits Available"; Rec."Assessment Credits Available")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Assessment Credits';
+                    Editable = false;
+                    ToolTip = 'Shows the available Assessment credits. Credits are consumed only by scan types defined by the current product access.';
+                }
+                field("Validation Credits Available"; Rec."Validation Credits Available")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Validation Credits';
+                    Editable = false;
+                    ToolTip = 'Shows the available Validation credits. Monitoring scans do not consume these credits under the current product model.';
+                }
+                field("Report Access Until"; Rec."Report Access Until")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Report Access Until';
+                    Editable = false;
+                    ToolTip = 'Shows until when Executive Reports are available according to the current access snapshot.';
                 }
                 field("Dashboard Access Until"; Rec."Dashboard Access Until")
                 {
@@ -117,7 +213,7 @@
                     Editable = false;
                     MultiLine = true;
                     StyleExpr = SchedulerAccessStyle;
-                    ToolTip = 'Shows scheduler availability.';
+                    ToolTip = 'Explains scheduler availability and how Business Central runs scheduled scans.';
                 }
                 field("Scheduled Scans Enabled"; Rec."Scheduled Scans Enabled")
                 {
@@ -294,13 +390,14 @@
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = false;
                     ToolTip = 'Specifies the Business Central TaskScheduler task that will start the next scheduled scan.';
                 }
             }
 
             group(Connection)
             {
-                Caption = 'Connection';
+                Caption = 'Connection and Registration';
 
                 field("API Base URL"; Rec."API Base URL")
                 {
@@ -331,6 +428,7 @@
                     Caption = 'Tenant ID';
                     ToolTip = 'Specifies Tenant ID.';
                     Editable = false;
+                    Visible = false;
                 }
 
                 field(ApiTokenConfigured; HasStoredApiToken())
@@ -338,6 +436,7 @@
                     ApplicationArea = All;
                     Caption = 'API Token Configured';
                     Editable = false;
+                    Visible = false;
                     ToolTip = 'Shows whether the API token is stored securely for this company. The token itself is not displayed.';
                 }
 
@@ -361,6 +460,7 @@
                     ApplicationArea = All;
                     ToolTip = 'Specifies Registration Date.';
                     Editable = false;
+                    Visible = false;
                 }
 
                 field("Data Processing Consent"; Rec."Data Processing Consent")
@@ -428,6 +528,7 @@
                     ApplicationArea = All;
                     Caption = 'Last Scan ID';
                     Editable = false;
+                    Visible = false;
                     ToolTip = 'Specifies the last scan ID.';
                 }
                 field(LastScanDate; LastScanDateValue)
@@ -477,6 +578,110 @@
                     ToolTip = 'Specifies the last scan status.';
                 }
             }
+
+            group(AdvancedInformation)
+            {
+                Caption = 'Advanced Information';
+
+                field(EntraTenantIdDisplay; EntraTenantIdTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Entra Tenant ID';
+                    Editable = false;
+                    ToolTip = 'Shows the Entra tenant identifier used for support and tenant-binding diagnostics.';
+                }
+                field(EnvironmentNameDisplay; EnvironmentNameTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Environment Name';
+                    Editable = false;
+                    ToolTip = 'Shows the Business Central environment name used for support diagnostics.';
+                }
+                field(EnvironmentTypeDisplay; EnvironmentTypeTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Environment Type';
+                    Editable = false;
+                    ToolTip = 'Shows the Business Central environment type used for support diagnostics.';
+                }
+                field(CompanySystemIdDisplay; CompanySystemIdTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Company System ID';
+                    Editable = false;
+                    ToolTip = 'Shows the immutable Business Central company identifier used for support diagnostics.';
+                }
+                field(TenantIdDiagnostic; Rec."Tenant ID")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Registration Identifier';
+                    Editable = false;
+                    ToolTip = 'Shows the BCSentinel registration identifier for support and diagnostics.';
+                }
+                field(ApiTokenConfiguredDiagnostic; HasStoredApiToken())
+                {
+                    ApplicationArea = All;
+                    Caption = 'API Token Configured';
+                    Editable = false;
+                    ToolTip = 'Shows whether an API token is stored securely. The token itself is never displayed.';
+                }
+                field(RegistrationDateDiagnostic; Rec."Registration Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Registration Date';
+                    Editable = false;
+                    ToolTip = 'Shows when the local registration was completed.';
+                }
+                field(ScheduledTaskIdDiagnostic; Rec."Scheduled Scan Task ID")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Scheduler Task ID';
+                    Editable = false;
+                    ToolTip = 'Shows the Business Central task identifier for support diagnostics.';
+                }
+                field(LastLicenseCheckDiagnostic; Rec."Last License Check")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Product Access Check';
+                    Editable = false;
+                    ToolTip = 'Shows when product access was last refreshed from BCSentinel.';
+                }
+                field(AccessSnapshotReceivedAtDiagnostic; Rec."Access Snapshot Received At")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Access Snapshot Received At';
+                    Editable = false;
+                    ToolTip = 'Shows when the current access snapshot was received for support diagnostics.';
+                }
+                field(AccessSnapshotExpiresAtDiagnostic; Rec."Access Snapshot Expires At")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Access Snapshot Expires At';
+                    Editable = false;
+                    ToolTip = 'Shows when the short-lived access snapshot expires.';
+                }
+                field(AccessSnapshotVersionDiagnostic; Rec."Access Snapshot Version")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Access Snapshot Version';
+                    Editable = false;
+                    ToolTip = 'Shows the access snapshot contract version for support diagnostics.';
+                }
+                field(AccessCorrelationIdDiagnostic; Rec."Access Correlation ID")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Correlation ID';
+                    Editable = false;
+                    ToolTip = 'Shows the latest access-request correlation identifier for support diagnostics.';
+                }
+                field(LastScanIdDiagnostic; LastScanRunIdTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last Scan ID';
+                    Editable = false;
+                    ToolTip = 'Shows the latest local scan identifier for support diagnostics.';
+                }
+            }
         }
     }
 
@@ -486,12 +691,12 @@
         {
             action(StartScan)
             {
-                Caption = 'Start Scan';
-                ToolTip = 'Starts the available BCSentinel scan and opens the scan monitor.';
+                Caption = 'Start Free Data Health Score';
+                ToolTip = 'Starts the free BCSentinel Data Health Score and opens the scan monitor.';
                 Image = Start;
                 ApplicationArea = All;
-                Enabled = CanStartFreeDataHealthScore or CanStartValidationCheck;
-                Visible = ShowStartFreeDataHealthScore or ShowStartValidationCheck;
+                Enabled = CanStartFreeDataHealthScore;
+                Visible = ShowStartFreeDataHealthScore;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
@@ -578,7 +783,7 @@
                     ApplicationArea = All;
                     Image = ResetStatus;
                     Enabled = CanResetRegistration;
-                    Visible = true;
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -601,6 +806,8 @@
                     ApplicationArea = All;
                     Image = Refresh;
                     ToolTip = 'Refreshes scan credits, monitoring status, and product access from BCSentinel.';
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     var
@@ -657,12 +864,14 @@
 
                 action(StartScanFromMenu)
                 {
-                    Caption = 'Start Scan';
-                    ToolTip = 'Starts the available BCSentinel scan and opens the scan monitor.';
+                    Caption = 'Start Full Analysis or Validation Scan';
+                    ToolTip = 'Starts the available Full Analysis or Validation scan and opens the scan monitor.';
                     Image = Start;
                     ApplicationArea = All;
-                    Enabled = CanStartFreeDataHealthScore or CanStartValidationCheck;
-                    Visible = ShowStartFreeDataHealthScore or ShowStartValidationCheck;
+                    Enabled = CanStartValidationCheck;
+                    Visible = ShowStartValidationCheck and not Rec."Monitoring Active";
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     begin
@@ -690,6 +899,8 @@
                     ToolTip = 'Opens the BCSentinel scan history.';
                     Image = List;
                     ApplicationArea = All;
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     begin
@@ -704,6 +915,8 @@
                     Image = View;
                     ToolTip = 'Opens the BCSentinel analytics dashboard for this tenant.';
                     Enabled = CanOpenDashboard;
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     var
@@ -714,6 +927,55 @@
                         AccessGuard.EnsureDashboardAccess();
                         Token := ApiClient.GetAnalyticsDashboardToken(Rec);
                         Hyperlink(GetDashboardUrl(Rec, Token));
+                    end;
+                }
+
+                action(StartMonitoringScan)
+                {
+                    Caption = 'Start Monitoring Scan';
+                    ToolTip = 'Starts an available Monitoring scan and opens the scan monitor.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = CanStartValidationCheck;
+                    Visible = ShowStartValidationCheck and Rec."Monitoring Active";
+                    Promoted = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        StartAvailableScan();
+                    end;
+                }
+
+                action(OpenLatestFindings)
+                {
+                    Caption = 'Open Findings';
+                    ApplicationArea = All;
+                    Image = List;
+                    ToolTip = 'Opens the findings from the latest scan. Current product access is verified before details are shown.';
+                    Enabled = CanOpenLatestMonitor;
+                    Promoted = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        OpenFindingsForLatestScan();
+                    end;
+                }
+
+                action(OpenLatestReport)
+                {
+                    Caption = 'Open Latest Report';
+                    ApplicationArea = All;
+                    Image = Report;
+                    ToolTip = 'Opens the Executive Report for the latest completed scan. Current report access is verified first.';
+                    Enabled = CanOpenLatestReport;
+                    Promoted = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        OpenReportForLatestScan();
                     end;
                 }
             }
@@ -730,6 +992,8 @@
                     Image = Approve;
                     ApplicationArea = All;
                     Enabled = CanUseScheduler and not Rec."Scheduled Scans Enabled";
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     var
@@ -823,6 +1087,33 @@
                 }
             }
 
+            group(AdministrativeActions)
+            {
+                Caption = 'Administrative Actions';
+                Image = Administration;
+
+                action(ResetRegistrationAdmin)
+                {
+                    Caption = 'Reset Cached Registration';
+                    ToolTip = 'Clears only the local cached registration and access status. Tenant identity, API token, purchases, and scan history are preserved.';
+                    ApplicationArea = All;
+                    Image = ResetStatus;
+                    Enabled = CanResetRegistration;
+
+                    trigger OnAction()
+                    begin
+                        if not Confirm(ResetRegistrationQst, false) then
+                            exit;
+
+                        ResetLocalRegistrationState();
+                        UpdateActionState();
+                        UpdateDisplayValues();
+                        CurrPage.Update(false);
+                        Message(ResetRegistrationDoneMsg);
+                    end;
+                }
+            }
+
             group(SubscriptionActions)
             {
                 Caption = 'Subscription';
@@ -910,6 +1201,7 @@
         CanEditSchedulerDetails: Boolean;
         CanOpenDashboard: Boolean;
         CanOpenLatestMonitor: Boolean;
+        CanOpenLatestReport: Boolean;
         ShowBuyFullAnalysis: Boolean;
         ShowBuyValidationCheck: Boolean;
         ShowStartMonitoring: Boolean;
@@ -933,6 +1225,13 @@
         LastScanEstimatedImpactTxt: Text[50];
         LastScanDurationTxt: Text[50];
         LastScanStatusTxt: Text[100];
+        LatestRatingTxt: Text[50];
+        ConnectionStatusTxt: Text[100];
+        RegistrationStatusTxt: Text[100];
+        EntraTenantIdTxt: Text[100];
+        EnvironmentNameTxt: Text[100];
+        EnvironmentTypeTxt: Text[20];
+        CompanySystemIdTxt: Text[50];
         SystemModuleScoreTxt: Text[50];
         FinanceModuleScoreTxt: Text[50];
         SalesModuleScoreTxt: Text[50];
@@ -956,6 +1255,8 @@
         LastScanIssuesStyle: Text[30];
         LastScanLossStyle: Text[30];
         LastScanStatusStyle: Text[30];
+        ConnectionStatusStyle: Text[30];
+        RegistrationStatusStyle: Text[30];
         SystemModuleScoreStyle: Text[30];
         FinanceModuleScoreStyle: Text[30];
         SalesModuleScoreStyle: Text[30];
@@ -966,6 +1267,17 @@
         ServiceModuleScoreStyle: Text[30];
         JobsModuleScoreStyle: Text[30];
         HRModuleScoreStyle: Text[30];
+        ConnectionConfiguredLbl: Label 'Configured';
+        ConnectionNotConfiguredLbl: Label 'Not configured';
+        RegisteredLbl: Label 'Registered';
+        NotRegisteredLbl: Label 'Not registered';
+        NoScanLbl: Label 'No scan yet';
+        RatingExcellentLbl: Label 'Excellent';
+        RatingGoodLbl: Label 'Good';
+        RatingNeedsAttentionLbl: Label 'Needs attention';
+        SchedulerJobQueueNoticeLbl: Label 'Scheduled scans are executed through the Business Central job queue. The user does not need to remain signed in.';
+        ResetRegistrationQst: Label 'Reset the cached BCSentinel registration and access status? The tenant identity, API token, purchases, and scan history are preserved. This action cannot be undone locally. Do you want to continue?';
+        ResetRegistrationDoneMsg: Label 'The cached registration and access status was reset. Tenant identity, API token, purchases, and scan history were preserved.';
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
@@ -1089,6 +1401,7 @@
         CanEditSchedulerDetails := CanUseScheduler and Rec."Scheduled Scans Enabled";
         CanOpenDashboard := (Rec."Tenant ID" <> '') and HasStoredApiToken();
         CanOpenLatestMonitor := LastDeepScanRunExists();
+        CanOpenLatestReport := LatestCompletedScanExists();
         UpdateSchedulerVisibility();
         ShowBuyFullAnalysis := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and not HasOneTimeAccess;
         ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasOneTimeAccess;
@@ -1126,6 +1439,7 @@
         TotalChecks: Integer;
     begin
         Rec.EnsureSchedulerDefaults();
+        UpdateCustomerStatusValues();
         SubscriptionStatusTxt := Rec.GetSubscriptionStatusDisplay();
         ProductAccessTxt := Rec.GetProductAccessDisplay();
         ActiveModulesTxt := SchedulerMgt.GetActiveModulesSummary(Rec);
@@ -1146,9 +1460,9 @@
             end;
 
         if Rec."Monitoring Active" then
-            SchedulerNoticeTxt := LocalizeText('Scheduled scans are available with active Monitoring.', 'Geplante Scans sind mit aktivem Monitoring verfügbar.')
+            SchedulerNoticeTxt := SchedulerJobQueueNoticeLbl
         else
-            SchedulerNoticeTxt := LocalizeText('Scheduled scans require an active Monitoring subscription.', 'Geplante Scans erfordern ein aktives Monitoring-Abonnement.');
+            SchedulerNoticeTxt := Rec.GetScheduledScanAccessDisplay() + ' ' + SchedulerJobQueueNoticeLbl;
 
         SubscriptionStatusStyle := GetAccessStyle(Rec."Monitoring Active" or Rec."Can View Issue Details" or Rec."Premium Enabled");
         MonitoringStyle := GetAccessStyle(Rec."Monitoring Active");
@@ -1168,7 +1482,91 @@
             ScheduledFailureStyle := 'Standard';
 
         LoadLastScan(LastRun);
+        UpdateLatestRating(LastRun);
         UpdateModuleScoreTexts(LastRun);
+    end;
+
+    local procedure UpdateCustomerStatusValues()
+    var
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+    begin
+        if (Rec."API Base URL" <> '') and HasStoredApiToken() then begin
+            ConnectionStatusTxt := ConnectionConfiguredLbl;
+            ConnectionStatusStyle := 'Favorable';
+        end else begin
+            ConnectionStatusTxt := ConnectionNotConfiguredLbl;
+            ConnectionStatusStyle := 'Unfavorable';
+        end;
+
+        if Rec.Registered and (Rec."Tenant ID" <> '') and HasStoredApiToken() then begin
+            RegistrationStatusTxt := RegisteredLbl;
+            RegistrationStatusStyle := 'Favorable';
+        end else begin
+            RegistrationStatusTxt := NotRegisteredLbl;
+            RegistrationStatusStyle := 'Unfavorable';
+        end;
+
+        EntraTenantIdTxt := IdentityMgt.GetEntraTenantId();
+        EnvironmentNameTxt := IdentityMgt.GetEnvironmentName();
+        EnvironmentTypeTxt := IdentityMgt.GetEnvironmentType();
+        CompanySystemIdTxt := IdentityMgt.GetCompanyId();
+    end;
+
+    local procedure UpdateLatestRating(var LastRun: Record "DH Deep Scan Run")
+    begin
+        if LastRun."Entry No." = 0 then begin
+            LatestRatingTxt := NoScanLbl;
+            exit;
+        end;
+
+        if LastRun."Deep Score" >= 90 then
+            LatestRatingTxt := RatingExcellentLbl
+        else
+            if LastRun."Deep Score" >= 70 then
+                LatestRatingTxt := RatingGoodLbl
+            else
+                LatestRatingTxt := RatingNeedsAttentionLbl;
+    end;
+
+    local procedure LatestCompletedScanExists(): Boolean
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        DeepScanRun.SetRange(Status, DeepScanRun.Status::Completed);
+        DeepScanRun.SetFilter("Run ID", '<>%1', '');
+        exit(not DeepScanRun.IsEmpty());
+    end;
+
+    local procedure OpenFindingsForLatestScan()
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+        Finding: Record "DH Deep Scan Finding";
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureIssuesAccess();
+        DeepScanRun.SetCurrentKey("Requested At");
+        DeepScanRun.Ascending(false);
+        if not DeepScanRun.FindFirst() then
+            Error(NoScanLbl);
+
+        Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
+        Page.Run(Page::"DH Deep Scan Findings List", Finding);
+    end;
+
+    local procedure OpenReportForLatestScan()
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+        DeepScanMonitor: Page "DH Deep Scan Monitor";
+    begin
+        DeepScanRun.SetCurrentKey("Requested At");
+        DeepScanRun.SetRange(Status, DeepScanRun.Status::Completed);
+        DeepScanRun.SetFilter("Run ID", '<>%1', '');
+        DeepScanRun.Ascending(false);
+        if not DeepScanRun.FindFirst() then
+            Error(NoScanLbl);
+
+        DeepScanMonitor.SetRecord(DeepScanRun);
+        DeepScanMonitor.OpenExecutiveHtmlReport();
     end;
 
     local procedure UpdateSchedulerVisibility()

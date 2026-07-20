@@ -187,3 +187,38 @@ permissionset 53193 "BCSENTINEL ADMIN"
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
 }
+
+permissionset 53194 "BCSENTINEL SCHEDULER"
+{
+    Assignable = true;
+    Caption = 'BCSentinel Scheduler';
+
+    Permissions =
+        tabledata "DH Setup" = R,
+        tabledata "DH Scan Header" = RIMD,
+        tabledata "DH Scan Issue" = RIMD,
+        tabledata "DH Scan Trend" = RIMD,
+        tabledata "DH Deep Scan Run" = RIMD,
+        tabledata "DH Deep Scan Finding" = RIMD,
+        tabledata "DH Dashboard Issue" = RIMD,
+        tabledata "DH Issue Exception" = R,
+        tabledata "DH Issue Action Log" = RIMD,
+        tabledata "DH Scan Check Selection" = R,
+        tabledata "DH Duplicate Buffer" = RIMD,
+        codeunit "DH API Client" = X,
+        codeunit "DH Access Guard" = X,
+        codeunit "DH QuickScan Mgt." = X,
+        codeunit "DH Scan Dispatcher" = X,
+        codeunit "DH Deep Scan Mgt." = X,
+        codeunit "DH Deep Scan Runner" = X,
+        codeunit "DH Deep Scan Failure" = X,
+        codeunit "DH Run ID Mgt." = X,
+        codeunit "DH Data Profiling Mgt." = X,
+        codeunit "DH Scan Check Mgt." = X,
+        codeunit "DH Scan Scheduler Mgt." = X,
+        codeunit "DH Scheduled Scan Runner" = X,
+        codeunit "DH Scheduled Scan Failure" = X,
+        codeunit "DH Secret Mgt." = X,
+        codeunit "DH API URL Policy" = X,
+        codeunit "DH Tenant Identity Mgt." = X;
+}

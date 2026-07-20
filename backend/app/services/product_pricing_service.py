@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.models import ProductPricingConfig, ProductPricingMatrixConfig
 from app.services.billing_service import utc_now
@@ -157,17 +158,24 @@ def ensure_default_product_pricing(db) -> None:
         config = PRODUCT_PRICING_DEFAULTS[product_key]
         if db.get(ProductPricingConfig, product_key) is not None:
             continue
-        db.add(
-            ProductPricingConfig(
-                product_key=product_key,
-                display_name=str(config["display_name"]),
-                price_cents=int(config["price_cents"]),
-                currency=str(config["currency"]),
-                billing_interval=str(config["billing_interval"]),
-                is_active=bool(config["is_active"]),
-                updated_at_utc=now,
-            )
-        )
+        try:
+            with db.begin_nested():
+                db.add(
+                    ProductPricingConfig(
+                        product_key=product_key,
+                        display_name=str(config["display_name"]),
+                        price_cents=int(config["price_cents"]),
+                        currency=str(config["currency"]),
+                        billing_interval=str(config["billing_interval"]),
+                        is_active=bool(config["is_active"]),
+                        updated_at_utc=now,
+                    )
+                )
+                db.flush()
+        except IntegrityError:
+            # Another instance initialized the same immutable default first.
+            # The savepoint keeps the caller transaction usable.
+            pass
     db.commit()
 
 
@@ -184,21 +192,26 @@ def ensure_default_product_pricing_matrix(db) -> None:
                 continue
             config = PRODUCT_PRICING_MATRIX_DEFAULTS[product_key][pricing_tier]
             names = PRODUCT_MATRIX_DISPLAY_NAMES[product_key]
-            db.add(
-                ProductPricingMatrixConfig(
-                    product_key=product_key,
-                    pricing_tier=pricing_tier,
-                    max_records=PRICING_TIER_MAX_RECORDS[pricing_tier],
-                    amount_cents=config["amount_cents"],
-                    currency="EUR",
-                    billing_interval=config["billing_interval"],
-                    display_name_de=names["de"],
-                    display_name_en=names["en"],
-                    stripe_price_id=None,
-                    is_active=True,
-                    updated_at_utc=now,
-                )
-            )
+            try:
+                with db.begin_nested():
+                    db.add(
+                        ProductPricingMatrixConfig(
+                            product_key=product_key,
+                            pricing_tier=pricing_tier,
+                            max_records=PRICING_TIER_MAX_RECORDS[pricing_tier],
+                            amount_cents=config["amount_cents"],
+                            currency="EUR",
+                            billing_interval=config["billing_interval"],
+                            display_name_de=names["de"],
+                            display_name_en=names["en"],
+                            stripe_price_id=None,
+                            is_active=True,
+                            updated_at_utc=now,
+                        )
+                    )
+                    db.flush()
+            except IntegrityError:
+                pass
     db.commit()
 
 

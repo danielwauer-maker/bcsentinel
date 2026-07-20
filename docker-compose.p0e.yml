@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bcsentinel
+      POSTGRES_PASSWORD: ${P0E_POSTGRES_PASSWORD:?P0E_POSTGRES_PASSWORD is required}
+      POSTGRES_DB: bcsentinel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bcsentinel -d bcsentinel"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migration:
+    image: ${P0E_BACKEND_IMAGE:?P0E_BACKEND_IMAGE is required}
+    restart: "no"
+    environment: &backend_environment
+      ENV: prod
+      SECRET_KEY: ${P0E_SECRET_KEY:?P0E_SECRET_KEY is required}
+      ADMIN_USERNAME: ${P0E_ADMIN_USERNAME:?P0E_ADMIN_USERNAME is required}
+      ADMIN_PASSWORD: ${P0E_ADMIN_PASSWORD:?P0E_ADMIN_PASSWORD is required}
+      DATABASE_URL: postgresql+psycopg://bcsentinel:${P0E_POSTGRES_PASSWORD}@postgres:5432/bcsentinel
+      CORS_ALLOW_ORIGINS: ${P0E_CORS_ALLOW_ORIGINS:?P0E_CORS_ALLOW_ORIGINS is required}
+      APP_BASE_URL: ${P0E_APP_BASE_URL:?P0E_APP_BASE_URL is required}
+      TENANT_REGISTRATION_INVITE_CODE: ${P0E_REGISTRATION_INVITE:?P0E_REGISTRATION_INVITE is required}
+      SITE_TRANSLATIONS_PATH: /app/landingpage/lang
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+
+  backend:
+    image: ${P0E_BACKEND_IMAGE:?P0E_BACKEND_IMAGE is required}
+    restart: unless-stopped
+    environment: *backend_environment
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; r=urllib.request.Request('http://127.0.0.1:8000/health/ready', headers={'X-Forwarded-Proto':'https'}); urllib.request.urlopen(r, timeout=5)\""]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  postgres_data:

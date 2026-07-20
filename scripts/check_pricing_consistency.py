@@ -11,11 +11,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 EXPECTED_PRODUCTS = {
-    "assessment": 7900,
+    "data_health_score": 0,
+    "full_analysis": 7900,
     "validation_check": 4900,
-    "monitoring_monthly": 9900,
-    "monitoring_annual": 99000,
+    "monitoring_monthly": 14900,
+    "monitoring_annual": 149000,
 }
+SNAPSHOT_ALIASES = {"monitoring": 14900}
 
 
 def main() -> int:
@@ -25,7 +27,7 @@ def main() -> int:
         return 1
 
     snap_text = snapshot_path.read_text(encoding="utf-8")
-    for product_key, price_cents in EXPECTED_PRODUCTS.items():
+    for product_key, price_cents in (EXPECTED_PRODUCTS | SNAPSHOT_ALIASES).items():
         if f'"product_key": "{product_key}"' not in snap_text or f'"price_cents": {price_cents}' not in snap_text:
             print(f"FAIL: product fallback for {product_key} missing or mismatched in pricing-snapshot.js")
             return 1

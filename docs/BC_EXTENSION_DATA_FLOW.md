@@ -105,3 +105,17 @@ Neue Metadaten enthalten keine Secrets. Worker-ID und Correlation ID sind techni
 | Company/API-Wechsel | Snapshotfelder company-scoped mit API-/Context-Referenz | Legacy/fehlende Metadaten invalid | keine Wiederverwendung zwischen Companies/Environments |
 
 Freie Health-Score-Summaries und Scan-History dürfen gespeichert bzw. nach Produktvertrag sichtbar bleiben; Premiumdetails und Dateien nicht. Bereits heruntergeladene PDFs sind technisch nicht widerrufbar.
+
+## Datenfluss-Delta GL-EXT-P0E (20. Juli 2026)
+
+| Flow | P0E-Evidenz | Ergebnis |
+|---|---|---|
+| PostgreSQL Migration | leere DB und anonymes 0021-Fixture über 0022–0024 | erhalten; keine geratene Identity |
+| Mehrinstanzregistrierung | acht parallele Requests über zwei Backendprozesse | ein Tenant/ein User/ein Token |
+| PostgreSQL Restart | Datenbank gestoppt und mit persistentem Volume gestartet | während Ausfall kein Ready; danach Reconnect und Daten erhalten |
+| Extension Install | `DH Install` initialisiert Setup pro Company | kompiliert; BC-Runtime BLOCKED |
+| Extension Upgrade | 1.0.2.6→1.0.2.7, `DH Upgrade` invalidiert Access Cache | kompiliert; BC-Runtime BLOCKED |
+| Scheduleridentität | eigenes Permission Set ohne pauschale Basistabellenrechte | Sandbox-Rollenkombination offen |
+| Releaseartefakt | AL-Paket plus Produktionsimage und Prüfsummenprozess | uncommitted/unsigned Kandidat, kein Release |
+
+Lokale `.env.dev`-Werte, Docker-Testcredentials, Tokenwerte und PostgreSQL-Testdaten werden nicht in Releasepaket oder Dokumentation übernommen.

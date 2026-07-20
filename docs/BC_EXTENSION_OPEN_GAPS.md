@@ -202,3 +202,32 @@ Verbleibender P0 ist ausschließlich P0-05: lokale Findings müssen vor jeder An
 | P1 AL/Admin-Access-Telemetrie | implizit | Backendevents ergänzt; explizite Cache-/Page-/Revocation-Events noch zu vervollständigen | **offen, nicht autorisierungsblockierend** |
 
 Alle fünf funktionalen P0-Gaps sind damit codebasiert geschlossen. Empfohlener Folgesprint: **GL-EXT-P0E – Sandbox Release Gate & Upgrade Evidence**. Definition of Done: Install und Upgrade N-1 in BC-Sandbox, alle P0A–P0D-CATs ohne SUPER, negative Rollenmatrix, Scheduler unter Servicebenutzer, PostgreSQL-Mehrinstanz/Restart, reproduzierbares signiertes Paket und vollständige Evidenz. Produkt-Gate bleibt bis dahin **NO-GO**.
+
+## Status-Delta GL-EXT-P0E (20. Juli 2026)
+
+| Gap | P0E-Evidenz | Status |
+|---|---|---|
+| PostgreSQL Migration/Concurrency/Restart | PostgreSQL 15, zwei Instanzen, Fresh/0021-Upgrade, Failure Injection | **geschlossen für lokale Stagingtopologie** |
+| Install-/Upgrade-Codeunits | implementiert, AL Compile grün | **Code komplett; Sandbox offen** |
+| N-1/Target-Version | 1.0.2.6 und 1.0.2.7 kompiliert | **Paketbasis vorhanden; Upgrade BLOCKED** |
+| Rollen/Scheduler ohne SUPER | Schedulerrolle ergänzt, Sollmatrix erstellt | **BLOCKED – Sandbox** |
+| P0A–P0D-CATs | 47 Fälle konsolidiert | **BLOCKED – 0/47 ausgeführt** |
+| Pricing | Full Analysis 79, Validation 49, Monitoring 149/1490 EUR | **geschlossen** |
+| Localization | Checker weiterhin rot | **P1 offen** |
+| AppSource/Signing | EULA, Logo, Help URL, ID-Range, A.I., Zertifikat | **P1/AppSource offen** |
+
+Verbleibender Gate-Sprint: **GL-EXT-P0F – BC Sandbox Execution & Signed Pilot Candidate**. Definition of Done: BC 27 Fresh Install und 1.0.2.6→1.0.2.7 Upgrade, Rollenmatrix und Scheduler ohne `SUPER`, 47/47 CATs, EN/DE-Lauf, Backup-/Rollbackprobe, P0E-Commit aus sauberem Checkout, signiertes Paket und keine kritischen P1.
+
+## Status-Delta GL-EXT-UX01 (20. Juli 2026)
+
+| Gap | UX01-Evidenz | Status |
+|---|---|---|
+| kundenorientierte Setup-Hierarchie | Status oben, Produktzugriff gebündelt, technische Werte separiert | **geschlossen auf Codeebene** |
+| sichere Hauptaktionen | modusspezifischer Scanstart; Dashboard/Findings/Report mit bestehenden Guards | **geschlossen auf Codeebene** |
+| destruktive Setup-Actions | Cache-Reset separat, konkrete Wirkung, Default Abbrechen | **geschlossen auf Codeebene** |
+| Setup-Lokalisierung | alle finalen Setup-Units DE/EN synchron und gefüllt | **geschlossen für UX01-Texte** |
+| Advanced-FastTab initial collapsed | `Expanded` im Zielkontext nicht unterstützt | **offen für Sandbox/Personalisierung, P2** |
+| globale AL-Lokalisierung | 81 historische Checkerbefunde | **P1 offen** |
+| UX01 Runtime/CAT | 20 Fälle, keine Sandbox | **BLOCKED** |
+
+Empfohlener Carry-over in **GL-EXT-P0F**: 20 UX01-CATs gemeinsam mit den 47 P0A–P0D-Fällen ausführen. Definition of Done: 67/67 Sandboxfälle ohne `SUPER`, EN-US/DE-DE, Fresh Install/N-1-Upgrade, Screenshots, API-Call-/Performancebeobachtung und formelle Pilotfreigabe. Erst danach GL-EXT-UX02 beginnen oder parallel ausschließlich nicht-releasekritische Politur durchführen.

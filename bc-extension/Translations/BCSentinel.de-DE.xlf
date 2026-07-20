@@ -4170,14 +4170,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ScanMenu - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Starts the available BCSentinel scan and opens the scan monitor.</source>
-          <target state="translated">Startet den verfügbaren BCSentinel Scan und öffnet den Scan-Monitor.</target>
+          <source>Starts the free BCSentinel Data Health Score and opens the scan monitor.</source>
+          <target state="translated">Startet den kostenlosen BCSentinel Data Health Score und öffnet den Scan-Monitor.</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 3559653129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Scan</source>
-          <target state="translated">Scan starten</target>
+          <source>Start Free Data Health Score</source>
+          <target state="translated">Kostenlosen Data Health Score starten</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScan - Property Caption</note>
         </trans-unit>
@@ -4886,8 +4886,8 @@
           <target state="translated">Der naechste geplante Scan wurde berechnet, aber die automatische TaskScheduler-Planung ist in diesem Client-Kontext nicht verfuegbar. Verwenden Sie Jetzt ausfuehren oder planen Sie aus einer aktiven Business-Central-Sitzung.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Scheduler Mgt. - Method Reschedule - NamedType SchedulerUnavailableMsg</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1735060826 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Connection</source>
-          <target state="translated">Verbindung</target><note from="Developer" annotates="general" priority="2" />
+          <source>Connection and Registration</source>
+          <target state="translated">Verbindung und Registrierung</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Connection - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2632886192 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact email used for BCSentinel onboarding and future dashboard login.</source>
@@ -5078,8 +5078,8 @@
           <target state="translated">Gibt an, ob geplante Scans aktiviert sind.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scheduled Scans Enabled - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3734875791 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows scheduler availability.</source>
-          <target state="translated">Zeigt die Verfuegbarkeit des Schedulers an.</target><note from="Developer" annotates="general" priority="2" />
+          <source>Explains scheduler availability and how Business Central runs scheduled scans.</source>
+          <target state="translated">Erläutert die Scheduler-Verfügbarkeit und wie Business Central geplante Scans ausführt.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SchedulerNotice - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 3734875791 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduler Notice</source>
@@ -5090,8 +5090,8 @@
           <target state="translated">Wochentage</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control WeeklyDays - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 2672875601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Subscription &amp; Status</source>
-          <target state="translated">Abonnement &amp; Status</target><note from="Developer" annotates="general" priority="2" />
+          <source>Product and Access</source>
+          <target state="translated">Produkt und Zugriff</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatus - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Control 1718495841 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether deep scans are available.</source>
@@ -5162,8 +5162,8 @@
           <target state="translated">Analyse-Dashboard öffnen</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDashboard - Property Caption</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Clears the local BCSentinel registration state, stored API token, and scan history so the tenant can be registered again.</source>
-          <target state="translated">Löscht den lokalen BCSentinel Registrierungsstatus, den gespeicherten API-Token und die Scan-Historie, damit der Tenant erneut registriert werden kann.</target><note from="Developer" annotates="general" priority="2" />
+          <source>Clears cached registration status while preserving the stable tenant binding, API token, purchases, and scan history.</source>
+          <target state="translated">Löscht den zwischengespeicherten Registrierungsstatus; stabile Tenant-Bindung, API-Token, Käufe und Scan-Historie bleiben erhalten.</target><note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistration - Property ToolTip</note>
         </trans-unit><trans-unit id="Page 392523509 - Action 510766832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Registration</source>
@@ -5616,14 +5616,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ConnectionActions - Property Caption</note>
         </trans-unit>
 <trans-unit id="Page 392523509 - Action 562808694 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Starts the available BCSentinel scan and opens the scan monitor.</source>
-          <target state="translated">Startet den verfügbaren BCSentinel Scan und öffnet den Scan-Monitor.</target>
+          <source>Starts the available Full Analysis or Validation scan and opens the scan monitor.</source>
+          <target state="translated">Startet die verfügbare Full Analysis oder den Validation Scan und öffnet den Scan-Monitor.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property ToolTip</note>
         </trans-unit>
 <trans-unit id="Page 392523509 - Action 562808694 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Scan</source>
-          <target state="translated">Scan starten</target>
+          <source>Start Full Analysis or Validation Scan</source>
+          <target state="translated">Full Analysis oder Validation Scan starten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property Caption</note>
         </trans-unit>
@@ -5675,7 +5675,389 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action SubscriptionActions - Property Caption</note>
         </trans-unit>
-        </group>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 2601013356" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Configured</source>
+                  <target state="translated">Konfiguriert</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ConnectionConfiguredLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 762530919" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Not configured</source>
+                  <target state="translated">Nicht konfiguriert</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ConnectionNotConfiguredLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 93778928" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>No scan yet</source>
+                  <target state="translated">Noch kein Scan</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NoScanLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 561520081" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Not registered</source>
+                  <target state="translated">Nicht registriert</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType NotRegisteredLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 3463888835" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Excellent</source>
+                  <target state="translated">Ausgezeichnet</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RatingExcellentLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 2483131130" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Good</source>
+                  <target state="translated">Gut</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RatingGoodLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 881203222" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Needs attention</source>
+                  <target state="translated">Handlungsbedarf</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RatingNeedsAttentionLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 2816540582" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Registered</source>
+                  <target state="translated">Registriert</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegisteredLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 1456106847" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>The cached registration and access status was reset. Tenant identity, API token, purchases, and scan history were preserved.</source>
+                  <target state="translated">Der zwischengespeicherte Registrierungs- und Zugriffsstatus wurde zur?ckgesetzt. Tenant-Identit?t, API-Token, K?ufe und Scan-Historie wurden beibehalten.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ResetRegistrationDoneMsg</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 4179575190" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Reset the cached BCSentinel registration and access status? The tenant identity, API token, purchases, and scan history are preserved. This action cannot be undone locally. Do you want to continue?</source>
+                  <target state="translated">M?chten Sie den zwischengespeicherten BCSentinel-Registrierungs- und Zugriffsstatus zur?cksetzen? Tenant-Identit?t, API-Token, K?ufe und Scan-Historie bleiben erhalten. Diese lokale Aktion kann nicht r?ckg?ngig gemacht werden. M?chten Sie fortfahren?</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ResetRegistrationQst</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - NamedType 3265954307" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Scheduled scans are executed through the Business Central job queue. The user does not need to remain signed in.</source>
+                  <target state="translated">Geplante Scans werden ?ber die Business-Central-Aufgabenwarteschlange ausgef?hrt. Der Benutzer muss w?hrenddessen nicht angemeldet bleiben.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType SchedulerJobQueueNoticeLbl</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2530904310 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Advanced Information</source>
+                  <target state="translated">Erweiterte Informationen</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AdvancedInformation - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1964637074 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the latest access-request correlation identifier for support diagnostics.</source>
+                  <target state="translated">Zeigt die Korrelations-ID der letzten Zugriffsanfrage f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessCorrelationIdDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1964637074 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Correlation ID</source>
+                  <target state="translated">Korrelations-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessCorrelationIdDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1703188910 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows when the short-lived access snapshot expires.</source>
+                  <target state="translated">Zeigt an, wann der kurzlebige Access Snapshot abl?uft.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotExpiresAtDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1703188910 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Access Snapshot Expires At</source>
+                  <target state="translated">Access Snapshot l?uft ab am</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotExpiresAtDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2119514663 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows when the current access snapshot was received for support diagnostics.</source>
+                  <target state="translated">Zeigt f?r Support und Diagnose an, wann der aktuelle Access Snapshot empfangen wurde.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotReceivedAtDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2119514663 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Access Snapshot Received At</source>
+                  <target state="translated">Access Snapshot empfangen am</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotReceivedAtDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 999264775 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the access snapshot contract version for support diagnostics.</source>
+                  <target state="translated">Zeigt die Vertragsversion des Access Snapshots f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotVersionDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 999264775 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Access Snapshot Version</source>
+                  <target state="translated">Access-Snapshot-Version</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control AccessSnapshotVersionDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 653884340 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows whether an API token is stored securely. The token itself is never displayed.</source>
+                  <target state="translated">Zeigt an, ob ein API-Token sicher gespeichert ist. Der Token selbst wird niemals angezeigt.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfiguredDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 653884340 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>API Token Configured</source>
+                  <target state="translated">API-Token konfiguriert</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ApiTokenConfiguredDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1790862647 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the immutable Business Central company identifier used for support diagnostics.</source>
+                  <target state="translated">Zeigt die unver?nderliche Business-Central-Unternehmens-ID f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CompanySystemIdDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1790862647 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Company System ID</source>
+                  <target state="translated">Unternehmens-System-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CompanySystemIdDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1067649121 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the Entra tenant identifier used for support and tenant-binding diagnostics.</source>
+                  <target state="translated">Zeigt die Entra-Tenant-ID f?r Support und Diagnose der Tenant-Bindung an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EntraTenantIdDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1067649121 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Entra Tenant ID</source>
+                  <target state="translated">Entra-Tenant-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EntraTenantIdDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 4181333180 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the Business Central environment name used for support diagnostics.</source>
+                  <target state="translated">Zeigt den Namen der Business-Central-Umgebung f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EnvironmentNameDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 4181333180 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Environment Name</source>
+                  <target state="translated">Umgebungsname</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EnvironmentNameDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 745266825 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the Business Central environment type used for support diagnostics.</source>
+                  <target state="translated">Zeigt den Typ der Business-Central-Umgebung f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EnvironmentTypeDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 745266825 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Environment Type</source>
+                  <target state="translated">Umgebungstyp</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control EnvironmentTypeDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 997781196 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows when product access was last refreshed from BCSentinel.</source>
+                  <target state="translated">Zeigt an, wann der Produktzugriff zuletzt von BCSentinel aktualisiert wurde.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastLicenseCheckDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 997781196 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Last Product Access Check</source>
+                  <target state="translated">Letzte Produktzugriffspr?fung</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastLicenseCheckDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1400969785 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the latest local scan identifier for support diagnostics.</source>
+                  <target state="translated">Zeigt die letzte lokale Scan-ID f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanIdDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1400969785 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Last Scan ID</source>
+                  <target state="translated">Letzte Scan-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanIdDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1827994822 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows when the local registration was completed.</source>
+                  <target state="translated">Zeigt an, wann die lokale Registrierung abgeschlossen wurde.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationDateDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1827994822 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Registration Date</source>
+                  <target state="translated">Registrierungsdatum</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationDateDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1837938402 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the Business Central task identifier for support diagnostics.</source>
+                  <target state="translated">Zeigt die Business-Central-Aufgaben-ID f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScheduledTaskIdDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1837938402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Scheduler Task ID</source>
+                  <target state="translated">Scheduler-Aufgaben-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ScheduledTaskIdDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1662024154 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the BCSentinel registration identifier for support and diagnostics.</source>
+                  <target state="translated">Zeigt die BCSentinel-Registrierungs-ID f?r Support und Diagnose an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control TenantIdDiagnostic - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1662024154 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Registration Identifier</source>
+                  <target state="translated">Registrierungs-ID</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control TenantIdDiagnostic - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 569818639 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Specifies the estimated impact from the last scan in local currency.</source>
+                  <target state="translated">Gibt die gesch?tzte Auswirkung des letzten Scans in lokaler W?hrung an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedImpact - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 569818639 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Estimated Impact</source>
+                  <target state="translated">Gesch?tzte Auswirkung</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LastScanEstimatedImpact - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1721156729 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Overview and Status</source>
+                  <target state="translated">?bersicht und Status</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control OverviewStatus - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3621641620 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows whether the BCSentinel connection is configured. Use Test Connection to verify that the service is reachable.</source>
+                  <target state="translated">Zeigt an, ob die BCSentinel-Verbindung konfiguriert ist. Verwenden Sie ?Verbindung testen?, um die Erreichbarkeit des Dienstes zu pr?fen.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ConnectionStatusDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3621641620 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Connection Status</source>
+                  <target state="translated">Verbindungsstatus</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ConnectionStatusDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3258346853 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the current product access from the locally stored access snapshot.</source>
+                  <target state="translated">Zeigt den aktuellen Produktzugriff aus dem lokal gespeicherten Access Snapshot an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CurrentProductPlanDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3258346853 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Current Product Plan</source>
+                  <target state="translated">Aktueller Produktplan</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CurrentProductPlanDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1841836015 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the Data Health Score from the latest locally stored scan. No backend request is made when the page opens.</source>
+                  <target state="translated">Zeigt den Data Health Score aus dem letzten lokal gespeicherten Scan an. Beim ?ffnen der Seite erfolgt keine Backend-Anfrage.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestDataHealthScoreDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1841836015 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Latest Data Health Score</source>
+                  <target state="translated">Letzter Data Health Score</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestDataHealthScoreDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3960023810 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the rating derived from the latest locally stored Data Health Score.</source>
+                  <target state="translated">Zeigt die aus dem letzten lokal gespeicherten Data Health Score abgeleitete Bewertung an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestRatingDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3960023810 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Rating</source>
+                  <target state="translated">Bewertung</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestRatingDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 704530602 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows when the latest locally stored scan was requested.</source>
+                  <target state="translated">Zeigt an, wann der letzte lokal gespeicherte Scan angefordert wurde.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestScanDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 704530602 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Last Scan</source>
+                  <target state="translated">Letzter Scan</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestScanDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2124653366 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the status of the latest locally stored scan.</source>
+                  <target state="translated">Zeigt den Status des letzten lokal gespeicherten Scans an.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestScanStatusDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2124653366 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Scan Status</source>
+                  <target state="translated">Scanstatus</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control LatestScanStatusDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1985128325 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows whether the current product access includes Monitoring.</source>
+                  <target state="translated">Zeigt an, ob der aktuelle Produktzugriff Monitoring umfasst.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control MonitoringEnabledDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1985128325 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Monitoring Enabled</source>
+                  <target state="translated">Monitoring aktiv</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control MonitoringEnabledDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3557953245 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the next scheduled scan. The value is empty when no run is scheduled.</source>
+                  <target state="translated">Zeigt den n?chsten geplanten Scan an. Der Wert ist leer, wenn kein Lauf geplant ist.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control NextScheduledScanDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3557953245 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Next Scheduled Scan</source>
+                  <target state="translated">N?chster geplanter Scan</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control NextScheduledScanDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1041238417 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows whether this Business Central company is registered with BCSentinel.</source>
+                  <target state="translated">Zeigt an, ob dieses Business-Central-Unternehmen bei BCSentinel registriert ist.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationStatusDisplay - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1041238417 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Registration Status</source>
+                  <target state="translated">Registrierungsstatus</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationStatusDisplay - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2402918555 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the available Assessment credits. Credits are consumed only by scan types defined by the current product access.</source>
+                  <target state="translated">Zeigt die verf?gbaren Assessment Credits an. Credits werden nur von Scanarten verbraucht, die im aktuellen Produktzugriff definiert sind.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Assessment Credits Available - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 2402918555 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Assessment Credits</source>
+                  <target state="translated">Assessment Credits</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Assessment Credits Available - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3162456556 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows until when Executive Reports are available according to the current access snapshot.</source>
+                  <target state="translated">Zeigt an, bis wann Executive Reports gem?? dem aktuellen Access Snapshot verf?gbar sind.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Report Access Until - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 3162456556 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Report Access Until</source>
+                  <target state="translated">Reportzugriff bis</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Report Access Until - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1522410576 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Shows the available Validation credits. Monitoring scans do not consume these credits under the current product model.</source>
+                  <target state="translated">Zeigt die verf?gbaren Validation Credits an. Monitoring-Scans verbrauchen im aktuellen Produktmodell keine dieser Credits.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Validation Credits Available - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Control 1522410576 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Validation Credits</source>
+                  <target state="translated">Validation Credits</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Validation Credits Available - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 2915712139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Administrative Actions</source>
+                  <target state="translated">Administrative Aktionen</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action AdministrativeActions - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 1462391413 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Clears only the local cached registration and access status. Tenant identity, API token, purchases, and scan history are preserved.</source>
+                  <target state="translated">L?scht nur den lokal zwischengespeicherten Registrierungs- und Zugriffsstatus. Tenant-Identit?t, API-Token, K?ufe und Scan-Historie bleiben erhalten.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistrationAdmin - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 1462391413 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Reset Cached Registration</source>
+                  <target state="translated">Zwischengespeicherte Registrierung zur?cksetzen</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ResetRegistrationAdmin - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 2999495243 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Opens the findings from the latest scan. Current product access is verified before details are shown.</source>
+                  <target state="translated">?ffnet die Findings des letzten Scans. Der aktuelle Produktzugriff wird gepr?ft, bevor Details angezeigt werden.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestFindings - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 2999495243 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Open Findings</source>
+                  <target state="translated">Findings ?ffnen</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestFindings - Property Caption</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 3821609443 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Opens the Executive Report for the latest completed scan. Current report access is verified first.</source>
+                  <target state="translated">?ffnet den Executive Report des letzten abgeschlossenen Scans. Zuvor wird der aktuelle Reportzugriff gepr?ft.</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestReport - Property ToolTip</note>
+                </trans-unit>
+        <trans-unit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Page 392523509 - Action 3821609443 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+                  <source>Open Latest Report</source>
+                  <target state="translated">Letzten Report ?ffnen</target><note from="Developer" annotates="general" priority="2" />
+                  <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenLatestReport - Property Caption</note>
+                </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1159285101 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starts an available Monitoring scan and opens the scan monitor.</source>
+          <target state="translated">Startet einen verfügbaren Monitoring-Scan und öffnet den Scan-Monitor.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringScan - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 1159285101 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Monitoring Scan</source>
+          <target state="translated">Monitoring-Scan starten</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringScan - Property Caption</note>
+        </trans-unit>
+      </group>
       <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Health Score started. Opening the monitor. Run ID: %1</source><target state="translated">Data Health Score gestartet. Scan-Monitor wird geoeffnet. Lauf-ID: %1</target>
           <note from="Developer" annotates="general" priority="2" />

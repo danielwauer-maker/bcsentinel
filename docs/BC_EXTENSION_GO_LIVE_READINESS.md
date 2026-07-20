@@ -220,3 +220,19 @@ Die ursprüngliche Auditmatrix und 48-%-Baseline bleiben als Historie bestehen. 
 | R-25 Permissions | PARTIAL | Viewer ohne direkte geschützte TableData-Rechte; indirekter Pagezugriff plus SaaS-Guard | Source-Contract und AL Compile | **PARTIAL; negative Sandboxtests offen** |
 
 Funktionaler P0-Fortschritt: **5 von 5 (100 %)**. Die neu gewichtete Code-/Release-Readiness beträgt **64 %**: Transport, Registrierung, Credits, Lifecycle und Access Enforcement sind deutlich verbessert; Install/Upgrade, AL-Test-App, Sandbox, Schedulerrollen, Currency, Localization und AppSource bleiben niedrig bewertet. Das Produkt-Gate bleibt **NO-GO** für Pilot/Kunde, nicht wegen eines offenen funktionalen P0, sondern wegen fehlender Sandbox-/Upgrade-/P1-Releaseevidenz. P0D ist bereit für GL-EXT-P0E. Detail: `docs/GL_EXT_P0D_FRESH_ACCESS_ENFORCEMENT.md`.
+
+## Status-Delta GL-EXT-P0E (20. Juli 2026)
+
+P0E hat erstmals echte PostgreSQL-15-, Mehrinstanz-, Migration-, Parallelitäts- und Restart-Evidenz erbracht. Backend-Produktionsimage, AL 1.0.2.7, Install-/Upgrade-Codeunits, Schedulerrolle und ein kompilierter N-1-Stand 1.0.2.6 liegen vor. Pricing ist konsistent.
+
+Automatisierte Abschlussregression: **261/261 Backendtests gegen PostgreSQL bestanden**; P0A–P0D fokussiert 105/105; P0E plus Pricing nach Race-Fix 21/21.
+
+Die Readiness wurde vollständig neu gewichtet: **Gesamt 67 %, Pilot 58 %, Customer 47 %, AppSource 28 %**. Das Gate bleibt **NO-GO**, weil keine echte BC-Sandbox angebunden war. Fresh Install, N-1-Upgrade, Rollen/Scheduler ohne `SUPER` und 47 CATs sind `BLOCKED`, nicht bestanden. Vollständige Evidenz: `docs/GL_EXT_P0E_SANDBOX_RELEASE_GATE.md`.
+
+## Status-Delta GL-EXT-UX01 (20. Juli 2026)
+
+UX01 ordnet die Setup-Page kundenorientiert, ohne Backend-, Datenmodell-, Permission-, Lizenz-, Credit-, Scan- oder Schedulerlogik zu verändern. Status/Produkt/letzter Scan/nächster Lauf stehen oben; technische Tenant-/Environment-/Snapshotwerte liegen in „Advanced Information“; sichere Hauptaktionen sind promoted und der Registrierungs-Cache-Reset ist separat mit `Confirm(..., false)` geführt. Dashboard, Findings und Report verwenden weiterhin die frischen P0D-Access-Guards.
+
+Automatisierte Evidenz: ReleaseCloud Compile 84/84 Dateien und CodeCop/PTECop ohne Fehler; Setup-XLF 0 fehlende/0 leere/0 abweichende Targets; Backend 255 bestanden/6 übersprungen. AppSourceCop und globale Localization bleiben mit denselben Gapklassen rot. 20 UX01-Sandbox-CATs sind `BLOCKED`.
+
+Die UX-Dimension steigt codebasiert, daraus ergibt sich als nachvollziehbare Delta-Schätzung **Gesamt 69 %, Pilot 60 %, Customer 49 %, AppSource 28 %**. Das Gate bleibt **NO-GO**: UX-Politur ersetzt weder Fresh-Install-/Upgrade-/Rollen-CAT noch die 47 P0A–P0D- und 20 UX01-Sandboxfälle. Detail: `docs/GL_EXT_UX01_SETUP_PAGE_REFINEMENT.md`.

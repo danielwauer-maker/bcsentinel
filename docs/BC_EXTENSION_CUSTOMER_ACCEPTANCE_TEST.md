@@ -247,3 +247,49 @@ Alle Tests sind mangels BC-Sandbox **NOT_EXECUTED**. Pro Fall sind Benutzer, Com
 | P0D-CAT-13 offene Page | Finding-Page vor Ablauf offen halten; nach Ablauf Record wechseln, Refresh/Action | spätestens bei jedem dieser Ereignisse blockiert |
 | P0D-CAT-14 ohne BC-Permission | Benutzer ohne BCSentinel-Permission öffnet Page-ID | BC-Berechtigung blockiert unabhängig von SaaS-Zugriff |
 | P0D-CAT-15 Permission ohne SaaS | Viewer/Scan-Permission, aber keine Capability | Guard blockiert; keine direkte geschützte TableData-Ansicht |
+
+## GL-EXT-P0E Sandbox Execution Register (20. Juli 2026)
+
+Keine Business-Central-Sandbox ist in dieser Ausführungsumgebung angebunden. Die zehn P0A-Schritte sowie P0B 01–10, P0C 01–12 und P0D 01–15 ergeben **47 Pflichtfälle**.
+
+| Suite | Fälle | Tatsächlich ausgeführt | PASS | FAIL | BLOCKED |
+|---|---:|---:|---:|---:|---:|
+| P0A | 10 | 0 | 0 | 0 | 10 |
+| P0B | 10 | 0 | 0 | 0 | 10 |
+| P0C | 12 | 0 | 0 | 0 | 12 |
+| P0D | 15 | 0 | 0 | 0 | 15 |
+| **Gesamt** | **47** | **0** | **0** | **0** | **47** |
+
+Jeder Fall benötigt in GL-EXT-P0F Rolle, BC-/App-/Backendversion, Tenant/Environment/Company, Datum, tatsächliches Ergebnis sowie Screenshot-/Telemetry-/Correlation-Referenz. Tests sind ohne `SUPER` auszuführen. `BLOCKED` darf nicht in `PASS` umklassifiziert werden.
+
+## GL-EXT-UX01 – Setup Page CAT Register (20. Juli 2026)
+
+Keine Business-Central-Sandbox ist angebunden. Alle Fälle sind **BLOCKED**, nicht bestanden. Vor Testbeginn sind API-Requestzähler/Telemetry zu aktivieren; Secrets und vollständige Tokens dürfen nicht aufgezeichnet werden.
+
+| ID | Rolle/Zustand und Schritte | Erwartung | Status |
+|---|---|---|---|
+| UX01-CAT-01 | Admin, keine Registrierung: Setup öffnen | Page öffnet; Connection/Registration eindeutig nicht konfiguriert; keine irreführenden Scanwerte | BLOCKED |
+| UX01-CAT-02 | Admin, vollständige Registrierung: Setup öffnen | Registered/Produktzugriff korrekt; technische IDs nicht in Hauptgruppe | BLOCKED |
+| UX01-CAT-03 | registriert, noch kein Scan | „Noch kein Scan“, keine erfundene Bewertung/Datum | BLOCKED |
+| UX01-CAT-04 | abgeschlossener letzter Scan | Score, Rating, Datum und Status stimmen mit lokalem Run überein | BLOCKED |
+| UX01-CAT-05 | Scheduler aktiv | nächster/letzter Lauf und Ergebnis korrekt; Job-Queue-Hinweis verständlich | BLOCKED |
+| UX01-CAT-06 | Monitoring aktiv/inaktiv wechseln/refreshen | Status und verfügbare Schedulerfelder korrekt | BLOCKED |
+| UX01-CAT-07 | Assessment/Validation/Monitoring Snapshots | Produktzugriff, Ablauf und Credits entsprechen genau dem Snapshot | BLOCKED |
+| UX01-CAT-08 | Dashboardaction ausführen/Access entziehen | bestehender Fresh Access Guard erlaubt beziehungsweise blockiert | BLOCKED |
+| UX01-CAT-09 | Findingsaction ausführen/Access entziehen | Guard vor Anzeige; Zielpage prüft erneut; keine Details bei Ablauf | BLOCKED |
+| UX01-CAT-10 | Free/One-Time/Monitoring nacheinander | Caption passt; Scanstart nutzt bestehenden Run-/Creditflow | BLOCKED |
+| UX01-CAT-11 | Advanced öffnen | alle technischen Felder read-only; Token/Secret niemals sichtbar | BLOCKED |
+| UX01-CAT-12 | Reset Cached Registration wählen | konkrete Meldung; Defaultfokus Abbrechen | BLOCKED |
+| UX01-CAT-13 | Confirm abbrechen, Werte vergleichen | Registrierung, Snapshot, Token, Käufe und Historie unverändert | BLOCKED |
+| UX01-CAT-14 | Connection testen | kundenverständlicher Erfolg/Fehler; keine rohe Exception/Secret | BLOCKED |
+| UX01-CAT-15 | Produktzugriff aktualisieren | genau ein Refresh; lokale Statuswerte aktualisiert | BLOCKED |
+| UX01-CAT-16 | Page öffnen/Record refreshen mit API-Telemetrie | keine API-Aufrufe pro Feld, kein automatischer mehrfacher Refresh | BLOCKED |
+| UX01-CAT-17 | Sprache DE-DE | alle neuen Captions, Tooltips, Labels und Dialoge deutsch | BLOCKED |
+| UX01-CAT-18 | Sprache EN-US | alle neuen Texte englisch; keine deutschen Mischtexte | BLOCKED |
+| UX01-CAT-19 | Rollen Viewer/Scan/Scheduler/Setup/Admin ohne SUPER | nur Setup/Admin öffnen Page; keine neue Rechteausweitung | BLOCKED |
+| UX01-CAT-20 | Fresh Install und N-1 Upgrade; P0A–P0D-Smoke | Setupzustand erhalten, Guards/Scan/Scheduler unverändert; Advanced-Collapse und Viewports dokumentiert | BLOCKED |
+
+| Suite | Fälle | Ausgeführt | PASS | FAIL | BLOCKED |
+|---|---:|---:|---:|---:|---:|
+| UX01 | 20 | 0 | 0 | 0 | 20 |
+| P0A–P0D + UX01 gesamt | 67 | 0 | 0 | 0 | 67 |

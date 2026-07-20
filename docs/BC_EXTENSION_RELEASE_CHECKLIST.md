@@ -197,3 +197,47 @@ P0C-Entscheidung: **P0-04 geschlossen; bereit für GL-EXT-P0D.** Produkt-Gate bl
 - [ ] Install-/Upgrade-N-1, AL-Test-App, Currency, Localization-Baseline und AppSource-Gates schließen.
 
 P0D-Entscheidung: **P0-05 auf Codeebene geschlossen; alle funktionalen P0 geschlossen; bereit für GL-EXT-P0E.** Aktuelles Produkt-Gate bleibt **NO-GO**, bis Sandbox und releaseblockierende P1-Gates bestanden oder formal akzeptiert sind.
+
+## Gate-Delta GL-EXT-P0E (20. Juli 2026)
+
+- [x] P0A–P0D committed; sauberer Ausgangsstand `bb55119`.
+- [x] Docker Desktop/WSL2 und PostgreSQL 15 real ausgeführt.
+- [x] Fresh Migration und 0021→0024 mit anonymen Legacy-Daten bestanden.
+- [x] echte PostgreSQL-Parallelitäts- und Restartprüfungen.
+- [x] zwei Backendinstanzen und persistentes Volume.
+- [x] isoliertes `docker compose up --scale backend=2`; Migration und Healthchecks grün.
+- [x] Produktions-Dockerimage gebaut; Readiness beider Instanzen 200.
+- [x] AL 1.0.2.7 und N-1 1.0.2.6 kompiliert.
+- [x] Install-/Upgrade-Codeunit und Schedulerrolle kompiliert.
+- [x] Pricing-Checker inklusive Backend-Import grün.
+- [x] vollständiges pytest gegen PostgreSQL: 261/261 grün.
+- [ ] Fresh Install in BC-Sandbox – `BLOCKED`.
+- [ ] N-1-Upgrade in BC-Sandbox – `BLOCKED`.
+- [ ] Rollen-/Scheduler-CAT ohne `SUPER` – `BLOCKED`.
+- [ ] 47 P0A–P0D-CATs – `BLOCKED`.
+- [ ] Localization Check grün.
+- [ ] AppSourceCop, finale Metadaten und Signierung.
+- [ ] sauberer P0E-Commit und Rebuild aus exakt diesem Commit.
+
+P0E-Entscheidung: **NO-GO**. PostgreSQL-Staging ist grün, aber ein Pilot erfordert reale BC-Install-/Upgrade-/Rollen-/CAT-Evidenz.
+
+## Gate-Delta GL-EXT-UX01 (20. Juli 2026)
+
+- [x] Setup-Status steht oben und verwendet ausschließlich lokale Snapshot-/Runwerte.
+- [x] Produktzugriff, Ablaufwerte und Assessment-/Validation-Credits sind fachlich gruppiert.
+- [x] technische IDs und Snapshotdiagnose sind read-only in „Advanced Information“.
+- [x] Scanstart besitzt verständliche Captions für Free, Full/Validation und Monitoring.
+- [x] Dashboard, Findings und Report behalten serverautorisierte P0D-Guards.
+- [x] Registrierungs-Cache-Reset ist separat und bestätigt mit Default Abbrechen.
+- [x] keine Backendänderung, Migration oder Permission-Ausweitung.
+- [x] ReleaseCloud Compile: 84 Dateien, 0 Fehler.
+- [x] CodeCop/PTECop: 0 Fehler; bestehender Warnungsbestand bleibt.
+- [x] XLF/JSON parsebar; Setup DE/EN vollständig und quellsynchron.
+- [x] Backend-Gesamtsuite: 255 bestanden, 6 übersprungen.
+- [x] `git diff --check` bestanden.
+- [ ] globaler Localization Checker grün: 81 historische Befunde offen.
+- [ ] AppSourceCop grün: bekannte Manifest-/ID-Range-Gaps.
+- [ ] 20 UX01-Sandbox-CATs: `BLOCKED`.
+- [ ] Screenshots/kleine Viewports/FastTab-Collapsezustand in Sandbox verifiziert.
+
+UX01-Entscheidung: **Sprint auf Codeebene abgeschlossen und bereit für UX02; Produkt-Gate bleibt NO-GO**, bis Sandbox-, Install-, Upgrade-, Rollen- und CAT-Gates bestanden sind.

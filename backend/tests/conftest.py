@@ -9,7 +9,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 TEST_DB_PATH = Path(__file__).resolve().parent / ".pytest.sqlite3"
-if TEST_DB_PATH.exists():
+POSTGRES_TEST_DATABASE_URL = os.environ.get("BCSENTINEL_TEST_DATABASE_URL", "").strip()
+if not POSTGRES_TEST_DATABASE_URL and TEST_DB_PATH.exists():
     TEST_DB_PATH.unlink()
 
 os.environ["ENV"] = "test"
@@ -17,7 +18,7 @@ os.environ["APP_ENV"] = "test"
 os.environ["SECRET_KEY"] = "test-secret-key-with-sufficient-length-123"
 os.environ["ADMIN_USERNAME"] = "admin-test"
 os.environ["ADMIN_PASSWORD"] = "admin-password-for-tests-123"
-os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
+os.environ["DATABASE_URL"] = POSTGRES_TEST_DATABASE_URL or f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
 from app.core.settings import settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402

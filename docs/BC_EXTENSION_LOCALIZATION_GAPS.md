@@ -62,3 +62,15 @@ Der Backendfehler ist als veraltete Testerwartung zu korrigieren. Das Produktver
 ## Delta GL-EXT-P0D (20. Juli 2026)
 
 P0D ergänzt ausschließlich neue Access-Snapshot-Captions und Guard-Fehlertexte. Die sechs kundensichtbaren Guardmeldungen sowie vierzehn neue technische Snapshot-/Capability-Captions besitzen deutsche Targets in `BCSentinel.de-DE.xlf`. Besonders geprüft sind die geforderten Texte für abgelaufene bzw. nicht bestätigbare Findings, Dashboard und Reports. Die XLF muss im Abschlusslauf strukturell geparst werden; die historische, breitere Localization-Baseline bleibt unverändert offen und wird nicht durch P0D als gelöst markiert.
+
+## Delta GL-EXT-P0E (20. Juli 2026)
+
+JSON- und XLF-Struktur sind grün; neue Install-/Upgrade-Telemetrietexte sind nicht kundensichtbar. Der Localization-Checker bleibt mit 82 Treffern rot: 47 Umlaut-/Kommentarindikatoren und 35 deutsch lokalisierte Zeilen. Trefferklassen: echte harte UI-Texte, der historische `LocalizeText(EN, DE)`-Doppelpfad, deutsche `Comment = 'DEU=…'`-Metadaten sowie Umlaute in denselben Quellen. Treffer wurden nicht durch eine breite Ignore-Regel verborgen.
+
+Status bleibt **P1 releaseblockierend für Customer Go**. Vor Pilot sind mindestens die sichtbaren Setup-, Scheduler-, Scan-History- und Scan-Module-Flows in Labels/XLF zu überführen und in EN-US/DE-DE-Sandbox zu prüfen.
+
+## Delta GL-EXT-UX01 (20. Juli 2026)
+
+UX01 verwendet für neue Status-, Bewertungs-, Scheduler- und Confirmtexte AL-`Label`; Captions und Tooltips werden über die compilererzeugte XLF geführt. Der finale Source-XLF wurde nach dem Compile synchronisiert. Für Page 53100 gilt: **0 fehlende Units, 0 Source-Mismatches, 0 leere DE-Targets, 0 doppelte IDs**. Neue Texte enthalten keinen hartcodierten deutschen AL-Text.
+
+Der globale Checker meldet **81** historische Treffer und bleibt rot. Die Verringerung gegenüber dem P0E-Stand 82 ist keine vollständige Bereinigung; `LocalizeText(EN, DE)`, deutsche Comment-Metadaten und Alttexte in Setup, Scheduler, Historie und Modulen bleiben. Status: **UX01-Lokalisierung vollständig; globales P1 weiterhin offen**. EN-US/DE-DE-Runtimeprüfung ist `BLOCKED`.

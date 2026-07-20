@@ -1213,6 +1213,11 @@
         Hyperlink(ReportUrl);
     end;
 
+    procedure OpenExecutiveHtmlReport()
+    begin
+        OpenExecutiveReportForCurrentScan(false);
+    end;
+
     local procedure CanOpenExecutiveReport(): Boolean
     begin
         if Rec."Entry No." = 0 then begin
