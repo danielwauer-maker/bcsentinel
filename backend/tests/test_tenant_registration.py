@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DashboardUser, Tenant
+from app.models import DashboardUser, DashboardUserTenantMembership, Tenant
 from app.security.token_hash import verify_api_token
 
 
@@ -44,6 +44,7 @@ def test_tenant_registration_with_valid_invite_requires_contact_email(client, se
     )
 
     assert response.status_code == 422
+    assert response.json()["code"] == "INVALID_REGISTRATION_PAYLOAD"
 
 
 def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_hash(client, settings_state):
@@ -68,7 +69,13 @@ def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_has
         assert tenant.api_token is None
         assert tenant.api_token_hash
         assert tenant.contact_email == "pilot.customer@example.com"
-        user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == tenant.tenant_id))
+        membership = db.scalar(
+            select(DashboardUserTenantMembership).where(
+                DashboardUserTenantMembership.tenant_id == tenant.tenant_id
+            )
+        )
+        assert membership is not None
+        user = db.get(DashboardUser, membership.dashboard_user_id)
         assert user is not None
         assert user.email == "pilot.customer@example.com"
         assert user.password_hash is None
@@ -91,9 +98,13 @@ def test_tenant_registration_stores_optional_contact_email(client, settings_stat
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter(Tenant.tenant_id == body["tenant_id"]).one()
         assert tenant.contact_email == "pilot.customer@example.com"
-        users = db.scalars(select(DashboardUser).where(DashboardUser.tenant_id == tenant.tenant_id)).all()
-        assert len(users) == 1
-        assert users[0].email == "pilot.customer@example.com"
+        memberships = db.scalars(
+            select(DashboardUserTenantMembership).where(
+                DashboardUserTenantMembership.tenant_id == tenant.tenant_id
+            )
+        ).all()
+        assert len(memberships) == 1
+        assert db.get(DashboardUser, memberships[0].dashboard_user_id).email == "pilot.customer@example.com"
 
 
 def test_tenant_registration_rejects_invalid_contact_email(client, settings_state):
@@ -106,9 +117,10 @@ def test_tenant_registration_rejects_invalid_contact_email(client, settings_stat
     )
 
     assert response.status_code == 422
+    assert response.json()["code"] == "INVALID_REGISTRATION_PAYLOAD"
 
 
-def test_tenant_registration_rejects_dashboard_email_for_other_tenant(client, settings_state):
+def test_tenant_registration_reuses_dashboard_email_for_other_tenant(client, settings_state):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
 
     first = client.post(
@@ -128,8 +140,15 @@ def test_tenant_registration_rejects_dashboard_email_for_other_tenant(client, se
         ),
     )
 
-    assert second.status_code == 409
-    assert "another tenant" in second.json()["detail"]
+    assert second.status_code == 200
+    assert second.json()["existing_dashboard_user"] is True
+    assert second.json()["membership_created"] is True
+    assert second.json()["dashboard_access_count"] == 2
+    assert second.json()["dashboard_user_id"] == first.json()["dashboard_user_id"]
+
+    with SessionLocal() as db:
+        assert db.query(DashboardUser).count() == 1
+        assert db.query(DashboardUserTenantMembership).count() == 2
 
 
 def test_tenant_registration_rate_limit_returns_429(client, settings_state):
@@ -145,6 +164,47 @@ def test_tenant_registration_rate_limit_returns_429(client, settings_state):
     assert client.post("/tenant/register", headers=headers, json=payload).status_code == 403
     assert client.post("/tenant/register", headers=headers, json=payload).status_code == 403
     assert client.post("/tenant/register", headers=headers, json=payload).status_code == 429
+
+
+def test_registration_validation_and_identity_errors_use_stable_codes(client, settings_state):
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+    missing_field = _registration_payload()
+    missing_field.pop("environment_name")
+    validation = client.post(
+        "/tenant/register",
+        headers={"X-Registration-Invite": "pilot-secret"},
+        json=missing_field,
+    )
+    assert validation.status_code == 422
+    assert validation.json()["code"] == "INVALID_REGISTRATION_PAYLOAD"
+    assert validation.json()["message_de"]
+
+    identity_conflict = client.post(
+        "/tenant/register",
+        headers={"X-Registration-Invite": "pilot-secret"},
+        json=_registration_payload(existing_tenant_id="ten_untrusted"),
+    )
+    assert identity_conflict.status_code == 409
+    assert identity_conflict.json()["code"] == "REGISTRATION_IDENTITY_CONFLICT"
+
+
+def test_unexpected_registration_error_is_structured_without_traceback(client, settings_state, monkeypatch):
+    import app.main as app_main
+
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+
+    def fail_registration(*args, **kwargs):
+        raise RuntimeError("synthetic sensitive diagnostic")
+
+    monkeypatch.setattr(app_main, "upsert_tenant_registration", fail_registration)
+    response = client.post(
+        "/tenant/register",
+        headers={"X-Registration-Invite": "pilot-secret"},
+        json=_registration_payload(),
+    )
+    assert response.status_code == 500
+    assert response.json()["code"] == "REGISTRATION_UNEXPECTED_ERROR"
+    assert "synthetic" not in response.text
 
 
 def test_legacy_plaintext_token_is_migrated_after_successful_auth(client, product_access_factory):

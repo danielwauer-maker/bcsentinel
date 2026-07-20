@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BCSentinel Dashboard Access</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, sans-serif; background: #f4f7fb; color: #172033; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; }
+    main { width: min(92vw, 680px); background: white; border-radius: 16px; padding: 28px; box-shadow: 0 16px 50px rgba(23,32,51,.12); }
+    h1 { margin-top: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); }
+    form, .tenant-panel { display: grid; gap: 12px; margin-top: 20px; }
+    label { display: grid; gap: 6px; font-weight: 600; }
+    input, select, button { box-sizing: border-box; width: 100%; min-height: 44px; border-radius: 8px; border: 1px solid #b8c3d6; padding: 10px 12px; font: inherit; }
+    button { border: 0; background: #165dff; color: white; font-weight: 700; cursor: pointer; }
+    .muted { color: #5d6b82; }
+    .error { color: #a51d2d; min-height: 1.4em; }
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) { main { width: 100%; min-height: 100vh; border-radius: 0; padding: 20px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>BCSentinel dashboards</h1>
+  <p class="muted">Sign in once and select an authorized Business Central environment.</p>
+
+  <form id="login-form">
+    <label>Email <input id="email" type="email" autocomplete="username" required></label>
+    <label>Password <input id="password" type="password" autocomplete="current-password" minlength="12" required></label>
+    <button type="submit">Sign in</button>
+  </form>
+
+  <form id="invite-form" {% if not invite_token %}hidden{% endif %}>
+    <input id="invite-token" type="hidden" value="{{ invite_token }}">
+    <label>Email <input id="invite-email" type="email" autocomplete="username" required></label>
+    <label>Choose password <input id="invite-password" type="password" autocomplete="new-password" minlength="12" required></label>
+    <button type="submit">Activate dashboard access</button>
+  </form>
+
+  <section id="tenant-panel" class="tenant-panel" hidden>
+    <strong>Current dashboard</strong>
+    <select id="tenant-select" aria-label="Available BCSentinel dashboards"></select>
+    <button id="switch-button" type="button">Open selected dashboard</button>
+  </section>
+  <p id="feedback" class="error" role="alert"></p>
+</main>
+<script>
+  const feedback = document.getElementById('feedback');
+  const panel = document.getElementById('tenant-panel');
+  const selector = document.getElementById('tenant-select');
+  function showTenants(body) {
+    selector.replaceChildren(...body.tenants.map(item => {
+      const option = document.createElement('option');
+      option.value = item.tenant_id;
+      option.textContent = `${item.tenant_name} — ${item.environment_name} (${item.environment_type})`;
+      option.selected = item.tenant_id === body.active_tenant_id;
+      return option;
+    }));
+    panel.hidden = false;
+  }
+  async function api(path, options = {}) {
+    const response = await fetch(path, {credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, ...options});
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.detail?.message || body.message || 'Request failed.');
+    return body;
+  }
+  document.getElementById('login-form').addEventListener('submit', async event => {
+    event.preventDefault(); feedback.textContent = '';
+    try {
+      const body = await api('/dashboard/login', {method: 'POST', body: JSON.stringify({email: email.value, password: password.value})});
+      showTenants(body);
+    } catch (error) { feedback.textContent = error.message; }
+  });
+  document.getElementById('invite-form').addEventListener('submit', async event => {
+    event.preventDefault(); feedback.textContent = '';
+    try {
+      await api('/dashboard/invite/activate', {method: 'POST', body: JSON.stringify({email: document.getElementById('invite-email').value, invite_token: document.getElementById('invite-token').value, password: document.getElementById('invite-password').value})});
+      const body = await api('/dashboard/tenants'); showTenants(body);
+    } catch (error) { feedback.textContent = error.message; }
+  });
+  document.getElementById('switch-button').addEventListener('click', async () => {
+    feedback.textContent = '';
+    try {
+      await api('/dashboard/tenant/switch', {method: 'POST', body: JSON.stringify({tenant_id: selector.value})});
+      const tokenBody = await api('/dashboard/analytics-token', {method: 'POST', body: '{}'});
+      window.location.assign(`/analytics/embed?embed_token=${encodeURIComponent(tokenBody.token)}`);
+    } catch (error) { feedback.textContent = error.message; }
+  });
+</script>
+</body>
+</html>

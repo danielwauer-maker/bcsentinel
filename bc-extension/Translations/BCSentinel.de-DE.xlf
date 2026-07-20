@@ -7251,6 +7251,78 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3256243383" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not complete the registration because the service was not reachable. Check the API address and try again.</source>
+          <target state="translated">BCSentinel konnte die Registrierung nicht abschließen, weil der Dienst nicht erreichbar war. Prüfen Sie die API-Adresse und versuchen Sie es erneut.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 287489686" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because required information is missing or invalid.</source>
+          <target state="translated">Die Registrierung konnte nicht abgeschlossen werden, weil erforderliche Angaben fehlen oder ungültig sind.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationInvalidDataLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3983854201" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration was rejected because this environment is not authorized.</source>
+          <target state="translated">Die Registrierung wurde abgelehnt, weil für diese Umgebung keine Berechtigung besteht.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationPermissionDeniedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1656882053" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration conflicts with an existing Business Central identity. Verify the environment and company or contact BCSentinel support.</source>
+          <target state="translated">Die Registrierung steht im Konflikt mit einer bestehenden Business-Central-Identität. Prüfen Sie Umgebung und Unternehmen oder wenden Sie sich an den BCSentinel-Support.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationIdentityConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 915500328" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registered BCSentinel tenant could not be found. Reset the cached registration and register again.</source>
+          <target state="translated">Der registrierte BCSentinel-Mandant wurde nicht gefunden. Setzen Sie den zwischengespeicherten Registrierungsstatus zurück und registrieren Sie erneut.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTenantNotFoundLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2456901938" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The BCSentinel dashboard account for this email address is disabled. Contact BCSentinel support.</source>
+          <target state="translated">Das BCSentinel-Dashboardkonto für diese E-Mail-Adresse ist deaktiviert. Wenden Sie sich an den BCSentinel-Support.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationDashboardUserDisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2826323179" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access to this Business Central environment is disabled for the dashboard account. Contact BCSentinel support.</source>
+          <target state="translated">Der Zugriff auf diese Business-Central-Umgebung ist für das Dashboardkonto deaktiviert. Wenden Sie sich an den BCSentinel-Support.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationMembershipDisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1207520993" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel registration is temporarily unavailable. Try again later.</source>
+          <target state="translated">Die BCSentinel-Registrierung ist vorübergehend nicht verfügbar. Versuchen Sie es später erneut.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTemporarilyUnavailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because of an internal error. Try again later or contact BCSentinel support.</source>
+          <target state="translated">Die Registrierung konnte aufgrund eines internen Fehlers nicht abgeschlossen werden. Versuchen Sie es später erneut oder wenden Sie sich an den BCSentinel-Support.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationUnexpectedErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 800054683" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This email address is already linked to a BCSentinel account. The environment "%1" was added successfully. After signing in, you can switch between your available BCSentinel dashboards.</source>
+          <target state="translated">Diese E-Mail-Adresse ist bereits mit einem BCSentinel-Konto verbunden. Die Umgebung "%1" wurde erfolgreich hinzugefügt. Nach der Anmeldung können Sie zwischen Ihren verfügbaren BCSentinel-Dashboards wechseln.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Business Central environment name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingUserAddedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3332878286" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This Business Central environment is already linked to the existing BCSentinel dashboard account.</source>
+          <target state="translated">Diese Business-Central-Umgebung ist bereits mit dem bestehenden BCSentinel-Dashboardkonto verbunden.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingMembershipLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because of an unexpected error. Try again later or contact BCSentinel support.</source>
+          <target state="translated">Die Registrierung konnte aufgrund eines unerwarteten Fehlers nicht abgeschlossen werden. Versuchen Sie es später erneut oder wenden Sie sich an den BCSentinel-Support.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationUnexpectedErrorLbl</note>
+        </trans-unit>
       </group>
     </body>
   </file>

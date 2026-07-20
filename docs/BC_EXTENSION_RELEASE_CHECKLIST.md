@@ -276,3 +276,24 @@ UX02-Entscheidung: **nicht vollständig; NO-GO und nicht bereit für UX03**.
 - [ ] AppSourceCop: bekannte EULA-/Logo-/Help-/ID-Range-/A.I.-Baseline bleibt offen.
 
 REPO-01A-Entscheidung: **Sprint abgeschlossen; Duplicate-Object-Ursache behoben und Buildprozess dauerhaft abgesichert; bereit für REPO-01B.** Das Produkt-Gate bleibt unabhängig davon **NO-GO**, bis die bestehenden Sandbox-, Install-/Upgrade-, Rollen-, CAT-, Localization- und AppSource-Gates erfüllt sind.
+
+## Gate-Delta GL-PILOT-01-FIX01 (20. Juli 2026)
+
+- [x] DashboardUser global anhand normalisierter E-Mail eindeutig.
+- [x] relationale, eindeutige und deaktivierbare Tenant-Membership.
+- [x] Migration 0025 mit Legacy-Backfill und konfliktfreiem Safe-Abort.
+- [x] SQLite und PostgreSQL Upgrade/Downgrade/Re-Upgrade verifiziert.
+- [x] parallele Same-Email-Registrierung: ein Benutzer, zwei Memberships.
+- [x] idempotente Wiederholung; keine doppelte Membership oder Einladung.
+- [x] Dashboard-Login, Ein-/Mehr-Tenant-Auswahl und Tenant-Wechsel.
+- [x] serverseitige Membership-Prüfung; Fremdzugriff/manipulierte Session 403.
+- [x] AL-Timeout, strukturiertes Fehlermapping und Busy-State-Recovery.
+- [x] spezifische Multi-Tenant-Erfolgsmeldung in DE/EN-XLF.
+- [x] ReleaseCloud Compile, CodeCop/PTECop, Source-Uniqueness und Localization grün.
+- [x] vollständige Backend-Suite: 275 bestanden, 7 übersprungen, 40 bekannte Warnungen; nach Monolith-Timeout vollständig in drei isolierten Shards ausgeführt.
+- [ ] AppSourceCop unveränderte Baseline, Exit 1: 3x AS0051, 1x AS0084, 1x AS0092.
+- [x] `git diff --check`: Exit 0; nur nicht blockierende LF/CRLF-Hinweise.
+- [ ] produktives Backup und Migration – nicht autorisiert/ausgeführt.
+- [ ] Post-Fix-CAT in `BCSentinel-Pilot` / BC 28.3 – `BLOCKED`.
+
+FIX01-Entscheidung: **Code-ready für Sandbox-Retest, aber Sprint nach formaler DoD noch nicht abgeschlossen.**

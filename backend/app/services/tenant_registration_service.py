@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.core.settings import settings
 from app.models import Tenant
 from app.security.token_hash import hash_api_token, verify_api_token
+from app.services.admin_audit_service import log_admin_event
 from app.services.dashboard_invite_service import DashboardUserPreparation, prepare_dashboard_user
 from app.services.localization_service import normalize_language
 
@@ -40,7 +41,11 @@ class RegistrationUpsertResult:
     tenant_id: str
     api_token: str
     registration_status: str
+    dashboard_user_id: int
+    membership_id: int
+    dashboard_access_count: int
     dashboard_user_created: bool
+    membership_created: bool
     dashboard_user_email_changed: bool
 
 
@@ -211,12 +216,40 @@ def upsert_tenant_registration(
         preparation: DashboardUserPreparation = prepare_dashboard_user(
             db, tenant=tenant, email=contact_email
         )
+        if preparation.membership_created:
+            log_admin_event(
+                db,
+                admin_username=f"dashboard-user:{preparation.user.id}",
+                action="dashboard_membership_created",
+                target_type="tenant",
+                target_id=tenant.tenant_id,
+                details={"role": preparation.membership.role},
+            )
         db.commit()
     except IntegrityError:
         db.rollback()
         tenant = db.scalar(select(Tenant).where(Tenant.registration_identity_key == identity.key))
         if tenant is None:
-            raise
+            now = datetime.now(timezone.utc)
+            tenant = Tenant(
+                tenant_id=_stable_tenant_id(identity.key),
+                api_token=None,
+                api_token_hash=hash_api_token(stable_token),
+                environment_name=identity.environment_name,
+                app_version=app_version_normalized,
+                contact_email=contact_email,
+                preferred_language=normalize_language(preferred_language),
+                created_at_utc=now,
+                last_seen_at_utc=now,
+                current_plan="free",
+                license_status="trial",
+            )
+            _bind_identity(tenant, identity)
+            db.add(tenant)
+            db.flush()
+            status = "created"
+        else:
+            status = "existing"
         _apply_mutable_fields(
             tenant,
             identity=identity,
@@ -226,13 +259,25 @@ def upsert_tenant_registration(
         )
         tenant.api_token_hash = hash_api_token(stable_token)
         preparation = prepare_dashboard_user(db, tenant=tenant, email=contact_email)
+        if preparation.membership_created:
+            log_admin_event(
+                db,
+                admin_username=f"dashboard-user:{preparation.user.id}",
+                action="dashboard_membership_created",
+                target_type="tenant",
+                target_id=tenant.tenant_id,
+                details={"role": preparation.membership.role},
+            )
         db.commit()
-        status = "existing"
 
     return RegistrationUpsertResult(
         tenant_id=tenant.tenant_id,
         api_token=stable_token,
         registration_status=status,
+        dashboard_user_id=preparation.user.id,
+        membership_id=preparation.membership.id,
+        dashboard_access_count=preparation.access_count,
         dashboard_user_created=preparation.created,
+        membership_created=preparation.membership_created,
         dashboard_user_email_changed=preparation.email_changed,
     )

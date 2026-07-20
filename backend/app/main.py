@@ -26,10 +26,11 @@ from app.core.observability import (
 )
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
-from app.models import DashboardUser, Scan, ScanIssueRecord, ScanRunStatus, Tenant
+from app.models import DashboardUser, DashboardUserTenantMembership, Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
+from app.routers.dashboard import router as dashboard_router
 from app.routers.license import router as license_router
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
@@ -60,7 +61,11 @@ from app.services.impact_service import (
 )
 from app.services.entitlement_guard_service import get_tenant_features, require_tenant_feature
 from app.services.entitlement_service import is_premium_actions_enabled
-from app.services.dashboard_invite_service import DashboardEmailConflictError, send_dashboard_user_invite
+from app.services.dashboard_invite_service import (
+    DashboardMembershipDisabledError,
+    DashboardUserDisabledError,
+    send_dashboard_user_invite,
+)
 from app.services.email_template_service import ensure_default_email_templates
 from app.services.localization_service import update_tenant_language
 from app.services.scoring_service import calculate_quick_scan_result
@@ -173,6 +178,7 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(admin_router)
 app.include_router(analytics_router)
 app.include_router(billing_router)
+app.include_router(dashboard_router)
 app.include_router(partners_router)
 app.include_router(public_router)
 app.include_router(reports_router)
@@ -308,10 +314,18 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         path=request.url.path,
         errors=_summarize_validation_errors(exc.errors()),
     )
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors(), "request_id": request_id},
-    )
+    if request.url.path == "/tenant/register":
+        return JSONResponse(
+            status_code=422,
+            content={
+                "code": "INVALID_REGISTRATION_PAYLOAD",
+                "message": "The registration payload is missing required or valid values.",
+                "message_de": "In den Registrierungsdaten fehlen erforderliche oder gültige Angaben.",
+                "details": {"invalid_fields": _summarize_validation_errors(exc.errors())},
+                "request_id": request_id,
+            },
+        )
+    return JSONResponse(status_code=422, content={"detail": exc.errors(), "request_id": request_id})
 
 
 @app.exception_handler(Exception)
@@ -354,6 +368,43 @@ class TenantRegisterResponse(BaseModel):
     dashboard_invite_error: str | None = None
     dashboard_invite_status: str = "pending"
     registration_status: str
+    dashboard_user_id: int
+    membership_id: int
+    dashboard_access_count: int
+    existing_dashboard_user: bool
+    membership_created: bool
+
+
+class RegistrationApiError(Exception):
+    def __init__(
+        self,
+        *,
+        status_code: int,
+        code: str,
+        message: str,
+        message_de: str,
+        details: dict | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.code = code
+        self.message = message
+        self.message_de = message_de
+        self.details = details or {}
+
+
+@app.exception_handler(RegistrationApiError)
+async def registration_api_error_handler(request: Request, exc: RegistrationApiError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "code": exc.code,
+            "message": exc.message,
+            "message_de": exc.message_de,
+            "details": exc.details,
+            "request_id": getattr(request.state, "request_id", None),
+        },
+    )
 
 
 @app.get("/health")
@@ -388,24 +439,49 @@ def _validate_tenant_registration_invite(payload_invite: str | None, header_invi
 
     if not expected_invite:
         if settings.ENV.lower() == "prod":
-            raise HTTPException(status_code=503, detail="Tenant registration is not configured.")
+            raise RegistrationApiError(
+                status_code=503,
+                code="REGISTRATION_TEMPORARILY_UNAVAILABLE",
+                message="Tenant registration is temporarily unavailable.",
+                message_de="Die Mandantenregistrierung ist vorübergehend nicht verfügbar.",
+            )
         return
 
     if not supplied_invite or not secrets.compare_digest(supplied_invite, expected_invite):
-        raise HTTPException(status_code=403, detail="Invalid tenant registration invite.")
+        raise RegistrationApiError(
+            status_code=403,
+            code="TENANT_MEMBERSHIP_NOT_ALLOWED",
+            message="Registration authorization was rejected.",
+            message_de="Die Berechtigung für die Registrierung wurde abgelehnt.",
+        )
 
 
 def _normalize_contact_email(value: str | None) -> str | None:
     normalized = (value or "").strip().lower()
     if not normalized:
-        raise HTTPException(status_code=422, detail="contact_email is required.")
+        raise RegistrationApiError(
+            status_code=422,
+            code="INVALID_REGISTRATION_PAYLOAD",
+            message="A valid contact email is required.",
+            message_de="Eine gültige Kontakt-E-Mail-Adresse ist erforderlich.",
+        )
 
     if " " in normalized or "@" not in normalized:
-        raise HTTPException(status_code=422, detail="contact_email is invalid.")
+        raise RegistrationApiError(
+            status_code=422,
+            code="INVALID_REGISTRATION_PAYLOAD",
+            message="The contact email is invalid.",
+            message_de="Die Kontakt-E-Mail-Adresse ist ungültig.",
+        )
 
     local_part, _, domain = normalized.partition("@")
     if not local_part or "." not in domain or domain.endswith("."):
-        raise HTTPException(status_code=422, detail="contact_email is invalid.")
+        raise RegistrationApiError(
+            status_code=422,
+            code="INVALID_REGISTRATION_PAYLOAD",
+            message="The contact email is invalid.",
+            message_de="Die Kontakt-E-Mail-Adresse ist ungültig.",
+        )
 
     return normalized
 
@@ -418,12 +494,22 @@ def register_tenant(
     x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
     x_api_token: str | None = Header(default=None, alias="X-Api-Token"),
 ) -> TenantRegisterResponse:
-    require_rate_limit(
-        request,
-        action="tenant_register",
-        max_attempts=settings.TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS,
-        window_seconds=settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
-    )
+    try:
+        require_rate_limit(
+            request,
+            action="tenant_register",
+            max_attempts=settings.TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS,
+            window_seconds=settings.TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS,
+        )
+    except HTTPException as exc:
+        if exc.status_code == 429:
+            raise RegistrationApiError(
+                status_code=429,
+                code="REGISTRATION_TEMPORARILY_UNAVAILABLE",
+                message="Too many registration attempts. Try again later.",
+                message_de="Zu viele Registrierungsversuche. Versuchen Sie es später erneut.",
+            ) from exc
+        raise
     _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
     contact_email = _normalize_contact_email(payload.contact_email)
 
@@ -453,18 +539,58 @@ def register_tenant(
             )
         except RegistrationAuthenticationError as exc:
             db.rollback()
-            raise HTTPException(status_code=401, detail=str(exc)) from exc
-        except (DashboardEmailConflictError, RegistrationConflictError) as exc:
+            raise RegistrationApiError(
+                status_code=409,
+                code="REGISTRATION_IDENTITY_CONFLICT",
+                message="The existing registration identity could not be authenticated.",
+                message_de="Die bestehende Registrierungsidentität konnte nicht authentifiziert werden.",
+            ) from exc
+        except RegistrationConflictError as exc:
             db.rollback()
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            raise RegistrationApiError(
+                status_code=409,
+                code="REGISTRATION_IDENTITY_CONFLICT",
+                message="The Business Central identity conflicts with an existing registration.",
+                message_de="Die Business-Central-Identität steht im Konflikt mit einer bestehenden Registrierung.",
+            ) from exc
+        except DashboardUserDisabledError as exc:
+            db.rollback()
+            raise RegistrationApiError(
+                status_code=403,
+                code="DASHBOARD_USER_DISABLED",
+                message="The dashboard user is disabled.",
+                message_de="Der Dashboard-Benutzer ist deaktiviert.",
+            ) from exc
+        except DashboardMembershipDisabledError as exc:
+            db.rollback()
+            raise RegistrationApiError(
+                status_code=403,
+                code="TENANT_MEMBERSHIP_DISABLED",
+                message="The tenant membership is disabled.",
+                message_de="Die Mandantenzuordnung ist deaktiviert.",
+            ) from exc
         except ValueError as exc:
             db.rollback()
-            raise HTTPException(status_code=422, detail=str(exc)) from exc
+            raise RegistrationApiError(
+                status_code=422,
+                code="INVALID_REGISTRATION_PAYLOAD",
+                message="The registration payload is missing required or valid values.",
+                message_de="In den Registrierungsdaten fehlen erforderliche oder gültige Angaben.",
+            ) from exc
+        except Exception as exc:
+            db.rollback()
+            logger.exception("Unexpected tenant registration error.", extra={"event": "tenant_registration_unexpected"})
+            raise RegistrationApiError(
+                status_code=500,
+                code="REGISTRATION_UNEXPECTED_ERROR",
+                message="The registration could not be completed because of an internal error.",
+                message_de="Die Registrierung konnte aufgrund eines internen Fehlers nicht abgeschlossen werden.",
+            ) from exc
 
     if registration.dashboard_user_created:
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == registration.tenant_id))
-            user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == registration.tenant_id))
+            user = db.scalar(select(DashboardUser).where(DashboardUser.id == registration.dashboard_user_id))
             if tenant is not None and user is not None:
                 invite_result = send_dashboard_user_invite(db, tenant=tenant, user=user)
                 invite_sent = invite_result.mail_sent
@@ -473,7 +599,7 @@ def register_tenant(
                 db.commit()
     else:
         with SessionLocal() as db:
-            user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == registration.tenant_id))
+            user = db.scalar(select(DashboardUser).where(DashboardUser.id == registration.dashboard_user_id))
             if user is not None:
                 invite_status = user.invite_mail_status
 
@@ -485,6 +611,11 @@ def register_tenant(
         dashboard_invite_error=invite_error,
         dashboard_invite_status=invite_status,
         registration_status=registration.registration_status,
+        dashboard_user_id=registration.dashboard_user_id,
+        membership_id=registration.membership_id,
+        dashboard_access_count=registration.dashboard_access_count,
+        existing_dashboard_user=not registration.dashboard_user_created,
+        membership_created=registration.membership_created,
     )
 
 
@@ -501,7 +632,17 @@ def resend_dashboard_invite(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, tenant_id, api_token)
         email = _normalize_contact_email(payload.contact_email or tenant.contact_email)
-        user = db.scalar(select(DashboardUser).where(DashboardUser.tenant_id == tenant.tenant_id))
+        user = db.scalar(
+            select(DashboardUser)
+            .join(
+                DashboardUserTenantMembership,
+                DashboardUserTenantMembership.dashboard_user_id == DashboardUser.id,
+            )
+            .where(
+                DashboardUserTenantMembership.tenant_id == tenant.tenant_id,
+                DashboardUserTenantMembership.is_active.is_(True),
+            )
+        )
         if user is None:
             raise HTTPException(status_code=404, detail="Dashboard user not found.")
         if user.email != email:

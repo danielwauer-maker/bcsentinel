@@ -12,7 +12,7 @@ codeunit 53100 "DH API Client"
         EnsureSetupLoaded(Setup);
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/health'), Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
@@ -118,6 +118,52 @@ codeunit 53100 "DH API Client"
         end;
     end;
 
+    local procedure GetRegistrationErrorMessage(StatusCode: Integer; ResponseText: Text): Text
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        ErrorCode: Text;
+    begin
+        if JsonResponse.ReadFrom(ResponseText) then
+            if JsonResponse.Get('code', Token) then
+                if not IsJsonNull(Token) and Token.IsValue() then
+                    ErrorCode := UpperCase(Token.AsValue().AsText());
+
+        case ErrorCode of
+            'REGISTRATION_IDENTITY_CONFLICT':
+                exit(RegistrationIdentityConflictLbl);
+            'TENANT_MEMBERSHIP_NOT_ALLOWED', 'TENANT_ACCESS_FORBIDDEN':
+                exit(RegistrationPermissionDeniedLbl);
+            'TENANT_NOT_FOUND':
+                exit(RegistrationTenantNotFoundLbl);
+            'INVALID_REGISTRATION_PAYLOAD':
+                exit(RegistrationInvalidDataLbl);
+            'DASHBOARD_USER_DISABLED':
+                exit(RegistrationDashboardUserDisabledLbl);
+            'TENANT_MEMBERSHIP_DISABLED':
+                exit(RegistrationMembershipDisabledLbl);
+            'REGISTRATION_TEMPORARILY_UNAVAILABLE':
+                exit(RegistrationTemporarilyUnavailableLbl);
+            'REGISTRATION_UNEXPECTED_ERROR':
+                exit(RegistrationUnexpectedErrorLbl);
+        end;
+
+        case StatusCode of
+            400, 422:
+                exit(RegistrationInvalidDataLbl);
+            401, 403:
+                exit(RegistrationPermissionDeniedLbl);
+            404:
+                exit(RegistrationTenantNotFoundLbl);
+            409:
+                exit(RegistrationIdentityConflictLbl);
+            500 .. 599:
+                exit(RegistrationUnexpectedErrorLbl);
+            else
+                exit(RegistrationUnexpectedErrorLbl);
+        end;
+    end;
+
     procedure EnsureTenantRegistered(var Setup: Record "DH Setup")
     var
         RegistrationMessage: Text;
@@ -149,6 +195,8 @@ codeunit 53100 "DH API Client"
         DashboardInviteEmail: Text;
         DashboardInviteError: Text;
         DashboardInviteSent: Boolean;
+        ExistingDashboardUser: Boolean;
+        MembershipCreated: Boolean;
         IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
         SecretMgt: Codeunit "DH Secret Mgt.";
     begin
@@ -161,6 +209,8 @@ codeunit 53100 "DH API Client"
             Error(EnableDataProcessingConsentBeforeRegisterLbl);
 
         Setup.EnsureValidContactEmail();
+
+        Client.Timeout(30000);
 
         JsonRequest.Add('entra_tenant_id', IdentityMgt.GetEntraTenantId());
         JsonRequest.Add('environment_name', IdentityMgt.GetEnvironmentName());
@@ -187,12 +237,12 @@ codeunit 53100 "DH API Client"
         end;
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/tenant/register'), Content, Response) then
-            Error(BackendRequestNotSentLbl);
+            Error(RegistrationNetworkErrorLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error(GetBackendErrorMessage('Tenant registration', Response.HttpStatusCode(), ResponseText));
+            Error(GetRegistrationErrorMessage(Response.HttpStatusCode(), ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
             Error(BackendInvalidJsonLbl);
@@ -217,6 +267,14 @@ codeunit 53100 "DH API Client"
             if not IsJsonNull(Token) then
                 DashboardInviteError := Token.AsValue().AsText();
 
+        if JsonResponse.Get('existing_dashboard_user', Token) then
+            if not IsJsonNull(Token) then
+                ExistingDashboardUser := Token.AsValue().AsBoolean();
+
+        if JsonResponse.Get('membership_created', Token) then
+            if not IsJsonNull(Token) then
+                MembershipCreated := Token.AsValue().AsBoolean();
+
         if TenantId = '' then
             Error(BackendMissingTenantIdLbl);
 
@@ -231,6 +289,12 @@ codeunit 53100 "DH API Client"
 
         if DashboardInviteEmail = '' then
             DashboardInviteEmail := Setup."Contact Email";
+
+        if ExistingDashboardUser and MembershipCreated then
+            exit(StrSubstNo(RegistrationExistingUserAddedLbl, IdentityMgt.GetEnvironmentName()));
+
+        if ExistingDashboardUser then
+            exit(RegistrationExistingMembershipLbl);
 
         if DashboardInviteSent then
             exit(StrSubstNo(RegistrationCompletedInviteSentLbl, DashboardInviteEmail));
@@ -1880,6 +1944,17 @@ codeunit 53100 "DH API Client"
         BackendInvalidJsonLbl: Label 'The backend returned an invalid JSON response. Contact BCSentinel support if this continues.';
         BackendMissingTenantIdLbl: Label 'The backend response does not contain a tenant_id.';
         BackendMissingApiTokenLbl: Label 'The backend response does not contain an api_token.';
+        RegistrationNetworkErrorLbl: Label 'BCSentinel could not complete the registration because the service was not reachable. Check the API address and try again.';
+        RegistrationInvalidDataLbl: Label 'The registration could not be completed because required information is missing or invalid.';
+        RegistrationPermissionDeniedLbl: Label 'The registration was rejected because this environment is not authorized.';
+        RegistrationIdentityConflictLbl: Label 'The registration conflicts with an existing Business Central identity. Verify the environment and company or contact BCSentinel support.';
+        RegistrationTenantNotFoundLbl: Label 'The registered BCSentinel tenant could not be found. Reset the cached registration and register again.';
+        RegistrationDashboardUserDisabledLbl: Label 'The BCSentinel dashboard account for this email address is disabled. Contact BCSentinel support.';
+        RegistrationMembershipDisabledLbl: Label 'Access to this Business Central environment is disabled for the dashboard account. Contact BCSentinel support.';
+        RegistrationTemporarilyUnavailableLbl: Label 'BCSentinel registration is temporarily unavailable. Try again later.';
+        RegistrationUnexpectedErrorLbl: Label 'The registration could not be completed because of an internal error. Try again later or contact BCSentinel support.';
+        RegistrationExistingUserAddedLbl: Label 'This email address is already linked to a BCSentinel account. The environment "%1" was added successfully. After signing in, you can switch between your available BCSentinel dashboards.', Comment = '%1 = Business Central environment name';
+        RegistrationExistingMembershipLbl: Label 'This Business Central environment is already linked to the existing BCSentinel dashboard account.';
         RegistrationCompletedInviteSentLbl: Label 'BCSentinel tenant registration completed. Dashboard access was sent to %1.', Comment = '%1 = runtime value';
         RegistrationCompletedInviteFailedLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', Comment = '%1 = runtime value';
         RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.';

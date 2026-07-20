@@ -751,7 +751,6 @@
 
                     trigger OnAction()
                     var
-                        ApiClient: Codeunit "DH API Client";
                         RegistrationMessage: Text;
                     begin
                         if Rec."Contact Email" = '' then begin
@@ -765,10 +764,21 @@
                             Message(BCSentinelRegistrationDataIsIncompleteRegistLbl);
                         end;
 
-                        Message(BCSentinelTenantRegistrationStartedLbl);
-                        RegistrationMessage := ApiClient.RegisterTenant(Rec);
-                        ApiClient.RefreshLicenseStatus(Rec);
+                        ClearLastError();
+                        if not TryRegisterTenantAndRefresh(RegistrationMessage) then begin
+                            RegistrationMessage := GetLastErrorText();
+                            ClearLastError();
+                            UpdateActionState();
+                            UpdateDisplayValues();
+                            CurrPage.Update(false);
+                            if RegistrationMessage = '' then
+                                RegistrationMessage := RegistrationUnexpectedErrorLbl;
+                            Message(RegistrationMessage);
+                            exit;
+                        end;
+
                         UpdateActionState();
+                        UpdateDisplayValues();
                         CurrPage.Update(false);
                         Message(RegistrationMessage);
                     end;
@@ -1334,6 +1344,15 @@
         Rec."Can View Issue Details" := false;
         Rec."Product Access Model" := '';
         Rec.Modify(true);
+    end;
+
+    [TryFunction]
+    local procedure TryRegisterTenantAndRefresh(var RegistrationMessage: Text)
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        RegistrationMessage := ApiClient.RegisterTenant(Rec);
+        ApiClient.RefreshLicenseStatus(Rec);
     end;
 
     local procedure DeleteScanHistoryForReset()
@@ -1910,7 +1929,7 @@
     var
         PleaseEnterAContactEmailAddressFirstLbl: Label 'Please enter a contact email address first. It is required for dashboard access and important BCSentinel notifications.';
         BCSentinelRegistrationDataIsIncompleteRegistLbl: Label 'BCSentinel registration data is incomplete. Registration will request a fresh API token.';
-        BCSentinelTenantRegistrationStartedLbl: Label 'BCSentinel tenant registration started.';
+        RegistrationUnexpectedErrorLbl: Label 'The registration could not be completed because of an unexpected error. Try again later or contact BCSentinel support.';
         ResetTheCachedBCSentinelRegistrationStatusThLbl: Label 'Reset the cached BCSentinel registration status? The stable tenant binding, API token, purchases, and scan history are preserved. Use Register afterwards to reconcile with the backend.';
         CachedRegistrationStatusWasResetWithoutChangLbl: Label 'Cached registration status was reset without changing the tenant identity. Please register again to reconcile.';
         PleaseRegisterTheTenantFirstLbl: Label 'Please register the tenant first.';
@@ -1938,4 +1957,3 @@
         TheTokenResponseIsNotValidJSONLbl: Label 'The token response is not valid JSON.';
         TheTokenFieldIsMissingInTheLbl: Label 'The token field is missing in the response.';
 }
-

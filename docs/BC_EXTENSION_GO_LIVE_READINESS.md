@@ -248,3 +248,9 @@ Offen bleiben 193 AL-Issue-Codes ohne vollständigen deutschen Katalog, 155 dire
 REPO-01A beseitigt die Ursache der lokalen AL-Duplicate-Object-Fehler: 246 generierte AL-Dateien und drei zusätzliche Manifeste wurden ausschließlich aus `bc-extension/.build` entfernt. Der kanonische Bestand bleibt bei 84 Dateien/88 Objekten; App-ID, Name, Publisher, ID-Range und Fachlogik sind unverändert. Der Buildworkspace liegt nun außerhalb des AL-Projekts unter `.build/bc-extension/<Profile>`, unsichere Ziele werden vor jeder Anlage abgewiesen und ein automatischer Source-Uniqueness-Guard ist positiv und negativ verifiziert.
 
 ReleaseCloud Compile, CodeCop/PTECop, XLF/JSON, Source-Hashdiff und Python-Compile sind grün. AppSourceCop zeigt nur die bekannte Baseline. Das Readiness-Gate und die UX02-Prozentwerte bleiben unverändert, weil Repository-Hygiene keine fehlende Sandbox-/Install-/Upgrade-Evidenz ersetzt. Detailnachweis: `docs/GL_REPO_01A_BUILD_HYGIENE.md`.
+
+## Status-Delta GL-PILOT-01-FIX01 (20. Juli 2026)
+
+Der in BC 28.3 beobachtete globale E-Mail-/Tenant-Konflikt ist codebasiert geschlossen. Dashboard-Benutzer besitzen jetzt relationale, eindeutige Tenant-Memberships; bestehende 1:1-Zuordnungen werden durch Migration 0025 verlustfrei backfillt. Login, Liste, sichere Standardauswahl, Tenant-Wechsel und 403 bei fehlender Membership sind implementiert. BC-Embed-Tokens bleiben strikt Single-Tenant.
+
+Automatisierte API-, Migrations-, Race-, Security-, AL- und Localization-Gates sind grün. Der reale Post-Fix-CAT in `BCSentinel-Pilot` bleibt `BLOCKED`; deshalb bleiben Readiness-Prozentwerte und Produktentscheidung vorerst unverändert. Detail: `docs/GL_PILOT_01_FIX01_MULTI_TENANT_DASHBOARD_ACCESS.md`.

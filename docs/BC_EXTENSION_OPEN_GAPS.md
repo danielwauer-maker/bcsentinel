@@ -256,3 +256,16 @@ Nächster Sprint: **GL-EXT-UX02B**. DoD: 199/199 AL-Codes redaktionell DE/EN, 15
 | AppSource-Metadaten/ID-Range/Telemetrie/Signierung | Baseline weiterhin rot | **offen, außerhalb REPO-01A** |
 
 REPO-01A führt keine neuen Produktgaps ein. REPO-01B kann auf einem eindeutigen AL-Quellbaum aufsetzen; Sandbox-, UX02B- und AppSource-Gaps bleiben unabhängig davon offen.
+
+## Status-Delta GL-PILOT-01-FIX01 (20. Juli 2026)
+
+| Gap | Evidenz | Status |
+|---|---|---|
+| gleiche Dashboard-E-Mail in mehreren Tenants | normalisierter Benutzer + relationale Memberships, Race-/Idempotenztests | **geschlossen auf Code-/DB-Ebene** |
+| Tenant-Liste und Wechsel | Session-JWT mit aktivem Tenant; serverseitige Membership-Revalidierung | **geschlossen auf Codeebene** |
+| IDOR/Fremd-Tenant | direkter Pfad, Switch und manipulierter Claim jeweils 403 | **geschlossen automatisiert** |
+| AL-Busy-State/Fehlertexte | TryFunction-Recovery, stabile Codes, vollständige DE/EN-Labels | **geschlossen auf Codeebene** |
+| bestehende Produktionsdaten migrieren | Backup/Zählprüfung vorbereitet, keine Produktivmigration autorisiert | **offen vor Deployment** |
+| Post-Fix-CAT BC 28.3 | kein Sandboxzugriff in diesem Lauf | **BLOCKED** |
+
+Nächster zwingender Schritt ist kein weiterer Refactor, sondern der dokumentierte Wiederholungstest in `BCSentinel-Pilot` mit Migration 0025, Extension-Upgrade, Multi-Tenant-Login und Datenisolationsnachweis.

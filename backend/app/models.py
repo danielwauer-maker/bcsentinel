@@ -63,7 +63,7 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
-    dashboard_users: Mapped[list["DashboardUser"]] = relationship(
+    dashboard_memberships: Mapped[list["DashboardUserTenantMembership"]] = relationship(
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
@@ -71,11 +71,10 @@ class Tenant(Base):
 
 class DashboardUser(Base):
     __tablename__ = "dashboard_users"
-    __table_args__ = (UniqueConstraint("tenant_id", "email", name="uq_dashboard_users_tenant_email"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
-    email: Mapped[str] = mapped_column(String(255), index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    normalized_email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     status: Mapped[str] = mapped_column(String(20), default="invited", index=True)
     invite_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     invite_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -87,7 +86,40 @@ class DashboardUser(Base):
     invite_mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
     invite_mail_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    tenant: Mapped["Tenant"] = relationship(back_populates="dashboard_users")
+    memberships: Mapped[list["DashboardUserTenantMembership"]] = relationship(
+        back_populates="dashboard_user",
+        cascade="all, delete-orphan",
+    )
+
+
+class DashboardUserTenantMembership(Base):
+    __tablename__ = "dashboard_user_tenant_memberships"
+    __table_args__ = (
+        UniqueConstraint(
+            "dashboard_user_id",
+            "tenant_id",
+            name="uq_dashboard_user_tenant_membership",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    dashboard_user_id: Mapped[int] = mapped_column(
+        ForeignKey("dashboard_users.id"),
+        index=True,
+    )
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    role: Mapped[str] = mapped_column(String(30), default="owner")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    last_selected_at_utc: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    dashboard_user: Mapped["DashboardUser"] = relationship(back_populates="memberships")
+    tenant: Mapped["Tenant"] = relationship(back_populates="dashboard_memberships")
 
 
 class Scan(Base):

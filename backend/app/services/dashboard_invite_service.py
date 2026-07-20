@@ -7,11 +7,11 @@ from datetime import timedelta
 from email.mime.text import MIMEText
 from urllib.parse import urljoin
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.settings import resolve_public_base_url, settings
-from app.models import DashboardUser, Tenant
+from app.models import DashboardUser, DashboardUserTenantMembership, Tenant
 from app.security.token_hash import hash_api_token
 from app.services.billing_service import utc_now
 from app.services.email_template_service import render_email_template
@@ -25,43 +25,43 @@ class DashboardInviteResult:
     mail_error: str | None = None
 
 
-class DashboardEmailConflictError(ValueError):
+class DashboardUserDisabledError(ValueError):
+    pass
+
+
+class DashboardMembershipDisabledError(ValueError):
     pass
 
 
 @dataclass(frozen=True)
 class DashboardUserPreparation:
     user: DashboardUser
+    membership: DashboardUserTenantMembership
     created: bool
+    membership_created: bool
     email_changed: bool
+    access_count: int
 
 
-def prepare_dashboard_user(db: Session, *, tenant: Tenant, email: str) -> DashboardUserPreparation:
+def normalize_dashboard_email(email: str | None) -> str:
     normalized_email = (email or "").strip().lower()
     if not normalized_email:
         raise ValueError("contact_email is required.")
+    return normalized_email
 
-    existing_other_tenant = db.scalar(
-        select(DashboardUser).where(
-            DashboardUser.email == normalized_email,
-            DashboardUser.tenant_id != tenant.tenant_id,
-        )
-    )
-    if existing_other_tenant is not None:
-        raise DashboardEmailConflictError("contact_email already belongs to another tenant dashboard user.")
 
+def prepare_dashboard_user(db: Session, *, tenant: Tenant, email: str) -> DashboardUserPreparation:
+    normalized_email = normalize_dashboard_email(email)
     now = utc_now()
+
     user = db.scalar(
-        select(DashboardUser).where(
-            DashboardUser.tenant_id == tenant.tenant_id,
-        )
+        select(DashboardUser).where(DashboardUser.normalized_email == normalized_email)
     )
     created = user is None
-    email_changed = user is not None and user.email != normalized_email
     if user is None:
         user = DashboardUser(
-            tenant_id=tenant.tenant_id,
             email=normalized_email,
+            normalized_email=normalized_email,
             status="invited",
             must_change_password=True,
             password_hash=None,
@@ -70,14 +70,58 @@ def prepare_dashboard_user(db: Session, *, tenant: Tenant, email: str) -> Dashbo
             invite_mail_status="pending",
         )
         db.add(user)
-    elif email_changed:
-        user.email = normalized_email
-        user.updated_at_utc = now
-        user.invite_mail_status = "pending"
-        user.invite_mail_error = None
+        db.flush()
+    elif user.status == "disabled":
+        raise DashboardUserDisabledError("Dashboard user is disabled.")
 
-    db.flush()
-    return DashboardUserPreparation(user=user, created=created, email_changed=email_changed)
+    current_membership = db.scalar(
+        select(DashboardUserTenantMembership).where(
+            DashboardUserTenantMembership.dashboard_user_id == user.id,
+            DashboardUserTenantMembership.tenant_id == tenant.tenant_id,
+        )
+    )
+    if current_membership is not None and not current_membership.is_active:
+        raise DashboardMembershipDisabledError("Dashboard tenant membership is disabled.")
+
+    previous_active_membership = db.scalar(
+        select(DashboardUserTenantMembership).where(
+            DashboardUserTenantMembership.tenant_id == tenant.tenant_id,
+            DashboardUserTenantMembership.is_active.is_(True),
+            DashboardUserTenantMembership.dashboard_user_id != user.id,
+        )
+    )
+    email_changed = previous_active_membership is not None
+    if previous_active_membership is not None:
+        previous_active_membership.is_active = False
+        previous_active_membership.updated_at_utc = now
+
+    membership_created = current_membership is None
+    if current_membership is None:
+        current_membership = DashboardUserTenantMembership(
+            dashboard_user_id=user.id,
+            tenant_id=tenant.tenant_id,
+            role="owner",
+            is_active=True,
+            created_at_utc=now,
+            updated_at_utc=now,
+        )
+        db.add(current_membership)
+        db.flush()
+
+    access_count = db.scalar(
+        select(func.count(DashboardUserTenantMembership.id)).where(
+            DashboardUserTenantMembership.dashboard_user_id == user.id,
+            DashboardUserTenantMembership.is_active.is_(True),
+        )
+    ) or 0
+    return DashboardUserPreparation(
+        user=user,
+        membership=current_membership,
+        created=created,
+        membership_created=membership_created,
+        email_changed=email_changed,
+        access_count=access_count,
+    )
 
 
 def send_dashboard_user_invite(db: Session, *, tenant: Tenant, user: DashboardUser) -> DashboardInviteResult:
@@ -107,6 +151,8 @@ def send_dashboard_user_invite(db: Session, *, tenant: Tenant, user: DashboardUs
 
 def ensure_dashboard_user_invite(db: Session, *, tenant: Tenant, email: str) -> DashboardInviteResult:
     preparation = prepare_dashboard_user(db, tenant=tenant, email=email)
+    if not preparation.created and preparation.user.status == "active":
+        return DashboardInviteResult(user=preparation.user, mail_sent=False, mail_error=None)
     return send_dashboard_user_invite(db, tenant=tenant, user=preparation.user)
 
 

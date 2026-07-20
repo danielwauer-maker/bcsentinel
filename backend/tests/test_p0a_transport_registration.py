@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import func, select
 
 from app.db import SessionLocal
-from app.models import DashboardUser, Tenant
+from app.models import DashboardUser, DashboardUserTenantMembership, Tenant
 from app.security.token_hash import hash_api_token
 from app.security.url_policy import UnsafeUrlError, normalize_service_base_url
 
@@ -149,7 +149,7 @@ def test_parallel_identical_registration_has_one_tenant_and_user(client, setting
         assert db.scalar(select(func.count(DashboardUser.id))) == 1
 
 
-def test_contact_email_change_updates_same_tenant_without_new_user(client, settings_state):
+def test_contact_email_change_reassigns_membership_without_mutating_existing_login(client, settings_state):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
     first = register(client)
     second = register(client, registration_payload(contact_email="new-owner@example.com"))
@@ -157,9 +157,16 @@ def test_contact_email_change_updates_same_tenant_without_new_user(client, setti
     assert second.json()["tenant_id"] == first.json()["tenant_id"]
     with SessionLocal() as db:
         assert db.scalar(select(func.count(Tenant.id))) == 1
-        users = db.scalars(select(DashboardUser)).all()
-        assert len(users) == 1
-        assert users[0].email == "new-owner@example.com"
+        users = db.scalars(select(DashboardUser).order_by(DashboardUser.id)).all()
+        assert [user.email for user in users] == ["owner@example.com", "new-owner@example.com"]
+        memberships = db.scalars(
+            select(DashboardUserTenantMembership).order_by(DashboardUserTenantMembership.id)
+        ).all()
+        assert len(memberships) == 2
+        assert memberships[0].dashboard_user_id == users[0].id
+        assert memberships[0].is_active is False
+        assert memberships[1].dashboard_user_id == users[1].id
+        assert memberships[1].is_active is True
 
 
 @pytest.mark.parametrize(

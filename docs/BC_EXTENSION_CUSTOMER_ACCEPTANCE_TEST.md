@@ -318,3 +318,29 @@ Keine authentisierte BC-Sandbox ist angebunden. Alle Fälle sind **BLOCKED**, ni
 |---|---:|---:|---:|---:|---:|
 | UX02 | 20 | 0 | 0 | 0 | 20 |
 | P0A–P0D + UX01 + UX02 gesamt | 87 | 0 | 0 | 0 | 87 |
+
+## GL-PILOT-01-FIX01 – Multi-Tenant Registration CAT (20. Juli 2026)
+
+Zielumgebung: `BCSentinel-Pilot`, Business Central 28.3. Die Fälle sind vorbereitet, aber nach dem Fix noch nicht ausgeführt; Status daher **BLOCKED**.
+
+| ID | Prüfung | Erwartung | Status |
+|---|---|---|---|
+| FIX01-CAT-01 | API-Verbindung und Consent | Verbindung PASS, Registrieren aktiv | BLOCKED |
+| FIX01-CAT-02 | bestehende E-Mail in neuem Tenant | Registrierung erfolgreich, neue Membership | BLOCKED |
+| FIX01-CAT-03 | spezifische Erfolgsmeldung DE | Environment genannt, Dashboard-Wechsel erklärt | BLOCKED |
+| FIX01-CAT-04 | spezifische Erfolgsmeldung EN | vollständige englische Entsprechung | BLOCKED |
+| FIX01-CAT-05 | Busy-State bei Erfolg | endet, Seite bedienbar | BLOCKED |
+| FIX01-CAT-06 | 400/422 strukturierter Fehler | verständliche Meldung, erneuter Versuch möglich | BLOCKED |
+| FIX01-CAT-07 | 403/409 strukturierter Fehler | Berechtigung/Identität korrekt erklärt | BLOCKED |
+| FIX01-CAT-08 | 500/Timeout/Netzwerk/ungültiges oder leeres JSON | kein Raw JSON, Busy endet, Retry möglich | BLOCKED |
+| FIX01-CAT-09 | Login mit mehreren Memberships | alle autorisierten Dashboards sichtbar | BLOCKED |
+| FIX01-CAT-10 | verständliche Tenantnamen/schmale Ansicht | Company, Environment, Type; responsive | BLOCKED |
+| FIX01-CAT-11 | Tenant-Wechsel | aktiver Tenant sichtbar und persistent | BLOCKED |
+| FIX01-CAT-12 | Overview/Findings/History/Reports | ausschließlich ausgewählter Tenant | BLOCKED |
+| FIX01-CAT-13 | Lizenz/Credits/Billing | ausschließlich ausgewählter Tenant | BLOCKED |
+| FIX01-CAT-14 | fremde Tenant-ID / manipulierter Switch | 403, keine Daten | BLOCKED |
+| FIX01-CAT-15 | identische Registrierung wiederholen | dieselbe Membership, keine zweite Einladung | BLOCKED |
+
+| Suite | Fälle | Ausgeführt | PASS | FAIL | BLOCKED |
+|---|---:|---:|---:|---:|---:|
+| GL-PILOT-01-FIX01 | 15 | 0 | 0 | 0 | 15 |

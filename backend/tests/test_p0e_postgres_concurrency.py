@@ -73,6 +73,41 @@ def test_parallel_different_registrations_remain_isolated(client, settings_state
     assert len({response.json()["tenant_id"] for response in responses}) == 4
 
 
+def test_parallel_registration_same_email_creates_one_user_and_unique_memberships(client, settings_state):
+    settings_state(
+        TENANT_REGISTRATION_INVITE_CODE="p0e-invite",
+        TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS=20,
+    )
+
+    def register(index: int):
+        return client.post(
+            "/tenant/register",
+            headers={"X-Registration-Invite": "p0e-invite"},
+            json={
+                "entra_tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "environment_name": f"Concurrent-{index}",
+                "environment_type": "sandbox",
+                "company_id": f"00000000-0000-0000-0000-{index:012d}",
+                "company_name": f"Concurrent {index}",
+                "app_version": "1.0.2.7",
+                "contact_email": "parallel-shared@example.invalid",
+            },
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        responses = list(pool.map(register, range(2)))
+
+    assert [response.status_code for response in responses] == [200, 200]
+    assert len({response.json()["dashboard_user_id"] for response in responses}) == 1
+
+    from app.models import DashboardUser, DashboardUserTenantMembership
+
+    with SessionLocal() as db:
+        assert db.query(DashboardUser).filter_by(normalized_email="parallel-shared@example.invalid").count() == 1
+        user_id = responses[0].json()["dashboard_user_id"]
+        assert db.query(DashboardUserTenantMembership).filter_by(dashboard_user_id=user_id).count() == 2
+
+
 def test_parallel_validation_starts_consume_one_validation_credit(client, tenant_factory):
     tenant = tenant_factory()
     with SessionLocal() as db:
