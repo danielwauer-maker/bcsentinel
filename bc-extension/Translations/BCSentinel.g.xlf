@@ -1483,6 +1483,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType EnableDataProcessingConsentLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1802602996" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The one-time free Data Health Score has already been started for this environment.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType FreeScanAlreadyUsedLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 909194175" size-unit="char" translate="yes" xml:space="preserve">
           <source>No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1502,6 +1507,101 @@
           <source>BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationCompletedInviteUnknownLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2456901938" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The BCSentinel dashboard account for this email address is disabled. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationDashboardUserDisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3332878286" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This Business Central environment is already linked to the existing BCSentinel dashboard account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingMembershipLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 800054683" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This email address is already linked to a BCSentinel account. The environment "%1" was added successfully. After signing in, you can switch between your available BCSentinel dashboards.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Business Central environment name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingUserAddedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1656882053" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration conflicts with an existing Business Central identity. Verify the environment and company or contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationIdentityConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 287489686" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because required information is missing or invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationInvalidDataLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2826323179" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Access to this Business Central environment is disabled for the dashboard account. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationMembershipDisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3256243383" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not complete the registration because the service was not reachable. Check the API address and try again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3983854201" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration was rejected because this environment is not authorized.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationPermissionDeniedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1207520993" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel registration is temporarily unavailable. Try again later.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTemporarilyUnavailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 915500328" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registered BCSentinel tenant could not be found. Reset the cached registration and register again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTenantNotFoundLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because of an internal error. Try again later or contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationUnexpectedErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 388789250" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This scan ID is already assigned to another scan. The local run was stopped safely. Start the scan again to create a new unique run.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanIdConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3913285534" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This scan request was already used with different start data. The local run was stopped safely. Start a new scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanRequestConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3979838341" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartConflictLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3275498335" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan could not be started because the request identity or required scan data is invalid. Start a new scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidRequestLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 341166009" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel accepted the connection but returned an incomplete scan start response. Retry the same scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidResponseLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2428831021" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not send the scan start request. Check the API connection and retry the same scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2846578603" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start was rejected because this environment is not authorized. Refresh product access and try again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartPermissionDeniedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2094335354" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartTemporaryErrorLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4249321513 - NamedType 1839404523" size-unit="char" translate="yes" xml:space="preserve">
           <source>The API Base URL must not contain a query string or fragment.</source>
@@ -1533,6 +1633,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType UnsafeApiConnectionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 3391027939 - NamedType 1772449976" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan start rejected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method MarkStartAsRejected - NamedType StartRejectedLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Health Score started. Opening the monitor. Run ID: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1547,6 +1652,11 @@
           <source>The scan start could not be confirmed. Retry the same scan from the start action. The existing request ID will be reused. Details: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartFailedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - Method 562213518 - NamedType 2287188572" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start could not be confirmed because of an unexpected error. Retry the same scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2031230494" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
@@ -4568,11 +4678,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType BCSentinelRegistrationDataIsIncompleteRegistLbl</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 3307091239" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel tenant registration started.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType BCSentinelTenantRegistrationStartedLbl</note>
-        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 2798107313" size-unit="char" translate="yes" xml:space="preserve">
           <source>Before registration or scans, BCSentinel requires your consent to send and process tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics. The data is used for Data Health analysis, dashboards, executive reports, and license checks.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4687,6 +4792,11 @@
           <source>Registered</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegisteredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The registration could not be completed because of an unexpected error. Try again later or contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationUnexpectedErrorLbl</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 1456106847" size-unit="char" translate="yes" xml:space="preserve">
           <source>The cached registration and access status was reset. Tenant identity, API token, purchases, and scan history were preserved.</source>
@@ -6043,120 +6153,62 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3256243383" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel could not complete the registration because the service was not reachable. Check the API address and try again.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationNetworkErrorLbl</note>
+        <trans-unit id="Table 2181053114 - Field 2110464213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Error</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 287489686" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registration could not be completed because required information is missing or invalid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationInvalidDataLbl</note>
+        <trans-unit id="Table 2181053114 - Field 3873965305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Status</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3983854201" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registration was rejected because this environment is not authorized.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationPermissionDeniedLbl</note>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3424487903" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 1656882053" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registration conflicts with an existing Business Central identity. Verify the environment and company or contact BCSentinel support.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationIdentityConflictLbl</note>
+        <trans-unit id="Codeunit 3727721143 - NamedType 4091633886" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan status update failed. Status: %1. Run ID: %2. %3</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 915500328" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registered BCSentinel tenant could not be found. Reset the cached registration and register again.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTenantNotFoundLbl</note>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1041036785" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan status could not be sent to BCSentinel. The local scan continues and synchronization will be retried.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2456901938" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The BCSentinel dashboard account for this email address is disabled. Contact BCSentinel support.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationDashboardUserDisabledLbl</note>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3049414763" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed. Status: %1. %2</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2826323179" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Access to this Business Central environment is disabled for the dashboard account. Contact BCSentinel support.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationMembershipDisabledLbl</note>
+        <trans-unit id="Codeunit 3727721143 - NamedType 890351568" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 1207520993" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel registration is temporarily unavailable. Try again later.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationTemporarilyUnavailableLbl</note>
+        <trans-unit id="Codeunit 4097836441 - NamedType 23154622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan completed locally; backend synchronization failed.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registration could not be completed because of an internal error. Try again later or contact BCSentinel support.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationUnexpectedErrorLbl</note>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3231997172" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 800054683" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This email address is already linked to a BCSentinel account. The environment "%1" was added successfully. After signing in, you can switch between your available BCSentinel dashboards.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Business Central environment name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingUserAddedLbl</note>
+        <trans-unit id="Page 2958763285 - NamedType 1833375810" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3332878286" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This Business Central environment is already linked to the existing BCSentinel dashboard account.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegistrationExistingMembershipLbl</note>
+        <trans-unit id="Page 2958763285 - NamedType 3145417184" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronized</source>
         </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The registration could not be completed because of an unexpected error. Try again later or contact BCSentinel support.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationUnexpectedErrorLbl</note>
+        <trans-unit id="Page 2958763285 - NamedType 2449134427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not started</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 1802602996" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The one-time free Data Health Score has already been started for this environment.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType FreeScanAlreadyUsedLbl</note>
+        <trans-unit id="Page 2958763285 - NamedType 3049806726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pending</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 388789250" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This scan ID is already assigned to another scan. The local run was stopped safely. Start the scan again to create a new unique run.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanIdConflictLbl</note>
+        <trans-unit id="Page 2958763285 - NamedType 701894368" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retry required</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3913285534" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This scan request was already used with different start data. The local run was stopped safely. Start a new scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanRequestConflictLbl</note>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the locally completed scan was accepted by the BCSentinel backend.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3979838341" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartConflictLbl</note>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Status</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 3275498335" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan could not be started because the request identity or required scan data is invalid. Start a new scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidRequestLbl</note>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies why backend synchronization failed or must be retried.</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 341166009" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel accepted the connection but returned an incomplete scan start response. Retry the same scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartInvalidResponseLbl</note>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Message</source>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2428831021" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel could not send the scan start request. Check the API connection and retry the same scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartNetworkErrorLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2846578603" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan start was rejected because this environment is not authorized. Refresh product access and try again.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartPermissionDeniedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2094335354" size-unit="char" translate="yes" xml:space="preserve">
-          <source>BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartTemporaryErrorLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 950078217 - Method 3391027939 - NamedType 1772449976" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan start rejected</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method MarkStartAsRejected - NamedType StartRejectedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 950078217 - Method 562213518 - NamedType 2287188572" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan start could not be confirmed because of an unexpected error. Retry the same scan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
+        <trans-unit id="Page 2477485063 - NamedType 3905923197" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; sync failed</source>
         </trans-unit>
       </group>
     </body>

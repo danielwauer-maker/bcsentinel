@@ -16,6 +16,9 @@ codeunit 53128 "DH Deep Scan Runner"
         ApiClient: Codeunit "DH API Client";
         RequestText: Text;
         SyncResponseText: Text;
+        SyncFailureMessage: Text;
+        SyncSucceeded: Boolean;
+        LeaseRejected: Boolean;
     begin
         DeepScanRun.LockTable();
         if not DeepScanRun.Get(DeepScanRun."Entry No.") then
@@ -70,8 +73,25 @@ codeunit 53128 "DH Deep Scan Runner"
         if not Setup.Get('SETUP') then
             Error('The scan result could not be persisted because BCSentinel setup is missing.');
 
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        if DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::Failed then begin
+            MarkLocalCompletionWithSyncFailure(DeepScanRun, DeepScanRun."Backend Sync Error", true);
+            exit;
+        end;
+
         RequestText := BuildSyncPayload(Setup, DeepScanRun);
-        SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
+        if not TrySynchronizeScan(Setup, RequestText, SyncResponseText, SyncFailureMessage, LeaseRejected, SyncSucceeded) then begin
+            SyncFailureMessage := GetLastErrorText();
+            if SyncFailureMessage = '' then
+                SyncFailureMessage := SyncUnexpectedFailureLbl;
+            MarkLocalCompletionWithSyncFailure(DeepScanRun, SyncFailureMessage, false);
+            exit;
+        end;
+        if not SyncSucceeded then begin
+            MarkLocalCompletionWithSyncFailure(DeepScanRun, SyncFailureMessage, LeaseRejected);
+            exit;
+        end;
+
         DeepScanRun.Get(DeepScanRun."Entry No.");
         DeepScanRun.Status := DeepScanRun.Status::Completed;
         DeepScanRun."Finished At" := CurrentDateTime();
@@ -79,6 +99,10 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Current Step" := 'Scan completed';
         DeepScanRun."Progress %" := 100;
         DeepScanRun."ETA Text" := 'Completed';
+        DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Synchronized;
+        DeepScanRun."Backend Sync Error" := '';
+        DeepScanRun."Warning Message" := '';
+        DeepScanRun."Error Message" := '';
         DeepScanRun.Modify(true);
         EnsureDashboardHeaderForDeepScan(DeepScanRun);
         Commit();
@@ -90,6 +114,35 @@ codeunit 53128 "DH Deep Scan Runner"
         end;
         if not IsDataHealthScoreRun(DeepScanRun) then
             TryRefreshLicenseAfterCompletion(Setup);
+    end;
+
+    [TryFunction]
+    local procedure TrySynchronizeScan(var Setup: Record "DH Setup"; RequestText: Text; var SyncResponseText: Text; var FailureMessage: Text; var LeaseRejected: Boolean; var SyncSucceeded: Boolean)
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        SyncSucceeded := ApiClient.TrySyncScanToBackendAndGetResponse(Setup, RequestText, SyncResponseText, FailureMessage, LeaseRejected);
+    end;
+
+    local procedure MarkLocalCompletionWithSyncFailure(var DeepScanRun: Record "DH Deep Scan Run"; FailureMessage: Text; LeaseRejected: Boolean)
+    begin
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun.Status := DeepScanRun.Status::Completed;
+        DeepScanRun."Finished At" := CurrentDateTime();
+        DeepScanRun."Current Module" := 'Completed';
+        DeepScanRun."Current Step" := CopyStr(LocalCompleteSyncFailedLbl, 1, MaxStrLen(DeepScanRun."Current Step"));
+        DeepScanRun."Progress %" := 100;
+        DeepScanRun."ETA Text" := 'Completed locally';
+        if LeaseRejected then
+            DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Failed
+        else
+            DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::RetryRequired;
+        DeepScanRun."Backend Sync Error" := CopyStr(FailureMessage, 1, MaxStrLen(DeepScanRun."Backend Sync Error"));
+        DeepScanRun."Warning Message" := CopyStr(FailureMessage, 1, MaxStrLen(DeepScanRun."Warning Message"));
+        DeepScanRun."Error Message" := '';
+        DeepScanRun.Modify(true);
+        EnsureDashboardHeaderForDeepScan(DeepScanRun);
+        Commit();
     end;
 
     [TryFunction]
@@ -1748,6 +1801,8 @@ codeunit 53128 "DH Deep Scan Runner"
 
     local procedure TryUpdateBackendProgress(var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
     begin
+        if DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::Failed then
+            exit;
         if not SendBackendProgress(DeepScanRun, StatusValue, CurrentStep, EventMessage) then;
     end;
 
@@ -1756,6 +1811,8 @@ codeunit 53128 "DH Deep Scan Runner"
     var
         Setup: Record "DH Setup";
         ApiClient: Codeunit "DH API Client";
+        FailureMessage: Text;
+        LeaseRejected: Boolean;
     begin
         if not Setup.Get('SETUP') then
             exit;
@@ -1779,8 +1836,24 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Current Step" := CopyStr(CurrentStep, 1, MaxStrLen(DeepScanRun."Current Step"));
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
         DeepScanRun.Modify(true);
-        ApiClient.UpdateScanProgress(Setup, DeepScanRun, StatusValue, CurrentStep, EventMessage);
+        if not ApiClient.TryUpdateScanProgress(Setup, DeepScanRun, StatusValue, CurrentStep, EventMessage, FailureMessage, LeaseRejected) then begin
+            DeepScanRun.Get(DeepScanRun."Entry No.");
+            if LeaseRejected then
+                DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Failed
+            else
+                DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::RetryRequired;
+            DeepScanRun."Backend Sync Error" := CopyStr(FailureMessage, 1, MaxStrLen(DeepScanRun."Backend Sync Error"));
+            DeepScanRun."Warning Message" := CopyStr(FailureMessage, 1, MaxStrLen(DeepScanRun."Warning Message"));
+            DeepScanRun.Modify(true);
+            Commit();
+            exit;
+        end;
+        if DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::RetryRequired then begin
+            DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Pending;
+            DeepScanRun."Backend Sync Error" := '';
+        end;
         DeepScanRun.Modify(true);
+        Commit();
     end;
 
     local procedure SetModuleProgress(var DeepScanRun: Record "DH Deep Scan Run"; ModuleName: Text; PercentValue: Integer)
@@ -2751,4 +2824,8 @@ codeunit 53128 "DH Deep Scan Runner"
 
         exit(99);
     end;
+
+    var
+        LocalCompleteSyncFailedLbl: Label 'Scan completed locally; backend synchronization failed.';
+        SyncUnexpectedFailureLbl: Label 'The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.';
 }

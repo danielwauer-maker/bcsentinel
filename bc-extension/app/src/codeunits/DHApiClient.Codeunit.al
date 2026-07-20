@@ -738,12 +738,25 @@ codeunit 53100 "DH API Client"
 
     procedure SyncScanToBackendAndGetResponse(var Setup: Record "DH Setup"; RequestText: Text): Text
     var
+        ResponseText: Text;
+        FailureMessage: Text;
+        LeaseRejected: Boolean;
+    begin
+        if not TrySyncScanToBackendAndGetResponse(Setup, RequestText, ResponseText, FailureMessage, LeaseRejected) then
+            Error(FailureMessage);
+        exit(ResponseText);
+    end;
+
+    procedure TrySyncScanToBackendAndGetResponse(var Setup: Record "DH Setup"; RequestText: Text; var ResponseText: Text; var FailureMessage: Text; var LeaseRejected: Boolean): Boolean
+    var
         Client: HttpClient;
         Content: HttpContent;
         Headers: HttpHeaders;
         Response: HttpResponseMessage;
-        ResponseText: Text;
     begin
+        Clear(ResponseText);
+        Clear(FailureMessage);
+        LeaseRejected := false;
         EnsureTenantAccessConfigured(Setup);
 
         Content.WriteFrom(RequestText);
@@ -759,15 +772,21 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
-        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/sync'), Content, Response) then
-            Error('The backend sync request could not be sent. Please verify the network connection.');
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/sync'), Content, Response) then begin
+            FailureMessage := ScanSyncNetworkErrorLbl;
+            exit(false);
+        end;
 
         Response.Content.ReadAs(ResponseText);
 
-        if not Response.IsSuccessStatusCode() then
-            Error('Scan sync failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+        if not Response.IsSuccessStatusCode() then begin
+            FailureMessage := GetExecutionLeaseConflictMessage(ResponseText, LeaseRejected);
+            if FailureMessage = '' then
+                FailureMessage := StrSubstNo(ScanSyncFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            exit(false);
+        end;
 
-        exit(ResponseText);
+        exit(true);
     end;
 
     local procedure IsDataHealthScoreSyncPayload(RequestText: Text): Boolean
@@ -1042,12 +1061,41 @@ codeunit 53100 "DH API Client"
         end;
     end;
 
+    local procedure GetExecutionLeaseConflictMessage(ResponseText: Text; var LeaseRejected: Boolean): Text
+    var
+        JsonResponse: JsonObject;
+        Token: JsonToken;
+        ErrorCode: Text;
+    begin
+        LeaseRejected := false;
+        if not JsonResponse.ReadFrom(ResponseText) then
+            exit('');
+        if not JsonResponse.Get('code', Token) then
+            exit('');
+        if IsJsonNull(Token) or not Token.IsValue() then
+            exit('');
+
+        ErrorCode := LowerCase(Token.AsValue().AsText());
+        case ErrorCode of
+            'scan_execution_token_stale',
+            'scan_execution_lease_expired',
+            'scan_worker_mismatch',
+            'scan_execution_not_owned':
+                begin
+                    LeaseRejected := true;
+                    exit(ScanLeaseRejectedLbl);
+                end;
+        end;
+        exit('');
+    end;
+
     [TryFunction]
     local procedure TryParseScanStartLifecycle(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
     var
         JsonResponse: JsonObject;
         Token: JsonToken;
         ExecutionToken: Guid;
+        WorkerId: Guid;
     begin
         if not JsonResponse.ReadFrom(ResponseText) then
             Error('The scan start response is not valid JSON. Retry the same scan request.');
@@ -1055,13 +1103,29 @@ codeunit 53100 "DH API Client"
             Error('The scan start response has no execution token. Retry the same scan request.');
         if not Evaluate(ExecutionToken, GetJsonTokenText(Token)) then
             Error('The scan start response contains an invalid execution token. Retry the same scan request.');
+        if JsonResponse.Get('worker_id', Token) then begin
+            if not Evaluate(WorkerId, GetJsonTokenText(Token)) then
+                Error('The scan start response contains an invalid worker identity. Retry the same scan request.');
+            if WorkerId <> DeepScanRun."Client Request ID" then
+                Error('The scan start response belongs to another worker. Retry the same scan request.');
+        end;
 
         DeepScanRun."Execution Token" := ExecutionToken;
+        DeepScanRun."Correlation ID" := '';
         if JsonResponse.Get('correlation_id', Token) then
             DeepScanRun."Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Correlation ID"));
     end;
 
     procedure UpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text)
+    var
+        FailureMessage: Text;
+        LeaseRejected: Boolean;
+    begin
+        if not TryUpdateScanProgress(Setup, DeepScanRun, StatusValue, CurrentStep, EventMessage, FailureMessage, LeaseRejected) then
+            Error(FailureMessage);
+    end;
+
+    procedure TryUpdateScanProgress(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; StatusValue: Text; CurrentStep: Text; EventMessage: Text; var FailureMessage: Text; var LeaseRejected: Boolean): Boolean
     var
         Client: HttpClient;
         Content: HttpContent;
@@ -1072,10 +1136,12 @@ codeunit 53100 "DH API Client"
         ResponseText: Text;
         JsonRequest: JsonObject;
     begin
+        Clear(FailureMessage);
+        LeaseRejected := false;
         EnsureTenantAccessConfigured(Setup);
 
         if DeepScanRun."Run ID" = '' then
-            exit;
+            exit(true);
 
         JsonRequest.Add('tenant_id', Setup."Tenant ID");
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
@@ -1113,17 +1179,21 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
-        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/status/update'), Content, Response) then
-            Error('Scan status update could not be sent. Run ID: %1.', Format(DeepScanRun."Run ID"));
+        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/status/update'), Content, Response) then begin
+            FailureMessage := ScanStatusNetworkErrorLbl;
+            exit(false);
+        end;
 
         Response.Content.ReadAs(ResponseText);
         if Response.IsSuccessStatusCode() then
             ParseScanStatusResponse(ResponseText, DeepScanRun)
-        else
-            Error('Scan status update failed. Status: %1. Run ID: %2. %3',
-                Response.HttpStatusCode(),
-                Format(DeepScanRun."Run ID"),
-                GetSafeBackendErrorText(ResponseText));
+        else begin
+            FailureMessage := GetExecutionLeaseConflictMessage(ResponseText, LeaseRejected);
+            if FailureMessage = '' then
+                FailureMessage := StrSubstNo(ScanStatusFailedLbl, Response.HttpStatusCode(), Format(DeepScanRun."Run ID"), GetSafeBackendErrorText(ResponseText));
+            exit(false);
+        end;
+        exit(true);
     end;
 
     local procedure GetDeepScanRunMode(var DeepScanRun: Record "DH Deep Scan Run"): Text
@@ -1185,6 +1255,7 @@ codeunit 53100 "DH API Client"
         Token: JsonToken;
         EventsToken: JsonToken;
         BackendStatus: Text;
+        ExecutionToken: Guid;
     begin
         if ResponseText = '' then
             exit;
@@ -1220,6 +1291,9 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Execution Attempt" := GetJsonTokenInteger(Token, DeepScanRun."Execution Attempt");
         if JsonResponse.Get('lease_expires_at', Token) then
             DeepScanRun."Lease Expires At" := ParseJsonDateTime(GetJsonTokenText(Token));
+        if JsonResponse.Get('execution_token', Token) then
+            if Evaluate(ExecutionToken, GetJsonTokenText(Token)) then
+                DeepScanRun."Execution Token" := ExecutionToken;
         if JsonResponse.Get('correlation_id', Token) then
             DeepScanRun."Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Correlation ID"));
         if JsonResponse.Get('recovery_required', Token) then
@@ -2034,6 +2108,11 @@ codeunit 53100 "DH API Client"
         FreeScanAlreadyUsedLbl: Label 'The one-time free Data Health Score has already been started for this environment.';
         ScanStartConflictLbl: Label 'The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.';
         ScanStartTemporaryErrorLbl: Label 'BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.';
+        ScanLeaseRejectedLbl: Label 'Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.';
+        ScanStatusNetworkErrorLbl: Label 'The scan status could not be sent to BCSentinel. The local scan continues and synchronization will be retried.';
+        ScanStatusFailedLbl: Label 'Scan status update failed. Status: %1. Run ID: %2. %3', Comment = '%1 = HTTP status, %2 = run ID, %3 = safe backend error';
+        ScanSyncNetworkErrorLbl: Label 'The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.';
+        ScanSyncFailedLbl: Label 'The local scan completed, but backend synchronization failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
         RegistrationCompletedInviteSentLbl: Label 'BCSentinel tenant registration completed. Dashboard access was sent to %1.', Comment = '%1 = runtime value';
         RegistrationCompletedInviteFailedLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1', Comment = '%1 = runtime value';
         RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.';

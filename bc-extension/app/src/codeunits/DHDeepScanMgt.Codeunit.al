@@ -38,6 +38,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Run ID" := RunIdMgt.GetNextRunId(Setup);
         DeepScanRun."Client Request ID" := CreateGuid();
         DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;
+        DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::NotStarted;
         DeepScanRun.Status := DeepScanRun.Status::Queued;
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
@@ -67,7 +68,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         RunDeepScanNow(DeepScanRun);
 
         if ShowStartedMessage then
-            Message(ScanStartedMsg, DeepScanRun."Run ID");
+            ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
 
         exit(EntryNo);
     end;
@@ -105,6 +106,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Run ID" := RunIdMgt.GetNextRunId(Setup);
         DeepScanRun."Client Request ID" := CreateGuid();
         DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;
+        DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::NotStarted;
         DeepScanRun.Status := DeepScanRun.Status::Queued;
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
@@ -130,7 +132,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         Commit();
 
         RunDeepScanNow(DeepScanRun);
-        Message(ScanStartedMsg, DeepScanRun."Run ID");
+        ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
         exit(EntryNo);
     end;
 
@@ -205,10 +207,23 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         DeepScanRun.Get(DeepScanRun."Entry No.");
         DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Accepted;
+        DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Pending;
+        DeepScanRun."Backend Sync Error" := '';
         DeepScanRun."Backend Run Id" := DeepScanRun."Run ID";
         DeepScanRun."Error Message" := '';
         DeepScanRun.Modify(true);
         Commit();
+    end;
+
+    local procedure ShowScanResultMessage(var DeepScanRun: Record "DH Deep Scan Run"; ScanStartedMsg: Text)
+    begin
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        if DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired] then begin
+            if DeepScanRun."Backend Sync Error" <> '' then
+                Message(DeepScanRun."Backend Sync Error");
+            exit;
+        end;
+        Message(ScanStartedMsg, DeepScanRun."Run ID");
     end;
 
     [TryFunction]

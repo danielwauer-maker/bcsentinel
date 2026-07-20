@@ -27,6 +27,12 @@
                     ToolTip = 'Specifies Scan Status.';
                     StyleExpr = ScanStatusStyle;
                 }
+                field(BackendSyncStatus; BackendSyncStatusTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Synchronization Status';
+                    ToolTip = 'Specifies whether the locally completed scan was accepted by the BCSentinel backend.';
+                }
                 field("Current Module"; CurrentModuleTxt)
                 {
                     ApplicationArea = All;
@@ -100,6 +106,13 @@
                     ToolTip = 'Specifies Error.';
                     MultiLine = true;
                     StyleExpr = ErrorStyle;
+                }
+                field(BackendSyncError; Rec."Backend Sync Error")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Synchronization Message';
+                    ToolTip = 'Specifies why backend synchronization failed or must be retried.';
+                    MultiLine = true;
                 }
                 field(RecentEvents; RecentEventsTxt)
                 {
@@ -554,6 +567,7 @@
         JobsProgressTxt: Text[60];
         HRProgressTxt: Text[60];
         ScanStatusTxt: Text[50];
+        BackendSyncStatusTxt: Text[50];
         ScanStatusStyle: Text[30];
         ProgressStyle: Text[30];
         WarningStyle: Text[30];
@@ -581,6 +595,11 @@
         ServiceProgressStyle: Text[30];
         JobsProgressStyle: Text[30];
         HRProgressStyle: Text[30];
+        SyncNotStartedLbl: Label 'Not started';
+        SyncPendingLbl: Label 'Pending';
+        SynchronizedLbl: Label 'Synchronized';
+        SyncFailedLbl: Label 'Failed';
+        SyncRetryRequiredLbl: Label 'Retry required';
 
     local procedure ReloadMonitor()
     var
@@ -665,6 +684,7 @@
         HRProgressTxt := BuildModuleText('HR', Rec."HR Progress %");
 
         ScanStatusTxt := GetScanStatusText();
+        BackendSyncStatusTxt := GetBackendSyncStatusText();
         ScanStatusStyle := GetScanStatusStyle();
         ProgressStyle := GetProgressStyle(ProgressPct);
         WarningStyle := GetWarningStyle();
@@ -898,6 +918,9 @@
 
     local procedure GetDisplayWarningText(): Text[250]
     begin
+        if Rec."Backend Sync Status" in [Rec."Backend Sync Status"::Failed, Rec."Backend Sync Status"::RetryRequired] then
+            exit(Rec."Backend Sync Error");
+
         if IsLocalCompleted() and IsBackendNonTerminal() then
             exit('Backend status is outdated. Local scan completed successfully.');
 
@@ -908,6 +931,22 @@
             exit('');
 
         exit(Rec."Warning Message");
+    end;
+
+    local procedure GetBackendSyncStatusText(): Text[50]
+    begin
+        case Rec."Backend Sync Status" of
+            Rec."Backend Sync Status"::NotStarted:
+                exit(SyncNotStartedLbl);
+            Rec."Backend Sync Status"::Pending:
+                exit(SyncPendingLbl);
+            Rec."Backend Sync Status"::Synchronized:
+                exit(SynchronizedLbl);
+            Rec."Backend Sync Status"::Failed:
+                exit(SyncFailedLbl);
+            Rec."Backend Sync Status"::RetryRequired:
+                exit(SyncRetryRequiredLbl);
+        end;
     end;
 
     local procedure GetDisplayErrorText(): Text[250]
@@ -1143,6 +1182,9 @@
 
     local procedure BackendStatusNeedsHealing(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
     begin
+        if DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired] then
+            exit(false);
+
         case LowerCase(DeepScanRun."Backend Status") of
             'completed', 'completed_with_warnings', 'failed', 'expired', 'cancelled', 'canceled':
                 exit(false);

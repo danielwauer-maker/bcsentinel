@@ -298,6 +298,7 @@
         CompletedLbl: Label 'Completed';
         CriticalLbl: Label 'Critical';
         FailedLbl: Label 'Failed';
+        CompletedSyncFailedLbl: Label 'Completed; sync failed';
         FreeScanLbl: Label 'Free Scan';
         GoodLbl: Label 'Good';
         ManualScanLbl: Label 'Manual Scan';
@@ -518,6 +519,11 @@
         if not FindDeepScanRun(DeepScanRun) then
             exit(CopyStr(UnknownLbl, 1, 30));
 
+        if (DeepScanRun.Status = DeepScanRun.Status::Completed) and
+           (DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired])
+        then
+            exit(CopyStr(CompletedSyncFailedLbl, 1, 30));
+
         if IsDeepScanFailed(DeepScanRun) then
             exit(CopyStr(FailedLbl, 1, 30));
 
@@ -539,6 +545,11 @@
 
         if not FindDeepScanRun(DeepScanRun) then
             exit('Standard');
+
+        if (DeepScanRun.Status = DeepScanRun.Status::Completed) and
+           (DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired])
+        then
+            exit('Ambiguous');
 
         if IsDeepScanFailed(DeepScanRun) then
             exit('Unfavorable');
@@ -657,4 +668,3 @@
         exit(SecretMgt.HasApiToken(Setup));
     end;
 }
-

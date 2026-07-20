@@ -167,6 +167,21 @@ def _safe_float(value: object, default: float = 0.0) -> float:
         return default
 
 
+def _lease_conflict_response(exc: ScanLeaseConflictError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content={
+            "code": exc.code,
+            "message": str(exc),
+            "message_de": exc.message_de,
+            "details": {
+                "retry_original_start": exc.code
+                in {"scan_execution_token_stale", "scan_execution_lease_expired"}
+            },
+        },
+    )
+
+
 def _normalize_scan_type(value: str | None) -> str:
     normalized = (value or "").strip().lower()
     if normalized in {"data_health_score", "free_data_health_score", "health_score"}:
@@ -242,12 +257,14 @@ def start_scan(
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         update_tenant_language(tenant, payload.preferred_language)
         require_tenant_feature(db, tenant, "scan_sync")
+        request_id = payload.client_request_id or str(
+            uuid5(NAMESPACE_URL, f"bcsentinel-legacy-start:{payload.tenant_id}:{payload.run_id}")
+        )
         try:
             result = accept_scan_start(
                 db,
                 tenant=tenant,
-                client_request_id=payload.client_request_id
-                or str(uuid5(NAMESPACE_URL, f"bcsentinel-legacy-start:{payload.tenant_id}:{payload.run_id}")),
+                client_request_id=request_id,
                 run_id=payload.run_id,
                 scan_mode=payload.scan_mode,
                 total_modules=payload.total_modules,
@@ -296,6 +313,7 @@ def start_scan(
             "free_data_health_score": result.scan_mode == "data_health_score",
             "idempotent_replay": result.idempotent_replay,
             "execution_token": result.execution_token,
+            "worker_id": request_id,
             "correlation_id": result.correlation_id,
         }
     )
@@ -500,7 +518,7 @@ def sync_scan(
                     "correlation_id": payload.correlation_id,
                 },
             )
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            return _lease_conflict_response(exc)
         except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
@@ -648,7 +666,7 @@ def update_status(
                     "correlation_id": payload.correlation_id,
                 },
             )
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
+            return _lease_conflict_response(exc)
         except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         db.commit()

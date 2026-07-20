@@ -272,6 +272,17 @@ table 53128 "DH Deep Scan Run"
             Caption = 'Lease Expires At';
             DataClassification = SystemMetadata;
         }
+        field(64; "Backend Sync Status"; Option)
+        {
+            Caption = 'Backend Sync Status';
+            OptionMembers = NotStarted,Pending,Synchronized,Failed,RetryRequired;
+            DataClassification = SystemMetadata;
+        }
+        field(65; "Backend Sync Error"; Text[250])
+        {
+            Caption = 'Backend Sync Error';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {

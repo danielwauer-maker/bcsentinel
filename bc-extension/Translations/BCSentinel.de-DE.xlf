@@ -7389,6 +7389,82 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
         </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 2110464213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Error</source>
+          <target state="translated">Backend-Synchronisierungsfehler</target>
+        </trans-unit>
+        <trans-unit id="Table 2181053114 - Field 3873965305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend Sync Status</source>
+          <target state="translated">Backend-Synchronisierungsstatus</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3424487903" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.</source>
+          <target state="translated">Die Backend-Synchronisierung wurde beendet, weil die Scan-Ausführungsberechtigung abgelaufen ist oder geändert wurde. Ihr lokales Scanergebnis bleibt erhalten. Starten Sie einen neuen Scan oder kontaktieren Sie den BCSentinel-Support.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 4091633886" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan status update failed. Status: %1. Run ID: %2. %3</source>
+          <target state="translated">Die Aktualisierung des Scanstatus ist fehlgeschlagen. Status: %1. Lauf-ID: %2. %3</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1041036785" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan status could not be sent to BCSentinel. The local scan continues and synchronization will be retried.</source>
+          <target state="translated">Der Scanstatus konnte nicht an BCSentinel gesendet werden. Der lokale Scan wird fortgesetzt und die Synchronisierung erneut versucht.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3049414763" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed. Status: %1. %2</source>
+          <target state="translated">Der lokale Scan wurde abgeschlossen, aber die Backend-Synchronisierung ist fehlgeschlagen. Status: %1. %2</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 890351568" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
+          <target state="translated">Der lokale Scan wurde abgeschlossen, aber sein Ergebnis konnte nicht an BCSentinel gesendet werden. Prüfen Sie die Verbindung und wiederholen Sie die Synchronisierung.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 23154622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan completed locally; backend synchronization failed.</source>
+          <target state="translated">Scan lokal abgeschlossen; Backend-Synchronisierung fehlgeschlagen.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3231997172" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.</source>
+          <target state="translated">Der lokale Scan wurde abgeschlossen, aber die Backend-Synchronisierung ist unerwartet fehlgeschlagen. Ihre lokalen Findings bleiben erhalten.</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1833375810" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <target state="translated">Fehlgeschlagen</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3145417184" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronized</source>
+          <target state="translated">Synchronisiert</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2449134427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not started</source>
+          <target state="translated">Nicht gestartet</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3049806726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pending</source>
+          <target state="translated">Ausstehend</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 701894368" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retry required</source>
+          <target state="translated">Wiederholung erforderlich</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the locally completed scan was accepted by the BCSentinel backend.</source>
+          <target state="translated">Gibt an, ob der lokal abgeschlossene Scan vom BCSentinel-Backend akzeptiert wurde.</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 2301412609 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Status</source>
+          <target state="translated">Synchronisierungsstatus</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies why backend synchronization failed or must be retried.</source>
+          <target state="translated">Gibt an, warum die Backend-Synchronisierung fehlgeschlagen ist oder wiederholt werden muss.</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Control 3882517293 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Message</source>
+          <target state="translated">Synchronisierungsmeldung</target>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3905923197" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; sync failed</source>
+          <target state="translated">Lokal abgeschlossen; Sync fehlgeschlagen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

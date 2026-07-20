@@ -41,7 +41,10 @@ class InvalidScanTransitionError(ValueError):
 
 
 class ScanLeaseConflictError(ValueError):
-    pass
+    def __init__(self, message: str, *, code: str, message_de: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message_de = message_de
 
 
 class ScanResultIncompleteError(ValueError):
@@ -202,11 +205,23 @@ def _validate_worker_lease(
     now: datetime,
 ) -> None:
     if not lease_token or lease_token != run.lease_token:
-        raise ScanLeaseConflictError("The scan execution lease is no longer valid. Refresh the scan status before retrying.")
+        raise ScanLeaseConflictError(
+            "The scan execution token is no longer current. Retry the original scan start to refresh it.",
+            code="scan_execution_token_stale",
+            message_de="Das Ausführungstoken des Scans ist nicht mehr aktuell. Wiederholen Sie den ursprünglichen Scanstart, um es zu aktualisieren.",
+        )
     if worker_id and run.lease_owner and worker_id != run.lease_owner:
-        raise ScanLeaseConflictError("The scan is owned by another active worker.")
+        raise ScanLeaseConflictError(
+            "The scan is owned by another active worker.",
+            code="scan_worker_mismatch",
+            message_de="Der Scan ist einem anderen aktiven Worker zugeordnet.",
+        )
     if run.status == "running" and not _lease_is_valid(run, now):
-        raise ScanLeaseConflictError("The scan execution lease has expired. Refresh the scan status to start controlled recovery.")
+        raise ScanLeaseConflictError(
+            "The scan execution lease has expired. Retry the original scan start to begin controlled recovery.",
+            code="scan_execution_lease_expired",
+            message_de="Die Ausführungslease des Scans ist abgelaufen. Wiederholen Sie den ursprünglichen Scanstart für eine kontrollierte Wiederherstellung.",
+        )
 
 
 def claim_scan_run(
@@ -236,10 +251,18 @@ def claim_scan_run(
         return run
     if current != "queued":
         raise InvalidScanTransitionError(f"A {current} scan cannot be claimed.")
-    if run.next_retry_at_utc and as_aware_utc(run.next_retry_at_utc) > now:
-        raise ScanLeaseConflictError("The scan retry backoff has not elapsed yet.")
     if lease_token != run.lease_token:
-        raise ScanLeaseConflictError("The scan execution token is no longer current. Retry the original scan start to refresh it.")
+        raise ScanLeaseConflictError(
+            "The scan execution token is no longer current. Retry the original scan start to refresh it.",
+            code="scan_execution_token_stale",
+            message_de="Das Ausführungstoken des Scans ist nicht mehr aktuell. Wiederholen Sie den ursprünglichen Scanstart, um es zu aktualisieren.",
+        )
+    if run.next_retry_at_utc and as_aware_utc(run.next_retry_at_utc) > now:
+        raise ScanLeaseConflictError(
+            "The scan retry backoff has not elapsed yet.",
+            code="scan_execution_not_owned",
+            message_de="Die Wartezeit vor der kontrollierten Scan-Wiederholung ist noch nicht abgelaufen.",
+        )
 
     version = run.lifecycle_version
     result = db.execute(
@@ -264,7 +287,11 @@ def claim_scan_run(
         )
     )
     if result.rowcount != 1:
-        raise ScanLeaseConflictError("Another worker claimed this scan first.")
+        raise ScanLeaseConflictError(
+            "Another worker claimed this scan first.",
+            code="scan_execution_not_owned",
+            message_de="Ein anderer Worker hat diesen Scan bereits übernommen.",
+        )
     db.flush()
     db.refresh(run)
     add_scan_event(
@@ -375,6 +402,13 @@ def update_scan_progress(
         if not tenant_id:
             raise ValueError("tenant_id is required when creating scan progress.")
         run = create_or_get_scan_run(db, run_id=run_id, tenant_id=tenant_id, scan_mode=scan_mode, total_modules=total_modules or 0, correlation_id=correlation_id)
+
+    if tenant_id and run.tenant_id != tenant_id:
+        raise ScanLeaseConflictError(
+            "The scan execution is not owned by this tenant.",
+            code="scan_execution_not_owned",
+            message_de="Die Scan-Ausführung gehört nicht zu diesem Mandanten.",
+        )
 
     current = normalize_status(run.status)
     target = normalize_status(status)
@@ -572,7 +606,10 @@ def recover_stale_runs(db: Session, *, batch_size: int | None = None) -> dict[st
             outcome["expired"] += 1
             continue
 
-        stale_running = lease_expired or not heartbeat or heartbeat <= heartbeat_cutoff
+        heartbeat_stale = not heartbeat or heartbeat <= heartbeat_cutoff
+        # A synchronous BC module cannot emit an intra-module heartbeat. The
+        # issued lease remains authoritative until it expires.
+        stale_running = lease_expired and heartbeat_stale
         max_runtime = settings.SCAN_MAX_RUNTIME_SECONDS
         if max_runtime and run.started_at_utc:
             stale_running = stale_running or as_aware_utc(run.started_at_utc) <= now - timedelta(seconds=max(1, int(max_runtime)))
