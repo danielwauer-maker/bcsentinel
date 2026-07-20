@@ -1,0 +1,297 @@
+- id: WF-REG-001
+  name: Registrierung aus Business Central
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHApiClient.Codeunit.al}]}
+  steps:
+    - {order: 1, description: BC-Identität und Kontakt erfassen, feature_id: EXT-REG-001}
+    - {order: 2, description: POST /tenant/register validieren und idempotent upserten, feature_id: BACK-TEN-001}
+    - {order: 3, description: Dashboarduser/Membership vorbereiten und Invite versuchen, feature_id: MAIL-INV-001}
+  data_objects: [Tenant, DashboardUser, DashboardUserTenantMembership, DH Setup]
+  external_systems: [Business Central, SMTP]
+  failure_paths: [Invite-/Rate-Limit-/Identitätsfehler mit stabilen Codes]
+  tests: [backend/tests/test_p0a_transport_registration.py, backend/tests/test_tenant_registration.py]
+  uncertainties: [Reale BC-/SMTP-Ausführung]
+- id: WF-REG-002
+  name: Tenant- und Environment-Bindung
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHTenantIdentityMgt.Codeunit.al}]}
+  steps:
+    - {order: 1, description: "Entra-, Environment- und Companykontext bilden", feature_id: EXT-REG-001}
+    - {order: 2, description: Registration Identity per Constraint binden, feature_id: BACK-TEN-001}
+  data_objects: [Tenant, DH Setup]
+  external_systems: [Business Central]
+  failure_paths: [Kontextabweichung wird abgelehnt]
+  tests: [backend/tests/test_p0a_transport_registration.py]
+  uncertainties: []
+- id: WF-LIC-001
+  name: Lizenzstatus abrufen
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHApiClient.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Tenant-/BC-Kontext authentifizieren, feature_id: AUTH-TEN-001}
+    - {order: 2, description: Produktzugriff und Credits berechnen, feature_id: BILL-ENT-001}
+    - {order: 3, description: frischen Access Snapshot in DH Setup speichern, feature_id: EXT-REG-001}
+  data_objects: [TenantProductEntitlement, TenantScanCredit, Subscription, DH Setup]
+  external_systems: [Business Central]
+  failure_paths: [Staler oder fremder Kontext wird verweigert]
+  tests: [backend/tests/test_product_licensing_p0.py, backend/tests/test_p0d_fresh_access.py]
+  uncertainties: []
+- id: WF-BILL-001
+  name: Assessment kaufen
+  status: implemented
+  entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
+  steps:
+    - {order: 1, description: Assessmentpreis wählen und Checkout erzeugen, feature_id: BILL-CHECK-001}
+    - {order: 2, description: signiertes Checkout-Event verarbeiten, feature_id: BILL-WEB-001}
+    - {order: 3, description: Assessment-Credit/Entitlement gewähren, feature_id: BILL-CREDIT-001}
+  data_objects: [TenantProductPurchase, TenantScanCredit, BillingWebhookEvent]
+  external_systems: [Stripe]
+  failure_paths: [Stripe-Konfiguration, Signatur, fehlende Metadaten]
+  tests: [backend/tests/test_billing.py, backend/tests/test_product_licensing_p0.py]
+  uncertainties: [Echte Zahlung]
+- id: WF-BILL-002
+  name: Validation kaufen
+  status: implemented
+  entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
+  steps:
+    - {order: 1, description: Validation-Checkout erzeugen, feature_id: BILL-CHECK-001}
+    - {order: 2, description: Validation-Credit gewähren, feature_id: BILL-WEB-001}
+  data_objects: [TenantProductPurchase, TenantScanCredit]
+  external_systems: [Stripe]
+  failure_paths: [Checkout/Webhookfehler]
+  tests: [backend/tests/test_product_licensing_p0.py]
+  uncertainties: [Echte Zahlung]
+- id: WF-BILL-003
+  name: Monitoring abonnieren
+  status: implemented
+  entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
+  steps:
+    - {order: 1, description: monatlichen/jährlichen Subscription-Checkout erzeugen, feature_id: BILL-CHECK-001}
+    - {order: 2, description: Subscriptionevent speichern, feature_id: BILL-WEB-001}
+    - {order: 3, description: Monitoringfeatures aktivieren, feature_id: BILL-ENT-001}
+  data_objects: [Subscription, TenantProductEntitlement]
+  external_systems: [Stripe]
+  failure_paths: [incomplete/canceled/expired Status]
+  tests: [backend/tests/test_billing.py, backend/tests/test_product_licensing_p0.py]
+  uncertainties: [Echte Subscription]
+- id: WF-SCAN-001
+  name: Manuellen Scan starten
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/pages/DHSetup.Page.al}]}
+  steps:
+    - {order: 1, description: Zugriff prüfen und lokalen Run anlegen, feature_id: EXT-SCAN-002}
+    - {order: 2, description: atomaren Backendstart anfordern, feature_id: SCAN-DEEP-001}
+    - {order: 3, description: Runner ausführen und Status melden, feature_id: SCAN-LIFE-001}
+  data_objects: [DH Deep Scan Run, ScanRunStatus, ScanStartRequest]
+  external_systems: [Business Central, PostgreSQL]
+  failure_paths: [kein Credit/Zugriff, Startfehler, Laufzeitfehler]
+  tests: [backend/tests/test_p0b_atomic_credit.py, backend/tests/test_p0c_scan_lifecycle.py]
+  uncertainties: [BC End-to-End]
+- id: WF-SCAN-002
+  name: Geplanten Scan starten
+  status: partial
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHScanSchedulerMgt.Codeunit.al}]}
+  steps:
+    - {order: 1, description: TaskScheduler startet Runner, feature_id: EXT-SCHED-001}
+    - {order: 2, description: Dispatcher startet Scan, feature_id: SCAN-SCHED-001}
+  data_objects: [DH Setup, DH Deep Scan Run]
+  external_systems: [Business Central TaskScheduler]
+  failure_paths: [Failure-Codeunit aktualisiert Setup]
+  tests: []
+  uncertainties: [TaskScheduler Runtime]
+- id: WF-CREDIT-001
+  name: Credit verbrauchen
+  status: implemented
+  entry_point: {component: backend-api, evidence: [{path: backend/app/services/atomic_scan_start_service.py}]}
+  steps:
+    - {order: 1, description: Client Request deduplizieren, feature_id: SCAN-DEEP-001}
+    - {order: 2, description: verfügbaren Credit sperren/verbrauchen und Ledger schreiben, feature_id: BILL-CREDIT-001}
+  data_objects: [ScanStartRequest, TenantScanCredit, CreditLedgerEntry]
+  external_systems: [PostgreSQL]
+  failure_paths: [Rollback bei Folgefehler, kein Credit]
+  tests: [backend/tests/test_p0b_atomic_credit.py, backend/tests/test_p0e_postgres_concurrency.py]
+  uncertainties: [PG-Test BOOK nicht ausgeführt]
+- id: WF-SCAN-003
+  name: Scan erfolgreich abschließen
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Resultat/Findings synchronisieren, feature_id: SCAN-SYNC-001}
+    - {order: 2, description: terminal completed mit Resultatzeit setzen, feature_id: SCAN-LIFE-001}
+  data_objects: [Scan, ScanIssueRecord, ScanRunStatus]
+  external_systems: [PostgreSQL]
+  failure_paths: [fehlendes Resultat verhindert completed]
+  tests: [backend/tests/test_p0c_scan_lifecycle.py]
+  uncertainties: []
+- id: WF-SCAN-004
+  name: Scanfehler behandeln
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHDeepScanFailure.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Fehler lokal erfassen, feature_id: EXT-SCAN-002}
+    - {order: 2, description: Backendstatus failed oder retryfähig setzen, feature_id: SCAN-LIFE-001}
+    - {order: 3, description: stale Run recovern, feature_id: SCAN-REC-001}
+  data_objects: [DH Deep Scan Run, ScanRunStatus, ScanRunEvent]
+  external_systems: [PostgreSQL]
+  failure_paths: [Maximalversuche führen terminal zu failed]
+  tests: [backend/tests/test_p0c_scan_lifecycle.py]
+  uncertainties: []
+- id: WF-SCAN-005
+  name: Findings speichern
+  status: implemented
+  entry_point: {component: scan-engine, evidence: [{path: backend/app/routers/scans.py}]}
+  steps:
+    - {order: 1, description: AL-Findings erzeugen, feature_id: EXT-SCAN-002}
+    - {order: 2, description: Payload validieren/deduplizieren, feature_id: SCAN-SYNC-001}
+    - {order: 3, description: ScanIssueRecord persistieren, feature_id: DB-TEN-001}
+  data_objects: [DH Deep Scan Finding, ScanIssueRecord]
+  external_systems: []
+  failure_paths: [DB-Unique-Constraint bei Duplikaten]
+  tests: [backend/tests/test_p0c_scan_lifecycle.py]
+  uncertainties: []
+- id: WF-SCORE-001
+  name: Health Score berechnen
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHQuickScanMgt.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Counts/Findings und Module erfassen, feature_id: EXT-SCAN-001}
+    - {order: 2, description: Score/Rating berechnen und persistieren, feature_id: SCAN-SCORE-001}
+  data_objects: [DH Scan Header, Scan]
+  external_systems: []
+  failure_paths: [Validierungsfehler im Payload]
+  tests: [backend/tests/test_product_licensing_p0.py]
+  uncertainties: [Fachliche Modellbewertung]
+- id: WF-REP-001
+  name: Report erzeugen
+  status: implemented
+  entry_point: {component: executive-reporting, evidence: [{path: backend/app/routers/reports.py}]}
+  steps:
+    - {order: 1, description: Produktzugriff und Scanbindung prüfen, feature_id: BILL-ENT-001}
+    - {order: 2, description: Reportmodell aggregieren, feature_id: REP-DATA-001}
+    - {order: 3, description: HTML oder Chromium-PDF rendern, feature_id: REP-PDF-001}
+  data_objects: [Scan, ScanIssueRecord, ExecutiveReport]
+  external_systems: [Playwright Chromium]
+  failure_paths: [kein Zugriff, Scan nicht gefunden, PDF-Runtimefehler]
+  tests: [backend/tests/test_executive_report.py]
+  uncertainties: [Visuelle QA]
+- id: WF-DASH-001
+  name: Dashboardzugriff erzeugen
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/pages/DHSetup.Page.al}]}
+  steps:
+    - {order: 1, description: exakten Tenant-/BC-Kontext senden, feature_id: AUTH-TEN-001}
+    - {order: 2, description: kurzlebigen Embedtoken erzeugen, feature_id: DASH-AUTH-001}
+  data_objects: [Tenant, TenantProductEntitlement]
+  external_systems: [Business Central]
+  failure_paths: [staler/fremder Kontext]
+  tests: [backend/tests/test_analytics_embed_security.py, backend/tests/test_p0a_transport_registration.py]
+  uncertainties: []
+- id: WF-DASH-002
+  name: Dashboard öffnen
+  status: implemented
+  entry_point: {component: customer-dashboard, evidence: [{path: backend/app/routers/analytics.py}]}
+  steps:
+    - {order: 1, description: Einmaltoken in Embedcookie überführen, feature_id: DASH-AUTH-001}
+    - {order: 2, description: Shell und tenantgebundene Daten laden, feature_id: DASH-OV-001}
+  data_objects: [Dashboard session, Scan]
+  external_systems: [Browser]
+  failure_paths: [fehlendes/abgelaufenes Token]
+  tests: [backend/tests/test_analytics_embed_security.py]
+  uncertainties: [Browserdarstellung]
+- id: WF-DASH-003
+  name: Analytics öffnen
+  status: implemented
+  entry_point: {component: customer-dashboard, evidence: [{path: backend/app/static/js/analytics-dashboard.js}]}
+  steps:
+    - {order: 1, description: Analytics-Tab wählen, feature_id: DASH-AN-001}
+    - {order: 2, description: Daten/Trends laden und Produktgates anwenden, feature_id: DASH-GATE-001}
+  data_objects: [Scan, ScanIssueRecord]
+  external_systems: [Browser]
+  failure_paths: [Loading/Error/Locked State]
+  tests: [backend/tests/test_product_licensing_p0.py]
+  uncertainties: [UX/Responsivität]
+- id: WF-LIC-002
+  name: Lizenz oder Zugriff ablaufen lassen
+  status: implemented
+  entry_point: {component: licensing-billing, evidence: [{path: backend/app/services/access_control_service.py}]}
+  steps:
+    - {order: 1, description: Gültigkeit/Subscriptionperiode gegen Serverzeit prüfen, feature_id: BILL-ENT-001}
+    - {order: 2, description: Featureflags sperren und frischen Snapshot verlangen, feature_id: DASH-GATE-001}
+  data_objects: [TenantProductEntitlement, Subscription, DH Setup]
+  external_systems: []
+  failure_paths: [staler Snapshot wird abgelehnt]
+  tests: [backend/tests/test_p0d_fresh_access.py, backend/tests/test_product_licensing_p0.py]
+  uncertainties: []
+- id: WF-BILL-004
+  name: Stripe-Webhook verarbeiten
+  status: implemented
+  entry_point: {component: licensing-billing, evidence: [{path: backend/app/routers/billing.py}]}
+  steps:
+    - {order: 1, description: Signatur prüfen/normalisieren, feature_id: BILL-WEB-001}
+    - {order: 2, description: Event idempotent reservieren, feature_id: BILL-WEB-001}
+    - {order: 3, description: Kauf/Abo/Credit/Entitlement aktualisieren, feature_id: BILL-ENT-001}
+  data_objects: [BillingWebhookEvent, Subscription, TenantProductPurchase]
+  external_systems: [Stripe]
+  failure_paths: [ungültige Signatur, fehlender Tenant, unsupported Event]
+  tests: [backend/tests/test_billing.py]
+  uncertainties: [Live-Zustellung]
+- id: WF-SCHED-001
+  name: Scheduler erneut planen
+  status: partial
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHScanSchedulerMgt.Codeunit.al}]}
+  steps:
+    - {order: 1, description: nächsten Termin aus Frequenz/Tagen/Uhrzeit berechnen, feature_id: EXT-SCHED-001}
+    - {order: 2, description: Task aktualisieren und ID in Setup speichern, feature_id: SCAN-SCHED-001}
+  data_objects: [DH Setup]
+  external_systems: [Business Central TaskScheduler]
+  failure_paths: [Failure Count/Error im Setup]
+  tests: []
+  uncertainties: [BC Runtime]
+- id: WF-MAIL-001
+  name: E-Mail versenden
+  status: partial
+  entry_point: {component: email-notifications, evidence: [{path: backend/app/services/dashboard_invite_service.py}]}
+  steps:
+    - {order: 1, description: Template/Fallback rendern, feature_id: MAIL-TPL-001}
+    - {order: 2, description: SMTP/TLS senden und Status speichern, feature_id: MAIL-INV-001}
+  data_objects: [AdminEmailTemplate, DashboardUser]
+  external_systems: [SMTP]
+  failure_paths: [fehlende Konfiguration, SMTP-Exception]
+  tests: [backend/tests/test_p0a_transport_registration.py]
+  uncertainties: [Zustellung und Clientrendering]
+- id: WF-TRANS-001
+  name: Übersetzungen laden
+  status: implemented
+  entry_point: {component: landingpage, evidence: [{path: landingpage/js/i18n.js}]}
+  steps:
+    - {order: 1, description: DE/EN auswählen und JSON laden, feature_id: TRANS-SITE-001}
+    - {order: 2, description: Dashboardkatalog aus Tenantpräferenz liefern, feature_id: TRANS-DASH-001}
+  data_objects: [JSON catalogs, Tenant.preferred_language]
+  external_systems: [Browser]
+  failure_paths: [Fallbacktexte bei fehlendem Schlüssel/Fetch]
+  tests: [backend/tests/test_localization.py]
+  uncertainties: [Vollständige Browserprüfung]
+- id: WF-EXT-001
+  name: Extension installieren
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHInstall.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Setup erzeugen oder Defaults anwenden, feature_id: EXT-INSTALL-001}
+    - {order: 2, description: Installation telemetrieren, feature_id: EXT-INSTALL-001}
+  data_objects: [DH Setup]
+  external_systems: [Business Central]
+  failure_paths: [Nicht statisch ausgewiesen]
+  tests: []
+  uncertainties: [Sandboxinstallation]
+- id: WF-EXT-002
+  name: Extension upgraden
+  status: implemented
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHUpgrade.Codeunit.al}]}
+  steps:
+    - {order: 1, description: Setup sicherstellen, feature_id: EXT-UPG-001}
+    - {order: 2, description: Access Snapshot invalidieren und Defaults anwenden, feature_id: EXT-UPG-001}
+  data_objects: [DH Setup]
+  external_systems: [Business Central]
+  failure_paths: [Nicht statisch ausgewiesen]
+  tests: []
+  uncertainties: [Upgrade zwischen veröffentlichten Versionen]

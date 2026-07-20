@@ -1,0 +1,86 @@
+- id: GAP-TEST-001
+  title: Deployment-CI führt keine Pytest-Suite aus
+  component: testing-quality
+  type: missing_ci_test_execution
+  severity: unassessed
+  evidence: [{path: .github/workflows/deploy.yml, note: "Nur Paketierung, Deployment und Healthchecks"}]
+  related_features: [TEST-CI-001]
+  manual_product_review_required: true
+- id: GAP-TEST-002
+  title: Keine AL-Test-App nachgewiesen
+  component: testing-quality
+  type: missing_test_suite
+  severity: unassessed
+  evidence: [{path: bc-extension/app/src, note: Keine Test-Codeunit/Test-App in 88 Objektdeklarationen}]
+  related_features: [TEST-AL-001]
+  manual_product_review_required: true
+- id: GAP-WEB-001
+  title: Alternative Landingpage ohne Deploymenteinbindung
+  component: landingpage
+  type: orphaned_implementation
+  severity: unassessed
+  evidence:
+    - {path: landingpage_neu, note: Separater Sitebaum}
+    - {path: backend/Dockerfile, note: Kopiert nur landingpage}
+  related_features: [WEB-ALT-001]
+  manual_product_review_required: true
+- id: GAP-WEB-002
+  title: Rechtstexte enthalten Platzhalter
+  component: landingpage
+  type: stub_content
+  severity: unassessed
+  evidence: [{path: landingpage/impressum.html, note: "Telefonnummer, Register, USt-ID und Streitbeilegung markiert"}]
+  related_features: [WEB-LEGAL-001]
+  manual_product_review_required: true
+- id: GAP-WEB-003
+  title: Supportseite ist als MVP/Mockup gekennzeichnet
+  component: landingpage
+  type: stub_content
+  severity: unassessed
+  evidence: [{path: landingpage/support.html, note: Ausbau- und Screenshot-Platzhaltertext}]
+  related_features: [WEB-SUPPORT-001]
+  manual_product_review_required: true
+- id: GAP-MAIL-001
+  title: E-Mail-Zustellung nicht automatisiert belegt
+  component: email-notifications
+  type: external_integration_unverified
+  severity: unassessed
+  evidence:
+    - {path: backend/app/services/dashboard_invite_service.py, note: Versand wird ohne SMTP-Konfiguration übersprungen}
+    - {path: backend/app/routers/partners.py, note: separate SMTP-Pfade}
+  related_features: [MAIL-INV-001, MAIL-PART-001]
+  manual_product_review_required: true
+- id: GAP-OPS-001
+  title: Backup und Restore nur dokumentiert
+  component: infrastructure-operations
+  type: documented_only_operation
+  severity: unassessed
+  evidence: [{path: docs/ops/backup-restore.md, note: "Runbook, keine Automationsimplementierung gefunden"}]
+  related_features: [OPS-BACKUP-001]
+  manual_product_review_required: true
+- id: GAP-DOC-001
+  title: Root README ist leer
+  component: documentation-release
+  type: missing_repository_entry_documentation
+  severity: unassessed
+  evidence: [{path: README.md, note: Dateigröße 0 Bytes am Stichtag}]
+  related_features: [DOC-ROOT-001]
+  manual_product_review_required: false
+- id: GAP-DB-001
+  title: Standardtests umgehen Migrationslauf
+  component: database-migrations
+  type: test_model_migration_divergence_risk
+  severity: unassessed
+  evidence: [{path: backend/tests/conftest.py, note: drop_all/create_all und monkeypatch ensure_schema_is_migrated}]
+  related_features: [DB-CHECK-001]
+  manual_product_review_required: true
+- id: GAP-OPS-002
+  title: Kein separater Recovery-Worker im Stack
+  component: infrastructure-operations
+  type: in_process_background_job
+  severity: unassessed
+  evidence:
+    - {path: backend/app/main.py, note: Recovery als In-Process-Task}
+    - {path: docker-compose.prod.yml, note: Kein Worker-Service}
+  related_features: [BACK-JOB-001]
+  manual_product_review_required: true

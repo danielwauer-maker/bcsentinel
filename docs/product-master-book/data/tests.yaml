@@ -1,0 +1,58 @@
+- suite: backend-pytest
+  type: [unit, api, integration, database]
+  path: backend/tests
+  files: 27
+  test_functions: 224
+  database: SQLite by default; PostgreSQL when BCSENTINEL_TEST_DATABASE_URL is set
+  success_cases: true
+  failure_cases: true
+  ci_executed: false
+  sprint_execution_confirmed: false
+  command: python -m pytest -p no:cacheprovider tests
+  result: Not started; python missing from PATH. Bundled Python attempt failed because pytest module was absent.
+- suite: postgres-concurrency
+  type: [integration, database, security]
+  path: backend/tests/test_p0e_postgres_concurrency.py
+  files: 1
+  test_functions: 7
+  database: PostgreSQL required
+  success_cases: true
+  failure_cases: true
+  ci_executed: false
+  sprint_execution_confirmed: false
+  result: Not run; BCSENTINEL_TEST_DATABASE_URL and runnable pytest environment unavailable.
+- suite: al-contract-via-python
+  type: [static-contract]
+  path: backend/tests/test_pilot_fix01_al_contract.py
+  files: 1
+  test_functions: 3
+  database: SQLite fixture initialized by suite
+  success_cases: true
+  failure_cases: false
+  ci_executed: false
+  sprint_execution_confirmed: false
+  result: Not run; pytest unavailable.
+- suite: al-test-app
+  type: [business-central]
+  path: bc-extension
+  files: 0
+  test_functions: 0
+  ci_executed: false
+  sprint_execution_confirmed: false
+  result: No AL test app or test codeunit found.
+- suite: frontend-browser-e2e
+  type: [end-to-end, browser]
+  path: landingpage
+  files: 0
+  test_functions: 0
+  ci_executed: false
+  sprint_execution_confirmed: false
+  result: No automated browser E2E suite found; only smoke-test documentation.
+- suite: performance
+  type: [performance]
+  path: backend/tests
+  files: 0
+  test_functions: 0
+  ci_executed: false
+  sprint_execution_confirmed: false
+  result: No load/performance test suite found.

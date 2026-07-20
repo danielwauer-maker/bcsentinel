@@ -1,0 +1,1193 @@
+- id: EXT-REG-001
+  name: Tenantregistrierung aus Business Central
+  component: business-central-extension
+  area: registration
+  status: implemented
+  description: Die Extension sendet stabile BC-Identitätsmerkmale und speichert Tenantkontext sowie Token geschützt.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHApiClient.Codeunit.al, symbol: RegisterTenant, note: HTTP-Registrierungsclient}
+    - {path: bc-extension/app/src/codeunits/DHTenantIdentityMgt.Codeunit.al, symbol: GetEnvironmentName, note: BC-Identität}
+  interfaces: [Backend API]
+  tests: {status: partial, evidence: [{path: backend/tests/test_p0a_transport_registration.py, note: Backend- und AL-Vertrag; keine BC-Runtime}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0A_HTTPS_TENANT_REGISTRATION.md}]}
+  uncertainties: [Reale BC-Sandbox-Registrierung manuell zu prüfen]
+  related_features: [BACK-TEN-001, AUTH-TEN-001]
+  source_confidence: high
+- id: EXT-SCAN-001
+  name: Quick Scan und Data Health Score
+  component: business-central-extension
+  area: scan
+  status: implemented
+  description: Quick-Scan-Management profiliert Daten, berechnet Findings und synchronisiert sie.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHQuickScanMgt.Codeunit.al, symbol: codeunit 53123, note: Quick-Scan-Orchestrierung}
+    - {path: bc-extension/app/src/codeunits/DHDataProfilingMgt.Codeunit.al, symbol: codeunit 53150, note: Datenprofiling}
+  interfaces: [Backend API, Business Central tables]
+  tests: {status: partial, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Backendzugriff und Sync}]}
+  documentation: {status: implemented, evidence: [{path: docs/checks/quickscan-checks.md}]}
+  uncertainties: [BC-Datenprüfung nicht ausgeführt]
+  related_features: [SCAN-QUICK-001, SCAN-SCORE-001]
+  source_confidence: high
+- id: EXT-SCAN-002
+  name: Deep Scan
+  component: business-central-extension
+  area: scan
+  status: implemented
+  description: Dispatcher, Runner und Failure-Codeunit bilden einen lokalen Deep-Scan-Ablauf mit Run und Findings.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al, symbol: codeunit 53128, note: Ausführung}
+    - {path: bc-extension/app/src/tables/DHDeepScanRun.Table.al, symbol: table 53128, note: Laufstatus und Leasefelder}
+  interfaces: [Backend API]
+  tests: {status: partial, evidence: [{path: backend/tests/test_p0c_scan_lifecycle.py, note: Backend-Lifecycle}]}
+  documentation: {status: implemented, evidence: [{path: docs/checks/deepscan-checks.md}]}
+  uncertainties: [End-to-End-Lauf in BC manuell]
+  related_features: [SCAN-DEEP-001, SCAN-LIFE-001]
+  source_confidence: high
+- id: EXT-SCHED-001
+  name: Geplante Scans in Business Central
+  component: business-central-extension
+  area: scheduler
+  status: partial
+  description: TaskScheduler-Registrierung, Runner, Failure-Codeunit und Zeitplanfelder existieren; Runtimeausführung ist nicht belegt.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHScanSchedulerMgt.Codeunit.al, symbol: codeunit 53170, note: Planung}
+    - {path: bc-extension/app/src/codeunits/DHScheduledScanRunner.Codeunit.al, symbol: codeunit 53171, note: Ausführung}
+  interfaces: [Business Central TaskScheduler]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: partial, evidence: [{path: docs/BC_EXTENSION_OPEN_GAPS.md}]}
+  uncertainties: [TaskScheduler und Servicekonto manuell zu prüfen]
+  related_features: [SCAN-SCHED-001]
+  source_confidence: medium
+- id: EXT-DRILL-001
+  name: Issue-Drilldown und Worklists
+  component: business-central-extension
+  area: issues
+  status: implemented
+  description: Dispatcher öffnet issuebezogene Stammdaten- und Belegworklists; Ausnahmen und Aktionen werden gespeichert.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHIssueDrilldownDispatcher.Codeunit.al, symbol: codeunit 53143, note: Routing}
+    - {path: bc-extension/app/src/pages/DHIssueDrilldownLaunch.Page.al, symbol: page 53159, note: Einstieg}
+  interfaces: [Business Central pages]
+  tests: {status: partial, evidence: [{path: backend/tests/test_pilot_fix01_al_contract.py, note: ausgewählte AL-Verträge}]}
+  documentation: {status: partial, evidence: [{path: docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md}]}
+  uncertainties: [Berechtigungen und Zielseiten manuell]
+  related_features: [DASH-AN-001]
+  source_confidence: high
+- id: EXT-INSTALL-001
+  name: Extension-Installation
+  component: business-central-extension
+  area: lifecycle
+  status: implemented
+  description: Install-Codeunit legt Company Setup an und schreibt Telemetrie.
+  evidence: [{path: bc-extension/app/src/codeunits/DHInstall.Codeunit.al, symbol: OnInstallAppPerCompany, note: Setupinitialisierung}]
+  interfaces: [Business Central install lifecycle]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_RELEASE_PACKAGE.md}]}
+  uncertainties: [Sandboxinstallation manuell]
+  related_features: []
+  source_confidence: medium
+- id: EXT-UPG-001
+  name: Extension-Upgrade
+  component: business-central-extension
+  area: lifecycle
+  status: implemented
+  description: Upgrade-Codeunit stellt Setup sicher und invalidiert unsichere Access-Snapshots.
+  evidence: [{path: bc-extension/app/src/codeunits/DHUpgrade.Codeunit.al, symbol: OnUpgradePerCompany, note: Upgradepfad}]
+  interfaces: [Business Central upgrade lifecycle]
+  tests: {status: documented_only, evidence: [{path: docs/BC_EXTENSION_UPGRADE_TEST_REPORT.md, note: bestehender Bericht}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_UPGRADE_TEST_REPORT.md}]}
+  uncertainties: [Veröffentlichter Versionssprung manuell]
+  related_features: [SEC-TEN-001]
+  source_confidence: medium
+- id: EXT-LOC-001
+  name: AL-Lokalisierung
+  component: translations-localization
+  area: localization
+  status: partial
+  description: Generierte Basis-XLF und deutsche XLF sind vorhanden; Laufzeitvollständigkeit ist nicht statisch bestätigt.
+  evidence:
+    - {path: bc-extension/Translations/BCSentinel.g.xlf, symbol: XLIFF, note: Basiskatalog}
+    - {path: bc-extension/Translations/BCSentinel.de-DE.xlf, symbol: XLIFF, note: Deutsch}
+  interfaces: [Business Central localization]
+  tests: {status: partial, evidence: [{path: scripts/check_al_localization.py, note: statischer Checker}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_LOCALIZATION_GAPS.md}]}
+  uncertainties: [Alle Oberflächen in BC manuell]
+  related_features: [TRANS-SITE-001]
+  source_confidence: medium
+- id: BACK-API-001
+  name: FastAPI-Routenoberfläche
+  component: backend-api
+  area: api
+  status: implemented
+  description: FastAPI bindet Core und neun Routermodule mit 120 Routendeklarationen ein.
+  evidence:
+    - {path: backend/app/main.py, symbol: app.include_router, note: Routereinbindung}
+    - {path: backend/app/routers, symbol: route decorators, note: Endpunkte}
+  interfaces: [HTTP JSON, HTML]
+  tests: {status: implemented, evidence: [{path: backend/tests, note: API-TestClient-Suites}]}
+  documentation: {status: implemented, evidence: [{path: docs/architecture/api-spec.md}]}
+  uncertainties: [OpenAPI-Laufzeitexport nicht geprüft]
+  related_features: []
+  source_confidence: high
+- id: BACK-TEN-001
+  name: Tenantgebundene Registrierung
+  component: backend-api
+  area: tenancy
+  status: implemented
+  description: Registration Service upsertet stabile BC-Identitäten und Portalmitgliedschaften idempotent.
+  evidence:
+    - {path: backend/app/services/tenant_registration_service.py, symbol: upsert_tenant_registration, note: Upsert}
+    - {path: backend/alembic/versions/0022_tenant_registration_identity.py, symbol: upgrade, note: Constraints}
+  interfaces: [Business Central Extension]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0a_transport_registration.py, note: Identität und Parallelität}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0A_HTTPS_TENANT_REGISTRATION.md}]}
+  uncertainties: []
+  related_features: [EXT-REG-001, SEC-TEN-001]
+  source_confidence: high
+- id: BACK-OBS-001
+  name: Observability und Request IDs
+  component: backend-api
+  area: observability
+  status: implemented
+  description: Middleware erzeugt Request IDs, strukturiert Logs und schwärzt Validierungswerte.
+  evidence:
+    - {path: backend/app/core/observability.py, symbol: observability helpers, note: Logging}
+    - {path: backend/app/main.py, symbol: middleware, note: Requestintegration}
+  interfaces: [Application logs]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_observability.py, note: Request ID und Redaction}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: [Externe Logaggregation nicht nachgewiesen]
+  related_features: [SEC-AUDIT-001]
+  source_confidence: high
+- id: BACK-HEALTH-001
+  name: Health und Readiness
+  component: backend-api
+  area: operations
+  status: implemented
+  description: Liveness und DB-Readiness werden über zwei Endpunkte angeboten und in Compose/Deployment verwendet.
+  evidence:
+    - {path: backend/app/main.py, symbol: /health und /health/ready, note: Endpunkte}
+    - {path: docker-compose.prod.yml, symbol: healthcheck, note: Nutzung}
+  interfaces: [Docker, GitHub Actions]
+  tests: {status: partial, evidence: [{path: backend/tests/test_deployment_readiness.py, note: Readinessverträge}]}
+  documentation: {status: implemented, evidence: [{path: backend/GO_LIVE_SMOKE_TESTS.md}]}
+  uncertainties: []
+  related_features: [OPS-HEALTH-001]
+  source_confidence: high
+- id: BACK-JOB-001
+  name: In-Process Scan Recovery
+  component: backend-api
+  area: background-jobs
+  status: partial
+  description: Eine Startup-Schleife verarbeitet stale Scanruns; ein separater Worker/Leader ist nicht nachgewiesen.
+  evidence:
+    - {path: backend/app/main.py, symbol: scan recovery loop, note: In-Process-Task}
+    - {path: backend/app/services/scan_status_service.py, symbol: recover_stale_runs, note: Recovery}
+  interfaces: [PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0c_scan_lifecycle.py, note: Recovery und Konkurrenz}]}
+  documentation: {status: implemented, evidence: [{path: docs/scan-stability.md}]}
+  uncertainties: [Mehrinstanzbetrieb manuell]
+  related_features: [SCAN-REC-001]
+  source_confidence: medium
+- id: SCAN-QUICK-001
+  name: Quick-Scan-Annahme
+  component: scan-engine
+  area: quick-scan
+  status: implemented
+  description: Tenantgebundene Route validiert, scored und speichert Quick-Scan-Daten und Findings.
+  evidence:
+    - {path: backend/app/main.py, symbol: POST /scan/quick, note: API}
+    - {path: backend/app/models.py, symbol: Scan und ScanIssueRecord, note: Persistenz}
+  interfaces: [Business Central Extension]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Free Insights und Sync}]}
+  documentation: {status: implemented, evidence: [{path: docs/checks/quickscan-checks.md}]}
+  uncertainties: []
+  related_features: [EXT-SCAN-001]
+  source_confidence: high
+- id: SCAN-DEEP-001
+  name: Atomarer Deep-Scan-Start
+  component: scan-engine
+  area: deep-scan
+  status: implemented
+  description: Startservice prüft Produktzugriff/Credits und erzeugt idempotent Run und Request.
+  evidence:
+    - {path: backend/app/services/atomic_scan_start_service.py, symbol: start_scan_atomically, note: Transaktion}
+    - {path: backend/app/routers/scans.py, symbol: POST /scan/start, note: API}
+  interfaces: [Business Central Extension, PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0b_atomic_credit.py, note: Idempotenz/Rollback}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0B_ATOMIC_CREDIT_CONSUMPTION.md}]}
+  uncertainties: [PostgreSQL-Test in BOOK nicht ausgeführt]
+  related_features: [BILL-CREDIT-001]
+  source_confidence: high
+- id: SCAN-SYNC-001
+  name: Scanergebnis- und Findings-Synchronisation
+  component: scan-engine
+  area: persistence
+  status: implemented
+  description: Sync speichert Scanwerte, Modulscores und deduplizierte Findings und markiert Resultatpersistenz.
+  evidence:
+    - {path: backend/app/routers/scans.py, symbol: POST /scan/sync, note: Synchronisation}
+    - {path: backend/app/models.py, symbol: ScanIssueRecord, note: Findings}
+  interfaces: [Business Central Extension]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0c_scan_lifecycle.py, note: Mandatory result und Duplikate}]}
+  documentation: {status: implemented, evidence: [{path: docs/scan-stability.md}]}
+  uncertainties: []
+  related_features: [EXT-SCAN-002]
+  source_confidence: high
+- id: SCAN-LIFE-001
+  name: Scan-Lifecycle mit Lease und Heartbeat
+  component: scan-engine
+  area: lifecycle
+  status: implemented
+  description: Statusdienst verwaltet queued/running/completed/failed, Lease, Heartbeat und terminale Invarianten.
+  evidence:
+    - {path: backend/app/services/scan_status_service.py, symbol: lifecycle functions, note: Zustandsmaschine}
+    - {path: backend/alembic/versions/0024_scan_lifecycle_recovery.py, symbol: upgrade, note: Lifecyclefelder}
+  interfaces: [PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0c_scan_lifecycle.py, note: Erfolgs-/Fehler-/Konkurrenzfälle}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0C_SCAN_LIFECYCLE_RECOVERY.md}]}
+  uncertainties: []
+  related_features: [SCAN-REC-001]
+  source_confidence: high
+- id: SCAN-REC-001
+  name: Stale-Run-Recovery und Retry
+  component: scan-engine
+  area: recovery
+  status: implemented
+  description: Abgelaufene Runs werden mit Backoff erneut eingeplant oder nach Maximalversuchen terminal beendet.
+  evidence:
+    - {path: backend/app/services/scan_status_service.py, symbol: recover_stale_runs, note: Recovery}
+    - {path: backend/app/core/settings.py, symbol: SCAN_RETRY_BACKOFF_SECONDS, note: Konfiguration}
+  interfaces: [PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0c_scan_lifecycle.py, note: "stale, max attempts, idempotency"}]}
+  documentation: {status: implemented, evidence: [{path: docs/scan-stability.md}]}
+  uncertainties: [Mehrinstanzbetrieb extern]
+  related_features: [BACK-JOB-001]
+  source_confidence: high
+- id: SCAN-SCORE-001
+  name: Health Score und Modulscores
+  component: scan-engine
+  area: scoring
+  status: implemented
+  description: Backend berechnet Score/Rating und nimmt Modulscorewerte aus synchronisierten Scanergebnissen auf.
+  evidence:
+    - {path: backend/app/services/scoring_service.py, symbol: scoring functions, note: Score}
+    - {path: backend/app/models.py, symbol: Scan module score fields, note: Persistenz}
+  interfaces: [Reports, Dashboard]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Data Health Score}]}
+  documentation: {status: implemented, evidence: [{path: docs/product/scoring-model.md}]}
+  uncertainties: [Fachliche Angemessenheit nicht bewertet]
+  related_features: [REP-DATA-001]
+  source_confidence: high
+- id: SCAN-SCHED-001
+  name: Geplanter Scan End-to-End
+  component: scan-engine
+  area: scheduler
+  status: partial
+  description: BC-Scheduler und Scanpfad sind verbunden; reale zeitgesteuerte Ausführung ist nicht belegt.
+  evidence:
+    - {path: bc-extension/app/src/codeunits/DHScheduledScanRunner.Codeunit.al, symbol: OnRun, note: Runner}
+    - {path: bc-extension/app/src/codeunits/DHScanDispatcher.Codeunit.al, symbol: codeunit 53135, note: Dispatch}
+  interfaces: [Business Central TaskScheduler, Backend API]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: partial, evidence: [{path: docs/MANUAL_GO_LIVE_CHECKLIST.md}]}
+  uncertainties: [TaskScheduler End-to-End]
+  related_features: [EXT-SCHED-001]
+  source_confidence: medium
+- id: DASH-AUTH-001
+  name: Dashboard Einladung und Login
+  component: customer-dashboard
+  area: authentication
+  status: implemented
+  description: Einladungsaktivierung, Passwortlogin, Sessioncookie und Logout sind implementiert.
+  evidence:
+    - {path: backend/app/routers/dashboard.py, symbol: invite activate/login/logout, note: Routen}
+    - {path: backend/app/models.py, symbol: DashboardUser, note: Benutzer}
+  interfaces: [SMTP, Browser]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_multi_tenant_dashboard.py, note: Portalzugriff}]}
+  documentation: {status: partial, evidence: [{path: docs/GL_PILOT_01_FIX01_MULTI_TENANT_DASHBOARD_ACCESS.md}]}
+  uncertainties: [Reale Mailzustellung]
+  related_features: [AUTH-DASH-001]
+  source_confidence: high
+- id: DASH-TEN-001
+  name: Multi-Tenant Dashboardauswahl
+  component: customer-dashboard
+  area: tenancy
+  status: implemented
+  description: Benutzer können aktive Membership-Tenants listen, wählen und nur Mitgliedstenants laden.
+  evidence:
+    - {path: backend/app/routers/dashboard.py, symbol: tenant routes, note: Auswahl}
+    - {path: backend/app/models.py, symbol: DashboardUserTenantMembership, note: m:n-Modell}
+  interfaces: [Dashboard session]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_multi_tenant_dashboard.py, note: Isolation}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_PILOT_01_FIX01_MULTI_TENANT_DASHBOARD_ACCESS.md}]}
+  uncertainties: []
+  related_features: [SEC-TEN-001]
+  source_confidence: high
+- id: DASH-OV-001
+  name: Dashboard Overview
+  component: customer-dashboard
+  area: overview
+  status: implemented
+  description: Overview rendert Score, KPIs, Top-Risiken, letzte Scans und Empty/Loading/Error-Zustände aus Serverpayload.
+  evidence:
+    - {path: backend/app/templates/analytics_embed.html, symbol: overview-tab, note: Markup}
+    - {path: backend/app/static/js/analytics-dashboard.js, symbol: overview renderers, note: Datenbindung}
+  interfaces: [Analytics embed data]
+  tests: {status: partial, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Payload/Gating}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md}]}
+  uncertainties: [Visuelle Qualität manuell]
+  related_features: [DASH-GATE-001]
+  source_confidence: high
+- id: DASH-AN-001
+  name: Analytics, Issues, Actions und Scans
+  component: customer-dashboard
+  area: analytics
+  status: implemented
+  description: Clientseitige Tabs rendern Trends, Verteilungen, Scanlisten, Issue-Details und abgeleitete Aktionen.
+  evidence:
+    - {path: backend/app/static/js/analytics-dashboard.js, symbol: tab renderers, note: SPA-Logik}
+    - {path: backend/app/routers/analytics.py, symbol: embed data/section routes, note: Daten}
+  interfaces: [Backend API, BC drilldown]
+  tests: {status: partial, evidence: [{path: backend/tests/test_analytics_embed_security.py, note: Embedschutz}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md}]}
+  uncertainties: [Browser-/UX-Prüfung]
+  related_features: [EXT-DRILL-001]
+  source_confidence: high
+- id: DASH-GATE-001
+  name: Free-, Produkt- und Monitoring-Gates
+  component: customer-dashboard
+  area: access
+  status: implemented
+  description: Serverpayload und Client sperren Premiumdetails anhand Produktberechtigungen und Monitoringzustand.
+  evidence:
+    - {path: backend/app/services/entitlement_service.py, symbol: feature sets, note: Features}
+    - {path: backend/app/routers/analytics.py, symbol: access payload, note: serverseitiges Gate}
+  interfaces: [Licensing]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Free/Premium Locking}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_3_FREE_DATA_HEALTH_SCORE_AUDIT.md}]}
+  uncertainties: []
+  related_features: [BILL-ENT-001]
+  source_confidence: high
+- id: DASH-PREF-001
+  name: Dashboard Settings und Preferences
+  component: customer-dashboard
+  area: settings
+  status: partial
+  description: Settings zeigt Tenant, Sprache, Kontakt und lokale UI-Preferences; keine eigene persistierte Notification-Preference-Entität wurde gefunden.
+  evidence:
+    - {path: backend/app/templates/analytics_embed.html, symbol: settings-tab, note: UI}
+    - {path: backend/app/static/js/analytics-dashboard.js, symbol: settings renderers, note: Verhalten}
+  interfaces: [Browser local state, Tenant payload]
+  tests: {status: partial, evidence: [{path: backend/tests/test_localization.py, note: Sprache}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md}]}
+  uncertainties: [Erwartete Persistenz fachlich prüfen]
+  related_features: [TRANS-DASH-001]
+  source_confidence: medium
+- id: ADM-TEN-001
+  name: Admin-Tenantverwaltung
+  component: admin-backend
+  area: tenants
+  status: implemented
+  description: Tenantliste, Detail, Lizenzänderung, Registrierungreset und Löschung sind als Adminrouten vorhanden.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: tenant routes, note: CRUD}
+    - {path: backend/app/templates/admin_tenant_detail.html, symbol: tenant detail, note: UI}
+  interfaces: [HTTP Basic, PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_admin.py, note: Adminflows}]}
+  documentation: {status: partial, evidence: [{path: docs/architecture/system-overview.md}]}
+  uncertainties: []
+  related_features: [ADM-AUDIT-001]
+  source_confidence: high
+- id: ADM-LIC-001
+  name: Admin-Produkt-, Credit- und Monitoringsteuerung
+  component: admin-backend
+  area: licensing
+  status: implemented
+  description: Admin kann Produkte gewähren/entziehen, Credits ändern, Zugriff verlängern und Monitoring schalten.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: grant-product/add-credit/monitoring routes, note: Mutationen}
+    - {path: backend/app/services/product_license_service.py, symbol: product access, note: Lizenzlogik}
+  interfaces: [Licensing]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Produktzugriff}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_1_1_PRODUCT_MODEL_V2_AUDIT.md}]}
+  uncertainties: []
+  related_features: [BILL-ENT-001]
+  source_confidence: high
+- id: ADM-CONF-001
+  name: Admin-Konfiguration
+  component: admin-backend
+  area: configuration
+  status: implemented
+  description: Kosten, Produktpreise/-matrix, Site-/Dashboardübersetzungen und Seitenvisibility sind administrierbar.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: config routes, note: Formrouten}
+    - {path: backend/app/models.py, symbol: config models, note: Persistenz}
+  interfaces: [Public pricing/visibility]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_pricing.py, note: Preise/Adminaudit}]}
+  documentation: {status: implemented, evidence: [{path: docs/product/pricing-canonical.md}]}
+  uncertainties: []
+  related_features: [WEB-PRICE-001]
+  source_confidence: high
+- id: ADM-PART-001
+  name: Partner- und Provisionsverwaltung
+  component: admin-backend
+  area: partners
+  status: implemented
+  description: Partner, Anträge, Credentials, Referrals, Provisionen, Payouts und CSV-Exporte sind implementiert.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: partner and commission routes, note: Adminflows}
+    - {path: backend/app/models.py, symbol: Partner models, note: Persistenz}
+  interfaces: [Partner API, SMTP]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: ausgewählte Adminpfade}]}
+  documentation: {status: partial, evidence: [{path: docs/product/pricing.md}]}
+  uncertainties: [End-to-End Partnerportal manuell]
+  related_features: [AUTH-PART-001]
+  source_confidence: high
+- id: ADM-AUDIT-001
+  name: Admin Audit Trail
+  component: admin-backend
+  area: audit
+  status: implemented
+  description: Adminmutationen schreiben Actor, Action, Entity und Details in eine Auditentität und werden angezeigt.
+  evidence:
+    - {path: backend/app/services/admin_audit_service.py, symbol: log_admin_event, note: Auditwriter}
+    - {path: backend/app/models.py, symbol: AdminAuditEvent, note: Persistenz}
+  interfaces: [Admin UI]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_admin.py, note: Auditassertions}]}
+  documentation: {status: partial, evidence: [{path: docs/BC_EXTENSION_DATA_FLOW.md}]}
+  uncertainties: [Retention/Export manuell]
+  related_features: [SEC-AUDIT-001]
+  source_confidence: high
+- id: ADM-MAIL-001
+  name: E-Mail-Templates und Testversand
+  component: admin-backend
+  area: email
+  status: partial
+  description: Templates sind administrierbar und testversendbar; reale SMTP-Zustellung ist nicht nachgewiesen.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: email template routes, note: UI/API}
+    - {path: backend/app/services/email_template_service.py, symbol: template functions, note: Rendering}
+  interfaces: [SMTP]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: Templateadmin}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: [SMTP/Clients]
+  related_features: [MAIL-TPL-001]
+  source_confidence: medium
+- id: WEB-SITE-001
+  name: Ausgelieferte Produktwebsite
+  component: landingpage
+  area: website
+  status: implemented
+  description: Der statische Baum enthält Start-, Produkt-, Support-, Security-, Legal-, Billing- und Partnerseiten.
+  evidence:
+    - {path: landingpage/index.html, symbol: HTML entry, note: Startseite}
+    - {path: backend/Dockerfile, symbol: COPY landingpage, note: Imageeinbindung}
+  interfaces: [Browser, Backend public API]
+  tests: {status: partial, evidence: [{path: docs/LANDINGPAGE_SMOKE_TEST.md, note: vorhandenes Testdokument}]}
+  documentation: {status: partial, evidence: [{path: docs/design/landing-concepts/README.md}]}
+  uncertainties: [Hosting/Browser manuell]
+  related_features: [WEB-I18N-001]
+  source_confidence: high
+- id: WEB-I18N-001
+  name: Landingpage Deutsch/Englisch
+  component: landingpage
+  area: localization
+  status: implemented
+  description: Site Shell und i18n laden DE/EN-JSON und aktualisieren markierte Attribute/Inhalte.
+  evidence:
+    - {path: landingpage/js/i18n.js, symbol: fetch lang JSON, note: Loader}
+    - {path: landingpage/lang/de.json, symbol: translations, note: Deutsch}
+  interfaces: [Static files]
+  tests: {status: partial, evidence: [{path: backend/tests/test_localization.py, note: Backendlokalisierung}]}
+  documentation: {status: partial, evidence: [{path: docs/localization-check.md}]}
+  uncertainties: [Schlüsselvollständigkeit im Browser]
+  related_features: [TRANS-SITE-001]
+  source_confidence: high
+- id: WEB-PRICE-001
+  name: Dynamische Preise und Sichtbarkeit
+  component: landingpage
+  area: pricing
+  status: implemented
+  description: Website lädt öffentliche Preis-, Loss- und Seitenvisibility-Konfiguration mit Snapshot/Fallback.
+  evidence:
+    - {path: landingpage/pricing-snapshot.js, symbol: pricing snapshot, note: generierter Fallback}
+    - {path: backend/app/routers/public.py, symbol: public pricing routes, note: dynamische Quelle}
+  interfaces: [Backend public API]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_pricing.py, note: public pricing}]}
+  documentation: {status: implemented, evidence: [{path: docs/product/pricing-canonical.md}]}
+  uncertainties: [Live-CORS/Hosting]
+  related_features: [BILL-PRICE-001]
+  source_confidence: high
+- id: WEB-ALT-001
+  name: Alternative Website landingpage_neu
+  component: landingpage
+  area: alternative-site
+  status: partial
+  description: Separater vollständiger statischer Baum mit Assets und APIs; Deploymentreferenz nicht gefunden.
+  evidence:
+    - {path: landingpage_neu/index.html, symbol: HTML entry, note: Alternative Startseite}
+    - {path: landingpage_neu/README.md, symbol: README, note: Struktur}
+  interfaces: [Backend public API]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: implemented, evidence: [{path: landingpage_neu/README.md}]}
+  uncertainties: [Kanonischer Status/Deployment manuell]
+  related_features: [WEB-SITE-001]
+  source_confidence: medium
+- id: WEB-LEGAL-001
+  name: Rechtstexte
+  component: landingpage
+  area: legal
+  status: stub
+  description: Legal-Seiten existieren, enthalten aber explizite Platzhalter und Hinweise auf finale Prüfung.
+  evidence:
+    - {path: landingpage/impressum.html, symbol: placeholder spans, note: Telefon/Register/USt-ID offen}
+    - {path: landingpage/terms.html, symbol: final legal review text, note: Entwurfsstatus}
+  interfaces: [Browser]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: partial, evidence: [{path: docs/privacy/processing-overview.md}]}
+  uncertainties: [Juristische Freigabe]
+  related_features: [SEC-COMP-001]
+  source_confidence: high
+- id: WEB-SUPPORT-001
+  name: Supportseite
+  component: landingpage
+  area: support
+  status: stub
+  description: Supportseite bezeichnet sich als MVP und enthält Mockup-/Ausbauhinweise.
+  evidence: [{path: landingpage/support.html, symbol: MVP and mockup copy, note: expliziter Platzhalterstatus}]
+  interfaces: [Browser]
+  tests: {status: documented_only, evidence: [{path: docs/LANDINGPAGE_SMOKE_TEST.md, note: Smoke-Dokument}]}
+  documentation: {status: partial, evidence: [{path: landingpage/support.html}]}
+  uncertainties: [Supportprozess und SLA]
+  related_features: [WEB-SITE-001]
+  source_confidence: high
+- id: REP-DATA-001
+  name: Executive-Report-Datenmodell
+  component: executive-reporting
+  area: report-data
+  status: implemented
+  description: Service aggregiert Scan, Findings, Kategorien, KPIs, Prioritäten und Produktzugriff in Pydantic-Schemas.
+  evidence:
+    - {path: backend/app/services/executive_report_service.py, symbol: build_executive_report, note: Aggregation}
+    - {path: backend/app/schemas/report.py, symbol: ExecutiveReport, note: Schema}
+  interfaces: [Scan DB]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_executive_report.py, note: Reportdaten}]}
+  documentation: {status: implemented, evidence: [{path: docs/EXECUTIVE_REPORT_READINESS.md}]}
+  uncertainties: [Fachliche Bewertung nicht Bestandteil]
+  related_features: [SCAN-SCORE-001]
+  source_confidence: high
+- id: REP-HTML-001
+  name: Lokalisierter HTML-Report
+  component: executive-reporting
+  area: html
+  status: implemented
+  description: Jinja-Template und CSS rendern Reportdaten in Deutsch/Englisch.
+  evidence:
+    - {path: backend/app/templates/executive_report.html, symbol: template, note: HTML}
+    - {path: backend/app/static/reports/executive-free-report.css, symbol: stylesheet, note: Layout}
+  interfaces: [Browser]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_executive_report.py, note: HTML-Vertrag}]}
+  documentation: {status: implemented, evidence: [{path: docs/reports/REPORT-01G_FINAL_EXECUTIVE_VISUAL_DESIGN.md}]}
+  uncertainties: [Visuelles Ergebnis manuell]
+  related_features: [REP-PDF-001]
+  source_confidence: high
+- id: REP-PDF-001
+  name: PDF-Generierung
+  component: executive-reporting
+  area: pdf
+  status: implemented
+  description: Playwright startet Chromium und erzeugt PDF aus Report-HTML; Runtime wird im Image geprüft.
+  evidence:
+    - {path: backend/app/services/executive_report_service.py, symbol: render_report_pdf, note: Playwright}
+    - {path: backend/Dockerfile, symbol: playwright install and PDF smoke, note: Runtime}
+  interfaces: [Playwright Chromium]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_playwright_runtime_packaging.py, note: Packagingvertrag}]}
+  documentation: {status: implemented, evidence: [{path: docs/reports/REPORT-RUNTIME-01_PLAYWRIGHT_CHROMIUM.md}]}
+  uncertainties: [BOOK-Ausführung/visuelle QA]
+  related_features: [REP-HTML-001]
+  source_confidence: high
+- id: REP-SHARE-001
+  name: Report-Share-Links
+  component: executive-reporting
+  area: sharing
+  status: implemented
+  description: Tenantberechtigte Route erzeugt signierte Links; Shared HTML/PDF validieren Token und Scanbindung.
+  evidence:
+    - {path: backend/app/routers/reports.py, symbol: share-link and shared routes, note: API}
+    - {path: backend/app/security/token.py, symbol: token helpers, note: Signatur}
+  interfaces: [Browser]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_executive_report.py, note: Sharezugriff}]}
+  documentation: {status: partial, evidence: [{path: docs/REPORT-01_FREE_EXECUTIVE_REPORT.md}]}
+  uncertainties: [Linkweitergabe/Revocation fachlich]
+  related_features: [SEC-TRANS-001]
+  source_confidence: high
+- id: BILL-PRICE-001
+  name: Produktpreise und Preismatrix
+  component: licensing-billing
+  area: pricing
+  status: implemented
+  description: Kanonische Defaults, DB-Overrides und Record-Tiers liefern Preise für Website, Dashboard und Checkout.
+  evidence:
+    - {path: backend/app/services/product_pricing_service.py, symbol: pricing functions, note: Matrix}
+    - {path: config/pricing_canonical.json, symbol: products, note: Defaults}
+  interfaces: [Public API, Stripe]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_pricing.py, note: Defaults/Overrides/Tiers}]}
+  documentation: {status: implemented, evidence: [{path: docs/product/pricing-canonical.md}]}
+  uncertainties: [Stripe Price IDs extern]
+  related_features: [WEB-PRICE-001]
+  source_confidence: high
+- id: BILL-CHECK-001
+  name: Stripe Checkout
+  component: licensing-billing
+  area: checkout
+  status: implemented
+  description: One-time Assessment/Validation und Monitoring-Abos erzeugen tenantgebundene Stripe-Sessions.
+  evidence:
+    - {path: backend/app/routers/billing.py, symbol: POST /billing/checkout/session, note: Checkout}
+    - {path: backend/app/services/pricing_service.py, symbol: checkout pricing, note: Produktauflösung}
+  interfaces: [Stripe]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_billing.py, note: gemockter Checkout}]}
+  documentation: {status: implemented, evidence: [{path: docs/BILLING_E2E_TEST_MATRIX.md}]}
+  uncertainties: [Echte Zahlung manuell]
+  related_features: [BILL-WEB-001]
+  source_confidence: high
+- id: BILL-WEB-001
+  name: Stripe Webhook
+  component: licensing-billing
+  area: webhook
+  status: implemented
+  description: Signierte Events werden normalisiert, idempotent gespeichert und aktualisieren Käufe, Abos, Credits und Entitlements.
+  evidence:
+    - {path: backend/app/routers/billing.py, symbol: POST /billing/webhook, note: Signatur/Dispatch}
+    - {path: backend/app/services/billing_service.py, symbol: ensure_webhook_event_once, note: Idempotenz}
+  interfaces: [Stripe, PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_billing.py, note: Webhooktypen und Duplikate}]}
+  documentation: {status: implemented, evidence: [{path: docs/BILLING_E2E_TEST_MATRIX.md}]}
+  uncertainties: [Providerzustellung extern]
+  related_features: [BILL-ENT-001]
+  source_confidence: high
+- id: BILL-CREDIT-001
+  name: Atomare Scan-Credits
+  component: licensing-billing
+  area: credits
+  status: implemented
+  description: Creditzeilen, Startrequest und Ledger werden in einer Transaktion idempotent verändert.
+  evidence:
+    - {path: backend/app/services/atomic_scan_start_service.py, symbol: start_scan_atomically, note: Transaktion}
+    - {path: backend/alembic/versions/0023_atomic_scan_credit.py, symbol: upgrade, note: Tabellen/Constraints}
+  interfaces: [Scan Engine, PostgreSQL]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0b_atomic_credit.py, note: Parallelität/Rollback}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0B_ATOMIC_CREDIT_CONSUMPTION.md}]}
+  uncertainties: [PG-Ausführung in BOOK nicht bestätigt]
+  related_features: [SCAN-DEEP-001]
+  source_confidence: high
+- id: BILL-ENT-001
+  name: Produktberechtigungen und Ablauf
+  component: licensing-billing
+  area: entitlements
+  status: implemented
+  description: Produktentitlements, Käufe, Monitoringperioden und Access-Control liefern Featureflags und Ablaufdaten.
+  evidence:
+    - {path: backend/app/services/product_license_service.py, symbol: access snapshot, note: Produktzugriff}
+    - {path: backend/app/services/access_control_service.py, symbol: access checks, note: Ablauf}
+  interfaces: [Extension, Dashboard, Reports]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Ablauf/Gates}]}
+  documentation: {status: implemented, evidence: [{path: docs/TASK_1_1_PRODUCT_MODEL_V2_AUDIT.md}]}
+  uncertainties: []
+  related_features: [DASH-GATE-001]
+  source_confidence: high
+- id: BILL-PORTAL-001
+  name: Billing Portal und Subscriptionstatus
+  component: licensing-billing
+  area: subscription
+  status: implemented
+  description: Tenant kann Stripe-Portal öffnen und Subscription-/Checkoutstatus abrufen.
+  evidence:
+    - {path: backend/app/routers/billing.py, symbol: portal and status routes, note: API}
+    - {path: backend/app/routers/analytics.py, symbol: analytics billing portal, note: Dashboardintegration}
+  interfaces: [Stripe, Dashboard]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_billing.py, note: Portal/Status}]}
+  documentation: {status: implemented, evidence: [{path: docs/BILLING_E2E_TEST_MATRIX.md}]}
+  uncertainties: [Echtes Providerportal]
+  related_features: [DASH-GATE-001]
+  source_confidence: high
+- id: MAIL-TPL-001
+  name: Administrierbare E-Mail-Templates
+  component: email-notifications
+  area: templates
+  status: implemented
+  description: Template-Key, Betreff, HTML und Aktivstatus werden persistiert und mit Defaults gerendert.
+  evidence:
+    - {path: backend/app/services/email_template_service.py, symbol: template functions, note: Rendering}
+    - {path: backend/app/models.py, symbol: AdminEmailTemplate, note: Persistenz}
+  interfaces: [Admin, SMTP]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: Adminroute}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: []
+  related_features: [ADM-MAIL-001]
+  source_confidence: high
+- id: MAIL-INV-001
+  name: Dashboard-Einladungsmail
+  component: email-notifications
+  area: invites
+  status: partial
+  description: Invite-URL, HTML-Mail, Versandstatus und Fehlerpersistenz existieren; SMTP-Zustellung ist nicht bestätigt.
+  evidence:
+    - {path: backend/app/services/dashboard_invite_service.py, symbol: send_dashboard_user_invite, note: Mailflow}
+    - {path: backend/app/models.py, symbol: DashboardUser invite_mail_status, note: Status}
+  interfaces: [SMTP]
+  tests: {status: partial, evidence: [{path: backend/tests/test_p0a_transport_registration.py, note: Invitevertrag mit Mock}]}
+  documentation: {status: partial, evidence: [{path: docs/GL_EXT_P0A_HTTPS_TENANT_REGISTRATION.md}]}
+  uncertainties: [Zustellung/Clientrendering]
+  related_features: [DASH-AUTH-001]
+  source_confidence: medium
+- id: MAIL-PART-001
+  name: Partner-E-Mails
+  component: email-notifications
+  area: partners
+  status: partial
+  description: Partnerantrag und Passwortreset besitzen SMTP-Sendewege; reale Zustellung ist nicht bestätigt.
+  evidence: [{path: backend/app/routers/partners.py, symbol: SMTP helper functions, note: Application/Reset mails}]
+  interfaces: [SMTP, Partner portal]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: ausgewählte Partnerverwaltung}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: [Zustellung/Spam/Reset-End-to-End]
+  related_features: [AUTH-PART-001]
+  source_confidence: medium
+- id: TRANS-SITE-001
+  name: Website-Übersetzungen
+  component: translations-localization
+  area: site
+  status: implemented
+  description: DE/EN-JSON, Browserloader und Admin-Service bilden Websiteübersetzungen ab.
+  evidence:
+    - {path: landingpage/lang/de.json, symbol: JSON catalog, note: Deutsch}
+    - {path: backend/app/services/site_translation_service.py, symbol: service functions, note: Administration}
+  interfaces: [Landingpage, Admin]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_localization.py, note: Übersetzungen}]}
+  documentation: {status: implemented, evidence: [{path: docs/localization-check.md}]}
+  uncertainties: [Browservollständigkeit]
+  related_features: [WEB-I18N-001]
+  source_confidence: high
+- id: TRANS-DASH-001
+  name: Dashboard-Übersetzungen
+  component: translations-localization
+  area: dashboard
+  status: implemented
+  description: Dashboardkataloge und Service liefern DE/EN; Tenantpräferenz wählt Sprache.
+  evidence:
+    - {path: backend/app/translations/dashboard/de.json, symbol: JSON catalog, note: Deutsch}
+    - {path: backend/app/services/dashboard_translation_service.py, symbol: catalog, note: Kategorien/Fallback}
+  interfaces: [Dashboard, Admin]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_localization.py, note: Dashboardtexte}]}
+  documentation: {status: partial, evidence: [{path: docs/TASK_5_DASHBOARD_FINALIZATION_AUDIT.md}]}
+  uncertainties: [Doppelte Fallbackquellen abgleichen]
+  related_features: [DASH-PREF-001]
+  source_confidence: high
+- id: TRANS-ISSUE-001
+  name: Lokalisierte Issue-Texte
+  component: translations-localization
+  area: issues
+  status: implemented
+  description: Service lokalisiert Titel und Empfehlungen anhand Issuecode und Sprache.
+  evidence:
+    - {path: backend/app/services/issue_text_service.py, symbol: localization functions, note: Texte}
+    - {path: backend/app/services/localization_service.py, symbol: language helpers, note: Sprachauswahl}
+  interfaces: [Scans, Dashboard, Reports]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_issue_text_localization.py, note: DE/EN}]}
+  documentation: {status: partial, evidence: [{path: docs/localization-check.md}]}
+  uncertainties: []
+  related_features: [SCAN-SYNC-001]
+  source_confidence: high
+- id: AUTH-TEN-001
+  name: Tenant-Headerauthentifizierung
+  component: authentication-users
+  area: tenant-auth
+  status: implemented
+  description: Tenant-ID und API-Token werden angefordert, gehasht verglichen und gegen Pfad/Payloadkontext gebunden.
+  evidence:
+    - {path: backend/app/security/tenant.py, symbol: load_authenticated_tenant, note: Auth}
+    - {path: backend/app/security/token_hash.py, symbol: hash/verify, note: Tokenhash}
+  interfaces: [Business Central Extension]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_tenant_registration.py, note: Hash/Migration/Rate Limit}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_DATA_FLOW.md}]}
+  uncertainties: []
+  related_features: [SEC-TEN-001]
+  source_confidence: high
+- id: AUTH-DASH-001
+  name: Dashboarduser und Session
+  component: authentication-users
+  area: dashboard-auth
+  status: implemented
+  description: Invite-/Passworthash, Status, Membership und signierte Session schützen Portal und Tenantwahl.
+  evidence:
+    - {path: backend/app/routers/dashboard.py, symbol: session helpers/routes, note: Auth}
+    - {path: backend/app/models.py, symbol: DashboardUserTenantMembership, note: Benutzer/Tenant}
+  interfaces: [Browser cookies]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_multi_tenant_dashboard.py, note: Session/Isolation}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_PILOT_01_FIX01_MULTI_TENANT_DASHBOARD_ACCESS.md}]}
+  uncertainties: [Realer Passwortprozess]
+  related_features: [DASH-AUTH-001]
+  source_confidence: high
+- id: AUTH-PART-001
+  name: Partnerauthentifizierung
+  component: authentication-users
+  area: partner-auth
+  status: implemented
+  description: Login, Initialcredentials, Reset und Bearer-geschützte Profil-/Referral-/Commissionrouten sind implementiert.
+  evidence:
+    - {path: backend/app/routers/partners.py, symbol: /api/partners/auth and me routes, note: API}
+    - {path: backend/app/models.py, symbol: Partner auth fields, note: Persistenz}
+  interfaces: [Partner portal, SMTP]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: Partnerverwaltung teilweise}]}
+  documentation: {status: partial, evidence: [{path: docs/product/pricing.md}]}
+  uncertainties: [Portal End-to-End]
+  related_features: [MAIL-PART-001]
+  source_confidence: high
+- id: AUTH-ADM-001
+  name: Admin HTTP Basic und CSRF
+  component: authentication-users
+  area: admin-auth
+  status: implemented
+  description: Adminseiten erfordern konfigurierte Basic Credentials; Formmutationen nutzen CSRF-Prüfung.
+  evidence:
+    - {path: backend/app/routers/admin.py, symbol: admin authentication dependencies, note: Basic Auth}
+    - {path: backend/app/security/csrf.py, symbol: CSRF helpers, note: Formschutz}
+  interfaces: [Browser]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_admin.py, note: Adminauth/Mutationen}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: [Kein rollenfeines Adminmodell]
+  related_features: [SEC-CSRF-001]
+  source_confidence: high
+- id: DB-ORM-001
+  name: SQLAlchemy-Datenmodell
+  component: database-migrations
+  area: orm
+  status: implemented
+  description: 29 ORM-Klassen bilden Tenant-, Scan-, Billing-, Partner-, Dashboard- und Konfigurationsdaten ab.
+  evidence: [{path: backend/app/models.py, symbol: mapped classes, note: ORM}]
+  interfaces: [PostgreSQL, SQLite tests]
+  tests: {status: implemented, evidence: [{path: backend/tests/conftest.py, note: Schema aus Metadaten}]}
+  documentation: {status: partial, evidence: [{path: docs/architecture/data-flow.md}]}
+  uncertainties: [Stringstatuswerte fachlich nicht bewertet]
+  related_features: [DB-MIG-001]
+  source_confidence: high
+- id: DB-MIG-001
+  name: Alembic-Migrationskette
+  component: database-migrations
+  area: migrations
+  status: implemented
+  description: 25 lineare Revisionen entwickeln das Schema von Core bis Dashboard-Membership.
+  evidence:
+    - {path: backend/alembic/versions/0001_initial_core.py, symbol: revision 0001, note: Basis}
+    - {path: backend/alembic/versions/0025_dashboard_user_tenant_memberships.py, symbol: revision 0025, note: Head}
+  interfaces: [PostgreSQL]
+  tests: {status: partial, evidence: [{path: backend/tests/test_deployment_readiness.py, note: Migrationsreadiness}]}
+  documentation: {status: implemented, evidence: [{path: docs/DEPLOYMENT_DRY_RUN.md}]}
+  uncertainties: [Upgrade gegen reale Daten]
+  related_features: [DB-CHECK-001]
+  source_confidence: high
+- id: DB-TEN-001
+  name: Tenantbezogene Persistenz
+  component: database-migrations
+  area: tenancy
+  status: implemented
+  description: Scan-, Billing-, Produkt-, Membership- und Partnerrelationen binden Daten per tenant_id und Constraints.
+  evidence:
+    - {path: backend/app/models.py, symbol: tenant_id ForeignKeys, note: Beziehungen}
+    - {path: backend/alembic/versions/0025_dashboard_user_tenant_memberships.py, symbol: constraints, note: Membership}
+  interfaces: [Backend services]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0e_postgres_concurrency.py, note: Tenantparallelität}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_DATA_FLOW.md}]}
+  uncertainties: [PG-Suite BOOK nicht ausgeführt]
+  related_features: [SEC-TEN-001]
+  source_confidence: high
+- id: DB-CHECK-001
+  name: Modell-Migrations-Gleichheit
+  component: database-migrations
+  area: validation
+  status: partial
+  description: Startup prüft Alembicstand, Tests umgehen dies jedoch häufig und erstellen SQLite direkt aus Metadaten.
+  evidence:
+    - {path: backend/app/db.py, symbol: ensure_schema_is_migrated, note: Runtimecheck}
+    - {path: backend/tests/conftest.py, symbol: create_all and monkeypatch, note: Testabweichung}
+  interfaces: [Alembic]
+  tests: {status: partial, evidence: [{path: backend/tests/test_deployment_readiness.py, note: Teilprüfung}]}
+  documentation: {status: partial, evidence: [{path: backend/TESTING.md}]}
+  uncertainties: [Vollständiger Autogenerate-Diff nicht ausgeführt]
+  related_features: [DB-MIG-001]
+  source_confidence: high
+- id: OPS-CONT-001
+  name: Containerisierte Anwendung
+  component: infrastructure-operations
+  area: containers
+  status: implemented
+  description: Multi-stage Python-Image enthält Backend, Migrationen, Landingpage und Chromium; Compose startet Backend/PostgreSQL.
+  evidence:
+    - {path: backend/Dockerfile, symbol: runtime/test/production stages, note: Image}
+    - {path: docker-compose.prod.yml, symbol: services, note: Produktionsstack}
+  interfaces: [Docker, PostgreSQL]
+  tests: {status: partial, evidence: [{path: backend/tests/test_playwright_runtime_packaging.py, note: Dockervertrag}]}
+  documentation: {status: implemented, evidence: [{path: docs/ops/production-deployment.md}]}
+  uncertainties: [Imagebuild nicht in BOOK ausgeführt]
+  related_features: [OPS-DEP-001]
+  source_confidence: high
+- id: OPS-DEP-001
+  name: GitHub-Actions-Deployment
+  component: infrastructure-operations
+  area: deployment
+  status: implemented
+  description: Push auf main/staging synchronisiert Zielserver, migriert, startet Compose und prüft Health.
+  evidence:
+    - {path: .github/workflows/deploy.yml, symbol: Deploy to PROD/DEV, note: Workflow}
+    - {path: config/nginx/bcsentinel.conf, symbol: server blocks, note: Proxy}
+  interfaces: [GitHub Actions, SSH, Docker, Nginx]
+  tests: {status: partial, evidence: [{path: backend/tests/test_deployment_readiness.py, note: statische Verträge}]}
+  documentation: {status: implemented, evidence: [{path: docs/DEPLOYMENT_DRY_RUN.md}]}
+  uncertainties: [Workflowlauf/Secrets/Rollback extern]
+  related_features: [OPS-HEALTH-001]
+  source_confidence: high
+- id: OPS-HEALTH-001
+  name: Betriebshealthchecks
+  component: infrastructure-operations
+  area: health
+  status: implemented
+  description: Docker und Deployment prüfen Backendready und PostgreSQL; Workflow prüft öffentliche HTTPS-URL.
+  evidence:
+    - {path: docker-compose.dev.yml, symbol: healthcheck, note: Container}
+    - {path: .github/workflows/deploy.yml, symbol: Health check, note: Deployment}
+  interfaces: [HTTP, PostgreSQL]
+  tests: {status: partial, evidence: [{path: backend/tests/test_deployment_readiness.py, note: Readiness}]}
+  documentation: {status: implemented, evidence: [{path: backend/GO_LIVE_SMOKE_TESTS.md}]}
+  uncertainties: []
+  related_features: [BACK-HEALTH-001]
+  source_confidence: high
+- id: OPS-BACKUP-001
+  name: Backup und Restore
+  component: infrastructure-operations
+  area: backup
+  status: documented_only
+  description: Runbook beschreibt Backup/Restore; automatisierte Implementierung oder Drillartefakt wurde nicht gefunden.
+  evidence: [{path: docs/ops/backup-restore.md, symbol: runbook, note: Dokumentation}]
+  interfaces: [PostgreSQL operations]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/ops/backup-restore.md}]}
+  uncertainties: [Recovery Point/Time und Drill]
+  related_features: []
+  source_confidence: high
+- id: OPS-PERF-001
+  name: Produktionsperformance
+  component: infrastructure-operations
+  area: performance
+  status: manual_review
+  description: Keine Lastsuite belegt Produktionslatenz oder Skalierung.
+  evidence: [{path: backend/tests, symbol: test suite, note: keine Performance-Testdatei gefunden}]
+  interfaces: [Production-like environment]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: partial, evidence: [{path: docs/MANUAL_GO_LIVE_CHECKLIST.md}]}
+  uncertainties: [Lastprofil, Datenvolumen, Ressourcen]
+  related_features: [BACK-JOB-001]
+  source_confidence: high
+- id: SEC-TEN-001
+  name: Tenant Isolation
+  component: security-compliance
+  area: tenancy
+  status: implemented
+  description: Header-/Pfad-/Payloadabgleich, Membershipchecks, BC-Identitätsbindung und tenantbezogene Queries schützen Kontexte.
+  evidence:
+    - {path: backend/app/security/tenant.py, symbol: enforce_tenant_match, note: API-Gate}
+    - {path: backend/tests/test_multi_tenant_dashboard.py, symbol: isolation tests, note: Dashboard}
+  interfaces: [All tenant APIs]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0e_postgres_concurrency.py, note: Parallelität}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_DATA_FLOW.md}]}
+  uncertainties: [Staging-Mehrtenantentest]
+  related_features: [DB-TEN-001]
+  source_confidence: high
+- id: SEC-TRANS-001
+  name: HTTPS- und URL-Policy
+  component: security-compliance
+  area: transport
+  status: implemented
+  description: Backend verlangt in Produktion HTTPS-Proxykontext; Python und AL validieren Service-/Callback-URLs.
+  evidence:
+    - {path: backend/app/security/url_policy.py, symbol: normalize_service_base_url, note: URL-Regeln}
+    - {path: bc-extension/app/src/codeunits/DHApiUrlPolicy.Codeunit.al, symbol: NormalizeAndValidateBaseUrl, note: AL-Regeln}
+  interfaces: [Nginx, Business Central]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_p0a_transport_registration.py, note: HTTP/HTTPS/Host}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_EXT_P0A_HTTPS_TENANT_REGISTRATION.md}]}
+  uncertainties: [TLS-Konfiguration extern]
+  related_features: [OPS-DEP-001]
+  source_confidence: high
+- id: SEC-CSRF-001
+  name: CSRF-Schutz
+  component: security-compliance
+  area: csrf
+  status: implemented
+  description: Admin-/Browsermutationen nutzen signierte CSRF-Token und Same-Site-Kontext.
+  evidence:
+    - {path: backend/app/security/csrf.py, symbol: CSRF helpers, note: Token}
+    - {path: backend/app/routers/admin.py, symbol: CSRF validation, note: Nutzung}
+  interfaces: [Browser forms]
+  tests: {status: partial, evidence: [{path: backend/tests/test_admin.py, note: Formmutationen}]}
+  documentation: {status: partial, evidence: [{path: docs/architecture/data-flow.md}]}
+  uncertainties: []
+  related_features: [AUTH-ADM-001]
+  source_confidence: high
+- id: SEC-RATE-001
+  name: Rate Limiting
+  component: security-compliance
+  area: abuse-protection
+  status: implemented
+  description: Registrierung und ausgewählte öffentliche Authpfade begrenzen Versuche in einem In-Process-Speicher.
+  evidence:
+    - {path: backend/app/security/rate_limit.py, symbol: require_rate_limit, note: Limiter}
+    - {path: backend/app/main.py, symbol: tenant_register rate limit, note: Nutzung}
+  interfaces: [HTTP]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_tenant_registration.py, note: 429-Fall}]}
+  documentation: {status: partial, evidence: [{path: backend/README.md}]}
+  uncertainties: [Verteiltes Verhalten]
+  related_features: [BACK-JOB-001]
+  source_confidence: high
+- id: SEC-AUDIT-001
+  name: Security Header, Redaction und Audit
+  component: security-compliance
+  area: audit
+  status: implemented
+  description: Middleware setzt Security Header und redigiert Logs; Admin- und Webhookereignisse besitzen persistente Auditspuren.
+  evidence:
+    - {path: backend/app/main.py, symbol: security headers middleware, note: Header}
+    - {path: backend/app/services/admin_audit_service.py, symbol: log_admin_event, note: Audit}
+  interfaces: [Logs, Admin]
+  tests: {status: implemented, evidence: [{path: backend/tests/test_security_headers.py, note: Header/CSP}]}
+  documentation: {status: partial, evidence: [{path: docs/privacy/processing-overview.md}]}
+  uncertainties: [Externe Aufbewahrung]
+  related_features: [ADM-AUDIT-001]
+  source_confidence: high
+- id: SEC-COMP-001
+  name: Datenschutz und Compliance
+  component: security-compliance
+  area: compliance
+  status: manual_review
+  description: Verarbeitungs-, Retention- und DPA-Dokumente existieren; fachliche/rechtliche Erfüllung ist statisch nicht entscheidbar.
+  evidence:
+    - {path: docs/privacy/processing-overview.md, symbol: document, note: Verarbeitung}
+    - {path: docs/privacy/retention-delete-export.md, symbol: document, note: Retention}
+  interfaces: [Operations, Legal]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/privacy/pilot-dpa-checklist.md}]}
+  uncertainties: [Rechtliche Freigabe und reale Ausführung]
+  related_features: [WEB-LEGAL-001]
+  source_confidence: high
+- id: TEST-PY-001
+  name: Backend Pytest-Suite
+  component: testing-quality
+  area: automated-tests
+  status: implemented
+  description: 27 Testdateien enthalten 224 Testfunktionen für API, DB, Billing, Security, Scan, Dashboard und Reports.
+  evidence:
+    - {path: backend/tests, symbol: test_*.py, note: Testsuite}
+    - {path: backend/pytest.ini, symbol: pytest config, note: Discovery}
+  interfaces: [SQLite, optional PostgreSQL]
+  tests: {status: manual_review, evidence: [{path: backend/TESTING.md, note: dokumentierter Befehl; BOOK nicht gestartet}]}
+  documentation: {status: implemented, evidence: [{path: backend/TESTING.md}]}
+  uncertainties: [Ausführung wegen fehlendem pytest nicht bestätigt]
+  related_features: [TEST-RUN-001]
+  source_confidence: high
+- id: TEST-PG-001
+  name: PostgreSQL-Konkurrenztests
+  component: testing-quality
+  area: integration-tests
+  status: partial
+  description: Tests für parallele Registrierung, Credits, Recovery und Access sind vorhanden, benötigen aber eine PostgreSQL-Test-URL.
+  evidence: [{path: backend/tests/test_p0e_postgres_concurrency.py, symbol: tests, note: PostgreSQL-only}]
+  interfaces: [PostgreSQL]
+  tests: {status: manual_review, evidence: [{path: backend/tests/conftest.py, note: BCSENTINEL_TEST_DATABASE_URL}]}
+  documentation: {status: implemented, evidence: [{path: docs/BC_EXTENSION_POSTGRESQL_STAGING_REPORT.md}]}
+  uncertainties: [BOOK-Ausführung nicht bestätigt]
+  related_features: [SEC-TEN-001, BILL-CREDIT-001]
+  source_confidence: high
+- id: TEST-CI-001
+  name: Automatisierte Tests in CI
+  component: testing-quality
+  area: ci
+  status: partial
+  description: Deploymentworkflow und Healthchecks existieren, aber kein Pytest-/AL-Testjob ist deklariert.
+  evidence: [{path: .github/workflows/deploy.yml, symbol: jobs.deploy, note: kein Testschritt}]
+  interfaces: [GitHub Actions]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: partial, evidence: [{path: docs/BC_EXTENSION_RELEASE_CHECKLIST.md}]}
+  uncertainties: [Andere externe CI nicht im Repository]
+  related_features: [OPS-DEP-001]
+  source_confidence: high
+- id: TEST-AL-001
+  name: AL-Test-App
+  component: testing-quality
+  area: al-tests
+  status: not_found
+  description: Unter bc-extension wurde keine AL-Test-App und keine Test-Codeunit gefunden.
+  evidence: [{path: bc-extension/app/src, symbol: source tree, note: keine Testobjekte in der Objektinventur}]
+  interfaces: [Business Central test toolkit]
+  tests: {status: not_found, evidence: []}
+  documentation: {status: documented_only, evidence: [{path: docs/BC_EXTENSION_RELEASE_CHECKLIST.md}]}
+  uncertainties: [Externes Testrepository nicht beurteilbar]
+  related_features: [EXT-INSTALL-001, EXT-UPG-001]
+  source_confidence: high
+- id: TEST-RUN-001
+  name: Testausführung BOOK-000B
+  component: testing-quality
+  area: execution
+  status: manual_review
+  description: Zwei Startversuche erreichten keine Tests, weil Python im PATH beziehungsweise pytest in der gebündelten Runtime fehlte.
+  evidence:
+    - {path: backend/TESTING.md, symbol: pytest command, note: Sollbefehl}
+    - {path: backend/requirements.txt, symbol: pytest==8.3.3, note: deklarierte Abhängigkeit}
+  interfaces: [Local Python runtime]
+  tests: {status: manual_review, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/product-master-book/05-test-inventory.md}]}
+  uncertainties: [Ergebnis der vollständigen Suite]
+  related_features: [TEST-PY-001]
+  source_confidence: high
+- id: DOC-ARCH-001
+  name: Architektur- und Produktdokumentation
+  component: documentation-release
+  area: architecture
+  status: implemented
+  description: Systemübersicht, API, Datenfluss, Produktvision, Pricing, Scoring und Checkkataloge sind dokumentiert.
+  evidence:
+    - {path: docs/architecture/system-overview.md, symbol: document, note: Architektur}
+    - {path: docs/product/vision.md, symbol: document, note: Produkt}
+  interfaces: []
+  tests: {status: manual_review, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/architecture/api-spec.md}]}
+  uncertainties: [Aktualität einzelner Aussagen]
+  related_features: []
+  source_confidence: high
+- id: DOC-OPS-001
+  name: Operations-, Privacy- und Release-Dokumente
+  component: documentation-release
+  area: operations-docs
+  status: implemented
+  description: Runbooks, Checklisten, Auditberichte, Privacytexte und Reportnachweise sind vorhanden.
+  evidence:
+    - {path: docs/ops/production-deployment.md, symbol: runbook, note: Betrieb}
+    - {path: docs/BC_EXTENSION_RELEASE_CHECKLIST.md, symbol: checklist, note: Release}
+  interfaces: []
+  tests: {status: manual_review, evidence: []}
+  documentation: {status: implemented, evidence: [{path: docs/product-master-book/evidence/existing-documents.md}]}
+  uncertainties: [Historische Freigaben nicht als aktueller Lauf gewertet]
+  related_features: [OPS-DEP-001]
+  source_confidence: high
+- id: DOC-ROOT-001
+  name: Repository Root README
+  component: documentation-release
+  area: repository-readme
+  status: partial
+  description: Eine README-Datei existiert am Root, enthält jedoch null Bytes.
+  evidence: [{path: README.md, symbol: file, note: leerer Root-Einstieg}]
+  interfaces: []
+  tests: {status: not_found, evidence: []}
+  documentation: {status: stub, evidence: [{path: README.md}]}
+  uncertainties: []
+  related_features: [DOC-ARCH-001]
+  source_confidence: high

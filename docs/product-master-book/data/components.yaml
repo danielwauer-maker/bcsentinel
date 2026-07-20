@@ -1,0 +1,64 @@
+- id: business-central-extension
+  status: implemented
+  paths: [bc-extension/app.json, bc-extension/app/src, bc-extension/Translations]
+  responsibilities: [registration, scans, scheduler, local UI, drilldown, install, upgrade]
+- id: backend-api
+  status: implemented
+  paths: [backend/app/main.py, backend/app/routers, backend/app/services]
+  responsibilities: [HTTP API, tenancy, orchestration, HTML delivery]
+- id: scan-engine
+  status: implemented
+  paths: [bc-extension/app/src/codeunits, backend/app/routers/scans.py, backend/app/services/scan_status_service.py]
+  responsibilities: [profiling, checks, lifecycle, scoring, findings]
+- id: customer-dashboard
+  status: implemented
+  paths: [backend/app/templates/analytics_embed.html, backend/app/static/js/analytics-dashboard.js, backend/app/routers/dashboard.py]
+  responsibilities: [portal, analytics, issues, reports, subscription, settings]
+- id: admin-backend
+  status: implemented
+  paths: [backend/app/routers/admin.py, backend/app/templates/admin_tenants.html, backend/app/templates/admin_tenant_detail.html]
+  responsibilities: [tenants, licenses, configuration, partners, audit]
+- id: landingpage
+  status: partial
+  paths: [landingpage, landingpage_neu]
+  responsibilities: [marketing pages, pricing, legal, partner portal]
+- id: executive-reporting
+  status: implemented
+  paths: [backend/app/routers/reports.py, backend/app/services/executive_report_service.py]
+  responsibilities: [report data, HTML, PDF, sharing]
+- id: licensing-billing
+  status: implemented
+  paths: [backend/app/routers/billing.py, backend/app/services/product_license_service.py]
+  responsibilities: [pricing, Stripe, credits, entitlements]
+- id: email-notifications
+  status: partial
+  paths: [backend/app/services/dashboard_invite_service.py, backend/app/services/email_template_service.py, backend/app/routers/partners.py]
+  responsibilities: [invites, partner mail, templates]
+- id: translations-localization
+  status: implemented
+  paths: [bc-extension/Translations, backend/app/translations, landingpage/lang]
+  responsibilities: [German, English, issue and report text]
+- id: authentication-users
+  status: implemented
+  paths: [backend/app/security, backend/app/routers/dashboard.py, backend/app/routers/partners.py]
+  responsibilities: [tenant tokens, dashboard sessions, partner JWT, admin basic]
+- id: database-migrations
+  status: implemented
+  paths: [backend/app/models.py, backend/alembic/versions]
+  responsibilities: [ORM, migrations, constraints, tenant persistence]
+- id: infrastructure-operations
+  status: partial
+  paths: [backend/Dockerfile, docker-compose.prod.yml, config/nginx/bcsentinel.conf, .github/workflows/deploy.yml]
+  responsibilities: [containers, database, proxy, deployment, health]
+- id: security-compliance
+  status: partial
+  paths: [backend/app/security, docs/privacy]
+  responsibilities: [isolation, transport, CSRF, rate limit, audit, privacy]
+- id: testing-quality
+  status: partial
+  paths: [backend/tests, backend/pytest.ini, scripts]
+  responsibilities: [automated tests, static checks, release gates]
+- id: documentation-release
+  status: implemented
+  paths: [docs, go-live-readiness-2026, CHANGELOG.md]
+  responsibilities: [architecture, operations, audits, release evidence]
