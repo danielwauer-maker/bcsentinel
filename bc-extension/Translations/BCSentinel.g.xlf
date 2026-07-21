@@ -968,8 +968,13 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - NamedType 3993909069" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Already used</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType AlreadyUsedLbl</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 4120106161" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.</source>
+          <source>A Validation Credit is available. Start a Validation Check to consume it.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType AScanCreditIsAvailableRunDeepLbl</note>
         </trans-unit>
@@ -979,7 +984,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType AvailableLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 4114418579" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.</source>
+          <source>Buy Full Analysis to unlock existing results, or Validation Check/Monitoring to run another scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType BuyFullAnalysisValidationCheckOrMonitoringLbl</note>
         </trans-unit>
@@ -1029,7 +1034,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType NotRegisteredLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 2079427521" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid recommendations and scan actions are available for this tenant.</source>
+          <source>Premium recommendations and details are available. A new scan still requires Validation or Monitoring.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidRecommendationsAndScanActionsAreAvailablLbl</note>
         </trans-unit>
@@ -1049,8 +1054,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType RegisterTheTenantAndUnlockFullAnalysisLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 2244378022" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 scan credit(s) available</source>
-          <note from="Developer" annotates="general" priority="2">%1 = available scan credit count</note>
+          <source>%1 Validation Credit(s) available</source>
+          <note from="Developer" annotates="general" priority="2">%1 = available Validation Credit count</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType ScanCreditsAvailableLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 3389345438" size-unit="char" translate="yes" xml:space="preserve">
@@ -1188,6 +1193,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Data Processing Consent - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - Field 3583883199 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Assessment Used</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Free Assessment Used - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - Field 432684769 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Issue Access Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1253,6 +1263,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Monitoring Active - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 392523509 - Field 1021988306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Until</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Monitoring Until - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 392523509 - Field 2911262040 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Monthly Day</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1267,6 +1282,11 @@
           <source>Product Access Active</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 392523509 - Field 608845963 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium Until</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Until - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
@@ -1498,11 +1518,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType FreeScanAlreadyUsedLbl</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 909194175" size-unit="char" translate="yes" xml:space="preserve">
-          <source>No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType NoScanCreditOrActiveMonitoringAvailableLbl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 799528912" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1</source>
           <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
@@ -1637,6 +1652,11 @@
           <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanSyncNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3661365675" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A new scan requires a Validation Check or active Monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ValidationOrMonitoringRequiredLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4249321513 - NamedType 1839404523" size-unit="char" translate="yes" xml:space="preserve">
           <source>The API Base URL must not contain a query string or fragment.</source>
@@ -5543,20 +5563,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatus - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Control 2402918555 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows the available Assessment credits. Credits are consumed only by scan types defined by the current product access.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Assessment Credits Available - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Control 2402918555 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assessment Credits</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Assessment Credits Available - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 392523509 - Control 2874105614 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Dashboard Access Until.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Dashboard Access Until - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 121135170 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether the one-time free Data Health Score is available or already used.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FreeAssessmentStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 121135170 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Assessment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FreeAssessmentStatus - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 432684769 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Issue Access Until.</source>
@@ -5572,6 +5592,16 @@
           <source>Specifies Monitoring Active.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Monitoring Active - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3673508538 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Until</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control MonitoringUntil - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 349358011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium Until</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PremiumUntil - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 838429711 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the readable product access level.</source>
@@ -5592,11 +5622,6 @@
           <source>Report Access Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Report Access Until - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Control 1704945756 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Scan Credits Available.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Scan Credits Available - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3577206343 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the current BCSentinel subscription and access status.</source>
@@ -5734,12 +5759,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartMonitoringScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 562808694 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Starts the available Full Analysis or Validation scan and opens the scan monitor.</source>
+          <source>Uses one Validation Credit to start a new scan and opens the scan monitor.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 562808694 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start Full Analysis or Validation Scan</source>
+          <source>Start Validation Check</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action StartScanFromMenu - Property Caption</note>
         </trans-unit>
