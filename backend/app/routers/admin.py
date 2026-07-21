@@ -12,12 +12,15 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
+from sqlalchemy.orm import selectinload
 
 from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import (
     AdminAuditEvent,
     BillingWebhookEvent,
+    CheckDefinition,
+    CheckTranslation,
     CreditLedgerEntry,
     ImpactSettingsConfig,
     Invoice,
@@ -38,6 +41,12 @@ from app.models import (
     TenantScanCredit,
 )
 from app.services.cost_service import ensure_default_issue_costs
+from app.services.check_catalog_service import (
+    CheckCatalogValidationError,
+    ensure_default_check_catalog,
+    restore_standard_texts,
+    update_check_translation,
+)
 from app.services.product_pricing_service import (
     PRODUCT_PRICING_DEFAULTS,
     PRODUCT_PRICING_MATRIX_DEFAULTS,
@@ -159,6 +168,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/email-templates",
         "subtitle": "Partner-Mails direkt im Admin anpassen",
     },
+    "check_catalog": {
+        "label": "Check Catalog",
+        "href": "/admin/config/check-catalog",
+        "subtitle": "Mehrsprachige Checktexte und Empfehlungen zentral pflegen",
+    },
     "site_translations": {
         "label": "Uebersetzungen - bcsentinel.com",
         "href": "/admin/config/site-translations",
@@ -178,6 +192,7 @@ ADMIN_SECTION_META = {
 ADMIN_NAV_ORDER = [
     "tenants",
     "issue_costs",
+    "check_catalog",
     "license_pricing",
     "partners",
     "partner_commissions",
@@ -675,6 +690,7 @@ def _render_admin_page(
         ensure_default_impact_config(db)
         ensure_default_product_pricing(db)
         ensure_default_product_pricing_matrix(db)
+        ensure_default_check_catalog(db)
 
         if active_section == "tenants":
             context["tenants"] = _load_tenant_rows(db)
@@ -683,6 +699,22 @@ def _render_admin_page(
             context["issue_impacts"] = db.scalars(
                 select(IssueImpactConfig).order_by(IssueImpactConfig.code.asc())
             ).all()
+        elif active_section == "check_catalog":
+            checks = db.scalars(
+                select(CheckDefinition)
+                .options(selectinload(CheckDefinition.translations))
+                .order_by(CheckDefinition.check_id.asc())
+            ).all()
+            context["check_catalog_rows"] = [
+                {
+                    "check_id": check.check_id,
+                    "module": check.module,
+                    "title_de": next((row.title for row in check.translations if row.language_code == "de-DE"), check.check_id),
+                    "title_en": next((row.title for row in check.translations if row.language_code == "en-US"), check.check_id),
+                    "customized": any(row.is_customized for row in check.translations),
+                }
+                for check in checks
+            ]
         elif active_section == "license_pricing":
             context["product_prices"] = list_product_pricing(db)
             context["product_price_matrix"] = list_product_pricing_matrix(db)
@@ -753,6 +785,124 @@ def admin_tenants(request: Request, _: str = Depends(require_admin)):
 @router.get("/admin/config/issue-costs/", response_class=HTMLResponse)
 def admin_issue_costs(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="issue_costs")
+
+
+@router.get("/admin/config/check-catalog", response_class=HTMLResponse)
+@router.get("/admin/config/check-catalog/", response_class=HTMLResponse)
+def admin_check_catalog(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="check_catalog")
+
+
+@router.get("/admin/config/check-catalog/{check_id}", response_class=HTMLResponse)
+def admin_check_catalog_detail(check_id: str, request: Request, _: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        ensure_default_check_catalog(db)
+        check = db.scalar(
+            select(CheckDefinition)
+            .options(selectinload(CheckDefinition.translations))
+            .where(CheckDefinition.check_id == check_id)
+        )
+        if check is None:
+            raise HTTPException(status_code=404, detail="Check not found.")
+        translations = {row.language_code: row for row in check.translations}
+        impact = db.get(IssueImpactConfig, check_id)
+        csrf_token = create_csrf_token(settings.SECRET_KEY)
+        response = TEMPLATES.TemplateResponse(
+            name="admin_check_catalog_detail.html",
+            context={
+                "request": request,
+                "page_title": f"BCSentinel Admin · {check_id}",
+                "active_section": "check_catalog",
+                "section_title": "Check Catalog",
+                "section_subtitle": "Texte pflegen; fachliche Produktlogik bleibt schreibgeschützt",
+                "admin_nav": _build_admin_nav("check_catalog"),
+                "check": check,
+                "translation_de": translations.get("de-DE"),
+                "translation_en": translations.get("en-US"),
+                "financial_impact": impact,
+                "flash_status": (request.query_params.get("status") or "").strip(),
+                "flash_message": (request.query_params.get("message") or "").strip(),
+                "csrf_token": csrf_token,
+            },
+        )
+        response.set_cookie(
+            CSRF_COOKIE_NAME,
+            csrf_token,
+            httponly=True,
+            secure=settings.ENV.lower() == "prod",
+            samesite="strict",
+            path="/admin",
+        )
+        return response
+
+
+@router.post("/admin/config/check-catalog/{check_id}")
+def update_admin_check_catalog(
+    check_id: str,
+    title_de: str = Form(...),
+    short_description_de: str = Form(...),
+    recommendation_de: str = Form(...),
+    title_en: str = Form(...),
+    short_description_en: str = Form(...),
+    recommendation_en: str = Form(...),
+    admin_username: str = Depends(require_admin),
+):
+    try:
+        with SessionLocal() as db:
+            update_check_translation(
+                db, check_id, "de-DE", title=title_de,
+                short_description=short_description_de, recommendation=recommendation_de,
+            )
+            update_check_translation(
+                db, check_id, "en-US", title=title_en,
+                short_description=short_description_en, recommendation=recommendation_en,
+            )
+            log_admin_event(
+                db, admin_username=admin_username, action="check_catalog.update",
+                target_type="check", target_id=check_id,
+                details={"languages": ["de-DE", "en-US"]},
+            )
+            db.commit()
+    except CheckCatalogValidationError as exc:
+        return RedirectResponse(
+            url=f"/admin/config/check-catalog/{quote_plus(check_id)}?status=error&message={quote_plus(str(exc))}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    return RedirectResponse(
+        url=f"/admin/config/check-catalog/{quote_plus(check_id)}?status=success&message={quote_plus('Checktexte erfolgreich gespeichert.')}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/admin/config/check-catalog/{check_id}/restore")
+def restore_admin_check_catalog(check_id: str, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        restore_standard_texts(db, check_id)
+        log_admin_event(
+            db, admin_username=admin_username, action="check_catalog.restore",
+            target_type="check", target_id=check_id, details={"texts_only": True},
+        )
+        db.commit()
+    return RedirectResponse(
+        url=f"/admin/config/check-catalog/{quote_plus(check_id)}?status=success&message={quote_plus('Standardtexte erfolgreich wiederhergestellt.')}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/admin/config/check-catalog/actions/restore-all")
+def restore_all_admin_check_catalog(admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        restored = restore_standard_texts(db)
+        log_admin_event(
+            db, admin_username=admin_username, action="check_catalog.restore_all",
+            target_type="check_catalog", target_id="all",
+            details={"texts_only": True, "translations_restored": restored},
+        )
+        db.commit()
+    return RedirectResponse(
+        url="/admin/config/check-catalog",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.get("/admin/config/license-pricing", response_class=HTMLResponse)

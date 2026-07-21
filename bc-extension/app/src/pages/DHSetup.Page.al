@@ -114,7 +114,7 @@
                 field(FreeAssessmentStatus; FreeAssessmentStatusTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Free Assessment';
+                    Caption = 'Free Data Health Score';
                     Editable = false;
                     ToolTip = 'Shows whether the one-time free Data Health Score is available or already used.';
                 }
@@ -147,14 +147,16 @@
                 field(PremiumUntil; Rec."Premium Until")
                 {
                     ApplicationArea = All;
-                    Caption = 'Premium Until';
+                    Caption = 'Product Access Until';
                     Editable = false;
+                    ToolTip = 'Shows until when the current product access is valid.';
                 }
                 field(MonitoringUntil; Rec."Monitoring Until")
                 {
                     ApplicationArea = All;
                     Caption = 'Monitoring Until';
                     Editable = false;
+                    ToolTip = 'Shows until when Monitoring is active.';
                 }
                 field("Last License Check"; Rec."Last License Check")
                 {
@@ -271,6 +273,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Monday.';
 
                         trigger OnValidate()
                         begin
@@ -281,6 +284,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Tuesday.';
 
                         trigger OnValidate()
                         begin
@@ -291,6 +295,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Wednesday.';
 
                         trigger OnValidate()
                         begin
@@ -301,6 +306,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Thursday.';
 
                         trigger OnValidate()
                         begin
@@ -311,6 +317,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Friday.';
 
                         trigger OnValidate()
                         begin
@@ -321,6 +328,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Saturday.';
 
                         trigger OnValidate()
                         begin
@@ -331,6 +339,7 @@
                     {
                         ApplicationArea = All;
                         Editable = CanEditSchedulerDetails;
+                        ToolTip = 'Specifies whether scheduled Monitoring scans run on Sunday.';
 
                         trigger OnValidate()
                         begin
@@ -471,7 +480,7 @@
                 field("Data Processing Consent"; Rec."Data Processing Consent")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
+                    ToolTip = 'Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics for data health analysis, dashboards, executive reports, and product-access checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.';
 
                     trigger OnValidate()
                     begin
@@ -512,16 +521,16 @@
                     Visible = ShowNoScanNotice;
                     ToolTip = 'Shows whether module scores are available.';
                 }
-                field(SystemModuleScore; SystemModuleScoreTxt) { ApplicationArea = All; Caption = 'System'; Editable = false; StyleExpr = SystemModuleScoreStyle; }
-                field(FinanceModuleScore; FinanceModuleScoreTxt) { ApplicationArea = All; Caption = 'Finance'; Editable = false; StyleExpr = FinanceModuleScoreStyle; }
-                field(SalesModuleScore; SalesModuleScoreTxt) { ApplicationArea = All; Caption = 'Sales'; Editable = false; StyleExpr = SalesModuleScoreStyle; }
-                field(PurchasingModuleScore; PurchasingModuleScoreTxt) { ApplicationArea = All; Caption = 'Purchasing'; Editable = false; StyleExpr = PurchasingModuleScoreStyle; }
-                field(InventoryModuleScore; InventoryModuleScoreTxt) { ApplicationArea = All; Caption = 'Inventory'; Editable = false; StyleExpr = InventoryModuleScoreStyle; }
-                field(CRMModuleScore; CRMModuleScoreTxt) { ApplicationArea = All; Caption = 'CRM'; Editable = false; StyleExpr = CRMModuleScoreStyle; }
-                field(ManufacturingModuleScore; ManufacturingModuleScoreTxt) { ApplicationArea = All; Caption = 'Manufacturing'; Editable = false; StyleExpr = ManufacturingModuleScoreStyle; }
-                field(ServiceModuleScore; ServiceModuleScoreTxt) { ApplicationArea = All; Caption = 'Service'; Editable = false; StyleExpr = ServiceModuleScoreStyle; }
-                field(JobsModuleScore; JobsModuleScoreTxt) { ApplicationArea = All; Caption = 'Jobs'; Editable = false; StyleExpr = JobsModuleScoreStyle; }
-                field(HRModuleScore; HRModuleScoreTxt) { ApplicationArea = All; Caption = 'HR'; Editable = false; StyleExpr = HRModuleScoreStyle; }
+                field(SystemModuleScore; SystemModuleScoreTxt) { ApplicationArea = All; Caption = 'System'; Editable = false; StyleExpr = SystemModuleScoreStyle; ToolTip = 'Shows the latest score for the System module.'; }
+                field(FinanceModuleScore; FinanceModuleScoreTxt) { ApplicationArea = All; Caption = 'Finance'; Editable = false; StyleExpr = FinanceModuleScoreStyle; ToolTip = 'Shows the latest score for the Finance module.'; }
+                field(SalesModuleScore; SalesModuleScoreTxt) { ApplicationArea = All; Caption = 'Sales'; Editable = false; StyleExpr = SalesModuleScoreStyle; ToolTip = 'Shows the latest score for the Sales module.'; }
+                field(PurchasingModuleScore; PurchasingModuleScoreTxt) { ApplicationArea = All; Caption = 'Purchasing'; Editable = false; StyleExpr = PurchasingModuleScoreStyle; ToolTip = 'Shows the latest score for the Purchasing module.'; }
+                field(InventoryModuleScore; InventoryModuleScoreTxt) { ApplicationArea = All; Caption = 'Inventory'; Editable = false; StyleExpr = InventoryModuleScoreStyle; ToolTip = 'Shows the latest score for the Inventory module.'; }
+                field(CRMModuleScore; CRMModuleScoreTxt) { ApplicationArea = All; Caption = 'CRM'; Editable = false; StyleExpr = CRMModuleScoreStyle; ToolTip = 'Shows the latest score for the CRM module.'; }
+                field(ManufacturingModuleScore; ManufacturingModuleScoreTxt) { ApplicationArea = All; Caption = 'Manufacturing'; Editable = false; StyleExpr = ManufacturingModuleScoreStyle; ToolTip = 'Shows the latest score for the Manufacturing module.'; }
+                field(ServiceModuleScore; ServiceModuleScoreTxt) { ApplicationArea = All; Caption = 'Service'; Editable = false; StyleExpr = ServiceModuleScoreStyle; ToolTip = 'Shows the latest score for the Service module.'; }
+                field(JobsModuleScore; JobsModuleScoreTxt) { ApplicationArea = All; Caption = 'Jobs'; Editable = false; StyleExpr = JobsModuleScoreStyle; ToolTip = 'Shows the latest score for the Jobs module.'; }
+                field(HRModuleScore; HRModuleScoreTxt) { ApplicationArea = All; Caption = 'HR'; Editable = false; StyleExpr = HRModuleScoreStyle; ToolTip = 'Shows the latest score for the HR module.'; }
             }
 
             group(LastScan)
@@ -816,7 +825,7 @@
                     Caption = 'Refresh Product Access';
                     ApplicationArea = All;
                     Image = Refresh;
-                    ToolTip = 'Refreshes scan credits, monitoring status, and product access from BCSentinel.';
+                    ToolTip = 'Refreshes Validation Credits, Monitoring status, and product access from BCSentinel.';
                     Promoted = true;
                     PromotedCategory = Process;
 

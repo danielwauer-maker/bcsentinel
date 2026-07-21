@@ -30,6 +30,7 @@ from app.services.entitlement_guard_service import get_tenant_features, require_
 from app.services.entitlement_service import is_premium_actions_enabled
 from app.services.impact_service import normalize_stored_commercials
 from app.services.localization_service import normalize_language, tenant_language, update_tenant_language
+from app.services.check_catalog_service import resolve_check_texts
 from app.services.dashboard_translation_service import dashboard_ui_translations
 from app.services.product_license_service import (
     build_product_access_snapshot,
@@ -400,33 +401,6 @@ def _normalize_issue_category(category: str | None, code: str) -> str:
     if normalized == "HR":
         return "HR"
     return _issue_group_from_code(code)
-
-
-def _issue_recommendation(issue: ScanIssueRecord) -> str:
-    preview = (issue.recommendation_preview or "").strip()
-    if preview:
-        return preview
-
-    group = _normalize_issue_category(getattr(issue, "category", None), issue.code)
-    if group == "CRM":
-        return "Review impacted customer and relationship data and complete the missing setup in Business Central."
-    if group == "Purchasing":
-        return "Resolve purchasing and vendor-related setup gaps before they create follow-up workload."
-    if group == "Inventory":
-        return "Prioritize inventory and item issues that affect planning, costing, or stock transactions."
-    if group == "Sales":
-        return "Resolve sales-side issues that can reduce margin, delay fulfillment, or create rework."
-    if group == "Finance":
-        return "Investigate financial postings and open entries with missing or inconsistent setup."
-    if group == "Service":
-        return "Review service-related records and complete the missing configuration before the next service cycle."
-    if group == "Jobs":
-        return "Review project and job-related records so postings and planning remain consistent."
-    if group == "Manufacturing":
-        return "Review manufacturing-related setup and master data before it impacts planning or execution."
-    if group == "HR":
-        return "Review HR-related configuration and records to avoid downstream process gaps."
-    return "Review the affected records and resolve the underlying setup issue in Business Central."
 
 
 def _build_open_in_bc_url(bc_issue_launch_url: str | None, issue_code: str | None) -> str:
@@ -1330,16 +1304,19 @@ def _build_dashboard_payload(
         for scan in visible_recent_scans
     ]
 
+    with SessionLocal() as catalog_db:
+        catalog_texts = resolve_check_texts(catalog_db, {issue.code for issue in issues}, lang)
+
     top_findings = [
         {
             "code": issue.code,
-            "title": issue.title,
+            "title": catalog_texts[issue.code].title,
             "severity": _normalize_severity(issue.severity),
             "severity_label": _severity_label(issue.severity, lang),
             "count": _safe_int(issue.affected_count),
             "impact_eur": round(_safe_float(issue.estimated_impact_eur), 2),
             "group": _module_label(_normalize_issue_category(getattr(issue, "category", None), issue.code), lang),
-            "recommendation_preview": _issue_recommendation(issue) if can_view_recommendations else "",
+            "recommendation_preview": catalog_texts[issue.code].recommendation if can_view_recommendations else "",
             "premium_only": bool(issue.premium_only),
             "open_in_bc_url": _build_open_in_bc_url(bc_issue_launch_url, issue.code),
         }

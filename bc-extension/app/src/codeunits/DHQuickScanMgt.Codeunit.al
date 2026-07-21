@@ -57,7 +57,7 @@ codeunit 53123 "DH QuickScan Mgt."
         EntryNo: Integer;
     begin
         if not JsonObj.ReadFrom(ResponseText) then
-            Error('The quick scan response is not valid JSON. Contact BCSentinel support if this continues.');
+            Error(QuickScanResponseInvalidErr);
 
         EntryNo := GetNextHeaderEntryNo();
 
@@ -388,7 +388,7 @@ codeunit 53123 "DH QuickScan Mgt."
                 exit(ValueDecimal);
         end;
 
-        Error('Could not parse decimal value from backend JSON: %1', Token.AsValue().AsText());
+        Error(BackendDecimalInvalidErr, Token.AsValue().AsText());
     end;
 
     [TryFunction]
@@ -437,4 +437,8 @@ codeunit 53123 "DH QuickScan Mgt."
         end;
         exit(99);
     end;
+
+    var
+        BackendDecimalInvalidErr: Label 'The decimal value from the backend response could not be parsed: %1', Comment = '%1 = backend value';
+        QuickScanResponseInvalidErr: Label 'The Data Health Score response is invalid. Contact BCSentinel support if this continues.';
 }

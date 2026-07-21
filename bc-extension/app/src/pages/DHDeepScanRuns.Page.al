@@ -14,6 +14,19 @@
     {
         area(Content)
         {
+            group(EmptyState)
+            {
+                ShowCaption = false;
+                Visible = EmptyStateVisible;
+                field(EmptyStateText; EmptyStateTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains that no scan history is available.';
+                }
+            }
             repeater(Runs)
             {
                 field(DisplayRunId; Rec.GetDisplayRunId())
@@ -110,7 +123,7 @@
                 /*field("Premium"; GetIsPremiumRun())
                 {
                     ApplicationArea = All;
-                    Caption = 'Paid Access';
+                    Caption = 'Product Access';
                 }*/
             }
         }
@@ -257,10 +270,13 @@
     begin
         Rec.SetCurrentKey("Scan DateTime");
         Rec.Ascending(false);
+        EmptyStateTxt := NoScanHistoryLbl;
+        EmptyStateVisible := Rec.IsEmpty();
     end;
 
     trigger OnAfterGetRecord()
     begin
+        EmptyStateVisible := false;
         ScoreStyle := GetScoreStyle();
         ScoreTxt := GetScoreText();
         ModulesTxt := GetModulesText();
@@ -275,6 +291,9 @@
     end;
 
     var
+        EmptyStateTxt: Text[100];
+        EmptyStateVisible: Boolean;
+        NoScanHistoryLbl: Label 'No scan history is available yet.';
         ScoreStyle: Text[30];
         ResultStyle: Text[30];
         RatingStyle: Text[30];

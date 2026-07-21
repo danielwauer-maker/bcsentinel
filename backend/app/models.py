@@ -195,6 +195,40 @@ class ScanIssueRecord(Base):
     scan: Mapped["Scan"] = relationship(back_populates="issues")
 
 
+class CheckDefinition(Base):
+    __tablename__ = "check_definitions"
+
+    check_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    module: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    severity: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    translations: Mapped[list["CheckTranslation"]] = relationship(
+        back_populates="check",
+        cascade="all, delete-orphan",
+    )
+
+
+class CheckTranslation(Base):
+    __tablename__ = "check_translations"
+
+    check_id: Mapped[str] = mapped_column(
+        ForeignKey("check_definitions.check_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    language_code: Mapped[str] = mapped_column(String(35), primary_key=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    short_description: Mapped[str] = mapped_column(Text, nullable=False)
+    recommendation: Mapped[str] = mapped_column(Text, nullable=False)
+    is_customized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    updated_at_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    check: Mapped["CheckDefinition"] = relationship(back_populates="translations")
+
+
 class ScanRunStatus(Base):
     __tablename__ = "scan_run_statuses"
 

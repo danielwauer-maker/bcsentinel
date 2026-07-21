@@ -13,9 +13,9 @@ codeunit 53160 "DH Monitor Refresh Task"
         Parameters := Page.GetBackgroundParameters();
 
         if not Parameters.Get('EntryNo', EntryNoText) then
-            Error('EntryNo parameter is missing.');
+            Error(EntryNoMissingErr);
         if not Evaluate(EntryNo, EntryNoText) then
-            Error('EntryNo parameter is invalid.');
+            Error(EntryNoInvalidErr);
 
         if Parameters.Get('WaitMs', WaitMsText) then
             if not Evaluate(WaitMs, WaitMsText) then
@@ -45,4 +45,8 @@ codeunit 53160 "DH Monitor Refresh Task"
 
         Page.SetBackgroundTaskResult(Results);
     end;
+
+    var
+        EntryNoInvalidErr: Label 'The EntryNo parameter is invalid.';
+        EntryNoMissingErr: Label 'The EntryNo parameter is missing.';
 }

@@ -11,6 +11,19 @@
     {
         area(Content)
         {
+            group(EmptyState)
+            {
+                ShowCaption = false;
+                Visible = EmptyStateVisible;
+                field(EmptyStateText; EmptyStateTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains that no issue exceptions are available.';
+                }
+            }
             repeater(General)
             {
                 field(Active; Rec.Active)
@@ -82,6 +95,9 @@
         ContextSystemId: Guid;
         ContextRecordNo: Code[20];
         ContextRecordCaption: Text[100];
+        EmptyStateTxt: Text[100];
+        EmptyStateVisible: Boolean;
+        NoExceptionsLbl: Label 'No issue exceptions are available.';
 
     trigger OnOpenPage()
     begin
@@ -89,6 +105,13 @@
             Rec.SetRange("Table ID", ContextTableId);
             Rec.SetRange("Record SystemId", ContextSystemId);
         end;
+        EmptyStateTxt := NoExceptionsLbl;
+        EmptyStateVisible := Rec.IsEmpty();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        EmptyStateVisible := false;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -108,4 +131,3 @@
         ContextRecordCaption := RecordCaption;
     end;
 }
-

@@ -15,9 +15,22 @@
     {
         area(Content)
         {
+            group(EmptyState)
+            {
+                ShowCaption = false;
+                Visible = EmptyStateVisible;
+                field(EmptyStateText; EmptyStateTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains that no findings are available.';
+                }
+            }
             repeater(Issues)
             {
-                field("Title"; Rec."Title")
+                field("Title"; CatalogTitle)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Title.';
@@ -39,7 +52,7 @@
                     Caption = 'Impact';
                     ToolTip = 'Specifies the estimated impact in local currency.';
                 }
-                field("Recommendation Preview"; Rec."Recommendation Preview")
+                field("Recommendation Preview"; CatalogRecommendation)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Recommendation Preview.';
@@ -60,6 +73,8 @@
 
     trigger OnAfterGetRecord()
     begin
+        UpdateCatalogText();
+        EmptyStateVisible := false;
         SeverityStyle := GetSeverityStyle();
         ImpactTxt := GetImpactText();
     end;
@@ -72,9 +87,16 @@
         EnsureSortFields();
         Rec.SetCurrentKey("Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
+        EmptyStateTxt := NoFindingsLbl;
+        EmptyStateVisible := Rec.IsEmpty();
     end;
 
     var
+        CatalogTitle: Text[250];
+        CatalogRecommendation: Text[2048];
+        EmptyStateTxt: Text[100];
+        EmptyStateVisible: Boolean;
+        NoFindingsLbl: Label 'No findings are available.';
         SeverityStyle: Text[30];
         ImpactTxt: Text[50];
 
@@ -148,5 +170,12 @@
     begin
         exit(CurrencyMgt.FormatLocalAmount(Rec."Estimated Impact (EUR)"));
     end;
-}
 
+    local procedure UpdateCatalogText()
+    var
+        CheckCatalogMgt: Codeunit "DH Check Catalog Mgt.";
+    begin
+        CatalogTitle := CheckCatalogMgt.ResolveTitle(Rec."Issue Code");
+        CatalogRecommendation := CheckCatalogMgt.ResolveRecommendation(Rec."Issue Code");
+    end;
+}

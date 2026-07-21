@@ -71,7 +71,7 @@ codeunit 53128 "DH Deep Scan Runner"
         Commit();
 
         if not Setup.Get('SETUP') then
-            Error('The scan result could not be persisted because BCSentinel setup is missing.');
+            Error(SetupMissingForPersistenceErr);
 
         DeepScanRun.Get(DeepScanRun."Entry No.");
         if DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::Failed then begin
@@ -111,7 +111,7 @@ codeunit 53128 "DH Deep Scan Runner"
         Commit();
         if not TryApplySyncPostprocessing(DeepScanRun, SyncResponseText) then begin
             DeepScanRun.Get(DeepScanRun."Entry No.");
-            DeepScanRun."Warning Message" := CopyStr('The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.', 1, MaxStrLen(DeepScanRun."Warning Message"));
+            DeepScanRun."Warning Message" := CopyStr(PostprocessingRefreshFailedLbl, 1, MaxStrLen(DeepScanRun."Warning Message"));
             DeepScanRun.Modify(true);
             Commit();
         end;
@@ -349,22 +349,22 @@ codeunit 53128 "DH Deep Scan Runner"
                 end;
             until Customer.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_NAME', 'Customers Missing Name', 'high', MissingName, 'Maintain names for affected customers.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_SEARCH_NAME', 'Customers Missing Search Name', 'low', MissingSearchName, 'Maintain search names to improve search and duplicate checks.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_ADDRESS', 'Customers Missing Address', 'high', MissingAddress, 'Complete address data for the affected customers.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_CITY', 'Customers Missing City', 'medium', MissingCity, 'Maintain cities for affected customers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_POST_CODE', 'Customers Missing Post Code', 'medium', MissingPostCode, 'Maintain post codes so reporting and plausibility checks work reliably.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_COUNTRY', 'Customers Missing Country/Region Code', 'medium', MissingCountryCode, 'Add country/region codes for the affected customers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_EMAIL', 'Customers Missing Email', 'medium', MissingEmail, 'Maintain email addresses to improve communication and automation.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PHONE', 'Customers Missing Phone No.', 'low', MissingPhone, 'Add phone numbers so contact remains possible.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PAYMENT_TERMS', 'Customers Missing Payment Terms', 'high', MissingPaymentTerms, 'Add payment terms to stabilize ledger entries and processes.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PAYMENT_METHOD', 'Customers Missing Payment Method', 'medium', MissingPaymentMethod, 'Maintain payment methods where used in the tenant.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_POSTING_GROUP', 'Customers Missing Customer Posting Group', 'high', MissingCustomerPostingGroup, 'Add customer posting groups for the affected customers.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_GEN_BUS_POSTING', 'Customers Missing General Business Posting Group', 'high', MissingGenBusPostingGroup, 'Complete general business posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_VAT_BUS_POSTING', 'Customers Missing VAT Business Posting Group', 'high', MissingVatBusPostingGroup, 'Add VAT business posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_CREDIT_LIMIT', 'Customers Missing Credit Limit', 'low', MissingCreditLimit, 'Review credit limits and maintain them where required.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS', 'Blocked Customers With Open Sales Documents', 'high', BlockedWithOpenSalesDocs, 'Clean up blocked customers and open sales documents.', 7);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER', 'Blocked Customers With Open Ledger Entries', 'high', BlockedWithOpenLedgerEntries, 'Review open entries for blocked customers and clear legacy items.', 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_NAME', 'high', MissingName, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_SEARCH_NAME', 'low', MissingSearchName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_ADDRESS', 'high', MissingAddress, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_CITY', 'medium', MissingCity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_POST_CODE', 'medium', MissingPostCode, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_COUNTRY', 'medium', MissingCountryCode, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_EMAIL', 'medium', MissingEmail, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PHONE', 'low', MissingPhone, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PAYMENT_TERMS', 'high', MissingPaymentTerms, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_PAYMENT_METHOD', 'medium', MissingPaymentMethod, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_POSTING_GROUP', 'high', MissingCustomerPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_GEN_BUS_POSTING', 'high', MissingGenBusPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_VAT_BUS_POSTING', 'high', MissingVatBusPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'CUSTOMERS_MISSING_CREDIT_LIMIT', 'low', MissingCreditLimit, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS', 'high', BlockedWithOpenSalesDocs, 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CUSTOMER', 'BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER', 'high', BlockedWithOpenLedgerEntries, 7);
     end;
 
     local procedure RunVendorMasterDataChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -430,22 +430,22 @@ codeunit 53128 "DH Deep Scan Runner"
                 end;
             until Vendor.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_NAME', 'Vendors Missing Name', 'high', MissingName, 'Maintain names for affected vendors.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_SEARCH_NAME', 'Vendors Missing Search Name', 'low', MissingSearchName, 'Maintain search names to improve search and duplicate checks.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_ADDRESS', 'Vendors Missing Address', 'high', MissingAddress, 'Complete address data for the affected vendors.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_CITY', 'Vendors Missing City', 'medium', MissingCity, 'Maintain cities for affected vendors.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_POST_CODE', 'Vendors Missing Post Code', 'medium', MissingPostCode, 'Maintain post codes so reporting and plausibility checks work reliably.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_COUNTRY', 'Vendors Missing Country/Region Code', 'medium', MissingCountryCode, 'Add country/region codes for the affected vendors.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_EMAIL', 'Vendors Missing Email', 'medium', MissingEmail, 'Maintain email addresses to improve communication and automation.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PHONE', 'Vendors Missing Phone No.', 'low', MissingPhone, 'Add phone numbers so contact remains possible.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PAYMENT_TERMS', 'Vendors Missing Payment Terms', 'high', MissingPaymentTerms, 'Add payment terms to stabilize ledger entries and processes.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PAYMENT_METHOD', 'Vendors Missing Payment Method', 'medium', MissingPaymentMethod, 'Maintain payment methods where used in the tenant.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_POSTING_GROUP', 'Vendors Missing Vendor Posting Group', 'high', MissingVendorPostingGroup, 'Add vendor posting groups for the affected vendors.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_GEN_BUS_POSTING', 'Vendors Missing General Business Posting Group', 'high', MissingGenBusPostingGroup, 'Complete general business posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_VAT_BUS_POSTING', 'Vendors Missing VAT Business Posting Group', 'high', MissingVatBusPostingGroup, 'Add VAT business posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_BANK_ACCOUNT', 'Vendors Missing Bank Account', 'medium', MissingBankAccount, 'Maintain bank accounts for affected vendors.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS', 'Blocked Vendors With Open Purchase Documents', 'high', BlockedWithOpenPurchaseDocs, 'Clean up blocked vendors and open purchase documents.', 7);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'BLOCKED_VENDORS_WITH_OPEN_LEDGER', 'Blocked Vendors With Open Ledger Entries', 'high', BlockedWithOpenLedgerEntries, 'Review open entries for blocked vendors and clear legacy items.', 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_NAME', 'high', MissingName, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_SEARCH_NAME', 'low', MissingSearchName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_ADDRESS', 'high', MissingAddress, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_CITY', 'medium', MissingCity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_POST_CODE', 'medium', MissingPostCode, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_COUNTRY', 'medium', MissingCountryCode, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_EMAIL', 'medium', MissingEmail, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PHONE', 'low', MissingPhone, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PAYMENT_TERMS', 'high', MissingPaymentTerms, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_PAYMENT_METHOD', 'medium', MissingPaymentMethod, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_POSTING_GROUP', 'high', MissingVendorPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_GEN_BUS_POSTING', 'high', MissingGenBusPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_VAT_BUS_POSTING', 'high', MissingVatBusPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'VENDORS_MISSING_BANK_ACCOUNT', 'medium', MissingBankAccount, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS', 'high', BlockedWithOpenPurchaseDocs, 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'VENDOR', 'BLOCKED_VENDORS_WITH_OPEN_LEDGER', 'high', BlockedWithOpenLedgerEntries, 7);
     end;
 
     local procedure RunCustomerDuplicateEmailCheck(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -475,10 +475,8 @@ codeunit 53128 "DH Deep Scan Runner"
                     DeepScanRun."Entry No.",
                     'CUSTOMER',
                     'CUSTOMERS_DUPLICATE_EMAIL',
-                    StrSubstNo('Multiple customers with the same email: %1', Email),
                     'high',
-                    DuplicateCount,
-                    'Review duplicates and define a primary customer.');
+                    DuplicateCount);
 
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
@@ -516,10 +514,8 @@ codeunit 53128 "DH Deep Scan Runner"
                     DeepScanRun."Entry No.",
                     'VENDOR',
                     'VENDORS_DUPLICATE_EMAIL',
-                    StrSubstNo('Multiple vendors with the same email: %1', Email),
                     'high',
-                    DuplicateCount,
-                    'Review duplicates and clean up affected vendors.');
+                    DuplicateCount);
 
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
@@ -558,10 +554,8 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DeepScanRun."Entry No.",
                                 'CUSTOMER',
                                 'CUSTOMERS_DUPLICATE_VAT',
-                                StrSubstNo('Multiple customers with the same VAT registration no.: %1', Customer."VAT Registration No."),
                                 'high',
-                                DuplicateCount,
-                                'Review VAT registration numbers and master data for duplicates.');
+                                DuplicateCount);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -600,10 +594,8 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DeepScanRun."Entry No.",
                                 'VENDOR',
                                 'VENDORS_DUPLICATE_VAT',
-                                StrSubstNo('Multiple vendors with the same VAT registration no.: %1', Vendor."VAT Registration No."),
                                 'high',
-                                DuplicateCount,
-                                'Review VAT registration numbers and vendor master data for duplicates.');
+                                DuplicateCount);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -646,10 +638,8 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DeepScanRun."Entry No.",
                                 'CUSTOMER',
                                 'CUSTOMERS_DUPLICATE_NAME_POST_CITY',
-                                StrSubstNo('Multiple customers with the same name/post code/city: %1 | %2 %3', Customer.Name, Customer."Post Code", Customer.City),
                                 'high',
-                                DuplicateCount,
-                                'Review and merge potential customer duplicates.');
+                                DuplicateCount);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -693,10 +683,8 @@ codeunit 53128 "DH Deep Scan Runner"
                                 DeepScanRun."Entry No.",
                                 'VENDOR',
                                 'VENDORS_DUPLICATE_NAME_POST_CITY',
-                                StrSubstNo('Multiple vendors with the same name/post code/city: %1 | %2 %3', Vendor.Name, Vendor."Post Code", Vendor.City),
                                 'high',
-                                DuplicateCount,
-                                'Review and merge potential vendor duplicates.');
+                                DuplicateCount);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -752,16 +740,16 @@ codeunit 53128 "DH Deep Scan Runner"
                     BlockedWithInventory += 1;
             until Item.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_DESCRIPTION', 'Items Missing Description', 'high', MissingDescription, 'Maintain descriptions for affected items.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_BASE_UOM', 'Items Missing Base Unit of Measure', 'high', MissingBaseUom, 'Add base units of measure for the affected items.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_CATEGORY', 'Items Missing Item Category', 'medium', MissingItemCategory, 'Maintain item categories so reporting and control work reliably.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_GEN_PROD_POSTING', 'Items Missing Gen. Prod. Posting Group', 'high', MissingGenProdPostingGroup, 'Complete product posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_INVENTORY_POSTING', 'Items Missing Inventory Posting Group', 'high', MissingInventoryPostingGroup, 'Complete inventory posting groups.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_VENDOR_NO', 'Items Missing Default Vendor', 'medium', MissingVendorNo, 'Add the default vendor for affected items where required.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_UNIT_COST', 'Items Missing Unit Cost', 'high', MissingUnitCost, 'Review and maintain unit costs for affected items.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_UNIT_PRICE', 'Items Missing Unit Price', 'medium', MissingUnitPrice, 'Review and maintain sales prices for active items.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_NEGATIVE_INVENTORY', 'Items With Negative Inventory', 'high', NegativeInventory, 'Review negative inventory and correct posting logic.', 8);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'BLOCKED_ITEMS_WITH_INVENTORY', 'Blocked Items With Inventory', 'medium', BlockedWithInventory, 'Align blocked status with existing inventory.', 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_DESCRIPTION', 'high', MissingDescription, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_BASE_UOM', 'high', MissingBaseUom, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_CATEGORY', 'medium', MissingItemCategory, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_GEN_PROD_POSTING', 'high', MissingGenProdPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_MISSING_INVENTORY_POSTING', 'high', MissingInventoryPostingGroup, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_VENDOR_NO', 'medium', MissingVendorNo, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_UNIT_COST', 'high', MissingUnitCost, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_WITHOUT_UNIT_PRICE', 'medium', MissingUnitPrice, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'ITEMS_NEGATIVE_INVENTORY', 'high', NegativeInventory, 8);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'ITEM', 'BLOCKED_ITEMS_WITH_INVENTORY', 'medium', BlockedWithInventory, 4);
     end;
 
     local procedure RunSalesDocumentQualityChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -826,14 +814,14 @@ codeunit 53128 "DH Deep Scan Runner"
                             BlockedItemsOnDocs += 1;
             until SalesLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_ORDERS_MISSING_SHIPMENT_DATE', 'Open Sales Orders Missing Shipment Date', 'medium', MissingShipmentDate, 'Maintain shipment dates in open sales orders.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_ORDERS_OLD_OPEN', 'Very Old Open Sales Orders', 'medium', OldOrders, 'Review old orders for relevance, status, and closure.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_NO', 'Sales Lines Missing Item/G/L Account Reference', 'high', MissingNoOnLine, 'Correct line references or clean up invalid document lines.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_ZERO_QUANTITY', 'Sales Lines With Zero Quantity', 'medium', ZeroQuantity, 'Clean up zero-quantity lines in open sales documents.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_ZERO_PRICE', 'Sales Lines With Zero Prices', 'high', ZeroPrice, 'Review pricing and open sales lines with zero price.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_DIMENSIONS', 'Sales Lines Missing Dimensions', 'high', MissingDimensions, 'Add dimensions in open sales documents.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_DOCS_WITH_BLOCKED_CUSTOMERS', 'Sales Documents With Blocked Customers', 'high', BlockedCustomersOnDocs, 'Review customer blocked status and affected documents.', 7);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_WITH_BLOCKED_ITEMS', 'Sales Lines With Blocked Items', 'high', BlockedItemsOnDocs, 'Review item blocked status and affected sales lines.', 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_ORDERS_MISSING_SHIPMENT_DATE', 'medium', MissingShipmentDate, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_ORDERS_OLD_OPEN', 'medium', OldOrders, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_NO', 'high', MissingNoOnLine, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_ZERO_QUANTITY', 'medium', ZeroQuantity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_ZERO_PRICE', 'high', ZeroPrice, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_DIMENSIONS', 'high', MissingDimensions, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_DOCS_WITH_BLOCKED_CUSTOMERS', 'high', BlockedCustomersOnDocs, 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_WITH_BLOCKED_ITEMS', 'high', BlockedItemsOnDocs, 7);
     end;
 
     local procedure RunPurchaseDocumentQualityChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -898,14 +886,14 @@ codeunit 53128 "DH Deep Scan Runner"
                             BlockedItemsOnDocs += 1;
             until PurchaseLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_ORDERS_MISSING_EXPECTED_DATE', 'Open Purchase Orders Missing Expected Receipt Date', 'medium', MissingExpectedReceiptDate, 'Maintain expected receipt dates in open purchase orders.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_ORDERS_OLD_OPEN', 'Very Old Open Purchase Orders', 'medium', OldOrders, 'Review old orders for relevance, status, and closure.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_NO', 'Purchase Lines Missing Item/G/L Account Reference', 'high', MissingNoOnLine, 'Correct line references or clean up invalid document lines.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_ZERO_QUANTITY', 'Purchase Lines With Zero Quantity', 'medium', ZeroQuantity, 'Clean up zero-quantity lines in open purchase documents.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_ZERO_COST', 'Purchase Lines With Zero Costs', 'high', ZeroCost, 'Review pricing and open purchase lines with zero cost.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_DIMENSIONS', 'Purchase Lines Missing Dimensions', 'high', MissingDimensions, 'Add dimensions in open purchase documents.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_DOCS_WITH_BLOCKED_VENDORS', 'Purchase Documents With Blocked Vendors', 'high', BlockedVendorsOnDocs, 'Review vendor blocked status and affected documents.', 7);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_WITH_BLOCKED_ITEMS', 'Purchase Lines With Blocked Items', 'high', BlockedItemsOnDocs, 'Review item blocked status and affected purchase lines.', 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_ORDERS_MISSING_EXPECTED_DATE', 'medium', MissingExpectedReceiptDate, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_ORDERS_OLD_OPEN', 'medium', OldOrders, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_NO', 'high', MissingNoOnLine, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_ZERO_QUANTITY', 'medium', ZeroQuantity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_ZERO_COST', 'high', ZeroCost, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_DIMENSIONS', 'high', MissingDimensions, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_DOCS_WITH_BLOCKED_VENDORS', 'high', BlockedVendorsOnDocs, 7);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_WITH_BLOCKED_ITEMS', 'high', BlockedItemsOnDocs, 7);
     end;
 
     local procedure RunLedgerAgingChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -930,8 +918,8 @@ codeunit 53128 "DH Deep Scan Runner"
         VendorLedgerEntry.SetFilter("Due Date", '<>%1&<=%2', 0D, ThresholdDate);
         OverdueVendorEntries := VendorLedgerEntry.Count();
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'LEDGER', 'CUSTOMER_LEDGER_OVERDUE_30', 'Open Customer Ledger Entries Overdue > 30 Days', 'high', OverdueCustomerEntries, 'Review overdue customer entries and improve receivables management.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'LEDGER', 'VENDOR_LEDGER_OVERDUE_30', 'Open Vendor Ledger Entries Overdue > 30 Days', 'medium', OverdueVendorEntries, 'Review overdue vendor entries and payment processes.', 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'LEDGER', 'CUSTOMER_LEDGER_OVERDUE_30', 'high', OverdueCustomerEntries, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'LEDGER', 'VENDOR_LEDGER_OVERDUE_30', 'medium', OverdueVendorEntries, 4);
     end;
 
     local procedure RunSystemConfigurationChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1014,19 +1002,19 @@ codeunit 53128 "DH Deep Scan Runner"
         VendorLedgerEntry.SetRange("Due Date", 0D);
         VendLedgerWithoutDueDate := VendorLedgerEntry.Count();
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_DIM1', 'G/L Entries Missing Dimension 1', 'medium', MissingDim1, 'Maintain dimension 1 in the relevant posting processes.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_DIM2', 'G/L Entries Missing Dimension 2', 'medium', MissingDim2, 'Maintain dimension 2 in the relevant posting processes.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_BOTH_DIMS', 'G/L Entries Missing Both Dimensions', 'high', MissingBothDims, 'Complete dimension posting logic consistently.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ACCOUNTS_BLOCKED_BUT_USED', 'Blocked G/L Accounts With Entries', 'high', AccountsBlockedButUsed, 'Review blocked status and account usage.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED', 'G/L Accounts Without Direct Posting With Entries', 'medium', AccountsWithoutDirectPostingButUsed, 'Align direct posting rules and account master data.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING', 'Customers Missing General Business Posting Group', 'high', CustomersWithoutGenBusPosting, 'Maintain general business posting groups for customers.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING', 'Customers Missing VAT Business Posting Group', 'high', CustomersWithoutVatBusPosting, 'Add VAT business posting groups for customers.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING', 'Vendors Missing General Business Posting Group', 'high', VendorsWithoutGenBusPosting, 'Maintain general business posting groups for vendors.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING', 'Vendors Missing VAT Business Posting Group', 'high', VendorsWithoutVatBusPosting, 'Add VAT business posting groups for vendors.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING', 'Items Missing Product Posting Group', 'high', ItemsWithoutGenProdPosting, 'Maintain product posting groups for items.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_ITEMS_MISSING_INVENTORY_POSTING', 'Items Missing Inventory Posting Group', 'high', ItemsWithoutInventoryPosting, 'Maintain inventory posting groups for items.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'CUSTOMER_LEDGER_MISSING_DUE_DATE', 'Open Customer Ledger Entries Missing Due Date', 'medium', CustLedgerWithoutDueDate, 'Review due dates in customer ledger entries and payment terms.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'VENDOR_LEDGER_MISSING_DUE_DATE', 'Open Vendor Ledger Entries Missing Due Date', 'medium', VendLedgerWithoutDueDate, 'Review due dates in vendor ledger entries and payment terms.', 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_DIM1', 'medium', MissingDim1, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_DIM2', 'medium', MissingDim2, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ENTRIES_MISSING_BOTH_DIMS', 'high', MissingBothDims, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ACCOUNTS_BLOCKED_BUT_USED', 'high', AccountsBlockedButUsed, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED', 'medium', AccountsWithoutDirectPostingButUsed, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING', 'high', CustomersWithoutGenBusPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING', 'high', CustomersWithoutVatBusPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING', 'high', VendorsWithoutGenBusPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING', 'high', VendorsWithoutVatBusPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING', 'high', ItemsWithoutGenProdPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'SYSTEM_ITEMS_MISSING_INVENTORY_POSTING', 'high', ItemsWithoutInventoryPosting, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'CUSTOMER_LEDGER_MISSING_DUE_DATE', 'medium', CustLedgerWithoutDueDate, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SYSTEM', 'VENDOR_LEDGER_MISSING_DUE_DATE', 'medium', VendLedgerWithoutDueDate, 3);
     end;
 
     local procedure RunFinanceCommercialChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1100,22 +1088,22 @@ codeunit 53128 "DH Deep Scan Runner"
         VendorLedgerEntry.SetFilter("Due Date", '<>%1&<=%2', 0D, CalcDate('<-90D>', Today()));
         VendorOverdue90 := VendorLedgerEntry.Count();
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_VAT_REG_NO', 'Customers Missing VAT Registration No.', 'medium', CustomerMissingVat, 'Add VAT registration numbers for affected customers.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_SALESPERSON', 'Customers Missing Salesperson Code', 'low', CustomerMissingSalesperson, 'Assign responsible salespeople.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_PRICE_GROUP', 'Customers Missing Customer Price Group', 'medium', CustomerMissingPriceGroup, 'Maintain price groups to ensure clean pricing.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_DISC_GROUP', 'Customers Missing Customer Discount Group', 'medium', CustomerMissingDiscGroup, 'Maintain discount groups to avoid margin leakage.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_REMINDER_TERMS', 'Customers Missing Reminder Terms', 'medium', CustomerMissingReminderTerms, 'Maintain reminder terms for receivables management.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_FIN_CHARGE_TERMS', 'Customers Missing Finance Charge Terms', 'low', CustomerMissingFinChargeTerms, 'Review and maintain finance charge terms.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_CONTACT', 'Customers Missing Contact', 'low', CustomerMissingContact, 'Add contacts in customer master data.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_HOME_PAGE', 'Customers Missing Website', 'low', CustomerMissingHomePage, 'Maintain websites only where required.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_VAT_REG_NO', 'Vendors Missing VAT Registration No.', 'medium', VendorMissingVat, 'Add VAT registration numbers for vendors.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_PURCHASER', 'Vendors Missing Purchaser Code', 'low', VendorMissingPurchaser, 'Assign responsible purchasers.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_CONTACT', 'Vendors Missing Contact', 'low', VendorMissingContact, 'Add contacts in vendor master data.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_HOME_PAGE', 'Vendors Missing Website', 'low', VendorMissingHomePage, 'Maintain websites only where required.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMER_LEDGER_OVERDUE_60', 'Open Customer Ledger Entries Overdue > 60 Days', 'high', CustomerOverdue60, 'Actively follow up overdue receivables.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMER_LEDGER_OVERDUE_90', 'Open Customer Ledger Entries Overdue > 90 Days', 'high', CustomerOverdue90, 'Prioritize critical outstanding receivables.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDOR_LEDGER_OVERDUE_60', 'Open Vendor Ledger Entries Overdue > 60 Days', 'medium', VendorOverdue60, 'Review due vendor payments and process bottlenecks.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDOR_LEDGER_OVERDUE_90', 'Open Vendor Ledger Entries Overdue > 90 Days', 'medium', VendorOverdue90, 'Review critical vendor entries and escalation risks.', 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_VAT_REG_NO', 'medium', CustomerMissingVat, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_SALESPERSON', 'low', CustomerMissingSalesperson, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_PRICE_GROUP', 'medium', CustomerMissingPriceGroup, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_DISC_GROUP', 'medium', CustomerMissingDiscGroup, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_REMINDER_TERMS', 'medium', CustomerMissingReminderTerms, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_FIN_CHARGE_TERMS', 'low', CustomerMissingFinChargeTerms, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_CONTACT', 'low', CustomerMissingContact, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMERS_MISSING_HOME_PAGE', 'low', CustomerMissingHomePage, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_VAT_REG_NO', 'medium', VendorMissingVat, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_PURCHASER', 'low', VendorMissingPurchaser, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_CONTACT', 'low', VendorMissingContact, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDORS_MISSING_HOME_PAGE', 'low', VendorMissingHomePage, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMER_LEDGER_OVERDUE_60', 'high', CustomerOverdue60, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'CUSTOMER_LEDGER_OVERDUE_90', 'high', CustomerOverdue90, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDOR_LEDGER_OVERDUE_60', 'medium', VendorOverdue60, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'FINANCE', 'VENDOR_LEDGER_OVERDUE_90', 'medium', VendorOverdue90, 4);
     end;
 
     local procedure RunSalesExecutionChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1178,19 +1166,19 @@ codeunit 53128 "DH Deep Scan Runner"
                     MissingLocationCode += 1;
             until SalesLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_PAYMENT_TERMS', 'Sales Orders Missing Payment Terms', 'medium', MissingPaymentTerms, 'Add payment terms in open sales orders.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_PAYMENT_METHOD', 'Sales Orders Missing Payment Method', 'medium', MissingPaymentMethod, 'Add payment methods in open sales orders.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE', 'Sales Orders Missing Requested Delivery Date', 'medium', MissingRequestedDeliveryDate, 'Maintain requested delivery dates in open orders.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_SHIPMENT_METHOD', 'Sales Orders Missing Shipment Method', 'low', MissingShipmentMethod, 'Add shipment methods in open orders.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_EXTERNAL_DOC_NO', 'Sales Orders Missing External Document No.', 'low', MissingExternalDocumentNo, 'Add external document references where required.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE', 'Sales Orders With Overdue Requested Delivery Date', 'high', PastDueRequestedDeliveryDate, 'Clean up overdue orders by schedule and follow up actively.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_DISCOUNT_OVER_25', 'Sales Lines With Discount > 25%', 'medium', DiscountAbove25, 'Review discounts and price approvals.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_DISCOUNT_OVER_50', 'Sales Lines With Discount > 50%', 'high', DiscountAbove50, 'Prioritize review of critical discounts.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_PRICE_BELOW_UNIT_COST', 'Sales Lines Below Unit Cost', 'high', BelowUnitCost, 'Review pricing and margin on affected sales lines.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_SHIPPED_NOT_INVOICED', 'Shipped Sales Lines Not Invoiced', 'high', ShippedNotInvoiced, 'Invoice shipments promptly to avoid leaving revenue behind.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE', 'Open Sales Lines With Overdue Shipment Date', 'medium', OutstandingPastShipmentDate, 'Clean up open quantities and shipment dates.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_DESCRIPTION', 'Sales Lines Missing Description', 'low', MissingDescription, 'Add descriptions in sales lines.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_LOCATION', 'Sales Lines Missing Location', 'medium', MissingLocationCode, 'Add locations in sales lines.', 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_PAYMENT_TERMS', 'medium', MissingPaymentTerms, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_PAYMENT_METHOD', 'medium', MissingPaymentMethod, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE', 'medium', MissingRequestedDeliveryDate, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_SHIPMENT_METHOD', 'low', MissingShipmentMethod, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_MISSING_EXTERNAL_DOC_NO', 'low', MissingExternalDocumentNo, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE', 'high', PastDueRequestedDeliveryDate, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_DISCOUNT_OVER_25', 'medium', DiscountAbove25, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_DISCOUNT_OVER_50', 'high', DiscountAbove50, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_PRICE_BELOW_UNIT_COST', 'high', BelowUnitCost, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_SHIPPED_NOT_INVOICED', 'high', ShippedNotInvoiced, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE', 'medium', OutstandingPastShipmentDate, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_DESCRIPTION', 'low', MissingDescription, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SALES', 'SALES_LINES_MISSING_LOCATION', 'medium', MissingLocationCode, 2);
     end;
 
     local procedure RunPurchaseExecutionChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1249,18 +1237,18 @@ codeunit 53128 "DH Deep Scan Runner"
                             CostBelowItemCost += 1;
             until PurchaseLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PAYMENT_TERMS', 'Purchase Orders Missing Payment Terms', 'medium', MissingPaymentTerms, 'Add payment terms in open purchase orders.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PAYMENT_METHOD', 'Purchase Orders Missing Payment Method', 'medium', MissingPaymentMethod, 'Add payment methods in open purchase orders.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PURCHASER', 'Purchase Orders Missing Purchaser Code', 'low', MissingPurchaserCode, 'Assign responsible purchasers.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO', 'Purchase Orders Missing Vendor Invoice No.', 'low', MissingVendorInvoiceNo, 'Add external document references where required.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE', 'Purchase Orders With Overdue Receipt', 'high', PastExpectedReceiptDate, 'Clean up overdue purchase orders by schedule and escalate.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_DISCOUNT_OVER_25', 'Purchase Lines With Discount > 25%', 'low', DiscountAbove25, 'Review discounts and price agreements.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_DISCOUNT_OVER_50', 'Purchase Lines With Discount > 50%', 'medium', DiscountAbove50, 'Validate unusual discounts.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_RECEIVED_NOT_INVOICED', 'Received Purchase Lines Not Invoiced', 'medium', ReceivedNotInvoiced, 'Invoice receipts promptly.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE', 'Open Purchase Lines With Overdue Receipt', 'medium', OutstandingPastReceiptDate, 'Clean up open orders and delivery dates.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_DESCRIPTION', 'Purchase Lines Missing Description', 'low', MissingDescription, 'Add descriptions in purchase lines.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_LOCATION', 'Purchase Lines Missing Location', 'medium', MissingLocationCode, 'Add locations in purchase lines.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST', 'Purchase Lines Below Last Direct Cost', 'low', CostBelowItemCost, 'Review purchase price deviations.', 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PAYMENT_TERMS', 'medium', MissingPaymentTerms, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PAYMENT_METHOD', 'medium', MissingPaymentMethod, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_PURCHASER', 'low', MissingPurchaserCode, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO', 'low', MissingVendorInvoiceNo, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE', 'high', PastExpectedReceiptDate, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_DISCOUNT_OVER_25', 'low', DiscountAbove25, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_DISCOUNT_OVER_50', 'medium', DiscountAbove50, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_RECEIVED_NOT_INVOICED', 'medium', ReceivedNotInvoiced, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE', 'medium', OutstandingPastReceiptDate, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_DESCRIPTION', 'low', MissingDescription, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_MISSING_LOCATION', 'medium', MissingLocationCode, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'PURCHASE', 'PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST', 'low', CostBelowItemCost, 1);
     end;
 
     local procedure RunInventoryValueChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1334,25 +1322,25 @@ codeunit 53128 "DH Deep Scan Runner"
                     DeadStock365 += 1;
             until Item.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_PRICE_BELOW_UNIT_COST', 'Items With Sales Price Below Unit Cost', 'high', PriceBelowUnitCost, 'Review pricing and costing.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_PRICE_BELOW_STANDARD_COST', 'Items With Sales Price Below Standard Cost', 'high', PriceBelowStandardCost, 'Standardkosten und Verkaufspreise abstimmen.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_STANDARD_COST_ZERO', 'Items Missing Standard Cost', 'medium', StandardCostZero, 'Maintain standard costs.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_LAST_DIRECT_COST_ZERO', 'Items Missing Last Direct Cost', 'medium', LastDirectCostZero, 'Review last direct costs.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_LEAD_TIME', 'Items Missing Lead Time', 'medium', MissingLeadTime, 'Maintain lead times for planning.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_SAFETY_STOCK_ZERO', 'Items Missing Safety Stock', 'low', SafetyStockZero, 'Maintain safety stock where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_REORDER_POINT_ZERO', 'Items Missing Reorder Point', 'low', ReorderPointZero, 'Maintain reorder points where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MAX_INVENTORY_ZERO', 'Items Missing Maximum Inventory', 'low', MaxInventoryZero, 'Maintain maximum inventory where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MIN_ORDER_QTY_ZERO', 'Items Missing Minimum Order Quantity', 'low', MinOrderQtyZero, 'Maintain minimum order quantities where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_ORDER_MULTIPLE_ZERO', 'Items Missing Order Multiple', 'low', OrderMultipleZero, 'Maintain order multiples where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_SHELF_NO', 'Items Missing Shelf No.', 'low', MissingShelfNo, 'Add shelf numbers where used.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_TARIFF_NO', 'Items Missing Tariff No.', 'low', MissingTariffNo, 'Maintain tariff numbers where export-relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_GROSS_WEIGHT_ZERO', 'Items Missing Gross Weight', 'low', GrossWeightZero, 'Maintain weight data.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_NET_WEIGHT_ZERO', 'Items Missing Net Weight', 'low', NetWeightZero, 'Maintain weight data.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_UNIT_VOLUME_ZERO', 'Items Missing Volume', 'low', UnitVolumeZero, 'Maintain volume data.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_90', 'Inventory Items Without Movement > 90 Days', 'medium', DeadStock90, 'Review slow-moving items.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_180', 'Inventory Items Without Movement > 180 Days', 'medium', DeadStock180, 'Review tied-up capital and sell-off options.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_365', 'Inventory Items Without Movement > 365 Days', 'high', DeadStock365, 'Prioritize reducing long-term dead stock and tied-up capital.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'INVENTORY_WITHOUT_UNIT_COST', 'Inventory Items Missing Unit Cost', 'high', InventoryWithoutUnitCost, 'Correct valuation and costing for inventory items.', 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_PRICE_BELOW_UNIT_COST', 'high', PriceBelowUnitCost, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_PRICE_BELOW_STANDARD_COST', 'high', PriceBelowStandardCost, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_STANDARD_COST_ZERO', 'medium', StandardCostZero, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_LAST_DIRECT_COST_ZERO', 'medium', LastDirectCostZero, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_LEAD_TIME', 'medium', MissingLeadTime, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_SAFETY_STOCK_ZERO', 'low', SafetyStockZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_REORDER_POINT_ZERO', 'low', ReorderPointZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MAX_INVENTORY_ZERO', 'low', MaxInventoryZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MIN_ORDER_QTY_ZERO', 'low', MinOrderQtyZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_ORDER_MULTIPLE_ZERO', 'low', OrderMultipleZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_SHELF_NO', 'low', MissingShelfNo, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_MISSING_TARIFF_NO', 'low', MissingTariffNo, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_GROSS_WEIGHT_ZERO', 'low', GrossWeightZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_NET_WEIGHT_ZERO', 'low', NetWeightZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'ITEMS_UNIT_VOLUME_ZERO', 'low', UnitVolumeZero, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_90', 'medium', DeadStock90, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_180', 'medium', DeadStock180, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'DEAD_STOCK_365', 'high', DeadStock365, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'INVENTORY', 'INVENTORY_WITHOUT_UNIT_COST', 'high', InventoryWithoutUnitCost, 5);
     end;
 
     local procedure RunCRMContactChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1392,15 +1380,15 @@ codeunit 53128 "DH Deep Scan Runner"
                     MissingCountryCode += 1;
             until Contact.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_NAME', 'Contacts Missing Name', 'medium', MissingName, 'Add names in contact master data.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_EMAIL', 'Contacts Missing Email', 'medium', MissingEmail, 'Maintain email addresses in contact master data.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_PHONE', 'Contacts Missing Phone No.', 'low', MissingPhone, 'Maintain phone numbers where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_MOBILE_PHONE', 'Contacts Missing Mobile Phone No.', 'low', MissingMobilePhone, 'Maintain mobile phone numbers where relevant.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_PERSONS_MISSING_COMPANY', 'Person Contacts Missing Company Assignment', 'medium', MissingCompanyNo, 'Assign person contacts to a company.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_ADDRESS', 'Contacts Missing Address', 'low', MissingAddress, 'Maintain address data in contacts.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_CITY', 'Contacts Missing City', 'low', MissingCity, 'Maintain cities in contacts.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_POST_CODE', 'Contacts Missing Post Code', 'low', MissingPostCode, 'Maintain post codes in contacts.', 1);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_COUNTRY', 'Contacts Missing Country', 'low', MissingCountryCode, 'Maintain country information in contacts.', 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_NAME', 'medium', MissingName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_EMAIL', 'medium', MissingEmail, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_PHONE', 'low', MissingPhone, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_MOBILE_PHONE', 'low', MissingMobilePhone, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_PERSONS_MISSING_COMPANY', 'medium', MissingCompanyNo, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_ADDRESS', 'low', MissingAddress, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_CITY', 'low', MissingCity, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_POST_CODE', 'low', MissingPostCode, 1);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'CRM', 'CONTACTS_MISSING_COUNTRY', 'low', MissingCountryCode, 1);
     end;
 
 
@@ -1495,23 +1483,23 @@ codeunit 53128 "DH Deep Scan Runner"
                     ItemsMissingProdBomNo += 1;
             until Item.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_MISSING_DESCRIPTION', 'Production BOMs Missing Description', 'medium', MissingBOMDescription, 'Add descriptions in the affected production BOMs.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_NOT_CERTIFIED', 'Uncertified Production BOMs', 'high', BOMNotCertified, 'Review and certify BOMs.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_LINES_MISSING_NO', 'BOM Lines Missing Item/Resource No.', 'high', BOMLinesMissingNo, 'Add numbers in the affected BOM lines.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_LINES_ZERO_QTY', 'BOM Lines With Quantity 0', 'high', BOMLinesZeroQty, 'Review quantities in the affected BOM lines.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_MISSING_DESCRIPTION', 'Routings Missing Description', 'low', RoutingMissingDescription, 'Add descriptions in the affected routings.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_NOT_CERTIFIED', 'Uncertified Routings', 'high', RoutingNotCertified, 'Review and certify routings.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_MISSING_NO', 'Routing Lines Missing Work Center/Machine Center', 'high', RoutingLinesMissingNo, 'Maintain work centers or machine centers in routings.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_ZERO_SETUP', 'Routing Lines Missing Setup Time', 'medium', RoutingLinesZeroSetupTime, 'Review setup times in affected routing steps.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_ZERO_RUN', 'Routing Lines Missing Run Time', 'high', RoutingLinesZeroRunTime, 'Review run times in affected routing steps.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_BLOCKED', 'Blocked Work Centers', 'medium', WorkCentersBlocked, 'Review blocked work centers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_MISSING_NAME', 'Work Centers Missing Name', 'low', WorkCentersMissingName, 'Add names for affected work centers.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_ZERO_COST', 'Work Centers Missing Unit Cost', 'medium', WorkCentersZeroCost, 'Maintain unit costs for work centers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_BLOCKED', 'Blocked Machine Centers', 'medium', MachineCentersBlocked, 'Review blocked machine centers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_MISSING_NAME', 'Machine Centers Missing Name', 'low', MachineCentersMissingName, 'Add names for affected machine centers.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_ZERO_COST', 'Machine Centers Missing Unit Cost', 'medium', MachineCentersZeroCost, 'Maintain unit costs for machine centers.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ITEMS_MISSING_PROD_BOM_NO', 'Items With Routing But Missing Production BOM', 'high', ItemsMissingProdBomNo, 'Add BOMs for the affected items.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ITEMS_MISSING_ROUTING_NO', 'Items With Production BOM But Missing Routing', 'high', ItemsMissingRoutingNo, 'Add routings for the affected items.', 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_MISSING_DESCRIPTION', 'medium', MissingBOMDescription, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_NOT_CERTIFIED', 'high', BOMNotCertified, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_LINES_MISSING_NO', 'high', BOMLinesMissingNo, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_BOM_LINES_ZERO_QTY', 'high', BOMLinesZeroQty, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_MISSING_DESCRIPTION', 'low', RoutingMissingDescription, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_NOT_CERTIFIED', 'high', RoutingNotCertified, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_MISSING_NO', 'high', RoutingLinesMissingNo, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_ZERO_SETUP', 'medium', RoutingLinesZeroSetupTime, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ROUTING_LINES_ZERO_RUN', 'high', RoutingLinesZeroRunTime, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_BLOCKED', 'medium', WorkCentersBlocked, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_MISSING_NAME', 'low', WorkCentersMissingName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_WORK_CENTERS_ZERO_COST', 'medium', WorkCentersZeroCost, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_BLOCKED', 'medium', MachineCentersBlocked, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_MISSING_NAME', 'low', MachineCentersMissingName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_MACHINE_CENTERS_ZERO_COST', 'medium', MachineCentersZeroCost, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ITEMS_MISSING_PROD_BOM_NO', 'high', ItemsMissingProdBomNo, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'MANUFACTURING', 'MFG_ITEMS_MISSING_ROUTING_NO', 'high', ItemsMissingRoutingNo, 5);
     end;
 
     local procedure RunServiceChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1570,18 +1558,18 @@ codeunit 53128 "DH Deep Scan Runner"
                     ZeroLineUnitPrice += 1;
             until ServiceLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_DESCRIPTION', 'Service Items Missing Description', 'medium', MissingServiceItemDescription, 'Add descriptions for the affected service items.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_CUSTOMER', 'Service Items Missing Customer', 'high', MissingServiceItemCustomer, 'Add customer references for the affected service items.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_ITEM_NO', 'Service Items Missing Item No.', 'high', MissingServiceItemItemNo, 'Add item numbers for the affected service items.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_SERIAL_NO', 'Service Items Missing Serial No.', 'medium', MissingServiceItemSerialNo, 'Add serial numbers for the affected service items.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_CUSTOMER', 'Service Documents Missing Customer', 'high', MissingHeaderCustomer, 'Add customers in the affected service documents.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_BILL_TO', 'Service Documents Missing Bill-to Customer', 'high', MissingHeaderBillToCustomer, 'Maintain bill-to customers in the affected service documents.', 6);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_DESCRIPTION', 'Service Documents Missing Description', 'medium', MissingHeaderDescription, 'Add descriptions in the affected service documents.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_ASSIGNED_USER', 'Service Documents Missing Assigned User', 'medium', MissingHeaderAssignedUser, 'Maintain assigned users in service documents.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_MISSING_NO', 'Service Lines Missing No.', 'high', MissingLineNo, 'Add numbers in the affected service lines.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_MISSING_DESCRIPTION', 'Service Lines Missing Description', 'medium', MissingLineDescription, 'Add descriptions in the affected service lines.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_ZERO_QTY', 'Service Lines With Quantity 0', 'medium', ZeroLineQuantity, 'Review quantities in the affected service lines.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_ZERO_UNIT_PRICE', 'Service Lines With Price 0', 'high', ZeroLineUnitPrice, 'Review sales prices in the affected service lines.', 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_DESCRIPTION', 'medium', MissingServiceItemDescription, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_CUSTOMER', 'high', MissingServiceItemCustomer, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_ITEM_NO', 'high', MissingServiceItemItemNo, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ITEMS_MISSING_SERIAL_NO', 'medium', MissingServiceItemSerialNo, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_CUSTOMER', 'high', MissingHeaderCustomer, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_BILL_TO', 'high', MissingHeaderBillToCustomer, 6);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_DESCRIPTION', 'medium', MissingHeaderDescription, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_ORDERS_MISSING_ASSIGNED_USER', 'medium', MissingHeaderAssignedUser, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_MISSING_NO', 'high', MissingLineNo, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_MISSING_DESCRIPTION', 'medium', MissingLineDescription, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_ZERO_QTY', 'medium', ZeroLineQuantity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'SERVICE', 'SERVICE_LINES_ZERO_UNIT_PRICE', 'high', ZeroLineUnitPrice, 5);
     end;
 
     local procedure RunJobsChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1634,16 +1622,16 @@ codeunit 53128 "DH Deep Scan Runner"
                     ZeroUnitPrice += 1;
             until JobPlanningLine.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_DESCRIPTION', 'Jobs Missing Description', 'medium', MissingJobDescription, 'Add descriptions for the affected jobs.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_BILL_TO_CUSTOMER', 'Jobs Missing Bill-to Customer', 'high', MissingBillToCustomer, 'Maintain bill-to customers in the affected jobs.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_RESPONSIBLE', 'Jobs Missing Person Responsible', 'medium', MissingPersonResponsible, 'Maintain the person responsible in the affected jobs.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_POSTING_GROUP', 'Jobs Missing Job Posting Group', 'high', MissingJobPostingGroup, 'Add job posting groups for the affected jobs.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_TASKS_MISSING_DESCRIPTION', 'Job Tasks Missing Description', 'medium', MissingTaskDescription, 'Add descriptions in the affected job tasks.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_MISSING_NO', 'Job Planning Lines Missing No.', 'high', MissingPlanningLineNo, 'Add numbers in the affected job planning lines.', 5);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_MISSING_DESCRIPTION', 'Job Planning Lines Missing Description', 'medium', MissingPlanningDescription, 'Add descriptions in the affected job planning lines.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_QTY', 'Job Planning Lines With Quantity 0', 'medium', ZeroPlanningQuantity, 'Review quantities in the affected job planning lines.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_UNIT_COST', 'Job Planning Lines Missing Unit Cost', 'high', ZeroUnitCost, 'Add unit costs in the affected job planning lines.', 4);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_UNIT_PRICE', 'Job Planning Lines Missing Price', 'high', ZeroUnitPrice, 'Add prices in the affected job planning lines.', 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_DESCRIPTION', 'medium', MissingJobDescription, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_BILL_TO_CUSTOMER', 'high', MissingBillToCustomer, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_RESPONSIBLE', 'medium', MissingPersonResponsible, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOBS_MISSING_POSTING_GROUP', 'high', MissingJobPostingGroup, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_TASKS_MISSING_DESCRIPTION', 'medium', MissingTaskDescription, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_MISSING_NO', 'high', MissingPlanningLineNo, 5);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_MISSING_DESCRIPTION', 'medium', MissingPlanningDescription, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_QTY', 'medium', ZeroPlanningQuantity, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_UNIT_COST', 'high', ZeroUnitCost, 4);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'JOB', 'JOB_PLANNING_LINES_ZERO_UNIT_PRICE', 'high', ZeroUnitPrice, 4);
     end;
 
     local procedure RunHRChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
@@ -1697,18 +1685,18 @@ codeunit 53128 "DH Deep Scan Runner"
                     ResourcesMissingBaseUOM += 1;
             until ResourceRec.Next() = 0;
 
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_FIRST_NAME', 'Employees Missing First Name', 'low', MissingFirstName, 'Add first names for the affected employees.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_LAST_NAME', 'Employees Missing Last Name', 'medium', MissingLastName, 'Add last names for the affected employees.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_SEARCH_NAME', 'Employees Missing Search Name', 'low', MissingSearchName, 'Add search names for the affected employees.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_EMAIL', 'Employees Missing Email', 'medium', MissingEmail, 'Add email addresses for the affected employees.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_PHONE', 'Employees Missing Phone No.', 'low', MissingPhone, 'Add phone numbers for the affected employees.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_COUNTRY', 'Employees Missing Country/Region Code', 'low', MissingCountryCode, 'Add country/region codes for the affected employees.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_RESOURCE_NO', 'Employees Missing Resource No.', 'medium', MissingResourceNo, 'Maintain resource numbers for the affected employees.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_JOB_TITLE', 'Employees Missing Job Title', 'low', MissingJobTitle, 'Add job titles for the affected employees.', 2);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_MISSING_NAME', 'Resources Missing Name', 'medium', ResourcesMissingName, 'Add names for the affected resources.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_ZERO_UNIT_COST', 'Resources Missing Unit Cost', 'medium', ResourcesZeroUnitCost, 'Maintain unit costs for the affected resources.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_ZERO_UNIT_PRICE', 'Resources Missing Price', 'medium', ResourcesZeroUnitPrice, 'Maintain prices for the affected resources.', 3);
-        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_MISSING_BASE_UOM', 'Resources Missing Base Unit of Measure', 'low', ResourcesMissingBaseUOM, 'Add base units of measure for the affected resources.', 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_FIRST_NAME', 'low', MissingFirstName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_LAST_NAME', 'medium', MissingLastName, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_SEARCH_NAME', 'low', MissingSearchName, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_EMAIL', 'medium', MissingEmail, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_PHONE', 'low', MissingPhone, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_COUNTRY', 'low', MissingCountryCode, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_RESOURCE_NO', 'medium', MissingResourceNo, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'EMPLOYEES_MISSING_JOB_TITLE', 'low', MissingJobTitle, 2);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_MISSING_NAME', 'medium', ResourcesMissingName, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_ZERO_UNIT_COST', 'medium', ResourcesZeroUnitCost, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_ZERO_UNIT_PRICE', 'medium', ResourcesZeroUnitPrice, 3);
+        AddCountFinding(DeepScanRun, Score, IssuesCount, 'HR', 'RESOURCES_MISSING_BASE_UOM', 'low', ResourcesMissingBaseUOM, 2);
     end;
 
     local procedure GetEnabledModuleCount(var Setup: Record "DH Setup"): Integer
@@ -2036,7 +2024,7 @@ codeunit 53128 "DH Deep Scan Runner"
         exit(ExceptionMgt.IsVendorIssueExcluded(Vendor, IssueCode));
     end;
 
-    local procedure AddCountFinding(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var IssuesCount: Integer; Category: Code[30]; IssueCode: Code[50]; Title: Text[150]; Severity: Code[20]; AffectedCount: Integer; RecommendationPreview: Text[250]; PenaltyPoints: Integer)
+    local procedure AddCountFinding(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var IssuesCount: Integer; Category: Code[30]; IssueCode: Code[50]; Severity: Code[20]; AffectedCount: Integer; PenaltyPoints: Integer)
     var
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
@@ -2054,10 +2042,8 @@ codeunit 53128 "DH Deep Scan Runner"
             DeepScanRun."Entry No.",
             Category,
             IssueCode,
-            Title,
             Severity,
-            AffectedCount,
-            RecommendationPreview);
+            AffectedCount);
 
         IssuesCount += 1;
         ApplyPenalty(Score, PenaltyPoints);
@@ -2555,7 +2541,7 @@ codeunit 53128 "DH Deep Scan Runner"
         if TryEvaluateDecimal(ValueText, ValueDecimal) then
             exit(ValueDecimal);
 
-        Error('Could not parse decimal value from backend JSON: %1', Token.AsValue().AsText());
+        Error(BackendDecimalInvalidErr, Token.AsValue().AsText());
     end;
 
     [TryFunction]
@@ -2598,17 +2584,17 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure GetRunningHeadline(var DeepScanRun: Record "DH Deep Scan Run"): Text
     begin
         if IsDataHealthScoreRun(DeepScanRun) then
-            exit('Data Health Score is running');
+            exit(DataHealthScoreRunningLbl);
 
-        exit('Deep scan is running');
+        exit(ValidationCheckRunningLbl);
     end;
 
     local procedure GetStartedEventMessage(var DeepScanRun: Record "DH Deep Scan Run"): Text
     begin
         if IsDataHealthScoreRun(DeepScanRun) then
-            exit('Data Health Score started');
+            exit(DataHealthScoreStartedLbl);
 
-        exit('Deep scan started');
+        exit(ValidationCheckStartedLbl);
     end;
 
     local procedure IsPremiumAvailableForRun(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"): Boolean
@@ -2727,24 +2713,21 @@ codeunit 53128 "DH Deep Scan Runner"
             EnabledModules.Add('HR');
     end;
 
-    local procedure InsertFinding(DeepScanEntryNo: Integer; Category: Code[30]; IssueCode: Code[50]; Title: Text[150]; Severity: Code[20]; AffectedCount: Integer; RecommendationPreview: Text[250])
+    local procedure InsertFinding(DeepScanEntryNo: Integer; Category: Code[30]; IssueCode: Code[50]; Severity: Code[20]; AffectedCount: Integer)
     var
         Finding: Record "DH Deep Scan Finding";
-        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
-        Title := ScanCheckMgt.GetLocalizedCheckName(IssueCode, Title);
-        RecommendationPreview := ScanCheckMgt.GetLocalizedCheckDescription(IssueCode, RecommendationPreview);
         Finding.Init();
         Finding."Entry No." := GetNextFindingEntryNo();
         Finding."Deep Scan Entry No." := DeepScanEntryNo;
         Finding.Category := Category;
         Finding."Issue Code" := IssueCode;
-        Finding.Title := CopyStr(Title, 1, MaxStrLen(Finding.Title));
+        Finding.Title := CopyStr(IssueCode, 1, MaxStrLen(Finding.Title));
         Finding.Severity := Severity;
         Finding."Severity Sort Order" := GetSeveritySortOrder(Finding.Severity);
         Finding."Affected Count" := AffectedCount;
         Finding."Affected Count Sort Value" := -AffectedCount;
-        Finding."Recommendation Preview" := CopyStr(RecommendationPreview, 1, MaxStrLen(Finding."Recommendation Preview"));
+        Finding."Recommendation Preview" := CopyStr(IssueCode, 1, MaxStrLen(Finding."Recommendation Preview"));
         Finding."Premium Only" := true;
         Finding."Estimated Impact (EUR)" := 0;
         Finding.Insert(true);
@@ -2800,15 +2783,15 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure GetHeadline(Score: Integer; IssuesCount: Integer): Text
     begin
         if IssuesCount = 0 then
-            exit('Deep scan completed without findings.');
+            exit(ScanCompletedWithoutFindingsLbl);
 
         if Score >= 90 then
-            exit('Deep scan completed with minor findings.');
+            exit(ScanCompletedMinorFindingsLbl);
 
         if Score >= 75 then
-            exit('Deep scan completed with relevant improvement potential.');
+            exit(ScanCompletedImprovementPotentialLbl);
 
-        exit('Deep scan completed with critical findings.');
+        exit(ScanCompletedCriticalFindingsLbl);
     end;
 
 
@@ -2829,6 +2812,23 @@ codeunit 53128 "DH Deep Scan Runner"
     end;
 
     var
+        BackendDecimalInvalidErr: Label 'The decimal value from the backend response could not be parsed: %1', Comment = '%1 = backend value';
+        DataHealthScoreRunningLbl: Label 'Data Health Score is running';
+        DataHealthScoreStartedLbl: Label 'Data Health Score started';
+        DuplicateCustomerAddressLbl: Label 'Multiple customers with the same name, post code, and city: %1 | %2 %3', Comment = '%1 = customer name, %2 = post code, %3 = city';
+        DuplicateCustomerEmailLbl: Label 'Multiple customers with the same email: %1', Comment = '%1 = email address';
+        DuplicateCustomerVatNoLbl: Label 'Multiple customers with the same VAT registration number: %1', Comment = '%1 = VAT registration number';
+        DuplicateVendorAddressLbl: Label 'Multiple vendors with the same name, post code, and city: %1 | %2 %3', Comment = '%1 = vendor name, %2 = post code, %3 = city';
+        DuplicateVendorEmailLbl: Label 'Multiple vendors with the same email: %1', Comment = '%1 = email address';
+        DuplicateVendorVatNoLbl: Label 'Multiple vendors with the same VAT registration number: %1', Comment = '%1 = VAT registration number';
         LocalCompleteSyncFailedLbl: Label 'Scan completed locally; backend synchronization failed.';
+        PostprocessingRefreshFailedLbl: Label 'The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.';
+        ScanCompletedCriticalFindingsLbl: Label 'Validation Check completed with critical findings.';
+        ScanCompletedImprovementPotentialLbl: Label 'Validation Check completed with relevant improvement potential.';
+        ScanCompletedMinorFindingsLbl: Label 'Validation Check completed with minor findings.';
+        ScanCompletedWithoutFindingsLbl: Label 'Validation Check completed without findings.';
+        SetupMissingForPersistenceErr: Label 'The scan result could not be saved because BCSentinel setup is missing.';
         SyncUnexpectedFailureLbl: Label 'The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.';
+        ValidationCheckRunningLbl: Label 'Validation Check is running';
+        ValidationCheckStartedLbl: Label 'Validation Check started';
 }

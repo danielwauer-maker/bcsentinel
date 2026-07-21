@@ -30,6 +30,7 @@ from app.models import DashboardUser, DashboardUserTenantMembership, Scan, ScanI
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
+from app.routers.check_catalog import router as check_catalog_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.license import router as license_router
 from app.routers.partners import router as partners_router
@@ -53,6 +54,7 @@ from app.security.tenant import (
 from app.security.rate_limit import require_rate_limit
 from app.security.csrf import CSRF_COOKIE_NAME, CSRF_FORM_FIELD, verify_csrf_token
 from app.services.cost_service import ensure_default_issue_costs
+from app.services.check_catalog_service import ensure_default_check_catalog, resolve_check_texts
 from app.services.impact_service import (
     apply_commercials_to_scan,
     calculate_scan_commercials,
@@ -132,6 +134,7 @@ async def lifespan(app: FastAPI):
         ensure_default_issue_costs(db)
         ensure_default_impact_config(db)
         ensure_default_email_templates(db)
+        ensure_default_check_catalog(db)
         recovery = recover_stale_runs(db)
         db.commit()
         log_event(logger, logging.INFO, "scan_startup_recovery", "Startup scan recovery completed.", **recovery)
@@ -178,6 +181,7 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(admin_router)
 app.include_router(analytics_router)
 app.include_router(billing_router)
+app.include_router(check_catalog_router)
 app.include_router(dashboard_router)
 app.include_router(partners_router)
 app.include_router(public_router)
@@ -672,6 +676,7 @@ def quick_scan(
         require_tenant_feature(db, tenant, "quick_scan")
 
         data_score, checks_count, issues_count, summary, issues = calculate_quick_scan_result(
+            db,
             payload.metrics,
             tenant.preferred_language,
         )
@@ -876,19 +881,22 @@ def get_scan_history(
                 .where(ScanIssueRecord.scan_id == scan.scan_id)
                 .order_by(ScanIssueRecord.affected_count.desc())
             ).all()
+            catalog_texts = resolve_check_texts(db, {row.code for row in issue_rows}, tenant.preferred_language)
 
-            issues = [
-                ScanIssue(
-                    code=row.code,
-                    title=row.title,
-                    severity=row.severity,
-                    affected_count=row.affected_count,
-                    premium_only=row.premium_only,
-                    recommendation_preview=row.recommendation_preview,
-                    estimated_impact_eur=float(row.estimated_impact_eur or 0.0),
+            issues = []
+            for row in issue_rows:
+                catalog_text = catalog_texts[row.code]
+                issues.append(
+                    ScanIssue(
+                        code=row.code,
+                        title=catalog_text.title,
+                        severity=row.severity,
+                        affected_count=row.affected_count,
+                        premium_only=row.premium_only,
+                        recommendation_preview=catalog_text.recommendation,
+                        estimated_impact_eur=float(row.estimated_impact_eur or 0.0),
+                    )
                 )
-                for row in issue_rows
-            ]
 
             normalized_commercials = normalize_stored_commercials(
                 total_records=scan.total_records,

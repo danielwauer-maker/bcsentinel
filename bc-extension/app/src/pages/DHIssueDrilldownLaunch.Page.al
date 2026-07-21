@@ -39,10 +39,10 @@
         IssueCodeField := SetupRef.Field(26);
         IssueCode := GetNormalizedIssueCode(IssueCodeField);
         if IssueCode = '' then
-            Error('Missing issue code for drilldown launch.');
+            Error(MissingIssueCodeErr);
 
         if not Rec.Get('SETUP') then
-            Error('Setup not found.');
+            Error(SetupNotFoundErr);
 
         AccessGuard.EnsureIssuesAccess();
 
@@ -62,6 +62,7 @@
     end;
 
     var
+        MissingIssueCodeErr: Label 'The issue code for opening the details is missing.';
+        SetupNotFoundErr: Label 'BCSentinel setup was not found.';
         StatusTxt: Text[100];
 }
-

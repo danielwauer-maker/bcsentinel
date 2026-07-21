@@ -136,6 +136,7 @@
     }
 
     var
+        CorrectionNotLoggedMsg: Label 'The correction was not logged because no master data record could be assigned.';
         CurrentIssueCode: Code[50];
 
     trigger OnOpenPage()
@@ -233,7 +234,7 @@
             exit;
         end;
 
-        Message('The correction was not logged because no master data record could be assigned.');
+        Message(CorrectionNotLoggedMsg);
     end;
 
     local procedure GetLocalCurrencyCode(): Text
@@ -243,4 +244,3 @@
         exit(CurrencyMgt.GetLocalCurrencyCode());
     end;
 }
-

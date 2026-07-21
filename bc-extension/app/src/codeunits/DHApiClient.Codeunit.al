@@ -17,7 +17,7 @@ codeunit 53100 "DH API Client"
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend connection test failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(BackendConnectionTestFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if JsonResponse.ReadFrom(ResponseText) then
             if JsonResponse.Get('status', Token) then
@@ -27,7 +27,7 @@ codeunit 53100 "DH API Client"
         if StatusText = '' then
             StatusText := 'ok';
 
-        Message('BCSentinel backend reachable. Status: %1', StatusText);
+        Message(BackendReachableMsg, StatusText);
     end;
 
     procedure GetSafeBackendErrorText(ResponseText: Text): Text
@@ -351,64 +351,64 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Preferred-Language', GetPreferredLanguage());
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/license/status'), Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then begin
             if (Response.HttpStatusCode() = 404) and IsTenantNotFoundResponse(ResponseText) then
-                Error('Tenant was not found in BCSentinel. Please reset registration and register again.');
+                Error(TenantNotFoundLbl);
 
             Error(GetBackendErrorMessage('License status request', Response.HttpStatusCode(), ResponseText));
         end;
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
+            Error(BackendInvalidJsonLbl);
 
         if not JsonResponse.Get('snapshot_version', Token) then
-            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+            Error(IncompleteAccessSnapshotLbl);
         Setup."Access Snapshot Version" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Version"));
         if Setup."Access Snapshot Version" = '' then
-            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+            Error(IncompleteAccessSnapshotLbl);
 
         if not JsonResponse.Get('current_time_utc', Token) then
-            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+            Error(IncompleteAccessSnapshotLbl);
         ServerTimeUtc := ParseJsonDateTime(GetJsonTokenText(Token));
         if ServerTimeUtc = 0DT then
-            Error('The backend returned an invalid server time. Detailed access remains blocked.');
+            Error(InvalidServerTimeLbl);
 
         if not JsonResponse.Get('snapshot_expires_at_utc', Token) then
-            Error('The backend returned an incomplete access snapshot. Detailed access remains blocked.');
+            Error(IncompleteAccessSnapshotLbl);
         SnapshotExpiresAt := ParseJsonDateTime(GetJsonTokenText(Token));
         if (SnapshotExpiresAt = 0DT) or (SnapshotExpiresAt <= ServerTimeUtc) then
-            Error('The backend returned an invalid access snapshot expiry. Detailed access remains blocked.');
+            Error(InvalidAccessSnapshotExpiryLbl);
 
         if not JsonResponse.Get('tenant_context', TenantContextToken) then
-            Error('The backend returned no tenant context. Detailed access remains blocked.');
+            Error(MissingTenantContextLbl);
         TenantContext := TenantContextToken.AsObject();
         if not TenantContext.Get('tenant_id', Token) then
-            Error('The backend returned an incomplete tenant context. Detailed access remains blocked.');
+            Error(IncompleteTenantContextLbl);
         Setup."Access Snapshot Tenant ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Tenant ID"));
         if LowerCase(Setup."Access Snapshot Tenant ID") <> LowerCase(Setup."Tenant ID") then
-            Error('The access snapshot belongs to a different tenant. Detailed access remains blocked.');
+            Error(AccessSnapshotTenantMismatchLbl);
         if not TenantContext.Get('environment_name', Token) then
-            Error('The backend returned an incomplete environment context. Detailed access remains blocked.');
+            Error(IncompleteEnvironmentContextLbl);
         Setup."Access Snapshot Environment" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Environment"));
         if LowerCase(Setup."Access Snapshot Environment") <> LowerCase(IdentityMgt.GetEnvironmentName()) then
-            Error('The access snapshot belongs to a different environment. Detailed access remains blocked.');
+            Error(AccessSnapshotEnvironmentMismatchLbl);
         if not TenantContext.Get('environment_type', Token) then
-            Error('The backend returned an incomplete environment context. Detailed access remains blocked.');
+            Error(IncompleteEnvironmentContextLbl);
         Setup."Access Snapshot Env. Type" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Env. Type"));
         if LowerCase(Setup."Access Snapshot Env. Type") <> LowerCase(IdentityMgt.GetEnvironmentType()) then
-            Error('The access snapshot belongs to a different environment type. Detailed access remains blocked.');
+            Error(AccessSnapshotEnvironmentTypeMismatchLbl);
         if not TenantContext.Get('company_id', Token) then
-            Error('The backend returned an incomplete company context. Detailed access remains blocked.');
+            Error(IncompleteCompanyContextLbl);
         Setup."Access Snapshot Company ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Snapshot Company ID"));
         if LowerCase(DelChr(Setup."Access Snapshot Company ID", '=', '{}')) <> LowerCase(DelChr(IdentityMgt.GetCompanyId(), '=', '{}')) then
-            Error('The access snapshot belongs to a different company. Detailed access remains blocked.');
+            Error(AccessSnapshotCompanyMismatchLbl);
 
         if not JsonResponse.Get('capabilities', CapabilitiesToken) then
-            Error('The backend returned no capability decisions. Detailed access remains blocked.');
+            Error(MissingCapabilitiesLbl);
         Capabilities := CapabilitiesToken.AsObject();
         if not TryGetCapabilityGranted(Capabilities, 'product_access', ProductAccessGranted) or
            not TryGetCapabilityGranted(Capabilities, 'dashboard_access', DashboardAccessGranted) or
@@ -418,7 +418,7 @@ codeunit 53100 "DH API Client"
            not TryGetCapabilityGranted(Capabilities, 'subscription_active', SubscriptionGranted) or
            not TryGetCapabilityGranted(Capabilities, 'scan_start_access', ScanStartGranted)
         then
-            Error('The backend returned an incomplete capability set. Detailed access remains blocked.');
+            Error(IncompleteCapabilitiesLbl);
 
         if JsonResponse.Get('plan', Token) then
             if not IsJsonNull(Token) then
@@ -668,12 +668,12 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/quick'), Content, Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Quick scan failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(QuickScanFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -702,12 +702,12 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(Url, Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('History request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(HistoryRequestFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -733,12 +733,12 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(Url, Response) then
-            Error('The backend request could not be sent. Please verify the network connection.');
+            Error(BackendRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Trend request failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(TrendRequestFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -839,12 +839,12 @@ codeunit 53100 "DH API Client"
             BuildUrl(Setup."API Base URL", '/scan/' + Setup."Tenant ID" + '/' + Format(ScanId)),
             Response)
         then
-            Error('The backend delete request could not be sent. Please verify the network connection.');
+            Error(BackendDeleteRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend scan delete failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(BackendScanDeleteFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure ReconcileScansWithBackend(var Setup: Record "DH Setup")
@@ -888,12 +888,12 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/reconcile'), Content, Response) then
-            Error('The backend reconcile request could not be sent. Please verify the network connection.');
+            Error(BackendReconcileRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend reconcile failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(BackendReconcileFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure ClearBackendScanHistoryForReset(var Setup: Record "DH Setup")
@@ -933,12 +933,12 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/reconcile'), Content, Response) then
-            Error('The backend scan history cleanup request could not be sent. Please verify the network connection.');
+            Error(BackendHistoryCleanupRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error('Backend scan history cleanup failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(BackendHistoryCleanupFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
     end;
 
     procedure StartDeepScan(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
@@ -1110,16 +1110,16 @@ codeunit 53100 "DH API Client"
         WorkerId: Guid;
     begin
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The scan start response is not valid JSON. Retry the same scan request.');
+            Error(ScanStartResponseInvalidJsonLbl);
         if not JsonResponse.Get('execution_token', Token) then
-            Error('The scan start response has no execution token. Retry the same scan request.');
+            Error(ScanStartExecutionTokenMissingLbl);
         if not Evaluate(ExecutionToken, GetJsonTokenText(Token)) then
-            Error('The scan start response contains an invalid execution token. Retry the same scan request.');
+            Error(ScanStartExecutionTokenInvalidLbl);
         if JsonResponse.Get('worker_id', Token) then begin
             if not Evaluate(WorkerId, GetJsonTokenText(Token)) then
-                Error('The scan start response contains an invalid worker identity. Retry the same scan request.');
+                Error(ScanStartWorkerIdentityInvalidLbl);
             if WorkerId <> DeepScanRun."Client Request ID" then
-                Error('The scan start response belongs to another worker. Retry the same scan request.');
+                Error(ScanStartWorkerMismatchLbl);
         end;
 
         DeepScanRun."Execution Token" := ExecutionToken;
@@ -1237,11 +1237,11 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Get(BuildUrl(Setup."API Base URL", '/scan/status/' + Format(RunId)), Response) then
-            Error('The scan status request could not be sent. Run ID: %1.', Format(RunId));
+            Error(ScanStatusRequestNotSentLbl, Format(RunId));
 
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
-            Error('Scan status request failed. Status: %1. Run ID: %2. %3',
+            Error(ScanStatusRequestFailedLbl,
                 Response.HttpStatusCode(),
                 Format(RunId),
                 GetSafeBackendErrorText(ResponseText));
@@ -1273,7 +1273,7 @@ codeunit 53100 "DH API Client"
             exit;
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The scan status response is not valid JSON.');
+            Error(ScanStatusResponseInvalidJsonLbl);
 
         DeepScanRun."Warning Message" := '';
         DeepScanRun."Error Message" := '';
@@ -1355,7 +1355,7 @@ codeunit 53100 "DH API Client"
         Clear(GeneratedAtUtc);
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The backend returned an invalid JSON response. Contact BCSentinel support if this continues.');
+            Error(BackendInvalidJsonLbl);
 
         if JsonResponse.Get('scan_id', Token) then
             if not IsJsonNull(Token) then
@@ -1413,10 +1413,10 @@ codeunit 53100 "DH API Client"
         EnsureSetupLoaded(Setup);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant first.');
+            Error(RegisterTenantFirstLbl);
 
         if GetApiToken(Setup) = '' then
-            Error('The API token is missing. Please register the tenant again.');
+            Error(ApiTokenMissingLbl);
     end;
 
     local procedure GetApiToken(var Setup: Record "DH Setup"): Text
@@ -1470,21 +1470,21 @@ codeunit 53100 "DH API Client"
         Headers.Add('X-Preferred-Language', GetPreferredLanguage());
 
         if not Client.Get(Url, Response) then
-            Error('The dashboard token service could not be reached.');
+            Error(DashboardTokenServiceNotReachableLbl);
 
         Response.Content.ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
             Error(
-                'The dashboard token service returned an error. Status: %1. %2',
+                DashboardTokenServiceErrorLbl,
                 Response.HttpStatusCode(),
                 GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The dashboard token service returned invalid JSON. Contact BCSentinel support if this continues.');
+            Error(DashboardTokenResponseInvalidJsonLbl);
 
         if not JsonResponse.Get('token', TokenValue) then
-            Error('The field "token" is missing in the dashboard token response.');
+            Error(DashboardTokenMissingLbl);
 
         exit(TokenValue.AsValue().AsText());
     end;
@@ -1542,21 +1542,21 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildUrl(Setup."API Base URL", '/billing/checkout/session'), Content, Response) then
-            Error('The billing checkout request could not be sent. Please verify the network connection.');
+            Error(BillingCheckoutRequestNotSentLbl);
 
         Response.Content.ReadAs(ResponseText);
         if not Response.IsSuccessStatusCode() then
-            Error('Billing checkout session failed. Status %1. %2', Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
+            Error(BillingCheckoutFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
 
         if not JsonResponse.ReadFrom(ResponseText) then
-            Error('The billing checkout response is not valid JSON. Contact BCSentinel support if this continues.');
+            Error(BillingCheckoutResponseInvalidJsonLbl);
 
         if JsonResponse.Get('checkout_url', TokenValue) then
             if not IsJsonNull(TokenValue) then
                 CheckoutUrl := TokenValue.AsValue().AsText();
 
         if CheckoutUrl = '' then
-            Error('The billing checkout response does not contain checkout_url.');
+            Error(BillingCheckoutUrlMissingLbl);
 
         exit(CheckoutUrl);
     end;
@@ -1567,6 +1567,34 @@ codeunit 53100 "DH API Client"
             exit('premium_deep');
 
         exit('free_deep');
+    end;
+
+    procedure TryGetCheckCatalog(var CatalogResponse: JsonObject): Boolean
+    var
+        Setup: Record "DH Setup";
+        Client: HttpClient;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        ResponseText: Text;
+        Url: Text;
+    begin
+        Clear(CatalogResponse);
+        if not Setup.Get('SETUP') then
+            exit(false);
+        if (Setup."API Base URL" = '') or (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') then
+            exit(false);
+
+        Client.Timeout(30000);
+        Headers := Client.DefaultRequestHeaders();
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', GetApiToken(Setup));
+        Url := BuildUrl(Setup."API Base URL", '/catalog/checks?language=' + EncodeUrlValue(GetPreferredLanguage()));
+        if not Client.Get(Url, Response) then
+            exit(false);
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            exit(false);
+        exit(CatalogResponse.ReadFrom(ResponseText));
     end;
 
     local procedure GetPreferredLanguage(): Text
@@ -2125,6 +2153,49 @@ codeunit 53100 "DH API Client"
         BackendInvalidJsonLbl: Label 'The backend returned an invalid JSON response. Contact BCSentinel support if this continues.';
         BackendMissingTenantIdLbl: Label 'The backend response does not contain a tenant_id.';
         BackendMissingApiTokenLbl: Label 'The backend response does not contain an api_token.';
+        AccessSnapshotCompanyMismatchLbl: Label 'The access snapshot belongs to a different company. Detailed access remains blocked.';
+        AccessSnapshotEnvironmentMismatchLbl: Label 'The access snapshot belongs to a different environment. Detailed access remains blocked.';
+        AccessSnapshotEnvironmentTypeMismatchLbl: Label 'The access snapshot belongs to a different environment type. Detailed access remains blocked.';
+        AccessSnapshotTenantMismatchLbl: Label 'The access snapshot belongs to a different tenant. Detailed access remains blocked.';
+        ApiTokenMissingLbl: Label 'The API token is missing. Register the tenant again.';
+        BackendConnectionTestFailedLbl: Label 'Backend connection test failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        BackendDeleteRequestNotSentLbl: Label 'The backend delete request could not be sent. Check the network connection.';
+        BackendHistoryCleanupFailedLbl: Label 'Backend scan history cleanup failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        BackendHistoryCleanupRequestNotSentLbl: Label 'The backend scan history cleanup request could not be sent. Check the network connection.';
+        BackendReachableMsg: Label 'BCSentinel connection successfully tested. Status: %1', Comment = '%1 = backend status';
+        BackendReconcileFailedLbl: Label 'Backend reconciliation failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        BackendReconcileRequestNotSentLbl: Label 'The backend reconciliation request could not be sent. Check the network connection.';
+        BackendScanDeleteFailedLbl: Label 'Deleting the backend scan failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        BillingCheckoutFailedLbl: Label 'Opening the secure checkout failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        BillingCheckoutRequestNotSentLbl: Label 'The secure checkout request could not be sent. Check the network connection.';
+        BillingCheckoutResponseInvalidJsonLbl: Label 'The secure checkout returned an invalid response. Contact BCSentinel support if this continues.';
+        BillingCheckoutUrlMissingLbl: Label 'The secure checkout response does not contain a checkout URL.';
+        DashboardTokenMissingLbl: Label 'The field "token" is missing in the dashboard token response.';
+        DashboardTokenResponseInvalidJsonLbl: Label 'The dashboard token service returned an invalid response. Contact BCSentinel support if this continues.';
+        DashboardTokenServiceErrorLbl: Label 'The dashboard token service returned an error. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        DashboardTokenServiceNotReachableLbl: Label 'The dashboard token service could not be reached.';
+        HistoryRequestFailedLbl: Label 'Retrieving scan history failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        IncompleteAccessSnapshotLbl: Label 'The backend returned an incomplete access snapshot. Detailed access remains blocked.';
+        IncompleteCapabilitiesLbl: Label 'The backend returned an incomplete capability set. Detailed access remains blocked.';
+        IncompleteCompanyContextLbl: Label 'The backend returned an incomplete company context. Detailed access remains blocked.';
+        IncompleteEnvironmentContextLbl: Label 'The backend returned an incomplete environment context. Detailed access remains blocked.';
+        IncompleteTenantContextLbl: Label 'The backend returned an incomplete tenant context. Detailed access remains blocked.';
+        InvalidAccessSnapshotExpiryLbl: Label 'The backend returned an invalid access snapshot expiry. Detailed access remains blocked.';
+        InvalidServerTimeLbl: Label 'The backend returned an invalid server time. Detailed access remains blocked.';
+        MissingCapabilitiesLbl: Label 'The backend returned no capability decisions. Detailed access remains blocked.';
+        MissingTenantContextLbl: Label 'The backend returned no tenant context. Detailed access remains blocked.';
+        QuickScanFailedLbl: Label 'The Data Health Score failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        RegisterTenantFirstLbl: Label 'Register the tenant first.';
+        ScanStartExecutionTokenInvalidLbl: Label 'The scan start response contains an invalid execution token. Retry the same scan request.';
+        ScanStartExecutionTokenMissingLbl: Label 'The scan start response has no execution token. Retry the same scan request.';
+        ScanStartResponseInvalidJsonLbl: Label 'The scan start response is invalid. Retry the same scan request.';
+        ScanStartWorkerIdentityInvalidLbl: Label 'The scan start response contains an invalid worker identity. Retry the same scan request.';
+        ScanStartWorkerMismatchLbl: Label 'The scan start response belongs to another worker. Retry the same scan request.';
+        ScanStatusRequestFailedLbl: Label 'Retrieving the scan status failed. Status: %1. Run ID: %2. %3', Comment = '%1 = HTTP status, %2 = run ID, %3 = safe backend error';
+        ScanStatusRequestNotSentLbl: Label 'The scan status request could not be sent. Run ID: %1.', Comment = '%1 = run ID';
+        ScanStatusResponseInvalidJsonLbl: Label 'The scan status response is invalid.';
+        TenantNotFoundLbl: Label 'The tenant was not found in BCSentinel. Reset the cached registration and register again.';
+        TrendRequestFailedLbl: Label 'Retrieving the score trend failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
         RegistrationNetworkErrorLbl: Label 'BCSentinel could not complete the registration because the service was not reachable. Check the API address and try again.';
         RegistrationInvalidDataLbl: Label 'The registration could not be completed because required information is missing or invalid.';
         RegistrationPermissionDeniedLbl: Label 'The registration was rejected because this environment is not authorized.';

@@ -28,7 +28,8 @@ def test_completed_backend_status_clears_stale_warning():
     warning = monitor.split("local procedure GetDisplayWarningText", 1)[1].split("local procedure GetBackendSyncStatusText", 1)[0]
 
     assert warning.index("'completed', 'completed_with_warnings'") < warning.index("IsBackendNonTerminal")
-    assert "Backend status is outdated. Local scan completed successfully." in warning
+    assert "BackendStatusOutdatedLbl" in warning
+    assert "Backend status is outdated. The local scan completed successfully." in monitor
     scan_status = monitor.split("local procedure GetScanStatusText", 1)[1].split("local procedure GetScanStatusStyle", 1)[0]
     assert scan_status.index("'rejected'") < scan_status.index("Rec.Status = Rec.Status::Failed")
 
@@ -82,7 +83,7 @@ def test_fix05_changed_captions_have_complete_german_targets():
     }
     required = {
         "Already used",
-        "Premium Until",
+        "Product Access Until",
         "Monitoring Until",
         "Completed",
         "Current Module",

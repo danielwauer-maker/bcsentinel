@@ -85,8 +85,8 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert payload["data_health_score"] == 67
     assert payload["estimated_loss_eur"] == 42000.0
     assert len(payload["top_risks"]) >= 3
-    assert payload["top_risks"][0]["title"] == "Ledger setup gap"
-    assert payload["critical_findings"][0]["title"] == "Customers missing email"
+    assert payload["top_risks"][0]["title"] == "GL_LEDGER_SETUP_GAP"
+    assert payload["critical_findings"][0]["title"] == "Customers without an email address"
     assert payload["scan_type"] == "Manual Scan"
     assert payload["checks_total"] == 165
     assert {bucket["key"] for bucket in payload["severity_distribution"]} == {

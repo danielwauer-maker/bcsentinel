@@ -12,9 +12,13 @@ codeunit 53135 "DH Scan Dispatcher"
     local procedure EnsureSetupReady(var Setup: Record "DH Setup")
     begin
         if Setup."API Base URL" = '' then
-            Error('Please configure API Base URL first.');
+            Error(ConfigureApiBaseUrlErr);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant first.');
+            Error(RegisterTenantErr);
     end;
+
+    var
+        ConfigureApiBaseUrlErr: Label 'Configure the API Base URL first.';
+        RegisterTenantErr: Label 'Register the tenant first.';
 }

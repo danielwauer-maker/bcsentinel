@@ -39,7 +39,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 269943723 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid Access</source>
+          <source>Product Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Dashboard Issue - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -114,7 +114,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1068438358 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid Access</source>
+          <source>Product Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -804,7 +804,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Potential Saving (EUR) - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 2071971934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid Access Available</source>
+          <source>Product Access Available</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Premium Available - Property Caption</note>
         </trans-unit>
@@ -889,7 +889,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Issue Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4030804838 - Field 3991739537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid Access</source>
+          <source>Product Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Issue - Field Premium Only - Property Caption</note>
         </trans-unit>
@@ -1134,7 +1134,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field API Token - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 2402918555 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assessment Credits Available</source>
+          <source>Validation Credits Available</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Assessment Credits Available - Property Caption</note>
         </trans-unit>
@@ -1194,7 +1194,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Data Processing Consent - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 3583883199 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Free Assessment Used</source>
+          <source>Free Data Health Score Used</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Free Assessment Used - Property Caption</note>
         </trans-unit>
@@ -1284,7 +1284,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Enabled - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 608845963 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium Until</source>
+          <source>Product Access Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Premium Until - Property Caption</note>
         </trans-unit>
@@ -1319,7 +1319,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Report Access Until - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - Field 1704945756 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan Credits Available</source>
+          <source>Validation Credits Available</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - Field Scan Credits Available - Property Caption</note>
         </trans-unit>
@@ -1478,6 +1478,51 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Access Guard - NamedType SetupMissingErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2316027659" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The access snapshot belongs to a different company. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType AccessSnapshotCompanyMismatchLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2736501341" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The access snapshot belongs to a different environment. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType AccessSnapshotEnvironmentMismatchLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 899708181" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The access snapshot belongs to a different environment type. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType AccessSnapshotEnvironmentTypeMismatchLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1455462830" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The access snapshot belongs to a different tenant. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType AccessSnapshotTenantMismatchLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1902950663" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The API token is missing. Register the tenant again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ApiTokenMissingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3112776943" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend connection test failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendConnectionTestFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 744668929" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend delete request could not be sent. Check the network connection.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendDeleteRequestNotSentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 295152649" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend scan history cleanup failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendHistoryCleanupFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 4136907888" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend scan history cleanup request could not be sent. Check the network connection.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendHistoryCleanupRequestNotSentLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 1235214537" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend returned an invalid JSON response. Contact BCSentinel support if this continues.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1493,15 +1538,75 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendMissingTenantIdLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1236736702" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel connection successfully tested. Status: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = backend status</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendReachableMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 392512997" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend reconciliation failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendReconcileFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 4070541948" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend reconciliation request could not be sent. Check the network connection.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendReconcileRequestNotSentLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 2032092618" size-unit="char" translate="yes" xml:space="preserve">
           <source>The backend request could not be sent. Please verify the network connection.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendRequestNotSentLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2792568245" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deleting the backend scan failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BackendScanDeleteFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3073439726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opening the secure checkout failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BillingCheckoutFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 386186403" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The secure checkout request could not be sent. Check the network connection.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BillingCheckoutRequestNotSentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 210289197" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The secure checkout returned an invalid response. Contact BCSentinel support if this continues.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BillingCheckoutResponseInvalidJsonLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 553440554" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The secure checkout response does not contain a checkout URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType BillingCheckoutUrlMissingLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 1205850872" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please configure the API Base URL first.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ConfigureApiBaseUrlLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3010189363" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The field "token" is missing in the dashboard token response.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType DashboardTokenMissingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2901719313" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dashboard token service returned an invalid response. Contact BCSentinel support if this continues.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType DashboardTokenResponseInvalidJsonLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3929786436" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dashboard token service returned an error. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType DashboardTokenServiceErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1364941526" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dashboard token service could not be reached.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType DashboardTokenServiceNotReachableLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 50469090" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please enable Data Processing Consent before registering the tenant.</source>
@@ -1517,6 +1622,66 @@
           <source>The one-time free Data Health Score has already been started for this environment.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType FreeScanAlreadyUsedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3184276622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retrieving scan history failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType HistoryRequestFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2401768552" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an incomplete access snapshot. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType IncompleteAccessSnapshotLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1020667006" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an incomplete capability set. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType IncompleteCapabilitiesLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1538268136" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an incomplete company context. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType IncompleteCompanyContextLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2787223402" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an incomplete environment context. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType IncompleteEnvironmentContextLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 65953297" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an incomplete tenant context. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType IncompleteTenantContextLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1234970432" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an invalid access snapshot expiry. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType InvalidAccessSnapshotExpiryLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 955903101" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an invalid server time. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType InvalidServerTimeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2846823300" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned no capability decisions. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType MissingCapabilitiesLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3142742199" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned no tenant context. Detailed access remains blocked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType MissingTenantContextLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2239675789" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Data Health Score failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType QuickScanFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 955254463" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType RegisterTenantFirstLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 799528912" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel tenant registration completed, but the dashboard invitation email could not be sent. Please resend the invitation in the admin dashboard. Details: %1</source>
@@ -1608,6 +1773,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartConflictLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 1850533583" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start response contains an invalid execution token. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartExecutionTokenInvalidLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2335912484" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start response has no execution token. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartExecutionTokenMissingLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 3275498335" size-unit="char" translate="yes" xml:space="preserve">
           <source>The scan could not be started because the request identity or required scan data is invalid. Start a new scan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1628,10 +1803,25 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartPermissionDeniedLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2155759169" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start response is invalid. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartResponseInvalidJsonLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 2094335354" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartTemporaryErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3362391424" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start response contains an invalid worker identity. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartWorkerIdentityInvalidLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2960861697" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan start response belongs to another worker. Retry the same scan request.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStartWorkerMismatchLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 4091633886" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan status update failed. Status: %1. Run ID: %2. %3</source>
@@ -1643,6 +1833,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusNetworkErrorLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3350243301" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retrieving the scan status failed. Status: %1. Run ID: %2. %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = run ID, %3 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusRequestFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2250390163" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan status request could not be sent. Run ID: %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = run ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusRequestNotSentLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 652568285" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan status response is invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanStatusResponseInvalidJsonLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 3049414763" size-unit="char" translate="yes" xml:space="preserve">
           <source>The local scan completed, but backend synchronization failed. Status: %1. %2</source>
           <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
@@ -1652,6 +1857,16 @@
           <source>The local scan completed, but its result could not be sent to BCSentinel. Check the connection and retry synchronization.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType ScanSyncNetworkErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 3895828175" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The tenant was not found in BCSentinel. Reset the cached registration and register again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType TenantNotFoundLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3727721143 - NamedType 2791826035" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retrieving the score trend failed. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType TrendRequestFailedLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 3661365675" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new scan requires a Validation Check or active Monitoring.</source>
@@ -1688,19 +1903,39 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType UnsafeApiConnectionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 4289134389" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Configure the API Base URL first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType ConfigureApiBaseUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 2525229627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable at least one scan module on the BCSentinel setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType EnableScanModuleErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 1350538340" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType RegisterTenantErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 2386538002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A new scan requires a Validation Check or active Monitoring.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType ValidationOrMonitoringRequiredErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 3391027939 - NamedType 1772449976" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan start rejected</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method MarkStartAsRejected - NamedType StartRejectedLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Health Score started. Opening the monitor. Run ID: %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>Free Data Health Score successfully started. Opening the monitor. Run ID: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = run ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDataHealthScore - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 1396950335 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Scan started. Opening the monitor. Run ID: %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>Validation Check successfully started. Opening the monitor. Run ID: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = run ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScanInternal - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 562213518 - NamedType 3033610090" size-unit="char" translate="yes" xml:space="preserve">
@@ -1713,15 +1948,120 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method StartBackendScanWithRecovery - NamedType StartUnexpectedErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3027307925" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The decimal value from the backend response could not be parsed: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = backend value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType BackendDecimalInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3109471379" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score is running</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DataHealthScoreRunningLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 4258019761" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score started</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DataHealthScoreStartedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 831424313" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple customers with the same name, post code, and city: %1 | %2 %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 = customer name, %2 = post code, %3 = city</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateCustomerAddressLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1827447111" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple customers with the same email: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateCustomerEmailLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3848853821" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple customers with the same VAT registration number: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = VAT registration number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateCustomerVatNoLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1421983281" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple vendors with the same name, post code, and city: %1 | %2 %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 = vendor name, %2 = post code, %3 = city</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateVendorAddressLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 760986351" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple vendors with the same email: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = email address</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateVendorEmailLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 2669430421" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiple vendors with the same VAT registration number: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = VAT registration number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType DuplicateVendorVatNoLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4097836441 - NamedType 23154622" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan completed locally; backend synchronization failed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType LocalCompleteSyncFailedLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1696727617" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType PostprocessingRefreshFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 208158183" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check completed with critical findings.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ScanCompletedCriticalFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3571381268" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check completed with relevant improvement potential.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ScanCompletedImprovementPotentialLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1241483627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check completed with minor findings.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ScanCompletedMinorFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1566513302" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check completed without findings.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ScanCompletedWithoutFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 4274003358" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan result could not be saved because BCSentinel setup is missing.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType SetupMissingForPersistenceErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4097836441 - NamedType 3231997172" size-unit="char" translate="yes" xml:space="preserve">
           <source>The local scan completed, but backend synchronization failed unexpectedly. Your local findings were preserved.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType SyncUnexpectedFailureLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 1254397692" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check is running</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ValidationCheckRunningLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097836441 - NamedType 3292924186" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check started</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType ValidationCheckStartedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2636187620 - NamedType 2336290251" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The EntryNo parameter is invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Monitor Refresh Task - NamedType EntryNoInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2636187620 - NamedType 3976220264" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The EntryNo parameter is missing.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Monitor Refresh Task - NamedType EntryNoMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 31976146 - NamedType 3027307925" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The decimal value from the backend response could not be parsed: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = backend value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH QuickScan Mgt. - NamedType BackendDecimalInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 31976146 - NamedType 4125751095" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Data Health Score response is invalid. Contact BCSentinel support if this continues.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH QuickScan Mgt. - NamedType QuickScanResponseInvalidErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2031230494" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
@@ -1862,6 +2202,16 @@
           <source>Active checks loaded: %1 | Skipped checks: %2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Check Mgt. - Method BuildCheckSelectionEventText - NamedType ActiveAndSkippedChecksLoadedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 328698456 - NamedType 4289134389" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Configure the API Base URL first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Dispatcher - NamedType ConfigureApiBaseUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 328698456 - NamedType 1350538340" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Scan Dispatcher - NamedType RegisterTenantErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2400674024 - NamedType 2895191655" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 / %2 active</source>
@@ -2143,6 +2493,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3003571318 - Method 1888169206 - NamedType 2419091743" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis for detailed insights</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Method UpdateAccessState - NamedType BuyFullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3003571318 - Method 1888169206 - NamedType 2685690085" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unlocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Method UpdateAccessState - NamedType UnlockedLbl</note>
+        </trans-unit>
         <trans-unit id="Page 3003571318 - Control 1850829176 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Access.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2197,6 +2557,26 @@
           <source>BCSentinel Issues</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - NamedType 1891876887" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - NamedType NoFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Method 1888169206 - NamedType 2419091743" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis for detailed insights</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Method UpdateAccessState - NamedType BuyFullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Method 1888169206 - NamedType 2685690085" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unlocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Method UpdateAccessState - NamedType UnlockedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3740536628 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3740536628 - Control 1850829176 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Access.</source>
@@ -2287,6 +2667,46 @@
           <source>BCSentinel Dashboards</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 4038404109" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to delete the selected dashboard from %1?</source>
+          <note from="Developer" annotates="general" priority="2">%1 = scan date and time</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType DeleteDashboardQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 3289754161" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring is already active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType MonitoringAlreadyActiveMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 3552631522" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan results are available yet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType NoScanResultsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 1397002351" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This aligns the BCSentinel scan history with the current Business Central scan list and removes orphaned backend scans. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType ReconcileScanHistoryQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 2440376510" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan history successfully synchronized.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType ScanHistorySynchronizedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 286783287" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select a dashboard entry first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType SelectDashboardEntryErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel setup was not found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - NamedType SetupNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no scan results are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Control 1926566482 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Checks Count.</source>
@@ -2433,6 +2853,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 204865987 - Method 1888169206 - NamedType 2419091743" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Method UpdateAccessState - NamedType BuyFullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 204865987 - Method 1888169206 - NamedType 2685690085" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unlocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Method UpdateAccessState - NamedType UnlockedLbl</note>
+        </trans-unit>
         <trans-unit id="Page 204865987 - Control 1850829176 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Access.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2487,6 +2917,26 @@
           <source>Deep Scan Findings</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - NamedType 1891876887" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - NamedType NoFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Method 1888169206 - NamedType 2419091743" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy Full Analysis</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Method UpdateAccessState - NamedType BuyFullAnalysisLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Method 1888169206 - NamedType 2685690085" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unlocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Method UpdateAccessState - NamedType UnlockedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 177555053 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 177555053 - Control 1850829176 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Access.</source>
@@ -2543,6 +2993,236 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 4225609737" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All modules completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType AllModulesCompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1931574121" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter the API Base URL in BCSentinel Setup first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ApiBaseUrlMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3953381912" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend status could not be refreshed. The local scan completed successfully.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType BackendRefreshFailedLocalCompleteLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 4210936152" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Backend status is outdated. The local scan completed successfully.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType BackendStatusOutdatedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 317460323" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType CancelledLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 241708881" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3865226667" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The completed scan does not have a backend scan ID yet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType CompletedScanIdMissingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1328386328" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed with warnings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType CompletedWithWarningsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 4072955024" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The field "token" is missing in the token service response.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType DashboardTokenFieldMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3040803965" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No valid dashboard token was returned by the token service.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType DashboardTokenInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 4276024956" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token service response is invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType DashboardTokenResponseInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3568079161" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dashboard token service returned an error. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType DashboardTokenServiceErrorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1259864903" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dashboard token service could not be reached.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType DashboardTokenServiceNotReachableErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2635385962" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The executive report link response contains an empty URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportLinkEmptyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2490920465" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The executive report link response does not contain a URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportLinkMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2727511747" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The executive report link response is invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportLinkResponseInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2073226586" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The executive report link service returned an error. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportLinkServiceErrorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 573582496" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The executive report link service could not be reached.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportLinkServiceNotReachableErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2948892973" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Executive Report is available after the scan is completed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExecutiveReportPendingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 711635327" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expired</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ExpiredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3516153326" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed during %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = module name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType FailedDuringLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType FailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2237013327" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finalizing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType FinalizingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 905701174" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType FinanceLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2299668004" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HR</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType HrLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 978194777" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initializing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType InitializingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3691251604" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType InventoryLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2034492362" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Jobs</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType JobsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3051153726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Less than 1 minute</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType LessThanOneMinuteLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1221404638" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manufacturing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ManufacturingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 557298712" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring is already active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType MonitoringAlreadyActiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2611621660" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan run is available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType NoDeepScanRunAvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 89240128" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Analytics-Dashboard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType OpenAnalyticsDashboardLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3935002960" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Possibly stalled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType PossiblyStalledLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1804325714" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preparing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType PreparingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 723307499" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preparing scan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType PreparingScanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1465263558" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Product access successfully refreshed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ProductAccessRefreshedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 4031863896" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType PurchasingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 542310721" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Queued</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType QueuedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType RejectedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 803195271" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Running</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType RunningLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3096777198" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SalesLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1631912580" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ScanCompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1501063042" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scan failed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ScanFailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1869981609" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType ServiceLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel setup was not found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SetupNotFoundErr</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - NamedType 1833375810" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2568,6 +3248,31 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SyncRetryRequiredLbl</note>
         </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3420156433" size-unit="char" translate="yes" xml:space="preserve">
+          <source>System</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType SystemLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 887345560" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant in BCSentinel Setup first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType TenantRegistrationMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3353737186" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant in BCSentinel Setup first so that an API token is stored.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType TenantTokenMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1773691126" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType UnknownLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 2904565030" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Waiting for backend status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - NamedType WaitingForBackendStatusLbl</note>
+        </trans-unit>
         <trans-unit id="Page 2958763285 - Method 3864462274 - NamedType 1945231236" size-unit="char" translate="yes" xml:space="preserve">
           <source>0% queued</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2582,6 +3287,21 @@
           <source>%1 complete</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method BuildProgressText - NamedType ProgressInProgressTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 944755320 - NamedType 3859463906" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Health Score</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method GetScanTypeText - NamedType DataHealthScoreLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 944755320 - NamedType 511164554" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method GetScanTypeText - NamedType MonitoringLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - Method 944755320 - NamedType 2618058289" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Check</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Method GetScanTypeText - NamedType ValidationCheckLbl</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Control 2430819985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Module Progress</source>
@@ -2989,7 +3709,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action OpenExternalDashboard - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2958763285 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refresh scan credits, monitoring status, and product access from BCSentinel.</source>
+          <source>Refreshes Validation Credits, Monitoring status, and product access from BCSentinel.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Monitor - Action RefreshLicenseStatus - Property ToolTip</note>
         </trans-unit>
@@ -3123,6 +3843,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedSyncFailedLbl</note>
         </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3841983121" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; synchronization pending</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType CompletedSyncPendingLbl</note>
+        </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 3238454627" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3188,6 +3913,11 @@
           <note from="Developer" annotates="general" priority="2">%1 = runtime value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType MonitorNotFoundErr</note>
         </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3513292194" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No scan history is available yet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType NoScanHistoryLbl</note>
+        </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 905897921" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scan history successfully synchronized with the backend.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3197,6 +3927,11 @@
           <source>This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ReconcileQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType RejectedLbl</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - NamedType 803195271" size-unit="char" translate="yes" xml:space="preserve">
           <source>Running</source>
@@ -3222,6 +3957,11 @@
           <source>Validation Scan</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - NamedType ValidationScanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no scan history is available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2477485063 - Control 3270557785 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Checks Count.</source>
@@ -3488,6 +4228,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Drilldown Launch - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2514064535 - NamedType 3922751719" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The issue code for opening the details is missing.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Drilldown Launch - NamedType MissingIssueCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2514064535 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel setup was not found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Drilldown Launch - NamedType SetupNotFoundErr</note>
+        </trans-unit>
         <trans-unit id="Page 2514064535 - Control 2444345320 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Status.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3502,6 +4252,16 @@
           <source>BCSentinel Issue Exceptions</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 1627970481" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No issue exceptions are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType NoExceptionsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no issue exceptions are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2708312499 - Control 1090351696 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Active.</source>
@@ -3863,6 +4623,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Purch. Line Worklist - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 763429813 - NamedType 575432636" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The correction was not logged because no master data record could be assigned.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Purch. Line Worklist - NamedType CorrectionNotLoggedMsg</note>
+        </trans-unit>
         <trans-unit id="Page 763429813 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Description.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3967,6 +4732,11 @@
           <source>DH Sales Line Issue Worklist</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Sales Line Issue Worklist - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 499536044 - NamedType 575432636" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The correction was not logged because no master data record could be assigned.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Sales Line Issue Worklist - NamedType CorrectionNotLoggedMsg</note>
         </trans-unit>
         <trans-unit id="Page 499536044 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Description.</source>
@@ -4172,6 +4942,16 @@
           <source>Scan Issues</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4215110451 - NamedType 1891876887" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - NamedType NoFindingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4215110451 - Control 2159058497 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains that no findings are available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Scan Issues - Control EmptyStateText - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4215110451 - Control 3925808139 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Affected Count.</source>
@@ -4668,6 +5448,41 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 138822141 - Method 640277108 - NamedType 3238454627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Critical</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetBackendRatingText - NamedType CriticalLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 640277108 - NamedType 1776087690" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fair</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetBackendRatingText - NamedType FairLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 640277108 - NamedType 202961339" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Good</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetBackendRatingText - NamedType GoodLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 640277108 - NamedType 2375457378" size-unit="char" translate="yes" xml:space="preserve">
+          <source>n/a</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetBackendRatingText - NamedType NotAvailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 4053357966 - NamedType 4167864837" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Declining</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetTrendText - NamedType DecliningLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 4053357966 - NamedType 316080623" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Improving</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetTrendText - NamedType ImprovingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 138822141 - Method 4053357966 - NamedType 877970641" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stable</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Score Part - Method GetTrendText - NamedType StableLbl</note>
+        </trans-unit>
         <trans-unit id="Page 138822141 - Control 2071048275 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Quick Score Gauge</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4828,15 +5643,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DisabledLbl</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 709875892" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DoYouWantToStartTheFreeLbl</note>
-        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType FailedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1419901430" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start now,Cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ManualScanActionsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1584648570" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan may affect system performance depending on data volume. Do you want to start it now during business hours?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ManualScanBusinessHoursQst</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 118358982" size-unit="char" translate="yes" xml:space="preserve">
           <source>Next scheduled scan: %1</source>
@@ -5159,7 +5979,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Contact Email - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 987915639 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics to BCSentinel for data health analysis, dashboards, executive reports, and license or credit checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.</source>
+          <source>Confirms that BCSentinel may send tenant and company identifiers, metadata, configuration data, scan results, findings, and aggregated quality metrics for data health analysis, dashboards, executive reports, and product-access checks. API tokens are stored securely and are not included in reports or share URLs. Review the privacy policy and terms before enabling consent.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Data Processing Consent - Property ToolTip</note>
         </trans-unit>
@@ -5288,30 +6108,60 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ModuleHealthScores - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 580064810 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the CRM module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CRMModuleScore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 580064810 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>CRM</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control CRMModuleScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2430559094 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Finance module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FinanceModuleScore - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 2430559094 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Finance</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FinanceModuleScore - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3561666500 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the HR module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control HRModuleScore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 3561666500 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>HR</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control HRModuleScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1227204916 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Inventory module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control InventoryModuleScore - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 1227204916 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control InventoryModuleScore - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2145554986 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Jobs module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control JobsModuleScore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 2145554986 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Jobs</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control JobsModuleScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3173709086 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Manufacturing module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ManufacturingModuleScore - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3173709086 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manufacturing</source>
@@ -5328,20 +6178,40 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ModuleScoresNotice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 880916792 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Purchasing module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PurchasingModuleScore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 880916792 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchasing</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PurchasingModuleScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3949944718 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Sales module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SalesModuleScore - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3949944718 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SalesModuleScore - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 298752089 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the Service module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ServiceModuleScore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 298752089 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ServiceModuleScore - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1983656353 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the latest score for the System module.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SystemModuleScore - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 1983656353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>System</source>
@@ -5558,6 +6428,41 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control WeeklyDays - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1408650904 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Friday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Friday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1955589599 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Monday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Monday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3978227348 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Saturday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Saturday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3217992067 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Sunday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Sunday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1215997499 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Thursday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Thursday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 754748522 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Tuesday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Tuesday - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1384734729 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether scheduled Monitoring scans run on Wednesday.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Schedule Wednesday - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 2672875601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Product and Access</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5574,7 +6479,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FreeAssessmentStatus - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 121135170 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Free Assessment</source>
+          <source>Free Data Health Score</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FreeAssessmentStatus - Property Caption</note>
         </trans-unit>
@@ -5593,13 +6498,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Monitoring Active - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3673508538 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows until when Monitoring is active.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control MonitoringUntil - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 3673508538 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Monitoring Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control MonitoringUntil - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - Control 349358011 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows until when the current product access is valid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PremiumUntil - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - Control 349358011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Premium Until</source>
+          <source>Product Access Until</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PremiumUntil - Property Caption</note>
         </trans-unit>
@@ -5664,7 +6579,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action ConnectionActions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Action 1949212398 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Refreshes scan credits, monitoring status, and product access from BCSentinel.</source>
+          <source>Refreshes Validation Credits, Monitoring status, and product access from BCSentinel.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action RefreshLicenseStatus - Property ToolTip</note>
         </trans-unit>
@@ -6043,6 +6958,61 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 2814113350" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the Data Health Management Analytics dashboard in a new browser tab.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType AnalyticsDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 1006698704" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the Data Health Management Analytics dashboard in a new browser tab. Backend: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = backend URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType AnalyticsDescriptionWithBackendLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 1931574121" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter the API Base URL in BCSentinel Setup first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType ApiBaseUrlMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 2184483844" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The field "token" is missing in the token service response.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType FieldTokenMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 830959611" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No valid token was returned by the token service.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType NoValidTokenErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 2355372627" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel setup was not found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType SetupNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 887345560" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant in BCSentinel Setup first.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType TenantRegistrationMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 3353737186" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register the tenant in BCSentinel Setup first so that an API token is stored.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType TenantTokenMissingErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 3743667155" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token service could not be reached.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType TokenServiceNotReachableErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 603503843" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token service response is not valid JSON.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType TokenServiceResponseInvalidErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3166868633 - NamedType 3804799116" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The token service returned an error. Status: %1. %2</source>
+          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DHM Analytics - NamedType TokenServiceReturnedErrorErr</note>
+        </trans-unit>
         <trans-unit id="Page 3166868633 - Control 2445482498 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Analytics</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -6272,27 +7242,6 @@
           <source>BCSentinel Viewer</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2477485063 - NamedType 3841983121" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Completed; synchronization pending</source>
-        </trans-unit>
-        <trans-unit id="Page 2477485063 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Rejected</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Rejected</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 3051153726" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Less than 1 minute</source>
-        </trans-unit>
-        <trans-unit id="Page 2958763285 - NamedType 89240128" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open Analytics-Dashboard</source>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 1584648570" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan may affect system performance depending on data volume. Do you want to start it now during business hours?</source>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 1419901430" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start now,Cancel</source>
         </trans-unit>
       </group>
     </body>

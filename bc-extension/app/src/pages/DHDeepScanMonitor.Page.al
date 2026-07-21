@@ -398,7 +398,7 @@
                 begin
                     AccessGuard.EnsureIssuesAccess();
                     if Rec."Entry No." = 0 then
-                        Error('No deep scan run is available.');
+                        Error(NoDeepScanRunAvailableLbl);
 
                     Finding.SetRange("Deep Scan Entry No.", Rec."Entry No.");
                     Page.Run(Page::"DH Deep Scan Findings List", Finding);
@@ -460,7 +460,7 @@
                     LoadSetupOrError(Setup);
 
                     if Setup."Monitoring Active" then begin
-                        Message('Monitoring is already active.');
+                        Message(MonitoringAlreadyActiveLbl);
                         exit;
                     end;
 
@@ -473,7 +473,7 @@
                 Caption = 'Refresh Product Access';
                 ApplicationArea = All;
                 Image = Refresh;
-                ToolTip = 'Refresh scan credits, monitoring status, and product access from BCSentinel.';
+                ToolTip = 'Refreshes Validation Credits, Monitoring status, and product access from BCSentinel.';
 
                 trigger OnAction()
                 var
@@ -482,7 +482,7 @@
                 begin
                     LoadSetupOrError(Setup);
                     ApiClient.RefreshLicenseStatus(Setup);
-                    Message('Product access refreshed.');
+                    Message(ProductAccessRefreshedMsg);
                 end;
             }
         }
@@ -603,6 +603,54 @@
         LessThanOneMinuteLbl: Label 'Less than 1 minute';
         OpenAnalyticsDashboardLbl: Label 'Open Analytics-Dashboard';
         RejectedLbl: Label 'Rejected';
+        AllModulesCompletedLbl: Label 'All modules completed';
+        BackendRefreshFailedLocalCompleteLbl: Label 'Backend status could not be refreshed. The local scan completed successfully.';
+        BackendStatusOutdatedLbl: Label 'Backend status is outdated. The local scan completed successfully.';
+        CancelledLbl: Label 'Cancelled';
+        CompletedLbl: Label 'Completed';
+        CompletedWithWarningsLbl: Label 'Completed with warnings';
+        ExpiredLbl: Label 'Expired';
+        FailedDuringLbl: Label 'Failed during %1', Comment = '%1 = module name';
+        FailedLbl: Label 'Failed';
+        FinalizingLbl: Label 'Finalizing';
+        FinanceLbl: Label 'Finance';
+        HrLbl: Label 'HR';
+        InitializingLbl: Label 'Initializing';
+        InventoryLbl: Label 'Inventory';
+        JobsLbl: Label 'Jobs';
+        ManufacturingLbl: Label 'Manufacturing';
+        PossiblyStalledLbl: Label 'Possibly stalled';
+        PreparingLbl: Label 'Preparing';
+        PreparingScanLbl: Label 'Preparing scan';
+        PurchasingLbl: Label 'Purchasing';
+        QueuedLbl: Label 'Queued';
+        RunningLbl: Label 'Running';
+        SalesLbl: Label 'Sales';
+        ScanCompletedLbl: Label 'Scan completed';
+        ScanFailedLbl: Label 'Scan failed';
+        ServiceLbl: Label 'Service';
+        SystemLbl: Label 'System';
+        UnknownLbl: Label 'Unknown';
+        WaitingForBackendStatusLbl: Label 'Waiting for backend status';
+        ApiBaseUrlMissingErr: Label 'Enter the API Base URL in BCSentinel Setup first.';
+        CompletedScanIdMissingLbl: Label 'The completed scan does not have a backend scan ID yet.';
+        DashboardTokenFieldMissingErr: Label 'The field "token" is missing in the token service response.';
+        DashboardTokenInvalidErr: Label 'No valid dashboard token was returned by the token service.';
+        DashboardTokenResponseInvalidErr: Label 'The token service response is invalid.';
+        DashboardTokenServiceErrorErr: Label 'The dashboard token service returned an error. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        DashboardTokenServiceNotReachableErr: Label 'The dashboard token service could not be reached.';
+        ExecutiveReportLinkEmptyErr: Label 'The executive report link response contains an empty URL.';
+        ExecutiveReportLinkMissingErr: Label 'The executive report link response does not contain a URL.';
+        ExecutiveReportLinkResponseInvalidErr: Label 'The executive report link response is invalid.';
+        ExecutiveReportLinkServiceNotReachableErr: Label 'The executive report link service could not be reached.';
+        ExecutiveReportLinkServiceErrorErr: Label 'The executive report link service returned an error. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
+        ExecutiveReportPendingLbl: Label 'The Executive Report is available after the scan is completed.';
+        MonitoringAlreadyActiveLbl: Label 'Monitoring is already active.';
+        NoDeepScanRunAvailableLbl: Label 'No scan run is available.';
+        ProductAccessRefreshedMsg: Label 'Product access successfully refreshed.';
+        SetupNotFoundErr: Label 'BCSentinel setup was not found.';
+        TenantRegistrationMissingErr: Label 'Register the tenant in BCSentinel Setup first.';
+        TenantTokenMissingErr: Label 'Register the tenant in BCSentinel Setup first so that an API token is stored.';
 
     local procedure ReloadMonitor()
     var
@@ -636,7 +684,7 @@
             end;
             Rec := DeepScanRun;
             if (BackendRefreshFailures > 0) and (BackendRefreshFailures < 3) and (Rec."Backend Status" = '') then
-                Rec."Current Step" := 'Waiting for backend status';
+                Rec."Current Step" := WaitingForBackendStatusLbl;
             ReloadDisplayValuesFromRec();
             LoadDashboardValues();
         end;
@@ -767,7 +815,7 @@
         if ScanDateTimeValue = 0DT then
             ScanDateTimeValue := Rec."Requested At";
 
-        ScanTypeTxt := 'Deep';
+        ScanTypeTxt := GetScanTypeText();
         RatingTxt := Rec.Rating;
         RatingStyle := GetRatingStyle(Rec.Rating);
         ScannedRecordsValue := Rec."Total Records";
@@ -791,6 +839,22 @@
             IssuesCountValue := Rec."Issues Count";
         if (AffectedRecordsValue = 0) and (Rec."Affected Records" <> 0) then
             AffectedRecordsValue := Rec."Affected Records";
+    end;
+
+    local procedure GetScanTypeText(): Text[30]
+    var
+        DataHealthScoreLbl: Label 'Data Health Score';
+        MonitoringLbl: Label 'Monitoring';
+        ValidationCheckLbl: Label 'Validation Check';
+    begin
+        case LowerCase(Rec."Scan Mode") of
+            'data_health_score', 'free_deep':
+                exit(DataHealthScoreLbl);
+            'monitoring':
+                exit(MonitoringLbl);
+        end;
+
+        exit(ValidationCheckLbl);
     end;
 
     local procedure UpdateModuleVisibility()
@@ -855,19 +919,50 @@
     local procedure GetCurrentModuleText(): Text[50]
     begin
         if IsLocalCompleted() then
-            exit('All modules completed');
+            exit(AllModulesCompletedLbl);
 
         case LowerCase(Rec."Backend Status") of
             'queued', 'preparing':
-                exit('Preparing');
+                exit(PreparingLbl);
             'completed':
-                exit('All modules completed');
+                exit(AllModulesCompletedLbl);
             'failed':
                 begin
                     if Rec."Current Module" <> '' then
-                        exit(CopyStr(StrSubstNo('Failed during %1', Rec."Current Module"), 1, 50));
-                    exit('Failed');
+                        exit(CopyStr(StrSubstNo(FailedDuringLbl, Rec."Current Module"), 1, 50));
+                    exit(FailedLbl);
                 end;
+        end;
+
+        case LowerCase(Rec."Current Module") of
+            'all modules completed', 'completed':
+                exit(AllModulesCompletedLbl);
+            'preparing':
+                exit(PreparingLbl);
+            'initializing':
+                exit(InitializingLbl);
+            'finalizing':
+                exit(FinalizingLbl);
+            'system':
+                exit(SystemLbl);
+            'finance':
+                exit(FinanceLbl);
+            'sales':
+                exit(SalesLbl);
+            'purchasing':
+                exit(PurchasingLbl);
+            'inventory':
+                exit(InventoryLbl);
+            'crm':
+                exit('CRM');
+            'manufacturing':
+                exit(ManufacturingLbl);
+            'service':
+                exit(ServiceLbl);
+            'jobs':
+                exit(JobsLbl);
+            'hr':
+                exit(HrLbl);
         end;
 
         if Rec."Current Module" <> '' then
@@ -879,25 +974,25 @@
     local procedure GetCurrentStepText(): Text[160]
     begin
         if IsLocalCompleted() then
-            exit('Scan completed');
+            exit(ScanCompletedLbl);
 
         case LowerCase(Rec."Backend Status") of
             'queued':
-                exit('Waiting for backend status');
+                exit(WaitingForBackendStatusLbl);
             'preparing':
-                exit('Preparing scan');
+                exit(PreparingScanLbl);
             'completed':
-                exit('Scan completed');
+                exit(ScanCompletedLbl);
             'failed':
                 if Rec."Current Step" = '' then
-                    exit('Scan failed');
+                    exit(ScanFailedLbl);
         end;
 
         if Rec."Current Step" <> '' then
             exit(Rec."Current Step");
 
         if Rec.Status = Rec.Status::Queued then
-            exit('Waiting for backend status');
+            exit(WaitingForBackendStatusLbl);
 
         exit('');
     end;
@@ -905,13 +1000,13 @@
     local procedure GetEtaText(): Text[100]
     begin
         if IsLocalCompleted() then
-            exit('Completed');
+            exit(CompletedLbl);
 
         case LowerCase(Rec."Backend Status") of
             'completed':
-                exit('Completed');
+                exit(CompletedLbl);
             'completed_with_warnings':
-                exit('Completed with warnings');
+                exit(CompletedWithWarningsLbl);
             'queued', 'preparing':
                 exit('');
         end;
@@ -928,10 +1023,10 @@
             exit('');
 
         if IsLocalCompleted() and IsBackendNonTerminal() then
-            exit('Backend status is outdated. Local scan completed successfully.');
+            exit(BackendStatusOutdatedLbl);
 
         if (BackendRefreshFailures > 0) and IsLocalCompleted() then
-            exit('Backend status could not be refreshed. Local scan completed successfully.');
+            exit(BackendRefreshFailedLocalCompleteLbl);
 
         exit(Rec."Warning Message");
     end;
@@ -1068,50 +1163,50 @@
     local procedure GetScanStatusText(): Text
     begin
         if IsLocalCompleted() then
-            exit('Completed');
+            exit(CompletedLbl);
 
         if LowerCase(Rec."Backend Status") = 'rejected' then
             exit(RejectedLbl);
 
         if Rec.Status = Rec.Status::Failed then
-            exit('Failed');
+            exit(FailedLbl);
         if Rec.Status = Rec.Status::Canceled then
-            exit('Cancelled');
+            exit(CancelledLbl);
 
         case LowerCase(Rec."Backend Status") of
             'queued':
-                exit('Queued');
+                exit(QueuedLbl);
             'preparing':
-                exit('Preparing');
+                exit(PreparingLbl);
             'running':
-                exit('Running');
+                exit(RunningLbl);
             'finalizing':
-                exit('Finalizing');
+                exit(FinalizingLbl);
             'completed':
-                exit('Completed');
+                exit(CompletedLbl);
             'failed':
-                exit('Failed');
+                exit(FailedLbl);
             'stalled':
-                exit('Possibly stalled');
+                exit(PossiblyStalledLbl);
             'expired':
-                exit('Expired');
+                exit(ExpiredLbl);
             'cancelled':
-                exit('Cancelled');
+                exit(CancelledLbl);
         end;
 
         case Rec.Status of
             Rec.Status::Queued:
-                exit('Queued');
+                exit(QueuedLbl);
             Rec.Status::Running:
-                exit('Running');
+                exit(RunningLbl);
             Rec.Status::Completed:
-                exit('Completed');
+                exit(CompletedLbl);
             Rec.Status::Failed:
-                exit('Failed');
+                exit(FailedLbl);
             Rec.Status::Canceled:
-                exit('Cancelled');
+                exit(CancelledLbl);
         end;
-        exit('Unknown');
+        exit(UnknownLbl);
     end;
 
     local procedure GetScanStatusStyle(): Text
@@ -1237,7 +1332,7 @@
         Token := ApiClient.GetAnalyticsDashboardToken(Setup);
 
         if Token = '' then
-            Error('No valid dashboard token was returned by the token service.');
+            Error(DashboardTokenInvalidErr);
 
         Hyperlink(GetDashboardUrl(Setup, Token));
     end;
@@ -1273,17 +1368,17 @@
     local procedure CanOpenExecutiveReport(): Boolean
     begin
         if Rec."Entry No." = 0 then begin
-            Message('No deep scan run is available.');
+            Message(NoDeepScanRunAvailableLbl);
             exit(false);
         end;
 
         if Rec.Status <> Rec.Status::Completed then begin
-            Message('The executive report is available after the deep scan is completed.');
+            Message(ExecutiveReportPendingLbl);
             exit(false);
         end;
 
         if Rec."Run ID" = '' then begin
-            Message('The completed scan does not have a backend scan ID yet.');
+            Message(CompletedScanIdMissingLbl);
             exit(false);
         end;
 
@@ -1293,16 +1388,16 @@
     local procedure LoadSetupOrError(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then
-            Error('DH Setup was not found.');
+            Error(SetupNotFoundErr);
 
         if Setup."API Base URL" = '' then
-            Error('Please enter the API Base URL in DH Setup first.');
+            Error(ApiBaseUrlMissingErr);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant in DH Setup first.');
+            Error(TenantRegistrationMissingErr);
 
         if GetApiToken(Setup) = '' then
-            Error('Please register the tenant in DH Setup first so that an API token is stored.');
+            Error(TenantTokenMissingErr);
     end;
 
     local procedure RequestDashboardToken(var Setup: Record "DH Setup"): Text
@@ -1322,15 +1417,12 @@
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Send(Request, Response) then
-            Error('The dashboard token service could not be reached.');
+            Error(DashboardTokenServiceNotReachableErr);
 
         Response.Content().ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error(
-              'The dashboard token service returned an error. Status: %1. %2',
-              Response.HttpStatusCode(),
-              ApiClient.GetSafeBackendErrorText(ResponseText));
+            Error(DashboardTokenServiceErrorErr, Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -1400,15 +1492,12 @@
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Post(BuildExecutiveShareLinkUrl(Setup), Content, Response) then
-            Error('The executive report link service could not be reached.');
+            Error(ExecutiveReportLinkServiceNotReachableErr);
 
         Response.Content().ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error(
-              'The executive report link service returned an error. Status: %1. %2',
-              Response.HttpStatusCode(),
-              ApiClient.GetSafeBackendErrorText(ResponseText));
+            Error(ExecutiveReportLinkServiceErrorErr, Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ExtractUrlFromJson(ResponseText));
     end;
@@ -1425,14 +1514,14 @@
         Url: Text;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error('The executive report link response is not valid JSON.');
+            Error(ExecutiveReportLinkResponseInvalidErr);
 
         if not JsonObj.Get('url', JsonToken) then
-            Error('The executive report link response does not contain a url.');
+            Error(ExecutiveReportLinkMissingErr);
 
         Url := JsonToken.AsValue().AsText();
         if Url = '' then
-            Error('The executive report link response contains an empty url.');
+            Error(ExecutiveReportLinkEmptyErr);
 
         exit(Url);
     end;
@@ -1456,10 +1545,10 @@
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error('The token service response is not valid JSON.');
+            Error(DashboardTokenResponseInvalidErr);
 
         if not JsonObj.Get('token', JsonToken) then
-            Error('The field "token" is missing in the token service response.');
+            Error(DashboardTokenFieldMissingErr);
 
         exit(JsonToken.AsValue().AsText());
     end;

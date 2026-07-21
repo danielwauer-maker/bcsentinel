@@ -25,6 +25,7 @@ from app.schemas.report import (
 )
 from app.services.impact_service import normalize_stored_commercials
 from app.services.localization_service import tenant_language
+from app.services.check_catalog_service import CheckText, resolve_check_texts
 
 
 logger = logging.getLogger(__name__)
@@ -226,45 +227,19 @@ def _normalize_category(category: str | None, code: str) -> str:
     return "System"
 
 
-def _recommendation(issue: ScanIssueRecord, language: str = "en") -> str:
-    preview = str(issue.recommendation_preview or "").strip()
-    if preview:
-        return preview
-    category = _normalize_category(issue.category, issue.code)
-    if language == "de":
-        if category == "Finance":
-            return "Priorisiere Abstimmung und Buchungs-Setup, um Reporting-Risiken zu reduzieren."
-        if category == "Inventory":
-            return "Bereinige Artikel- und Lager-Setup vor dem naechsten Planungs- oder Bewertungszyklus."
-        if category == "CRM":
-            return "Vervollstaendige Kundenstammdaten, bevor sie Abrechnung, Lieferung oder Service verzoegern."
-        if category == "Purchasing":
-            return "Vervollstaendige Lieferanten- und Einkaufs-Setup, um manuelle Nacharbeit zu reduzieren."
-        return "Pruefe die betroffenen Datensaetze und schliesse die zugrunde liegende Business-Central-Setup-Luecke."
-    if category == "Finance":
-        return "Prioritize reconciliation and posting setup to reduce financial reporting risk."
-    if category == "Inventory":
-        return "Clean item and inventory setup before the next planning or costing cycle."
-    if category == "CRM":
-        return "Complete customer master data before it causes billing, delivery, or service delays."
-    if category == "Purchasing":
-        return "Complete vendor and purchasing setup to reduce manual rework."
-    return "Review the affected records and close the underlying Business Central setup gap."
-
-
-def _finding(rank: int, issue: ScanIssueRecord, language: str = "en") -> ReportFinding:
+def _finding(rank: int, issue: ScanIssueRecord, catalog_text: CheckText) -> ReportFinding:
     severity = str(issue.severity or "low").lower()
     if severity not in SEVERITY_WEIGHT:
         severity = "low"
     return ReportFinding(
         rank=rank,
         code=issue.code,
-        title=issue.title,
+        title=catalog_text.title,
         category=_normalize_category(issue.category, issue.code),
         severity=severity,
         affected_count=max(0, _safe_int(issue.affected_count)),
         estimated_impact_eur=round(_safe_float(issue.estimated_impact_eur), 2),
-        recommendation=_recommendation(issue, language),
+        recommendation=catalog_text.recommendation,
     )
 
 
@@ -416,7 +391,12 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
 
     issues = db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all()
     scan_run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan.scan_id))
-    findings = [_finding(index + 1, issue, language) for index, issue in enumerate(_sorted_issues(list(issues)))]
+    sorted_issues = _sorted_issues(list(issues))
+    catalog_texts = resolve_check_texts(db, {issue.code for issue in sorted_issues}, language)
+    findings = [
+        _finding(index + 1, issue, catalog_texts[issue.code])
+        for index, issue in enumerate(sorted_issues)
+    ]
     affected_records = sum(finding.affected_count for finding in findings)
 
     commercials = normalize_stored_commercials(

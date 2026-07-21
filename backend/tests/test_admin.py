@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.db import SessionLocal
 from app.models import (
     AdminAuditEvent,
+    CheckTranslation,
     ImpactSettingsConfig,
     Partner,
     PartnerReferral,
@@ -34,6 +35,51 @@ def _admin_csrf(client, path: str = "/admin/config/issue-costs") -> dict[str, st
     token = client.cookies.get("bcs_csrf")
     assert token
     return {"csrf_token": token}
+
+
+def test_admin_check_catalog_lists_and_updates_customer_overrides(client):
+    list_response = client.get("/admin/config/check-catalog", headers=_admin_auth_header())
+    assert list_response.status_code == 200
+    assert "CUSTOMERS_MISSING_POSTCODE" in list_response.text
+    assert "Debitoren ohne Postleitzahl" in list_response.text
+
+    detail_path = "/admin/config/check-catalog/CUSTOMERS_MISSING_POSTCODE"
+    detail_response = client.get(detail_path, headers=_admin_auth_header())
+    assert detail_response.status_code == 200
+    assert "Bewertungslogik" in detail_response.text
+    assert "Standardtexte wiederherstellen" in detail_response.text
+
+    update_response = client.post(
+        detail_path,
+        headers=_admin_auth_header(),
+        data={
+            **_admin_csrf(client, detail_path),
+            "title_de": "Kundentitel",
+            "short_description_de": "Kundenspezifische Kurzbeschreibung.",
+            "recommendation_de": "Kundenspezifische Empfehlung.",
+            "title_en": "Customer title",
+            "short_description_en": "Customer-specific short description.",
+            "recommendation_en": "Customer-specific recommendation.",
+        },
+        follow_redirects=False,
+    )
+    assert update_response.status_code == 303
+    with SessionLocal() as db:
+        translation = db.get(CheckTranslation, ("CUSTOMERS_MISSING_POSTCODE", "de-DE"))
+        assert translation.title == "Kundentitel"
+        assert translation.is_customized is True
+
+    restore_response = client.post(
+        f"{detail_path}/restore",
+        headers=_admin_auth_header(),
+        data=_admin_csrf(client, detail_path),
+        follow_redirects=False,
+    )
+    assert restore_response.status_code == 303
+    with SessionLocal() as db:
+        translation = db.get(CheckTranslation, ("CUSTOMERS_MISSING_POSTCODE", "de-DE"))
+        assert translation.title == "Debitoren ohne Postleitzahl"
+        assert translation.is_customized is False
 
 
 def test_admin_issue_cost_page_lists_estimated_loss_issue_inputs(client):

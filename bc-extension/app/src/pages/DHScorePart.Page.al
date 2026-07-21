@@ -273,27 +273,32 @@
         EmptySegments := 10 - FilledSegments;
 
         for i := 1 to FilledSegments do
-            ResultText += 'â– ';
+            ResultText += '■';
 
         for i := 1 to EmptySegments do
-            ResultText += 'â–¡';
+            ResultText += '□';
 
         exit(ResultText + '  ' + Format(ScoreValue) + '/100');
     end;
 
     local procedure GetBackendRatingText(RatingValue: Text): Text
+    var
+        CriticalLbl: Label 'Critical';
+        FairLbl: Label 'Fair';
+        GoodLbl: Label 'Good';
+        NotAvailableLbl: Label 'n/a';
     begin
         case LowerCase(RatingValue) of
             'good':
-                exit('Good');
+                exit(GoodLbl);
             'fair':
-                exit('Fair');
+                exit(FairLbl);
             'critical':
-                exit('Critical');
+                exit(CriticalLbl);
         end;
 
         if RatingValue = '' then
-            exit('n/a');
+            exit(NotAvailableLbl);
 
         exit(RatingValue);
     end;
@@ -313,14 +318,18 @@
     end;
 
     local procedure GetTrendText(DeltaValue: Integer): Text
+    var
+        DecliningLbl: Label 'Declining';
+        ImprovingLbl: Label 'Improving';
+        StableLbl: Label 'Stable';
     begin
         if DeltaValue > 0 then
-            exit('Improving');
+            exit(ImprovingLbl);
 
         if DeltaValue < 0 then
-            exit('Declining');
+            exit(DecliningLbl);
 
-        exit('Stable');
+        exit(StableLbl);
     end;
 
     local procedure GetTrendStyle(DeltaValue: Integer): Text
@@ -348,4 +357,3 @@
         exit('Subordinate');
     end;
 }
-

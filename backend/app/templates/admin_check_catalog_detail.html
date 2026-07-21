@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }}</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body class="dashboard-body admin-body">
+  <div class="admin-shell">
+    <header class="page-header admin-header"><div><h1>BCSentinel Admin</h1><p class="muted">{{ section_subtitle }}</p></div></header>
+    <div class="admin-layout">
+      <aside class="panel admin-sidebar">
+        <div class="panel-header"><h2>Navigation</h2><span class="muted">Admin-Bereiche</span></div>
+        <nav class="admin-nav">{% for item in admin_nav %}<a href="{{ item.href }}" class="admin-nav-link{% if item.active %} is-active{% endif %}">{{ item.label }}</a>{% endfor %}</nav>
+      </aside>
+      <main class="admin-main">
+        <section class="panel panel-large">
+          <div class="panel-header"><div><h2>{{ check.check_id }}</h2><span class="muted">Technische Produktlogik (schreibgeschützt)</span></div><a class="btn btn-secondary" href="/admin/config/check-catalog">Zurück zur Liste</a></div>
+          {% if flash_message %}<p class="{% if flash_status == 'error' %}error-text{% else %}success-text{% endif %}">{{ flash_message }}</p>{% endif %}
+          <div class="config-list">
+            <div class="config-row"><div class="config-title">Check-ID</div><input value="{{ check.check_id }}" readonly></div>
+            <div class="config-row"><div class="config-title">Modul</div><input value="{{ check.module }}" readonly></div>
+            <div class="config-row"><div class="config-title">Severity</div><input value="{{ check.severity }}" readonly></div>
+            <div class="config-row"><div class="config-title">Financial Impact</div><input value="{% if financial_impact %}{{ financial_impact.minutes_per_occurrence }} Min. · {{ financial_impact.probability }} · {{ financial_impact.frequency_per_year }}/Jahr{% else %}Keine separate Impact-Konfiguration{% endif %}" readonly></div>
+            <div class="config-row"><div class="config-title">Bewertungslogik</div><input value="In der Scan Engine definiert; hier nicht bearbeitbar" readonly></div>
+          </div>
+        </section>
+        <form method="post" action="/admin/config/check-catalog/{{ check.check_id }}">
+          <section class="panel panel-large">
+            <div class="panel-header"><h2>Deutsch</h2><span class="muted">de-DE · {{ "Kundenanpassung" if translation_de.is_customized else "Standardtext" }}</span></div>
+            <label>Titel<input name="title_de" value="{{ translation_de.title }}" required maxlength="255"></label>
+            <label>Kurzbeschreibung<textarea name="short_description_de" rows="4" required>{{ translation_de.short_description }}</textarea></label>
+            <label>Empfehlung<textarea name="recommendation_de" rows="5" required>{{ translation_de.recommendation }}</textarea></label>
+          </section>
+          <section class="panel panel-large">
+            <div class="panel-header"><h2>English</h2><span class="muted">en-US · {{ "Customer override" if translation_en.is_customized else "System default" }}</span></div>
+            <label>Title<input name="title_en" value="{{ translation_en.title }}" required maxlength="255"></label>
+            <label>Short Description<textarea name="short_description_en" rows="4" required>{{ translation_en.short_description }}</textarea></label>
+            <label>Recommendation<textarea name="recommendation_en" rows="5" required>{{ translation_en.recommendation }}</textarea></label>
+          </section>
+          <button type="submit" class="btn btn-primary">Checktexte speichern</button>
+        </form>
+        <section class="panel panel-large">
+          <div class="panel-header"><div><h2>Standardtexte</h2><span class="muted">Setzt ausschließlich de-DE und en-US zurück</span></div>
+            <form method="post" action="/admin/config/check-catalog/{{ check.check_id }}/restore" onsubmit="return confirm('Kundenanpassungen dieses Checks wirklich verwerfen?');"><button type="submit" class="btn btn-secondary">Standardtexte wiederherstellen</button></form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script>
+    const csrfToken = {{ csrf_token | tojson }};
+    document.querySelectorAll('form[method="post"]').forEach((form) => {
+      const input = document.createElement('input'); input.type = 'hidden'; input.name = 'csrf_token'; input.value = csrfToken; form.appendChild(input);
+    });
+  </script>
+</body>
+</html>

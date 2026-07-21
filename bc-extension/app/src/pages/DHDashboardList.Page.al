@@ -15,6 +15,19 @@
     {
         area(Content)
         {
+            group(EmptyState)
+            {
+                ShowCaption = false;
+                Visible = EmptyStateVisible;
+                field(EmptyStateText; EmptyStateTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains that no scan results are available.';
+                }
+            }
             repeater(Entries)
             {
                 field(DisplayRunId; Rec.GetDisplayRunId())
@@ -116,7 +129,7 @@
                     QuickScanMgt: Codeunit "DH QuickScan Mgt.";
                 begin
                     if not Setup.Get('SETUP') then
-                        Error('Setup not found.');
+                        Error(SetupNotFoundErr);
 
                     QuickScanMgt.RunQuickScanAndOpenDashboard(Setup);
                     CurrPage.Update(false);
@@ -137,9 +150,9 @@
                     BackendDeleteId: Code[50];
                 begin
                     if Rec."Entry No." = 0 then
-                        Error('Please select a dashboard entry first.');
+                        Error(SelectDashboardEntryErr);
 
-                    if Confirm('Do you want to delete the selected dashboard from %1?', false, Format(Rec."Scan DateTime")) then begin
+                    if Confirm(DeleteDashboardQst, false, Format(Rec."Scan DateTime")) then begin
                         BackendDeleteId := GetBackendDeleteId();
 
                         if Setup.Get('SETUP') then
@@ -165,13 +178,13 @@
                     ApiClient: Codeunit "DH API Client";
                 begin
                     if not Setup.Get('SETUP') then
-                        Error('Setup not found.');
+                        Error(SetupNotFoundErr);
 
-                    if not Confirm('This will align the backend scan history with the current BC scan list and remove orphan backend scans. Continue?', false) then
+                    if not Confirm(ReconcileScanHistoryQst, false) then
                         exit;
 
                     ApiClient.ReconcileScansWithBackend(Setup);
-                    Message('Scan history synchronized with backend.');
+                    Message(ScanHistorySynchronizedMsg);
                     CurrPage.Update(false);
                 end;
             }
@@ -198,10 +211,10 @@
                     ApiClient: Codeunit "DH API Client";
                 begin
                     if not Setup.Get('SETUP') then
-                        Error('Setup not found.');
+                        Error(SetupNotFoundErr);
 
                     if Setup."Premium Enabled" then begin
-                        Message('Paid scan access is already enabled.');
+                        Message(MonitoringAlreadyActiveMsg);
                         exit;
                     end;
 
@@ -237,19 +250,31 @@
     begin
         Rec.SetCurrentKey("Scan DateTime");
         Rec.Ascending(false);
+        EmptyStateTxt := NoScanResultsLbl;
+        EmptyStateVisible := Rec.IsEmpty();
     end;
 
     trigger OnAfterGetRecord()
     begin
+        EmptyStateVisible := false;
         MonitoringAmountTxt := GetLocalAmountText(Rec."Est. Premium Price");
         ImpactTxt := GetLocalAmountText(Rec."Estimated Loss (EUR)");
         ROITxt := GetLocalAmountText(Rec."ROI");
     end;
 
     var
+        EmptyStateTxt: Text[100];
+        EmptyStateVisible: Boolean;
         ImpactTxt: Text[50];
         MonitoringAmountTxt: Text[50];
         ROITxt: Text[50];
+        DeleteDashboardQst: Label 'Do you want to delete the selected dashboard from %1?', Comment = '%1 = scan date and time';
+        MonitoringAlreadyActiveMsg: Label 'Monitoring is already active.';
+        NoScanResultsLbl: Label 'No scan results are available yet.';
+        ReconcileScanHistoryQst: Label 'This aligns the BCSentinel scan history with the current Business Central scan list and removes orphaned backend scans. Do you want to continue?';
+        ScanHistorySynchronizedMsg: Label 'Scan history successfully synchronized.';
+        SelectDashboardEntryErr: Label 'Select a dashboard entry first.';
+        SetupNotFoundErr: Label 'BCSentinel setup was not found.';
 
     local procedure GetBackendDeleteId(): Code[50]
     begin
@@ -273,4 +298,3 @@
         exit(CurrencyMgt.FormatLocalAmount(Amount));
     end;
 }
-

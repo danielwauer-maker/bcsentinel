@@ -53,7 +53,7 @@
                     Token := ApiClient.GetAnalyticsDashboardToken(Setup);
 
                     if Token = '' then
-                        Error('No valid token was found in the token service response.');
+                        Error(NoValidTokenErr);
 
                     Hyperlink(GetDashboardUrl(Setup, Token));
                 end;
@@ -63,36 +63,45 @@
 
     var
         DescriptionTxt: Text[250];
+        AnalyticsDescriptionLbl: Label 'Opens the Data Health Management Analytics dashboard in a new browser tab.';
+        AnalyticsDescriptionWithBackendLbl: Label 'Opens the Data Health Management Analytics dashboard in a new browser tab. Backend: %1', Comment = '%1 = backend URL';
+        FieldTokenMissingErr: Label 'The field "token" is missing in the token service response.';
+        NoValidTokenErr: Label 'No valid token was returned by the token service.';
+        SetupNotFoundErr: Label 'BCSentinel setup was not found.';
+        ApiBaseUrlMissingErr: Label 'Enter the API Base URL in BCSentinel Setup first.';
+        TenantRegistrationMissingErr: Label 'Register the tenant in BCSentinel Setup first.';
+        TenantTokenMissingErr: Label 'Register the tenant in BCSentinel Setup first so that an API token is stored.';
+        TokenServiceNotReachableErr: Label 'The token service could not be reached.';
+        TokenServiceResponseInvalidErr: Label 'The token service response is not valid JSON.';
+        TokenServiceReturnedErrorErr: Label 'The token service returned an error. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
 
     trigger OnOpenPage()
     var
         Setup: Record "DH Setup";
         BaseUrl: Text;
     begin
-        DescriptionTxt := 'Opens the Data Health Management Analytics dashboard in a new browser tab.';
+        DescriptionTxt := AnalyticsDescriptionLbl;
 
         if Setup.Get('SETUP') then begin
             BaseUrl := RemoveTrailingSlash(Setup."API Base URL");
             if BaseUrl <> '' then
-                DescriptionTxt := StrSubstNo(
-                    'Opens the Data Health Management Analytics dashboard in a new browser tab. Backend: %1',
-                    CopyStr(BaseUrl, 1, 180));
+                DescriptionTxt := StrSubstNo(AnalyticsDescriptionWithBackendLbl, CopyStr(BaseUrl, 1, 180));
         end;
     end;
 
     local procedure LoadSetupOrError(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then
-            Error('DH Setup was not found.');
+            Error(SetupNotFoundErr);
 
         if Setup."API Base URL" = '' then
-            Error('Please enter the API Base URL in DH Setup first.');
+            Error(ApiBaseUrlMissingErr);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant in DH Setup first.');
+            Error(TenantRegistrationMissingErr);
 
         if GetApiToken(Setup) = '' then
-            Error('Please register the tenant in DH Setup first so that an API token is stored.');
+            Error(TenantTokenMissingErr);
     end;
 
     local procedure RequestDashboardToken(var Setup: Record "DH Setup"): Text
@@ -112,15 +121,12 @@
         Headers.Add('X-Api-Token', GetApiToken(Setup));
 
         if not Client.Send(Request, Response) then
-            Error('The token service could not be reached.');
+            Error(TokenServiceNotReachableErr);
 
         Response.Content().ReadAs(ResponseText);
 
         if not Response.IsSuccessStatusCode() then
-            Error(
-                'The token service returned an error. Status: %1. %2',
-                Response.HttpStatusCode(),
-                ApiClient.GetSafeBackendErrorText(ResponseText));
+            Error(TokenServiceReturnedErrorErr, Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
 
         exit(ResponseText);
     end;
@@ -181,10 +187,10 @@
         JsonToken: JsonToken;
     begin
         if not JsonObj.ReadFrom(JsonText) then
-            Error('The token service response is not valid JSON.');
+            Error(TokenServiceResponseInvalidErr);
 
         if not JsonObj.Get('token', JsonToken) then
-            Error('The field "token" is missing in the token service response.');
+            Error(FieldTokenMissingErr);
 
         exit(JsonToken.AsValue().AsText());
     end;

@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
+from sqlalchemy.orm import Session
+
 from app.schemas.scan import ScanIssue, ScanSummary
 from app.services.cost_service import DEFAULT_ISSUE_COSTS
-from app.services.issue_text_service import issue_text, summary_headline
+from app.services.check_catalog_service import resolve_check_texts
+from app.services.issue_text_service import summary_headline
 
 
 @dataclass(frozen=True)
@@ -214,11 +217,13 @@ def _default_issue_impact(issue_code: str, affected_count: int) -> float:
 
 
 def calculate_quick_scan_result(
+    db: Session,
     metrics: Dict[str, int],
     language: object | None = None,
 ) -> Tuple[int, int, int, ScanSummary, List[ScanIssue]]:
     score = 100
     all_issues: List[ScanIssue] = []
+    catalog_texts = resolve_check_texts(db, {check.code for check in QUICK_CHECKS}, language)
 
     for check in QUICK_CHECKS:
         affected_count = _safe_int(metrics.get(check.metric_key, 0))
@@ -232,7 +237,7 @@ def calculate_quick_scan_result(
         )
 
         if affected_count > 0:
-            localized_text = issue_text(check.code, language)
+            localized_text = catalog_texts[check.code]
             all_issues.append(
                 ScanIssue(
                     code=check.code,

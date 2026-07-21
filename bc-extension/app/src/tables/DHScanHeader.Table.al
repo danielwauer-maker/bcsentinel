@@ -44,7 +44,7 @@ table 53120 "DH Scan Header"
         }
         field(10; "Premium Available"; Boolean)
         {
-            Caption = 'Paid Access Available';
+            Caption = 'Product Access Available';
         }
         field(11; "Run ID"; Code[50])
         {

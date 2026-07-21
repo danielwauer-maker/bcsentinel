@@ -39,7 +39,7 @@ table 53129 "DH Deep Scan Finding"
         }
         field(9; "Premium Only"; Boolean)
         {
-            Caption = 'Paid Access';
+            Caption = 'Product Access';
         }
         field(10; "Severity Sort Order"; Integer)
         {

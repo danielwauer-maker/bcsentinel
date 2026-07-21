@@ -70,6 +70,34 @@
         </section>
         {% endif %}
 
+        {% if active_section == "check_catalog" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <div><h2>Enterprise Check Catalog</h2><span class="muted">Systemtexte und geschützte Kundenanpassungen</span></div>
+            <form method="post" action="/admin/config/check-catalog/actions/restore-all" onsubmit="return confirm('Wirklich alle angepassten Checktexte auf den Standard zurücksetzen?');">
+              <button type="submit" class="btn btn-secondary">Alle Standardtexte wiederherstellen</button>
+            </form>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Check-ID</th><th>Modul</th><th>Deutscher Titel</th><th>Englischer Titel</th><th>Quelle</th><th>Aktion</th></tr></thead>
+              <tbody>
+              {% for row in check_catalog_rows %}
+                <tr>
+                  <td><code>{{ row.check_id }}</code></td>
+                  <td>{{ row.module }}</td>
+                  <td>{{ row.title_de }}</td>
+                  <td>{{ row.title_en }}</td>
+                  <td><span class="pill small-pill{% if row.customized %} success-pill{% endif %}">{{ "Kundenanpassung" if row.customized else "Standard" }}</span></td>
+                  <td><a class="btn btn-secondary" href="/admin/config/check-catalog/{{ row.check_id }}">Öffnen</a></td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        {% endif %}
+
         {% if active_section == "issue_costs" %}
         <section class="issue-costs-layout">
           <article class="panel panel-large issue-costs-panel">

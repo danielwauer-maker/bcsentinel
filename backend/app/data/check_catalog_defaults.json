@@ -1,0 +1,3623 @@
+[
+  {
+    "check_id": "BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Debitoren mit offenen Posten",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Gesperrte Debitoren mit offenen Posten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Debitoren mit offenen Posten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Customers With Open Ledger Entries",
+        "short_description": "Identifies records affected by the check “Blocked Customers With Open Ledger Entries”.",
+        "recommendation": "Review open entries for blocked customers and clear legacy items."
+      }
+    }
+  },
+  {
+    "check_id": "BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Debitoren mit offenen Verkaufsbelege",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Gesperrte Debitoren mit offenen Verkaufsbelege“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Debitoren mit offenen Verkaufsbelege“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Customers With Open Sales Documents",
+        "short_description": "Identifies records affected by the check “Blocked Customers With Open Sales Documents”.",
+        "recommendation": "Clean up blocked customers and open sales documents."
+      }
+    }
+  },
+  {
+    "check_id": "BLOCKED_ITEMS_WITH_INVENTORY",
+    "module": "ITEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Artikel mit Lagerbestand",
+        "short_description": "Ermittelt gesperrte Artikel mit vorhandenem Lagerbestand.",
+        "recommendation": "Prüfen Sie den Sperrstatus und bereinigen Sie den vorhandenen Lagerbestand der betroffenen Artikel."
+      },
+      "en-US": {
+        "title": "Blocked Items With Inventory",
+        "short_description": "Identifies records affected by the check “Blocked Items With Inventory”.",
+        "recommendation": "Align blocked status with existing inventory."
+      }
+    }
+  },
+  {
+    "check_id": "BLOCKED_VENDORS_WITH_OPEN_LEDGER",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Kreditoren mit offenen Posten",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Gesperrte Kreditoren mit offenen Posten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Kreditoren mit offenen Posten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Vendors With Open Ledger Entries",
+        "short_description": "Identifies records affected by the check “Blocked Vendors With Open Ledger Entries”.",
+        "recommendation": "Review open entries for blocked vendors and clear legacy items."
+      }
+    }
+  },
+  {
+    "check_id": "BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Kreditoren mit offenen Einkaufsbelege",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Gesperrte Kreditoren mit offenen Einkaufsbelege“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Kreditoren mit offenen Einkaufsbelege“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Vendors With Open Purchase Documents",
+        "short_description": "Identifies records affected by the check “Blocked Vendors With Open Purchase Documents”.",
+        "recommendation": "Clean up blocked vendors and open purchase documents."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_ADDRESS",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Adresse",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Address",
+        "short_description": "Identifies records affected by the check “Contacts Missing Address”.",
+        "recommendation": "Maintain address data in contacts."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_CITY",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Ort",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Ort“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Ort“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing City",
+        "short_description": "Identifies records affected by the check “Contacts Missing City”.",
+        "recommendation": "Maintain cities in contacts."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_COUNTRY",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Land",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Land“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Land“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Land",
+        "short_description": "Identifies records affected by the check “Contacts Missing Land”.",
+        "recommendation": "Maintain country information in contacts."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_EMAIL",
+    "module": "CRM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne E-Mail-Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne E-Mail-Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Email",
+        "short_description": "Identifies records affected by the check “Contacts Missing Email”.",
+        "recommendation": "Maintain email addresses in contact master data."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_MOBILE_PHONE",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Mobiltelefonnummer",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Mobiltelefonnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Mobiltelefonnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Mobile Phone No.",
+        "short_description": "Identifies records affected by the check “Contacts Missing Mobile Phone No.”.",
+        "recommendation": "Maintain mobile phone numbers where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_NAME",
+    "module": "CRM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Name",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Name",
+        "short_description": "Identifies records affected by the check “Contacts Missing Name”.",
+        "recommendation": "Add names in contact master data."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_PHONE",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Telefonnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Telefonnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Phone No.",
+        "short_description": "Identifies records affected by the check “Contacts Missing Phone No.”.",
+        "recommendation": "Maintain phone numbers where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_MISSING_POST_CODE",
+    "module": "CRM",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kontakte ohne Postleitzahl",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Kontakte ohne Postleitzahl“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kontakte ohne Postleitzahl“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Contacts Missing Post Code",
+        "short_description": "Identifies records affected by the check “Contacts Missing Post Code”.",
+        "recommendation": "Maintain post codes in contacts."
+      }
+    }
+  },
+  {
+    "check_id": "CONTACTS_PERSONS_MISSING_COMPANY",
+    "module": "CRM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Personenkontakte ohne Firmenzuordnung",
+        "short_description": "Ermittelt betroffene CRM-Daten für den Check „Personenkontakte ohne Firmenzuordnung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Personenkontakte ohne Firmenzuordnung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Person Contacts Missing Firmenzuordnung",
+        "short_description": "Identifies records affected by the check “Person Contacts Missing Firmenzuordnung”.",
+        "recommendation": "Personenkontakte einer Firma zuordnen."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMER_LEDGER_MISSING_DUE_DATE",
+    "module": "SYSTEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Debitorenposten ohne Fälligkeitsdatum",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Offene Debitorenposten ohne Fälligkeitsdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Debitorenposten ohne Fälligkeitsdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Customer Ledger Entries Missing Due Date",
+        "short_description": "Identifies records affected by the check “Open Customer Ledger Entries Missing Due Date”.",
+        "recommendation": "Review due dates in customer ledger entries and payment terms."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMER_LEDGER_OVERDUE_30",
+    "module": "LEDGER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Debitorenposten überfällig > 30 Tage",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Offene Debitorenposten überfällig > 30 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Debitorenposten überfällig > 30 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Customer Ledger Entries Overdue > 30 Days",
+        "short_description": "Identifies records affected by the check “Open Customer Ledger Entries Overdue > 30 Days”.",
+        "recommendation": "Review overdue customer entries and improve receivables management."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMER_LEDGER_OVERDUE_60",
+    "module": "FINANCE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Debitorenposten überfällig > 60 Tage",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Offene Debitorenposten überfällig > 60 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Debitorenposten überfällig > 60 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Customer Ledger Entries Overdue > 60 Days",
+        "short_description": "Identifies records affected by the check “Open Customer Ledger Entries Overdue > 60 Days”.",
+        "recommendation": "Actively follow up overdue receivables."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMER_LEDGER_OVERDUE_90",
+    "module": "FINANCE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Debitorenposten überfällig > 90 Tage",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Offene Debitorenposten überfällig > 90 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Debitorenposten überfällig > 90 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Customer Ledger Entries Overdue > 90 Days",
+        "short_description": "Identifies records affected by the check “Open Customer Ledger Entries Overdue > 90 Days”.",
+        "recommendation": "Prioritize critical outstanding receivables."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_DUPLICATE_EMAIL",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren mit doppeltem E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren mit doppeltem E-Mail-Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren mit doppeltem E-Mail-Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Duplicate Email",
+        "short_description": "Identifies records affected by the check “Customers Duplicate Email”.",
+        "recommendation": "Review duplicates and define a primary customer."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_DUPLICATE_NAME_POST_CITY",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren mit doppeltem Name/Postleitzahl/Ort",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren mit doppeltem Name/Postleitzahl/Ort“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren mit doppeltem Name/Postleitzahl/Ort“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Duplicate Name/Post Code/City",
+        "short_description": "Identifies records affected by the check “Customers Duplicate Name/Post Code/City”.",
+        "recommendation": "Review and merge potential customer duplicates."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_DUPLICATE_VAT",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren mit doppelter USt-IdNr.",
+        "short_description": "Ermittelt Debitoren mit mehrfach verwendeter USt-IdNr.",
+        "recommendation": "Prüfen und bereinigen Sie doppelte USt-IdNr. in den Debitorenstammdaten."
+      },
+      "en-US": {
+        "title": "Customers Duplicate VAT Registration No.",
+        "short_description": "Identifies records affected by the check “Customers Duplicate VAT Registration No.”.",
+        "recommendation": "Review VAT registration numbers and master data for duplicates."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_ADDRESS",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Adresse",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Address",
+        "short_description": "Identifies records affected by the check “Customers Missing Address”.",
+        "recommendation": "Complete address data for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_CITY",
+    "module": "CUSTOMER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Ort",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Ort“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Ort“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing City",
+        "short_description": "Identifies records affected by the check “Customers Missing City”.",
+        "recommendation": "Maintain cities for affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_CONTACT",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Kontakt",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Kontakt“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Kontakt“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Contact",
+        "short_description": "Identifies records affected by the check “Customers Missing Contact”.",
+        "recommendation": "Add contacts in customer master data."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_COUNTRY",
+    "module": "CUSTOMER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Länder-/Regionscode",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Länder-/Regionscode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Länder-/Regionscode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Land/Region Code",
+        "short_description": "Identifies records affected by the check “Customers Missing Land/Region Code”.",
+        "recommendation": "Add country/region codes for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_COUNTRY_CODE",
+    "module": "CUSTOMER",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Länder-/Regionscode",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Länder-/Regionscode“.",
+        "recommendation": "Pflegen Sie den Länder-/Regionscode bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a country/region code",
+        "short_description": "Identifies records affected by the check “Customers without a country/region code”.",
+        "recommendation": "Maintain the country/region code for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_CREDIT_LIMIT",
+    "module": "CUSTOMER",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Kreditlimit",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Kreditlimit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Kreditlimit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Credit Limit",
+        "short_description": "Identifies records affected by the check “Customers Missing Credit Limit”.",
+        "recommendation": "Review credit limits and maintain them where required."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_CUSTOMER_POSTING_GROUP",
+    "module": "CUSTOMER",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Debitorenbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Debitorenbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Debitorenbuchungsgruppen bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a customer posting group",
+        "short_description": "Identifies records affected by the check “Customers without a customer posting group”.",
+        "recommendation": "Maintain customer posting groups for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_DISC_GROUP",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Debitorenrabattgruppe",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Debitorenrabattgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Debitorenrabattgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Customer Discount Group",
+        "short_description": "Identifies records affected by the check “Customers Missing Customer Discount Group”.",
+        "recommendation": "Maintain discount groups to avoid margin leakage."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_EMAIL",
+    "module": "CUSTOMER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne E-Mail-Adresse“.",
+        "recommendation": "Ergänzen Sie E-Mail-Adressen bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without an email address",
+        "short_description": "Identifies records affected by the check “Customers without an email address”.",
+        "recommendation": "Add email addresses for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_FIN_CHARGE_TERMS",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Zinskonditionen",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Zinskonditionen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Zinskonditionen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Zinskonditionen",
+        "short_description": "Identifies records affected by the check “Customers Missing Zinskonditionen”.",
+        "recommendation": "Review and maintain finance charge terms."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_GEN_BUS_POSTING",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing General Business Posting Group",
+        "short_description": "Identifies records affected by the check “Customers Missing General Business Posting Group”.",
+        "recommendation": "Complete general business posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_GEN_BUS_POSTING_GROUP",
+    "module": "CUSTOMER",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Geschäftsbuchungsgruppen bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a general business posting group",
+        "short_description": "Identifies records affected by the check “Customers without a general business posting group”.",
+        "recommendation": "Maintain general business posting groups for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_HOME_PAGE",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Website",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Website“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Website“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Website",
+        "short_description": "Identifies records affected by the check “Customers Missing Website”.",
+        "recommendation": "Maintain websites only where required."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_NAME",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Name",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Name",
+        "short_description": "Identifies records affected by the check “Customers Missing Name”.",
+        "recommendation": "Maintain names for affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_PAYMENT_METHOD",
+    "module": "CUSTOMER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Zahlungsform",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Zahlungsform“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Zahlungsform“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Payment Method",
+        "short_description": "Identifies records affected by the check “Customers Missing Payment Method”.",
+        "recommendation": "Maintain payment methods where used in the tenant."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_PAYMENT_TERMS",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Zahlungsbedingungen",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Zahlungsbedingungen“.",
+        "recommendation": "Pflegen Sie Zahlungsbedingungen bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without payment terms",
+        "short_description": "Identifies records affected by the check “Customers without payment terms”.",
+        "recommendation": "Maintain payment terms for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_PHONE",
+    "module": "CUSTOMER",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Telefonnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Telefonnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Phone No.",
+        "short_description": "Identifies records affected by the check “Customers Missing Phone No.”.",
+        "recommendation": "Add phone numbers so contact remains possible."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_PHONE_NO",
+    "module": "CUSTOMER",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Telefonnummer“.",
+        "recommendation": "Pflegen Sie Telefonnummern bei den betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a phone number",
+        "short_description": "Identifies records affected by the check “Customers without a phone number”.",
+        "recommendation": "Maintain phone numbers for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_POST_CODE",
+    "module": "CUSTOMER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Postleitzahl",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Postleitzahl“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Postleitzahl“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Post Code",
+        "short_description": "Identifies records affected by the check “Customers Missing Post Code”.",
+        "recommendation": "Maintain post codes so reporting and plausibility checks work reliably."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_POSTCODE",
+    "module": "CUSTOMER",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Postleitzahl",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Postleitzahl“.",
+        "recommendation": "Vervollständigen Sie die Adressdaten der betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a post code",
+        "short_description": "Identifies records affected by the check “Customers without a post code”.",
+        "recommendation": "Complete the address data for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_POSTING_GROUP",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Debitorenbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Debitorenbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Debitorenbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Customer Posting Group",
+        "short_description": "Identifies records affected by the check “Customers Missing Customer Posting Group”.",
+        "recommendation": "Add customer posting groups for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_PRICE_GROUP",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Debitorenpreisgruppe",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Debitorenpreisgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Debitorenpreisgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Customer Price Group",
+        "short_description": "Identifies records affected by the check “Customers Missing Customer Price Group”.",
+        "recommendation": "Maintain price groups to ensure clean pricing."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_REMINDER_TERMS",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Mahnbedingungen",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Mahnbedingungen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Mahnbedingungen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Mahnbedingungen",
+        "short_description": "Identifies records affected by the check “Customers Missing Mahnbedingungen”.",
+        "recommendation": "Maintain reminder terms for receivables management."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_SALESPERSON",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Verkäufercode",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne Verkäufercode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Verkäufercode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Salesperson Code",
+        "short_description": "Identifies records affected by the check “Customers Missing Salesperson Code”.",
+        "recommendation": "Assign responsible salespeople."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_SEARCH_NAME",
+    "module": "CUSTOMER",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Suchbezeichnung",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne Suchbezeichnung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Suchbezeichnung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing Search Name",
+        "short_description": "Identifies records affected by the check “Customers Missing Search Name”.",
+        "recommendation": "Maintain search names to improve search and duplicate checks."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_VAT_BUS_POSTING",
+    "module": "CUSTOMER",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne MwSt.-Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Debitorenstammdaten für den Check „Debitoren ohne MwSt.-Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne MwSt.-Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing VAT Business Posting Group",
+        "short_description": "Identifies records affected by the check “Customers Missing VAT Business Posting Group”.",
+        "recommendation": "Add VAT business posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "CUSTOMERS_MISSING_VAT_REG_NO",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne USt-IdNr.",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Debitoren ohne USt-IdNr.“.",
+        "recommendation": "Prüfen und ergänzen Sie die USt-IdNr. der betroffenen Debitoren."
+      },
+      "en-US": {
+        "title": "Customers without a VAT registration number",
+        "short_description": "Identifies records affected by the check “Customers without a VAT registration number”.",
+        "recommendation": "Review and complete the VAT registration number for the affected customers."
+      }
+    }
+  },
+  {
+    "check_id": "DEAD_STOCK_180",
+    "module": "INVENTORY",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Lagerartikel ohne Movement > 180 Tage",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Lagerartikel ohne Movement > 180 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Lagerartikel ohne Movement > 180 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Inventory Items Without Movement > 180 Days",
+        "short_description": "Identifies records affected by the check “Inventory Items Without Movement > 180 Days”.",
+        "recommendation": "Review tied-up capital and sell-off options."
+      }
+    }
+  },
+  {
+    "check_id": "DEAD_STOCK_365",
+    "module": "INVENTORY",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Lagerartikel ohne Movement > 365 Tage",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Lagerartikel ohne Movement > 365 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Lagerartikel ohne Movement > 365 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Inventory Items Without Movement > 365 Days",
+        "short_description": "Identifies records affected by the check “Inventory Items Without Movement > 365 Days”.",
+        "recommendation": "Langfristig totes Kapital priorisiert abbauen."
+      }
+    }
+  },
+  {
+    "check_id": "DEAD_STOCK_90",
+    "module": "INVENTORY",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Lagerartikel ohne Movement > 90 Tage",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Lagerartikel ohne Movement > 90 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Lagerartikel ohne Movement > 90 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Inventory Items Without Movement > 90 Days",
+        "short_description": "Identifies records affected by the check “Inventory Items Without Movement > 90 Days”.",
+        "recommendation": "Review slow-moving items."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_COUNTRY",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Länder-/Regionscode",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Länder-/Regionscode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Länder-/Regionscode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Land/Region Code",
+        "short_description": "Identifies records affected by the check “Employees Missing Land/Region Code”.",
+        "recommendation": "Add country/region codes for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_EMAIL",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne E-Mail-Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne E-Mail-Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Email",
+        "short_description": "Identifies records affected by the check “Employees Missing Email”.",
+        "recommendation": "Add email addresses for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_FIRST_NAME",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Vorname",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Vorname“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Vorname“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Vorname",
+        "short_description": "Identifies records affected by the check “Employees Missing Vorname”.",
+        "recommendation": "Add first names for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_JOB_TITLE",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Berufsbezeichnung",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Berufsbezeichnung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Berufsbezeichnung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Job Title",
+        "short_description": "Identifies records affected by the check “Employees Missing Job Title”.",
+        "recommendation": "Add job titles for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_LAST_NAME",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Nachname",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Nachname“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Nachname“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Nachname",
+        "short_description": "Identifies records affected by the check “Employees Missing Nachname”.",
+        "recommendation": "Add last names for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_PHONE",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Telefonnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Telefonnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Phone No.",
+        "short_description": "Identifies records affected by the check “Employees Missing Phone No.”.",
+        "recommendation": "Add phone numbers for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_RESOURCE_NO",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Ressourcennummer",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Ressourcennummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Ressourcennummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Resource No.",
+        "short_description": "Identifies records affected by the check “Employees Missing Resource No.”.",
+        "recommendation": "Maintain resource numbers for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "EMPLOYEES_MISSING_SEARCH_NAME",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Mitarbeiter ohne Suchbezeichnung",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Mitarbeiter ohne Suchbezeichnung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Mitarbeiter ohne Suchbezeichnung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Employees Missing Search Name",
+        "short_description": "Identifies records affected by the check “Employees Missing Search Name”.",
+        "recommendation": "Add search names for the affected employees."
+      }
+    }
+  },
+  {
+    "check_id": "GL_ACCOUNTS_BLOCKED_BUT_USED",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrt Sachkonten mit Posten",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Gesperrt Sachkonten mit Posten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrt Sachkonten mit Posten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked G/L Accounts With Entries",
+        "short_description": "Identifies records affected by the check “Blocked G/L Accounts With Entries”.",
+        "recommendation": "Review blocked status and account usage."
+      }
+    }
+  },
+  {
+    "check_id": "GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED",
+    "module": "SYSTEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Sachkonten ohne Direktbuchung mit Posten",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Sachkonten ohne Direktbuchung mit Posten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sachkonten ohne Direktbuchung mit Posten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "G/L Accounts Without Direct Posting With Entries",
+        "short_description": "Identifies records affected by the check “G/L Accounts Without Direct Posting With Entries”.",
+        "recommendation": "Align direct posting rules and account master data."
+      }
+    }
+  },
+  {
+    "check_id": "GL_ENTRIES_MISSING_BOTH_DIMS",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Sachposten ohne beide Dimensionen",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Sachposten ohne beide Dimensionen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sachposten ohne beide Dimensionen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "G/L Entries Missing Both Dimensions",
+        "short_description": "Identifies records affected by the check “G/L Entries Missing Both Dimensions”.",
+        "recommendation": "Complete dimension posting logic consistently."
+      }
+    }
+  },
+  {
+    "check_id": "GL_ENTRIES_MISSING_DIM1",
+    "module": "SYSTEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Sachposten ohne Dimension 1",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Sachposten ohne Dimension 1“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sachposten ohne Dimension 1“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "G/L Entries Missing Dimension 1",
+        "short_description": "Identifies records affected by the check “G/L Entries Missing Dimension 1”.",
+        "recommendation": "Maintain dimension 1 in the relevant posting processes."
+      }
+    }
+  },
+  {
+    "check_id": "GL_ENTRIES_MISSING_DIM2",
+    "module": "SYSTEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Sachposten ohne Dimension 2",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Sachposten ohne Dimension 2“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sachposten ohne Dimension 2“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "G/L Entries Missing Dimension 2",
+        "short_description": "Identifies records affected by the check “G/L Entries Missing Dimension 2”.",
+        "recommendation": "Maintain dimension 2 in the relevant posting processes."
+      }
+    }
+  },
+  {
+    "check_id": "INVENTORY_WITHOUT_UNIT_COST",
+    "module": "INVENTORY",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Lagerartikel ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Lagerartikel ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Lagerartikel ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Inventory Items Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Inventory Items Missing Unit Cost”.",
+        "recommendation": "Correct valuation and costing for inventory items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_GROSS_WEIGHT_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Gross Weight",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Gross Weight“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Gross Weight“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Gross Weight",
+        "short_description": "Identifies records affected by the check “Items Missing Gross Weight”.",
+        "recommendation": "Maintain weight data."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_LAST_DIRECT_COST_ZERO",
+    "module": "INVENTORY",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne letzten direkten Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne letzten direkten Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne letzten direkten Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Last Direct Cost",
+        "short_description": "Identifies records affected by the check “Items Missing Last Direct Cost”.",
+        "recommendation": "Review last direct costs."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MAX_INVENTORY_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne maximalen Lagerbestand",
+        "short_description": "Ermittelt Artikel ohne gepflegten maximalen Lagerbestand.",
+        "recommendation": "Prüfen und pflegen Sie den maximalen Lagerbestand für die betroffenen Artikel."
+      },
+      "en-US": {
+        "title": "Items Missing Maximum Inventory",
+        "short_description": "Identifies records affected by the check “Items Missing Maximum Inventory”.",
+        "recommendation": "Maintain maximum inventory where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MIN_ORDER_QTY_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Mindestbestellmenge",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Mindestbestellmenge“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Mindestbestellmenge“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Minimum Order Quantity",
+        "short_description": "Identifies records affected by the check “Items Missing Minimum Order Quantity”.",
+        "recommendation": "Maintain minimum order quantities where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_BASE_UNIT",
+    "module": "ITEM",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Basiseinheit",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Basiseinheit“.",
+        "recommendation": "Ergänzen Sie die Basiseinheit bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without a base unit of measure",
+        "short_description": "Identifies records affected by the check “Items without a base unit of measure”.",
+        "recommendation": "Add a base unit of measure for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_BASE_UOM",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Basiseinheit",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Basiseinheit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Basiseinheit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Base Unit of Measure",
+        "short_description": "Identifies records affected by the check “Items Missing Base Unit of Measure”.",
+        "recommendation": "Add base units of measure for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_CATEGORY",
+    "module": "ITEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Artikelkategorie",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Artikelkategorie“.",
+        "recommendation": "Ergänzen Sie Artikelkategorien bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without an item category",
+        "short_description": "Identifies records affected by the check “Items without an item category”.",
+        "recommendation": "Add item categories for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_DESCRIPTION",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Description",
+        "short_description": "Identifies records affected by the check “Items Missing Description”.",
+        "recommendation": "Maintain descriptions for affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_GEN_PROD_POSTING",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Produktbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Produktbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Produktbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Gen. Prod. Posting Group",
+        "short_description": "Identifies records affected by the check “Items Missing Gen. Prod. Posting Group”.",
+        "recommendation": "Complete product posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_GEN_PROD_POSTING_GROUP",
+    "module": "ITEM",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Produktbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Produktbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Produktbuchungsgruppen bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without a general product posting group",
+        "short_description": "Identifies records affected by the check “Items without a general product posting group”.",
+        "recommendation": "Maintain general product posting groups for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_INVENTORY_POSTING",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Lagerbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Lagerbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Lagerbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Inventory Posting Group",
+        "short_description": "Identifies records affected by the check “Items Missing Inventory Posting Group”.",
+        "recommendation": "Complete inventory posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_INVENTORY_POSTING_GROUP",
+    "module": "ITEM",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Lagerbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Lagerbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Lagerbuchungsgruppen bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without an inventory posting group",
+        "short_description": "Identifies records affected by the check “Items without an inventory posting group”.",
+        "recommendation": "Maintain inventory posting groups for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_LEAD_TIME",
+    "module": "INVENTORY",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Beschaffungszeit",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Beschaffungszeit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Beschaffungszeit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Lead Time",
+        "short_description": "Identifies records affected by the check “Items Missing Lead Time”.",
+        "recommendation": "Maintain lead times for planning."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_SHELF_NO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Shelf Nummer",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Shelf Nummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Shelf Nummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Shelf No.",
+        "short_description": "Identifies records affected by the check “Items Missing Shelf No.”.",
+        "recommendation": "Add shelf numbers where used."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_TARIFF_NO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Tariff Nummer",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Tariff Nummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Tariff Nummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Tariff No.",
+        "short_description": "Identifies records affected by the check “Items Missing Tariff No.”.",
+        "recommendation": "Maintain tariff numbers where export-relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_VAT_PROD_POSTING_GROUP",
+    "module": "ITEM",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne MwSt.-Produktbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne MwSt.-Produktbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie MwSt.-Produktbuchungsgruppen bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without a VAT product posting group",
+        "short_description": "Identifies records affected by the check “Items without a VAT product posting group”.",
+        "recommendation": "Maintain VAT product posting groups for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_MISSING_VENDOR_NO",
+    "module": "ITEM",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Standardkreditor",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Standardkreditor“.",
+        "recommendation": "Prüfen und ergänzen Sie den Standardkreditor bei den betroffenen Artikeln."
+      },
+      "en-US": {
+        "title": "Items without a default vendor",
+        "short_description": "Identifies records affected by the check “Items without a default vendor”.",
+        "recommendation": "Review and add the default vendor for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_NEGATIVE_INVENTORY",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel mit negativem Lagerbestand",
+        "short_description": "Ermittelt Artikel mit negativem Lagerbestand.",
+        "recommendation": "Prüfen Sie die betroffenen Lagerposten und korrigieren Sie Buchungs- oder Bestandsabweichungen."
+      },
+      "en-US": {
+        "title": "Items With Negative Inventory",
+        "short_description": "Identifies records affected by the check “Items With Negative Inventory”.",
+        "recommendation": "Review negative inventory and correct posting logic."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_NET_WEIGHT_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Net Weight",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Net Weight“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Net Weight“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Net Weight",
+        "short_description": "Identifies records affected by the check “Items Missing Net Weight”.",
+        "recommendation": "Maintain weight data."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_ORDER_MULTIPLE_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Bestellmultiple",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Bestellmultiple“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Bestellmultiple“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Order Multiple",
+        "short_description": "Identifies records affected by the check “Items Missing Order Multiple”.",
+        "recommendation": "Maintain order multiples where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_PRICE_BELOW_STANDARD_COST",
+    "module": "INVENTORY",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel mit Verkauf Preis unter Standard-Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel mit Verkauf Preis unter Standard-Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel mit Verkauf Preis unter Standard-Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items With Sales Price Below Standard Cost",
+        "short_description": "Identifies records affected by the check “Items With Sales Price Below Standard Cost”.",
+        "recommendation": "Align standard costs and sales prices."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_PRICE_BELOW_UNIT_COST",
+    "module": "INVENTORY",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel mit Verkauf Preis unter Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel mit Verkauf Preis unter Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel mit Verkauf Preis unter Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items With Sales Price Below Unit Cost",
+        "short_description": "Identifies records affected by the check “Items With Sales Price Below Unit Cost”.",
+        "recommendation": "Review pricing and costing."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_REORDER_POINT_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Meldebestand",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Meldebestand“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Meldebestand“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Reorder Point",
+        "short_description": "Identifies records affected by the check “Items Missing Reorder Point”.",
+        "recommendation": "Maintain reorder points where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_SAFETY_STOCK_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Sicherheitsbestand",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Sicherheitsbestand“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Sicherheitsbestand“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Safety Stock",
+        "short_description": "Identifies records affected by the check “Items Missing Safety Stock”.",
+        "recommendation": "Maintain safety stock where relevant."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_STANDARD_COST_ZERO",
+    "module": "INVENTORY",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Standard-Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Standard-Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Standard-Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Standard Cost",
+        "short_description": "Identifies records affected by the check “Items Missing Standard Cost”.",
+        "recommendation": "Maintain standard costs."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_UNIT_VOLUME_ZERO",
+    "module": "INVENTORY",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Volume",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Artikel ohne Volume“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Volume“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Volume",
+        "short_description": "Identifies records affected by the check “Items Missing Volume”.",
+        "recommendation": "Maintain volume data."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_WITHOUT_UNIT_COST",
+    "module": "ITEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Items Missing Unit Cost”.",
+        "recommendation": "Review and maintain unit costs for affected items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_WITHOUT_UNIT_PRICE",
+    "module": "ITEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Verkaufspreis",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Verkaufspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Verkaufspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Unit Price",
+        "short_description": "Identifies records affected by the check “Items Missing Unit Price”.",
+        "recommendation": "Review and maintain sales prices for active items."
+      }
+    }
+  },
+  {
+    "check_id": "ITEMS_WITHOUT_VENDOR_NO",
+    "module": "ITEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Standardkreditor",
+        "short_description": "Ermittelt betroffene Artikel- und Lagerdaten für den Check „Artikel ohne Standardkreditor“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Standardkreditor“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Default Vendor",
+        "short_description": "Identifies records affected by the check “Items Missing Default Vendor”.",
+        "recommendation": "Add the default vendor for affected items where required."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_PLANNING_LINES_MISSING_DESCRIPTION",
+    "module": "JOB",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Projektplanzeilen ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektplanzeilen ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektplanzeilen ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Planning Lines Missing Description",
+        "short_description": "Identifies records affected by the check “Job Planning Lines Missing Description”.",
+        "recommendation": "Add descriptions in the affected job planning lines."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_PLANNING_LINES_MISSING_NO",
+    "module": "JOB",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Projektplanzeilen ohne Nummer",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektplanzeilen ohne Nummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektplanzeilen ohne Nummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Planning Lines Missing No.",
+        "short_description": "Identifies records affected by the check “Job Planning Lines Missing No.”.",
+        "recommendation": "Add numbers in the affected job planning lines."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_PLANNING_LINES_ZERO_QTY",
+    "module": "JOB",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Projektplanzeilen mit Menge 0",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektplanzeilen mit Menge 0“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektplanzeilen mit Menge 0“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Planning Lines With Quantity 0",
+        "short_description": "Identifies records affected by the check “Job Planning Lines With Quantity 0”.",
+        "recommendation": "Review quantities in the affected job planning lines."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_PLANNING_LINES_ZERO_UNIT_COST",
+    "module": "JOB",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Projektplanzeilen ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektplanzeilen ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektplanzeilen ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Planning Lines Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Job Planning Lines Missing Unit Cost”.",
+        "recommendation": "Add unit costs in the affected job planning lines."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_PLANNING_LINES_ZERO_UNIT_PRICE",
+    "module": "JOB",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Projektplanzeilen ohne Preis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektplanzeilen ohne Preis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektplanzeilen ohne Preis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Planning Lines Missing Price",
+        "short_description": "Identifies records affected by the check “Job Planning Lines Missing Price”.",
+        "recommendation": "Add prices in the affected job planning lines."
+      }
+    }
+  },
+  {
+    "check_id": "JOB_TASKS_MISSING_DESCRIPTION",
+    "module": "JOB",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Projektaufgaben ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projektaufgaben ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projektaufgaben ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Job Tasks Missing Description",
+        "short_description": "Identifies records affected by the check “Job Tasks Missing Description”.",
+        "recommendation": "Add descriptions in the affected job tasks."
+      }
+    }
+  },
+  {
+    "check_id": "JOBS_MISSING_BILL_TO_CUSTOMER",
+    "module": "JOB",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Projekte ohne Rechnungsempfänger",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projekte ohne Rechnungsempfänger“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projekte ohne Rechnungsempfänger“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Jobs Missing Bill-to Customer",
+        "short_description": "Identifies records affected by the check “Jobs Missing Bill-to Customer”.",
+        "recommendation": "Maintain bill-to customers in the affected jobs."
+      }
+    }
+  },
+  {
+    "check_id": "JOBS_MISSING_DESCRIPTION",
+    "module": "JOB",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Projekte ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projekte ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projekte ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Jobs Missing Description",
+        "short_description": "Identifies records affected by the check “Jobs Missing Description”.",
+        "recommendation": "Add descriptions for the affected jobs."
+      }
+    }
+  },
+  {
+    "check_id": "JOBS_MISSING_POSTING_GROUP",
+    "module": "JOB",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Projekte ohne Projektbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projekte ohne Projektbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projekte ohne Projektbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Jobs Missing Job Posting Group",
+        "short_description": "Identifies records affected by the check “Jobs Missing Job Posting Group”.",
+        "recommendation": "Add job posting groups for the affected jobs."
+      }
+    }
+  },
+  {
+    "check_id": "JOBS_MISSING_RESPONSIBLE",
+    "module": "JOB",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Projekte ohne verantwortliche Person",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Projekte ohne verantwortliche Person“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Projekte ohne verantwortliche Person“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Jobs Missing verantwortliche Person",
+        "short_description": "Identifies records affected by the check “Jobs Missing verantwortliche Person”.",
+        "recommendation": "Maintain the person responsible in the affected jobs."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_BOM_LINES_MISSING_NO",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Stücklistenzeilen ohne Item/Ressourcennummer",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Stücklistenzeilen ohne Item/Ressourcennummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Stücklistenzeilen ohne Item/Ressourcennummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "BOM Lines Missing Item/Resource No.",
+        "short_description": "Identifies records affected by the check “BOM Lines Missing Item/Resource No.”.",
+        "recommendation": "Add numbers in the affected BOM lines."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_BOM_LINES_ZERO_QTY",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Stücklistenzeilen mit Menge 0",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Stücklistenzeilen mit Menge 0“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Stücklistenzeilen mit Menge 0“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "BOM Lines With Quantity 0",
+        "short_description": "Identifies records affected by the check “BOM Lines With Quantity 0”.",
+        "recommendation": "Review quantities in the affected BOM lines."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_BOM_MISSING_DESCRIPTION",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Fertigungsstücklisten ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Fertigungsstücklisten ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Fertigungsstücklisten ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Production BOMs Missing Description",
+        "short_description": "Identifies records affected by the check “Production BOMs Missing Description”.",
+        "recommendation": "Add descriptions in the affected production BOMs."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_BOM_NOT_CERTIFIED",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Nicht zertifizierte Fertigungsstücklisten",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Nicht zertifizierte Fertigungsstücklisten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Nicht zertifizierte Fertigungsstücklisten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Uncertified Production BOMs",
+        "short_description": "Identifies records affected by the check “Uncertified Production BOMs”.",
+        "recommendation": "Review and certify BOMs."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ITEMS_MISSING_PROD_BOM_NO",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel mit Arbeitsplan aber ohne Fertigungsstückliste",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Artikel mit Arbeitsplan aber ohne Fertigungsstückliste“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel mit Arbeitsplan aber ohne Fertigungsstückliste“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items With Routing But Missing Production BOM",
+        "short_description": "Identifies records affected by the check “Items With Routing But Missing Production BOM”.",
+        "recommendation": "Add BOMs for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ITEMS_MISSING_ROUTING_NO",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel mit Fertigungsstückliste aber ohne Arbeitsplan",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Artikel mit Fertigungsstückliste aber ohne Arbeitsplan“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel mit Fertigungsstückliste aber ohne Arbeitsplan“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items With Production BOM But Missing Routing",
+        "short_description": "Identifies records affected by the check “Items With Production BOM But Missing Routing”.",
+        "recommendation": "Add routings for the affected items."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_MACHINE_CENTERS_BLOCKED",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Arbeitsplätze",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Gesperrte Arbeitsplätze“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Arbeitsplätze“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Machine Centers",
+        "short_description": "Identifies records affected by the check “Blocked Machine Centers”.",
+        "recommendation": "Review blocked machine centers."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_MACHINE_CENTERS_MISSING_NAME",
+    "module": "MANUFACTURING",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplätze ohne Name",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplätze ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplätze ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Machine Centers Missing Name",
+        "short_description": "Identifies records affected by the check “Machine Centers Missing Name”.",
+        "recommendation": "Add names for affected machine centers."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_MACHINE_CENTERS_ZERO_COST",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplätze ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplätze ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplätze ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Machine Centers Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Machine Centers Missing Unit Cost”.",
+        "recommendation": "Maintain unit costs for machine centers."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ROUTING_LINES_MISSING_NO",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplanzeilen ohne Arbeitsplatzgruppe/Arbeitsplatz",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplanzeilen ohne Arbeitsplatzgruppe/Arbeitsplatz“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplanzeilen ohne Arbeitsplatzgruppe/Arbeitsplatz“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Routing Lines Missing Work Center/Machine Center",
+        "short_description": "Identifies records affected by the check “Routing Lines Missing Work Center/Machine Center”.",
+        "recommendation": "Maintain work centers or machine centers in routings."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ROUTING_LINES_ZERO_RUN",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplanzeilen ohne Bearbeitungszeit",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplanzeilen ohne Bearbeitungszeit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplanzeilen ohne Bearbeitungszeit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Routing Lines Missing Run Time",
+        "short_description": "Identifies records affected by the check “Routing Lines Missing Run Time”.",
+        "recommendation": "Review run times in affected routing steps."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ROUTING_LINES_ZERO_SETUP",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplanzeilen ohne Rüstzeit",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplanzeilen ohne Rüstzeit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplanzeilen ohne Rüstzeit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Routing Lines Missing Setup Time",
+        "short_description": "Identifies records affected by the check “Routing Lines Missing Setup Time”.",
+        "recommendation": "Review setup times in affected routing steps."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ROUTING_MISSING_DESCRIPTION",
+    "module": "MANUFACTURING",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplans ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplans ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplans ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Routings Missing Description",
+        "short_description": "Identifies records affected by the check “Routings Missing Description”.",
+        "recommendation": "Add descriptions in the affected routings."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_ROUTING_NOT_CERTIFIED",
+    "module": "MANUFACTURING",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Nicht zertifizierte Arbeitsplans",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Nicht zertifizierte Arbeitsplans“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Nicht zertifizierte Arbeitsplans“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Uncertified Routings",
+        "short_description": "Identifies records affected by the check “Uncertified Routings”.",
+        "recommendation": "Review and certify routings."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_WORK_CENTERS_BLOCKED",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Gesperrte Arbeitsplatzgruppen",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Gesperrte Arbeitsplatzgruppen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gesperrte Arbeitsplatzgruppen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Blocked Work Centers",
+        "short_description": "Identifies records affected by the check “Blocked Work Centers”.",
+        "recommendation": "Review blocked work centers."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_WORK_CENTERS_MISSING_NAME",
+    "module": "MANUFACTURING",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplatzgruppen ohne Name",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplatzgruppen ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplatzgruppen ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Work Centers Missing Name",
+        "short_description": "Identifies records affected by the check “Work Centers Missing Name”.",
+        "recommendation": "Add names for affected work centers."
+      }
+    }
+  },
+  {
+    "check_id": "MFG_WORK_CENTERS_ZERO_COST",
+    "module": "MANUFACTURING",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Arbeitsplatzgruppen ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Fertigungsdaten für den Check „Arbeitsplatzgruppen ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Arbeitsplatzgruppen ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Work Centers Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Work Centers Missing Unit Cost”.",
+        "recommendation": "Maintain unit costs for work centers."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_DOCS_WITH_BLOCKED_VENDORS",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufsbelege mit Gesperrt Kreditoren",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufsbelege mit Gesperrt Kreditoren“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufsbelege mit Gesperrt Kreditoren“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Documents With Blocked Vendors",
+        "short_description": "Identifies records affected by the check “Purchase Documents With Blocked Vendors”.",
+        "recommendation": "Review vendor blocked status and affected documents."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_HEADERS_MISSING_PAYMENT_METHOD",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Bestellungen ohne Zahlungsform",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Bestellungen ohne Zahlungsform“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Bestellungen ohne Zahlungsform“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Orders Missing Payment Method",
+        "short_description": "Identifies records affected by the check “Purchase Orders Missing Payment Method”.",
+        "recommendation": "Add payment methods in open purchase orders."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_HEADERS_MISSING_PAYMENT_TERMS",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Bestellungen ohne Zahlungsbedingungen",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Bestellungen ohne Zahlungsbedingungen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Bestellungen ohne Zahlungsbedingungen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Orders Missing Payment Terms",
+        "short_description": "Identifies records affected by the check “Purchase Orders Missing Payment Terms”.",
+        "recommendation": "Add payment terms in open purchase orders."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_HEADERS_MISSING_PURCHASER",
+    "module": "PURCHASE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Bestellungen ohne Einkäufercode",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Bestellungen ohne Einkäufercode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Bestellungen ohne Einkäufercode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Orders Missing Purchaser Code",
+        "short_description": "Identifies records affected by the check “Purchase Orders Missing Purchaser Code”.",
+        "recommendation": "Assign responsible purchasers."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO",
+    "module": "PURCHASE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Bestellungen ohne Kreditorenrechnungsnummer",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Bestellungen ohne Kreditorenrechnungsnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Bestellungen ohne Kreditorenrechnungsnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Orders Missing Vendor Invoice No.",
+        "short_description": "Identifies records affected by the check “Purchase Orders Missing Vendor Invoice No.”.",
+        "recommendation": "Add external document references where required."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Bestellungen mit überfälligem Wareneingang",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Bestellungen mit überfälligem Wareneingang“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Bestellungen mit überfälligem Wareneingang“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Orders With Overdue Receipt",
+        "short_description": "Identifies records affected by the check “Purchase Orders With Overdue Receipt”.",
+        "recommendation": "Clean up overdue purchase orders by schedule and escalate."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST",
+    "module": "PURCHASE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen unter letzten direkten Einstandspreis",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen unter letzten direkten Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen unter letzten direkten Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines Below Last Direct Cost",
+        "short_description": "Identifies records affected by the check “Purchase Lines Below Last Direct Cost”.",
+        "recommendation": "Review purchase price deviations."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_DISCOUNT_OVER_25",
+    "module": "PURCHASE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen mit Rabatt > 25%",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen mit Rabatt > 25%“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen mit Rabatt > 25%“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines With Discount > 25%",
+        "short_description": "Identifies records affected by the check “Purchase Lines With Discount > 25%”.",
+        "recommendation": "Review discounts and price agreements."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_DISCOUNT_OVER_50",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen mit Rabatt > 50%",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen mit Rabatt > 50%“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen mit Rabatt > 50%“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines With Discount > 50%",
+        "short_description": "Identifies records affected by the check “Purchase Lines With Discount > 50%”.",
+        "recommendation": "Validate unusual discounts."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_MISSING_DESCRIPTION",
+    "module": "PURCHASE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines Missing Description",
+        "short_description": "Identifies records affected by the check “Purchase Lines Missing Description”.",
+        "recommendation": "Add descriptions in purchase lines."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_MISSING_DIMENSIONS",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen ohne Dimensionen",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen ohne Dimensionen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen ohne Dimensionen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines Missing Dimensions",
+        "short_description": "Identifies records affected by the check “Purchase Lines Missing Dimensions”.",
+        "recommendation": "Add dimensions in open purchase documents."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_MISSING_LOCATION",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen ohne Location",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen ohne Location“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen ohne Location“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines Missing Location",
+        "short_description": "Identifies records affected by the check “Purchase Lines Missing Location”.",
+        "recommendation": "Add locations in purchase lines."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_MISSING_NO",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen ohne Artikel-/Sachkontoreferenz",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen ohne Artikel-/Sachkontoreferenz“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen ohne Artikel-/Sachkontoreferenz“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines Missing Item/G/L Account Reference",
+        "short_description": "Identifies records affected by the check “Purchase Lines Missing Item/G/L Account Reference”.",
+        "recommendation": "Correct line references or clean up invalid document lines."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Einkaufszeilen mit überfälligem Wareneingang",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Offene Einkaufszeilen mit überfälligem Wareneingang“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Einkaufszeilen mit überfälligem Wareneingang“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Purchase Lines With Overdue Receipt",
+        "short_description": "Identifies records affected by the check “Open Purchase Lines With Overdue Receipt”.",
+        "recommendation": "Clean up open orders and delivery dates."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_RECEIVED_NOT_INVOICED",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Gelieferte Einkaufszeilen nicht fakturiert",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Gelieferte Einkaufszeilen nicht fakturiert“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gelieferte Einkaufszeilen nicht fakturiert“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Received Purchase Lines Not Invoiced",
+        "short_description": "Identifies records affected by the check “Received Purchase Lines Not Invoiced”.",
+        "recommendation": "Invoice receipts promptly."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_WITH_BLOCKED_ITEMS",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen mit gesperrten Artikeln",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen mit gesperrten Artikeln“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen mit gesperrten Artikeln“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines With Blocked Items",
+        "short_description": "Identifies records affected by the check “Purchase Lines With Blocked Items”.",
+        "recommendation": "Review item blocked status and affected purchase lines."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_ZERO_COST",
+    "module": "PURCHASE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen mit null Kosten",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen mit null Kosten“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen mit null Kosten“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines With Zero Costs",
+        "short_description": "Identifies records affected by the check “Purchase Lines With Zero Costs”.",
+        "recommendation": "Review pricing and open purchase lines with zero cost."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_LINES_ZERO_QUANTITY",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Einkaufszeilen mit null Menge",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Einkaufszeilen mit null Menge“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Einkaufszeilen mit null Menge“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Purchase Lines With Zero Quantity",
+        "short_description": "Identifies records affected by the check “Purchase Lines With Zero Quantity”.",
+        "recommendation": "Clean up zero-quantity lines in open purchase documents."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_ORDERS_MISSING_EXPECTED_DATE",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Bestellungen ohne erwartetes Wareneingangsdatum",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Offene Bestellungen ohne erwartetes Wareneingangsdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Bestellungen ohne erwartetes Wareneingangsdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Purchase Orders Missing Expected Receipt Date",
+        "short_description": "Identifies records affected by the check “Open Purchase Orders Missing Expected Receipt Date”.",
+        "recommendation": "Maintain expected receipt dates in open purchase orders."
+      }
+    }
+  },
+  {
+    "check_id": "PURCHASE_ORDERS_OLD_OPEN",
+    "module": "PURCHASE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Sehr alte offene Bestellungen",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Sehr alte offene Bestellungen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sehr alte offene Bestellungen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Very Old Open Purchase Orders",
+        "short_description": "Identifies records affected by the check “Very Old Open Purchase Orders”.",
+        "recommendation": "Review old orders for relevance, status, and closure."
+      }
+    }
+  },
+  {
+    "check_id": "RESOURCES_MISSING_BASE_UOM",
+    "module": "HR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Ressourcen ohne Basiseinheit",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Ressourcen ohne Basiseinheit“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Ressourcen ohne Basiseinheit“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Resources Missing Base Unit of Measure",
+        "short_description": "Identifies records affected by the check “Resources Missing Base Unit of Measure”.",
+        "recommendation": "Add base units of measure for the affected resources."
+      }
+    }
+  },
+  {
+    "check_id": "RESOURCES_MISSING_NAME",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Ressourcen ohne Name",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Ressourcen ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Ressourcen ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Resources Missing Name",
+        "short_description": "Identifies records affected by the check “Resources Missing Name”.",
+        "recommendation": "Add names for the affected resources."
+      }
+    }
+  },
+  {
+    "check_id": "RESOURCES_ZERO_UNIT_COST",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Ressourcen ohne Einstandspreis",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Ressourcen ohne Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Ressourcen ohne Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Resources Missing Unit Cost",
+        "short_description": "Identifies records affected by the check “Resources Missing Unit Cost”.",
+        "recommendation": "Maintain unit costs for the affected resources."
+      }
+    }
+  },
+  {
+    "check_id": "RESOURCES_ZERO_UNIT_PRICE",
+    "module": "HR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Ressourcen ohne Preis",
+        "short_description": "Ermittelt betroffene Personaldaten für den Check „Ressourcen ohne Preis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Ressourcen ohne Preis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Resources Missing Price",
+        "short_description": "Identifies records affected by the check “Resources Missing Price”.",
+        "recommendation": "Maintain prices for the affected resources."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_DOCS_WITH_BLOCKED_CUSTOMERS",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsbelege mit Gesperrt Debitoren",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsbelege mit Gesperrt Debitoren“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsbelege mit Gesperrt Debitoren“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Documents With Blocked Customers",
+        "short_description": "Identifies records affected by the check “Sales Documents With Blocked Customers”.",
+        "recommendation": "Review customer blocked status and affected documents."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_MISSING_EXTERNAL_DOC_NO",
+    "module": "SALES",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge ohne externe Belegnummer",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge ohne externe Belegnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge ohne externe Belegnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders Missing External Document No.",
+        "short_description": "Identifies records affected by the check “Sales Orders Missing External Document No.”.",
+        "recommendation": "Add external document references where required."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_MISSING_PAYMENT_METHOD",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge ohne Zahlungsform",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge ohne Zahlungsform“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge ohne Zahlungsform“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders Missing Payment Method",
+        "short_description": "Identifies records affected by the check “Sales Orders Missing Payment Method”.",
+        "recommendation": "Add payment methods in open sales orders."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_MISSING_PAYMENT_TERMS",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge ohne Zahlungsbedingungen",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge ohne Zahlungsbedingungen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge ohne Zahlungsbedingungen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders Missing Payment Terms",
+        "short_description": "Identifies records affected by the check “Sales Orders Missing Payment Terms”.",
+        "recommendation": "Add payment terms in open sales orders."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge ohne gewünschtes Lieferdatum",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge ohne gewünschtes Lieferdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge ohne gewünschtes Lieferdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders Missing Requested Delivery Date",
+        "short_description": "Identifies records affected by the check “Sales Orders Missing Requested Delivery Date”.",
+        "recommendation": "Maintain requested delivery dates in open orders."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_MISSING_SHIPMENT_METHOD",
+    "module": "SALES",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge ohne Lieferbedingung",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge ohne Lieferbedingung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge ohne Lieferbedingung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders Missing Shipment Method",
+        "short_description": "Identifies records affected by the check “Sales Orders Missing Shipment Method”.",
+        "recommendation": "Add shipment methods in open orders."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufsaufträge mit überfällig gewünschtes Lieferdatum",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufsaufträge mit überfällig gewünschtes Lieferdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufsaufträge mit überfällig gewünschtes Lieferdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Orders With Overdue Requested Delivery Date",
+        "short_description": "Identifies records affected by the check “Sales Orders With Overdue Requested Delivery Date”.",
+        "recommendation": "Clean up overdue orders by schedule and follow up actively."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_DISCOUNT_OVER_25",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen mit Rabatt > 25%",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen mit Rabatt > 25%“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen mit Rabatt > 25%“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines With Discount > 25%",
+        "short_description": "Identifies records affected by the check “Sales Lines With Discount > 25%”.",
+        "recommendation": "Review discounts and price approvals."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_DISCOUNT_OVER_50",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen mit Rabatt > 50%",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen mit Rabatt > 50%“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen mit Rabatt > 50%“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines With Discount > 50%",
+        "short_description": "Identifies records affected by the check “Sales Lines With Discount > 50%”.",
+        "recommendation": "Prioritize review of critical discounts."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_MISSING_DESCRIPTION",
+    "module": "SALES",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines Missing Description",
+        "short_description": "Identifies records affected by the check “Sales Lines Missing Description”.",
+        "recommendation": "Add descriptions in sales lines."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_MISSING_DIMENSIONS",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen ohne Dimensionen",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen ohne Dimensionen“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen ohne Dimensionen“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines Missing Dimensions",
+        "short_description": "Identifies records affected by the check “Sales Lines Missing Dimensions”.",
+        "recommendation": "Add dimensions in open sales documents."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_MISSING_LOCATION",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen ohne Location",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen ohne Location“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen ohne Location“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines Missing Location",
+        "short_description": "Identifies records affected by the check “Sales Lines Missing Location”.",
+        "recommendation": "Add locations in sales lines."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_MISSING_NO",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen ohne Artikel-/Sachkontoreferenz",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen ohne Artikel-/Sachkontoreferenz“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen ohne Artikel-/Sachkontoreferenz“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines Missing Item/G/L Account Reference",
+        "short_description": "Identifies records affected by the check “Sales Lines Missing Item/G/L Account Reference”.",
+        "recommendation": "Correct line references or clean up invalid document lines."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Verkaufszeilen mit überfällig Lieferdatum",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Offene Verkaufszeilen mit überfällig Lieferdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Verkaufszeilen mit überfällig Lieferdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Sales Lines With Overdue Shipment Date",
+        "short_description": "Identifies records affected by the check “Open Sales Lines With Overdue Shipment Date”.",
+        "recommendation": "Clean up open quantities and shipment dates."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_PRICE_BELOW_UNIT_COST",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen unter Einstandspreis",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen unter Einstandspreis“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen unter Einstandspreis“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines Below Unit Cost",
+        "short_description": "Identifies records affected by the check “Sales Lines Below Unit Cost”.",
+        "recommendation": "Review pricing and margin on affected sales lines."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_SHIPPED_NOT_INVOICED",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Gelieferte Verkaufszeilen nicht fakturiert",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Gelieferte Verkaufszeilen nicht fakturiert“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Gelieferte Verkaufszeilen nicht fakturiert“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Shipped Sales Lines Not Invoiced",
+        "short_description": "Identifies records affected by the check “Shipped Sales Lines Not Invoiced”.",
+        "recommendation": "Invoice shipments promptly to avoid leaving revenue behind."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_WITH_BLOCKED_ITEMS",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen mit gesperrten Artikeln",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen mit gesperrten Artikeln“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen mit gesperrten Artikeln“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines With Blocked Items",
+        "short_description": "Identifies records affected by the check “Sales Lines With Blocked Items”.",
+        "recommendation": "Review item blocked status and affected sales lines."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_ZERO_PRICE",
+    "module": "SALES",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen mit null Preise",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen mit null Preise“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen mit null Preise“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines With Zero Prices",
+        "short_description": "Identifies records affected by the check “Sales Lines With Zero Prices”.",
+        "recommendation": "Review pricing and open sales lines with zero price."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_LINES_ZERO_QUANTITY",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Verkaufszeilen mit null Menge",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Verkaufszeilen mit null Menge“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Verkaufszeilen mit null Menge“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Sales Lines With Zero Quantity",
+        "short_description": "Identifies records affected by the check “Sales Lines With Zero Quantity”.",
+        "recommendation": "Clean up zero-quantity lines in open sales documents."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_ORDERS_MISSING_SHIPMENT_DATE",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Verkaufsaufträge ohne Lieferdatum",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Offene Verkaufsaufträge ohne Lieferdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Verkaufsaufträge ohne Lieferdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Sales Orders Missing Shipment Date",
+        "short_description": "Identifies records affected by the check “Open Sales Orders Missing Shipment Date”.",
+        "recommendation": "Maintain shipment dates in open sales orders."
+      }
+    }
+  },
+  {
+    "check_id": "SALES_ORDERS_OLD_OPEN",
+    "module": "SALES",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Sehr alte offene Verkaufsaufträge",
+        "short_description": "Ermittelt betroffene Verkaufsdaten für den Check „Sehr alte offene Verkaufsaufträge“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Sehr alte offene Verkaufsaufträge“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Very Old Open Sales Orders",
+        "short_description": "Identifies records affected by the check “Very Old Open Sales Orders”.",
+        "recommendation": "Review old orders for relevance, status, and closure."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ITEMS_MISSING_CUSTOMER",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Serviceartikel ohne Debitor",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Serviceartikel ohne Debitor“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Serviceartikel ohne Debitor“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Items Missing Customer",
+        "short_description": "Identifies records affected by the check “Service Items Missing Customer”.",
+        "recommendation": "Add customer references for the affected service items."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ITEMS_MISSING_DESCRIPTION",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Serviceartikel ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Serviceartikel ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Serviceartikel ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Items Missing Description",
+        "short_description": "Identifies records affected by the check “Service Items Missing Description”.",
+        "recommendation": "Add descriptions for the affected service items."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ITEMS_MISSING_ITEM_NO",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Serviceartikel ohne Artikelnummer",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Serviceartikel ohne Artikelnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Serviceartikel ohne Artikelnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Items Missing Item No.",
+        "short_description": "Identifies records affected by the check “Service Items Missing Item No.”.",
+        "recommendation": "Add item numbers for the affected service items."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ITEMS_MISSING_SERIAL_NO",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Serviceartikel ohne Seriennummer",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Serviceartikel ohne Seriennummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Serviceartikel ohne Seriennummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Items Missing Serial No.",
+        "short_description": "Identifies records affected by the check “Service Items Missing Serial No.”.",
+        "recommendation": "Add serial numbers for the affected service items."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_LINES_MISSING_DESCRIPTION",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Servicezeilen ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicezeilen ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicezeilen ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Lines Missing Description",
+        "short_description": "Identifies records affected by the check “Service Lines Missing Description”.",
+        "recommendation": "Add descriptions in the affected service lines."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_LINES_MISSING_NO",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Servicezeilen ohne Nummer",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicezeilen ohne Nummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicezeilen ohne Nummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Lines Missing No.",
+        "short_description": "Identifies records affected by the check “Service Lines Missing No.”.",
+        "recommendation": "Add numbers in the affected service lines."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_LINES_ZERO_QTY",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Servicezeilen mit Menge 0",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicezeilen mit Menge 0“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicezeilen mit Menge 0“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Lines With Quantity 0",
+        "short_description": "Identifies records affected by the check “Service Lines With Quantity 0”.",
+        "recommendation": "Review quantities in the affected service lines."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_LINES_ZERO_UNIT_PRICE",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Servicezeilen mit Preis 0",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicezeilen mit Preis 0“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicezeilen mit Preis 0“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Lines With Price 0",
+        "short_description": "Identifies records affected by the check “Service Lines With Price 0”.",
+        "recommendation": "Review sales prices in the affected service lines."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ORDERS_MISSING_ASSIGNED_USER",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Servicebelege ohne zugewiesenen Benutzer",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicebelege ohne zugewiesenen Benutzer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicebelege ohne zugewiesenen Benutzer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Documents Missing Assigned User",
+        "short_description": "Identifies records affected by the check “Service Documents Missing Assigned User”.",
+        "recommendation": "Maintain assigned users in service documents."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ORDERS_MISSING_BILL_TO",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Servicebelege ohne Rechnungsempfänger",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicebelege ohne Rechnungsempfänger“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicebelege ohne Rechnungsempfänger“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Documents Missing Bill-to Customer",
+        "short_description": "Identifies records affected by the check “Service Documents Missing Bill-to Customer”.",
+        "recommendation": "Maintain bill-to customers in the affected service documents."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ORDERS_MISSING_CUSTOMER",
+    "module": "SERVICE",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Servicebelege ohne Debitor",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicebelege ohne Debitor“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicebelege ohne Debitor“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Documents Missing Customer",
+        "short_description": "Identifies records affected by the check “Service Documents Missing Customer”.",
+        "recommendation": "Add customers in the affected service documents."
+      }
+    }
+  },
+  {
+    "check_id": "SERVICE_ORDERS_MISSING_DESCRIPTION",
+    "module": "SERVICE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Servicebelege ohne Beschreibung",
+        "short_description": "Ermittelt betroffene Servicedaten für den Check „Servicebelege ohne Beschreibung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Servicebelege ohne Beschreibung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Service Documents Missing Description",
+        "short_description": "Identifies records affected by the check “Service Documents Missing Description”.",
+        "recommendation": "Add descriptions in the affected service documents."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Debitoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing General Business Posting Group",
+        "short_description": "Identifies records affected by the check “Customers Missing General Business Posting Group”.",
+        "recommendation": "Maintain general business posting groups for customers."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Debitoren ohne MwSt.-Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Debitoren ohne MwSt.-Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Debitoren ohne MwSt.-Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Customers Missing VAT Business Posting Group",
+        "short_description": "Identifies records affected by the check “Customers Missing VAT Business Posting Group”.",
+        "recommendation": "Add VAT business posting groups for customers."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Produktbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Artikel ohne Produktbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Produktbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Product Posting Group",
+        "short_description": "Identifies records affected by the check “Items Missing Product Posting Group”.",
+        "recommendation": "Maintain product posting groups for items."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_ITEMS_MISSING_INVENTORY_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Artikel ohne Lagerbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Artikel ohne Lagerbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Artikel ohne Lagerbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Items Missing Inventory Posting Group",
+        "short_description": "Identifies records affected by the check “Items Missing Inventory Posting Group”.",
+        "recommendation": "Maintain inventory posting groups for items."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Kreditoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing General Business Posting Group",
+        "short_description": "Identifies records affected by the check “Vendors Missing General Business Posting Group”.",
+        "recommendation": "Maintain general business posting groups for vendors."
+      }
+    }
+  },
+  {
+    "check_id": "SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING",
+    "module": "SYSTEM",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing VAT Business Posting Group",
+        "short_description": "Identifies records affected by the check “Vendors Missing VAT Business Posting Group”.",
+        "recommendation": "Add VAT business posting groups for vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDOR_LEDGER_MISSING_DUE_DATE",
+    "module": "SYSTEM",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Kreditorenposten ohne Fälligkeitsdatum",
+        "short_description": "Ermittelt betroffene System- und Einrichtungsdaten für den Check „Offene Kreditorenposten ohne Fälligkeitsdatum“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Kreditorenposten ohne Fälligkeitsdatum“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Vendor Ledger Entries Missing Due Date",
+        "short_description": "Identifies records affected by the check “Open Vendor Ledger Entries Missing Due Date”.",
+        "recommendation": "Review due dates in vendor ledger entries and payment terms."
+      }
+    }
+  },
+  {
+    "check_id": "VENDOR_LEDGER_OVERDUE_30",
+    "module": "LEDGER",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Kreditorenposten überfällig > 30 Tage",
+        "short_description": "Ermittelt betroffene Business-Central-Daten für den Check „Offene Kreditorenposten überfällig > 30 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Kreditorenposten überfällig > 30 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Vendor Ledger Entries Overdue > 30 Days",
+        "short_description": "Identifies records affected by the check “Open Vendor Ledger Entries Overdue > 30 Days”.",
+        "recommendation": "Review overdue vendor entries and payment processes."
+      }
+    }
+  },
+  {
+    "check_id": "VENDOR_LEDGER_OVERDUE_60",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Kreditorenposten überfällig > 60 Tage",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Offene Kreditorenposten überfällig > 60 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Kreditorenposten überfällig > 60 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Vendor Ledger Entries Overdue > 60 Days",
+        "short_description": "Identifies records affected by the check “Open Vendor Ledger Entries Overdue > 60 Days”.",
+        "recommendation": "Review due vendor payments and process bottlenecks."
+      }
+    }
+  },
+  {
+    "check_id": "VENDOR_LEDGER_OVERDUE_90",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Offene Kreditorenposten überfällig > 90 Tage",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Offene Kreditorenposten überfällig > 90 Tage“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Offene Kreditorenposten überfällig > 90 Tage“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Open Vendor Ledger Entries Overdue > 90 Days",
+        "short_description": "Identifies records affected by the check “Open Vendor Ledger Entries Overdue > 90 Days”.",
+        "recommendation": "Review critical vendor entries and escalation risks."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_DUPLICATE_EMAIL",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren mit doppeltem E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren mit doppeltem E-Mail-Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren mit doppeltem E-Mail-Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Duplicate Email",
+        "short_description": "Identifies records affected by the check “Vendors Duplicate Email”.",
+        "recommendation": "Review duplicates and clean up affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_DUPLICATE_NAME_POST_CITY",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren mit doppeltem Name/Postleitzahl/Ort",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren mit doppeltem Name/Postleitzahl/Ort“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren mit doppeltem Name/Postleitzahl/Ort“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Duplicate Name/Post Code/City",
+        "short_description": "Identifies records affected by the check “Vendors Duplicate Name/Post Code/City”.",
+        "recommendation": "Review and merge potential vendor duplicates."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_DUPLICATE_VAT",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren mit doppelter USt-IdNr.",
+        "short_description": "Ermittelt Kreditoren mit mehrfach verwendeter USt-IdNr.",
+        "recommendation": "Prüfen und bereinigen Sie doppelte USt-IdNr. in den Kreditorenstammdaten."
+      },
+      "en-US": {
+        "title": "Vendors Duplicate VAT Registration No.",
+        "short_description": "Identifies records affected by the check “Vendors Duplicate VAT Registration No.”.",
+        "recommendation": "Review VAT registration numbers and vendor master data for duplicates."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_ADDRESS",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Adresse",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Adresse“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Adresse“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Address",
+        "short_description": "Identifies records affected by the check “Vendors Missing Address”.",
+        "recommendation": "Complete address data for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_BANK_ACCOUNT",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Bankkonto",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Bankkonto“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Bankkonto“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Bank Account",
+        "short_description": "Identifies records affected by the check “Vendors Missing Bank Account”.",
+        "recommendation": "Maintain bank accounts for affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_CITY",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Ort",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Ort“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Ort“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing City",
+        "short_description": "Identifies records affected by the check “Vendors Missing City”.",
+        "recommendation": "Maintain cities for affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_CONTACT",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Kontakt",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Kreditoren ohne Kontakt“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Kontakt“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Contact",
+        "short_description": "Identifies records affected by the check “Vendors Missing Contact”.",
+        "recommendation": "Add contacts in vendor master data."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_COUNTRY",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Länder-/Regionscode",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Länder-/Regionscode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Länder-/Regionscode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Land/Region Code",
+        "short_description": "Identifies records affected by the check “Vendors Missing Land/Region Code”.",
+        "recommendation": "Add country/region codes for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_COUNTRY_CODE",
+    "module": "VENDOR",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Länder-/Regionscode",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Länder-/Regionscode“.",
+        "recommendation": "Pflegen Sie den Länder-/Regionscode bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without a country/region code",
+        "short_description": "Identifies records affected by the check “Vendors without a country/region code”.",
+        "recommendation": "Maintain the country/region code for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_EMAIL",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne E-Mail-Adresse",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne E-Mail-Adresse“.",
+        "recommendation": "Ergänzen Sie E-Mail-Adressen bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without an email address",
+        "short_description": "Identifies records affected by the check “Vendors without an email address”.",
+        "recommendation": "Add email addresses for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_GEN_BUS_POSTING",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing General Business Posting Group",
+        "short_description": "Identifies records affected by the check “Vendors Missing General Business Posting Group”.",
+        "recommendation": "Complete general business posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_GEN_BUS_POSTING_GROUP",
+    "module": "VENDOR",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Geschäftsbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Geschäftsbuchungsgruppen bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without a general business posting group",
+        "short_description": "Identifies records affected by the check “Vendors without a general business posting group”.",
+        "recommendation": "Maintain general business posting groups for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_HOME_PAGE",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Website",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Kreditoren ohne Website“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Website“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Website",
+        "short_description": "Identifies records affected by the check “Vendors Missing Website”.",
+        "recommendation": "Maintain websites only where required."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_NAME",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Name",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Name“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Name“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Name",
+        "short_description": "Identifies records affected by the check “Vendors Missing Name”.",
+        "recommendation": "Maintain names for affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_PAYMENT_METHOD",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Zahlungsform",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Zahlungsform“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Zahlungsform“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Payment Method",
+        "short_description": "Identifies records affected by the check “Vendors Missing Payment Method”.",
+        "recommendation": "Maintain payment methods where used in the tenant."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_PAYMENT_TERMS",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Zahlungsbedingungen",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Zahlungsbedingungen“.",
+        "recommendation": "Pflegen Sie Zahlungsbedingungen bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without payment terms",
+        "short_description": "Identifies records affected by the check “Vendors without payment terms”.",
+        "recommendation": "Maintain payment terms for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_PHONE",
+    "module": "VENDOR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Telefonnummer“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Telefonnummer“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Phone No.",
+        "short_description": "Identifies records affected by the check “Vendors Missing Phone No.”.",
+        "recommendation": "Add phone numbers so contact remains possible."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_PHONE_NO",
+    "module": "VENDOR",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Telefonnummer",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Telefonnummer“.",
+        "recommendation": "Pflegen Sie Telefonnummern bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without a phone number",
+        "short_description": "Identifies records affected by the check “Vendors without a phone number”.",
+        "recommendation": "Maintain phone numbers for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_POST_CODE",
+    "module": "VENDOR",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Postleitzahl",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Postleitzahl“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Postleitzahl“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Post Code",
+        "short_description": "Identifies records affected by the check “Vendors Missing Post Code”.",
+        "recommendation": "Maintain post codes so reporting and plausibility checks work reliably."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_POSTING_GROUP",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Kreditorenbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Kreditorenbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Kreditorenbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Vendor Posting Group",
+        "short_description": "Identifies records affected by the check “Vendors Missing Vendor Posting Group”.",
+        "recommendation": "Add vendor posting groups for the affected vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_PURCHASER",
+    "module": "FINANCE",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Einkäufercode",
+        "short_description": "Ermittelt betroffene Finanzdaten für den Check „Kreditoren ohne Einkäufercode“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Einkäufercode“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Purchaser Code",
+        "short_description": "Identifies records affected by the check “Vendors Missing Purchaser Code”.",
+        "recommendation": "Assign responsible purchasers."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_SEARCH_NAME",
+    "module": "VENDOR",
+    "severity": "low",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Suchbezeichnung",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Suchbezeichnung“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne Suchbezeichnung“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing Search Name",
+        "short_description": "Identifies records affected by the check “Vendors Missing Search Name”.",
+        "recommendation": "Maintain search names to improve search and duplicate checks."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_VAT_BUS_POSTING",
+    "module": "VENDOR",
+    "severity": "high",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe“.",
+        "recommendation": "Prüfen Sie die betroffenen Datensätze für „Kreditoren ohne MwSt.-Geschäftsbuchungsgruppe“ und korrigieren Sie die festgestellten Daten- oder Einrichtungsabweichungen."
+      },
+      "en-US": {
+        "title": "Vendors Missing VAT Business Posting Group",
+        "short_description": "Identifies records affected by the check “Vendors Missing VAT Business Posting Group”.",
+        "recommendation": "Add VAT business posting groups."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_VAT_REG_NO",
+    "module": "FINANCE",
+    "severity": "medium",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne USt-IdNr.",
+        "short_description": "Ermittelt Kreditoren ohne gepflegte USt-IdNr.",
+        "recommendation": "Prüfen und ergänzen Sie die USt-IdNr. der betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors Missing VAT Registration No.",
+        "short_description": "Identifies records affected by the check “Vendors Missing VAT Registration No.”.",
+        "recommendation": "Add VAT registration numbers for vendors."
+      }
+    }
+  },
+  {
+    "check_id": "VENDORS_MISSING_VENDOR_POSTING_GROUP",
+    "module": "VENDOR",
+    "severity": "dynamic",
+    "translations": {
+      "de-DE": {
+        "title": "Kreditoren ohne Kreditorenbuchungsgruppe",
+        "short_description": "Ermittelt betroffene Kreditorenstammdaten für den Check „Kreditoren ohne Kreditorenbuchungsgruppe“.",
+        "recommendation": "Pflegen Sie Kreditorenbuchungsgruppen bei den betroffenen Kreditoren."
+      },
+      "en-US": {
+        "title": "Vendors without a vendor posting group",
+        "short_description": "Identifies records affected by the check “Vendors without a vendor posting group”.",
+        "recommendation": "Maintain vendor posting groups for the affected vendors."
+      }
+    }
+  }
+]

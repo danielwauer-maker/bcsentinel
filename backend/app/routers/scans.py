@@ -34,6 +34,7 @@ from app.services.atomic_scan_start_service import (
     ScanStartConflictError,
     accept_scan_start,
 )
+from app.services.check_catalog_service import resolve_check_texts
 from app.services.scan_status_service import (
     InvalidScanTransitionError,
     ScanLeaseConflictError,
@@ -435,17 +436,23 @@ def sync_scan(
         scan.warehouse_entries_count = _safe_int(payload.data_profile.warehouse_entries)
 
         tenant.last_seen_at_utc = datetime.now(timezone.utc)
+        catalog_texts = resolve_check_texts(
+            db,
+            {str(issue["code"]) for issue in recalculated_issues},
+            tenant.preferred_language,
+        )
         for issue in recalculated_issues:
+            catalog_text = catalog_texts[str(issue["code"])]
             db.add(
                 ScanIssueRecord(
                     scan_id=payload.scan_id,
                     code=str(issue["code"]),
                     category=(str(issue.get("category")).strip() or None) if issue.get("category") is not None else None,
-                    title=str(issue["title"]),
+                    title=catalog_text.title,
                     severity=str(issue["severity"]),
                     affected_count=_safe_int(issue["affected_count"]),
                     premium_only=bool(issue["premium_only"]),
-                    recommendation_preview=issue["recommendation_preview"],
+                    recommendation_preview=catalog_text.recommendation,
                     estimated_impact_eur=_safe_float(issue["estimated_impact_eur"]),
                 )
             )

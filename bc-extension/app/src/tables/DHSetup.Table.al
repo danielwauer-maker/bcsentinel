@@ -206,7 +206,7 @@ table 53100 "DH Setup"
         }
         field(28; "Scan Credits Available"; Integer)
         {
-            Caption = 'Scan Credits Available';
+            Caption = 'Validation Credits Available';
             DataClassification = SystemMetadata;
         }
         field(29; "Monitoring Active"; Boolean)
@@ -338,7 +338,7 @@ table 53100 "DH Setup"
         }
         field(57; "Assessment Credits Available"; Integer)
         {
-            Caption = 'Assessment Credits Available';
+            Caption = 'Validation Credits Available';
             DataClassification = SystemMetadata;
             ObsoleteState = Pending;
             ObsoleteReason = 'LIC-02 compatibility only. Always zero and never used for authorization.';
@@ -421,12 +421,12 @@ table 53100 "DH Setup"
         }
         field(73; "Free Assessment Used"; Boolean)
         {
-            Caption = 'Free Assessment Used';
+            Caption = 'Free Data Health Score Used';
             DataClassification = SystemMetadata;
         }
         field(74; "Premium Until"; Text[50])
         {
-            Caption = 'Premium Until';
+            Caption = 'Product Access Until';
             DataClassification = SystemMetadata;
         }
         field(75; "Monitoring Until"; Text[50])

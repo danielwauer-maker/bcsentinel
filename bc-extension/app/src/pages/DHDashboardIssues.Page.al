@@ -28,7 +28,7 @@
                     StyleExpr = SeverityStyle;
                 }
 
-                field(Title; Rec.Title)
+                field(Title; CatalogTitle)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Title.';
@@ -62,7 +62,7 @@
                     ToolTip = 'Specifies the estimated impact in local currency.';
                 }
 
-                field("Recommendation Review"; Rec."Recommendation Preview")
+                field("Recommendation Review"; CatalogRecommendation)
                 {
                     ApplicationArea = All;
                     Caption = 'Recommendation';
@@ -88,6 +88,7 @@
 
     trigger OnAfterGetRecord()
     begin
+        UpdateCatalogText();
         UpdateAccessState();
         SeverityStyle := GetSeverityStyle();
         ImpactTxt := GetImpactText();
@@ -105,6 +106,8 @@
     end;
 
     var
+        CatalogTitle: Text[250];
+        CatalogRecommendation: Text[2048];
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
         AccessText: Text[80];
@@ -170,14 +173,16 @@
     local procedure UpdateAccessState()
     var
         Setup: Record "DH Setup";
+        BuyFullAnalysisLbl: Label 'Buy Full Analysis for detailed insights';
+        UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Buy Full Analysis for detailed insights';
+        AccessText := BuyFullAnalysisLbl;
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
                 ShowPremiumDetails := true;
-                AccessText := 'Unlocked';
+                AccessText := UnlockedLbl;
             end;
     end;
 
@@ -205,5 +210,12 @@
         Rec.Ascending(true);
         CurrPage.Update(false);
     end;
-}
 
+    local procedure UpdateCatalogText()
+    var
+        CheckCatalogMgt: Codeunit "DH Check Catalog Mgt.";
+    begin
+        CatalogTitle := CheckCatalogMgt.ResolveTitle(Rec."Issue Code");
+        CatalogRecommendation := CheckCatalogMgt.ResolveRecommendation(Rec."Issue Code");
+    end;
+}

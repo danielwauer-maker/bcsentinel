@@ -18,7 +18,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Scan started. Opening the monitor. Run ID: %1';
+        ScanStartedMsg: Label 'Validation Check successfully started. Opening the monitor. Run ID: %1', Comment = '%1 = run ID';
     begin
         if FindUnacceptedRun('', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
@@ -29,7 +29,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         EnsureDeepScanAllowed(Setup);
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
         if TotalModules <= 0 then
-            Error('Please enable at least one scan module on the BCSentinel setup page.');
+            Error(EnableScanModuleErr);
 
         EntryNo := GetNextRunEntryNo();
 
@@ -81,17 +81,17 @@ codeunit 53124 "DH Deep Scan Mgt."
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Data Health Score started. Opening the monitor. Run ID: %1';
+        ScanStartedMsg: Label 'Free Data Health Score successfully started. Opening the monitor. Run ID: %1', Comment = '%1 = run ID';
     begin
         if Setup."API Base URL" = '' then
-            Error('Please configure API Base URL first.');
+            Error(ConfigureApiBaseUrlErr);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant first.');
+            Error(RegisterTenantErr);
 
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
         if TotalModules <= 0 then
-            Error('Please enable at least one scan module on the BCSentinel setup page.');
+            Error(EnableScanModuleErr);
 
         if FindUnacceptedRun('data_health_score', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
@@ -347,15 +347,15 @@ codeunit 53124 "DH Deep Scan Mgt."
         ApiClient: Codeunit "DH API Client";
     begin
         if Setup."API Base URL" = '' then
-            Error('Please configure API Base URL first.');
+            Error(ConfigureApiBaseUrlErr);
 
         if Setup."Tenant ID" = '' then
-            Error('Please register the tenant first.');
+            Error(RegisterTenantErr);
 
         ApiClient.RefreshLicenseStatus(Setup);
 
         if not Setup."Can Run Deep Scan" then
-            Error('A new scan requires a Validation Check or active Monitoring.');
+            Error(ValidationOrMonitoringRequiredErr);
     end;
 
     local procedure GetDeepScanMode(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Text[30]
@@ -390,5 +390,11 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         exit(1);
     end;
+
+    var
+        ConfigureApiBaseUrlErr: Label 'Configure the API Base URL first.';
+        EnableScanModuleErr: Label 'Enable at least one scan module on the BCSentinel setup page.';
+        RegisterTenantErr: Label 'Register the tenant first.';
+        ValidationOrMonitoringRequiredErr: Label 'A new scan requires a Validation Check or active Monitoring.';
 
 }
