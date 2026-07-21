@@ -522,6 +522,7 @@ def sync_scan(
         except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
+        scan_status = serialize_scan_status(db, run)
         db.commit()
 
     logger.info(
@@ -539,6 +540,7 @@ def sync_scan(
             "status": "ok",
             "scan_id": payload.scan_id,
             "tenant_id": payload.tenant_id,
+            "scan_status": jsonable_encoder(scan_status),
             "commercials": normalize_stored_commercials(
                 total_records=int(commercials["total_records"]),
                 estimated_loss_eur=float(commercials["estimated_loss_eur"]),

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.models import ScanRunEvent, ScanRunStatus
 from app.services.scan_status_service import (
     create_or_get_scan_run,
+    as_aware_utc,
     mark_stalled_scans,
     update_scan_progress,
     utc_now,
@@ -86,6 +87,48 @@ def test_completed_sets_completed_at(db_session, tenant_factory):
     assert run.current_step == "Scan completed"
     assert run.error_message is None
     assert run.warning_message is None
+
+
+def test_terminal_completion_replay_is_idempotent(db_session, tenant_factory):
+    tenant = tenant_factory()
+    create_or_get_scan_run(db_session, run_id="run_status_terminal_replay", tenant_id=tenant["tenant_id"])
+    update_scan_progress(
+        db_session,
+        run_id="run_status_terminal_replay",
+        status="running",
+        allow_unleased=True,
+    )
+    run = update_scan_progress(
+        db_session,
+        run_id="run_status_terminal_replay",
+        status="completed",
+        event_message="Scan completed",
+        allow_unleased=True,
+        result_is_persisted=True,
+    )
+    completed_at = run.completed_at_utc
+    lifecycle_version = run.lifecycle_version
+    event_count = db_session.query(ScanRunEvent).filter_by(run_id=run.run_id).count()
+
+    replay = update_scan_progress(
+        db_session,
+        run_id=run.run_id,
+        status="completed",
+        event_message="Scan completed again",
+        allow_unleased=True,
+        result_is_persisted=True,
+    )
+
+    assert replay.completed_at_utc == completed_at
+    assert replay.lifecycle_version == lifecycle_version
+    assert db_session.query(ScanRunEvent).filter_by(run_id=run.run_id).count() == event_count
+
+
+def test_utc_instants_compare_equal_across_display_offsets():
+    utc_heartbeat = datetime(2026, 7, 21, 10, 6, tzinfo=timezone.utc)
+    german_display_instant = datetime.fromisoformat("2026-07-21T12:06:00+02:00")
+
+    assert as_aware_utc(utc_heartbeat) == german_display_instant.astimezone(timezone.utc)
 
 
 def test_completed_clears_warning_and_overrides_running_state(db_session, tenant_factory):

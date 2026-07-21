@@ -600,6 +600,9 @@
         SynchronizedLbl: Label 'Synchronized';
         SyncFailedLbl: Label 'Failed';
         SyncRetryRequiredLbl: Label 'Retry required';
+        LessThanOneMinuteLbl: Label 'Less than 1 minute';
+        OpenAnalyticsDashboardLbl: Label 'Open Analytics-Dashboard';
+        RejectedLbl: Label 'Rejected';
 
     local procedure ReloadMonitor()
     var
@@ -693,7 +696,7 @@
         IssuesStyle := GetIssuesStyle();
         EstimatedLossStyle := 'Unfavorable';
         PotentialSavingStyle := 'Strong';
-        OpenDashboardLinkTxt := 'Open Analytics-Dashboard';
+        OpenDashboardLinkTxt := OpenAnalyticsDashboardLbl;
         OpenDashboardLinkStyle := 'Strong';
 
         SystemScoreStyle := GetScoreStyle(SystemScoreValue);
@@ -921,14 +924,14 @@
         if Rec."Backend Sync Status" in [Rec."Backend Sync Status"::Failed, Rec."Backend Sync Status"::RetryRequired] then
             exit(Rec."Backend Sync Error");
 
+        if LowerCase(Rec."Backend Status") in ['completed', 'completed_with_warnings'] then
+            exit('');
+
         if IsLocalCompleted() and IsBackendNonTerminal() then
             exit('Backend status is outdated. Local scan completed successfully.');
 
         if (BackendRefreshFailures > 0) and IsLocalCompleted() then
             exit('Backend status could not be refreshed. Local scan completed successfully.');
-
-        if LowerCase(Rec."Backend Status") = 'completed' then
-            exit('');
 
         exit(Rec."Warning Message");
     end;
@@ -937,7 +940,7 @@
     begin
         case Rec."Backend Sync Status" of
             Rec."Backend Sync Status"::NotStarted:
-                exit(SyncNotStartedLbl);
+                exit(SyncPendingLbl);
             Rec."Backend Sync Status"::Pending:
                 exit(SyncPendingLbl);
             Rec."Backend Sync Status"::Synchronized:
@@ -945,7 +948,7 @@
             Rec."Backend Sync Status"::Failed:
                 exit(SyncFailedLbl);
             Rec."Backend Sync Status"::RetryRequired:
-                exit(SyncRetryRequiredLbl);
+                exit(SyncPendingLbl);
         end;
     end;
 
@@ -1067,6 +1070,9 @@
         if IsLocalCompleted() then
             exit('Completed');
 
+        if LowerCase(Rec."Backend Status") = 'rejected' then
+            exit(RejectedLbl);
+
         if Rec.Status = Rec.Status::Failed then
             exit('Failed');
         if Rec.Status = Rec.Status::Canceled then
@@ -1150,7 +1156,7 @@
             exit('');
 
         if RemainingSeconds < 60 then
-            exit('Less than 1 minute');
+            exit(LessThanOneMinuteLbl);
 
         Minutes := (RemainingSeconds + 59) div 60;
         exit(StrSubstNo('%1 min remaining', Minutes));

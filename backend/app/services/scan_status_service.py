@@ -458,6 +458,8 @@ def update_scan_progress(
     _ensure_transition(current, target)
     if target in {"completed", "completed_with_warnings"} and not (result_is_persisted or run.result_persisted_at_utc):
         raise ScanResultIncompleteError("A scan can only complete after its mandatory result was stored consistently.")
+    if current == target and current in TERMINAL_STATUSES:
+        return run
 
     run.status = target
     run.progress_percent = clamp_percent(progress_percent if progress_percent is not None else run.progress_percent)

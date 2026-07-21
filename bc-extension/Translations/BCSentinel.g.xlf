@@ -1039,7 +1039,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidRecommendationsAndScanActionsAreAvailablLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 2491277579" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid scan access active</source>
+          <source>Premium access active</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidScanAccessActiveLbl</note>
         </trans-unit>
@@ -6272,6 +6272,27 @@
           <source>BCSentinel Viewer</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3841983121" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; synchronization pending</source>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3051153726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Less than 1 minute</source>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 89240128" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Analytics-Dashboard</source>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1584648570" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan may affect system performance depending on data volume. Do you want to start it now during business hours?</source>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1419901430" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start now,Cancel</source>
         </trans-unit>
       </group>
     </body>

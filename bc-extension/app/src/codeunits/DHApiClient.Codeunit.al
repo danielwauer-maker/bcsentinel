@@ -1291,6 +1291,11 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Current Step" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Current Step"));
         if JsonResponse.Get('heartbeat_at', Token) then
             DeepScanRun."Last Heartbeat" := ParseJsonDateTime(GetJsonTokenText(Token));
+        if JsonResponse.Get('started_at', Token) then
+            if DeepScanRun."Started At" = 0DT then
+                DeepScanRun."Started At" := ParseJsonDateTime(GetJsonTokenText(Token));
+        if JsonResponse.Get('completed_at', Token) then
+            DeepScanRun."Finished At" := ParseJsonDateTime(GetJsonTokenText(Token));
         if JsonResponse.Get('estimated_remaining_seconds', Token) then
             DeepScanRun."Estimated Remaining Seconds" := GetJsonTokenInteger(Token, DeepScanRun."Estimated Remaining Seconds");
         if JsonResponse.Get('total_modules', Token) then
@@ -1319,6 +1324,23 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Recent Events" := CopyStr(BuildRecentEventsText(EventsToken), 1, MaxStrLen(DeepScanRun."Recent Events"));
 
         NormalizeParsedScanStatus(DeepScanRun);
+    end;
+
+    procedure ApplyScanSyncLifecycleResponse(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        JsonResponse: JsonObject;
+        LifecycleToken: JsonToken;
+        LifecycleText: Text;
+    begin
+        if not JsonResponse.ReadFrom(ResponseText) then
+            exit;
+        if not JsonResponse.Get('scan_status', LifecycleToken) then
+            exit;
+        if not LifecycleToken.IsObject() then
+            exit;
+
+        LifecycleToken.AsObject().WriteTo(LifecycleText);
+        ParseScanStatusResponse(LifecycleText, DeepScanRun);
     end;
 
     procedure ParseScanResponse(ResponseText: Text; var ScanId: Code[50]; var DataScore: Integer; var IssuesCount: Integer; var GeneratedAtUtc: DateTime)
@@ -1728,6 +1750,9 @@ codeunit 53100 "DH API Client"
     var
         ParsedDateTime: DateTime;
     begin
+        if Evaluate(ParsedDateTime, Value, 9) then
+            exit(ParsedDateTime);
+
         Value := Value.Replace('T', ' ');
         Value := Value.Replace('Z', '');
         if StrLen(Value) > 19 then

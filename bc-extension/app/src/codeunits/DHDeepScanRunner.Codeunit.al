@@ -93,13 +93,16 @@ codeunit 53128 "DH Deep Scan Runner"
         end;
 
         DeepScanRun.Get(DeepScanRun."Entry No.");
+        ApiClient.ApplyScanSyncLifecycleResponse(SyncResponseText, DeepScanRun);
         DeepScanRun.Status := DeepScanRun.Status::Completed;
-        DeepScanRun."Finished At" := CurrentDateTime();
+        if DeepScanRun."Finished At" = 0DT then
+            DeepScanRun."Finished At" := CurrentDateTime();
         DeepScanRun."Current Module" := 'Completed';
         DeepScanRun."Current Step" := 'Scan completed';
         DeepScanRun."Progress %" := 100;
         DeepScanRun."ETA Text" := 'Completed';
         DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Synchronized;
+        DeepScanRun."Backend Status" := 'completed';
         DeepScanRun."Backend Sync Error" := '';
         DeepScanRun."Warning Message" := '';
         DeepScanRun."Error Message" := '';

@@ -1,5 +1,9 @@
 ## BC extension build profiles
 
+## Manual scan business-hours confirmation
+
+Manual Free Data Health Score and Validation Check actions use a conservative local business-hours default of Monday through Friday, 08:00-18:00. During that window the user must explicitly choose **Start now**; cancellation happens before `/scan/start`, so no Validation Credit is consumed. Scheduled Monitoring, retries, and recovery do not use this interactive confirmation.
+
 This repository now uses a release-safe default manifest for cloud packaging:
 
 - `app.json`

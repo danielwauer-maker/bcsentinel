@@ -1823,10 +1823,11 @@
         EnsureSetupExists();
         Setup := Rec;
 
-        if ShowStartFreeDataHealthScore and CanStartFreeDataHealthScore then begin
-            if not Confirm(DoYouWantToStartTheFreeLbl, false) then
+        if IsManualFreeOrValidationScan() and IsDefaultBusinessHours() then
+            if StrMenu(ManualScanActionsLbl, 2, ManualScanBusinessHoursQst) <> 1 then
                 exit;
 
+        if ShowStartFreeDataHealthScore and CanStartFreeDataHealthScore then begin
             EntryNo := DeepScanMgt.QueueDataHealthScore(Setup);
             Rec.Get('SETUP');
             Rec."Data Health Score Completed" := true;
@@ -1842,6 +1843,27 @@
         CurrPage.Update(false);
         if DeepScanRun.Get(EntryNo) then
             Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+    end;
+
+    local procedure IsManualFreeOrValidationScan(): Boolean
+    begin
+        if ShowStartFreeDataHealthScore and CanStartFreeDataHealthScore then
+            exit(true);
+
+        exit(ShowStartValidationCheck and CanStartValidationCheck and not Rec."Monitoring Active");
+    end;
+
+    local procedure IsDefaultBusinessHours(): Boolean
+    var
+        DayOfWeek: Integer;
+        LocalTime: Time;
+    begin
+        DayOfWeek := Date2DWY(Today(), 1);
+        if DayOfWeek > 5 then
+            exit(false);
+
+        LocalTime := Time();
+        exit((LocalTime >= 080000T) and (LocalTime < 180000T));
     end;
 
     local procedure OpenLatestMonitor()
@@ -1963,7 +1985,8 @@
         RunningLbl: Label 'Running';
         CompletedLbl: Label 'Completed';
         CanceledLbl: Label 'Canceled';
-        DoYouWantToStartTheFreeLbl: Label 'Do you want to start the free Data Health Score now? Performance may be affected during live operations. We recommend running the scan outside business hours.';
+        ManualScanBusinessHoursQst: Label 'The scan may affect system performance depending on data volume. Do you want to start it now during business hours?';
+        ManualScanActionsLbl: Label 'Start now,Cancel';
         NoDeepScanRunIsAvailableLbl: Label 'No deep scan run is available.';
         PleaseConfigureTheAPIBaseURLFirstLbl: Label 'Please configure the API Base URL first.';
         TenantIsNotRegisteredYetLbl: Label 'Tenant is not registered yet.';

@@ -745,7 +745,7 @@ table 53100 "DH Setup"
     var
         MonitoringActiveLbl: Label 'Monitoring active';
         ScanCreditsAvailableLbl: Label '%1 Validation Credit(s) available', Comment = '%1 = available Validation Credit count';
-        PaidScanAccessActiveLbl: Label 'Paid scan access active';
+        PaidScanAccessActiveLbl: Label 'Premium access active';
         RegisterTheTenantAndUnlockFullAnalysisLbl: Label 'Register the tenant and unlock Full Analysis or Monitoring.';
         MonitoringAnnualLbl: Label 'Monitoring Annual';
         MonitoringMonthlyLbl: Label 'Monitoring Monthly';

@@ -1228,8 +1228,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidRecommendationsAndScanActionsAreAvailablLbl</note>
         </trans-unit>
         <trans-unit id="Table 392523509 - NamedType 2491277579" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paid scan access active</source>
-          <target state="translated">Bezahlter Scan-Zugang aktiv</target>
+          <source>Premium access active</source>
+          <target state="translated">Premium-Zugriff aktiv</target>
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Setup - NamedType PaidScanAccessActiveLbl</note>
         </trans-unit>
@@ -7484,6 +7484,34 @@
         <trans-unit id="LIC02 Start Validation" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Validation Check</source>
           <target state="translated">Validation Check starten</target>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 3841983121" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed; synchronization pending</source>
+          <target state="translated">Lokal abgeschlossen; Synchronisierung ausstehend</target>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+          <target state="translated">Abgelehnt</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 1738703616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rejected</source>
+          <target state="translated">Abgelehnt</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 3051153726" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Less than 1 minute</source>
+          <target state="translated">Weniger als 1 Minute</target>
+        </trans-unit>
+        <trans-unit id="Page 2958763285 - NamedType 89240128" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Analytics-Dashboard</source>
+          <target state="translated">Analytics-Dashboard öffnen</target>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1584648570" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan may affect system performance depending on data volume. Do you want to start it now during business hours?</source>
+          <target state="translated">Der Scan kann je nach Datenmenge die Systemleistung beeinflussen. Möchten Sie ihn jetzt während der Geschäftszeit starten?</target>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1419901430" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start now,Cancel</source>
+          <target state="translated">Jetzt starten,Abbrechen</target>
         </trans-unit>
         <trans-unit id="LIC02 Validation Required" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new scan requires a Validation Check or active Monitoring.</source>

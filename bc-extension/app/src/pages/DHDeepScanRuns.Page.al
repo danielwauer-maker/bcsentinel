@@ -299,6 +299,7 @@
         CriticalLbl: Label 'Critical';
         FailedLbl: Label 'Failed';
         CompletedSyncFailedLbl: Label 'Completed; sync failed';
+        CompletedSyncPendingLbl: Label 'Completed; synchronization pending';
         FreeScanLbl: Label 'Free Scan';
         GoodLbl: Label 'Good';
         ManualScanLbl: Label 'Manual Scan';
@@ -307,6 +308,7 @@
         ReconcileQst: Label 'This synchronizes the backend scan history with the current Business Central scan list and removes orphan backend scans. Continue?';
         ReconcileMsg: Label 'Scan history successfully synchronized with the backend.';
         RunningLbl: Label 'Running';
+        RejectedLbl: Label 'Rejected';
         UnknownLbl: Label 'Unknown';
         ValidationScanLbl: Label 'Validation Scan';
 
@@ -519,19 +521,25 @@
         if not FindDeepScanRun(DeepScanRun) then
             exit(CopyStr(UnknownLbl, 1, 30));
 
+        if LowerCase(DeepScanRun."Backend Status") = 'rejected' then
+            exit(CopyStr(RejectedLbl, 1, 30));
+
         if (DeepScanRun.Status = DeepScanRun.Status::Completed) and
-           (DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired])
-        then
+           (DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::Failed) then
             exit(CopyStr(CompletedSyncFailedLbl, 1, 30));
+
+        if (DeepScanRun.Status = DeepScanRun.Status::Completed) and
+           (DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::NotStarted, DeepScanRun."Backend Sync Status"::Pending, DeepScanRun."Backend Sync Status"::RetryRequired]) then
+            exit(CopyStr(CompletedSyncPendingLbl, 1, 30));
+
+        if IsDeepScanCompleted(DeepScanRun) then
+            exit(CopyStr(CompletedLbl, 1, 30));
 
         if IsDeepScanFailed(DeepScanRun) then
             exit(CopyStr(FailedLbl, 1, 30));
 
         if IsDeepScanRunning(DeepScanRun) then
             exit(CopyStr(RunningLbl, 1, 30));
-
-        if IsDeepScanCompleted(DeepScanRun) then
-            exit(CopyStr(CompletedLbl, 1, 30));
 
         exit(CopyStr(UnknownLbl, 1, 30));
     end;
@@ -546,19 +554,22 @@
         if not FindDeepScanRun(DeepScanRun) then
             exit('Standard');
 
+        if LowerCase(DeepScanRun."Backend Status") = 'rejected' then
+            exit('Unfavorable');
+
         if (DeepScanRun.Status = DeepScanRun.Status::Completed) and
-           (DeepScanRun."Backend Sync Status" in [DeepScanRun."Backend Sync Status"::Failed, DeepScanRun."Backend Sync Status"::RetryRequired])
+           (DeepScanRun."Backend Sync Status" <> DeepScanRun."Backend Sync Status"::Synchronized)
         then
             exit('Ambiguous');
+
+        if IsDeepScanCompleted(DeepScanRun) then
+            exit('Favorable');
 
         if IsDeepScanFailed(DeepScanRun) then
             exit('Unfavorable');
 
         if IsDeepScanRunning(DeepScanRun) then
             exit('Ambiguous');
-
-        if IsDeepScanCompleted(DeepScanRun) then
-            exit('Favorable');
 
         exit('Standard');
     end;

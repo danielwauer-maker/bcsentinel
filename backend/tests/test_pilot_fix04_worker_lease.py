@@ -5,7 +5,7 @@ import hashlib
 from uuid import uuid4
 
 from app.db import SessionLocal
-from app.models import CreditLedgerEntry, ScanRunStatus, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanRunEvent, ScanRunStatus, TenantScanCredit
 from app.services.product_license_service import grant_scan_credit
 from app.services.scan_status_service import recover_stale_runs, utc_now
 
@@ -142,12 +142,35 @@ def test_accepted_lease_survives_sequential_updates_replay_and_final_sync(client
         json=_sync_payload(tenant["tenant_id"], run_id, token, worker_id, accepted["correlation_id"]),
     )
     assert synced.status_code == 200
+    lifecycle = synced.json()["scan_status"]
+    assert lifecycle["status"] == "completed"
+    assert lifecycle["progress_percent"] == 100
+    assert lifecycle["completed_at"].endswith("Z") or lifecycle["completed_at"].endswith("+00:00")
 
     with SessionLocal() as db:
         run = db.query(ScanRunStatus).filter_by(run_id=run_id).one()
         assert run.status == "completed" and run.result_persisted_at_utc and run.completed_at_utc
+        completed_at = run.completed_at_utc
+        lifecycle_version = run.lifecycle_version
+        completion_events = db.query(ScanRunEvent).filter_by(run_id=run_id, event_type="scan_completed").count()
+        assert db.query(Scan).filter_by(scan_id=run_id).count() == 1
         assert db.query(TenantScanCredit).filter_by(tenant_id=tenant["tenant_id"], status="consumed").count() == 1
         assert db.query(CreditLedgerEntry).filter_by(tenant_id=tenant["tenant_id"], operation_type="SCAN_CONSUMED").count() == 1
+
+    replay = client.post(
+        "/scan/sync",
+        headers=_headers(tenant),
+        json=_sync_payload(tenant["tenant_id"], run_id, token, worker_id, accepted["correlation_id"]),
+    )
+    assert replay.status_code == 200
+    assert replay.json()["scan_status"]["status"] == "completed"
+
+    with SessionLocal() as db:
+        run = db.query(ScanRunStatus).filter_by(run_id=run_id).one()
+        assert run.completed_at_utc == completed_at
+        assert run.lifecycle_version == lifecycle_version
+        assert db.query(ScanRunEvent).filter_by(run_id=run_id, event_type="scan_completed").count() == completion_events
+        assert db.query(Scan).filter_by(scan_id=run_id).count() == 1
 
 
 def test_old_heartbeat_does_not_rotate_a_still_valid_lease(client, tenant_factory, settings_state):
