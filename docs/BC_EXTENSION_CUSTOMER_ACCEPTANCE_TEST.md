@@ -2,6 +2,8 @@
 
 Stand: 16.07.2026  
 Audit: GL-EXT-AUDIT-01  
+
+> LIC-02 supersedes Assessment Credit semantics. Execute CAT-LIC-01..08 in `LIC_02_LICENSE_MODEL_SIMPLIFICATION.md`: Full Analysis unlocks existing results only; Validation Check alone grants one scan credit.
 Ziel: reproduzierbarer Kundenabnahmelauf in einer Business-Central-Sandbox
 
 ## 1. Testregeln

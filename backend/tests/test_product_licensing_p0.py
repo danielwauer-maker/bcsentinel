@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.db import SessionLocal
-from app.models import Subscription, TenantProductEntitlement, TenantScanCredit
+from app.models import Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
 
 
 def _admin_auth_header() -> dict[str, str]:
@@ -119,7 +119,7 @@ def test_product_checkout_uses_expected_stripe_mode(
     ("product_code", "expected_product_code"),
     [("assessment", "full_analysis"), ("full_analysis", "full_analysis"), ("validation_check", "validation_check")],
 )
-def test_checkout_completed_grants_scan_credit_for_one_time_product(
+def test_checkout_completed_fulfills_one_time_product_semantics(
     client,
     tenant_factory,
     product_code,
@@ -146,9 +146,15 @@ def test_checkout_completed_grants_scan_credit_for_one_time_product(
 
     assert response.status_code == 200
     with SessionLocal() as db:
-        credit = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).one()
-        assert credit.product_code == expected_product_code
-        assert credit.status == "available"
+        credits = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).all()
+        stored_tenant = db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one()
+        assert stored_tenant.premium_until_utc is not None
+        if expected_product_code == "validation_check":
+            assert len(credits) == 1
+            assert credits[0].product_code == "validation_check"
+            assert credits[0].status == "available"
+        else:
+            assert credits == []
 
 
 @pytest.mark.parametrize("product_code", ["monitoring_monthly", "monitoring_annual"])
@@ -226,7 +232,7 @@ def test_license_status_exposes_scan_credits_and_product_entitlements(
     assert "executive_report" in payload["features"]
 
 
-def test_license_status_uses_single_end_of_day_access_date_for_one_time_products(
+def test_license_status_uses_exact_seven_day_premium_extension_for_one_time_products(
     client,
     tenant_factory,
     auth_header_factory,
@@ -249,8 +255,8 @@ def test_license_status_uses_single_end_of_day_access_date_for_one_time_products
     assert payload["dashboard_access_until"] == payload["issue_access_until"]
     assert payload["dashboard_access_until"] == payload["premium_access_until"]
     access_until = datetime.fromisoformat(payload["dashboard_access_until"].replace("Z", "+00:00"))
-    assert access_until.hour == 23
-    assert access_until.minute == 59
+    remaining = access_until - datetime.now(timezone.utc)
+    assert timedelta(days=6, hours=23) < remaining <= timedelta(days=7, minutes=1)
     assert payload["product_access"]["subscription_end"] == payload["dashboard_access_until"]
 
 
@@ -598,7 +604,7 @@ def test_monitoring_grants_new_premium_flags(
     assert payload["can_view_record_details"] is True
 
 
-def test_deep_scan_without_credit_or_monitoring_is_blocked(
+def test_deep_scan_without_credit_or_monitoring_claims_initial_free_assessment(
     client,
     tenant_factory,
     auth_header_factory,
@@ -611,11 +617,12 @@ def test_deep_scan_without_credit_or_monitoring_is_blocked(
         json=_deep_scan_payload(tenant["tenant_id"], "RUN_NO_CREDIT"),
     )
 
-    assert response.status_code == 402
-    assert "scan credit" in response.json()["detail"].lower()
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        assert db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one().free_assessment_used is True
 
 
-def test_deep_scan_start_without_credit_or_monitoring_is_blocked(
+def test_deep_scan_start_without_credit_or_monitoring_resolves_to_free_assessment(
     client,
     tenant_factory,
     auth_header_factory,
@@ -633,8 +640,9 @@ def test_deep_scan_start_without_credit_or_monitoring_is_blocked(
         },
     )
 
-    assert response.status_code == 402
-    assert "scan credit" in response.json()["detail"].lower()
+    assert response.status_code == 200
+    assert response.json()["free_data_health_score"] is True
+    assert response.json()["credit_consumed"] is False
 
 
 def test_deep_scan_start_consumes_credit_and_creates_history_entry(
@@ -648,7 +656,7 @@ def test_deep_scan_start_consumes_credit_and_creates_history_entry(
         headers=_admin_auth_header(),
         data={
             **_admin_csrf(client, f"/admin/tenants/{tenant['tenant_id']}"),
-            "product_code": "assessment",
+            "product_code": "validation_check",
         },
         follow_redirects=False,
     )
@@ -689,7 +697,7 @@ def test_deep_scan_start_consumes_credit_and_creates_history_entry(
         assert credits[0].consumed_scan_id == "RUN_START_WITH_CREDIT"
 
 
-def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
+def test_full_analysis_unlocks_premium_but_does_not_authorize_another_scan(
     client,
     tenant_factory,
     auth_header_factory,
@@ -705,24 +713,22 @@ def test_assessment_credit_allows_one_deep_scan_and_is_consumed(
         follow_redirects=False,
     )
 
-    first_response = client.post(
+    free_response = client.post(
         "/scan/sync",
         headers=auth_header_factory(tenant),
-        json=_deep_scan_payload(tenant["tenant_id"], "RUN_WITH_CREDIT"),
+        json={**_deep_scan_payload(tenant["tenant_id"], "RUN_FREE_BEFORE_FULL"), "scan_type": "data_health_score"},
     )
-    second_response = client.post(
+    blocked_response = client.post(
         "/scan/sync",
         headers=auth_header_factory(tenant),
-        json=_deep_scan_payload(tenant["tenant_id"], "RUN_AFTER_CREDIT"),
+        json=_deep_scan_payload(tenant["tenant_id"], "RUN_AFTER_FULL"),
     )
 
-    assert first_response.status_code == 200
-    assert second_response.status_code == 402
+    assert free_response.status_code == 200
+    assert blocked_response.status_code == 402
     with SessionLocal() as db:
         credits = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).all()
-        assert len(credits) == 1
-        assert credits[0].status == "consumed"
-        assert credits[0].consumed_scan_id == "RUN_WITH_CREDIT"
+        assert credits == []
 
     license_response = client.get("/license/status", headers=auth_header_factory(tenant))
     assert license_response.status_code == 200
@@ -833,8 +839,8 @@ def test_consumed_assessment_access_expires_after_seven_days(
 
     expired_at = datetime.now(timezone.utc) - timedelta(days=8)
     with SessionLocal() as db:
-        credit = db.query(TenantScanCredit).filter(TenantScanCredit.tenant_id == tenant["tenant_id"]).one()
-        credit.consumed_at_utc = expired_at
+        stored_tenant = db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one()
+        stored_tenant.premium_until_utc = expired_at
         entitlement = (
             db.query(TenantProductEntitlement)
             .filter(TenantProductEntitlement.tenant_id == tenant["tenant_id"])

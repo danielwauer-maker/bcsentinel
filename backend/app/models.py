@@ -30,6 +30,8 @@ class Tenant(Base):
     bc_environment_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
     bc_company_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     bc_company_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    free_assessment_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    premium_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     scans: Mapped[list["Scan"]] = relationship(
         back_populates="tenant",

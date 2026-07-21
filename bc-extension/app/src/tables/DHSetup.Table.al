@@ -340,6 +340,9 @@ table 53100 "DH Setup"
         {
             Caption = 'Assessment Credits Available';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'LIC-02 compatibility only. Always zero and never used for authorization.';
+            ObsoleteTag = '1.0.3.0';
         }
         field(58; "Validation Credits Available"; Integer)
         {
@@ -414,6 +417,21 @@ table 53100 "DH Setup"
         field(72; "Access Correlation ID"; Text[50])
         {
             Caption = 'Access Correlation ID';
+            DataClassification = SystemMetadata;
+        }
+        field(73; "Free Assessment Used"; Boolean)
+        {
+            Caption = 'Free Assessment Used';
+            DataClassification = SystemMetadata;
+        }
+        field(74; "Premium Until"; Text[50])
+        {
+            Caption = 'Premium Until';
+            DataClassification = SystemMetadata;
+        }
+        field(75; "Monitoring Until"; Text[50])
+        {
+            Caption = 'Monitoring Until';
             DataClassification = SystemMetadata;
         }
     }
@@ -517,6 +535,13 @@ table 53100 "DH Setup"
             exit(PaidScanAccessActiveLbl);
 
         exit(RegisterTheTenantAndUnlockFullAnalysisLbl);
+    end;
+
+    procedure GetFreeAssessmentDisplay(): Text[50]
+    begin
+        if "Free Assessment Used" then
+            exit(AlreadyUsedLbl);
+        exit(AvailableLbl);
     end;
 
     procedure GetProductAccessDisplay(): Text[100]
@@ -719,7 +744,7 @@ table 53100 "DH Setup"
 
     var
         MonitoringActiveLbl: Label 'Monitoring active';
-        ScanCreditsAvailableLbl: Label '%1 scan credit(s) available', Comment = '%1 = available scan credit count';
+        ScanCreditsAvailableLbl: Label '%1 Validation Credit(s) available', Comment = '%1 = available Validation Credit count';
         PaidScanAccessActiveLbl: Label 'Paid scan access active';
         RegisterTheTenantAndUnlockFullAnalysisLbl: Label 'Register the tenant and unlock Full Analysis or Monitoring.';
         MonitoringAnnualLbl: Label 'Monitoring Annual';
@@ -729,13 +754,14 @@ table 53100 "DH Setup"
         FreeDataHealthScoreLbl: Label 'Free Data Health Score';
         UnlimitedLbl: Label 'Unlimited';
         AvailableLbl: Label 'Available';
+        AlreadyUsedLbl: Label 'Already used';
         NotAvailableLbl: Label 'Not available';
         ScheduledScansRequireActiveMonitoringLbl: Label 'Scheduled scans require active Monitoring.';
         FreeAccessActiveLbl: Label 'Free access active';
         NotRegisteredLbl: Label 'Not registered';
         MonitoringIsActiveScansAndDashboardDetailsLbl: Label 'Monitoring is active. Scans and dashboard details are available.';
-        AScanCreditIsAvailableRunDeepLbl: Label 'A scan credit is available. Run Deep Scan to consume it and open the 7-day report window.';
-        PaidRecommendationsAndScanActionsAreAvailablLbl: Label 'Paid recommendations and scan actions are available for this tenant.';
-        BuyFullAnalysisValidationCheckOrMonitoringLbl: Label 'Buy Full Analysis, Validation Check, or Monitoring to unlock recommendations, drilldowns, and scan actions.';
+        AScanCreditIsAvailableRunDeepLbl: Label 'A Validation Credit is available. Start a Validation Check to consume it.';
+        PaidRecommendationsAndScanActionsAreAvailablLbl: Label 'Premium recommendations and details are available. A new scan still requires Validation or Monitoring.';
+        BuyFullAnalysisValidationCheckOrMonitoringLbl: Label 'Buy Full Analysis to unlock existing results, or Validation Check/Monitoring to run another scan.';
         PleaseEnterAValidContactEmailBeforeLbl: Label 'Please enter a valid contact email before registering.';
 }

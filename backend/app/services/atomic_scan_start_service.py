@@ -12,12 +12,11 @@ from sqlalchemy.orm import Session
 
 from app.models import CreditLedgerEntry, Scan, ScanIssueRecord, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
 from app.services.product_license_service import (
-    PRODUCT_FULL_ANALYSIS,
+    PRODUCT_DATA_HEALTH_SCORE,
     PRODUCT_VALIDATION_CHECK,
     MONITORING_PRODUCTS,
     active_entitlement_product_codes,
     has_active_monitoring_subscription,
-    product_code_storage_aliases,
     scan_credit_count,
 )
 from app.services.scan_status_service import create_or_get_scan_run
@@ -223,34 +222,38 @@ def _claim_credit(db: Session, *, tenant_id: str, scan_id: str, product_codes: s
     return candidate
 
 
-def _resolve_access_and_credit(db: Session, *, tenant: Tenant, requested_mode: str, scan_id: str) -> tuple[str | None, TenantScanCredit | None]:
+def _resolve_access_and_credit(
+    db: Session, *, tenant: Tenant, requested_mode: str, scan_id: str
+) -> tuple[str | None, TenantScanCredit | None, bool]:
     monitoring_active = has_active_monitoring_subscription(db, tenant) or bool(
         set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
     )
-    if requested_mode == "data_health_score":
-        return None, None
-    if requested_mode == "monitoring":
-        if not monitoring_active:
-            raise MonitoringInactiveError("An active Monitoring subscription is required for this scan.")
-        return "monitoring", None
-    if requested_mode == "assessment":
-        product = PRODUCT_FULL_ANALYSIS
-        credit = _claim_credit(db, tenant_id=tenant.tenant_id, scan_id=scan_id, product_codes=product_code_storage_aliases(product))
-    elif requested_mode == "validation":
-        product = PRODUCT_VALIDATION_CHECK
-        credit = _claim_credit(db, tenant_id=tenant.tenant_id, scan_id=scan_id, product_codes={product})
-    else:
-        if monitoring_active:
-            return "monitoring", None
-        product = "legacy_deep"
-        credit = _claim_credit(db, tenant_id=tenant.tenant_id, scan_id=scan_id, product_codes=None)
-        if credit is not None:
-            product = credit.product_code
-    if credit is None:
-        raise ScanCreditUnavailableError(
-            "No matching scan credit is available. Purchase the required product or start Monitoring, then retry with the same request ID."
-        )
-    return product, credit
+    if monitoring_active:
+        return "monitoring", None, False
+
+    credit = _claim_credit(
+        db,
+        tenant_id=tenant.tenant_id,
+        scan_id=scan_id,
+        product_codes={PRODUCT_VALIDATION_CHECK},
+    )
+    if credit is not None:
+        return PRODUCT_VALIDATION_CHECK, credit, False
+
+    # This conditional update and the request/scan insert share one transaction.
+    claimed_free = db.execute(
+        update(Tenant)
+        .where(Tenant.id == tenant.id, Tenant.free_assessment_used.is_(False))
+        .values(free_assessment_used=True)
+    )
+    if claimed_free.rowcount == 1:
+        db.flush()
+        tenant.free_assessment_used = True
+        return PRODUCT_DATA_HEALTH_SCORE, None, True
+
+    raise ScanCreditUnavailableError(
+        "A new scan requires a Validation Check or active Monitoring."
+    )
 
 
 def accept_scan_start(
@@ -327,7 +330,7 @@ def accept_scan_start(
         payload_hash=payload_hash,
         scan_id=normalized_run_id,
         requested_scan_mode=requested_mode,
-        free_scan_slot="data_health_score" if requested_mode == "data_health_score" else None,
+        free_scan_slot=None,
         status="accepting",
         created_at_utc=now,
         updated_at_utc=now,
@@ -335,9 +338,13 @@ def accept_scan_start(
     db.add(request)
     try:
         db.flush()
-        product_code, credit = _resolve_access_and_credit(
+        product_code, credit, free_assessment = _resolve_access_and_credit(
             db, tenant=tenant, requested_mode=requested_mode, scan_id=normalized_run_id
         )
+        if free_assessment:
+            requested_mode = "data_health_score"
+            request.requested_scan_mode = requested_mode
+            request.free_scan_slot = "data_health_score"
         request.resolved_product_code = product_code
         request.credit_id = credit.id if credit is not None else None
         request.status = "accepted"

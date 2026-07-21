@@ -355,8 +355,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         ApiClient.RefreshLicenseStatus(Setup);
 
         if not Setup."Can Run Deep Scan" then
-            if not Setup.IsPremiumLicenseActive() then
-                Error('No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.');
+            Error('A new scan requires a Validation Check or active Monitoring.');
     end;
 
     local procedure GetDeepScanMode(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Text[30]
@@ -366,23 +365,18 @@ codeunit 53124 "DH Deep Scan Mgt."
         if not ShowStartedMessage then
             exit('monitoring');
 
+        if Setup."Monitoring Active" then
+            exit('monitoring');
         if Setup."Validation Credits Available" > 0 then
             exit('validation');
-        if Setup."Assessment Credits Available" > 0 then
-            exit('assessment');
 
         AccessModel := LowerCase(Setup."Product Access Model");
         case AccessModel of
             'validation', 'validation_scan':
                 exit('validation');
-            'one_time', 'full_analysis', 'credit':
-                exit('assessment');
             'monitoring', 'subscription':
                 exit('monitoring');
         end;
-
-        if Setup."Monitoring Active" then
-            exit('monitoring');
 
         exit('validation');
     end;

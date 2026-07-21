@@ -20,6 +20,14 @@ class LicenseStatusResponse(BaseModel):
     legacy_license_status: str | None = None
     features: list[str]
     active_products: list[str] = []
+    free_assessment_used: bool = False
+    free_assessment_available: bool = True
+    premium_active: bool = False
+    premium_until: str | None = None
+    validation_credits: int = 0
+    monitoring_until: str | None = None
+    dataset_tier: str | None = None
+    entitlement_capabilities: dict = {}
     scan_credits_available: int = 0
     assessment_scan_credits_available: int = 0
     validation_scan_credits_available: int = 0
@@ -98,6 +106,14 @@ def get_license_status(
             legacy_license_status=normalized_license_status,
             features=features,
             active_products=snapshot["active_products"],
+            free_assessment_used=snapshot["product_access"]["free_assessment_used"],
+            free_assessment_available=snapshot["product_access"]["free_assessment_available"],
+            premium_active=snapshot["product_access"]["premium_active"],
+            premium_until=snapshot["product_access"]["premium_until"],
+            validation_credits=snapshot["product_access"]["validation_credits"],
+            monitoring_until=snapshot["product_access"]["monitoring_until"],
+            dataset_tier=snapshot["product_access"]["dataset_tier"],
+            entitlement_capabilities=snapshot["product_access"]["capabilities"],
             scan_credits_available=snapshot["scan_credits_available"],
             assessment_scan_credits_available=snapshot["assessment_scan_credits_available"],
             validation_scan_credits_available=snapshot["validation_scan_credits_available"],

@@ -39,7 +39,8 @@
         <section class="stats-grid compact-stats-grid">
           <article class="stat-card emphasis"><div class="stat-label">Product Access</div><div class="stat-value stat-value-small">{{ product_access.access_model }}</div></article>
           <article class="stat-card"><div class="stat-label">Monitoring</div><div class="stat-value stat-value-small">{% if product_access.monitoring_active %}active{% else %}inactive{% endif %}</div></article>
-          <article class="stat-card"><div class="stat-label">Scan Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
+          <article class="stat-card"><div class="stat-label">Free Assessment</div><div class="stat-value stat-value-small">{% if product_access.free_assessment_used %}Used{% else %}Available{% endif %}</div></article>
+          <article class="stat-card"><div class="stat-label">Validation Credits</div><div class="stat-value stat-value-small">{{ available_scan_credits }}</div></article>
           <article class="stat-card"><div class="stat-label">Records / Tier</div><div class="stat-helper stat-helper-strong">{{ product_access.record_count if product_access.record_count is not none else '-' }} / {{ product_access.pricing_tier or '-' }}</div></article>
           <article class="stat-card"><div class="stat-label">Premium Until</div><div class="stat-helper stat-helper-strong">{{ product_access.premium_access_until or '-' }}</div></article>
         </section>
@@ -75,11 +76,11 @@
           </article>
 
           <article class="panel">
-            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Backend ist Quelle der Wahrheit</span></div>
+            <div class="panel-header"><h2>Validation Credits</h2><span class="muted">Backend ist Quelle der Wahrheit</span></div>
             <div class="config-list">
-              <div class="config-row no-border"><div class="config-title">Available Scan Credits</div><div>{{ available_scan_credits }}</div></div>
+              <div class="config-row no-border"><div class="config-title">Available Validation Credits</div><div>{{ available_scan_credits }}</div></div>
               <div class="config-row no-border">
-                <div class="config-title">Adjust Credits</div>
+                <div class="config-title">Adjust Validation Credits</div>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/add-credit" class="inline-form"><input type="hidden" name="count" value="1"><button type="submit" class="btn btn-secondary">+1 Credit</button></form>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/add-credit" class="inline-form"><input type="hidden" name="count" value="5"><button type="submit" class="btn btn-secondary">+5 Credits</button></form>
                 <form method="post" action="/admin/tenant/{{ tenant.tenant_id }}/remove-credit" class="inline-form"><input type="hidden" name="count" value="1"><button type="submit" class="btn btn-secondary">-1 Credit</button></form>
@@ -197,7 +198,7 @@
           </article>
 
           <article class="panel">
-            <div class="panel-header"><h2>Scan Credits</h2><span class="muted">Full Analysis und Validation Check Credits</span></div>
+            <div class="panel-header"><h2>Credit Ledger</h2><span class="muted">Validation Credits and auditable legacy entries</span></div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>ID</th><th>Product</th><th>Status</th><th>Source</th><th>Consumed Scan</th><th>Created</th></tr></thead>

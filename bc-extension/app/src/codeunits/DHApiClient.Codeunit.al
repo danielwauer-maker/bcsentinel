@@ -442,6 +442,9 @@ codeunit 53100 "DH API Client"
         Setup."Product Access Model" := '';
         Setup."Can Run Data Health Score" := true;
         Setup."Data Health Score Completed" := false;
+        Setup."Free Assessment Used" := false;
+        Setup."Premium Until" := '';
+        Setup."Monitoring Until" := '';
 
         if JsonResponse.Get('features', FeaturesToken) then begin
             Features := FeaturesToken.AsArray();
@@ -456,12 +459,21 @@ codeunit 53100 "DH API Client"
         Setup."Subscription Active" := SubscriptionGranted;
         Setup."Can Run Deep Scan" := ScanStartGranted;
 
-        if JsonResponse.Get('scan_credits_available', Token) then
-            Setup."Scan Credits Available" := GetJsonTokenInteger(Token, 0);
-        if JsonResponse.Get('assessment_scan_credits_available', Token) then
-            Setup."Assessment Credits Available" := GetJsonTokenInteger(Token, 0);
-        if JsonResponse.Get('validation_scan_credits_available', Token) then
+        if JsonResponse.Get('validation_credits', Token) then
+            Setup."Validation Credits Available" := GetJsonTokenInteger(Token, 0)
+        else if JsonResponse.Get('validation_scan_credits_available', Token) then
             Setup."Validation Credits Available" := GetJsonTokenInteger(Token, 0);
+        Setup."Scan Credits Available" := Setup."Validation Credits Available";
+
+        if JsonResponse.Get('free_assessment_used', Token) then begin
+            Setup."Free Assessment Used" := GetJsonTokenBoolean(Token, false);
+            Setup."Data Health Score Completed" := Setup."Free Assessment Used";
+            Setup."Can Run Data Health Score" := not Setup."Free Assessment Used";
+        end;
+        if JsonResponse.Get('premium_until', Token) then
+            Setup."Premium Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Premium Until"));
+        if JsonResponse.Get('monitoring_until', Token) then
+            Setup."Monitoring Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Monitoring Until"));
 
         if JsonResponse.Get('monitoring_active', Token) then
             Setup."Monitoring Active" := GetJsonTokenBoolean(Token, false);
@@ -579,7 +591,7 @@ codeunit 53100 "DH API Client"
         RefreshLicenseStatus(Setup);
         if not Setup."Can Run Deep Scan" then
             if not IsPremiumAllowed(Setup) then
-                Error(NoScanCreditOrActiveMonitoringAvailableLbl);
+                Error(ValidationOrMonitoringRequiredLbl);
     end;
 
     procedure IsPremiumAllowed(Setup: Record "DH Setup"): Boolean
@@ -2118,5 +2130,5 @@ codeunit 53100 "DH API Client"
         RegistrationCompletedInviteUnknownLbl: Label 'BCSentinel tenant registration completed, but the dashboard invitation email could not be confirmed. Please check the admin dashboard.';
 
     var
-        NoScanCreditOrActiveMonitoringAvailableLbl: Label 'No scan credit or active monitoring available. Please buy Full Analysis, Validation Check or start Monitoring.';
+        ValidationOrMonitoringRequiredLbl: Label 'A new scan requires a Validation Check or active Monitoring.';
 }

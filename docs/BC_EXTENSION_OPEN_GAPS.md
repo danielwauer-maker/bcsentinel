@@ -2,6 +2,10 @@
 
 Stand: 16.07.2026  
 Audit: GL-EXT-AUDIT-01  
+
+## LIC-02 release gap
+
+The simplified entitlement source is implemented in code. Remaining evidence is Alembic upgrade/backfill verification, full regression, regenerated DE-DE/EN-US XLIFF, AL compilation, Stripe sandbox fulfillment, and BC sandbox CAT. Go-live remains blocked until these are green.
 Basisentscheidung: **NO-GO**
 
 ## Priorisierte Gap-Liste

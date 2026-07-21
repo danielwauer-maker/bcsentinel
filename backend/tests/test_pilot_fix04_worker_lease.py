@@ -16,7 +16,7 @@ def _headers(tenant: dict[str, str]) -> dict[str, str]:
 
 def _grant_credit(tenant_id: str) -> None:
     with SessionLocal() as db:
-        grant_scan_credit(db, tenant_id=tenant_id, product_code="full_analysis", source="fix04_test")
+        grant_scan_credit(db, tenant_id=tenant_id, product_code="validation_check", source="fix04_test")
         db.commit()
 
 

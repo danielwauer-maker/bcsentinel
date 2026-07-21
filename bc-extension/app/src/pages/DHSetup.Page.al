@@ -111,12 +111,12 @@
                     Editable = false;
                     StyleExpr = MonitoringStyle;
                 }
-                field("Assessment Credits Available"; Rec."Assessment Credits Available")
+                field(FreeAssessmentStatus; FreeAssessmentStatusTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Assessment Credits';
+                    Caption = 'Free Assessment';
                     Editable = false;
-                    ToolTip = 'Shows the available Assessment credits. Credits are consumed only by scan types defined by the current product access.';
+                    ToolTip = 'Shows whether the one-time free Data Health Score is available or already used.';
                 }
                 field("Validation Credits Available"; Rec."Validation Credits Available")
                 {
@@ -144,12 +144,17 @@
                     ToolTip = 'Specifies Issue Access Until.';
                     Editable = false;
                 }
-                field("Scan Credits Available"; Rec."Scan Credits Available")
+                field(PremiumUntil; Rec."Premium Until")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Scan Credits Available.';
+                    Caption = 'Premium Until';
                     Editable = false;
-                    StyleExpr = ScanCreditsStyle;
+                }
+                field(MonitoringUntil; Rec."Monitoring Until")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Monitoring Until';
+                    Editable = false;
                 }
                 field("Last License Check"; Rec."Last License Check")
                 {
@@ -870,8 +875,8 @@
 
                 action(StartScanFromMenu)
                 {
-                    Caption = 'Start Full Analysis or Validation Scan';
-                    ToolTip = 'Starts the available Full Analysis or Validation scan and opens the scan monitor.';
+                    Caption = 'Start Validation Check';
+                    ToolTip = 'Uses one Validation Credit to start a new scan and opens the scan monitor.';
                     Image = Start;
                     ApplicationArea = All;
                     Enabled = CanStartValidationCheck;
@@ -1222,6 +1227,7 @@
         InviteNoticeTxt: Text[512];
         SubscriptionStatusTxt: Text[100];
         ProductAccessTxt: Text[100];
+        FreeAssessmentStatusTxt: Text[50];
         ActiveModulesTxt: Text[100];
         ActiveChecksTxt: Text[100];
         ScanConfigurationStatusTxt: Text[250];
@@ -1412,7 +1418,9 @@
         CanStartFreeDataHealthScore := (Rec."Tenant ID" <> '') and not HasCompletedFreeScore;
         ShowStartFreeDataHealthScore := not HasCompletedFreeScore;
         ShowFreeDataHealthScoreCompleted := HasCompletedFreeScore;
-        CanStartValidationCheck := (Rec."Tenant ID" <> '') and HasCompletedFreeScore;
+        CanStartValidationCheck :=
+            (Rec."Tenant ID" <> '') and HasCompletedFreeScore and
+            (Rec."Monitoring Active" or (Rec."Validation Credits Available" > 0));
         ShowStartValidationCheck := HasCompletedFreeScore;
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
         CanSelectScanChecks := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
@@ -1423,7 +1431,7 @@
         CanOpenLatestReport := LatestCompletedScanExists();
         UpdateSchedulerVisibility();
         ShowBuyFullAnalysis := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and not HasOneTimeAccess;
-        ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasOneTimeAccess;
+        ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasCompletedFreeScore;
         ShowStartMonitoring := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active";
     end;
 
@@ -1459,6 +1467,7 @@
         UpdateCustomerStatusValues();
         SubscriptionStatusTxt := Rec.GetSubscriptionStatusDisplay();
         ProductAccessTxt := Rec.GetProductAccessDisplay();
+        FreeAssessmentStatusTxt := Rec.GetFreeAssessmentDisplay();
         ActiveModulesTxt := SchedulerMgt.GetActiveModulesSummary(Rec);
         ActiveChecksTxt := SchedulerMgt.GetActiveChecksSummary(Rec);
         EnabledChecks := ScanCheckMgt.GetExpectedChecksCount(Rec);

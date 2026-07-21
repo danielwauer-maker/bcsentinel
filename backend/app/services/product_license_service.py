@@ -126,7 +126,18 @@ def calculate_product_access_until(product_code: str, anchor: datetime | None = 
 
 def calculate_access_window_until(*, days: int, anchor: datetime | None = None) -> datetime:
     start = _as_utc(anchor) or utc_now()
-    return _end_of_day_utc(start + timedelta(days=max(int(days or 0), 0))) or start
+    return start + timedelta(days=max(int(days or 0), 0))
+
+
+def extend_tenant_premium_access(db, *, tenant_id: str, anchor: datetime | None = None) -> datetime:
+    """Apply the normative max(existing, purchase/grant time + 7 days) rule."""
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
+    if tenant is None:
+        raise ValueError("Tenant not found while extending premium access.")
+    candidate = calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=anchor)
+    tenant.premium_until_utc = _max_datetime([tenant.premium_until_utc, candidate])
+    db.flush()
+    return _as_utc(tenant.premium_until_utc) or candidate
 
 
 def _iso(value: datetime | None) -> str | None:
@@ -192,7 +203,11 @@ def is_monitoring_product(product_code: str) -> bool:
 def scan_credit_count(db, tenant_id: str) -> int:
     return int(
         db.query(TenantScanCredit)
-        .filter(TenantScanCredit.tenant_id == tenant_id, TenantScanCredit.status == "available")
+        .filter(
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.status == "available",
+            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+        )
         .count()
     )
 
@@ -324,7 +339,7 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         if entitlement.valid_until_utc is None:
             access_until_values.append(calculate_product_access_until(normalized_product))
         else:
-            access_until_values.append(_end_of_day_utc(entitlement.valid_until_utc))
+            access_until_values.append(_as_utc(entitlement.valid_until_utc))
 
     return _max_datetime(access_until_values)
 
@@ -379,21 +394,39 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         monitoring_until is not None and monitoring_until >= now
     )
 
-    one_time_until = _max_datetime([full_analysis_until, validation_until])
+    explicit_premium_until = _as_utc(tenant.premium_until_utc)
+    one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
     full_analysis_active = full_analysis_until is not None and full_analysis_until >= now
     validation_active = validation_until is not None and validation_until >= now
-    one_time_active = full_analysis_active or validation_active
+    one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
     credits_available = scan_credit_count(db, tenant.tenant_id)
     assessment_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
-    has_completed_data_health_score = _tenant_has_completed_data_health_score(db, tenant.tenant_id)
+    has_completed_data_health_score = bool(tenant.free_assessment_used) or _tenant_has_completed_data_health_score(db, tenant.tenant_id)
     record_count = _latest_scan_record_count(db, tenant.tenant_id)
     pricing_tier = pricing_tier_for_record_count(record_count)
 
     return {
+        "free_assessment_used": has_completed_data_health_score,
+        "free_assessment_available": not has_completed_data_health_score,
+        "premium_active": premium_access_active,
+        "premium_until": _iso(one_time_until),
+        "validation_credits": validation_credits_available,
+        "monitoring_until": _iso(monitoring_until),
+        "dataset_tier": pricing_tier,
+        "capabilities": {
+            "free_dashboard": has_scan_results,
+            "full_dashboard": premium_access_active,
+            "findings_full": premium_access_active,
+            "issues": premium_access_active,
+            "actions": premium_access_active,
+            "executive_report_full": premium_access_active,
+            "monitoring": monitoring_active,
+            "manual_scan": monitoring_active or validation_credits_available > 0 or not has_completed_data_health_score,
+        },
         "can_run_data_health_score": not has_completed_data_health_score,
         "has_completed_data_health_score": has_completed_data_health_score,
         "can_view_free_insights": has_scan_results,
@@ -420,12 +453,12 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "issue_access_until": _iso(premium_access_until),
         "issue_access_until_bc": _bc_datetime(premium_access_until),
         "report_access_until": _iso(premium_access_until),
-        "can_run_deep_scan": monitoring_active or credits_available > 0,
+        "can_run_deep_scan": monitoring_active or validation_credits_available > 0,
         "can_view_dashboard": premium_access_active,
         "can_view_issue_details": premium_access_active,
         "can_view_executive_report": premium_access_active,
-        "scan_credits_available": credits_available,
-        "assessment_scan_credits_available": assessment_credits_available,
+        "scan_credits_available": validation_credits_available,
+        "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
         "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else "none"),
         "assessment_access_until": _iso(full_analysis_until),
@@ -505,9 +538,12 @@ def grant_scan_credit(
     source: str = "manual",
     source_purchase_id: int | None = None,
 ) -> TenantScanCredit:
+    normalized_product = normalize_product_code(product_code)
+    if normalized_product != PRODUCT_VALIDATION_CHECK:
+        raise ValueError("Only Validation Check may grant a scan credit.")
     credit = TenantScanCredit(
         tenant_id=tenant_id,
-        product_code=normalize_product_code(product_code),
+        product_code=normalized_product,
         status="available",
         source=source,
         source_purchase_id=source_purchase_id,
@@ -529,6 +565,7 @@ def grant_scan_credit(
             created_at_utc=utc_now(),
         )
     )
+    extend_tenant_premium_access(db, tenant_id=tenant_id)
     return credit
 
 
@@ -552,6 +589,8 @@ def grant_product_entitlement(
     )
     db.add(entitlement)
     db.flush()
+    if normalize_product_code(product_code) in ONE_TIME_PRODUCTS:
+        entitlement.valid_until_utc = extend_tenant_premium_access(db, tenant_id=tenant_id)
     return entitlement
 
 

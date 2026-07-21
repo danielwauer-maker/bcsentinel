@@ -42,6 +42,7 @@ from app.services.product_license_service import (
     calculate_product_access_until,
     grant_product_entitlement,
     grant_scan_credit,
+    extend_tenant_premium_access,
     is_monitoring_product,
     is_one_time_product,
     normalize_product_code,
@@ -341,17 +342,9 @@ def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, so
                 source_purchase_id=purchase.id,
             )
     elif product_code == PRODUCT_FULL_ANALYSIS:
-        existing_credit = db.scalar(
-            select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
+        premium_until = extend_tenant_premium_access(
+            db, tenant_id=tenant_id, anchor=purchase.created_at_utc
         )
-        if existing_credit is None:
-            grant_scan_credit(
-                db,
-                tenant_id=tenant_id,
-                product_code=product_code,
-                source=source,
-                source_purchase_id=purchase.id,
-            )
         existing_entitlement = db.scalar(
             select(TenantProductEntitlement).where(
                 TenantProductEntitlement.tenant_id == tenant_id,
@@ -369,7 +362,7 @@ def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, so
                 tenant_id=tenant_id,
                 product_code=product_code,
                 source=source,
-                valid_until_utc=calculate_product_access_until(product_code),
+                valid_until_utc=premium_until,
             )
 
 

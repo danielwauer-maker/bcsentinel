@@ -227,8 +227,8 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_latest_scan', 'Latest Scan', 'Letzter Scan'],
   ['static_previous_scan', 'Previous Scan', 'Vorheriger Scan'],
   ['static_comparison_date', 'Comparison Date', 'Vergleichsdatum'],
-  ['static_scan_credits', 'Scan Credits', 'Scan Credits'],
-  ['static_available_scan_credits', 'Available Scan Credits', 'VerfÃ¼gbare Scan Credits'],
+  ['static_scan_credits', 'Validation Credits', 'Validation Credits'],
+  ['static_available_scan_credits', 'Available Validation Credits', 'VerfÃ¼gbare Validation Credits'],
   ['static_products', 'Products', 'Produkte'],
   ['settings', 'Settings', 'Settings'],
   ['reports', 'Reports', 'Reports'],
@@ -3139,7 +3139,7 @@ function renderSubscriptionScanCredits(data) {
   const buyButton = byId('buy-more-credits-cta');
   if (!host) return;
   const access = data?.product_access || {};
-  const credits = safeNumber(firstPresent(access.scan_credits_available, access.scan_credits, data?.scan_credits), 0);
+  const credits = safeNumber(firstPresent(access.validation_credits, access.validation_scan_credits_available, data?.validation_credits), 0);
   const canRunDeepScan = Boolean(access.can_run_deep_scan);
   const validationAvailable = Boolean(access.validation_access_active || data?.validation_access_active || access.can_run_validation_check);
   const needsCredits = credits <= 0;
@@ -3167,8 +3167,8 @@ function renderSubscriptionProducts(data) {
   const monitoringActive = Boolean(access.monitoring_active || data?.monitoring_status === 'active');
   const allowedProducts = availableSubscriptionProductKeys(data);
   const items = [
-    ['full_analysis', 'Full Analysis', 'Complete Data Health Assessment', 'Buy Now', activeAssessment, 'Most Popular'],
-    ['validation_check', 'Validation Check / New Credit', 'Validate improvements after remediation', 'Buy Now', activeValidation, 'After Fixes'],
+    ['full_analysis', 'Full Analysis', 'Unlock the latest scan results for 7 days', 'Buy Now', activeAssessment, 'Most Popular'],
+    ['validation_check', 'Validation Check', 'One new scan plus 7 days premium access', 'Buy Now', activeValidation, 'After Fixes'],
     ['monitoring_monthly', 'Monitoring Monthly', 'Continuous monitoring with trends and alerts', 'Start Monitoring', monitoringActive, 'Recommended'],
     ['monitoring_annual', 'Monitoring Annual', 'Best value annual monitoring plan', 'Start Annual Monitoring', monitoringActive, 'Best Value'],
   ].filter(([key]) => allowedProducts.has(key));

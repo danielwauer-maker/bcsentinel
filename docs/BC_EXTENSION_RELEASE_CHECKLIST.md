@@ -2,6 +2,8 @@
 
 Stand: 16.07.2026  
 Audit: GL-EXT-AUDIT-01  
+
+> LIC-02 gate: no customer-facing Assessment Credits, Full Analysis never authorizes a scan, Validation Credits remain atomic/idempotent, and migration `0026_license_simplification` plus CAT-LIC-01..08 must be green.
 Aktueller Gate-Status: **BLOCKED / NO-GO**
 
 ## Freigaberegel

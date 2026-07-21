@@ -463,7 +463,6 @@ def _deactivate_entitlements(db, tenant_id: str, product_codes: set[str]) -> int
 
 def _expire_one_time_sources(db, tenant_id: str, product_codes: set[str]) -> dict[str, int]:
     now = utc_now()
-    expired_anchor = now - timedelta(days=8)
     credit_count = 0
     purchase_count = 0
 
@@ -475,9 +474,6 @@ def _expire_one_time_sources(db, tenant_id: str, product_codes: set[str]) -> dic
             continue
         if credit.status == "available":
             credit.status = "revoked"
-        credit.created_at_utc = expired_anchor
-        if credit.consumed_at_utc is not None:
-            credit.consumed_at_utc = expired_anchor
         credit_count += 1
 
     purchases = db.scalars(
@@ -1024,6 +1020,7 @@ def grant_tenant_product(
 
     with SessionLocal() as db:
         tenant = _load_tenant_or_404(db, tenant_id)
+        old_state = build_license_snapshot(db, tenant)["product_access"]
 
         if normalized_product_code == PRODUCT_VALIDATION_CHECK:
             grant_scan_credit(
@@ -1034,12 +1031,6 @@ def grant_tenant_product(
             )
             action = "tenant.scan_credit.grant"
         elif normalized_product_code == PRODUCT_FULL_ANALYSIS:
-            grant_scan_credit(
-                db,
-                tenant_id=tenant.tenant_id,
-                product_code=normalized_product_code,
-                source="admin_manual",
-            )
             grant_product_entitlement(
                 db,
                 tenant_id=tenant.tenant_id,
@@ -1052,13 +1043,37 @@ def grant_tenant_product(
             _grant_monitoring(db, tenant, normalized_product_code)
             action = "tenant.product_entitlement.grant"
 
+        db.flush()
+        new_state = build_license_snapshot(db, tenant)["product_access"]
+
         log_admin_event(
             db,
             admin_username=admin_username,
             action=action,
             target_type="tenant",
             target_id=tenant.tenant_id,
-            details={"product_code": normalized_product_code},
+            details={
+                "product_code": normalized_product_code,
+                "source": "admin_manual",
+                "reason": "explicit product grant",
+                "company_id": tenant.bc_company_id,
+                "environment_name": tenant.bc_environment_name or tenant.environment_name,
+                "old_state": {
+                    "free_assessment_used": old_state["free_assessment_used"],
+                    "premium_until": old_state["premium_until"],
+                    "validation_credits": old_state["validation_credits"],
+                    "monitoring_until": old_state["monitoring_until"],
+                },
+                "new_state": {
+                    "free_assessment_used": new_state["free_assessment_used"],
+                    "premium_until": new_state["premium_until"],
+                    "validation_credits": new_state["validation_credits"],
+                    "monitoring_until": new_state["monitoring_until"],
+                },
+                "validation_credit_delta": new_state["validation_credits"] - old_state["validation_credits"],
+                "premium_until_delta": [old_state["premium_until"], new_state["premium_until"]],
+                "monitoring_until_delta": [old_state["monitoring_until"], new_state["monitoring_until"]],
+            },
         )
         db.commit()
 
@@ -1082,6 +1097,8 @@ def revoke_tenant_product(
         if normalized_product_code in ONE_TIME_PRODUCTS:
             details.update(_expire_one_time_sources(db, tenant.tenant_id, {normalized_product_code}))
             details["entitlements"] = _deactivate_entitlements(db, tenant.tenant_id, {normalized_product_code})
+            tenant.premium_until_utc = utc_now() - timedelta(seconds=1)
+            details["premium_revocation_scope"] = "all_one_time_premium_access"
         else:
             details.update(_disable_monitoring_sources(db, tenant))
 
@@ -1102,13 +1119,13 @@ def revoke_tenant_product(
 def add_tenant_scan_credit(
     tenant_id: str,
     count: int = Form(1),
-    product_code: str = Form(PRODUCT_ASSESSMENT),
+    product_code: str = Form(PRODUCT_VALIDATION_CHECK),
     admin_username: str = Depends(require_admin),
 ):
     normalized_count = max(1, min(int(count or 1), 100))
     normalized_product_code = normalize_product_code(product_code)
-    if normalized_product_code not in ONE_TIME_PRODUCTS:
-        raise HTTPException(status_code=400, detail="Credits require assessment or validation_check product_code.")
+    if normalized_product_code != PRODUCT_VALIDATION_CHECK:
+        raise HTTPException(status_code=400, detail="Only Validation Check grants scan credits.")
 
     with SessionLocal() as db:
         tenant = _load_tenant_or_404(db, tenant_id)

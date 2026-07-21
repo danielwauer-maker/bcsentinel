@@ -7465,6 +7465,30 @@
           <source>Completed; sync failed</source>
           <target state="translated">Lokal abgeschlossen; Sync fehlgeschlagen</target>
         </trans-unit>
+        <trans-unit id="LIC02 Free Assessment" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Free Assessment</source>
+          <target state="translated">Kostenloser Erstscan</target>
+        </trans-unit>
+        <trans-unit id="LIC02 Already Used" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Already used</source>
+          <target state="translated">Bereits verwendet</target>
+        </trans-unit>
+        <trans-unit id="LIC02 Premium Until" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Premium Until</source>
+          <target state="translated">Premium gültig bis</target>
+        </trans-unit>
+        <trans-unit id="LIC02 Monitoring Until" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Until</source>
+          <target state="translated">Monitoring gültig bis</target>
+        </trans-unit>
+        <trans-unit id="LIC02 Start Validation" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Validation Check</source>
+          <target state="translated">Validation Check starten</target>
+        </trans-unit>
+        <trans-unit id="LIC02 Validation Required" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A new scan requires a Validation Check or active Monitoring.</source>
+          <target state="translated">Für einen erneuten Scan benötigen Sie einen Validation Check oder aktives Monitoring.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

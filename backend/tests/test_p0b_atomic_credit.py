@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from app.db import SessionLocal
-from app.models import CreditLedgerEntry, Scan, ScanRunStatus, ScanStartRequest, Subscription, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanRunStatus, ScanStartRequest, Subscription, Tenant, TenantScanCredit
 from app.services.atomic_scan_start_service import accept_scan_start
 from app.services.product_license_service import grant_scan_credit
 
@@ -57,9 +57,9 @@ def _counts(tenant_id: str):
         }
 
 
-def test_assessment_consumes_exactly_one_matching_credit(client, tenant_factory):
+def test_legacy_assessment_mode_consumes_exactly_one_validation_credit(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     response = _start(client, tenant, mode="assessment")
     assert response.status_code == 200 and response.json()["credit_consumed"] is True
     assert _counts(tenant["tenant_id"])["consumed"] == 1
@@ -67,7 +67,11 @@ def test_assessment_consumes_exactly_one_matching_credit(client, tenant_factory)
 
 def test_validation_consumes_validation_not_assessment(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    with SessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        db.add(TenantScanCredit(tenant_id=tenant["tenant_id"], product_code="full_analysis", status="available", source="legacy", created_at_utc=now))
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
     assert _start(client, tenant, mode="validation").status_code == 402
     _grant(tenant["tenant_id"], "validation_check")
     assert _start(client, tenant, mode="validation").status_code == 200
@@ -83,12 +87,15 @@ def test_monitoring_consumes_no_credit_and_expiry_blocks(client, tenant_factory)
     assert _counts(active["tenant_id"])["consumption_ledger"] == 0
     expired = tenant_factory()
     _monitoring(expired["tenant_id"], expired=True)
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=expired["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
     assert _start(client, expired, mode="monitoring").status_code == 402
 
 
 def test_identical_retry_and_scheduler_retry_return_same_scan(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     request_id, run_id = str(uuid4()), "RUN_RETRY_STABLE"
     first = _start(client, tenant, request_id=request_id, run_id=run_id)
     retry = _start(client, tenant, request_id=request_id, run_id=run_id)
@@ -100,7 +107,7 @@ def test_identical_retry_and_scheduler_retry_return_same_scan(client, tenant_fac
 
 def test_same_key_different_payload_is_conflict(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     request_id = str(uuid4())
     assert _start(client, tenant, request_id=request_id, run_id="RUN_PAYLOAD_A").status_code == 200
     conflict = _start(client, tenant, request_id=request_id, run_id="RUN_PAYLOAD_B")
@@ -111,7 +118,7 @@ def test_same_key_different_payload_is_conflict(client, tenant_factory):
 
 def test_same_scan_id_with_different_request_is_controlled_conflict_without_second_credit(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis", 2)
+    _grant(tenant["tenant_id"], "validation_check", 2)
     run_id = "RUN_SCAN_ID_REUSE"
     first = _start(client, tenant, request_id=str(uuid4()), run_id=run_id)
     conflict = _start(client, tenant, request_id=str(uuid4()), run_id=run_id)
@@ -126,8 +133,8 @@ def test_same_scan_id_with_different_request_is_controlled_conflict_without_seco
 def test_same_scan_id_in_another_tenant_is_not_adopted(client, tenant_factory):
     owner = tenant_factory()
     other = tenant_factory()
-    _grant(owner["tenant_id"], "full_analysis")
-    _grant(other["tenant_id"], "full_analysis")
+    _grant(owner["tenant_id"], "validation_check")
+    _grant(other["tenant_id"], "validation_check")
     run_id = "RUN_CROSS_TENANT_COLLISION"
 
     assert _start(client, owner, run_id=run_id).status_code == 200
@@ -143,7 +150,7 @@ def test_same_scan_id_in_another_tenant_is_not_adopted(client, tenant_factory):
 
 def test_same_tenant_unbound_pending_scan_is_recovered_atomically(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     run_id = "RUN_RECOVERABLE_ORPHAN"
     now = datetime.now(timezone.utc)
     with SessionLocal() as db:
@@ -181,7 +188,7 @@ def test_same_tenant_unbound_pending_scan_is_recovered_atomically(client, tenant
 
 def test_completed_unbound_scan_is_not_recovered_or_charged(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     now = datetime.now(timezone.utc)
     with SessionLocal() as db:
         db.add(
@@ -212,7 +219,7 @@ def test_completed_unbound_scan_is_not_recovered_or_charged(client, tenant_facto
 
 def test_parallel_identical_requests_create_one_scan_and_ledger(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     request_id = str(uuid4())
     with ThreadPoolExecutor(max_workers=4) as pool:
         responses = list(pool.map(lambda _: _start(client, tenant, request_id=request_id, run_id="RUN_PARALLEL_SAME"), range(4)))
@@ -223,7 +230,10 @@ def test_parallel_identical_requests_create_one_scan_and_ledger(client, tenant_f
 
 def test_parallel_different_requests_with_one_credit_allow_one(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
     with ThreadPoolExecutor(max_workers=2) as pool:
         responses = list(pool.map(lambda n: _start(client, tenant, run_id=f"RUN_PARALLEL_{n}"), range(2)))
     assert sorted(response.status_code for response in responses) == [200, 402]
@@ -233,8 +243,8 @@ def test_parallel_different_requests_with_one_credit_allow_one(client, tenant_fa
 
 def test_request_scope_is_tenant_bound(client, tenant_factory):
     first, second = tenant_factory(), tenant_factory()
-    _grant(first["tenant_id"], "full_analysis")
-    _grant(second["tenant_id"], "full_analysis")
+    _grant(first["tenant_id"], "validation_check")
+    _grant(second["tenant_id"], "validation_check")
     shared = str(uuid4())
     a = _start(client, first, request_id=shared, run_id="RUN_TENANT_A")
     b = _start(client, second, request_id=shared, run_id="RUN_TENANT_B")
@@ -244,7 +254,7 @@ def test_request_scope_is_tenant_bound(client, tenant_factory):
 
 def test_invalid_request_id_is_rejected_without_charge(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis")
+    _grant(tenant["tenant_id"], "validation_check")
     assert _start(client, tenant, request_id="not-a-guid").status_code == 422
     assert _counts(tenant["tenant_id"])["available"] == 1
 
@@ -254,14 +264,13 @@ def test_free_scan_is_once_per_tenant_and_idempotent(client, tenant_factory):
     request_id = str(uuid4())
     assert _start(client, tenant, request_id=request_id, run_id="RUN_FREE_ONCE", mode="data_health_score").status_code == 200
     assert _start(client, tenant, request_id=request_id, run_id="RUN_FREE_ONCE", mode="data_health_score").status_code == 200
-    assert _start(client, tenant, run_id="RUN_FREE_TWICE", mode="data_health_score").status_code == 409
+    assert _start(client, tenant, run_id="RUN_FREE_TWICE", mode="data_health_score").status_code == 402
 
 
 def test_transaction_rolls_back_credit_scan_request_and_ledger(monkeypatch, tenant_factory):
     tenant_info = tenant_factory()
-    _grant(tenant_info["tenant_id"], "full_analysis")
+    _grant(tenant_info["tenant_id"], "validation_check")
     with SessionLocal() as db:
-        from app.models import Tenant
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_info["tenant_id"]).one()
         monkeypatch.setattr("app.services.atomic_scan_start_service.create_or_get_scan_run", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("queue unavailable")))
         with pytest.raises(RuntimeError, match="queue unavailable"):
@@ -272,7 +281,7 @@ def test_transaction_rolls_back_credit_scan_request_and_ledger(monkeypatch, tena
 
 def test_new_request_ids_create_new_scans_when_credits_exist(client, tenant_factory):
     tenant = tenant_factory()
-    _grant(tenant["tenant_id"], "full_analysis", 2)
+    _grant(tenant["tenant_id"], "validation_check", 2)
     assert _start(client, tenant, run_id="RUN_NEW_1").status_code == 200
     assert _start(client, tenant, run_id="RUN_NEW_2").status_code == 200
     assert _counts(tenant["tenant_id"])["consumed"] == 2
