@@ -63,15 +63,15 @@ def _persist_complete_result(db, tenant_id: str, run_id: str, *, issues: int = 1
 
 def _grant(tenant_id: str) -> None:
     with SessionLocal() as db:
-        grant_scan_credit(db, tenant_id=tenant_id, product_code="full_analysis", source="test_explicit")
+        grant_scan_credit(db, tenant_id=tenant_id, product_code="validation_check", source="test_explicit")
         db.commit()
 
 
-def _start(client, tenant, run_id: str):
+def _start(client, tenant, run_id: str, *, client_request_id: str | None = None):
     return client.post(
         "/scan/start",
         headers={"X-Tenant-Id": tenant["tenant_id"], "X-Api-Token": tenant["api_token"]},
-        json={"tenant_id": tenant["tenant_id"], "run_id": run_id, "client_request_id": str(uuid4()), "scan_mode": "assessment", "total_modules": 2},
+        json={"tenant_id": tenant["tenant_id"], "run_id": run_id, "client_request_id": client_request_id or str(uuid4()), "scan_mode": "assessment", "total_modules": 2},
     )
 
 
@@ -240,8 +240,15 @@ def test_retry_keeps_same_scan_and_does_not_consume_another_credit(client, tenan
     settings_state(SCAN_STALLED_AFTER_SECONDS=10)
     tenant = tenant_factory()
     _grant(tenant["tenant_id"])
-    response = _start(client, tenant, "P0C_CREDIT_STABLE")
+    request_id = str(uuid4())
+    response = _start(client, tenant, "P0C_CREDIT_STABLE", client_request_id=request_id)
+    replay = _start(client, tenant, "P0C_CREDIT_STABLE", client_request_id=request_id)
     assert response.status_code == 200
+    assert replay.status_code == 200
+    assert replay.json()["idempotent_replay"] is True
+    assert replay.json()["scan_id"] == response.json()["scan_id"]
+    assert replay.json()["worker_id"] == response.json()["worker_id"]
+    assert replay.json()["execution_token"] == response.json()["execution_token"]
     token = response.json()["execution_token"]
     _claim(tenant["tenant_id"], "P0C_CREDIT_STABLE", token, response.json()["worker_id"])
     with SessionLocal() as db:

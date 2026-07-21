@@ -13,6 +13,7 @@ from app.models import (
     ImpactSettingsConfig,
     Partner,
     PartnerReferral,
+    Scan,
     ScanRunStatus,
     Tenant,
     TenantProductEntitlement,
@@ -283,8 +284,12 @@ def test_admin_monitoring_management_enable_and_disable(client, tenant_factory):
     assert snapshot_after_disable["monitoring_active"] is False
 
 
-def test_admin_access_management_extend_and_expire(client, tenant_factory):
+def test_admin_access_management_extend_and_expire(client, tenant_factory, scan_factory):
     tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="ADMIN_ACCESS_HISTORY")
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
 
     extend_response = _post_tenant_action(client, tenant["tenant_id"], "extend-access", {"days": "7"})
     snapshot_after_extend = _license_snapshot(tenant["tenant_id"])
@@ -297,15 +302,27 @@ def test_admin_access_management_extend_and_expire(client, tenant_factory):
     snapshot_after_expire = _license_snapshot(tenant["tenant_id"])
 
     assert extend_response.status_code == 303
-    assert snapshot_after_extend["can_view_dashboard"] is True
+    assert snapshot_after_extend["product_access"]["premium_active"] is True
+    assert snapshot_after_extend["product_access"]["capabilities"]["full_dashboard"] is True
     assert snapshot_after_extend["dashboard_access_until"]
     assert expire_response.status_code == 303
-    assert snapshot_after_expire["can_view_dashboard"] is False
-    assert snapshot_after_expire["can_view_issue_details"] is False
+    access = snapshot_after_expire["product_access"]
+    assert access["premium_active"] is False
+    assert access["capabilities"]["full_dashboard"] is False
+    assert access["capabilities"]["issues"] is False
+    assert access["capabilities"]["actions"] is False
+    assert access["capabilities"]["executive_report_full"] is False
+    assert access["capabilities"]["monitoring"] is False
+    assert access["capabilities"]["free_dashboard"] is True
+    assert access["free_assessment_used"] is True
 
 
-def test_admin_reset_licensing_clears_products_monitoring_credits_and_access(client, tenant_factory):
+def test_admin_reset_licensing_clears_products_monitoring_credits_and_access(client, tenant_factory, scan_factory):
     tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="ADMIN_RESET_HISTORY")
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
     _post_tenant_action(client, tenant["tenant_id"], "grant-product", {"product_code": "assessment"})
     _post_tenant_action(client, tenant["tenant_id"], "enable-monitoring", {"product_code": "monitoring_monthly"})
     _post_tenant_action(client, tenant["tenant_id"], "extend-access", {"days": "30"})
@@ -316,8 +333,20 @@ def test_admin_reset_licensing_clears_products_monitoring_credits_and_access(cli
     assert reset_response.status_code == 303
     assert snapshot["scan_credits_available"] == 0
     assert snapshot["monitoring_active"] is False
-    assert snapshot["can_view_dashboard"] is False
     assert snapshot["active_products"] == []
+    access = snapshot["product_access"]
+    assert access["premium_active"] is False
+    assert access["validation_credits"] == 0
+    assert access["capabilities"]["full_dashboard"] is False
+    assert access["capabilities"]["issues"] is False
+    assert access["capabilities"]["actions"] is False
+    assert access["capabilities"]["executive_report_full"] is False
+    assert access["capabilities"]["monitoring"] is False
+    assert access["capabilities"]["free_dashboard"] is True
+    assert access["free_assessment_used"] is True
+    with SessionLocal() as db:
+        assert db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one().free_assessment_used is True
+        assert db.query(Scan).filter_by(tenant_id=tenant["tenant_id"]).count() == 1
 
 
 def test_admin_reset_registration_is_dev_only_and_audited(client, tenant_factory):

@@ -1245,6 +1245,8 @@ def extend_tenant_access(
         if normalized_action == "expire":
             details = _expire_one_time_sources(db, tenant.tenant_id, set(ONE_TIME_PRODUCTS))
             details["entitlements"] = _deactivate_entitlements(db, tenant.tenant_id, set(ONE_TIME_PRODUCTS))
+            tenant.premium_until_utc = utc_now() - timedelta(seconds=1)
+            details["premium_until_utc"] = tenant.premium_until_utc.isoformat()
             action_name = "tenant.access.expire"
         else:
             entitlement = _extend_one_time_access(db, tenant.tenant_id, normalized_days)
@@ -1328,6 +1330,7 @@ def reset_tenant_licensing(tenant_id: str, admin_username: str = Depends(require
             entitlement.status = "revoked"
             entitlement.valid_until_utc = now - timedelta(seconds=1)
             entitlement.updated_at_utc = now
+        tenant.premium_until_utc = now - timedelta(seconds=1)
         tenant.current_plan = "free"
         tenant.license_status = "expired"
         log_admin_event(

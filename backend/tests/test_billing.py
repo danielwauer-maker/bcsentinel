@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
 import stripe
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import ProductPricingMatrixConfig, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import ProductPricingMatrixConfig, Subscription, Tenant, TenantProductEntitlement, TenantProductPurchase, TenantScanCredit
 from app.services.product_pricing_service import ensure_default_product_pricing_matrix
 
 
@@ -395,44 +395,70 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
     assert response.json()["checkout_url"] == "https://stripe.example/session"
 
 
-def test_full_analysis_checkout_webhook_grants_access_and_scan_credit(
+def test_full_analysis_checkout_webhook_grants_premium_without_scan_credit(
     client,
     tenant_factory,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
 
-    response = client.post(
-        "/billing/webhook",
-        json={
-            "provider": "manual",
-            "event_id": "evt_full_analysis_paid",
-            "event_type": "checkout.session.completed",
-            "tenant_id": tenant["tenant_id"],
-            "subscription": {
-                "id": "cs_full_analysis_paid",
-                "product_code": "full_analysis",
-                "payment_status": "paid",
-                "currency": "EUR",
-                "amount_total": 79.0,
-            },
+    event = {
+        "provider": "manual",
+        "event_id": "evt_full_analysis_paid",
+        "event_type": "checkout.session.completed",
+        "tenant_id": tenant["tenant_id"],
+        "subscription": {
+            "id": "cs_full_analysis_paid",
+            "product_code": "full_analysis",
+            "payment_status": "paid",
+            "currency": "EUR",
+            "amount_total": 79.0,
         },
-    )
+    }
+    response = client.post("/billing/webhook", json=event)
+    replay = client.post("/billing/webhook", json=event)
 
     assert response.status_code == 200
+    assert replay.status_code == 200
     with SessionLocal() as db:
         credits = db.scalars(
             select(TenantScanCredit).where(TenantScanCredit.tenant_id == tenant["tenant_id"])
         ).all()
-        entitlement = db.scalar(
+        entitlements = db.scalars(
             select(TenantProductEntitlement).where(
                 TenantProductEntitlement.tenant_id == tenant["tenant_id"],
                 TenantProductEntitlement.product_code == "full_analysis",
             )
-        )
+        ).all()
+        purchases = db.scalars(
+            select(TenantProductPurchase).where(TenantProductPurchase.tenant_id == tenant["tenant_id"])
+        ).all()
+        stored_tenant = db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one()
+        premium_until = stored_tenant.premium_until_utc
 
-    assert len(credits) == 1
-    assert credits[0].product_code == "full_analysis"
-    assert entitlement is not None
+    assert credits == []
+    assert len(entitlements) == 1
+    assert len(purchases) == 1
+    assert premium_until is not None
+    if premium_until.tzinfo is None:
+        premium_until = premium_until.replace(tzinfo=timezone.utc)
+    remaining = premium_until - datetime.now(timezone.utc)
+    assert timedelta(days=6, hours=23) < remaining <= timedelta(days=7, minutes=1)
+
+    blocked_scan = client.post(
+        "/scan/start",
+        headers={"X-Tenant-Id": tenant["tenant_id"], "X-Api-Token": tenant["api_token"]},
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": "FULL_ANALYSIS_MUST_NOT_SCAN",
+            "scan_mode": "deep",
+            "total_modules": 1,
+        },
+    )
+    assert blocked_scan.status_code == 402
+    assert "Validation Check or active Monitoring" in blocked_scan.json()["detail"]
 
 
 def test_validation_checkout_webhook_grants_one_scan_credit(

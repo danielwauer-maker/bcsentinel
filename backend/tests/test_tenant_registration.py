@@ -47,8 +47,24 @@ def test_tenant_registration_with_valid_invite_requires_contact_email(client, se
     assert response.json()["code"] == "INVALID_REGISTRATION_PAYLOAD"
 
 
-def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_hash(client, settings_state):
+def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_hash(
+    client, settings_state, monkeypatch
+):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+    delivery_calls = []
+
+    def fake_delivery(db, *, tenant, user, invite_token):
+        delivery_calls.append((tenant.tenant_id, user.email, bool(invite_token)))
+        return False, "SMTP delivery mocked for registration test."
+
+    monkeypatch.setattr(
+        "app.services.dashboard_invite_service._send_dashboard_invite_email",
+        fake_delivery,
+    )
+    monkeypatch.setattr(
+        "app.services.dashboard_invite_service.smtplib.SMTP",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("External SMTP must not be used in tests.")),
+    )
 
     response = client.post(
         "/tenant/register",
@@ -62,7 +78,9 @@ def test_tenant_registration_with_valid_invite_returns_token_but_stores_only_has
     assert body["api_token"].startswith("tok_")
     assert body["dashboard_invite_email"] == "pilot.customer@example.com"
     assert body["dashboard_invite_sent"] is False
-    assert body["dashboard_invite_error"] == "SMTP not configured."
+    assert body["dashboard_invite_error"] == "SMTP delivery mocked for registration test."
+    assert len(delivery_calls) == 1
+    assert delivery_calls[0][1:] == ("pilot.customer@example.com", True)
 
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter(Tenant.tenant_id == body["tenant_id"]).one()
