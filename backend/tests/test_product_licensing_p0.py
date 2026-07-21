@@ -473,6 +473,7 @@ def test_data_health_score_sync_updates_queued_placeholder_and_analytics_values(
     payload["module_scores"]["finance"] = 42
     payload["data_profile"]["total_records"] = 1234
     payload["execution_token"] = start_response.json()["execution_token"]
+    payload["worker_id"] = start_response.json()["worker_id"]
     sync_response = client.post("/scan/sync", headers=auth_header_factory(tenant), json=payload)
     assert sync_response.status_code == 200
 
@@ -673,6 +674,7 @@ def test_deep_scan_start_consumes_credit_and_creates_history_entry(
 
     sync_payload = _deep_scan_payload(tenant["tenant_id"], "RUN_START_WITH_CREDIT")
     sync_payload["execution_token"] = response.json()["execution_token"]
+    sync_payload["worker_id"] = response.json()["worker_id"]
     sync_response = client.post(
         "/scan/sync",
         headers=auth_header_factory(tenant),

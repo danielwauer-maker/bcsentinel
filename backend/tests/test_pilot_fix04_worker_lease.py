@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import hashlib
 from uuid import uuid4
 
 from app.db import SessionLocal
@@ -77,18 +78,58 @@ def _accepted_start(client, tenant_factory, run_id: str):
 
 
 def test_accepted_lease_survives_sequential_updates_replay_and_final_sync(client, tenant_factory):
-    tenant, worker_id, start_payload, accepted = _accepted_start(client, tenant_factory, "FIX04_FULL_LIFECYCLE")
+    run_id = "RUN_20260721_000004_FB8A06A29B6A4422B1F19CA09CE40"
+    tenant, worker_id, start_payload, accepted = _accepted_start(client, tenant_factory, run_id)
     token = accepted["execution_token"]
     assert accepted["worker_id"] == worker_id
 
-    for progress in (1, 25, 75):
+    with SessionLocal() as db:
+        before = db.query(ScanRunStatus).filter_by(run_id=run_id).one()
+        token_hash_before = hashlib.sha256(before.lease_token.encode()).hexdigest()
+        immutable_before = (
+            before.lease_token,
+            before.lease_owner,
+            before.correlation_id,
+            before.retry_count,
+            before.next_retry_at_utc,
+            before.tenant_id,
+            before.company_name,
+            before.environment_name,
+        )
+        version_before = before.lifecycle_version
+        lease_before = before.lease_expires_at_utc
+        assert before.status == "queued"
+        assert before.heartbeat_at_utc is None
+        assert before.lease_owner == worker_id
+
+    for index, progress in enumerate((1, 25, 75)):
         response = client.post(
             "/scan/status/update",
             headers=_headers(tenant),
-            json=_status_payload(tenant["tenant_id"], "FIX04_FULL_LIFECYCLE", token, worker_id, progress),
+            json=_status_payload(tenant["tenant_id"], run_id, token, worker_id, progress),
         )
         assert response.status_code == 200
         assert response.json()["execution_token"] == token
+        if index == 0:
+            with SessionLocal() as db:
+                after = db.query(ScanRunStatus).filter_by(run_id=run_id).one()
+                token_hash_after = hashlib.sha256(after.lease_token.encode()).hexdigest()
+                immutable_after = (
+                    after.lease_token,
+                    after.lease_owner,
+                    after.correlation_id,
+                    after.retry_count,
+                    after.next_retry_at_utc,
+                    after.tenant_id,
+                    after.company_name,
+                    after.environment_name,
+                )
+                assert token_hash_after == token_hash_before
+                assert immutable_after == immutable_before
+                assert after.lifecycle_version > version_before
+                assert after.lease_expires_at_utc >= lease_before
+                assert after.status == "running"
+                assert after.heartbeat_at_utc is not None
 
     replay = client.post("/scan/start", headers=_headers(tenant), json=start_payload)
     assert replay.status_code == 200
@@ -98,12 +139,12 @@ def test_accepted_lease_survives_sequential_updates_replay_and_final_sync(client
     synced = client.post(
         "/scan/sync",
         headers=_headers(tenant),
-        json=_sync_payload(tenant["tenant_id"], "FIX04_FULL_LIFECYCLE", token, worker_id, accepted["correlation_id"]),
+        json=_sync_payload(tenant["tenant_id"], run_id, token, worker_id, accepted["correlation_id"]),
     )
     assert synced.status_code == 200
 
     with SessionLocal() as db:
-        run = db.query(ScanRunStatus).filter_by(run_id="FIX04_FULL_LIFECYCLE").one()
+        run = db.query(ScanRunStatus).filter_by(run_id=run_id).one()
         assert run.status == "completed" and run.result_persisted_at_utc and run.completed_at_utc
         assert db.query(TenantScanCredit).filter_by(tenant_id=tenant["tenant_id"], status="consumed").count() == 1
         assert db.query(CreditLedgerEntry).filter_by(tenant_id=tenant["tenant_id"], operation_type="SCAN_CONSUMED").count() == 1
@@ -154,6 +195,18 @@ def test_structured_wrong_token_worker_and_expired_lease_conflicts(client, tenan
     )
     assert wrong_worker.status_code == 409 and wrong_worker.json()["code"] == "scan_worker_mismatch"
 
+    missing_worker_payload = _status_payload(
+        tenant["tenant_id"], "FIX04_STRUCTURED_CONFLICTS", token, worker_id
+    )
+    missing_worker_payload.pop("worker_id")
+    missing_worker = client.post(
+        "/scan/status/update",
+        headers=_headers(tenant),
+        json=missing_worker_payload,
+    )
+    assert missing_worker.status_code == 409
+    assert missing_worker.json()["code"] == "scan_worker_mismatch"
+
     wrong_sync = client.post(
         "/scan/sync",
         headers=_headers(tenant),
@@ -177,6 +230,41 @@ def test_structured_wrong_token_worker_and_expired_lease_conflicts(client, tenan
         json=_status_payload(tenant["tenant_id"], "FIX04_STRUCTURED_CONFLICTS", token, worker_id),
     )
     assert expired.status_code == 409 and expired.json()["code"] == "scan_execution_lease_expired"
+
+
+def test_start_bound_worker_and_company_cannot_be_replaced_before_first_update(client, tenant_factory):
+    tenant, worker_id, start_payload, accepted = _accepted_start(client, tenant_factory, "FIX04_START_BOUND")
+
+    wrong_worker = client.post(
+        "/scan/status/update",
+        headers=_headers(tenant),
+        json=_status_payload(
+            tenant["tenant_id"],
+            "FIX04_START_BOUND",
+            accepted["execution_token"],
+            str(uuid4()),
+        ),
+    )
+    assert wrong_worker.status_code == 409
+    assert wrong_worker.json()["code"] == "scan_worker_mismatch"
+
+    changed_company = dict(start_payload)
+    changed_company["company_name"] = "OTHER COMPANY"
+    wrong_company = client.post("/scan/start", headers=_headers(tenant), json=changed_company)
+    assert wrong_company.status_code == 409
+    assert wrong_company.json()["code"] == "SCAN_REQUEST_PAYLOAD_CONFLICT"
+
+    accepted_update = client.post(
+        "/scan/status/update",
+        headers=_headers(tenant),
+        json=_status_payload(
+            tenant["tenant_id"],
+            "FIX04_START_BOUND",
+            accepted["execution_token"],
+            worker_id,
+        ),
+    )
+    assert accepted_update.status_code == 200
 
 
 def test_recovery_rotates_expired_lease_and_rejects_old_worker(client, tenant_factory, settings_state):

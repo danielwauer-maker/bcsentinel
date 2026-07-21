@@ -2,7 +2,7 @@
 
 Stand: 21. Juli 2026  
 Pilot: `BCSentinel-Pilot`, Business Central 28.3  
-Betroffener Run: `RUN_20260721_000001_1900DB01735748078C3E9C4EE599F`  
+Betroffene Runs: `RUN_20260721_000001_1900DB01735748078C3E9C4EE599F`, `RUN_20260721_000004_FB8A06A29B6A4422B1F19CA09CE40`
 Extension nach Fix: `1.0.2.10`
 
 ## Ergebnis
@@ -11,7 +11,27 @@ FIX04 stabilisiert die Ausführungslease für synchrone Business-Central-Scans, 
 
 Bekannte Lease-Konflikte liefern stabile strukturierte Codes. BC zeigt dafür genau eine lokalisierte Meldung, beendet weitere Statusversuche und bewahrt lokale Ergebnisse. Lokaler Ausführungsstatus und Backend-Synchronisierungsstatus sind getrennt: Ein lokal abgeschlossener Scan mit fehlgeschlagener Synchronisierung bleibt `Completed` und wird als `Completed; sync failed` beziehungsweise `Scan completed locally; backend synchronization failed` angezeigt.
 
-Automatisierte Tests und Compile-Gates sind grün. Der reale Post-Fix-CAT ist noch offen; deshalb bleibt das Pilot-Gate **NO-GO**.
+Automatisierte Tests, Compile und Analyzer sind grün. Der reale Post-Fix-CAT ist noch offen; deshalb bleibt das Pilot-Gate **NO-GO**.
+
+## Ergänzende Sandbox-Evidenz: erster Statuswechsel
+
+Für `RUN_20260721_000004_FB8A06A29B6A4422B1F19CA09CE40` wurde am 21. Juli 2026 eine zweite, schnellere Fehlersequenz bestätigt: Start 23:33:05.463, erster Status 200 um 23:33:06.014, zweiter Status 409 um 23:33:06.416. Diese Sequenz kann weder durch Leaseablauf noch durch Heartbeat-Staleness erklärt werden und ergänzt deshalb die frühere Long-Run-Recovery-Ursache.
+
+Die Codeanalyse zeigte einen separaten Vertragsfehler: `/scan/start` gab die Client-Request-ID bereits als `worker_id` zurück, persistierte den Worker aber noch nicht als Lease-Owner. Erst Update 1 führte den Claim `Queued -> Running` aus. GUID-basierte Token- und Worker-Identitäten wurden außerdem als rohe Strings verglichen. Damit war die vom Start zugesagte Ownership vor Update 1 nicht vollständig in der Datenbank verankert und unterschiedliche gültige GUID-Darstellungen konnten als Identitätswechsel erscheinen.
+
+Die Korrektur bindet den kanonisierten Worker und die Lease atomar mit dem akzeptierten Start. Update 1 übernimmt keinen neuen Worker und rotiert kein Token. Ein Integrationstest mit exakt dieser Run-ID vergleicht vor/nach Update 1 unmittelbar:
+
+- SHA-256-Fingerprint und Wert des Execution Tokens: identisch,
+- Worker-ID: identisch,
+- Correlation-ID: identisch,
+- Retry Count und Next Retry At: identisch,
+- Tenant, Company und Environment: identisch,
+- Status: `queued -> running`,
+- Heartbeat: `NULL -> Serverzeit`,
+- Lease Expiry: nur verlängert oder identisch,
+- Lifecycle Version: monoton erhöht.
+
+Der Test führt anschließend Update 2, Update 3 und `/scan/sync` mit exakt demselben Token und Worker aus; alle fünf Requests liefern HTTP 200. Falscher Token, alter Token nach absichtlicher Recovery-Rotation, falscher Worker, falscher Tenant und geänderte Company bleiben abgewiesen.
 
 ## Reproduktion und Timeline
 
@@ -45,6 +65,8 @@ Bei der Tenant-Prüfung wurde außerdem geschlossen, dass `update_scan_progress`
 
 - `/scan/start` liefert `execution_token`, `worker_id` und `correlation_id` konsistent.
 - `worker_id` entspricht der stabilen Client-Request-ID.
+- Worker-ID und Lease werden bereits im atomaren akzeptierten Start persistiert; Update 1 adoptiert keine neue Identität.
+- GUID-Identitäten werden vor Speicherung und Vergleich kanonisiert.
 - BC validiert die zurückgegebene Worker-ID.
 - Ein erfolgreicher Start überschreibt Execution Token und Correlation-ID und committet sie vor dem Scanlauf.
 - Ein idempotenter Start-Retry liefert die aktuell gültige Lease und verbraucht keinen zweiten Credit.
@@ -99,16 +121,16 @@ Der bestehende fehlgeschlagene Pilot-Run bleibt Diagnoseevidenz und darf nicht a
 
 | Prüfung | Ergebnis |
 |---|---|
-| FIX04 Backend Lease-/Sync-Tests | 6/6 PASS |
+| FIX04 Backend Lease-/Sync-Tests | 7/7 PASS |
 | FIX04 Source Contracts | 5/5 PASS |
-| P0C Lifecycle + P0B Atomic Credit | PASS |
+| fokussiert: FIX04, FIX03 Contracts, P0C, P0B | 54/54 PASS |
 | Python `compileall` | PASS |
 | AL ReleaseCloud Compile | PASS, 84 Dateien |
 | AL Localization Audit | PASS |
 | XLF-Parsing | PASS |
-| CodeCop/PTECop | Abschlusslauf ausstehend |
-| vollständige Backend-Suite | Abschlusslauf ausstehend |
-| `git diff --check` | Abschlusslauf ausstehend |
+| CodeCop/PTECop | PASS, 335 Info/Warnung, 0 Fehler |
+| vollständige Backend-Suite | 298 PASS, 7 SKIP, 0 FAIL |
+| `git diff --check` | PASS |
 | realer Sandbox-CAT | nicht ausgeführt |
 
 ## Manuelle Deployment-Schritte
@@ -142,6 +164,6 @@ Der bestehende fehlgeschlagene Pilot-Run bleibt Diagnoseevidenz und darf nicht a
 - Sandbox-Upgrade und Post-Fix-CAT sind offen.
 - Bestehender Pilot-Run benötigt keine automatische Mutation; eine optionale Reparatur ist separat zu autorisieren.
 
-Entscheidung: **NO-GO**, bis vollständige Regression, Sandbox-Upgrade und alle zwölf CAT-Schritte PASS sind.
+Entscheidung: **NO-GO**, bis Sandbox-Upgrade und alle zwölf CAT-Schritte PASS sind. Die vollständige automatisierte Regression ist grün.
 
 Commit-Vorschlag: `fix(scan): keep BC worker lease stable and separate sync failures`

@@ -69,10 +69,14 @@ Der erste reale Scan nach FIX03 wurde lokal vollständig abgeschlossen, verlor a
 - [x] lokale Findings bleiben bei Sync-Fehler erhalten
 - [x] Extension 1.0.2.10; ReleaseCloud Compile PASS
 - [x] fokussierte Backend-/Contract-Tests PASS
-- [ ] vollständige Backend-Suite und Analyzer-Abschlusslauf
+- [x] erster Statuswechsel bindet weder neuen Worker noch neues Token
+- [x] exakter Ablauf Start + drei Statusupdates + Sync: 5/5 HTTP 200 automatisiert
+- [x] Token-Fingerprint und Worker vor/nach Update 1 identisch
+- [x] vollständige Backend-Suite: 298 PASS, 7 SKIP, 0 FAIL
+- [x] CodeCop/PTECop: 0 Fehler
 - [ ] autoritative Pilot-DB-Evidenz
 - [ ] Post-Fix-CAT in BC 28.3
 
 Detail: `docs/GL_PILOT_01_FIX04_WORKER_LEASE_STABILITY.md`.
 
-Aktuelles Gate: **NO-GO bis vollständige Regression und realer Post-Fix-CAT PASS sind.**
+Aktuelles Gate: **NO-GO bis der reale Post-Fix-CAT mit der korrigierten Start-Bindung PASS ist.**

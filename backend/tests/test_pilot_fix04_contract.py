@@ -44,7 +44,8 @@ def test_backend_preserves_current_lease_and_returns_structured_conflicts():
     ):
         assert code in service
     assert '"code": exc.code' in router
-    assert '"worker_id": request_id' in router
+    assert '"worker_id": result.worker_id' in router
+    assert "worker_id=request_id" in _backend("services/atomic_scan_start_service.py")
 
 
 def test_start_identity_is_validated_and_persisted_before_scan_work():

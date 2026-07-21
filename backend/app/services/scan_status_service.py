@@ -4,7 +4,7 @@ import json
 import logging
 import re
 from datetime import datetime, timedelta, timezone
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlalchemy import or_, select, update
 from sqlalchemy.orm import Session
@@ -140,6 +140,7 @@ def create_or_get_scan_run(
     total_modules: int = 0,
     status: str = "queued",
     correlation_id: str | None = None,
+    worker_id: str | None = None,
 ) -> ScanRunStatus:
     run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == run_id))
     if run is not None:
@@ -147,6 +148,7 @@ def create_or_get_scan_run(
 
     now = utc_now()
     normalized_status = normalize_status(status)
+    normalized_worker_id = normalize_execution_identity(worker_id)
     run = ScanRunStatus(
         run_id=run_id,
         tenant_id=tenant_id,
@@ -165,6 +167,12 @@ def create_or_get_scan_run(
         completed_modules=0,
         failed_modules=0,
         lease_token=str(uuid4()),
+        lease_owner=normalized_worker_id,
+        lease_expires_at_utc=(
+            now + timedelta(seconds=max(10, int(settings.SCAN_LEASE_SECONDS)))
+            if normalized_worker_id
+            else None
+        ),
         execution_attempt=0,
         retry_count=0,
         recovery_count=0,
@@ -197,6 +205,17 @@ def _lease_is_valid(run: ScanRunStatus, now: datetime) -> bool:
     return bool(run.lease_owner and run.lease_token and expires and expires > now)
 
 
+def normalize_execution_identity(value: str | None) -> str | None:
+    """Canonicalize GUID identities while preserving supported legacy worker IDs."""
+    normalized = (value or "").strip()
+    if not normalized:
+        return None
+    try:
+        return str(UUID(normalized.strip("{}"))).lower()
+    except ValueError:
+        return normalized
+
+
 def _validate_worker_lease(
     run: ScanRunStatus,
     *,
@@ -204,13 +223,15 @@ def _validate_worker_lease(
     worker_id: str | None,
     now: datetime,
 ) -> None:
-    if not lease_token or lease_token != run.lease_token:
+    normalized_token = normalize_execution_identity(lease_token)
+    normalized_worker_id = normalize_execution_identity(worker_id)
+    if not normalized_token or normalized_token != normalize_execution_identity(run.lease_token):
         raise ScanLeaseConflictError(
             "The scan execution token is no longer current. Retry the original scan start to refresh it.",
             code="scan_execution_token_stale",
             message_de="Das Ausführungstoken des Scans ist nicht mehr aktuell. Wiederholen Sie den ursprünglichen Scanstart, um es zu aktualisieren.",
         )
-    if worker_id and run.lease_owner and worker_id != run.lease_owner:
+    if run.lease_owner and normalized_worker_id != normalize_execution_identity(run.lease_owner):
         raise ScanLeaseConflictError(
             "The scan is owned by another active worker.",
             code="scan_worker_mismatch",
@@ -234,6 +255,8 @@ def claim_scan_run(
     correlation_id: str | None = None,
 ) -> ScanRunStatus:
     now = utc_now()
+    lease_token = normalize_execution_identity(lease_token) or ""
+    worker_id = normalize_execution_identity(worker_id) or ""
     run = db.scalar(
         select(ScanRunStatus).where(ScanRunStatus.run_id == run_id, ScanRunStatus.tenant_id == tenant_id)
     )
@@ -257,6 +280,12 @@ def claim_scan_run(
             code="scan_execution_token_stale",
             message_de="Das Ausführungstoken des Scans ist nicht mehr aktuell. Wiederholen Sie den ursprünglichen Scanstart, um es zu aktualisieren.",
         )
+    if run.lease_owner and worker_id != normalize_execution_identity(run.lease_owner):
+        raise ScanLeaseConflictError(
+            "The scan is owned by another active worker.",
+            code="scan_worker_mismatch",
+            message_de="Der Scan ist einem anderen aktiven Worker zugeordnet.",
+        )
     if run.next_retry_at_utc and as_aware_utc(run.next_retry_at_utc) > now:
         raise ScanLeaseConflictError(
             "The scan retry backoff has not elapsed yet.",
@@ -275,7 +304,7 @@ def claim_scan_run(
         )
         .values(
             status="running",
-            lease_owner=worker_id[:80],
+            lease_owner=(run.lease_owner or worker_id)[:80],
             lease_expires_at_utc=now + timedelta(seconds=max(10, int(settings.SCAN_LEASE_SECONDS))),
             heartbeat_at_utc=now,
             started_at_utc=run.started_at_utc or now,

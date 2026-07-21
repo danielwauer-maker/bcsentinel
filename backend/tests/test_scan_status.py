@@ -231,7 +231,7 @@ def test_completed_status_endpoint_rejects_missing_result_and_lease(client, tena
     )
 
     assert response.status_code == 409
-    assert "lease" in response.json()["detail"].lower() or "result" in response.json()["detail"].lower()
+    assert response.json()["code"] == "scan_execution_token_stale"
 
 
 def test_events_redact_email_addresses(db_session, tenant_factory):

@@ -50,6 +50,7 @@ class ScanStartResult:
     credit_consumed: bool
     idempotent_replay: bool
     execution_token: str
+    worker_id: str
     correlation_id: str
 
 
@@ -105,6 +106,7 @@ def _result_from_request(db: Session, request: ScanStartRequest, *, replay: bool
         credit_consumed=request.credit_id is not None,
         idempotent_replay=replay,
         execution_token=run.lease_token,
+        worker_id=request.client_request_id,
         correlation_id=run.correlation_id or "",
     )
 
@@ -366,6 +368,7 @@ def accept_scan_start(
             environment_name=environment_name,
             status="queued",
             total_modules=max(int(total_modules or 0), 0),
+            worker_id=request_id,
         )
         if credit is not None:
             db.add(

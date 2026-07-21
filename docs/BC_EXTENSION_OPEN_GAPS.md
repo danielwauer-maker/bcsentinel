@@ -289,6 +289,7 @@ Keine Alembic-Migration. Vor Pilot-GO sind Backendtests und beide CATs zwingend 
 | Gap | Evidenz | Status |
 |---|---|---|
 | Lease rotiert während legitimem BC-Scan | gültige Lease ist autoritativ; 4h Lease/Stale, 6h Hard Runtime | **geschlossen auf Codeebene** |
+| erster Statuswechsel invalidiert Start-Identität | Worker/Lease bereits beim akzeptierten Start gebunden; GUIDs kanonisiert; Token-Hash und Worker vor/nach Update 1 identisch | **geschlossen automatisiert** |
 | unstrukturierte Lease-Konflikte | vier stabile Codes, DE-/EN-Mapping | **geschlossen automatisiert** |
 | Tenantwechsel über Statuspfad | Besitzprüfung vor jeder Mutation, Negativtest mit gültigem fremdem Token | **geschlossen automatisiert** |
 | wiederholte Statuscalls nach Lease-409 | terminaler Syncstatus stoppt weitere Calls | **geschlossen auf AL-Codeebene** |
@@ -296,4 +297,4 @@ Keine Alembic-Migration. Vor Pilot-GO sind Backendtests und beide CATs zwingend 
 | autoritative Pilot-DB-Untersuchung | lokale DB ist Revision 0021 und enthält den Run nicht | **BLOCKED** |
 | Post-Fix BC-28.3-CAT | neuer Run, vollständiger Sync und Dashboardöffnung erforderlich | **BLOCKED** |
 
-Keine Alembic-Migration. Extension-Upgrade auf 1.0.2.10 erforderlich. Pilot bleibt **NO-GO** bis Regression und CAT PASS sind.
+Keine Alembic-Migration. Extension-Upgrade auf 1.0.2.10 erforderlich. Automatisierte Regression: 298 PASS, 7 SKIP, 0 FAIL. Pilot bleibt **NO-GO** bis der reale CAT PASS ist.

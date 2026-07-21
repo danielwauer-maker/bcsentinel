@@ -243,7 +243,7 @@ def test_retry_keeps_same_scan_and_does_not_consume_another_credit(client, tenan
     response = _start(client, tenant, "P0C_CREDIT_STABLE")
     assert response.status_code == 200
     token = response.json()["execution_token"]
-    _claim(tenant["tenant_id"], "P0C_CREDIT_STABLE", token)
+    _claim(tenant["tenant_id"], "P0C_CREDIT_STABLE", token, response.json()["worker_id"])
     with SessionLocal() as db:
         run = db.query(ScanRunStatus).filter_by(run_id="P0C_CREDIT_STABLE").one()
         run.heartbeat_at_utc = utc_now() - timedelta(hours=1)

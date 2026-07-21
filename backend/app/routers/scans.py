@@ -313,7 +313,7 @@ def start_scan(
             "free_data_health_score": result.scan_mode == "data_health_score",
             "idempotent_replay": result.idempotent_replay,
             "execution_token": result.execution_token,
-            "worker_id": request_id,
+            "worker_id": result.worker_id,
             "correlation_id": result.correlation_id,
         }
     )
