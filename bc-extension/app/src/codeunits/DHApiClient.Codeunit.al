@@ -601,83 +601,6 @@ codeunit 53100 "DH API Client"
             (Setup."License Status" in [Setup."License Status"::Trial, Setup."License Status"::Active]));
     end;
 
-    procedure ExecuteScan(var Setup: Record "DH Setup"; var ScanId: Code[50]; var DataScore: Integer; var IssuesCount: Integer; var UsedPremiumLicense: Boolean): Text
-    var
-        ResponseText: Text;
-        GeneratedAtUtc: DateTime;
-        RunIdMgt: Codeunit "DH Run ID Mgt.";
-        QuickRunId: Code[50];
-    begin
-        EnsureReadyForScan(Setup);
-
-        UsedPremiumLicense := Setup."Premium Enabled";
-
-        QuickRunId := RunIdMgt.GetNextRunId(Setup);
-
-        ResponseText := RunQuickScan(Setup, QuickRunId);
-
-        ParseScanResponse(ResponseText, ScanId, DataScore, IssuesCount, GeneratedAtUtc);
-        UpdateSetupFromScanResult(Setup, DataScore, GeneratedAtUtc);
-
-        exit(ResponseText);
-    end;
-
-    procedure RunQuickScan(var Setup: Record "DH Setup"): Text
-    var
-        RunIdMgt: Codeunit "DH Run ID Mgt.";
-        QuickRunId: Code[50];
-    begin
-        QuickRunId := RunIdMgt.GetNextRunId(Setup);
-        exit(RunQuickScan(Setup, QuickRunId));
-    end;
-
-    procedure RunQuickScan(var Setup: Record "DH Setup"; QuickRunId: Code[50]): Text
-    var
-        Client: HttpClient;
-        Content: HttpContent;
-        Headers: HttpHeaders;
-        Response: HttpResponseMessage;
-        RequestText: Text;
-        ResponseText: Text;
-        JsonRequest: JsonObject;
-        JsonMetrics: JsonObject;
-    begin
-        EnsureReadyForScan(Setup);
-
-        JsonRequest.Add('tenant_id', Setup."Tenant ID");
-        JsonRequest.Add('preferred_language', GetPreferredLanguage());
-        JsonRequest.Add('bc_run_id', Format(QuickRunId));
-        AddCustomerMetrics(JsonMetrics);
-        AddVendorMetrics(JsonMetrics);
-        AddItemMetrics(JsonMetrics);
-        JsonRequest.Add('metrics', JsonMetrics);
-        JsonRequest.Add('data_profile', BuildDataProfile());
-        JsonRequest.WriteTo(RequestText);
-
-        Content.WriteFrom(RequestText);
-        Content.GetHeaders(Headers);
-        Headers.Clear();
-        Headers.Add('Content-Type', 'application/json');
-
-        Headers := Client.DefaultRequestHeaders();
-        if Headers.Contains('X-Tenant-Id') then
-            Headers.Remove('X-Tenant-Id');
-        if Headers.Contains('X-Api-Token') then
-            Headers.Remove('X-Api-Token');
-        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
-        Headers.Add('X-Api-Token', GetApiToken(Setup));
-
-        if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/quick'), Content, Response) then
-            Error(BackendRequestNotSentLbl);
-
-        Response.Content.ReadAs(ResponseText);
-
-        if not Response.IsSuccessStatusCode() then
-            Error(QuickScanFailedLbl, Response.HttpStatusCode(), GetSafeBackendErrorText(ResponseText));
-
-        exit(ResponseText);
-    end;
-
     procedure GetScanHistory(var Setup: Record "DH Setup"; Limit: Integer): Text
     var
         Client: HttpClient;
@@ -2184,7 +2107,6 @@ codeunit 53100 "DH API Client"
         InvalidServerTimeLbl: Label 'The backend returned an invalid server time. Detailed access remains blocked.';
         MissingCapabilitiesLbl: Label 'The backend returned no capability decisions. Detailed access remains blocked.';
         MissingTenantContextLbl: Label 'The backend returned no tenant context. Detailed access remains blocked.';
-        QuickScanFailedLbl: Label 'The Data Health Score failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
         RegisterTenantFirstLbl: Label 'Register the tenant first.';
         ScanStartExecutionTokenInvalidLbl: Label 'The scan start response contains an invalid execution token. Retry the same scan request.';
         ScanStartExecutionTokenMissingLbl: Label 'The scan start response has no execution token. Retry the same scan request.';

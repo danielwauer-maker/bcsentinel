@@ -3,6 +3,8 @@
 Stand: 16.07.2026  
 Audit: GL-EXT-AUDIT-01
 
+> Hinweis GL-01A-2 (21.07.2026): Die nachfolgende Quick-Scan-Beschreibung dokumentiert den historischen Audit-Ausgangszustand. Neue Läufe verwenden ausschließlich den vollständigen Deep-Scan-Pfad. `POST /scan/quick` erzeugt keine Daten mehr und antwortet nur noch als Kompatibilitätsroute mit HTTP 410. Historische Quick-Datensätze bleiben lesbar.
+
 ## Systemgrenzen
 
 Die Extension liest Business-Central-Daten, berechnet den Großteil der Prüfungen lokal und überträgt für Quick Scans Aggregatwerte sowie für Deep Scans aggregierte Profile, Scores und Findings an `https://api.bcsentinel.com`. Tenant-ID und API-Token authentisieren jeden geschützten Backend-Aufruf. Das Backend stellt Lizenz-, Dashboard- und Reportdaten bereit. Ausnahmen bleiben lokal in Business Central.

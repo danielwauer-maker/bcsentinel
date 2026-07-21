@@ -94,7 +94,6 @@ ALLOWED_IDENTICAL_TEXTS = {
     "BCSentinel",
     "Business Central",
     "Deep Scan",
-    "Quick Scan",
     "Data Health Score",
     "Dashboard",
     "Monitoring",

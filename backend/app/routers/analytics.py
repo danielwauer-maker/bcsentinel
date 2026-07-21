@@ -609,7 +609,7 @@ def _scan_mode_label(scan_type: str | None, fallback: str | None) -> str:
         return "Deep Scan"
     if normalized == "free_deep":
         return "Deep Scan"
-    return "Quick Scan"
+    return "Data Health Score"
 
 
 MODULE_SCORE_ORDER = [

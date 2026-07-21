@@ -34,7 +34,7 @@ Aktueller Stand aus Code- und Dokumentenpruefung:
 | Deployment | 72% | partial | PROD Dry Run und Backup/Restore nicht bestanden dokumentiert | PROD Dry Run mit Migration, Health, Backup, Restore ausfuehren |
 | Billing | 80% | partial | Live Webhook- und License-Auswirkungen je Produkt nicht vollstaendig dokumentiert | Stripe Testmode Matrix abarbeiten |
 | BC Extension | 74% | partial | AL Compile und aktueller App-Test fehlen | Aktuelle `.app` bauen, installieren, Setup/Checkout/Scan pruefen |
-| Scan Engine | 76% | partial | Deep Scan E2E und Credit-Verbrauch muessen live bestaetigt werden | Quick Scan und Deep Scan aus BC testen |
+| Scan Engine | 76% | partial | Deep Scan E2E und Credit-Verbrauch muessen live bestaetigt werden | alle manuellen und automatischen Deep-Scan-Trigger aus BC testen |
 | Dashboard | 72% | partial | Embed/Monitoring-only Darstellung muss live bestaetigt werden | Dashboard mit One-time und Monitoring Tenant pruefen |
 | Reports | 74% | partial | PDF/Share Link/Ablaufzeit live nicht bestaetigt | Executive HTML/PDF und Share Links testen |
 | Landingpage | 82% | partial | Live Mobile/DE/EN/Links nicht vollstaendig abgenommen | Public Seiten im Browser pruefen |
@@ -369,12 +369,12 @@ Aktueller Stand aus Code- und Dokumentenpruefung:
 
 ## Scan Engine
 
-- [ ] Quick Scan E2E
+- [ ] Manueller vollständiger Data-Health-Scan E2E
   - Prioritaet: IMPORTANT
-  - Ziel: Quick Scan funktioniert aus BC bis Backend und Ergebnis.
+  - Ziel: Der vollständige Scan funktioniert aus BC bis Backend und Ergebnis.
   - Voraussetzung: Tenant registriert; API Token gueltig.
   - Schritte:
-    1. Quick Scan in BC starten.
+    1. Data-Health-Scan in BC starten und den zentralen Dialog bestätigen.
     2. Backend-Request und Ergebnis pruefen.
     3. Anzeige und Sprache pruefen.
   - Erwartetes Ergebnis: Scan laeuft ohne Fehler und Ergebnis ist sichtbar.
@@ -968,4 +968,3 @@ Unterschrift / Entscheidung:
 Offene Risiken:
 
 Naechste Massnahmen:
-

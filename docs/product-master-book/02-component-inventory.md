@@ -4,7 +4,7 @@
 |---|---|---|---|
 | Business-Central-Extension | implemented | `bc-extension/app/src/` | [Detail](components/business-central-extension.md) |
 | Backend/API | implemented | `backend/app/main.py`, `backend/app/routers/` | [Detail](components/backend-api.md) |
-| Scan Engine/Checks | implemented | `DHQuickScanMgt`, `DHDeepScanRunner`, `backend/app/routers/scans.py` | [Detail](components/scan-engine.md) |
+| Scan Engine/Checks | implemented | `DHScanDispatcher`, `DHDeepScanMgt`, `DHDeepScanRunner`, `backend/app/routers/scans.py` | [Detail](components/scan-engine.md) |
 | Customer Dashboard | implemented | `analytics_embed.html`, `analytics-dashboard.js`, `dashboard.py` | [Detail](components/customer-dashboard.md) |
 | Admin-Backend | implemented | `admin.py`, Admin-Templates | [Detail](components/admin-backend.md) |
 | Landingpage | partial | `landingpage/`, nicht eingebundenes `landingpage_neu/` | [Detail](components/landingpage.md) |

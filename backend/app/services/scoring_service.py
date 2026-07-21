@@ -1,3 +1,9 @@
+"""Legacy Quick Scan scoring retained only for historical compatibility tests.
+
+Productive scan starts use the Business Central Deep Scan engine exclusively.
+This module must not be wired to a scan-start endpoint again.
+"""
+
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 

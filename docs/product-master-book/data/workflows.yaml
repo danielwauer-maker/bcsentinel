@@ -178,7 +178,7 @@
   status: implemented
   components: [business-central-extension, scan-engine]
   execution_mode: synchronous
-  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHQuickScanMgt.Codeunit.al}]}
+  entry_point: {component: business-central-extension, evidence: [{path: bc-extension/app/src/codeunits/DHDeepScanMgt.Codeunit.al}]}
   steps:
     - {order: 1, description: Counts/Findings und Module erfassen, feature_id: EXT-SCAN-001}
     - {order: 2, description: Score/Rating berechnen und persistieren, feature_id: SCAN-SCORE-001}

@@ -4,10 +4,10 @@
 Die Datenerhebung/Checks laufen primär in AL; das Backend verwaltet Startberechtigung, Lebenszyklus, Ergebnisse, Scores und Historie.
 
 ## Erkannte Verantwortlichkeiten
-Quick Scan, Data Health Score/Deep Scan, Modulauswahl, Findings, Status/Heartbeat/Lease, Recovery und Abgleich.
+Einheitlicher Deep Scan für Data Health Score, Validation, Monitoring und Scheduled Trigger; außerdem Modulauswahl, Findings, Status/Heartbeat/Lease, Recovery und Abgleich.
 
 ## Erkannte Unterbereiche
-`DHQuickScanMgt`, `DHDeepScanMgt`, `DHDeepScanRunner`, `DHScanCheckMgt`, `DHDataProfilingMgt`, `scans.py`, `scan_status_service.py`, `scoring_service.py`.
+`DHScanDispatcher`, `DHDeepScanMgt`, `DHDeepScanRunner`, `DHScanCheckMgt`, `scans.py`, `scan_status_service.py`.
 
 ## Vorhandene Features
 EXT-SCAN-001, EXT-SCAN-002, EXT-SCHED-001, SCAN-DEEP-001, SCAN-SYNC-001, SCAN-LIFE-001, SCAN-REC-001, SCAN-SCORE-001.
@@ -19,7 +19,7 @@ Keine statisch unvollständige Scan-Funktion; reale Laufzeit, Datenmenge und Sch
 Keine eindeutigen Scan-Stubs gefunden.
 
 ## APIs und Schnittstellen
-`/scan/quick`, `/scan/start`, `/scan/sync`, `/scan/reconcile`, Status-, History- und Trendrouten.
+`/scan/start`, `/scan/sync`, `/scan/reconcile`, Status-, History- und Trendrouten. `/scan/quick` ist nur als nicht mutierende, mit HTTP 410 antwortende Kompatibilitätsroute vorhanden.
 
 ## Datenmodelle
 Backend: `Scan`, `ScanIssueRecord`, `ScanRunStatus`, Module/Event; AL: Run/Finding/Header/Issue/Trend.

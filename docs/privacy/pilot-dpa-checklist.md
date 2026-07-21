@@ -6,7 +6,7 @@ Use this before onboarding each pilot customer.
 
 - Customer legal entity and contact confirmed.
 - Business Central environment type confirmed: sandbox or production.
-- Pilot scope confirmed: Quick Scan, Deep Scan, Analytics Dashboard, manual support.
+- Pilot scope confirmed: unified Deep Scan triggers, Analytics Dashboard, historical scan access, and manual support.
 - Automatic correction actions excluded unless separately agreed.
 
 ## Data processing

@@ -21,7 +21,7 @@ Quelle: Deklarationen unter `bc-extension/app/src/`. Tests: keine AL-Test-App ge
 
 ## Codeunits
 
-53100 API Client; 53123 QuickScan Mgt.; 53124 Deep Scan Mgt.; 53128 Deep Scan Runner; 53129 Deep Scan Failure; 53134 Dashboard Mgt.; 53135 Scan Dispatcher; 53136 Secret Mgt.; 53142 Issue Drilldown Mgt.; 53143 Issue Drilldown Dispatcher; 53145 Run ID Mgt.; 53147 Duplicate Worklist Mgt.; 53150 Data Profiling Mgt.; 53152 Exception Mgt.; 53153 Cost Mgt.; 53160 Monitor Refresh Task; 53170 Scan Scheduler Mgt.; 53171 Scheduled Scan Runner; 53172 Scheduled Scan Failure; 53180 Guided Experience; 53193 Install; 53194 Upgrade; 53195 Access Guard; 53196 Scan Check Mgt.; 53197 Currency Mgt.; 53198 API URL Policy; 53199 Tenant Identity Mgt.
+53100 API Client; 53124 Deep Scan Mgt.; 53128 Deep Scan Runner; 53129 Deep Scan Failure; 53134 Dashboard Mgt.; 53135 Scan Dispatcher; 53136 Secret Mgt.; 53142 Issue Drilldown Mgt.; 53143 Issue Drilldown Dispatcher; 53145 Run ID Mgt.; 53147 Duplicate Worklist Mgt.; 53150 Data Profiling Mgt.; 53152 Exception Mgt.; 53153 Cost Mgt.; 53160 Monitor Refresh Task; 53170 Scan Scheduler Mgt.; 53171 Scheduled Scan Runner; 53172 Scheduled Scan Failure; 53180 Guided Experience; 53193 Install; 53194 Upgrade; 53195 Access Guard; 53196 Scan Check Mgt.; 53197 Currency Mgt.; 53198 API URL Policy; 53199 Tenant Identity Mgt.; Enum 53172 Scan Trigger Context.
 
 Jede Deklaration liegt in der namensgleichen Datei unter `codeunits/`. Abhängigkeiten: Standard-BC-Tabellen für Customer/Vendor/Item/Ledger/Sales/Purchase, `HttpClient`, TaskScheduler, Isolated Storage/Secretverwaltung und die oben genannten BCSentinel-Tabellen.
 

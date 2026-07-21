@@ -187,9 +187,23 @@ def _normalize_scan_type(value: str | None) -> str:
     normalized = (value or "").strip().lower()
     if normalized in {"data_health_score", "free_data_health_score", "health_score"}:
         return "data_health_score"
-    if normalized in {"deep", "premium_deep"}:
+    if normalized in {
+        "deep",
+        "premium_deep",
+        "assessment",
+        "validation",
+        "validation_check",
+        "monitoring",
+        "scheduled",
+        "manual",
+    }:
         return "deep"
-    return "quick"
+    if normalized == "quick":
+        raise HTTPException(
+            status_code=410,
+            detail="Quick Scan results are no longer accepted. Use the complete Deep Scan flow.",
+        )
+    raise HTTPException(status_code=422, detail="Unsupported scan_type.")
 
 
 def _is_free_data_health_score_scan(scan_mode: str) -> bool:

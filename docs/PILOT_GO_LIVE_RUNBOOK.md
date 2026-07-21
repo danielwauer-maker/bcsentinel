@@ -59,7 +59,7 @@ Variante B: handgefuehrte Admin-Vergabe
 
 ## Scan starten
 
-1. Quick Scan optional ausfuehren.
+1. Vollständigen Data-Health-Scan optional manuell ausführen und den Startdialog bestätigen.
 2. Deep Scan starten.
 3. Confirm Dialog bestaetigen.
 4. Backend Log pruefen: Start-Endpunkt muss sichtbar sein.

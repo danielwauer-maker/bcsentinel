@@ -13,7 +13,7 @@ Alle 120 FastAPI-Deklarationen wurden erfasst. Slash-Aliase sind als eine semant
 | GET `/` | Servicehinweis | keine | – → JSON | `main.py:423` |
 | POST `/tenant/register` | idempotente Tenant-/Portalregistrierung | Invite/Rate Limit; Kontext im Payload/Header | `TenantRegisterRequest` → `TenantRegisterResponse` | Registration/Invite Services; `test_tenant_registration.py`, `test_p0a_transport_registration.py`; `main.py:489` |
 | POST `/tenant/dashboard-invite/resend` | Einladung erneut senden | Tenant | Contact-E-Mail → JSON | Invite Service; Registrationtests; `main.py:626` |
-| POST `/scan/quick` | Quick-Scan speichern | Tenant, Featuregate | `QuickScanRequest` → `QuickScanResponse` | Scoring/Impact/Localization; Licensingtests; `main.py:660` |
+| POST `/scan/quick` | Retired-Kompatibilitätsroute, keine Datenmutation | Tenant-Header und Tenant-Match | HTTP 410 | Negativtest belegt, dass weder Scan noch Lifecycle, Finding oder Credit entsteht |
 | GET `/scan/history/{tenant_id}` | Scanverlauf | Tenant + Pfadabgleich | Pfad → `ScanHistoryResponse` | ORM; Licensingtests; `main.py:850` |
 | GET `/scan/trend/{tenant_id}` | Scoretrend | Tenant + Pfadabgleich | Pfad → `ScanTrendResponse` | ORM; Dashboardtests; `main.py:945` |
 | POST `/scan/start` | atomaren Scanstart anfordern | Tenant | `ScanStartPayload` → JSON | Atomic Start/Product License; P0B/Licensingtests; `scans.py:233` |

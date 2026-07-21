@@ -9,8 +9,8 @@ BCSentinel processes Business Central metadata, counters, scan findings, commerc
 ## Business Central data read by the extension
 
 - Customer, vendor, item, ledger, sales, purchasing, inventory, CRM, manufacturing, service, jobs, and HR-related records are read locally in Business Central for checks.
-- Quick Scan sends aggregated counters and data profile counts.
-- Deep Scan sends finding codes, categories, severities, affected counts, recommendation previews, module scores, data profile counts, and calculated commercial impact data.
+- Every new scan uses the complete Deep Scan engine and sends finding codes, categories, severities, affected counts, recommendation previews, module scores, data profile counts, and calculated commercial impact data.
+- Historical Quick Scan records remain stored for audit and history compatibility; the retired endpoint creates no new records.
 - Duplicate checks may create local Business Central findings that include values such as e-mail addresses, VAT registration numbers, names, post codes, and cities. These values should be treated as personal or business-sensitive data.
 
 ## Data stored in the BCSentinel backend

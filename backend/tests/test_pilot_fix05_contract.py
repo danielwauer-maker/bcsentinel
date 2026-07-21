@@ -55,16 +55,17 @@ def test_successful_sync_applies_authoritative_lifecycle_atomically():
     assert 'DeepScanRun.\"Warning Message\" := \'\';' in success
 
 
-def test_manual_business_hours_confirmation_is_before_any_scan_start():
-    setup = _source("pages/DHSetup.Page.al")
-    start = setup.split("local procedure StartAvailableScan", 1)[1].split("local procedure OpenLatestMonitor", 1)[0]
+def test_manual_confirmation_is_central_and_precedes_backend_start():
+    manager = _source("codeunits/DHDeepScanMgt.Codeunit.al")
+    queue = manager.split("local procedure QueueDeepScanInternal", 1)[1].split("procedure QueueDataHealthScore", 1)[0]
+    free = manager.split("procedure QueueDataHealthScore", 1)[1].split("local procedure TryUpdateBackendQueued", 1)[0]
 
-    prompt_at = start.index("StrMenu(ManualScanActionsLbl, 2, ManualScanBusinessHoursQst)")
-    assert prompt_at < start.index("QueueDataHealthScore")
-    assert prompt_at < start.index("QueueDeepScan")
-    assert "not Rec.\"Monitoring Active\"" in start
-    assert "080000T" in start and "180000T" in start
-    assert "ManualScanBusinessHoursQst" not in _source("codeunits/DHScanSchedulerMgt.Codeunit.al")
+    assert queue.index("ConfirmManualScanStart") < queue.index("EnsureDeepScanAllowed")
+    assert queue.index("ConfirmManualScanStart") < queue.index("StartBackendScanWithRecovery")
+    assert free.index("ConfirmManualScanStart") < free.index("StartBackendScanWithRecovery")
+    assert "if TriggerContext <> TriggerContext::Manual then" in manager
+    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Scheduled, false)" in manager
+    assert "ManualScanBusinessHoursQst" not in _source("pages/DHSetup.Page.al")
 
 
 def test_full_analysis_wording_does_not_imply_scan_authorization():
@@ -95,8 +96,8 @@ def test_fix05_changed_captions_have_complete_german_targets():
         "Premium access active",
         "Completed; synchronization pending",
         "Rejected",
-        "The scan may affect system performance depending on data volume. Do you want to start it now during business hours?",
-        "Start now,Cancel",
+        "Start scan\\Do you want to start the complete data health scan now?\\The scan analyzes all relevant company data and may take some time depending on the data volume.",
+        "The data health scan has been started.",
     }
 
     assert required <= targets.keys()

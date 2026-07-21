@@ -116,7 +116,7 @@
                 end;
             }
 
-            action(RunQuickScan)
+            action(RunScan)
             {
                 Caption = 'Run Scan';
                 ToolTip = 'Runs Run Scan.';
@@ -126,12 +126,12 @@
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    QuickScanMgt: Codeunit "DH QuickScan Mgt.";
+                    ScanDispatcher: Codeunit "DH Scan Dispatcher";
                 begin
                     if not Setup.Get('SETUP') then
                         Error(SetupNotFoundErr);
 
-                    QuickScanMgt.RunQuickScanAndOpenDashboard(Setup);
+                    ScanDispatcher.StartScan(Setup);
                     CurrPage.Update(false);
                 end;
             }
@@ -230,7 +230,7 @@
                 actionref(OpenDashboardCard_Promoted; OpenDashboardCard)
                 {
                 }
-                actionref(RunQuickScan_Promoted; RunQuickScan)
+                actionref(RunScan_Promoted; RunScan)
                 {
                 }
                 actionref(DeleteSelectedDashboard_Promoted; DeleteSelectedDashboard)

@@ -313,12 +313,12 @@
   status: implemented
   description: Business Central profiliert Daten und übergibt den tenantgebundenen Data-Health-Score samt Findings an das Backend.
   evidence:
-    - {path: bc-extension/app/src/codeunits/DHQuickScanMgt.Codeunit.al, symbol: codeunit 53123, note: Quick-Scan-Orchestrierung}
-    - {path: bc-extension/app/src/codeunits/DHDataProfilingMgt.Codeunit.al, symbol: codeunit 53150, note: Datenprofiling}
-    - {path: backend/app/main.py, symbol: POST /scan/quick, note: Tenantgebundene Ergebnisannahme und Persistenz}
+    - {path: bc-extension/app/src/codeunits/DHDeepScanMgt.Codeunit.al, symbol: codeunit 53124, note: Einheitliche Deep-Scan-Orchestrierung}
+    - {path: bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al, symbol: codeunit 53128, note: Vollständige lokale Prüfungen}
+    - {path: backend/app/routers/scans.py, symbol: POST /scan/start, note: Atomare tenantgebundene Startannahme}
   interfaces: [Backend API, Business Central tables]
   tests: {status: partial, evidence: [{path: backend/tests/test_product_licensing_p0.py, note: Backendzugriff und Sync}]}
-  documentation: {status: implemented, evidence: [{path: docs/checks/quickscan-checks.md}]}
+  documentation: {status: implemented, evidence: [{path: docs/GL_01A_2_UNIFIED_SCAN_START_AUDIT.md}]}
   uncertainties: [BC-Datenprüfung nicht ausgeführt]
   related_features: [SCAN-SCORE-001]
   related_workflows: [WF-SCORE-001]

@@ -2,15 +2,20 @@ codeunit 53124 "DH Deep Scan Mgt."
 {
     procedure QueueDeepScan(var Setup: Record "DH Setup"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, true));
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Manual, true));
     end;
 
     procedure QueueDeepScanInBackground(var Setup: Record "DH Setup"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, false));
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false));
     end;
 
-    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Integer
+    procedure QueueDeepScanWithContext(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"): Integer
+    begin
+        exit(QueueDeepScanInternal(Setup, TriggerContext, TriggerContext = TriggerContext::Manual));
+    end;
+
+    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean): Integer
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
@@ -18,18 +23,26 @@ codeunit 53124 "DH Deep Scan Mgt."
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Validation Check successfully started. Opening the monitor. Run ID: %1', Comment = '%1 = run ID';
+        ScanStartedMsg: Label 'The data health scan has been started.';
     begin
-        if FindUnacceptedRun('', DeepScanRun) then begin
-            StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
-            RunDeepScanNow(DeepScanRun);
-            exit(DeepScanRun."Entry No.");
-        end;
-
-        EnsureDeepScanAllowed(Setup);
+        EnsureLocalScanPreconditions(Setup);
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
         if TotalModules <= 0 then
             Error(EnableScanModuleErr);
+
+        if not ConfirmManualScanStart(TriggerContext) then
+            exit(0);
+
+        if FindUnacceptedRun('', DeepScanRun) then begin
+            StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
+            RunDeepScanNow(DeepScanRun);
+            if ShowStartedMessage then
+                ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
+            exit(DeepScanRun."Entry No.");
+        end;
+
+        EnsureNoActiveScan();
+        EnsureDeepScanAllowed(Setup);
 
         EntryNo := GetNextRunEntryNo();
 
@@ -43,7 +56,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
         DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
-        DeepScanRun."Scan Mode" := GetDeepScanMode(Setup, ShowStartedMessage);
+        DeepScanRun."Scan Mode" := GetDeepScanMode(Setup, TriggerContext);
         DeepScanRun."Headline" := 'Deep scan queued';
         DeepScanRun."Current Module" := 'Preparing';
         DeepScanRun."Progress %" := 0;
@@ -81,23 +94,24 @@ codeunit 53124 "DH Deep Scan Mgt."
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         EntryNo: Integer;
         TotalModules: Integer;
-        ScanStartedMsg: Label 'Free Data Health Score successfully started. Opening the monitor. Run ID: %1', Comment = '%1 = run ID';
+        ScanStartedMsg: Label 'The data health scan has been started.';
     begin
-        if Setup."API Base URL" = '' then
-            Error(ConfigureApiBaseUrlErr);
-
-        if Setup."Tenant ID" = '' then
-            Error(RegisterTenantErr);
-
+        EnsureLocalScanPreconditions(Setup);
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
         if TotalModules <= 0 then
             Error(EnableScanModuleErr);
 
+        if not ConfirmManualScanStart(Enum::"DH Scan Trigger Context"::Manual) then
+            exit(0);
+
         if FindUnacceptedRun('data_health_score', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
             RunDeepScanNow(DeepScanRun);
+            ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
             exit(DeepScanRun."Entry No.");
         end;
+
+        EnsureNoActiveScan();
 
         EntryNo := GetNextRunEntryNo();
 
@@ -223,7 +237,7 @@ codeunit 53124 "DH Deep Scan Mgt."
                 Message(DeepScanRun."Backend Sync Error");
             exit;
         end;
-        Message(ScanStartedMsg, DeepScanRun."Run ID");
+        Message(ScanStartedMsg);
     end;
 
     [TryFunction]
@@ -346,23 +360,45 @@ codeunit 53124 "DH Deep Scan Mgt."
     var
         ApiClient: Codeunit "DH API Client";
     begin
-        if Setup."API Base URL" = '' then
-            Error(ConfigureApiBaseUrlErr);
-
-        if Setup."Tenant ID" = '' then
-            Error(RegisterTenantErr);
-
+        EnsureLocalScanPreconditions(Setup);
         ApiClient.RefreshLicenseStatus(Setup);
 
         if not Setup."Can Run Deep Scan" then
             Error(ValidationOrMonitoringRequiredErr);
     end;
 
-    local procedure GetDeepScanMode(var Setup: Record "DH Setup"; ShowStartedMessage: Boolean): Text[30]
+    local procedure EnsureLocalScanPreconditions(var Setup: Record "DH Setup")
+    begin
+        if Setup."API Base URL" = '' then
+            Error(ConfigureApiBaseUrlErr);
+
+        if Setup."Tenant ID" = '' then
+            Error(RegisterTenantErr);
+    end;
+
+    local procedure ConfirmManualScanStart(TriggerContext: Enum "DH Scan Trigger Context"): Boolean
+    begin
+        if TriggerContext <> TriggerContext::Manual then
+            exit(true);
+
+        exit(Confirm(ScanStartConfirmationQst, false));
+    end;
+
+    local procedure EnsureNoActiveScan()
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        DeepScanRun.Reset();
+        DeepScanRun.SetFilter(Status, '%1|%2', DeepScanRun.Status::Queued, DeepScanRun.Status::Running);
+        if DeepScanRun.FindFirst() then
+            Error(ScanAlreadyRunningErr);
+    end;
+
+    local procedure GetDeepScanMode(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"): Text[30]
     var
         AccessModel: Text;
     begin
-        if not ShowStartedMessage then
+        if TriggerContext in [TriggerContext::Scheduled, TriggerContext::Monitoring] then
             exit('monitoring');
 
         if Setup."Monitoring Active" then
@@ -396,5 +432,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         EnableScanModuleErr: Label 'Enable at least one scan module on the BCSentinel setup page.';
         RegisterTenantErr: Label 'Register the tenant first.';
         ValidationOrMonitoringRequiredErr: Label 'A new scan requires a Validation Check or active Monitoring.';
+        ScanAlreadyRunningErr: Label 'A scan is already running. Please wait until the current scan has finished.';
+        ScanStartConfirmationQst: Label 'Start scan\Do you want to start the complete data health scan now?\The scan analyzes all relevant company data and may take some time depending on the data volume.';
 
 }

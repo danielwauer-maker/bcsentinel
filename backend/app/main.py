@@ -668,7 +668,16 @@ def quick_scan(
 ) -> QuickScanResponse:
     header_tenant_id, header_api_token = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
+    raise HTTPException(
+        status_code=410,
+        detail=(
+            "Quick Scan has been retired. Start the complete data health scan through "
+            "POST /scan/start. No scan was created."
+        ),
+    )
 
+    # Retained temporarily as unreachable compatibility reference for parsing old
+    # Quick Scan payloads. It must not be re-enabled as a productive scan path.
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         update_tenant_language(tenant, payload.preferred_language)

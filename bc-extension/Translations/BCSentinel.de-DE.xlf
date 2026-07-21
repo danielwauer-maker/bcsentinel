@@ -1673,11 +1673,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType MissingTenantContextLbl</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3727721143 - NamedType 2239675789" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Data Health Score failed. Status: %1. %2</source><target state="translated">Der Data Health Score ist fehlgeschlagen. Status: %1. %2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = HTTP status, %2 = safe backend error</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API Client - NamedType QuickScanFailedLbl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3727721143 - NamedType 955254463" size-unit="char" translate="yes" xml:space="preserve">
           <source>Register the tenant first.</source><target state="translated">Registrieren Sie zuerst den Mandanten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1918,6 +1913,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType RegisterTenantErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 641561789" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A scan is already running. Please wait until the current scan has finished.</source><target state="translated">Ein Scan wird bereits ausgeführt. Warten Sie, bis der aktuelle Scan abgeschlossen ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType ScanAlreadyRunningErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 3727423554" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start scan\Do you want to start the complete data health scan now?\The scan analyzes all relevant company data and may take some time depending on the data volume.</source><target state="translated">Scan starten\Möchten Sie den vollständigen Data-Health-Scan jetzt starten?\Der Scan analysiert sämtliche relevanten Unternehmensdaten und kann abhängig vom Datenvolumen einige Zeit in Anspruch nehmen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType ScanStartConfirmationQst</note>
+        </trans-unit>
         <trans-unit id="Codeunit 950078217 - NamedType 2386538002" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new scan requires a Validation Check or active Monitoring.</source><target state="translated">Für einen erneuten Scan benötigen Sie einen Validation Check oder aktives Monitoring.</target>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1929,13 +1934,13 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method MarkStartAsRejected - NamedType StartRejectedLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 3265748367 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Free Data Health Score successfully started. Opening the monitor. Run ID: %1</source><target state="translated">✔ Kostenloser Data Health Score erfolgreich gestartet. Der Scan-Monitor wird geöffnet. Lauf-ID: %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = run ID</note>
+          <source>The data health scan has been started.</source><target state="translated">Der Data-Health-Scan wurde gestartet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDataHealthScore - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 1396950335 - NamedType 2303206705" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Validation Check successfully started. Opening the monitor. Run ID: %1</source><target state="translated">✔ Validation Check erfolgreich gestartet. Der Scan-Monitor wird geöffnet. Lauf-ID: %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = run ID</note>
+          <source>The data health scan has been started.</source><target state="translated">Der Data-Health-Scan wurde gestartet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - Method QueueDeepScanInternal - NamedType ScanStartedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 950078217 - Method 562213518 - NamedType 3033610090" size-unit="char" translate="yes" xml:space="preserve">
@@ -2052,16 +2057,6 @@
           <source>The EntryNo parameter is missing.</source><target state="translated">Der Parameter „EntryNo“ fehlt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Monitor Refresh Task - NamedType EntryNoMissingErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 31976146 - NamedType 3027307925" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The decimal value from the backend response could not be parsed: %1</source><target state="translated">Der Dezimalwert aus der Backendantwort konnte nicht verarbeitet werden: %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = backend value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH QuickScan Mgt. - NamedType BackendDecimalInvalidErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 31976146 - NamedType 4125751095" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Data Health Score response is invalid. Contact BCSentinel support if this continues.</source><target state="translated">Die Antwort zum Data Health Score ist ungültig. Wenden Sie sich an den BCSentinel-Support, falls das Problem weiterhin besteht.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH QuickScan Mgt. - NamedType QuickScanResponseInvalidErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1373361887 - NamedType 2031230494" size-unit="char" translate="yes" xml:space="preserve">
           <source>Critical</source><target state="translated">Kritisch</target>
@@ -2831,12 +2826,12 @@
         <trans-unit id="Page 2843720318 - Action 2161668349 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Runs Run Scan.</source><target state="translated">Führt "Scan ausführen" aus.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunQuickScan - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunScan - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Action 2161668349 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run Scan</source><target state="translated">Scan ausführen</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunQuickScan - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunScan - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2843720318 - Action 3893966460 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the secure BCSentinel checkout for Monitoring Monthly.</source><target state="translated">Öffnet den sicheren BCSentinel-Checkout für Monitoring Monthly.</target>
@@ -5647,16 +5642,6 @@
           <source>Failed</source><target state="translated">Fehlgeschlagen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType FailedLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 1419901430" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start now,Cancel</source><target state="translated">Jetzt starten,Abbrechen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ManualScanActionsLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - NamedType 1584648570" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The scan may affect system performance depending on data volume. Do you want to start it now during business hours?</source><target state="translated">Der Scan kann je nach Datenmenge die Systemleistung beeinflussen. Möchten Sie ihn jetzt während der Geschäftszeit starten?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ManualScanBusinessHoursQst</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 118358982" size-unit="char" translate="yes" xml:space="preserve">
           <source>Next scheduled scan: %1</source><target state="translated">Nächster geplanter Scan: %1</target>
