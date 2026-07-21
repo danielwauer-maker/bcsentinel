@@ -431,7 +431,7 @@ codeunit 53100 "DH API Client"
         Setup."Last License Check" := CurrentDateTime();
         Setup."Premium Enabled" := false;
         Setup."Scan Credits Available" := 0;
-        Setup."Assessment Credits Available" := 0;
+        /*Setup."Assessment Credits Available" := 0;*/
         Setup."Validation Credits Available" := 0;
         Setup."Monitoring Active" := false;
         Setup."Dashboard Access Until" := '';

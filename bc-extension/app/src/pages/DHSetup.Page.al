@@ -1303,6 +1303,7 @@
         SchedulerJobQueueNoticeLbl: Label 'Scheduled scans are executed through the Business Central job queue. The user does not need to remain signed in.';
         ResetRegistrationQst: Label 'Reset the cached BCSentinel registration and access status? The tenant identity, API token, purchases, and scan history are preserved. This action cannot be undone locally. Do you want to continue?';
         ResetRegistrationDoneMsg: Label 'The cached registration and access status was reset. Tenant identity, API token, purchases, and scan history were preserved.';
+
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
@@ -1353,7 +1354,7 @@
         Rec."Can Run Data Health Score" := true;
         Rec."Data Health Score Completed" := false;
         Rec."Scan Credits Available" := 0;
-        Rec."Assessment Credits Available" := 0;
+        /*Rec."Assessment Credits Available" := 0;*/
         Rec."Validation Credits Available" := 0;
         Rec."Monitoring Active" := false;
         Rec."Dashboard Access Until" := '';
