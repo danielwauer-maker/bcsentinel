@@ -125,23 +125,25 @@
                     Editable = false;
                     ToolTip = 'Shows the available Validation credits. Monitoring scans do not consume these credits under the current product model.';
                 }
-                field("Report Access Until"; Rec."Report Access Until")
+                field(ReportAccessDisplay; Rec.GetReportAccessDisplay())
                 {
                     ApplicationArea = All;
-                    Caption = 'Report Access Until';
+                    Caption = 'Report Access';
                     Editable = false;
-                    ToolTip = 'Shows until when Executive Reports are available according to the current access snapshot.';
+                    ToolTip = 'Shows whether Free Report access is unavailable, time-limited, or unlimited.';
                 }
-                field("Dashboard Access Until"; Rec."Dashboard Access Until")
+                field(DashboardAccessDisplay; Rec.GetDashboardAccessDisplay())
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Dashboard Access Until.';
+                    Caption = 'Dashboard Access';
+                    ToolTip = 'Shows whether Free Dashboard access is unavailable, time-limited, or unlimited.';
                     Editable = false;
                 }
-                field("Issue Access Until"; Rec."Issue Access Until")
+                field(IssueAccessDisplay; Rec.GetIssueAccessDisplay())
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Issue Access Until.';
+                    Caption = 'Findings Access';
+                    ToolTip = 'Shows whether Free Findings access is unavailable, time-limited, or unlimited.';
                     Editable = false;
                 }
                 field(PremiumUntil; Rec."Premium Until")

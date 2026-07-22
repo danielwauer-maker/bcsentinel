@@ -840,7 +840,7 @@ def test_monitoring_tenant_can_run_repeated_deep_scans_without_consuming_credits
     assert second_response.status_code == 200
 
 
-def test_consumed_assessment_access_expires_after_seven_days(
+def test_expired_assessment_access_falls_back_to_permanent_free_results(
     client,
     tenant_factory,
     auth_header_factory,
@@ -884,10 +884,14 @@ def test_consumed_assessment_access_expires_after_seven_days(
     assert payload["assessment_access_active"] is False
     assert payload["full_analysis_access_active"] is False
     assert payload["can_run_deep_scan"] is False
-    assert payload["can_view_dashboard"] is False
-    assert payload["can_view_issue_details"] is False
-    assert payload["can_view_free_insights"] is False
-    assert payload["can_view_issues"] is False
+    assert payload["can_view_dashboard"] is True
+    assert payload["can_view_issue_details"] is True
+    assert payload["can_view_free_insights"] is True
+    assert payload["can_view_issues"] is True
+    assert payload["can_view_reports"] is True
+    assert payload["can_view_actions"] is False
+    assert payload["can_view_record_details"] is False
+    assert payload["product_access"]["free_access_permanent"] is True
 
 
 def test_executive_report_requires_active_product_access(

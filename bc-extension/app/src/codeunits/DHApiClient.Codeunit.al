@@ -326,6 +326,7 @@ codeunit 53100 "DH API Client"
         DashboardAccessGranted: Boolean;
         IssuesAccessGranted: Boolean;
         ReportAccessGranted: Boolean;
+        PermanentFreeAccess: Boolean;
         MonitoringAccessGranted: Boolean;
         SubscriptionGranted: Boolean;
         ScanStartGranted: Boolean;
@@ -436,6 +437,7 @@ codeunit 53100 "DH API Client"
         Setup."Monitoring Active" := false;
         Setup."Dashboard Access Until" := '';
         Setup."Issue Access Until" := '';
+        Setup."Report Access Until" := '';
         Setup."Can Run Deep Scan" := false;
         Setup."Can View Dashboard" := false;
         Setup."Can View Issue Details" := false;
@@ -509,6 +511,8 @@ codeunit 53100 "DH API Client"
             ProductAccess := ProductAccessToken.AsObject();
             if ProductAccess.Get('access_model', Token) then
                 Setup."Product Access Model" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Product Access Model"));
+            if ProductAccess.Get('free_access_permanent', Token) then
+                PermanentFreeAccess := GetJsonTokenBoolean(Token, false);
             if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('dashboard_access_until_bc', Token) then
                 Setup."Dashboard Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Dashboard Access Until"));
             if (Setup."Dashboard Access Until" = '') and ProductAccess.Get('dashboard_access_until', Token) then
@@ -551,6 +555,11 @@ codeunit 53100 "DH API Client"
         if JsonResponse.Get('correlation_id', Token) then
             Setup."Access Correlation ID" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(Setup."Access Correlation ID"));
         Setup."Report Access Until" := CopyStr(FormatJsonDateTimeText(GetCapabilityUntil(Capabilities, 'report_access')), 1, MaxStrLen(Setup."Report Access Until"));
+        if PermanentFreeAccess then begin
+            Setup."Dashboard Access Until" := '';
+            Setup."Issue Access Until" := '';
+            Setup."Report Access Until" := '';
+        end;
 
         Setup.Modify(true);
     end;

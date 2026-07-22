@@ -544,6 +544,30 @@ table 53100 "DH Setup"
         exit(AvailableLbl);
     end;
 
+    procedure GetDashboardAccessDisplay(): Text[50]
+    begin
+        exit(GetResultAccessDisplay("Can View Dashboard", "Dashboard Access Until"));
+    end;
+
+    procedure GetIssueAccessDisplay(): Text[50]
+    begin
+        exit(GetResultAccessDisplay("Can View Issue Details", "Issue Access Until"));
+    end;
+
+    procedure GetReportAccessDisplay(): Text[50]
+    begin
+        exit(GetResultAccessDisplay("Can View Reports", "Report Access Until"));
+    end;
+
+    local procedure GetResultAccessDisplay(AccessGranted: Boolean; AccessUntil: Text): Text[50]
+    begin
+        if not AccessGranted then
+            exit(NotAvailableLbl);
+        if AccessUntil = '' then
+            exit(UnlimitedLbl);
+        exit(CopyStr(AccessUntil, 1, 50));
+    end;
+
     procedure GetProductAccessDisplay(): Text[100]
     var
         AccessModel: Text;

@@ -285,11 +285,8 @@ def _completed_data_health_score_at(db, tenant_id: str) -> datetime | None:
     )
 
 
-def _free_access_until(db, tenant_id: str) -> datetime | None:
-    completed_at = _completed_data_health_score_at(db, tenant_id)
-    if completed_at is None:
-        return None
-    return calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=completed_at)
+def _has_permanent_free_result_access(db, tenant_id: str) -> bool:
+    return _completed_data_health_score_at(db, tenant_id) is not None
 
 
 def _has_legacy_premium_access(tenant: Tenant) -> bool:
@@ -405,7 +402,7 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
 
 def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
-    free_access_until = _free_access_until(db, tenant.tenant_id)
+    free_access_permanent = _has_permanent_free_result_access(db, tenant.tenant_id)
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     monitoring_until = _monitoring_access_until(db, tenant)
@@ -420,15 +417,14 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     validation_active = validation_until is not None and validation_until >= now
     one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
-    free_access_active = free_access_until is not None and free_access_until >= now
-    protected_access_until = _max_datetime([premium_access_until, free_access_until])
-    protected_access_active = premium_access_active or free_access_active
+    protected_access_until = None if free_access_permanent else premium_access_until
+    protected_access_active = premium_access_active or free_access_permanent
     credits_available = scan_credit_count(db, tenant.tenant_id)
     assessment_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
-    free_assessment_used = bool(tenant.free_assessment_used) or free_access_until is not None
-    has_completed_data_health_score = free_access_until is not None
+    free_assessment_used = bool(tenant.free_assessment_used) or free_access_permanent
+    has_completed_data_health_score = free_access_permanent
     record_count = _latest_scan_record_count(db, tenant.tenant_id)
     pricing_tier = pricing_tier_for_record_count(record_count)
 
@@ -441,7 +437,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "monitoring_until": _iso(monitoring_until),
         "dataset_tier": pricing_tier,
         "capabilities": {
-            "free_dashboard": free_access_active,
+            "free_dashboard": free_access_permanent,
             "full_dashboard": premium_access_active,
             "findings_full": premium_access_active,
             "issues": premium_access_active,
@@ -483,8 +479,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "scan_credits_available": validation_credits_available,
         "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
-        "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else ("free" if free_access_active else "none")),
-        "free_access_until": _iso(free_access_until),
+        "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else ("free" if free_access_permanent else "none")),
+        "free_access_permanent": free_access_permanent,
+        "free_access_until": None,
         "assessment_access_until": _iso(full_analysis_until),
         "full_analysis_access_until": _iso(full_analysis_until),
         "validation_access_until": _iso(validation_until),

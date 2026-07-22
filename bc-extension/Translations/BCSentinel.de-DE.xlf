@@ -6453,11 +6453,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control SubscriptionStatus - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Control 2874105614 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Dashboard Access Until.</source><target state="translated">Gibt Dashboard-Zugriff bis an.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Dashboard Access Until - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 392523509 - Control 121135170 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows whether the one-time free Data Health Score is available or already used.</source><target state="translated">Zeigt an, ob der einmalige kostenlose Data Health Score verfügbar oder bereits verwendet ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -6467,11 +6462,6 @@
           <source>Free Data Health Score</source><target state="translated">Kostenloser Data Health Score</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control FreeAssessmentStatus - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 392523509 - Control 432684769 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies Issue Access Until.</source><target state="translated">Gibt Problemzugriff bis an.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Issue Access Until - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 1198226257 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Last Product Access Check.</source><target state="translated">Gibt Letzte License Check an.</target>
@@ -6513,15 +6503,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ProductAccessDisplay - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Control 3162456556 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shows until when Executive Reports are available according to the current access snapshot.</source><target state="translated">Zeigt an, bis wann Executive Reports gemäß dem aktuellen Zugriffssnapshot verfügbar sind.</target>
+        <trans-unit id="Page 392523509 - Control 2459223750 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether Free Dashboard access is unavailable, time-limited, or unlimited.</source><target state="translated">Zeigt an, ob der Zugriff auf das Free-Dashboard nicht verfügbar, zeitlich begrenzt oder unbegrenzt ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Report Access Until - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control DashboardAccessDisplay - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 392523509 - Control 3162456556 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Report Access Until</source><target state="translated">Reportzugriff bis</target>
+        <trans-unit id="Page 392523509 - Control 2459223750 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dashboard Access</source><target state="translated">Dashboard-Zugriff</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Report Access Until - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control DashboardAccessDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2828647449 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether Free Findings access is unavailable, time-limited, or unlimited.</source><target state="translated">Zeigt an, ob der Zugriff auf Free-Findings nicht verfügbar, zeitlich begrenzt oder unbegrenzt ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control IssueAccessDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2828647449 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Findings Access</source><target state="translated">Findings-Zugriff</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control IssueAccessDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 4149959556 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether Free Report access is unavailable, time-limited, or unlimited.</source><target state="translated">Zeigt an, ob der Zugriff auf den Free-Report nicht verfügbar, zeitlich begrenzt oder unbegrenzt ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ReportAccessDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 4149959556 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Report Access</source><target state="translated">Report-Zugriff</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ReportAccessDisplay - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 3577206343 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the current BCSentinel subscription and access status.</source><target state="translated">Zeigt den aktuellen BCSentinel Subscription- und Zugriffsstatus an.</target>
