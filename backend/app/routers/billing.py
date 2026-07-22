@@ -315,7 +315,7 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
     access = build_product_access_snapshot(db, tenant)
     if access["monitoring_active"]:
         return set()
-    if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["can_view_issues"]:
+    if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
         return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
     return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
 

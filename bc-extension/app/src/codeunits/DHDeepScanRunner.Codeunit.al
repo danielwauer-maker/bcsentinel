@@ -115,8 +115,7 @@ codeunit 53128 "DH Deep Scan Runner"
             DeepScanRun.Modify(true);
             Commit();
         end;
-        if not IsDataHealthScoreRun(DeepScanRun) then
-            TryRefreshLicenseAfterCompletion(Setup);
+        TryRefreshLicenseAfterCompletion(Setup);
     end;
 
     [TryFunction]

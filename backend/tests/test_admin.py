@@ -359,7 +359,7 @@ def test_admin_access_management_extend_and_expire(client, tenant_factory, scan_
     assert access["capabilities"]["actions"] is False
     assert access["capabilities"]["executive_report_full"] is False
     assert access["capabilities"]["monitoring"] is False
-    assert access["capabilities"]["free_dashboard"] is True
+    assert access["capabilities"]["free_dashboard"] is False
     assert access["free_assessment_used"] is True
 
 
@@ -388,7 +388,7 @@ def test_admin_reset_licensing_clears_products_monitoring_credits_and_access(cli
     assert access["capabilities"]["actions"] is False
     assert access["capabilities"]["executive_report_full"] is False
     assert access["capabilities"]["monitoring"] is False
-    assert access["capabilities"]["free_dashboard"] is True
+    assert access["capabilities"]["free_dashboard"] is False
     assert access["free_assessment_used"] is True
     with SessionLocal() as db:
         assert db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one().free_assessment_used is True

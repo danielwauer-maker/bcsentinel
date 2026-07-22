@@ -1476,7 +1476,6 @@
     begin
         HasCompletedFreeScore := HasCompletedDataHealthScore();
         HasOneTimeAccess :=
-            Rec."Can View Issue Details" or
             Rec."Premium Enabled" or
             (LowerCase(Rec."Product Access Model") = 'one_time');
         CanRegisterTenant := Rec.IsRegistrationReady();

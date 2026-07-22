@@ -555,7 +555,7 @@ table 53100 "DH Setup"
             exit(MonitoringMonthlyLbl);
         end;
 
-        if "Can View Issue Details" or "Premium Enabled" then begin
+        if "Premium Enabled" then begin
             if "Scan Credits Available" > 0 then
                 exit(ValidationCheckLbl);
             exit(FullAnalysisLbl);
@@ -591,7 +591,7 @@ table 53100 "DH Setup"
         if "Monitoring Active" then
             exit(MonitoringActiveLbl);
 
-        if "Can View Issue Details" or "Premium Enabled" then
+        if "Premium Enabled" then
             exit(PaidScanAccessActiveLbl);
 
         if Registered then

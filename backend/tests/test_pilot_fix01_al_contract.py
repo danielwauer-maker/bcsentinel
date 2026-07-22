@@ -31,10 +31,14 @@ def test_registration_maps_stable_codes_without_raw_response_or_string_replaceme
 def test_registration_action_always_recovers_page_state_and_can_retry():
     source = (AL_ROOT / "app/src/pages/DHSetup.Page.al").read_text(encoding="utf-8")
     action = source.split("action(RegisterTenant)", 1)[1].split("action(ResetRegistration)", 1)[0]
-    assert "TryRegisterTenantAndRefresh" in action
-    assert "GetLastErrorText()" in action
-    assert "ClearLastError()" in action
-    assert "CurrPage.Update(false)" in action
+    registration_flow = source.split("local procedure RunTenantRegistration()", 1)[1].split(
+        "local procedure TryRegisterTenantAndRefresh", 1
+    )[0]
+    assert "RunTenantRegistration();" in action
+    assert "TryRegisterTenantAndRefresh" in registration_flow
+    assert "GetLastErrorText()" in registration_flow
+    assert "ClearLastError()" in registration_flow
+    assert "CurrPage.Update(false)" in registration_flow
     assert "BCSentinelTenantRegistrationStartedLbl" not in action
     assert "[TryFunction]" in source
 

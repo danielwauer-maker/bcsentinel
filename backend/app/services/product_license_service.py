@@ -9,6 +9,8 @@ from sqlalchemy import select
 from app.models import (
     CreditLedgerEntry,
     Scan,
+    ScanRunStatus,
+    ScanStartRequest,
     Subscription,
     Tenant,
     TenantProductEntitlement,
@@ -260,18 +262,34 @@ def _tenant_has_scan_results(db, tenant_id: str) -> bool:
     return db.scalar(select(Scan.id).where(Scan.tenant_id == tenant_id).limit(1)) is not None
 
 
-def _tenant_has_completed_data_health_score(db, tenant_id: str) -> bool:
-    return (
+def _completed_data_health_score_at(db, tenant_id: str) -> datetime | None:
+    """Return the authoritative completion anchor for the tenant's free scan."""
+    return _as_utc(
         db.scalar(
-            select(Scan.id)
+            select(ScanRunStatus.completed_at_utc)
+            .join(ScanStartRequest, ScanStartRequest.scan_id == ScanRunStatus.run_id)
+            .join(Scan, Scan.scan_id == ScanRunStatus.run_id)
             .where(
+                ScanRunStatus.tenant_id == tenant_id,
+                ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+                ScanRunStatus.completed_at_utc.is_not(None),
+                ScanRunStatus.result_persisted_at_utc.is_not(None),
+                ScanStartRequest.tenant_id == tenant_id,
+                ScanStartRequest.resolved_product_code == PRODUCT_DATA_HEALTH_SCORE,
+                ScanStartRequest.free_scan_slot == PRODUCT_DATA_HEALTH_SCORE,
                 Scan.tenant_id == tenant_id,
-                Scan.scan_type.in_([PRODUCT_DATA_HEALTH_SCORE, "quick", "deep"]),
             )
+            .order_by(ScanRunStatus.completed_at_utc.desc())
             .limit(1)
         )
-        is not None
     )
+
+
+def _free_access_until(db, tenant_id: str) -> datetime | None:
+    completed_at = _completed_data_health_score_at(db, tenant_id)
+    if completed_at is None:
+        return None
+    return calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=completed_at)
 
 
 def _has_legacy_premium_access(tenant: Tenant) -> bool:
@@ -387,6 +405,7 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
 
 def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
+    free_access_until = _free_access_until(db, tenant.tenant_id)
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     monitoring_until = _monitoring_access_until(db, tenant)
@@ -401,38 +420,42 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     validation_active = validation_until is not None and validation_until >= now
     one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
+    free_access_active = free_access_until is not None and free_access_until >= now
+    protected_access_until = _max_datetime([premium_access_until, free_access_until])
+    protected_access_active = premium_access_active or free_access_active
     credits_available = scan_credit_count(db, tenant.tenant_id)
     assessment_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     validation_credits_available = scan_credit_count_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     has_scan_results = _tenant_has_scan_results(db, tenant.tenant_id)
-    has_completed_data_health_score = bool(tenant.free_assessment_used) or _tenant_has_completed_data_health_score(db, tenant.tenant_id)
+    free_assessment_used = bool(tenant.free_assessment_used) or free_access_until is not None
+    has_completed_data_health_score = free_access_until is not None
     record_count = _latest_scan_record_count(db, tenant.tenant_id)
     pricing_tier = pricing_tier_for_record_count(record_count)
 
     return {
-        "free_assessment_used": has_completed_data_health_score,
-        "free_assessment_available": not has_completed_data_health_score,
+        "free_assessment_used": free_assessment_used,
+        "free_assessment_available": not free_assessment_used,
         "premium_active": premium_access_active,
         "premium_until": _iso(one_time_until),
         "validation_credits": validation_credits_available,
         "monitoring_until": _iso(monitoring_until),
         "dataset_tier": pricing_tier,
         "capabilities": {
-            "free_dashboard": has_scan_results,
+            "free_dashboard": free_access_active,
             "full_dashboard": premium_access_active,
             "findings_full": premium_access_active,
             "issues": premium_access_active,
             "actions": premium_access_active,
             "executive_report_full": premium_access_active,
             "monitoring": monitoring_active,
-            "manual_scan": monitoring_active or validation_credits_available > 0 or not has_completed_data_health_score,
+            "manual_scan": monitoring_active or validation_credits_available > 0 or not free_assessment_used,
         },
-        "can_run_data_health_score": not has_completed_data_health_score,
+        "can_run_data_health_score": not free_assessment_used,
         "has_completed_data_health_score": has_completed_data_health_score,
-        "can_view_free_insights": has_scan_results,
-        "can_view_issues": premium_access_active,
+        "can_view_free_insights": protected_access_active and has_scan_results,
+        "can_view_issues": protected_access_active,
         "can_view_actions": premium_access_active,
-        "can_view_reports": premium_access_active,
+        "can_view_reports": protected_access_active,
         "can_view_record_details": premium_access_active,
         "can_use_monitoring": monitoring_active,
         "full_analysis_access_active": full_analysis_active,
@@ -448,19 +471,20 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "assessment_access_active": full_analysis_active,
         "validation_access_active": validation_active,
         "monitoring_active": monitoring_active,
-        "dashboard_access_until": _iso(premium_access_until),
-        "dashboard_access_until_bc": _bc_datetime(premium_access_until),
-        "issue_access_until": _iso(premium_access_until),
-        "issue_access_until_bc": _bc_datetime(premium_access_until),
-        "report_access_until": _iso(premium_access_until),
+        "dashboard_access_until": _iso(protected_access_until),
+        "dashboard_access_until_bc": _bc_datetime(protected_access_until),
+        "issue_access_until": _iso(protected_access_until),
+        "issue_access_until_bc": _bc_datetime(protected_access_until),
+        "report_access_until": _iso(protected_access_until),
         "can_run_deep_scan": monitoring_active or validation_credits_available > 0,
-        "can_view_dashboard": premium_access_active,
-        "can_view_issue_details": premium_access_active,
-        "can_view_executive_report": premium_access_active,
+        "can_view_dashboard": protected_access_active,
+        "can_view_issue_details": protected_access_active,
+        "can_view_executive_report": protected_access_active,
         "scan_credits_available": validation_credits_available,
         "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
-        "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else "none"),
+        "access_model": "monitoring" if monitoring_active else ("one_time" if one_time_active else ("free" if free_access_active else "none")),
+        "free_access_until": _iso(free_access_until),
         "assessment_access_until": _iso(full_analysis_until),
         "full_analysis_access_until": _iso(full_analysis_until),
         "validation_access_until": _iso(validation_until),
@@ -505,7 +529,7 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
 def resolve_product_features(db, tenant: Tenant) -> set[str]:
     features = set(BASE_FEATURES)
     access = build_product_access_snapshot(db, tenant)
-    if access["can_run_deep_scan"] or access["can_view_dashboard"]:
+    if access["can_run_deep_scan"] or access["premium_active"]:
         features.update(PAID_SCAN_FEATURES)
 
     product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))

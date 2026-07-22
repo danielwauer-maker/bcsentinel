@@ -96,7 +96,7 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
     monitoring_until = access.get("monitoring_access_until")
     capabilities = {
         CAPABILITY_PRODUCT: _capability(
-            granted=bool(access["can_view_issues"] or access["can_run_deep_scan"]),
+            granted=bool(access["premium_active"]),
             valid_until=premium_until,
             reason="product_inactive",
         ),

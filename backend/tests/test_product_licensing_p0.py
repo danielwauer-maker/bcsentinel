@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.db import SessionLocal
-from app.models import Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import ScanRunStatus, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
 
 
 def _admin_auth_header() -> dict[str, str]:
@@ -366,7 +366,7 @@ def test_legacy_premium_tenant_without_product_record_does_not_get_open_ended_mo
     assert payload["dashboard_access_until"] is None
 
 
-def test_free_insights_are_available_after_scan_without_premium_details(
+def test_unbound_scan_result_does_not_create_free_access(
     client,
     tenant_factory,
     auth_header_factory,
@@ -379,7 +379,7 @@ def test_free_insights_are_available_after_scan_without_premium_details(
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["can_view_free_insights"] is True
+    assert payload["can_view_free_insights"] is False
     assert payload["record_count"] == 120000
     assert payload["pricing_tier"] == "professional"
     assert payload["can_view_issues"] is False
@@ -418,7 +418,7 @@ def test_data_health_score_start_without_credit_does_not_consume_credit(
     assert credit_count == 0
 
 
-def test_data_health_score_sync_without_credit_exposes_free_insights_and_locks_premium(
+def test_data_health_score_sync_without_credit_grants_free_access_and_locks_paid_actions(
     client,
     tenant_factory,
     auth_header_factory,
@@ -444,13 +444,13 @@ def test_data_health_score_sync_without_credit_exposes_free_insights_and_locks_p
     assert license_payload["can_view_free_insights"] is True
     assert license_payload["can_run_data_health_score"] is False
     assert license_payload["has_completed_data_health_score"] is True
-    assert license_payload["can_view_issues"] is False
+    assert license_payload["can_view_issues"] is True
     assert license_payload["can_view_actions"] is False
-    assert license_payload["can_view_reports"] is False
+    assert license_payload["can_view_reports"] is True
     assert license_payload["can_view_record_details"] is False
 
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
-    assert token_response.status_code == 403
+    assert token_response.status_code == 200
 
 
 def test_data_health_score_sync_updates_queued_placeholder_and_analytics_values(
@@ -484,10 +484,20 @@ def test_data_health_score_sync_updates_queued_placeholder_and_analytics_values(
     assert sync_response.status_code == 200
 
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
-    assert token_response.status_code == 403
+    assert token_response.status_code == 200
+    dashboard_response = client.get(
+        f"/analytics/embed/data?embed_token={token_response.json()['token']}"
+    )
+    assert dashboard_response.status_code == 200
+    dashboard = dashboard_response.json()
+    assert dashboard["kpis"]["health_score"] == 47
+    assert dashboard["kpis"]["checks_run"] == 202
+    assert dashboard["kpis"]["issues_count"] == 95
+    assert dashboard["kpis"]["total_records"] == 1234
+    assert dashboard["visibility"]["is_premium"] is False
 
 
-def test_free_dashboard_sections_are_server_locked_until_premium_access(
+def test_free_dashboard_unlocks_findings_and_report_but_keeps_paid_actions_locked(
     client,
     tenant_factory,
     auth_header_factory,
@@ -499,7 +509,16 @@ def test_free_dashboard_sections_are_server_locked_until_premium_access(
     assert scan_response.status_code == 200
 
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
-    assert token_response.status_code == 403
+    assert token_response.status_code == 200
+    analytics_token = token_response.json()["token"]
+
+    for section in ("issues", "reports"):
+        response = client.get(f"/analytics/embed/{section}?embed_token={analytics_token}")
+        assert response.status_code == 200
+        assert response.json()["locked"] is False
+
+    actions_response = client.get(f"/analytics/embed/actions?embed_token={analytics_token}")
+    assert actions_response.status_code == 403
 
 
 def test_premium_dashboard_sections_are_unlocked(
@@ -548,7 +567,13 @@ def test_enterprise_free_insights_use_contact_sales_tenant_pricing(
     assert response.status_code == 200
 
     token_response = client.get("/analytics/get-token", headers=auth_header_factory(tenant))
-    assert token_response.status_code == 403
+    assert token_response.status_code == 200
+    dashboard_response = client.get(
+        f"/analytics/embed/data?embed_token={token_response.json()['token']}"
+    )
+    assert dashboard_response.status_code == 200
+    assert dashboard_response.json()["tenant_pricing"]["contact_sales"] is True
+    assert dashboard_response.json()["visibility"]["is_premium"] is False
 
 
 @pytest.mark.parametrize(
@@ -847,6 +872,9 @@ def test_consumed_assessment_access_expires_after_seven_days(
             .one()
         )
         entitlement.valid_until_utc = expired_at
+        run = db.query(ScanRunStatus).filter_by(run_id="RUN_EXPIRED_ACCESS").one()
+        run.completed_at_utc = expired_at
+        run.result_persisted_at_utc = expired_at
         db.commit()
 
     license_response = client.get("/license/status", headers=auth_header_factory(tenant))
@@ -858,7 +886,7 @@ def test_consumed_assessment_access_expires_after_seven_days(
     assert payload["can_run_deep_scan"] is False
     assert payload["can_view_dashboard"] is False
     assert payload["can_view_issue_details"] is False
-    assert payload["can_view_free_insights"] is True
+    assert payload["can_view_free_insights"] is False
     assert payload["can_view_issues"] is False
 
 

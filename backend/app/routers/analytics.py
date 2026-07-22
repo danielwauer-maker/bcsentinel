@@ -1247,7 +1247,7 @@ def _build_dashboard_payload(
         tenant_pricing = build_tier_pricing_payload(db, record_count=_safe_int(active_scan.total_records))
 
     current_plan = _normalize_plan(getattr(tenant, "current_plan", "free"))
-    is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["can_view_issues"])
+    is_premium = is_premium_actions_enabled(tenant_features) and bool(product_access["premium_active"])
     monitoring_active = bool(product_access["monitoring_active"])
     can_view_recommendations = "recommendations" in tenant_features
 
@@ -1452,7 +1452,7 @@ def _build_dashboard_payload(
         "product_pricing": product_pricing,
         "tenant_pricing": tenant_pricing,
         "pages": pages,
-        "issues_page": {"locked": not is_premium, "items": top_findings_sorted if is_premium else [], "empty": not bool(top_findings_sorted)},
+        "issues_page": {"locked": not bool(product_access["can_view_issues"]), "items": top_findings_sorted if product_access["can_view_issues"] else [], "empty": not bool(top_findings_sorted)},
         "actions_page": {"locked": not is_premium, "items": actions_items if is_premium else [], "empty": not bool(actions_items)},
         "reports_page": {"locked": not bool(product_access["can_view_reports"]), "items": report_cards if product_access["can_view_reports"] else [], "empty": False},
         "settings_page": {
