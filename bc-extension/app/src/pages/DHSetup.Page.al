@@ -413,6 +413,38 @@
             {
                 Caption = 'Connection and Registration';
 
+                group(RegistrationPreparation)
+                {
+                    Caption = 'Prepare registration';
+                    Visible = ShowRegistrationPreparation;
+
+                    field(RegistrationPreparationMessage; RegistrationPreparationTxt)
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                        Editable = false;
+                        MultiLine = true;
+                        StyleExpr = RegistrationPreparationStyle;
+                        ToolTip = 'Explains whether all requirements for BCSentinel registration have been completed.';
+                    }
+                    field(ContactEmailRequirement; ContactEmailRequirementTxt)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Contact Email';
+                        Editable = false;
+                        StyleExpr = ContactEmailRequirementStyle;
+                        ToolTip = 'Shows whether a valid contact email address has been entered for registration.';
+                    }
+                    field(PrivacyConsentRequirement; PrivacyConsentRequirementTxt)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Privacy Consent';
+                        Editable = false;
+                        StyleExpr = PrivacyConsentRequirementStyle;
+                        ToolTip = 'Shows whether the existing data processing consent has been accepted for registration.';
+                    }
+                }
+
                 field("API Base URL"; Rec."API Base URL")
                 {
                     ApplicationArea = All;
@@ -422,6 +454,7 @@
                     trigger OnValidate()
                     begin
                         UpdateActionState();
+                        CurrPage.Update(false);
                     end;
                 }
 
@@ -433,6 +466,7 @@
                     trigger OnValidate()
                     begin
                         UpdateActionState();
+                        CurrPage.Update(false);
                     end;
                 }
 
@@ -485,6 +519,7 @@
                     trigger OnValidate()
                     begin
                         UpdateActionState();
+                        CurrPage.Update(false);
                     end;
                 }
 
@@ -761,40 +796,13 @@
                     ApplicationArea = All;
                     Image = Web;
                     Enabled = CanRegisterTenant;
-                    Visible = true;
+                    Visible = ShowRegisterTenant;
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
-                    var
-                        RegistrationMessage: Text;
                     begin
-                        if Rec."Contact Email" = '' then begin
-                            Message(PleaseEnterAContactEmailAddressFirstLbl);
-                            exit;
-                        end;
-
-                        Rec.EnsureValidContactEmail();
-
-                        if Rec.Registered then begin
-                            Message(BCSentinelRegistrationDataIsIncompleteRegistLbl);
-                        end;
-
-                        ClearLastError();
-                        if not TryRegisterTenantAndRefresh(RegistrationMessage) then begin
-                            RegistrationMessage := GetLastErrorText();
-                            ClearLastError();
-                            UpdateActionState();
-                            UpdateDisplayValues();
-                            CurrPage.Update(false);
-                            if RegistrationMessage = '' then
-                                RegistrationMessage := RegistrationUnexpectedErrorLbl;
-                            Message(RegistrationMessage);
-                            exit;
-                        end;
-
-                        UpdateActionState();
-                        UpdateDisplayValues();
-                        CurrPage.Update(false);
-                        Message(RegistrationMessage);
+                        RunTenantRegistration();
                     end;
                 }
 
@@ -978,6 +986,7 @@
                     Image = List;
                     ToolTip = 'Opens the findings from the latest scan. Current product access is verified before details are shown.';
                     Enabled = CanOpenLatestMonitor;
+                    Visible = ShowOpenLatestFindings;
                     Promoted = true;
                     PromotedCategory = Process;
 
@@ -1098,15 +1107,16 @@
                     trigger OnAction()
                     var
                         SchedulerMgt: Codeunit "DH Scan Scheduler Mgt.";
-                        DeepScanRun: Record "DH Deep Scan Run";
                         EntryNo: Integer;
                     begin
                         EntryNo := SchedulerMgt.RunNow(Rec);
+                        if EntryNo = 0 then
+                            exit;
+                        Rec.Get('SETUP');
                         UpdateActionState();
                         UpdateDisplayValues();
                         CurrPage.Update(false);
-                        if DeepScanRun.Get(EntryNo) then
-                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                        Message(DataHealthScanStartedMsg);
                     end;
                 }
             }
@@ -1213,6 +1223,9 @@
 
     var
         CanRegisterTenant: Boolean;
+        ShowRegisterTenant: Boolean;
+        ShowRegistrationPreparation: Boolean;
+        ShowOpenLatestFindings: Boolean;
         CanResetRegistration: Boolean;
         CanStartFreeDataHealthScore: Boolean;
         CanStartValidationCheck: Boolean;
@@ -1233,6 +1246,9 @@
         ShowMonthlySchedulerFields: Boolean;
         ShowNoScanNotice: Boolean;
         DataProcessingNoticeTxt: Text[1024];
+        RegistrationPreparationTxt: Text[250];
+        ContactEmailRequirementTxt: Text[100];
+        PrivacyConsentRequirementTxt: Text[100];
         InviteNoticeTxt: Text[512];
         SubscriptionStatusTxt: Text[100];
         ProductAccessTxt: Text[100];
@@ -1282,6 +1298,9 @@
         LastScanStatusStyle: Text[30];
         ConnectionStatusStyle: Text[30];
         RegistrationStatusStyle: Text[30];
+        RegistrationPreparationStyle: Text[30];
+        ContactEmailRequirementStyle: Text[30];
+        PrivacyConsentRequirementStyle: Text[30];
         SystemModuleScoreStyle: Text[30];
         FinanceModuleScoreStyle: Text[30];
         SalesModuleScoreStyle: Text[30];
@@ -1301,6 +1320,14 @@
         RatingGoodLbl: Label 'Good';
         RatingNeedsAttentionLbl: Label 'Needs attention';
         SchedulerJobQueueNoticeLbl: Label 'Scheduled scans are executed through the Business Central job queue. The user does not need to remain signed in.';
+        RegistrationRequirementsPendingLbl: Label 'The following information is required before registration:';
+        RegistrationRequirementsCompletedLbl: Label 'All registration requirements have been completed. You can now register BCSentinel.';
+        EnterContactEmailAddressLbl: Label 'Enter a contact email address';
+        ContactEmailAddressInvalidLbl: Label 'The contact email address is invalid.';
+        ContactEmailEnteredLbl: Label 'Contact email entered';
+        AcceptPrivacyConsentLbl: Label 'Accept the privacy consent';
+        PrivacyConsentAcceptedLbl: Label 'Privacy consent accepted';
+        DataHealthScanStartedMsg: Label 'The data health scan has been started.';
         ResetRegistrationQst: Label 'Reset the cached BCSentinel registration and access status? The tenant identity, API token, purchases, and scan history are preserved. This action cannot be undone locally. Do you want to continue?';
         ResetRegistrationDoneMsg: Label 'The cached registration and access status was reset. Tenant identity, API token, purchases, and scan history were preserved.';
 
@@ -1366,6 +1393,39 @@
         Rec.Modify(true);
     end;
 
+    local procedure RunTenantRegistration()
+    var
+        RegistrationMessage: Text;
+    begin
+        if Rec.Registered then
+            exit;
+
+        if Rec."Contact Email" = '' then begin
+            Message(PleaseEnterAContactEmailAddressFirstLbl);
+            exit;
+        end;
+
+        Rec.EnsureValidContactEmail();
+
+        ClearLastError();
+        if not TryRegisterTenantAndRefresh(RegistrationMessage) then begin
+            RegistrationMessage := GetLastErrorText();
+            ClearLastError();
+            UpdateActionState();
+            UpdateDisplayValues();
+            CurrPage.Update(false);
+            if RegistrationMessage = '' then
+                RegistrationMessage := RegistrationUnexpectedErrorLbl;
+            Message(RegistrationMessage);
+            exit;
+        end;
+
+        UpdateActionState();
+        UpdateDisplayValues();
+        CurrPage.Update(false);
+        Message(RegistrationMessage);
+    end;
+
     [TryFunction]
     local procedure TryRegisterTenantAndRefresh(var RegistrationMessage: Text)
     var
@@ -1419,7 +1479,10 @@
             Rec."Can View Issue Details" or
             Rec."Premium Enabled" or
             (LowerCase(Rec."Product Access Model") = 'one_time');
-        CanRegisterTenant := Rec."Data Processing Consent" and (Rec."API Base URL" <> '');
+        CanRegisterTenant := Rec.IsRegistrationReady();
+        ShowRegisterTenant := not Rec.Registered;
+        ShowRegistrationPreparation := not Rec.Registered;
+        ShowOpenLatestFindings := Rec.Registered;
         CanResetRegistration :=
             Rec.Registered or
             (Rec."Tenant ID" <> '') or
@@ -1443,6 +1506,48 @@
         ShowBuyFullAnalysis := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and not HasOneTimeAccess;
         ShowBuyValidationCheck := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active" and HasCompletedFreeScore;
         ShowStartMonitoring := (Rec."Tenant ID" <> '') and not Rec."Monitoring Active";
+        UpdateRegistrationGuidance();
+    end;
+
+    local procedure UpdateRegistrationGuidance()
+    begin
+        if Rec.Registered then begin
+            RegistrationPreparationTxt := '';
+            ContactEmailRequirementTxt := '';
+            PrivacyConsentRequirementTxt := '';
+            RegistrationPreparationStyle := 'Standard';
+            ContactEmailRequirementStyle := 'Standard';
+            PrivacyConsentRequirementStyle := 'Standard';
+            exit;
+        end;
+
+        if Rec.IsRegistrationReady() then begin
+            RegistrationPreparationTxt := RegistrationRequirementsCompletedLbl;
+            RegistrationPreparationStyle := 'Favorable';
+        end else begin
+            RegistrationPreparationTxt := RegistrationRequirementsPendingLbl;
+            RegistrationPreparationStyle := 'Ambiguous';
+        end;
+
+        if Rec."Contact Email" = '' then begin
+            ContactEmailRequirementTxt := EnterContactEmailAddressLbl;
+            ContactEmailRequirementStyle := 'Unfavorable';
+        end else
+            if Rec.HasValidContactEmail() then begin
+                ContactEmailRequirementTxt := ContactEmailEnteredLbl;
+                ContactEmailRequirementStyle := 'Favorable';
+            end else begin
+                ContactEmailRequirementTxt := ContactEmailAddressInvalidLbl;
+                ContactEmailRequirementStyle := 'Unfavorable';
+            end;
+
+        if Rec."Data Processing Consent" then begin
+            PrivacyConsentRequirementTxt := PrivacyConsentAcceptedLbl;
+            PrivacyConsentRequirementStyle := 'Favorable';
+        end else begin
+            PrivacyConsentRequirementTxt := AcceptPrivacyConsentLbl;
+            PrivacyConsentRequirementStyle := 'Unfavorable';
+        end;
     end;
 
     local procedure HasCompletedDataHealthScore(): Boolean

@@ -77,7 +77,7 @@ codeunit 53170 "DH Scan Scheduler Mgt."
     begin
         EnsureMonitoringForScheduler(Setup);
         EnsureScanConfiguration(Setup);
-        exit(StartScheduledScan(Setup));
+        exit(StartManualScheduledScan(Setup));
     end;
 
     procedure ExecuteScheduledRun()
@@ -155,6 +155,13 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
     begin
         exit(DeepScanMgt.QueueDeepScanInBackground(Setup));
+    end;
+
+    local procedure StartManualScheduledScan(var Setup: Record "DH Setup"): Integer
+    var
+        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+    begin
+        exit(DeepScanMgt.QueueDeepScanInNewSession(Setup));
     end;
 
     [TryFunction]

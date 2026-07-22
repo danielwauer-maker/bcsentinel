@@ -10,12 +10,17 @@ codeunit 53124 "DH Deep Scan Mgt."
         exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false));
     end;
 
+    procedure QueueDeepScanInNewSession(var Setup: Record "DH Setup"): Integer
+    begin
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true));
+    end;
+
     procedure QueueDeepScanWithContext(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"): Integer
     begin
         exit(QueueDeepScanInternal(Setup, TriggerContext, TriggerContext = TriggerContext::Manual));
     end;
 
-    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean): Integer
+    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean; StartInNewSession: Boolean): Integer
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
@@ -35,7 +40,10 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         if FindUnacceptedRun('', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
-            RunDeepScanNow(DeepScanRun);
+            if StartInNewSession then
+                StartDeepScanSession(DeepScanRun)
+            else
+                RunDeepScanNow(DeepScanRun);
             if ShowStartedMessage then
                 ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
             exit(DeepScanRun."Entry No.");
@@ -78,12 +86,20 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         Commit();
 
-        RunDeepScanNow(DeepScanRun);
+        if StartInNewSession then
+            StartDeepScanSession(DeepScanRun)
+        else
+            RunDeepScanNow(DeepScanRun);
 
         if ShowStartedMessage then
             ShowScanResultMessage(DeepScanRun, ScanStartedMsg);
 
         exit(EntryNo);
+    end;
+
+    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean): Integer
+    begin
+        exit(QueueDeepScanInternal(Setup, TriggerContext, ShowStartedMessage, false));
     end;
 
     procedure QueueDataHealthScore(var Setup: Record "DH Setup"): Integer
@@ -177,6 +193,14 @@ codeunit 53124 "DH Deep Scan Mgt."
             FailureText := 'The scan stopped because of an unexpected processing error.';
         DeepScanFailure.MarkRunAsFailed(DeepScanRun, FailureText);
         Error(FailureText);
+    end;
+
+    local procedure StartDeepScanSession(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        SessionId: Integer;
+    begin
+        if not Session.StartSession(SessionId, Codeunit::"DH Deep Scan Runner", CompanyName(), DeepScanRun) then
+            Error(BackgroundSessionStartErr);
     end;
 
     [TryFunction]
@@ -434,5 +458,6 @@ codeunit 53124 "DH Deep Scan Mgt."
         ValidationOrMonitoringRequiredErr: Label 'A new scan requires a Validation Check or active Monitoring.';
         ScanAlreadyRunningErr: Label 'A scan is already running. Please wait until the current scan has finished.';
         ScanStartConfirmationQst: Label 'Start scan\Do you want to start the complete data health scan now?\The scan analyzes all relevant company data and may take some time depending on the data volume.';
+        BackgroundSessionStartErr: Label 'The scan was accepted, but the Business Central background session could not be started. Retry the scan from the start action.';
 
 }

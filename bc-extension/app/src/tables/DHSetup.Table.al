@@ -645,6 +645,15 @@ table 53100 "DH Setup"
             Error(PleaseEnterAValidContactEmailBeforeLbl);
     end;
 
+    procedure IsRegistrationReady(): Boolean
+    begin
+        exit(
+            not Registered and
+            HasValidContactEmail() and
+            "Data Processing Consent" and
+            ("API Base URL" <> ''));
+    end;
+
     procedure EnsureModuleDefaults()
     begin
         if not HasAnyModuleEnabled() then begin

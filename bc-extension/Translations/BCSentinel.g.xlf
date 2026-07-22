@@ -1898,6 +1898,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH API URL Policy - NamedType UnsafeApiConnectionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 950078217 - NamedType 90913039" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The scan was accepted, but the Business Central background session could not be started. Retry the scan from the start action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Mgt. - NamedType BackgroundSessionStartErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 950078217 - NamedType 4289134389" size-unit="char" translate="yes" xml:space="preserve">
           <source>Configure the API Base URL first.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5598,6 +5603,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1057253054" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accept the privacy consent</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType AcceptPrivacyConsentLbl</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 4221996966" size-unit="char" translate="yes" xml:space="preserve">
           <source>BCSentinel registration data is incomplete. Registration will request a fresh API token.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5633,10 +5643,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ConnectionNotConfiguredLbl</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 2203164331" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The contact email address is invalid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ContactEmailAddressInvalidLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 3338555729" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact email entered</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType ContactEmailEnteredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 2459285653" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The data health scan has been started.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DataHealthScanStartedMsg</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 880711966" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disabled</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType DisabledLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 1252211916" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter a contact email address</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType EnterContactEmailAddressLbl</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 751038299" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed</source>
@@ -5683,6 +5713,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType PleaseRegisterTheTenantFirstLbl</note>
         </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 4263455781" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Privacy consent accepted</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType PrivacyConsentAcceptedLbl</note>
+        </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 210596987" size-unit="char" translate="yes" xml:space="preserve">
           <source>Product access refreshed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5712,6 +5747,16 @@
           <source>Registered</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegisteredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 2669963486" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All registration requirements have been completed. You can now register BCSentinel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationRequirementsCompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - NamedType 712347612" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The following information is required before registration:</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - NamedType RegistrationRequirementsPendingLbl</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - NamedType 3518287738" size-unit="char" translate="yes" xml:space="preserve">
           <source>The registration could not be completed because of an unexpected error. Try again later or contact BCSentinel support.</source>
@@ -6002,6 +6047,36 @@
           <source>Specifies the BCSentinel pilot invite code. Current backend registration requires this code; AppSource self-service signup is a follow-up backend task.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control Registration Invite Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 1702379372 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Prepare registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationPreparation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3679964013 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether a valid contact email address has been entered for registration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ContactEmailRequirement - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 3679964013 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact Email</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control ContactEmailRequirement - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2314885681 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows whether the existing data processing consent has been accepted for registration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PrivacyConsentRequirement - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2314885681 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Privacy Consent</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control PrivacyConsentRequirement - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Control 2360808269 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains whether all requirements for BCSentinel registration have been completed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationPreparationMessage - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 392523509 - Control 1656975091 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Tenant ID.</source>
