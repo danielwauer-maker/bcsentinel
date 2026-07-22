@@ -59,6 +59,7 @@ codeunit 53128 "DH Deep Scan Runner"
         Commit();
         TryUpdateBackendProgress(DeepScanRun, 'running', 'Preparing scan checks', GetStartedEventMessage(DeepScanRun));
 
+        ExceptionMgt.BeginExceptionTracking();
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
 
         DeepScanRun.Get(DeepScanRun."Entry No.");
@@ -67,6 +68,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Deep Score" := Score;
         DeepScanRun."Checks Count" := ChecksCount;
         DeepScanRun."Issues Count" := IssuesCount;
+        DeepScanRun."Applied Exception Count" := ExceptionMgt.GetAppliedExceptionCount();
         DeepScanRun."Rating" := CopyStr(GetRating(Score), 1, MaxStrLen(DeepScanRun."Rating"));
         DeepScanRun."Headline" := CopyStr(GetHeadline(Score, IssuesCount), 1, MaxStrLen(DeepScanRun."Headline"));
         DeepScanRun.Status := DeepScanRun.Status::Running;
@@ -307,7 +309,6 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunCustomerMasterDataChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Customer: Record Customer;
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
         MissingName: Integer;
         MissingSearchName: Integer;
         MissingAddress: Integer;
@@ -388,7 +389,6 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunVendorMasterDataChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Vendor: Record Vendor;
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
         MissingName: Integer;
         MissingSearchName: Integer;
         MissingAddress: Integer;
@@ -717,7 +717,6 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RunItemMasterDataChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
     var
         Item: Record Item;
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
         MissingDescription: Integer;
         MissingBaseUom: Integer;
         MissingItemCategory: Integer;
@@ -988,27 +987,27 @@ codeunit 53128 "DH Deep Scan Runner"
         Customer.Reset();
         if Customer.FindSet() then
             repeat
-                if Customer."Gen. Bus. Posting Group" = '' then
+                if (Customer."Gen. Bus. Posting Group" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING') then
                     CustomersWithoutGenBusPosting += 1;
-                if Customer."VAT Bus. Posting Group" = '' then
+                if (Customer."VAT Bus. Posting Group" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING') then
                     CustomersWithoutVatBusPosting += 1;
             until Customer.Next() = 0;
 
         Vendor.Reset();
         if Vendor.FindSet() then
             repeat
-                if Vendor."Gen. Bus. Posting Group" = '' then
+                if (Vendor."Gen. Bus. Posting Group" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING') then
                     VendorsWithoutGenBusPosting += 1;
-                if Vendor."VAT Bus. Posting Group" = '' then
+                if (Vendor."VAT Bus. Posting Group" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING') then
                     VendorsWithoutVatBusPosting += 1;
             until Vendor.Next() = 0;
 
         Item.Reset();
         if Item.FindSet() then
             repeat
-                if Item."Gen. Prod. Posting Group" = '' then
+                if (Item."Gen. Prod. Posting Group" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING') then
                     ItemsWithoutGenProdPosting += 1;
-                if Item."Inventory Posting Group" = '' then
+                if (Item."Inventory Posting Group" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'SYSTEM_ITEMS_MISSING_INVENTORY_POSTING') then
                     ItemsWithoutInventoryPosting += 1;
             until Item.Next() = 0;
 
@@ -1062,33 +1061,33 @@ codeunit 53128 "DH Deep Scan Runner"
 
         if Customer.FindSet() then
             repeat
-                if Customer."VAT Registration No." = '' then
+                if (Customer."VAT Registration No." = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_VAT_REG_NO') then
                     CustomerMissingVat += 1;
-                if Customer."Salesperson Code" = '' then
+                if (Customer."Salesperson Code" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_SALESPERSON') then
                     CustomerMissingSalesperson += 1;
-                if Customer."Customer Price Group" = '' then
+                if (Customer."Customer Price Group" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PRICE_GROUP') then
                     CustomerMissingPriceGroup += 1;
-                if Customer."Customer Disc. Group" = '' then
+                if (Customer."Customer Disc. Group" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_DISC_GROUP') then
                     CustomerMissingDiscGroup += 1;
-                if Customer."Reminder Terms Code" = '' then
+                if (Customer."Reminder Terms Code" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_REMINDER_TERMS') then
                     CustomerMissingReminderTerms += 1;
-                if Customer."Fin. Charge Terms Code" = '' then
+                if (Customer."Fin. Charge Terms Code" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_FIN_CHARGE_TERMS') then
                     CustomerMissingFinChargeTerms += 1;
-                if Customer.Contact = '' then
+                if (Customer.Contact = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CONTACT') then
                     CustomerMissingContact += 1;
-                if Customer."Home Page" = '' then
+                if (Customer."Home Page" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_HOME_PAGE') then
                     CustomerMissingHomePage += 1;
             until Customer.Next() = 0;
 
         if Vendor.FindSet() then
             repeat
-                if Vendor."VAT Registration No." = '' then
+                if (Vendor."VAT Registration No." = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_VAT_REG_NO') then
                     VendorMissingVat += 1;
-                if Vendor."Purchaser Code" = '' then
+                if (Vendor."Purchaser Code" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PURCHASER') then
                     VendorMissingPurchaser += 1;
-                if Vendor.Contact = '' then
+                if (Vendor.Contact = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_CONTACT') then
                     VendorMissingContact += 1;
-                if Vendor."Home Page" = '' then
+                if (Vendor."Home Page" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_HOME_PAGE') then
                     VendorMissingHomePage += 1;
             until Vendor.Next() = 0;
 
@@ -1298,45 +1297,45 @@ codeunit 53128 "DH Deep Scan Runner"
         if Item.FindSet() then
             repeat
                 Item.CalcFields(Inventory);
-                if (Item."Unit Price" > 0) and (Item."Unit Cost" > 0) and (Item."Unit Price" < Item."Unit Cost") then
+                if (Item."Unit Price" > 0) and (Item."Unit Cost" > 0) and (Item."Unit Price" < Item."Unit Cost") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_UNIT_COST') then
                     PriceBelowUnitCost += 1;
-                if (Item."Unit Price" > 0) and (Item."Standard Cost" > 0) and (Item."Unit Price" < Item."Standard Cost") then
+                if (Item."Unit Price" > 0) and (Item."Standard Cost" > 0) and (Item."Unit Price" < Item."Standard Cost") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_STANDARD_COST') then
                     PriceBelowStandardCost += 1;
-                if Item."Standard Cost" = 0 then
+                if (Item."Standard Cost" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_STANDARD_COST_ZERO') then
                     StandardCostZero += 1;
-                if Item."Last Direct Cost" = 0 then
+                if (Item."Last Direct Cost" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_LAST_DIRECT_COST_ZERO') then
                     LastDirectCostZero += 1;
-                if Format(Item."Lead Time Calculation") = '' then
+                if (Format(Item."Lead Time Calculation") = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_LEAD_TIME') then
                     MissingLeadTime += 1;
-                if Item."Safety Stock Quantity" = 0 then
+                if (Item."Safety Stock Quantity" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_SAFETY_STOCK_ZERO') then
                     SafetyStockZero += 1;
-                if Item."Reorder Point" = 0 then
+                if (Item."Reorder Point" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_REORDER_POINT_ZERO') then
                     ReorderPointZero += 1;
-                if Item."Maximum Inventory" = 0 then
+                if (Item."Maximum Inventory" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MAX_INVENTORY_ZERO') then
                     MaxInventoryZero += 1;
-                if Item."Minimum Order Quantity" = 0 then
+                if (Item."Minimum Order Quantity" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MIN_ORDER_QTY_ZERO') then
                     MinOrderQtyZero += 1;
-                if Item."Order Multiple" = 0 then
+                if (Item."Order Multiple" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_ORDER_MULTIPLE_ZERO') then
                     OrderMultipleZero += 1;
-                if Item."Shelf No." = '' then
+                if (Item."Shelf No." = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_SHELF_NO') then
                     MissingShelfNo += 1;
-                if Item."Tariff No." = '' then
+                if (Item."Tariff No." = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_TARIFF_NO') then
                     MissingTariffNo += 1;
-                if Item."Gross Weight" = 0 then
+                if (Item."Gross Weight" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_GROSS_WEIGHT_ZERO') then
                     GrossWeightZero += 1;
-                if Item."Net Weight" = 0 then
+                if (Item."Net Weight" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_NET_WEIGHT_ZERO') then
                     NetWeightZero += 1;
-                if Item."Unit Volume" = 0 then
+                if (Item."Unit Volume" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_UNIT_VOLUME_ZERO') then
                     UnitVolumeZero += 1;
-                if (Item.Inventory > 0) and (Item."Unit Cost" = 0) then
+                if (Item.Inventory > 0) and (Item."Unit Cost" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'INVENTORY_WITHOUT_UNIT_COST') then
                     InventoryWithoutUnitCost += 1;
 
                 LastMovementDate := GetLastItemMovementDate(Item."No.");
-                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-90D>', Today())) then
+                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-90D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_90') then
                     DeadStock90 += 1;
-                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-180D>', Today())) then
+                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-180D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_180') then
                     DeadStock180 += 1;
-                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-365D>', Today())) then
+                if (Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-365D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_365') then
                     DeadStock365 += 1;
             until Item.Next() = 0;
 
@@ -1495,9 +1494,9 @@ codeunit 53128 "DH Deep Scan Runner"
 
         if Item.FindSet() then
             repeat
-                if (Item."Production BOM No." <> '') and (Item."Routing No." = '') then
+                if (Item."Production BOM No." <> '') and (Item."Routing No." = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'MFG_ITEMS_MISSING_ROUTING_NO') then
                     ItemsMissingRoutingNo += 1;
-                if (Item."Routing No." <> '') and (Item."Production BOM No." = '') then
+                if (Item."Routing No." <> '') and (Item."Production BOM No." = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'MFG_ITEMS_MISSING_PROD_BOM_NO') then
                     ItemsMissingProdBomNo += 1;
             until Item.Next() = 0;
 
@@ -2029,15 +2028,11 @@ codeunit 53128 "DH Deep Scan Runner"
     end;
 
     local procedure IsCustomerDuplicateExcluded(var Customer: Record Customer; IssueCode: Code[50]): Boolean
-    var
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
     begin
         exit(ExceptionMgt.IsCustomerIssueExcluded(Customer, IssueCode));
     end;
 
     local procedure IsVendorDuplicateExcluded(var Vendor: Record Vendor; IssueCode: Code[50]): Boolean
-    var
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
     begin
         exit(ExceptionMgt.IsVendorIssueExcluded(Vendor, IssueCode));
     end;
@@ -2397,6 +2392,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ScanHeader."Service Score" := DeepScanRun."Service Score";
         ScanHeader."Jobs Score" := DeepScanRun."Jobs Score";
         ScanHeader."HR Score" := DeepScanRun."HR Score";
+        ScanHeader."Applied Exception Count" := DeepScanRun."Applied Exception Count";
         ScanHeader."Estimated Loss (EUR)" := DeepScanRun."Estimated Loss (EUR)";
         ScanHeader."Potential Saving (EUR)" := DeepScanRun."Potential Saving (EUR)";
         ScanHeader."Est. Loss" := DeepScanRun."Estimated Loss (EUR)";
@@ -2652,6 +2648,7 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('data_score', DeepScanRun."Deep Score");
         Payload.Add('checks_count', DeepScanRun."Checks Count");
         Payload.Add('issues_count', DeepScanRun."Issues Count");
+        Payload.Add('applied_exception_count', DeepScanRun."Applied Exception Count");
         Payload.Add('premium_available', IsPremiumAvailableForRun(Setup, DeepScanRun));
         Payload.Add('data_profile', DataProfilingMgt.BuildDataProfile());
 
@@ -2830,6 +2827,7 @@ codeunit 53128 "DH Deep Scan Runner"
     end;
 
     var
+        ExceptionMgt: Codeunit "DH Exception Mgt.";
         BackendDecimalInvalidErr: Label 'The decimal value from the backend response could not be parsed: %1', Comment = '%1 = backend value';
         DataHealthScoreRunningLbl: Label 'Data Health Score is running';
         DataHealthScoreStartedLbl: Label 'Data Health Score started';

@@ -68,7 +68,7 @@
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'ITEMS_WITHOUT_UNIT_PRICE', StrSubstNo('Manually excluded from ITEMS_WITHOUT_UNIT_PRICE.', 'ITEMS_WITHOUT_UNIT_PRICE'));
+                    ExceptionMgt.PromptAddItemException(Rec, 'ITEMS_WITHOUT_UNIT_PRICE');
                     CurrPage.Update(false);
                 end;
             }
@@ -117,4 +117,3 @@
         exit(CurrencyMgt.GetLocalCurrencyCode());
     end;
 }
-

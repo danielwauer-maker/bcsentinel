@@ -60,7 +60,7 @@
                 begin
                     if CurrentIssueCode = '' then
                         exit;
-                    ExceptionMgt.AddVendorException(Rec, CurrentIssueCode, StrSubstNo('Manually excluded from %1.', CurrentIssueCode));
+                    ExceptionMgt.PromptAddVendorException(Rec, CurrentIssueCode);
                     CurrPage.Update(false);
                 end;
             }
@@ -187,4 +187,3 @@
         exit('');
     end;
 }
-

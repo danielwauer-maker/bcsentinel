@@ -302,6 +302,44 @@ def test_executive_report_german_metadata_labels():
     assert module_label(None, "de") == "Bereich"
 
 
+def test_exception_disclosure_zero_is_hidden_and_old_scans_default_to_zero(tenant_factory, scan_factory):
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_no_exceptions")
+    with SessionLocal() as db:
+        tenant_row = db.query(Tenant).filter(Tenant.tenant_id == tenant["tenant_id"]).one()
+        report = build_executive_report(db, tenant_row, "scan_exec_no_exceptions")
+
+    assert report.applied_exception_count == 0
+    html = render_executive_report_html(report)
+    assert 'class="exception-note"' not in html
+
+
+def test_exception_disclosure_singular_and_plural_in_german_and_english(tenant_factory, scan_factory):
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_exceptions")
+    with SessionLocal() as db:
+        tenant_row = db.query(Tenant).filter(Tenant.tenant_id == tenant["tenant_id"]).one()
+        scan = db.query(Scan).filter(Scan.scan_id == "scan_exec_exceptions").one()
+        scan.applied_exception_count = 1
+        tenant_row.preferred_language = "de"
+        db.commit()
+        german_report = build_executive_report(db, tenant_row, "scan_exec_exceptions")
+
+        scan.applied_exception_count = 4
+        tenant_row.preferred_language = "en"
+        db.commit()
+        english_report = build_executive_report(db, tenant_row, "scan_exec_exceptions")
+
+    german_html = render_executive_report_html(german_report)
+    english_html = render_executive_report_html(english_report)
+    assert "1 aktive DH-Ausnahme" in german_html
+    assert "wurden 1 aktive DH-Ausnahmen" not in german_html
+    assert "4 active Data Health exceptions" in english_html
+    assert "excluded from score calculation" in english_html
+    assert german_html.count('<section class="report-page') == 2
+    assert english_html.count('<section class="report-page') == 2
+
+
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):
     owner = tenant_factory()
     other = tenant_factory()

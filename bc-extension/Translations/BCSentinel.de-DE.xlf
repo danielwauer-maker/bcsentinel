@@ -7314,6 +7314,291 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationPreparationMessage - Property ToolTip</note>
         </trans-unit>
       </group>
+        <trans-unit id="Table 2181053114 - Field 1493071731 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applied Exception Count</source><target state="translated">Anzahl angewandter Ausnahmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Applied Exception Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 484476656 - Field 1493071731 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applied Exception Count</source><target state="translated">Anzahl angewandter Ausnahmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Applied Exception Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427375773 - NamedType 822741140" size-unit="char" translate="yes" xml:space="preserve">
+          <source>An active DH exception already exists for record %1 and issue %2.</source><target state="translated">Für Datensatz %1 und Problem %2 ist bereits eine aktive DH-Ausnahme vorhanden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = record number, %2 = issue code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Exception Mgt. - NamedType ExceptionAlreadyActiveErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427375773 - NamedType 2523299380" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A reason is required for a DH exception.</source><target state="translated">Für eine DH-Ausnahme ist ein Grund erforderlich.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Exception Mgt. - NamedType ReasonRequiredErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 3213402130 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Runs Run Scan.</source><target state="translated">Führt Scan ausführen aus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunScan - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2843720318 - Action 3213402130 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run Scan</source><target state="translated">Scan ausführen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard List - Action RunScan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create DH Exception</source><target state="translated">DH-Ausnahme erstellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - NamedType 1936106212" size-unit="char" translate="yes" xml:space="preserve">
+          <source>An issue code is required.</source><target state="translated">Ein Problemcode ist erforderlich.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - NamedType IssueCodeRequiredErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - NamedType 2523299380" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A reason is required for a DH exception.</source><target state="translated">Für eine DH-Ausnahme ist ein Grund erforderlich.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - NamedType ReasonRequiredErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - NamedType 3882063455" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This record will be excluded from this check and from the effective score, penalty, and financial impact calculation until the exception is manually deactivated.</source><target state="translated">Dieser Datensatz wird aus dieser Prüfung sowie aus der wirksamen Score-, Penalty- und Finanzwirkung-Berechnung ausgeschlossen, bis die Ausnahme manuell deaktiviert wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - NamedType ScoreEffectLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 2176608703 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exception Details</source><target state="translated">Ausnahmedetails</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control ExceptionDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 680138944 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the check from which the record will be excluded.</source><target state="translated">Gibt die Prüfung an, aus der der Datensatz ausgeschlossen wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control IssueCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 680138944 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Issue Code</source><target state="translated">Problemcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control IssueCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 3369789712 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the required business reason for the exception.</source><target state="translated">Gibt den erforderlichen fachlichen Grund für die Ausnahme an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control Reason - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 3369789712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reason</source><target state="translated">Grund</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control Reason - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 1728190725 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the affected record caption.</source><target state="translated">Gibt die Bezeichnung des betroffenen Datensatzes an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control RecordCaption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 1728190725 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record Caption</source><target state="translated">Datensatzbezeichnung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control RecordCaption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 2335030592 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the affected record.</source><target state="translated">Gibt den betroffenen Datensatz an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control RecordNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 2335030592 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record No.</source><target state="translated">Datensatznr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control RecordNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 3787973969 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explains how the exception affects the next scan.</source><target state="translated">Erläutert, wie sich die Ausnahme auf den nächsten Scan auswirkt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control ScoreEffect - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3473464957 - Control 3787973969 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Score Effect</source><target state="translated">Scorewirkung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Exception Dialog - Control ScoreEffect - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Exception History</source><target state="translated">DH-Ausnahmehistorie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 3455123445 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies when the action occurred.</source><target state="translated">Gibt an, wann die Aktion ausgeführt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Action At - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 1060207642 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies EXCLUDED for activation, INCLUDED for deactivation, or CORRECTED for a separately documented correction.</source><target state="translated">Gibt EXCLUDED für die Aktivierung, INCLUDED für die Deaktivierung oder CORRECTED für eine getrennt dokumentierte Korrektur an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Action Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 41510169 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies who performed the action.</source><target state="translated">Gibt an, wer die Aktion ausgeführt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Action User - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 2790486453 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the reason or comment recorded for the action.</source><target state="translated">Gibt den für die Aktion protokollierten Grund oder Kommentar an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Comment - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 4021179392 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the affected check.</source><target state="translated">Gibt die betroffene Prüfung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Issue Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 1860421093 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the affected record caption.</source><target state="translated">Gibt die Bezeichnung des betroffenen Datensatzes an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Record Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3897358537 - Control 485252710 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the affected record.</source><target state="translated">Gibt den betroffenen Datensatz an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Action Log - Control Record No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 76061626" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer</source><target state="translated">Debitor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType CustomerLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 331708480" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deactivate the DH exception for record %1 and issue %2? The record will be included in the next score calculation.</source><target state="translated">DH-Ausnahme für Datensatz %1 und Problem %2 deaktivieren? Der Datensatz wird in die nächste Scoreberechnung einbezogen.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = record number, %2 = issue code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType DeactivateConfirmQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 2359003977" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item</source><target state="translated">Artikel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType ItemLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 2100988429" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The affected record no longer exists or cannot be opened.</source><target state="translated">Der betroffene Datensatz ist nicht mehr vorhanden oder kann nicht geöffnet werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType RecordNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 3550368624" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table %1</source><target state="translated">Tabelle %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType TableLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 917367647" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exceptions can only be created here for customers, vendors, and items.</source><target state="translated">Ausnahmen können hier nur für Debitoren, Kreditoren und Artikel erstellt werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType UnsupportedRecordTypeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - NamedType 1485212386" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor</source><target state="translated">Kreditor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - NamedType VendorLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Control 1860421093 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the affected record.</source><target state="translated">Gibt die Bezeichnung des betroffenen Datensatzes an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Control Record Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Control 485252710 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the affected record.</source><target state="translated">Gibt die Nummer des betroffenen Datensatzes an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Control Record No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Control 1365996575 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the exception belongs to a customer, vendor, or item.</source><target state="translated">Gibt an, ob die Ausnahme zu einem Debitor, Kreditor oder Artikel gehört.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Control RecordType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Control 1365996575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record Type</source><target state="translated">Datensatzart</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Control RecordType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 3777501346 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Views</source><target state="translated">Ansichten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action Views - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 1074681961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active</source><target state="translated">Aktiv</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowActive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 580853590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All</source><target state="translated">Alle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowAll - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2345058688 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers</source><target state="translated">Debitoren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowCustomers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 352153260 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inactive</source><target state="translated">Inaktiv</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowInactive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2040719983 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Items</source><target state="translated">Artikel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowItems - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 275355192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors</source><target state="translated">Kreditoren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowVendors - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 3104006274 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reactivates the selected exception and excludes the record from the next score calculation.</source><target state="translated">Reaktiviert die ausgewählte Ausnahme und schließt den Datensatz aus der nächsten Scoreberechnung aus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ActivateException - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 3104006274 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Activate</source><target state="translated">Aktivieren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ActivateException - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2792905173 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Creates an exception for the current customer, vendor, or item and check.</source><target state="translated">Erstellt eine Ausnahme für den aktuellen Debitor, Kreditor oder Artikel und die Prüfung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action CreateException - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2792905173 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Exception</source><target state="translated">Ausnahme erstellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action CreateException - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2466519627 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the affected Business Central record.</source><target state="translated">Öffnet den betroffenen Business Central-Datensatz.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action OpenRecord - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 2466519627 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Record</source><target state="translated">Datensatz öffnen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action OpenRecord - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 3597213763 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the activation, reactivation, deactivation, and correction history for the selected record and check.</source><target state="translated">Zeigt die Aktivierungs-, Reaktivierungs-, Deaktivierungs- und Korrekturhistorie für den ausgewählten Datensatz und die Prüfung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowHistory - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2708312499 - Action 3597213763 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show History</source><target state="translated">Historie anzeigen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Issue Exceptions - Action ShowHistory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 686829488 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the central list of active and inactive Data Health exceptions.</source><target state="translated">Öffnet die zentrale Liste der aktiven und inaktiven Data Health-Ausnahmen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDHExceptions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 392523509 - Action 686829488 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DH Exceptions</source><target state="translated">DH-Ausnahmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Action OpenDHExceptions - Property Caption</note>
+        </trans-unit>
     </body>
   </file>
 </xliff>

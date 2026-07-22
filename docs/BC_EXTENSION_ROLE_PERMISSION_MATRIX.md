@@ -15,7 +15,8 @@ BC-Permission und SaaS-Capability sind kumulativ. `Ja*` bedeutet: nur bei passen
 | Scanstatus lesen | Ja | Ja | Ja | technisch | Nein |
 | Finding Summary sehen | Ja* | Ja* | Ja* | Nein | Nein |
 | Finding Details öffnen | Ja* | Ja* | Ja* | Nein | Nein |
-| Exceptions bearbeiten | Ja | Nein | Nein | Nein | Nein |
+| Exceptions lesen | Ja | Ja | Ja | technisch | Nein |
+| Exceptions anlegen/aktivieren/deaktivieren | Ja | Nein | Ja | Nein | Nein |
 | Scheduler konfigurieren | Ja | Nein | Nein | Nein | Nein |
 | Scheduler ausführen | Ja* | Nein | Nein | Ja* | Nein |
 | Dashboard öffnen | Ja* | Ja* | Nein | Nein | Nein |
@@ -26,7 +27,7 @@ BC-Permission und SaaS-Capability sind kumulativ. `Ja*` bedeutet: nur bei passen
 ## Permission Sets
 
 - `BCSENTINEL VIEWER`: kontrollierte Pages; kein direktes Lesen der drei geschützten Finding-Tabellen.
-- `BCSENTINEL SCAN`: Scanerzeugung und technische Extensiontabellen; keine Setupverwaltung.
+- `BCSENTINEL SCAN`: Scanerzeugung und operative DH-Ausnahmen (RIM ohne Delete); keine Setupverwaltung.
 - `BCSENTINEL SETUP`: Setup, Registrierung und Planung; kein allgemeiner Findings-Adminzugriff.
 - `BCSENTINEL ADMIN`: vollständige Extensionverwaltung; SaaS-Guards bleiben aktiv.
 - `BCSENTINEL SCHEDULER`: minimaler nichtinteraktiver Extensionpfad für geplante Scans.
@@ -36,4 +37,3 @@ Die Schedulerrolle enthält absichtlich keine pauschalen Rechte auf Customer, Ve
 ## Verpflichtende Negativtests
 
 Alle sind derzeit `BLOCKED`: direkte Page-ID ohne Permission; Viewer-Direktzugriff auf TableData; BC-Permission ohne SaaS-Zugriff; SaaS-Zugriff ohne BC-Permission; Scheduler ohne Basisdatenrolle; Scheduler ohne Subscription; User versucht Setup/API-URL/Reset; Companywechsel; abgelaufener Access-Snapshot.
-

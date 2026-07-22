@@ -100,6 +100,7 @@ class ScanSyncPayload(BaseModel):
     data_score: int
     checks_count: int
     issues_count: int
+    applied_exception_count: int = Field(default=0, ge=0)
     premium_available: bool = True
     headline: str = ""
     rating: str = ""
@@ -393,6 +394,7 @@ def sync_scan(
                 data_score=_safe_int(payload.data_score),
                 checks_count=_safe_int(payload.checks_count),
                 issues_count=_safe_int(payload.issues_count),
+                applied_exception_count=_safe_int(payload.applied_exception_count),
                 premium_available=is_premium_actions_enabled(tenant_features),
                 summary_headline=payload.headline or "",
                 summary_rating=payload.rating or "",
@@ -415,6 +417,7 @@ def sync_scan(
             scan.data_score = _safe_int(payload.data_score)
             scan.checks_count = _safe_int(payload.checks_count)
             scan.issues_count = _safe_int(payload.issues_count)
+            scan.applied_exception_count = _safe_int(payload.applied_exception_count)
             scan.premium_available = is_premium_actions_enabled(tenant_features)
             scan.summary_headline = payload.headline or ""
             scan.summary_rating = payload.rating or ""

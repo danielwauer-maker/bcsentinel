@@ -62,7 +62,7 @@
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'BLOCKED_ITEMS_WITH_INVENTORY', StrSubstNo('Manually excluded from BLOCKED_ITEMS_WITH_INVENTORY.', 'BLOCKED_ITEMS_WITH_INVENTORY'));
+                    ExceptionMgt.PromptAddItemException(Rec, 'BLOCKED_ITEMS_WITH_INVENTORY');
                     CurrPage.Update(false);
                 end;
             }
@@ -111,4 +111,3 @@
         exit(CurrencyMgt.GetLocalCurrencyCode());
     end;
 }
-

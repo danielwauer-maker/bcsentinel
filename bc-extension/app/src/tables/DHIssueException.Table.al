@@ -71,6 +71,11 @@ table 53150 "DH Issue Exception"
 
     trigger OnInsert()
     begin
+        TestField("Table ID");
+        TestField("Record SystemId");
+        TestField("Issue Code");
+        TestField(Reason);
+
         if "Entry No." = 0 then
             "Entry No." := GetNextEntryNo();
 
@@ -82,6 +87,12 @@ table 53150 "DH Issue Exception"
 
         if not Active then
             Active := true;
+    end;
+
+    trigger OnModify()
+    begin
+        if Active then
+            TestField(Reason);
     end;
 
     local procedure GetNextEntryNo(): Integer

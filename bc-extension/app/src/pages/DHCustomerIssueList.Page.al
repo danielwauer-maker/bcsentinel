@@ -72,7 +72,7 @@
                 begin
                     if CurrentIssueCode = '' then
                         exit;
-                    ExceptionMgt.AddCustomerException(Rec, CurrentIssueCode, StrSubstNo('Manually excluded from %1.', CurrentIssueCode));
+                    ExceptionMgt.PromptAddCustomerException(Rec, CurrentIssueCode);
                     CurrPage.Update(false);
                 end;
             }
@@ -222,4 +222,3 @@
         exit(CurrencyMgt.GetLocalCurrencyCode());
     end;
 }
-

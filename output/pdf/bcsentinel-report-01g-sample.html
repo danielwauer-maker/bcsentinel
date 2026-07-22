@@ -43,6 +43,7 @@ body{font-variant-numeric:tabular-nums}
 .summary h2,.charts h2,.benefits>h2,.report-info>h2{margin:0;color:var(--ink);font-size:10px;font-weight:650;letter-spacing:.01em}
 .summary h2{display:flex;align-items:center;gap:2mm;padding-bottom:2.5mm;border-bottom:1px solid #e5e8ee}.summary h2 .icon{width:5mm;height:5mm;color:var(--navy)}
 .summary-cols{height:52mm;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding-top:3mm}
+.summary.has-exception-note .summary-cols{height:43mm}.exception-note{height:9mm;margin:0;padding:1.5mm 2mm;display:grid;grid-template-columns:4mm minmax(0,1fr);gap:1.5mm;align-items:center;border-radius:4px;background:#eef4ff;color:#18355f;font-size:5.7px;line-height:1.25}.exception-note .icon{width:3.7mm;height:3.7mm;color:var(--blue)}
 .summary-cols>div{min-width:0;padding:0 3.2mm;border-left:1px solid #e1e5ec}.summary-cols>div:first-child{border:0;padding-left:0}.summary-cols>div:last-child{padding-right:0}
 .summary-icon{display:grid;place-items:center;width:11mm;height:11mm;margin:0 auto 1.5mm;border-radius:50%}.summary-icon .icon{width:7mm;height:7mm}.summary-icon.red{color:var(--critical);background:#ffe9e9}.summary-icon.green{color:var(--green);background:#e7f5e9}.summary-icon.blue{color:var(--blue);background:#e9eefb}
 .summary h3{margin:0 0 1mm;text-align:center;font-size:6.8px;font-weight:650}.summary-cols p{margin:0;font-size:6.65px;line-height:1.42}.summary-cols strong{font-weight:750}.red-text{color:var(--critical)}.green-text{color:var(--green)}
@@ -101,7 +102,7 @@ body{font-variant-numeric:tabular-nums}
 </g></svg>
 <span>KRITISCH</span></div><b>Sofortiger Handlungsbedarf empfohlen</b><p class="hero-message">Ihre Datenqualität birgt erhebliche Risiken für den Geschäftsbetrieb und kann finanzielle Verluste verursachen.</p></div></div>
       </article>
-      <article class="card summary">
+      <article class="card summary has-exception-note">
           <h2>
 <svg class="icon " aria-hidden="true" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
 <path d="M4 19V11m5 8V7m5 12v-5m5 5V4"/><path d="m4 8 5-4 5 4 6-6"/>
@@ -128,6 +129,12 @@ MANAGEMENT-ZUSAMMENFASSUNG</h2>
 </g></svg>
 </span><h3>Handlungsempfehlung</h3><p>Es wird empfohlen, zeitnah Maßnahmen zu ergreifen, Ineffizienzen zu reduzieren und die Datenzuverlässigkeit zu erhöhen.</p></div>
           </div>
+          <p class="exception-note">
+<svg class="icon " aria-hidden="true" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>
+
+</g></svg>
+<span>Bei dieser Analyse wurden 4 aktive DH-Ausnahmen berücksichtigt. Die betroffenen Datensätze wurden aus der Score-Berechnung ausgeschlossen. Details finden Sie in Business Central unter „DH-Ausnahmen“.</span></p>
       </article>
     </div>
     <div class="kpis">

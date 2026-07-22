@@ -283,6 +283,11 @@ table 53128 "DH Deep Scan Run"
             Caption = 'Backend Sync Error';
             DataClassification = SystemMetadata;
         }
+        field(66; "Applied Exception Count"; Integer)
+        {
+            Caption = 'Applied Exception Count';
+            MinValue = 0;
+        }
     }
     keys
     {

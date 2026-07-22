@@ -59,7 +59,7 @@
                 var
                     ExceptionMgt: Codeunit "DH Exception Mgt.";
                 begin
-                    ExceptionMgt.AddItemException(Rec, 'ITEMS_NEGATIVE_INVENTORY', StrSubstNo('Manually excluded from ITEMS_NEGATIVE_INVENTORY.', 'ITEMS_NEGATIVE_INVENTORY'));
+                    ExceptionMgt.PromptAddItemException(Rec, 'ITEMS_NEGATIVE_INVENTORY');
                     CurrPage.Update(false);
                 end;
             }
@@ -116,4 +116,3 @@
         AccessGuard.EnsureIssuesAccess();
     end;
 }
-

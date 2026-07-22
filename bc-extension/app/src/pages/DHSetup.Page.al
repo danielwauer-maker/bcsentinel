@@ -885,6 +885,19 @@
                         OpenChecksSelection();
                     end;
                 }
+
+                action(OpenDHExceptions)
+                {
+                    Caption = 'DH Exceptions';
+                    ToolTip = 'Opens the central list of active and inactive Data Health exceptions.';
+                    Image = View;
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                        Page.Run(Page::"DH Issue Exceptions");
+                    end;
+                }
             }
 
             group(ScanMenu)

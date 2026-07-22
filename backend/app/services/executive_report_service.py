@@ -468,6 +468,7 @@ def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> Executi
         checks_total=max(FREE_REPORT_CHECKS_TOTAL, _safe_int(scan.checks_count)),
         issues_count=max(0, _safe_int(scan.issues_count)),
         affected_records=max(0, affected_records),
+        applied_exception_count=max(0, _safe_int(scan.applied_exception_count)),
         estimated_loss_eur=estimated_loss,
         potential_saving_eur=potential_saving,
         estimated_premium_price_monthly=float(commercials["estimated_premium_price_monthly"]),

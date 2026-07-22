@@ -49,13 +49,16 @@
         <div class="hero-wave" aria-hidden="true"></div>
         <div class="hero-main"><div class="score-ring"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-value" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="{{ score_offset }}"/></svg><div><strong>{{ score }}</strong><span>/100</span></div></div><div class="hero-copy"><h2>{{ 'KRITISCHER DATENZUSTAND' if hero_state == 'critical' else 'ERHÖHTER HANDLUNGSBEDARF' if hero_state == 'warning' else 'STABILER DATENZUSTAND' }}</h2><div class="status-badge">{{ icon('warning') }}<span>{{ report.score_status | upper }}</span></div><b>{{ 'Sofortiger Handlungsbedarf empfohlen' if hero_state == 'critical' else 'Gezielte Verbesserungen empfohlen' if hero_state == 'warning' else 'Datenqualität nachhaltig sichern' }}</b><p class="hero-message">{{ 'Ihre Datenqualität birgt erhebliche Risiken für den Geschäftsbetrieb und kann finanzielle Verluste verursachen.' if hero_state == 'critical' else 'Gezielte Maßnahmen reduzieren operative Risiken und erhöhen die Verlässlichkeit Ihrer Daten.' if hero_state == 'warning' else 'Die Datenbasis ist stabil. Kontinuierliche Qualitätssicherung schützt dieses Niveau.' }}</p></div></div>
       </article>
-      <article class="card summary">
+      <article class="card summary{% if report.applied_exception_count > 0 %} has-exception-note{% endif %}">
           <h2>{{ icon('chart') }}MANAGEMENT-ZUSAMMENFASSUNG</h2>
           <div class="summary-cols">
             <div><span class="summary-icon red">{{ icon('chart') }}</span><h3>Datenqualität</h3><p>Ihr Unternehmen erzielt einen Datenqualitäts-Score von <strong class="red-text">{{ score }}/100</strong>. Dies weist auf {{ 'erhebliche' if score < 60 else 'erkennbare' if score < 85 else 'begrenzte' }} Risiken hin.</p></div>
             <div><span class="summary-icon green">{{ icon('euro') }}</span><h3>Finanzielle Auswirkungen</h3><p>Die jährliche finanzielle Auswirkung beträgt <strong class="green-text">{{ money(report.estimated_loss_eur) }}</strong>, mit einem Potenzial von <strong class="green-text">{{ money(report.potential_saving_eur) }}</strong>.</p></div>
             <div><span class="summary-icon blue">{{ icon('shield') }}</span><h3>Handlungsempfehlung</h3><p>Es wird empfohlen, zeitnah Maßnahmen zu ergreifen, Ineffizienzen zu reduzieren und die Datenzuverlässigkeit zu erhöhen.</p></div>
           </div>
+          {%- if report.applied_exception_count > 0 %}
+          <p class="exception-note">{{ icon('info') }}<span>{% if report.language == 'de' %}Bei dieser Analyse {% if report.applied_exception_count == 1 %}wurde {{ report.applied_exception_count }} aktive DH-Ausnahme{% else %}wurden {{ report.applied_exception_count }} aktive DH-Ausnahmen{% endif %} berücksichtigt. Die betroffenen Datensätze wurden aus der Score-Berechnung ausgeschlossen. Details finden Sie in Business Central unter „DH-Ausnahmen“.{% else %}This assessment includes {{ report.applied_exception_count }} active Data Health exception{% if report.applied_exception_count != 1 %}s{% endif %}. The affected records were excluded from score calculation. Details are available in Business Central under “DH Exceptions”.{% endif %}</span></p>
+          {%- endif %}
       </article>
     </div>
     <div class="kpis">

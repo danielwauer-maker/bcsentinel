@@ -63,6 +63,7 @@ class ExecutiveReport(BaseModel):
     checks_total: int = Field(ge=0, default=165)
     issues_count: int = Field(ge=0)
     affected_records: int = Field(ge=0)
+    applied_exception_count: int = Field(ge=0, default=0)
     estimated_loss_eur: float = 0.0
     potential_saving_eur: float = 0.0
     estimated_premium_price_monthly: float = 0.0

@@ -1,5 +1,7 @@
 codeunit 53152 "DH Exception Mgt."
 {
+    SingleInstance = true;
+
     procedure IsCustomerIssueExcluded(var Customer: Record Customer; IssueCode: Code[50]): Boolean
     begin
         exit(IsIssueExcluded(Database::Customer, Customer.SystemId, IssueCode));
@@ -23,7 +25,11 @@ codeunit 53152 "DH Exception Mgt."
         IssueException.SetRange("Record SystemId", RecordSystemId);
         IssueException.SetRange("Issue Code", IssueCode);
         IssueException.SetRange(Active, true);
-        exit(not IssueException.IsEmpty());
+        if not IssueException.FindFirst() then
+            exit(false);
+
+        RegisterAppliedException(IssueException."Entry No.");
+        exit(true);
     end;
 
     procedure AddCustomerException(var Customer: Record Customer; IssueCode: Code[50]; Reason: Text[250])
@@ -39,6 +45,45 @@ codeunit 53152 "DH Exception Mgt."
     procedure AddItemException(var Item: Record Item; IssueCode: Code[50]; Reason: Text[250])
     begin
         AddOrActivateException(Database::Item, Item.SystemId, Item."No.", Item.Description, IssueCode, Reason);
+    end;
+
+    procedure PromptAddCustomerException(var Customer: Record Customer; IssueCode: Code[50])
+    var
+        ExceptionDialog: Page "DH Exception Dialog";
+        ConfirmedIssueCode: Code[50];
+        Reason: Text[250];
+    begin
+        ExceptionDialog.SetContext(Customer."No.", Customer.Name, IssueCode, '');
+        if ExceptionDialog.RunModal() <> Action::OK then
+            exit;
+        ExceptionDialog.GetValues(ConfirmedIssueCode, Reason);
+        AddCustomerException(Customer, ConfirmedIssueCode, Reason);
+    end;
+
+    procedure PromptAddVendorException(var Vendor: Record Vendor; IssueCode: Code[50])
+    var
+        ExceptionDialog: Page "DH Exception Dialog";
+        ConfirmedIssueCode: Code[50];
+        Reason: Text[250];
+    begin
+        ExceptionDialog.SetContext(Vendor."No.", Vendor.Name, IssueCode, '');
+        if ExceptionDialog.RunModal() <> Action::OK then
+            exit;
+        ExceptionDialog.GetValues(ConfirmedIssueCode, Reason);
+        AddVendorException(Vendor, ConfirmedIssueCode, Reason);
+    end;
+
+    procedure PromptAddItemException(var Item: Record Item; IssueCode: Code[50])
+    var
+        ExceptionDialog: Page "DH Exception Dialog";
+        ConfirmedIssueCode: Code[50];
+        Reason: Text[250];
+    begin
+        ExceptionDialog.SetContext(Item."No.", Item.Description, IssueCode, '');
+        if ExceptionDialog.RunModal() <> Action::OK then
+            exit;
+        ExceptionDialog.GetValues(ConfirmedIssueCode, Reason);
+        AddItemException(Item, ConfirmedIssueCode, Reason);
     end;
 
     procedure DeactivateCustomerException(var Customer: Record Customer; IssueCode: Code[50]; Comment: Text[250])
@@ -111,24 +156,54 @@ codeunit 53152 "DH Exception Mgt."
         IssueException."Deactivated By User" := CopyStr(UserId(), 1, MaxStrLen(IssueException."Deactivated By User"));
         IssueException."Deactivated At" := CurrentDateTime();
         IssueException.Modify(true);
-        InsertActionLog(IssueException."Table ID", IssueException."Record SystemId", IssueException."Record No.", IssueException."Record Caption", IssueException."Issue Code", 'INCLUDED', 'Check manually reactivated.');
+        InsertActionLog(IssueException."Table ID", IssueException."Record SystemId", IssueException."Record No.", IssueException."Record Caption", IssueException."Issue Code", 'INCLUDED', IssueException.Reason);
+    end;
+
+    procedure ReactivateExceptionEntry(var IssueException: Record "DH Issue Exception"; Reason: Text[250])
+    begin
+        Reason := CopyStr(Reason.Trim(), 1, MaxStrLen(IssueException.Reason));
+        if Reason = '' then
+            Error(ReasonRequiredErr);
+        if IssueException.Active then
+            Error(ExceptionAlreadyActiveErr, IssueException."Record No.", IssueException."Issue Code");
+
+        IssueException.Active := true;
+        IssueException.Reason := Reason;
+        IssueException."Deactivated By User" := '';
+        IssueException."Deactivated At" := 0DT;
+        IssueException.Modify(true);
+        InsertActionLog(IssueException."Table ID", IssueException."Record SystemId", IssueException."Record No.", IssueException."Record Caption", IssueException."Issue Code", 'EXCLUDED', Reason);
+    end;
+
+    procedure BeginExceptionTracking()
+    begin
+        Clear(AppliedExceptionEntries);
+    end;
+
+    procedure GetAppliedExceptionCount(): Integer
+    begin
+        exit(AppliedExceptionEntries.Count());
     end;
 
     local procedure AddOrActivateException(TableId: Integer; RecordSystemId: Guid; RecordNo: Code[20]; RecordCaption: Text[100]; IssueCode: Code[50]; Reason: Text[250])
     var
         IssueException: Record "DH Issue Exception";
     begin
+        Reason := CopyStr(Reason.Trim(), 1, MaxStrLen(IssueException.Reason));
+        if Reason = '' then
+            Error(ReasonRequiredErr);
+
         IssueException.SetRange("Table ID", TableId);
         IssueException.SetRange("Record SystemId", RecordSystemId);
         IssueException.SetRange("Issue Code", IssueCode);
+        IssueException.SetRange(Active, true);
+        if IssueException.FindFirst() then
+            Error(ExceptionAlreadyActiveErr, RecordNo, IssueCode);
+
+        IssueException.SetRange(Active, false);
         if IssueException.FindFirst() then begin
-            if not IssueException.Active then begin
-                IssueException.Active := true;
-                IssueException.Reason := CopyStr(Reason, 1, MaxStrLen(IssueException.Reason));
-                IssueException."Deactivated By User" := '';
-                IssueException."Deactivated At" := 0DT;
-                IssueException.Modify(true);
-            end;
+            ReactivateExceptionEntry(IssueException, Reason);
+            exit;
         end else begin
             IssueException.Init();
             IssueException."Table ID" := TableId;
@@ -142,6 +217,12 @@ codeunit 53152 "DH Exception Mgt."
         end;
 
         InsertActionLog(TableId, RecordSystemId, RecordNo, RecordCaption, IssueCode, 'EXCLUDED', Reason);
+    end;
+
+    local procedure RegisterAppliedException(EntryNo: Integer)
+    begin
+        if not AppliedExceptionEntries.ContainsKey(EntryNo) then
+            AppliedExceptionEntries.Add(EntryNo, true);
     end;
 
     local procedure DeactivateException(TableId: Integer; RecordSystemId: Guid; IssueCode: Code[50]; Comment: Text[250])
@@ -175,4 +256,9 @@ codeunit 53152 "DH Exception Mgt."
         IssueActionLog.Comment := CopyStr(Comment, 1, MaxStrLen(IssueActionLog.Comment));
         IssueActionLog.Insert(true);
     end;
+
+    var
+        AppliedExceptionEntries: Dictionary of [Integer, Boolean];
+        ReasonRequiredErr: Label 'A reason is required for a DH exception.';
+        ExceptionAlreadyActiveErr: Label 'An active DH exception already exists for record %1 and issue %2.', Comment = '%1 = record number, %2 = issue code';
 }

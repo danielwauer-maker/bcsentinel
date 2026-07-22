@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -10,7 +11,6 @@ os.environ.setdefault("ADMIN_PASSWORD", "report-sample-password")
 os.environ.setdefault("DATABASE_URL", "sqlite:///./output/pdf/report-01g-sample.sqlite3")
 
 from playwright.sync_api import sync_playwright
-from pypdf import PdfReader
 
 from app.schemas.report import ExecutiveReport, ReportCategoryScore, ReportSeverityBucket
 from app.services.executive_report_service import render_executive_report_html, render_executive_report_pdf
@@ -39,6 +39,7 @@ report = ExecutiveReport(
     checks_total=165,
     issues_count=57,
     affected_records=1468,
+    applied_exception_count=4,
     estimated_loss_eur=18024.26,
     potential_saving_eur=12616.98,
     estimated_premium_price_monthly=149.0,
@@ -64,8 +65,9 @@ html = render_executive_report_html(report, inline_css=True)
 html_path = OUTPUT / "bcsentinel-report-01g-sample.html"
 pdf_path = OUTPUT / "bcsentinel-report-01g-sample.pdf"
 html_path.write_text(html, encoding="utf-8")
-pdf_path.write_bytes(render_executive_report_pdf(report))
-pdf_pages = len(PdfReader(str(pdf_path)).pages)
+pdf_bytes = render_executive_report_pdf(report)
+pdf_path.write_bytes(pdf_bytes)
+pdf_pages = len(re.findall(rb"/Type\s*/Page\b", pdf_bytes))
 if pdf_pages != 2:
     raise RuntimeError(f"Expected a two-page PDF, got {pdf_pages} pages.")
 

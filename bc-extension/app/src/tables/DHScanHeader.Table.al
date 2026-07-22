@@ -124,6 +124,11 @@ table 53120 "DH Scan Header"
         {
             Caption = 'HR Score';
         }
+        field(36; "Applied Exception Count"; Integer)
+        {
+            Caption = 'Applied Exception Count';
+            MinValue = 0;
+        }
     }
 
     keys
