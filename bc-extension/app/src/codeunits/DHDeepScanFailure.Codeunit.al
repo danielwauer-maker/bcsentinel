@@ -19,11 +19,16 @@ codeunit 53129 "DH Deep Scan Failure"
             FailureText := 'The scan stopped because of an unexpected processing error.';
         DeepScanRun."Error Message" := CopyStr(FailureText, 1, MaxStrLen(DeepScanRun."Error Message"));
         DeepScanRun."Current Step" := 'Scan failed';
+        DeepScanRun."Backend Status" := 'failed';
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
         DeepScanRun.Modify(true);
         CreateOrUpdateFailedScanHeader(DeepScanRun);
         Commit();
         TryUpdateBackendFailure(DeepScanRun);
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        Clear(DeepScanRun."Lease Expires At");
+        Clear(DeepScanRun."Execution Token");
+        DeepScanRun.Modify(true);
         Commit();
     end;
 

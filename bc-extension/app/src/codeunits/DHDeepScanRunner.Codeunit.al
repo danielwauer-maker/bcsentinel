@@ -3,8 +3,27 @@ codeunit 53128 "DH Deep Scan Runner"
     TableNo = "DH Deep Scan Run";
 
     trigger OnRun()
+    var
+        DeepScanFailure: Codeunit "DH Deep Scan Failure";
+        FailureText: Text;
     begin
-        ProcessRun(Rec);
+        if TryProcessRun(Rec) then
+            exit;
+
+        FailureText := GetLastErrorText();
+        ClearLastError();
+        DeepScanFailure.MarkRunAsFailed(Rec, FailureText);
+    end;
+
+    [TryFunction]
+    local procedure TryProcessRun(var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        ProcessRun(DeepScanRun);
+    end;
+
+    procedure RunSynchronously(var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        ProcessRun(DeepScanRun);
     end;
 
     local procedure ProcessRun(var DeepScanRun: Record "DH Deep Scan Run")

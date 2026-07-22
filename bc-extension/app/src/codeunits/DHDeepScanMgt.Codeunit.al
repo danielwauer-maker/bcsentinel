@@ -38,6 +38,8 @@ codeunit 53124 "DH Deep Scan Mgt."
         if not ConfirmManualScanStart(TriggerContext) then
             exit(0);
 
+        RefreshActiveRunsFromBackend(Setup);
+
         if FindUnacceptedRun('', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
             if StartInNewSession then
@@ -120,6 +122,8 @@ codeunit 53124 "DH Deep Scan Mgt."
         if not ConfirmManualScanStart(Enum::"DH Scan Trigger Context"::Manual) then
             exit(0);
 
+        RefreshActiveRunsFromBackend(Setup);
+
         if FindUnacceptedRun('data_health_score', DeepScanRun) then begin
             StartBackendScanWithRecovery(Setup, DeepScanRun, DeepScanRun."Total Modules");
             RunDeepScanNow(DeepScanRun);
@@ -197,10 +201,36 @@ codeunit 53124 "DH Deep Scan Mgt."
 
     local procedure StartDeepScanSession(var DeepScanRun: Record "DH Deep Scan Run")
     var
+        DeepScanFailure: Codeunit "DH Deep Scan Failure";
         SessionId: Integer;
     begin
-        if not Session.StartSession(SessionId, Codeunit::"DH Deep Scan Runner", CompanyName(), DeepScanRun) then
-            Error(BackgroundSessionStartErr);
+        if Session.StartSession(SessionId, Codeunit::"DH Deep Scan Runner", CompanyName(), DeepScanRun) then
+            exit;
+
+        DeepScanFailure.MarkRunAsFailed(DeepScanRun, BackgroundSessionStartErr);
+        Error(BackgroundSessionStartErr);
+    end;
+
+    local procedure RefreshActiveRunsFromBackend(var Setup: Record "DH Setup")
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+    begin
+        DeepScanRun.SetFilter(Status, '%1|%2', DeepScanRun.Status::Queued, DeepScanRun.Status::Running);
+        if not DeepScanRun.FindSet(true) then
+            exit;
+
+        repeat
+            if TryRefreshActiveRunFromBackend(Setup, DeepScanRun) then
+                Commit();
+        until DeepScanRun.Next() = 0;
+    end;
+
+    [TryFunction]
+    local procedure TryRefreshActiveRunFromBackend(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ApiClient.RefreshScanStatus(Setup, DeepScanRun);
     end;
 
     [TryFunction]
@@ -208,7 +238,7 @@ codeunit 53124 "DH Deep Scan Mgt."
     var
         DeepScanRunner: Codeunit "DH Deep Scan Runner";
     begin
-        DeepScanRunner.Run(DeepScanRun);
+        DeepScanRunner.RunSynchronously(DeepScanRun);
     end;
 
     local procedure StartBackendScanWithRecovery(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; TotalModules: Integer)
