@@ -1,6 +1,19 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    false,
+    text,
+    true,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -19,18 +32,30 @@ class Tenant(Base):
     environment_name: Mapped[str] = mapped_column(String(100))
     app_version: Mapped[str] = mapped_column(String(30))
     contact_email: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
-    preferred_language: Mapped[str] = mapped_column(String(2), default="en")
+    preferred_language: Mapped[str] = mapped_column(
+        String(2),
+        default="en",
+        server_default=text("'en'"),
+    )
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     last_seen_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
-    current_plan: Mapped[str] = mapped_column(String(20), default="free")
-    license_status: Mapped[str] = mapped_column(String(20), default="trial")
+    current_plan: Mapped[str] = mapped_column(
+        String(20),
+        default="free",
+        server_default=text("'free'"),
+    )
+    license_status: Mapped[str] = mapped_column(
+        String(20),
+        default="trial",
+        server_default=text("'trial'"),
+    )
     registration_identity_key: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     entra_tenant_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
     bc_environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     bc_environment_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
     bc_company_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     bc_company_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    free_assessment_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    free_assessment_used: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     premium_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     scans: Mapped[list["Scan"]] = relationship(
@@ -73,10 +98,16 @@ class Tenant(Base):
 
 class DashboardUser(Base):
     __tablename__ = "dashboard_users"
+    __table_args__ = (
+        Index("ix_dashboard_users_email", "email"),
+        Index("uq_dashboard_users_email", "email", unique=True),
+        Index("uq_dashboard_users_normalized_email", "normalized_email", unique=True),
+        Index("ix_dashboard_users_created_at_utc", "created_at_utc"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-    normalized_email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(255))
+    normalized_email: Mapped[str] = mapped_column(String(255))
     status: Mapped[str] = mapped_column(String(20), default="invited", index=True)
     invite_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     invite_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -102,22 +133,30 @@ class DashboardUserTenantMembership(Base):
             "tenant_id",
             name="uq_dashboard_user_tenant_membership",
         ),
+        Index(
+            "ix_dashboard_memberships_dashboard_user_id",
+            "dashboard_user_id",
+        ),
+        Index("ix_dashboard_memberships_tenant_id", "tenant_id"),
+        Index("ix_dashboard_memberships_is_active", "is_active"),
+        Index(
+            "ix_dashboard_memberships_last_selected_at_utc",
+            "last_selected_at_utc",
+        ),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     dashboard_user_id: Mapped[int] = mapped_column(
         ForeignKey("dashboard_users.id"),
-        index=True,
     )
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"))
     role: Mapped[str] = mapped_column(String(30), default="owner")
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     last_selected_at_utc: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
-        index=True,
     )
 
     dashboard_user: Mapped["DashboardUser"] = relationship(back_populates="memberships")
@@ -135,39 +174,61 @@ class Scan(Base):
     data_score: Mapped[int] = mapped_column(Integer)
     checks_count: Mapped[int] = mapped_column(Integer)
     issues_count: Mapped[int] = mapped_column(Integer)
-    applied_exception_count: Mapped[int] = mapped_column(Integer, default=0)
-    premium_available: Mapped[bool] = mapped_column(Boolean, default=False)
+    applied_exception_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    # GL-02B: the database still defaults this derived compatibility flag to true.
+    # Keep the real schema represented here while ORM-created scans continue to set false explicitly.
+    premium_available: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=true(),
+    )
     summary_headline: Mapped[str] = mapped_column(String(255))
     summary_rating: Mapped[str] = mapped_column(String(30))
     enabled_modules: Mapped[str | None] = mapped_column(Text, nullable=True)
-    total_records: Mapped[int] = mapped_column(Integer, default=0)
-    estimated_loss_eur: Mapped[float] = mapped_column(Float, default=0.0)
-    potential_saving_eur: Mapped[float] = mapped_column(Float, default=0.0)
-    estimated_premium_price_monthly: Mapped[float] = mapped_column(Float, default=0.0)
-    roi_eur: Mapped[float] = mapped_column(Float, default=0.0)
-    system_score: Mapped[int] = mapped_column(Integer, default=100)
-    finance_score: Mapped[int] = mapped_column(Integer, default=100)
-    sales_score: Mapped[int] = mapped_column(Integer, default=100)
-    purchasing_score: Mapped[int] = mapped_column(Integer, default=100)
-    inventory_score: Mapped[int] = mapped_column(Integer, default=100)
-    crm_score: Mapped[int] = mapped_column(Integer, default=100)
-    manufacturing_score: Mapped[int] = mapped_column(Integer, default=100)
-    service_score: Mapped[int] = mapped_column(Integer, default=100)
-    jobs_score: Mapped[int] = mapped_column(Integer, default=100)
-    hr_score: Mapped[int] = mapped_column(Integer, default=100)
-    customers_count: Mapped[int] = mapped_column(Integer, default=0)
-    vendors_count: Mapped[int] = mapped_column(Integer, default=0)
-    items_count: Mapped[int] = mapped_column(Integer, default=0)
-    customer_ledger_entries_count: Mapped[int] = mapped_column(Integer, default=0)
-    vendor_ledger_entries_count: Mapped[int] = mapped_column(Integer, default=0)
-    item_ledger_entries_count: Mapped[int] = mapped_column(Integer, default=0)
-    sales_headers_count: Mapped[int] = mapped_column(Integer, default=0)
-    sales_lines_count: Mapped[int] = mapped_column(Integer, default=0)
-    purchase_headers_count: Mapped[int] = mapped_column(Integer, default=0)
-    purchase_lines_count: Mapped[int] = mapped_column(Integer, default=0)
-    gl_entries_count: Mapped[int] = mapped_column(Integer, default=0)
-    value_entries_count: Mapped[int] = mapped_column(Integer, default=0)
-    warehouse_entries_count: Mapped[int] = mapped_column(Integer, default=0)
+    total_records: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    estimated_loss_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
+    potential_saving_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
+    estimated_premium_price_monthly: Mapped[float] = mapped_column(
+        Float,
+        default=0.0,
+        server_default=text("0"),
+    )
+    roi_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
+    system_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    finance_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    sales_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    purchasing_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    inventory_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    crm_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    manufacturing_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    service_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    jobs_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    hr_score: Mapped[int] = mapped_column(Integer, default=100, server_default=text("100"))
+    customers_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    vendors_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    items_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    customer_ledger_entries_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default=text("0"),
+    )
+    vendor_ledger_entries_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default=text("0"),
+    )
+    item_ledger_entries_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default=text("0"),
+    )
+    sales_headers_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    sales_lines_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    purchase_headers_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    purchase_lines_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    gl_entries_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    value_entries_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    warehouse_entries_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
 
     tenant: Mapped["Tenant"] = relationship(back_populates="scans")
     issues: Mapped[list["ScanIssueRecord"]] = relationship(
@@ -189,9 +250,13 @@ class ScanIssueRecord(Base):
     title: Mapped[str] = mapped_column(String(255))
     severity: Mapped[str] = mapped_column(String(20))
     affected_count: Mapped[int] = mapped_column(Integer)
-    premium_only: Mapped[bool] = mapped_column(Boolean, default=False)
+    premium_only: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     recommendation_preview: Mapped[str | None] = mapped_column(Text, nullable=True)
-    estimated_impact_eur: Mapped[float] = mapped_column(Float, default=0.0)
+    estimated_impact_eur: Mapped[float] = mapped_column(
+        Float,
+        default=0.0,
+        server_default=text("0"),
+    )
 
     scan: Mapped["Scan"] = relationship(back_populates="issues")
 
@@ -220,7 +285,12 @@ class CheckTranslation(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     short_description: Mapped[str] = mapped_column(Text, nullable=False)
     recommendation: Mapped[str] = mapped_column(Text, nullable=False)
-    is_customized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_customized: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false(),
+    )
     updated_at_utc: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -232,18 +302,41 @@ class CheckTranslation(Base):
 
 class ScanRunStatus(Base):
     __tablename__ = "scan_run_statuses"
+    __table_args__ = (
+        UniqueConstraint("lease_token", name="uq_scan_run_statuses_lease_token"),
+        Index("ix_scan_run_statuses_lease_token", "lease_token"),
+        Index(
+            "ix_scan_run_statuses_status_lease",
+            "status",
+            "lease_expires_at_utc",
+        ),
+        Index(
+            "ix_scan_run_statuses_status_retry",
+            "status",
+            "next_retry_at_utc",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     run_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     company_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     environment_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    scan_mode: Mapped[str] = mapped_column(String(20), default="deep")
-    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
+    scan_mode: Mapped[str] = mapped_column(
+        String(20),
+        default="deep",
+        server_default=text("'deep'"),
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="queued",
+        server_default=text("'queued'"),
+        index=True,
+    )
     created_at_utc: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
     )
-    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     current_module: Mapped[str | None] = mapped_column(String(80), nullable=True)
     current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
     started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -255,18 +348,18 @@ class ScanRunStatus(Base):
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     warning_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     estimated_remaining_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    total_modules: Mapped[int] = mapped_column(Integer, default=0)
-    completed_modules: Mapped[int] = mapped_column(Integer, default=0)
-    failed_modules: Mapped[int] = mapped_column(Integer, default=0)
+    total_modules: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    completed_modules: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    failed_modules: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     lease_owner: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
-    lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True, unique=True, index=True)
+    lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
     lease_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
-    execution_attempt: Mapped[int] = mapped_column(Integer, default=0)
-    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    execution_attempt: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    retry_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     next_retry_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     correlation_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
-    recovery_count: Mapped[int] = mapped_column(Integer, default=0)
-    lifecycle_version: Mapped[int] = mapped_column(Integer, default=0)
+    recovery_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    lifecycle_version: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     result_persisted_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     modules: Mapped[list["ScanRunModule"]] = relationship(
@@ -288,8 +381,12 @@ class ScanRunModule(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
     name: Mapped[str] = mapped_column(String(80), index=True)
-    status: Mapped[str] = mapped_column(String(20), default="queued")
-    progress_percent: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="queued",
+        server_default=text("'queued'"),
+    )
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     current_step: Mapped[str | None] = mapped_column(String(160), nullable=True)
     started_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -304,11 +401,20 @@ class ScanRunEvent(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     run_id: Mapped[str] = mapped_column(ForeignKey("scan_run_statuses.run_id"), index=True)
     timestamp_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
-    level: Mapped[str] = mapped_column(String(20), default="info")
+    level: Mapped[str] = mapped_column(
+        String(20),
+        default="info",
+        server_default=text("'info'"),
+    )
     module: Mapped[str | None] = mapped_column(String(80), nullable=True)
     step: Mapped[str | None] = mapped_column(String(160), nullable=True)
     message: Mapped[str] = mapped_column(String(255))
-    event_type: Mapped[str] = mapped_column(String(40), default="scan_progress", index=True)
+    event_type: Mapped[str] = mapped_column(
+        String(40),
+        default="scan_progress",
+        server_default=text("'scan_progress'"),
+        index=True,
+    )
     attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
     worker_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     correlation_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
@@ -321,77 +427,149 @@ class IssueCostConfig(Base):
     __tablename__ = "issue_cost_config"
 
     code: Mapped[str] = mapped_column(String(80), primary_key=True)
-    title: Mapped[str] = mapped_column(String(255), default="")
-    cost_per_record: Mapped[float] = mapped_column(Float, default=10.0)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    title: Mapped[str] = mapped_column(String(255), default="", server_default=text("''"))
+    cost_per_record: Mapped[float] = mapped_column(
+        Float,
+        default=10.0,
+        server_default=text("10"),
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
 
 
 class IssueImpactConfig(Base):
     __tablename__ = "issue_impact_config"
 
     code: Mapped[str] = mapped_column(String(80), primary_key=True)
-    title: Mapped[str] = mapped_column(String(255), default="")
-    category: Mapped[str] = mapped_column(String(50), default="general")
-    minutes_per_occurrence: Mapped[float] = mapped_column(Float, default=5.0)
-    probability: Mapped[float] = mapped_column(Float, default=0.2)
-    frequency_per_year: Mapped[float] = mapped_column(Float, default=12.0)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    title: Mapped[str] = mapped_column(String(255), default="", server_default=text("''"))
+    category: Mapped[str] = mapped_column(
+        String(50),
+        default="general",
+        server_default=text("'general'"),
+    )
+    minutes_per_occurrence: Mapped[float] = mapped_column(
+        Float,
+        default=5.0,
+        server_default=text("5"),
+    )
+    probability: Mapped[float] = mapped_column(
+        Float,
+        default=0.2,
+        server_default=text("0.2"),
+    )
+    frequency_per_year: Mapped[float] = mapped_column(
+        Float,
+        default=12.0,
+        server_default=text("12"),
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
 
 
 class ImpactSettingsConfig(Base):
     __tablename__ = "impact_settings_config"
 
     key: Mapped[str] = mapped_column(String(80), primary_key=True)
-    value_number: Mapped[float] = mapped_column(Float, default=0.0)
-    title: Mapped[str] = mapped_column(String(255), default="")
+    value_number: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
+    title: Mapped[str] = mapped_column(String(255), default="", server_default=text("''"))
 
 
 class LicensePricingConfig(Base):
     __tablename__ = "license_pricing_config"
 
     plan_code: Mapped[str] = mapped_column(String(20), primary_key=True)
-    display_name: Mapped[str] = mapped_column(String(80), default="")
-    base_price_monthly: Mapped[float] = mapped_column(Float, default=0.0)
-    included_records: Mapped[int] = mapped_column(Integer, default=0)
-    additional_price_per_1000_records: Mapped[float] = mapped_column(Float, default=0.0)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    display_name: Mapped[str] = mapped_column(String(80), default="", server_default=text("''"))
+    base_price_monthly: Mapped[float] = mapped_column(
+        Float,
+        default=0.0,
+        server_default=text("0"),
+    )
+    included_records: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    additional_price_per_1000_records: Mapped[float] = mapped_column(
+        Float,
+        default=0.0,
+        server_default=text("0"),
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
 
 
 class ProductPricingConfig(Base):
     __tablename__ = "product_pricing_config"
 
     product_key: Mapped[str] = mapped_column(String(50), primary_key=True)
-    display_name: Mapped[str] = mapped_column(String(120), default="")
-    price_cents: Mapped[int] = mapped_column(Integer, default=0)
-    currency: Mapped[str] = mapped_column(String(3), default="EUR")
-    billing_interval: Mapped[str] = mapped_column(String(20), default="one_time")
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    display_name: Mapped[str] = mapped_column(String(120), default="", server_default=text("''"))
+    price_cents: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    currency: Mapped[str] = mapped_column(
+        String(3),
+        default="EUR",
+        server_default=text("'EUR'"),
+    )
+    billing_interval: Mapped[str] = mapped_column(
+        String(20),
+        default="one_time",
+        server_default=text("'one_time'"),
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    updated_at_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+    )
 
 
 class ProductPricingMatrixConfig(Base):
     __tablename__ = "product_pricing_matrix_config"
+    __table_args__ = (
+        UniqueConstraint(
+            "product_key",
+            "pricing_tier",
+            name="uq_product_pricing_matrix_product_tier",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     product_key: Mapped[str] = mapped_column(String(50), index=True)
     pricing_tier: Mapped[str] = mapped_column(String(30), index=True)
     max_records: Mapped[int | None] = mapped_column(Integer, nullable=True)
     amount_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    currency: Mapped[str] = mapped_column(String(3), default="EUR")
-    billing_interval: Mapped[str] = mapped_column(String(20), default="one_time")
-    display_name_de: Mapped[str] = mapped_column(String(120), default="")
-    display_name_en: Mapped[str] = mapped_column(String(120), default="")
+    currency: Mapped[str] = mapped_column(
+        String(3),
+        default="EUR",
+        server_default=text("'EUR'"),
+    )
+    billing_interval: Mapped[str] = mapped_column(
+        String(20),
+        default="one_time",
+        server_default=text("'one_time'"),
+    )
+    display_name_de: Mapped[str] = mapped_column(
+        String(120),
+        default="",
+        server_default=text("''"),
+    )
+    display_name_en: Mapped[str] = mapped_column(
+        String(120),
+        default="",
+        server_default=text("''"),
+    )
     stripe_price_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    updated_at_utc: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+    )
 
 
 class LandingpagePageVisibility(Base):
     __tablename__ = "landingpage_page_visibility"
+    __table_args__ = (
+        UniqueConstraint(
+            "page_key",
+            name="landingpage_page_visibility_page_key_key",
+        ),
+        Index("ix_landingpage_page_visibility_page_key", "page_key", unique=True),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    page_key: Mapped[str] = mapped_column(String(80), unique=True, index=True)
-    is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
+    page_key: Mapped[str] = mapped_column(String(80))
+    is_visible: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
@@ -401,15 +579,27 @@ class Subscription(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
-    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider: Mapped[str] = mapped_column(
+        String(30), index=True, default="manual", server_default=text("'manual'")
+    )
     provider_subscription_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
-    status: Mapped[str] = mapped_column(String(30), index=True, default="incomplete")
-    plan_code: Mapped[str] = mapped_column(String(20), default="premium")
-    currency: Mapped[str] = mapped_column(String(10), default="EUR")
-    amount_monthly: Mapped[float] = mapped_column(Float, default=0.0)
+    status: Mapped[str] = mapped_column(
+        String(30), index=True, default="incomplete", server_default=text("'incomplete'")
+    )
+    plan_code: Mapped[str] = mapped_column(
+        String(20), default="premium", server_default=text("'premium'")
+    )
+    currency: Mapped[str] = mapped_column(
+        String(10), default="EUR", server_default=text("'EUR'")
+    )
+    amount_monthly: Mapped[float] = mapped_column(
+        Float, default=0.0, server_default=text("0")
+    )
     current_period_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     current_period_end_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+    cancel_at_period_end: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
     canceled_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -422,13 +612,23 @@ class Invoice(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
-    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider: Mapped[str] = mapped_column(
+        String(30), index=True, default="manual", server_default=text("'manual'")
+    )
     provider_invoice_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
     provider_subscription_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
-    status: Mapped[str] = mapped_column(String(30), index=True, default="open")
-    currency: Mapped[str] = mapped_column(String(10), default="EUR")
-    amount_total: Mapped[float] = mapped_column(Float, default=0.0)
-    amount_paid: Mapped[float] = mapped_column(Float, default=0.0)
+    status: Mapped[str] = mapped_column(
+        String(30), index=True, default="open", server_default=text("'open'")
+    )
+    currency: Mapped[str] = mapped_column(
+        String(10), default="EUR", server_default=text("'EUR'")
+    )
+    amount_total: Mapped[float] = mapped_column(
+        Float, default=0.0, server_default=text("0")
+    )
+    amount_paid: Mapped[float] = mapped_column(
+        Float, default=0.0, server_default=text("0")
+    )
     hosted_invoice_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     paid_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -439,16 +639,26 @@ class Invoice(Base):
 class TenantProductPurchase(Base):
     __tablename__ = "tenant_product_purchases"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     product_code: Mapped[str] = mapped_column(String(50), index=True)
-    provider: Mapped[str] = mapped_column(String(30), index=True, default="manual")
+    provider: Mapped[str] = mapped_column(
+        String(30), index=True, default="manual", server_default=text("'manual'")
+    )
     provider_checkout_session_id: Mapped[str | None] = mapped_column(String(120), unique=True, nullable=True, index=True)
     provider_payment_intent_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
-    status: Mapped[str] = mapped_column(String(30), index=True, default="paid")
-    currency: Mapped[str] = mapped_column(String(10), default="EUR")
-    amount_total: Mapped[float] = mapped_column(Float, default=0.0)
-    source: Mapped[str] = mapped_column(String(40), default="checkout")
+    status: Mapped[str] = mapped_column(
+        String(30), index=True, default="paid", server_default=text("'paid'")
+    )
+    currency: Mapped[str] = mapped_column(
+        String(10), default="EUR", server_default=text("'EUR'")
+    )
+    amount_total: Mapped[float] = mapped_column(
+        Float, default=0.0, server_default=text("0")
+    )
+    source: Mapped[str] = mapped_column(
+        String(40), default="checkout", server_default=text("'checkout'")
+    )
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
@@ -461,11 +671,15 @@ class TenantScanCredit(Base):
         UniqueConstraint("consumed_scan_id", name="uq_tenant_scan_credits_consumed_scan_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     product_code: Mapped[str] = mapped_column(String(50), index=True)
-    status: Mapped[str] = mapped_column(String(20), index=True, default="available")
-    source: Mapped[str] = mapped_column(String(40), default="manual")
+    status: Mapped[str] = mapped_column(
+        String(20), index=True, default="available", server_default=text("'available'")
+    )
+    source: Mapped[str] = mapped_column(
+        String(40), default="manual", server_default=text("'manual'")
+    )
     source_purchase_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_product_purchases.id"), nullable=True, index=True)
     consumed_scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -479,18 +693,22 @@ class ScanStartRequest(Base):
     __table_args__ = (
         UniqueConstraint("tenant_id", "client_request_id", name="uq_scan_start_tenant_client_request"),
         UniqueConstraint("tenant_id", "free_scan_slot", name="uq_scan_start_tenant_free_slot"),
+        UniqueConstraint("scan_id", name="uq_scan_start_requests_scan_id"),
+        Index("ix_scan_start_requests_scan_id", "scan_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     client_request_id: Mapped[str] = mapped_column(String(36), index=True)
     payload_hash: Mapped[str] = mapped_column(String(64))
-    scan_id: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    scan_id: Mapped[str] = mapped_column(String(50))
     requested_scan_mode: Mapped[str] = mapped_column(String(30))
     resolved_product_code: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     credit_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_scan_credits.id"), nullable=True, index=True)
     free_scan_slot: Mapped[str | None] = mapped_column(String(30), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default="accepted", index=True)
+    status: Mapped[str] = mapped_column(
+        String(20), default="accepted", server_default=text("'accepted'"), index=True
+    )
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
@@ -502,7 +720,7 @@ class CreditLedgerEntry(Base):
         UniqueConstraint("scan_id", "operation_type", name="uq_credit_ledger_scan_operation"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     credit_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_scan_credits.id"), nullable=True, index=True)
     source_purchase_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_product_purchases.id"), nullable=True, index=True)
@@ -520,11 +738,15 @@ class CreditLedgerEntry(Base):
 class TenantProductEntitlement(Base):
     __tablename__ = "tenant_product_entitlements"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     product_code: Mapped[str] = mapped_column(String(50), index=True)
-    status: Mapped[str] = mapped_column(String(20), index=True, default="active")
-    source: Mapped[str] = mapped_column(String(40), default="manual")
+    status: Mapped[str] = mapped_column(
+        String(20), index=True, default="active", server_default=text("'active'")
+    )
+    source: Mapped[str] = mapped_column(
+        String(40), default="manual", server_default=text("'manual'")
+    )
     valid_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -590,10 +812,14 @@ class PartnerApplication(Base):
 
 class PartnerReferral(Base):
     __tablename__ = "partner_referrals"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", name="partner_referrals_tenant_id_key"),
+        Index("ix_partner_referrals_tenant_id", "tenant_id", unique=True),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     partner_id: Mapped[int] = mapped_column(ForeignKey("partners.id"), index=True)
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), unique=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"))
     referral_code: Mapped[str] = mapped_column(String(80), index=True)
     attribution_source: Mapped[str] = mapped_column(String(80), default="manual")
     attributed_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -604,12 +830,23 @@ class PartnerReferral(Base):
 
 class PartnerCommission(Base):
     __tablename__ = "partner_commissions"
+    __table_args__ = (
+        UniqueConstraint(
+            "provider_invoice_id",
+            name="partner_commissions_provider_invoice_id_key",
+        ),
+        Index(
+            "ix_partner_commissions_provider_invoice_id",
+            "provider_invoice_id",
+            unique=True,
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     partner_id: Mapped[int] = mapped_column(ForeignKey("partners.id"), index=True)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
     invoice_id: Mapped[int | None] = mapped_column(ForeignKey("invoices.id"), nullable=True, index=True)
-    provider_invoice_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    provider_invoice_id: Mapped[str] = mapped_column(String(120))
     status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
     currency: Mapped[str] = mapped_column(String(10), default="EUR")
     base_amount: Mapped[float] = mapped_column(Float, default=0.0)
