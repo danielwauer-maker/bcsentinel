@@ -23,6 +23,13 @@ jobs:
     name: Product model compatibility
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/arch-02a.sqlite3
 
     steps:
       - name: Checkout repository
