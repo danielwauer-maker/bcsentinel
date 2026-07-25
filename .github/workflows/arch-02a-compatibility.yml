@@ -40,16 +40,16 @@ jobs:
 
       - name: Product model contract
         working-directory: backend
-        run: python -m pytest -q --tb=short tests/test_product_model_contract.py
+        run: python -m pytest -q --tb=short --noconftest tests/test_product_model_contract.py
 
       - name: License and storage compatibility
         working-directory: backend
-        run: python -m pytest -q --tb=short tests/test_product_license_contract_alignment.py
+        run: python -m pytest -q --tb=short --noconftest tests/test_product_license_contract_alignment.py
 
       - name: Access snapshot product context
         working-directory: backend
-        run: python -m pytest -q --tb=short tests/test_access_snapshot_product_model.py
+        run: python -m pytest -q --tb=short --noconftest tests/test_access_snapshot_product_model.py
 
       - name: TTL and legacy API regression
         working-directory: backend
-        run: python -m pytest -q --tb=short tests/test_arch_02a_compatibility_regression.py
+        run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_compatibility_regression.py
