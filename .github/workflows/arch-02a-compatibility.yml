@@ -36,13 +36,20 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install backend dependencies
-        run: python -m pip install -r backend/requirements.txt
+        run: python -m pip install --quiet -r backend/requirements.txt
 
       - name: Run ARCH-02A compatibility tests
         working-directory: backend
-        run: >-
-          python -m pytest -q
-          tests/test_product_model_contract.py
-          tests/test_product_license_contract_alignment.py
-          tests/test_access_snapshot_product_model.py
-          tests/test_arch_02a_compatibility_regression.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q --tb=short \
+            tests/test_product_model_contract.py \
+            tests/test_product_license_contract_alignment.py \
+            tests/test_access_snapshot_product_model.py \
+            tests/test_arch_02a_compatibility_regression.py \
+            > /tmp/arch-02a-pytest.log 2>&1 || {
+              tail -n 180 /tmp/arch-02a-pytest.log
+              exit 1
+            }
+          cat /tmp/arch-02a-pytest.log
