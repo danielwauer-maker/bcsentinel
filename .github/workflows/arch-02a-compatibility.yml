@@ -38,18 +38,18 @@ jobs:
       - name: Install backend dependencies
         run: python -m pip install --quiet -r backend/requirements.txt
 
-      - name: Run ARCH-02A compatibility tests
+      - name: Product model contract
         working-directory: backend
-        shell: bash
-        run: |
-          set -o pipefail
-          python -m pytest -q --tb=short \
-            tests/test_product_model_contract.py \
-            tests/test_product_license_contract_alignment.py \
-            tests/test_access_snapshot_product_model.py \
-            tests/test_arch_02a_compatibility_regression.py \
-            > /tmp/arch-02a-pytest.log 2>&1 || {
-              tail -n 180 /tmp/arch-02a-pytest.log
-              exit 1
-            }
-          cat /tmp/arch-02a-pytest.log
+        run: python -m pytest -q --tb=short tests/test_product_model_contract.py
+
+      - name: License and storage compatibility
+        working-directory: backend
+        run: python -m pytest -q --tb=short tests/test_product_license_contract_alignment.py
+
+      - name: Access snapshot product context
+        working-directory: backend
+        run: python -m pytest -q --tb=short tests/test_access_snapshot_product_model.py
+
+      - name: TTL and legacy API regression
+        working-directory: backend
+        run: python -m pytest -q --tb=short tests/test_arch_02a_compatibility_regression.py
