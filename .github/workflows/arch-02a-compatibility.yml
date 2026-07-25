@@ -1,0 +1,48 @@
+name: ARCH-02A Compatibility Gate
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - "backend/app/core/product_model.py"
+      - "backend/app/services/access_control_service.py"
+      - "backend/app/services/product_license_service.py"
+      - "backend/tests/test_product_model_contract.py"
+      - "backend/tests/test_product_license_contract_alignment.py"
+      - "backend/tests/test_access_snapshot_product_model.py"
+      - "backend/tests/test_arch_02a_compatibility_regression.py"
+      - ".github/workflows/arch-02a-compatibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    name: Product model compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements.txt
+
+      - name: Run ARCH-02A compatibility tests
+        working-directory: backend
+        run: >-
+          python -m pytest -q
+          tests/test_product_model_contract.py
+          tests/test_product_license_contract_alignment.py
+          tests/test_access_snapshot_product_model.py
+          tests/test_arch_02a_compatibility_regression.py
