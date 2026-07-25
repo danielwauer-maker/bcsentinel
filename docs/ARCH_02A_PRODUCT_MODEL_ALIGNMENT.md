@@ -29,34 +29,50 @@ Existing storage and API codes remain valid during ARCH-02A:
 | `monitoring_monthly` | Monitoring | monthly |
 | `monitoring_annual` | Monitoring | annual |
 
-No migration or customer-access change is introduced by the initial contract.
+No migration or customer-access change is introduced by the current contract.
 
-## Initial implementation
+## Implemented
 
-- `backend/app/core/product_model.py` defines the canonical vocabulary and compatibility mapping.
-- `backend/tests/test_product_model_contract.py` verifies aliases, billing cadence, entitlements and fail-closed behavior.
+- `backend/app/core/product_model.py` defines canonical vocabulary, mappings and entitlements.
+- `backend/app/services/access_control_service.py` exposes an additive `product_model` section.
+- the authoritative snapshot version is `p0d-v2-product-model`.
+- existing capability names and legacy access fields remain unchanged.
+- tests cover contract mapping, license/storage compatibility, product context, TTL and legacy API behavior.
+- `.github/workflows/arch-02a-compatibility.yml` runs the compatibility gate for relevant pull requests.
+
+## Verified compatibility gate
+
+The GitHub Actions run for ARCH-02A completed successfully.
+
+Successful test groups:
+
+- Product model contract;
+- License and storage compatibility;
+- Access snapshot product context;
+- TTL and legacy API regression.
+
+The tests use an explicit isolated test environment and do not require a product-data migration or production database.
 
 ## Confirmed current drift
 
-- `product_license_service.py` treats `assessment` as a legacy alias of `full_analysis`.
-- Display copy still exposes `Full Analysis` instead of the canonical Assessment offer.
-- Feature sets are legacy string flags rather than canonical entitlement IDs.
-- Access snapshots still expose historical `premium_*` fields and capability names.
-- Monitoring cadence and commercial offer are encoded in the same product code.
+- `product_license_service.py` still acts as the runtime and storage compatibility layer.
+- Display copy still exposes `Full Analysis` and historical `Premium` vocabulary in several surfaces.
+- Feature sets still contain legacy string flags alongside the new entitlement model.
+- Access snapshots intentionally retain historical `premium_*` fields for compatibility.
+- Monitoring cadence and commercial offer remain encoded in the existing storage code.
 
-## Planned implementation sequence
+## Next controlled steps
 
-1. Make `product_license_service.py` consume the canonical mappings while preserving exported compatibility constants.
-2. Add canonical offer, billing variant and entitlement fields to access snapshots additively.
-3. Update dashboard/report copy without breaking stored data or API consumers.
-4. Map BC Extension captions and access handling.
-5. Add regression tests for checkout, credits, expiration and existing tenants.
-6. Remove historical vocabulary only in a separately reviewed deprecation phase.
+1. Inventory product copy in Dashboard, Reports and BC Extension.
+2. Classify `Premium`, `Full Analysis` and similar terms as compatibility, marketing or obsolete copy.
+3. Replace only approved UI copy with Assessment, Validation and Monitoring terminology.
+4. Keep existing storage/API fields until consumers are migrated and regression-tested.
+5. Run broader backend regression and complete PR review.
 
 ## Safety rules
 
 - No destructive migration.
 - No change to active customer rights.
-- No Stripe price remapping in the first phase.
+- No Stripe price remapping in this phase.
 - No removal of legacy API fields before all consumers are migrated.
 - All new access decisions fail closed.
