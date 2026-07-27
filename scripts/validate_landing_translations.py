@@ -9,7 +9,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 LANG_DIR = ROOT / "landingpage" / "lang"
-FILES = {"de": LANG_DIR / "redesign.de.json", "en": LANG_DIR / "redesign.en.json"}
+BUNDLES = ("redesign", "loss-examples")
 
 
 def flatten(value: Any, prefix: str = "") -> dict[str, Any]:
@@ -34,24 +34,43 @@ def load(path: Path) -> dict[str, Any]:
     return payload
 
 
-def main() -> int:
-    payloads = {locale: load(path) for locale, path in FILES.items()}
+def validate_bundle(bundle: str) -> tuple[list[str], int]:
+    files = {locale: LANG_DIR / f"{bundle}.{locale}.json" for locale in ("de", "en")}
+    missing_files = [str(path) for path in files.values() if not path.exists()]
+    if missing_files:
+        return [f"Missing translation file: {path}" for path in missing_files], 0
+
+    payloads = {locale: load(path) for locale, path in files.items()}
     flattened = {locale: flatten(payload) for locale, payload in payloads.items()}
     errors: list[str] = []
-
     de_keys = set(flattened["de"])
     en_keys = set(flattened["en"])
+
     for key in sorted(de_keys - en_keys):
-        errors.append(f"Missing EN key: {key}")
+        errors.append(f"[{bundle}] Missing EN key: {key}")
     for key in sorted(en_keys - de_keys):
-        errors.append(f"Missing DE key: {key}")
+        errors.append(f"[{bundle}] Missing DE key: {key}")
 
     for locale, values in flattened.items():
+        expected_locale = payloads[locale].get("meta", {}).get("locale")
+        if expected_locale != locale:
+            errors.append(f"[{bundle}] Invalid meta.locale in {locale.upper()}: {expected_locale!r}")
         for key, value in values.items():
             if isinstance(value, str) and not value.strip():
-                errors.append(f"Empty {locale.upper()} value: {key}")
+                errors.append(f"[{bundle}] Empty {locale.upper()} value: {key}")
             if isinstance(value, str) and value.strip() == key:
-                errors.append(f"Visible key fallback in {locale.upper()}: {key}")
+                errors.append(f"[{bundle}] Visible key fallback in {locale.upper()}: {key}")
+
+    return errors, len(de_keys)
+
+
+def main() -> int:
+    errors: list[str] = []
+    totals: list[str] = []
+    for bundle in BUNDLES:
+        bundle_errors, count = validate_bundle(bundle)
+        errors.extend(bundle_errors)
+        totals.append(f"{bundle}: {count} values per locale")
 
     if errors:
         print("Landing translation validation FAILED")
@@ -59,7 +78,9 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Landing translation validation PASS ({len(de_keys)} values per locale)")
+    print("Landing translation validation PASS")
+    for total in totals:
+        print(f"- {total}")
     return 0
 
 
