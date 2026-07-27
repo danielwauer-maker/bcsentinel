@@ -107,6 +107,6 @@ def test_unknown_or_inactive_product_context_remains_locked(monkeypatch) -> None
     snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
 
     assert snapshot["product_model"]["commercial_offers"] == []
-    assert snapshot["product_model"]["experience_mode"] == "locked_preview"
+    assert snapshot["product_model"]["experience_mode"] == "locked"
     assert snapshot["product_model"]["access_state"] == "locked"
     assert snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is False
