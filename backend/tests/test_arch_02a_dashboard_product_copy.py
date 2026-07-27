@@ -187,7 +187,8 @@ def test_landing_product_copy_overlays_are_canonical_and_loaded_last() -> None:
 
     assert "lang/product-copy.${code}.json" in loader
     assert "{ ...(base[code] || {}), ...(overlays[code] || {}) }" in loader
-    assert "Could not load product copy overlay language file" in loader
+    assert '"product copy overlay"' in loader
+    assert "Could not load ${kind} language file" in loader
 
 
 def test_legacy_translation_keys_remain_stable() -> None:
