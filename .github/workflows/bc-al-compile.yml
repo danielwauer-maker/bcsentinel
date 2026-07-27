@@ -70,24 +70,91 @@ jobs:
           $ErrorActionPreference = "Stop"
           Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
 
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
           $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
           $credential = [PSCredential]::new("admin", $securePassword)
           $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
           $rulesetFile = Join-Path $appFolder "app.ruleset.json"
 
-          Run-AlPipeline `
-            -pipelineName "BCSentinel-ARCH-02A" `
-            -containerName "bcsentinel-arch02a" `
-            -baseFolder $env:GITHUB_WORKSPACE `
-            -appFolders @($appFolder) `
-            -artifact "${{ steps.artifact.outputs.url }}" `
-            -credential $credential `
-            -doNotRunTests `
-            -enableCodeCop `
-            -enablePerTenantExtensionCop `
-            -rulesetFile $rulesetFile `
-            -failOn error `
-            -keepContainer:$false
+          Start-Transcript -Path $transcriptPath -Force | Out-Null
+          try {
+            Run-AlPipeline `
+              -pipelineName "BCSentinel-ARCH-02A" `
+              -containerName "bcsentinel-arch02a" `
+              -baseFolder $env:GITHUB_WORKSPACE `
+              -appFolders @($appFolder) `
+              -artifact "${{ steps.artifact.outputs.url }}" `
+              -credential $credential `
+              -doNotRunTests `
+              -enableCodeCop `
+              -enablePerTenantExtensionCop `
+              -rulesetFile $rulesetFile `
+              -failOn error `
+              -keepContainer:$false
+          }
+          finally {
+            Stop-Transcript | Out-Null
+          }
+
+      - name: Generate AL warning report
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          $warningsPath = Join-Path $diagnosticsFolder "al-warnings.txt"
+          $summaryPath = Join-Path $diagnosticsFolder "al-warning-summary.md"
+
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
+          if (-not (Test-Path $transcriptPath)) {
+            "Compile transcript was not created." | Set-Content -Path $warningsPath -Encoding utf8
+            "# AL warning summary`n`nCompile transcript was not created." | Set-Content -Path $summaryPath -Encoding utf8
+            exit 0
+          }
+
+          $warningLines = Get-Content $transcriptPath |
+            Where-Object { $_ -match '(?i)\bwarning\s+(AA|AL)[0-9]{4}\b' } |
+            ForEach-Object { $_.Trim() } |
+            Sort-Object -Unique
+
+          if ($warningLines) {
+            $warningLines | Set-Content -Path $warningsPath -Encoding utf8
+          }
+          else {
+            "No AL, CodeCop or PTECop warnings detected." | Set-Content -Path $warningsPath -Encoding utf8
+          }
+
+          $codes = foreach ($line in $warningLines) {
+            if ($line -match '(?i)\bwarning\s+((?:AA|AL)[0-9]{4})\b') {
+              $Matches[1].ToUpperInvariant()
+            }
+          }
+
+          $summary = @(
+            "# AL warning summary"
+            ""
+            "Total unique warning lines: $(@($warningLines).Count)"
+            ""
+            "## Warning codes"
+          )
+
+          if ($codes) {
+            $summary += $codes |
+              Group-Object |
+              Sort-Object Name |
+              ForEach-Object { "- $($_.Name): $($_.Count)" }
+          }
+          else {
+            $summary += "- None"
+          }
+
+          $summary | Set-Content -Path $summaryPath -Encoding utf8
+          $summary | ForEach-Object { Write-Host $_ }
 
       - name: Collect compiled app packages
         if: always()
@@ -115,5 +182,14 @@ jobs:
         with:
           name: bc-al-compile-output
           path: artifacts/bc-app/*.app
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish AL warning diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-al-warning-diagnostics
+          path: artifacts/bc-diagnostics/*
           if-no-files-found: error
           retention-days: 14
