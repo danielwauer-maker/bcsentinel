@@ -15,6 +15,8 @@ on:
       - "backend/tests/test_access_snapshot_product_model.py"
       - "backend/tests/test_arch_02a_compatibility_regression.py"
       - "backend/tests/test_arch_02a_dashboard_product_copy.py"
+      - "bc-extension/app/src/pages/DHDashboardIssues.Page.al"
+      - "bc-extension/app/src/pages/DHDashboardIssuesList.Page.al"
       - ".github/workflows/arch-02a-compatibility.yml"
   workflow_dispatch:
 
@@ -64,6 +66,6 @@ jobs:
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_compatibility_regression.py
 
-      - name: Dashboard product copy contract
+      - name: Dashboard and BC product copy contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_dashboard_product_copy.py
