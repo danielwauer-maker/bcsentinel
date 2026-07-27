@@ -14,6 +14,7 @@ from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 BACKEND_DIR = Path(__file__).resolve().parents[1]
+_SQLITE_DEFAULT_BACKUP_KEY = "_sqlite_server_default_backups"
 
 
 class Base(DeclarativeBase):
@@ -22,17 +23,18 @@ class Base(DeclarativeBase):
 
 @event.listens_for(Base.metadata, "before_create")
 def _normalize_sqlite_server_defaults(metadata, connection, **_kwargs) -> None:
-    """Keep ORM-created SQLite test schemas compatible with PostgreSQL defaults.
+    """Temporarily adapt PostgreSQL defaults for ORM-created SQLite test schemas.
 
-    Production schemas continue to be managed by Alembic on PostgreSQL. SQLite is
-    used by the backend regression suite, where ``DEFAULT now()`` is not valid
-    DDL. SQL's portable ``CURRENT_TIMESTAMP`` preserves the intended behavior
-    without changing PostgreSQL migrations or runtime access semantics.
+    Production schemas remain managed by Alembic on PostgreSQL. SQLite is used by
+    the backend regression suite, where ``DEFAULT now()`` is invalid DDL. The
+    original metadata defaults are restored after schema creation so metadata
+    contracts continue to represent the PostgreSQL production schema exactly.
     """
 
     if connection.dialect.name != "sqlite":
         return
 
+    backups: list[tuple[object, object]] = []
     for table in metadata.tables.values():
         for column in table.columns:
             server_default = column.server_default
@@ -40,7 +42,22 @@ def _normalize_sqlite_server_defaults(metadata, connection, **_kwargs) -> None:
                 continue
             default_argument = getattr(server_default, "arg", None)
             if str(default_argument).strip().lower() == "now()":
+                backups.append((column, server_default))
                 column.server_default = DefaultClause(text("CURRENT_TIMESTAMP"))
+
+    metadata.info[_SQLITE_DEFAULT_BACKUP_KEY] = backups
+
+
+@event.listens_for(Base.metadata, "after_create")
+def _restore_postgresql_server_defaults(metadata, connection, **_kwargs) -> None:
+    """Restore production metadata after temporary SQLite DDL normalization."""
+
+    if connection.dialect.name != "sqlite":
+        return
+
+    backups = metadata.info.pop(_SQLITE_DEFAULT_BACKUP_KEY, [])
+    for column, server_default in backups:
+        column.server_default = server_default
 
 
 engine_kwargs = {
