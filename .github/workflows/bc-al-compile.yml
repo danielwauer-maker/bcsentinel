@@ -26,27 +26,28 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $moduleVersion = "6.1.15"
+          $moduleVersion = "6.1.14"
+          $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
+          $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
+          $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
 
-          if (-not (Get-Command Install-PSResource -ErrorAction SilentlyContinue)) {
-            Install-Module Microsoft.PowerShell.PSResourceGet -Scope CurrentUser -Force -AllowClobber
-            Import-Module Microsoft.PowerShell.PSResourceGet -Force
+          New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+          Invoke-WebRequest `
+            -Uri "https://www.powershellgallery.com/api/v2/package/BcContainerHelper/$moduleVersion" `
+            -OutFile $packagePath `
+            -UseBasicParsing
+          Copy-Item $packagePath $packageZip -Force
+          Expand-Archive -Path $packageZip -DestinationPath $moduleRoot -Force
+
+          $manifestPath = Join-Path $moduleRoot "BcContainerHelper.psd1"
+          if (-not (Test-Path $manifestPath)) {
+            throw "BcContainerHelper manifest was not found after extracting $packagePath."
           }
 
-          Set-PSResourceRepository -Name PSGallery -Trusted
-          Install-PSResource `
-            -Name BcContainerHelper `
-            -Version $moduleVersion `
-            -Repository PSGallery `
-            -Scope CurrentUser `
-            -TrustRepository `
-            -Reinstall `
-            -Quiet
-
-          Import-Module BcContainerHelper -RequiredVersion $moduleVersion -Force
+          Import-Module $manifestPath -Force
           $loadedModule = Get-Module BcContainerHelper
           if (-not $loadedModule) {
-            throw "BcContainerHelper was installed but could not be imported."
+            throw "BcContainerHelper was extracted but could not be imported."
           }
           Write-Host "BcContainerHelper version: $($loadedModule.Version)"
 
@@ -55,7 +56,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.15 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -67,7 +68,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.15 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
 
           $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
           $credential = [PSCredential]::new("admin", $securePassword)
