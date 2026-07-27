@@ -22,30 +22,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Bootstrap PowerShell package provider
-        shell: powershell
+      - name: Install pinned BcContainerHelper
+        shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
-          Get-PackageProvider -Name NuGet | Format-List Name,Version
+          $moduleVersion = "6.1.15"
 
-      - name: Install BcContainerHelper
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Install-Module BcContainerHelper -Repository PSGallery -Force -AllowClobber -Scope CurrentUser
-          Import-Module BcContainerHelper -Force
-          Get-BcContainerHelperVersion
+          if (-not (Get-Command Install-PSResource -ErrorAction SilentlyContinue)) {
+            Install-Module Microsoft.PowerShell.PSResourceGet -Scope CurrentUser -Force -AllowClobber
+            Import-Module Microsoft.PowerShell.PSResourceGet -Force
+          }
+
+          Set-PSResourceRepository -Name PSGallery -Trusted
+          Install-PSResource `
+            -Name BcContainerHelper `
+            -Version $moduleVersion `
+            -Repository PSGallery `
+            -Scope CurrentUser `
+            -TrustRepository `
+            -Reinstall `
+            -Quiet
+
+          Import-Module BcContainerHelper -RequiredVersion $moduleVersion -Force
+          $loadedModule = Get-Module BcContainerHelper
+          if (-not $loadedModule) {
+            throw "BcContainerHelper was installed but could not be imported."
+          }
+          Write-Host "BcContainerHelper version: $($loadedModule.Version)"
 
       - name: Resolve BC 27 sandbox artifact
         id: artifact
-        shell: powershell
+        shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.15 -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -54,13 +64,13 @@ jobs:
           Write-Host "Using artifact: $artifactUrl"
 
       - name: Compile extension with CodeCop and PTECop
-        shell: powershell
+        shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.15 -Force
 
           $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential ("admin", $securePassword)
+          $credential = [PSCredential]::new("admin", $securePassword)
           $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
           $rulesetFile = Join-Path $appFolder "app.ruleset.json"
 
