@@ -5,18 +5,59 @@ from pathlib import Path
 
 from alembic.config import Config
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.schema import DefaultClause
 
 from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 BACKEND_DIR = Path(__file__).resolve().parents[1]
+_SQLITE_DEFAULT_BACKUP_KEY = "_sqlite_server_default_backups"
 
 
 class Base(DeclarativeBase):
     pass
+
+
+@event.listens_for(Base.metadata, "before_create")
+def _normalize_sqlite_server_defaults(metadata, connection, **_kwargs) -> None:
+    """Temporarily adapt PostgreSQL defaults for ORM-created SQLite test schemas.
+
+    Production schemas remain managed by Alembic on PostgreSQL. SQLite is used by
+    the backend regression suite, where ``DEFAULT now()`` is invalid DDL. The
+    original metadata defaults are restored after schema creation so metadata
+    contracts continue to represent the PostgreSQL production schema exactly.
+    """
+
+    if connection.dialect.name != "sqlite":
+        return
+
+    backups: list[tuple[object, object]] = []
+    for table in metadata.tables.values():
+        for column in table.columns:
+            server_default = column.server_default
+            if server_default is None:
+                continue
+            default_argument = getattr(server_default, "arg", None)
+            if str(default_argument).strip().lower() == "now()":
+                backups.append((column, server_default))
+                column.server_default = DefaultClause(text("CURRENT_TIMESTAMP"))
+
+    metadata.info[_SQLITE_DEFAULT_BACKUP_KEY] = backups
+
+
+@event.listens_for(Base.metadata, "after_create")
+def _restore_postgresql_server_defaults(metadata, connection, **_kwargs) -> None:
+    """Restore production metadata after temporary SQLite DDL normalization."""
+
+    if connection.dialect.name != "sqlite":
+        return
+
+    backups = metadata.info.pop(_SQLITE_DEFAULT_BACKUP_KEY, [])
+    for column, server_default in backups:
+        column.server_default = server_default
 
 
 engine_kwargs = {
@@ -25,9 +66,32 @@ engine_kwargs = {
 }
 
 if settings.DATABASE_URL.startswith("sqlite"):
-    engine_kwargs["connect_args"] = {"check_same_thread": False}
+    engine_kwargs["connect_args"] = {
+        "check_same_thread": False,
+        "timeout": 30,
+    }
 
 engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
+
+
+if settings.DATABASE_URL.startswith("sqlite"):
+    @event.listens_for(engine, "connect")
+    def _configure_sqlite_connection(dbapi_connection, _connection_record) -> None:
+        """Allow concurrent regression reads while serializing SQLite writers.
+
+        WAL keeps readers from blocking a writer, while busy_timeout lets a losing
+        idempotent scan-start transaction wait for the winning commit. The normal
+        SQLAlchemy transaction model remains intact and PostgreSQL is unaffected.
+        """
+
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.execute("PRAGMA busy_timeout=30000")
+        finally:
+            cursor.close()
+
 
 SessionLocal = sessionmaker(
     bind=engine,

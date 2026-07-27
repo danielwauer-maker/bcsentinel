@@ -7,12 +7,19 @@ from typing import Any
 from fastapi import HTTPException
 
 from app.core.observability import get_request_id, log_event
+from app.core.product_model import (
+    AccessState,
+    CommercialOffer,
+    Entitlement,
+    ExperienceMode,
+    OFFER_ENTITLEMENTS,
+)
 from app.models import Tenant
 from app.services.product_license_service import build_product_access_snapshot
 
 logger = logging.getLogger(__name__)
 
-ACCESS_SNAPSHOT_VERSION = "p0d-v1"
+ACCESS_SNAPSHOT_VERSION = "p0d-v2-product-model"
 ACCESS_SNAPSHOT_TTL_SECONDS = 60
 TOKEN_AUDIENCE = "bcsentinel-protected-content"
 
@@ -55,6 +62,49 @@ def _capability(*, granted: bool, valid_until: Any, reason: str) -> dict[str, An
         "valid_until_utc": _iso(_parse_utc(valid_until)),
         "end_inclusive": True,
         "reason_code": "active" if granted else reason,
+    }
+
+
+def _canonical_product_context(access: dict[str, Any]) -> dict[str, Any]:
+    """Build additive canonical product metadata from the compatibility snapshot.
+
+    Existing fields remain authoritative for access decisions during ARCH-02A.
+    This context exposes the new product model without changing stored codes,
+    customer rights, or legacy API fields.
+    """
+
+    active_offers: list[CommercialOffer] = []
+    if bool(access.get("assessment_access_active") or access.get("full_analysis_access_active")):
+        active_offers.append(CommercialOffer.ASSESSMENT)
+    if bool(access.get("validation_access_active") or access.get("validation_check_access_active")):
+        active_offers.append(CommercialOffer.VALIDATION)
+    if bool(access.get("monitoring_active")):
+        active_offers.append(CommercialOffer.MONITORING)
+
+    entitlement_values: set[Entitlement] = set()
+    for offer in active_offers:
+        entitlement_values.update(OFFER_ENTITLEMENTS[offer])
+
+    free_access = bool(access.get("free_access_permanent") or access.get("has_completed_data_health_score"))
+    if CommercialOffer.MONITORING in active_offers:
+        experience_mode = ExperienceMode.MONITORING
+    elif CommercialOffer.VALIDATION in active_offers:
+        experience_mode = ExperienceMode.VALIDATION_RESULT
+    elif CommercialOffer.ASSESSMENT in active_offers:
+        experience_mode = ExperienceMode.ASSESSMENT_RESULT
+    elif free_access:
+        experience_mode = ExperienceMode.FREE
+    else:
+        experience_mode = ExperienceMode.LOCKED_PREVIEW
+
+    access_state = AccessState.ACTIVE if bool(access.get("can_view_dashboard")) else AccessState.LOCKED
+
+    return {
+        "commercial_offers": [offer.value for offer in active_offers],
+        "experience_mode": experience_mode.value,
+        "entitlements": sorted(entitlement.value for entitlement in entitlement_values),
+        "access_state": access_state.value,
+        "compatibility_source": "product_license_service",
     }
 
 
@@ -145,6 +195,7 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             "company_id": tenant.bc_company_id,
             "company_name": tenant.bc_company_name,
         },
+        "product_model": _canonical_product_context(access),
         "capabilities": capabilities,
     }
     log_event(

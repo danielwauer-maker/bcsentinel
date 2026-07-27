@@ -1,0 +1,18 @@
+{
+  "nav_cta": "Start Assessment",
+  "metric_price_sub": "Clear product prices for Data Health Score, Assessment, Validation Check, and ongoing Monitoring.",
+  "pricing_sub": "Start free with Data Health Score, run an Assessment, or choose continuous Monitoring.",
+  "product_assessment_badge": "Assessment",
+  "product_assessment_title": "7-day access to the complete analysis.",
+  "plan_assessment_badge": "Assessment",
+  "plan_assessment_title": "Full access for your first business case.",
+  "plan_assessment_cta": "Start Assessment",
+  "plan_guarantee_3": "Move from Assessment or Validation Check when needed",
+  "faq_4_a": "A scan credit allows one paid deep scan. Assessment and Validation Check each include one scan credit.",
+  "faq_5_q": "What is the difference between Assessment and Validation Check?",
+  "faq_5_a": "Assessment is the first complete 7-day access window. Validation Check is the follow-up scan after cleanup to confirm progress and refresh the report view.",
+  "faq_6_a": "Monitoring makes sense when data quality should remain visible after an Assessment or cleanup work.",
+  "faq_7_a": "Assessment and Validation Check provide seven days of access. Monitoring keeps access active while the subscription is active.",
+  "cta_sub": "Start with Data Health Score, run an Assessment, validate improvements, and use Monitoring when data quality should stay visible.",
+  "cta_note": "Start with Data Health Score and Assessment, then move to Monitoring when continuous control is needed."
+}

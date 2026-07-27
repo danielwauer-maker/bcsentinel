@@ -1,0 +1,195 @@
+name: BC AL Compile and Cop Gate
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - "bc-extension/**"
+      - ".github/workflows/bc-al-compile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: BC 27 AL compile with CodeCop and PTECop
+    runs-on: windows-2022
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pinned BcContainerHelper
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $moduleVersion = "6.1.14"
+          $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
+          $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
+          $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
+
+          New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+          Invoke-WebRequest `
+            -Uri "https://www.powershellgallery.com/api/v2/package/BcContainerHelper/$moduleVersion" `
+            -OutFile $packagePath `
+            -UseBasicParsing
+          Copy-Item $packagePath $packageZip -Force
+          Expand-Archive -Path $packageZip -DestinationPath $moduleRoot -Force
+
+          $manifestPath = Join-Path $moduleRoot "BcContainerHelper.psd1"
+          if (-not (Test-Path $manifestPath)) {
+            throw "BcContainerHelper manifest was not found after extracting $packagePath."
+          }
+
+          Import-Module $manifestPath -Force
+          $loadedModule = Get-Module BcContainerHelper
+          if (-not $loadedModule) {
+            throw "BcContainerHelper was extracted but could not be imported."
+          }
+          Write-Host "BcContainerHelper version: $($loadedModule.Version)"
+
+      - name: Resolve BC 27 sandbox artifact
+        id: artifact
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
+          if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
+            throw "No BC 27 sandbox artifact could be resolved."
+          }
+          "url=$artifactUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Using artifact: $artifactUrl"
+
+      - name: Compile extension with CodeCop and PTECop
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
+          $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
+          $credential = [PSCredential]::new("admin", $securePassword)
+          $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
+          $rulesetFile = Join-Path $appFolder "app.ruleset.json"
+
+          Start-Transcript -Path $transcriptPath -Force | Out-Null
+          try {
+            Run-AlPipeline `
+              -pipelineName "BCSentinel-ARCH-02A" `
+              -containerName "bcsentinel-arch02a" `
+              -baseFolder $env:GITHUB_WORKSPACE `
+              -appFolders @($appFolder) `
+              -artifact "${{ steps.artifact.outputs.url }}" `
+              -credential $credential `
+              -doNotRunTests `
+              -enableCodeCop `
+              -enablePerTenantExtensionCop `
+              -rulesetFile $rulesetFile `
+              -failOn error `
+              -keepContainer:$false
+          }
+          finally {
+            Stop-Transcript | Out-Null
+          }
+
+      - name: Generate AL warning report
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          $warningsPath = Join-Path $diagnosticsFolder "al-warnings.txt"
+          $summaryPath = Join-Path $diagnosticsFolder "al-warning-summary.md"
+
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
+          if (-not (Test-Path $transcriptPath)) {
+            "Compile transcript was not created." | Set-Content -Path $warningsPath -Encoding utf8
+            "# AL warning summary`n`nCompile transcript was not created." | Set-Content -Path $summaryPath -Encoding utf8
+            exit 0
+          }
+
+          $warningLines = Get-Content $transcriptPath |
+            Where-Object { $_ -match '(?i)\bwarning\s+(AA|AL)[0-9]{4}\b' } |
+            ForEach-Object { $_.Trim() } |
+            Sort-Object -Unique
+
+          if ($warningLines) {
+            $warningLines | Set-Content -Path $warningsPath -Encoding utf8
+          }
+          else {
+            "No AL, CodeCop or PTECop warnings detected." | Set-Content -Path $warningsPath -Encoding utf8
+          }
+
+          $codes = foreach ($line in $warningLines) {
+            if ($line -match '(?i)\bwarning\s+((?:AA|AL)[0-9]{4})\b') {
+              $Matches[1].ToUpperInvariant()
+            }
+          }
+
+          $summary = @(
+            "# AL warning summary"
+            ""
+            "Total unique warning lines: $(@($warningLines).Count)"
+            ""
+            "## Warning codes"
+          )
+
+          if ($codes) {
+            $summary += $codes |
+              Group-Object |
+              Sort-Object Name |
+              ForEach-Object { "- $($_.Name): $($_.Count)" }
+          }
+          else {
+            $summary += "- None"
+          }
+
+          $summary | Set-Content -Path $summaryPath -Encoding utf8
+          $summary | ForEach-Object { Write-Host $_ }
+
+      - name: Collect compiled app packages
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
+
+          $packages = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
+            Where-Object { $_.FullName -notmatch '[\\/]\.packages[\\/]' }
+
+          foreach ($package in $packages) {
+            Copy-Item $package.FullName (Join-Path $artifactFolder $package.Name) -Force
+            Write-Host "Collected package: $($package.FullName)"
+          }
+
+          if (-not (Get-ChildItem -Path $artifactFolder -Filter *.app -File -ErrorAction SilentlyContinue)) {
+            throw "The AL pipeline completed without leaving a compiled .app package in the workspace."
+          }
+
+      - name: Publish AL build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-al-compile-output
+          path: artifacts/bc-app/*.app
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish AL warning diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-al-warning-diagnostics
+          path: artifacts/bc-diagnostics/*
+          if-no-files-found: error
+          retention-days: 14

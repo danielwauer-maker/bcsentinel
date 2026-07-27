@@ -19,19 +19,35 @@
     return (translations[lang] && translations[lang][key]) || fallback || key;
   }
 
+  async function loadJson(path, code, kind) {
+    return fetch(path, { cache: "no-cache" })
+      .then((response) => response.ok ? response.json() : {})
+      .catch((error) => {
+        console.error(`Could not load ${kind} language file`, code, error);
+        return {};
+      });
+  }
+
   async function load(lang) {
     const selected = SUPPORTED.includes(lang) ? lang : "de";
-    const [de, en] = await Promise.all(
-      SUPPORTED.map((code) =>
-        fetch(`lang/${code}.json`, { cache: "no-cache" })
-          .then((response) => response.ok ? response.json() : {})
-          .catch((error) => {
-            console.error("Could not load language file", code, error);
-            return {};
-          })
-      )
+    const baseEntries = await Promise.all(
+      SUPPORTED.map(async (code) => [
+        code,
+        await loadJson(`lang/${code}.json`, code, "base"),
+      ])
     );
-    translations = { de, en };
+    const overlayEntries = await Promise.all(
+      SUPPORTED.map(async (code) => [
+        code,
+        await loadJson(`lang/product-copy.${code}.json`, code, "product copy overlay"),
+      ])
+    );
+
+    const base = Object.fromEntries(baseEntries);
+    const overlays = Object.fromEntries(overlayEntries);
+    translations = Object.fromEntries(
+      SUPPORTED.map((code) => [code, { ...(base[code] || {}), ...(overlays[code] || {}) }])
+    );
     apply(selected);
   }
 
