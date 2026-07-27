@@ -8,6 +8,7 @@ on:
       - "backend/app/core/product_model.py"
       - "backend/app/services/access_control_service.py"
       - "backend/app/services/product_license_service.py"
+      - "backend/app/templates/executive_report.html"
       - "backend/app/translations/dashboard/de.json"
       - "backend/app/translations/dashboard/en.json"
       - "backend/tests/test_product_model_contract.py"
@@ -66,6 +67,6 @@ jobs:
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_compatibility_regression.py
 
-      - name: Dashboard and BC product copy contract
+      - name: Dashboard, BC and report product copy contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_dashboard_product_copy.py
