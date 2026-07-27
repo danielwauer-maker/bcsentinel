@@ -2,6 +2,7 @@
 (function () {
   let payload = window.__BCS_PRODUCT_PRICING__ || null;
   let fetchStarted = false;
+  let applyScheduled = false;
 
   function language() {
     return document.documentElement.lang === "en" ? "en" : "de";
@@ -16,17 +17,31 @@
   }
 
   function apply() {
+    applyScheduled = false;
     if (!payload || !Array.isArray(payload.products)) return;
+
     payload.products.forEach((product) => {
-      let keys = [product.product_key];
+      const keys = [product.product_key];
       if (product.product_key === "full_analysis") keys.push("assessment");
       if (product.product_key === "monitoring") keys.push("monitoring_monthly");
+
+      const formatted = format(
+        Number(product.price_cents || 0) / 100,
+        product.currency || payload.currency
+      );
+
       keys.forEach((key) => {
         document.querySelectorAll(`[data-product-price="${key}"]`).forEach((node) => {
-          node.textContent = format(Number(product.price_cents || 0) / 100, product.currency || payload.currency);
+          if (node.textContent !== formatted) node.textContent = formatted;
         });
       });
     });
+  }
+
+  function scheduleApply() {
+    if (applyScheduled) return;
+    applyScheduled = true;
+    window.requestAnimationFrame(apply);
   }
 
   async function fetchPricing() {
@@ -36,23 +51,42 @@
       const host = location.hostname.toLowerCase().startsWith("dev.")
         ? "https://dev-api.bcsentinel.com"
         : "https://api.bcsentinel.com";
-      const response = await fetch(`${host}/pricing/public`, { headers: { Accept: "application/json" } });
+      const response = await fetch(`${host}/pricing/public`, {
+        headers: { Accept: "application/json" },
+      });
       if (!response.ok) return;
       const next = await response.json();
       if (next && Array.isArray(next.products)) payload = next;
-      apply();
+      scheduleApply();
     } catch (_) {
-      apply();
+      scheduleApply();
     }
   }
 
   function init() {
-    apply();
+    scheduleApply();
     fetchPricing();
-    new MutationObserver(apply).observe(document.body, { childList: true, subtree: true });
-    new MutationObserver(apply).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+
+    const bodyObserver = new MutationObserver((mutations) => {
+      const relevant = mutations.some((mutation) =>
+        Array.from(mutation.addedNodes).some((node) => {
+          if (!(node instanceof Element)) return false;
+          return node.matches?.("[data-product-price]") || node.querySelector?.("[data-product-price]");
+        })
+      );
+      if (relevant) scheduleApply();
+    });
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+    new MutationObserver(scheduleApply).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang"],
+    });
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-  else init();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
 })();
