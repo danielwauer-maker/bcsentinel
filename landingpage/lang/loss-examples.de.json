@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "locale": "de",
+    "schema_version": "lp-gl-11a-loss-v1",
+    "title": "BCSentinel – Estimated Loss transparent erklärt",
+    "description": "Nachvollziehbare Estimated-Loss-Beispiele für Datenqualitätsprobleme in Microsoft Dynamics 365 Business Central."
+  },
+  "hero": {
+    "eyebrow": "Estimated Loss transparent erklärt",
+    "title": "Verstehen Sie, wie aus einem Datenproblem ein nachvollziehbarer Business Impact wird.",
+    "lead": "BCSentinel trennt direkt gemessene Scanwerte von dokumentierten Modellannahmen. So bleibt sichtbar, welche Daten aus Business Central stammen, wie gerechnet wird und warum ein Finding geschäftlich relevant ist.",
+    "primary": "Produkte und Zugriff ansehen",
+    "secondary": "Beispiele prüfen",
+    "trust": ["Gemessene Werte gekennzeichnet", "Annahmen offengelegt", "Keine garantierten Einsparungen"],
+    "exampleTitle": "Beispiel: Kunden ohne Zahlungsbedingungen",
+    "estimatedAnnual": "Geschätzter Jahreswert",
+    "directlyMeasured": "Davon direkt gemessen",
+    "recordsValue": "48 Datensätze"
+  },
+  "summary": {
+    "eyebrow": "Management-Zusammenfassung",
+    "title": "Eine Zahl ist nur dann wertvoll, wenn ihre Herkunft verständlich bleibt.",
+    "lead": "Estimated Loss ist kein buchhalterisch verbuchter Schaden. Es ist ein modellierter Entscheidungswert, der wiederkehrende Nacharbeit, Verzögerungen, Kontrollaufwand und andere operative Reibung sichtbar macht.",
+    "kpis": [["Estimated Loss", "10.492 €", "Illustrative Summe der Beispielprobleme"], ["Potential Saving", "7.344 €", "Modelliertes Verbesserungspotenzial"], ["Check-Katalog", "66", "Unterschiedliche Datenqualitätsprüfungen"]]
+  },
+  "method": {
+    "eyebrow": "Berechnungslogik",
+    "title": "Fünf Faktoren machen die Modellrechnung nachvollziehbar.",
+    "lead": "Nicht jedes Finding verwendet zwangsläufig dieselbe Gewichtung. Das allgemeine Prinzip bleibt jedoch gleich: Erkannter Umfang wird mit konservativen Prozessannahmen verbunden.",
+    "factors": [["Betroffene Datensätze", "Direkt aus dem Scan ermittelter Umfang."], ["Wahrscheinlichkeit", "Wie häufig ein Datenzustand tatsächlich Prozessaufwand erzeugt."], ["Bearbeitungszeit", "Konservativer manueller Aufwand pro relevantem Fall."], ["Prozesskostensatz", "Interner Mischstundensatz für den Business Case."], ["Häufigkeit", "Wie oft der Effekt im Betrachtungszeitraum auftritt."]],
+    "measured": "Direkt gemessen",
+    "assumption": "Modellannahme",
+    "derived": "Berechneter Wert"
+  },
+  "examples": {
+    "eyebrow": "Konkrete Problemfälle",
+    "title": "Fünf vollständige Beispiele aus unterschiedlichen Geschäftsbereichen.",
+    "lead": "Jedes Beispiel zeigt Business-Relevanz, gemessenen Umfang, Annahmen, Formel, Ergebnis und eine konkrete Handlungsempfehlung.",
+    "labels": {"measured":"Direkt gemessen","assumption":"Modellannahme","derived":"Berechneter Wert","why":"Warum Kosten entstehen","action":"Empfohlene Maßnahme","records":"Betroffene Datensätze","prob":"Wahrscheinlichkeit","effort":"Minuten je Fall","rate":"Stundensatz","freq":"Häufigkeit pro Jahr","annual":"Estimated Loss pro Jahr"},
+    "items": [
+      {"code":"SALES_LINES_ZERO_PRICE","title":"Verkaufszeilen mit Preis 0","why":"Preis-0-Zeilen führen häufig zu Korrekturrechnungen, Abstimmung und Margenverlusten.","count":18,"prob":70,"minutes":15,"rate":75,"frequency":12,"loss":2835,"action":"Preisfindung und Freigabelogik prüfen; offene Belege mit Preis 0 priorisiert bereinigen."},
+      {"code":"ITEMS_NEGATIVE_INVENTORY","title":"Artikel mit negativem Bestand","why":"Negative Bestände schwächen Disposition, Lieferzusagen und die Abstimmung zwischen Lager, Einkauf und Vertrieb.","count":22,"prob":60,"minutes":20,"rate":75,"frequency":12,"loss":3960,"action":"Bestandsursachen analysieren, Buchungsreihenfolge korrigieren und kritische Artikel überwachen."},
+      {"code":"CUSTOMERS_MISSING_PAYMENT_TERMS","title":"Kunden ohne Zahlungsbedingung","why":"Fehlende Zahlungsbedingungen erzeugen Rückfragen, inkonsistente Fälligkeiten und zusätzlichen Mahnaufwand.","count":48,"prob":30,"minutes":10,"rate":75,"frequency":12,"loss":2160,"action":"Zahlungsbedingungen ergänzen und Stammdatenprüfung im Anlageprozess verankern."},
+      {"code":"CUSTOMER_LEDGER_OVERDUE_30","title":"Überfällige Debitorenposten über 30 Tage","why":"Überfällige Posten binden Liquidität und erzeugen wiederkehrende Mahn- und Klärungsarbeit.","count":42,"prob":35,"minutes":16,"rate":75,"frequency":12,"loss":3528,"action":"Überfällige Posten segmentieren, Verantwortlichkeiten zuweisen und Eskalationsregeln definieren."},
+      {"code":"PURCHASE_LINES_ZERO_COST","title":"Einkaufszeilen mit Preis 0","why":"Preis-0-Zeilen verfälschen Einstandswerte, Margen und die spätere Nachkalkulation.","count":16,"prob":65,"minutes":14,"rate":75,"frequency":12,"loss":2184,"action":"Preisprüfung vor Freigabe einführen und bestehende offene Belege gezielt korrigieren."}
+    ]
+  },
+  "catalog": {
+    "eyebrow": "Weitere Problemgruppen",
+    "title": "Estimated Loss deckt mehr als einzelne Stammdatenfehler ab.",
+    "groups": [["Kunden & Forderungen", ["Fehlende Zahlungsbedingungen", "Überfällige Debitorenposten", "Dubletten und unvollständige Stammdaten"]], ["Lieferanten & Einkauf", ["Doppelte Bankverbindungen", "Preis-0-Einkaufszeilen", "Alte offene Bestellungen"]], ["Artikel & Bestand", ["Negative Bestände", "Gesperrte Artikel in offenen Belegen", "Inkonsistente Einheiten und Preise"]], ["Finance & Dimensionen", ["Fehlende Buchungsgruppen", "Ungültige Dimensionen", "Blockierte oder verzögerte Buchungen"]]]
+  },
+  "disclaimer": {"title":"Wichtiger Hinweis:","text":"Der Estimated Loss ist ein modellierter Orientierungs- und Entscheidungswert auf Basis erkannter Datenzustände und dokumentierter Annahmen. Er ist keine Garantie für bereits entstandene Kosten, vermeidbare Schäden oder tatsächlich erzielbare Einsparungen. Kunden sollten Annahmen wie Stundensatz, Häufigkeit und Bearbeitungszeit anhand ihrer eigenen Prozesse validieren."},
+  "final": {"eyebrow":"Vom Datenproblem zur Priorität","title":"Machen Sie sichtbar, welche Datenprobleme zuerst gelöst werden sollten.","lead":"Starten Sie mit dem kostenlosen Scan. Assessment schaltet die bereits erzeugte vollständige Analyse für sieben Tage frei.","primary":"Zugriffsmodelle ansehen","secondary":"Findings ansehen"},
+  "accessibility": {"workedExample":"Durchgerechnetes Estimated-Loss-Beispiel","primaryNavigation":"Hauptnavigation"}
+}
