@@ -4,7 +4,7 @@ Generate landingpage/pricing-snapshot.js with static product-pricing fallbacks.
 
 Runtime pricing is loaded from GET /pricing/public. The snapshot is only the
 no-API fallback for static landingpage rendering. It also bootstraps the
-homepage conversion and pricing synchronization modules.
+centralized content runtime, homepage conversion, and pricing synchronization.
 """
 from __future__ import annotations
 
@@ -35,13 +35,16 @@ def main() -> int:
         "(function bootstrapLandingModules() {",
         '  if (!/\\/(?:index\\.html)?$/.test(window.location.pathname)) return;',
         "  [",
+        '    ["js/content-runtime.js", "lpContentRuntime"],',
         '    ["js/hero-conversion-core.js", "lp4Hero"],',
         '    ["js/pricing-runtime-sync.js", "lp7PricingSync"]',
-        "  ].forEach(([src, key]) => {",
+        "  ].forEach(([src, key], index) => {",
+        '    if (document.querySelector(`script[src="${src}"]`)) return;',
         '    const script = document.createElement("script");',
         "    script.src = src;",
         "    script.defer = true;",
-        '    script.dataset[key] = "true";',
+        "    script.dataset[key] = ""true"";",
+        "    if (index === 0) script.async = false;",
         "    document.head.appendChild(script);",
         "  });",
         "})();",
