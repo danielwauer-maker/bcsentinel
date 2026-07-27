@@ -1,28 +1,84 @@
 {
   "schema_version": 2,
-  "sprint": "LP-GL-01",
+  "sprint": "LP-GL-07-ACCESS-CORRECTION",
   "status": "canonical",
   "product_model": {
     "visible_products": ["assessment", "validation", "monitoring"],
     "experience_modes": ["free", "assessment", "validation", "monitoring", "locked"],
     "forbidden_visible_product_names": ["premium", "full_analysis"],
     "descriptive_only_terms": ["Full Analysis"],
-    "technical_compatibility_codes": ["full_analysis"],
-    "entitlements": {
-      "assessment": {
-        "access_days": 7,
-        "unlocks_existing_full_analysis": true,
-        "scan_credits": 0
-      },
-      "validation": {
-        "access_days": 7,
-        "scan_credits": 1,
-        "purpose": "follow_up_scan_after_remediation"
-      },
-      "monitoring": {
-        "access_while_subscription_active": true,
-        "scheduled_scans": true
-      }
+    "technical_compatibility_codes": ["full_analysis"]
+  },
+  "access_matrix": {
+    "free": {
+      "commercial_offer": null,
+      "trigger": "completed_free_scan",
+      "access_duration": "permanent_limited_preview",
+      "scan_credits": 0,
+      "scan_rights": ["one_free_scan_if_not_used"],
+      "dashboard": "limited",
+      "issues": "limited_preview",
+      "actions": "limited_preview",
+      "report": "limited_preview",
+      "record_details": false,
+      "monitoring_features": false,
+      "de": "Der kostenlose Scan zeigt dauerhaft eine begrenzte Vorschau auf Issues, Actions, Dashboard und Report.",
+      "en": "The free scan provides a permanent limited preview of issues, actions, dashboard, and report."
+    },
+    "assessment": {
+      "commercial_offer": "assessment",
+      "technical_code": "full_analysis",
+      "access_duration_days": 7,
+      "scan_credits": 0,
+      "unlocks_existing_full_analysis": true,
+      "dashboard": "full",
+      "issues": "full",
+      "actions": "full",
+      "report": "full",
+      "record_details": true,
+      "monitoring_features": false,
+      "de": "Assessment schaltet die bereits erzeugte Full Analysis für sieben Tage vollständig frei und vergibt keinen Scan-Credit.",
+      "en": "Assessment unlocks the already generated Full Analysis for seven days and grants no scan credit."
+    },
+    "validation": {
+      "commercial_offer": "validation",
+      "technical_code": "validation_check",
+      "access_duration_days_after_scan": 7,
+      "scan_credits": 1,
+      "new_deep_scan": true,
+      "dashboard": "full",
+      "issues": "full",
+      "actions": "full",
+      "report": "full",
+      "record_details": true,
+      "monitoring_features": false,
+      "de": "Validation enthält einen erneuten Scan. Nach dessen Ausführung wird die aktualisierte vollständige Analyse für weitere sieben Tage freigeschaltet.",
+      "en": "Validation includes a new scan. After execution, the updated complete analysis is unlocked for another seven days."
+    },
+    "monitoring": {
+      "commercial_offer": "monitoring",
+      "technical_codes": ["monitoring_monthly", "monitoring_annual"],
+      "billing_variants": ["monthly", "annual"],
+      "access_duration": "active_subscription_period",
+      "scan_credits": "not_credit_limited",
+      "dashboard": "full_plus_monitoring",
+      "issues": "full",
+      "actions": "full_plus_monitoring",
+      "report": "full",
+      "record_details": true,
+      "monitoring_features": true,
+      "monitoring_capabilities": [
+        "scheduled_scans",
+        "recurring_scans",
+        "monitoring_history",
+        "trend_views",
+        "progress_comparison",
+        "exceptions_management",
+        "monitoring_actions",
+        "analytics_full"
+      ],
+      "de": "Monitoring schaltet die vollständige Analyse plus spezielle Monitoring-Funktionen für einen Monat oder ein Jahr frei.",
+      "en": "Monitoring unlocks the complete analysis plus dedicated monitoring capabilities for one month or one year."
     }
   },
   "positioning": {
@@ -31,7 +87,7 @@
       "subheadline": "BCSentinel erkennt Datenqualitätsrisiken, schätzt ihre operativen und finanziellen Auswirkungen und zeigt Ihren Teams, was zuerst behoben werden sollte.",
       "primary_cta": "Assessment starten",
       "pilot_primary_cta": "Assessment anfragen",
-      "secondary_cta": "Beispielreport ansehen",
+      "secondary_cta": "Estimated Loss verstehen",
       "loss_cta": "So wird der Estimated Loss berechnet"
     },
     "en": {
@@ -39,7 +95,7 @@
       "subheadline": "BCSentinel detects data-quality risks, estimates their operational and financial impact, and shows your teams what to fix first.",
       "primary_cta": "Start Assessment",
       "pilot_primary_cta": "Request an Assessment",
-      "secondary_cta": "View sample report",
+      "secondary_cta": "Understand Estimated Loss",
       "loss_cta": "See how Estimated Loss is calculated"
     }
   },
@@ -61,23 +117,6 @@
     "final_cta",
     "footer"
   ],
-  "product_lifecycle": {
-    "assessment": {
-      "de": "Die bereits erstellte Full Analysis für sieben Tage freischalten.",
-      "en": "Unlock the already generated Full Analysis for seven days.",
-      "recommended_start": true,
-      "scan_credit": false
-    },
-    "validation": {
-      "de": "Mit einem Folgescan bestätigen, dass Korrekturmaßnahmen gewirkt haben.",
-      "en": "Use a follow-up scan to confirm that corrective actions worked.",
-      "scan_credit": true
-    },
-    "monitoring": {
-      "de": "Datenqualität dauerhaft unter Kontrolle halten.",
-      "en": "Keep data health under continuous control."
-    }
-  },
   "estimated_loss": {
     "page": "loss-examples.html",
     "priority": "P0",
