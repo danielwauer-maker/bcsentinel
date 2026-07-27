@@ -8,10 +8,13 @@ on:
       - "backend/app/core/product_model.py"
       - "backend/app/services/access_control_service.py"
       - "backend/app/services/product_license_service.py"
+      - "backend/app/translations/dashboard/de.json"
+      - "backend/app/translations/dashboard/en.json"
       - "backend/tests/test_product_model_contract.py"
       - "backend/tests/test_product_license_contract_alignment.py"
       - "backend/tests/test_access_snapshot_product_model.py"
       - "backend/tests/test_arch_02a_compatibility_regression.py"
+      - "backend/tests/test_arch_02a_dashboard_product_copy.py"
       - ".github/workflows/arch-02a-compatibility.yml"
   workflow_dispatch:
 
@@ -60,3 +63,7 @@ jobs:
       - name: TTL and legacy API regression
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_compatibility_regression.py
+
+      - name: Dashboard product copy contract
+        working-directory: backend
+        run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_dashboard_product_copy.py
