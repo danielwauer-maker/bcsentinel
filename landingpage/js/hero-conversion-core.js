@@ -148,14 +148,14 @@
     if (!/\/(?:index\.html)?$/.test(location.pathname)) return;
     loadStyles();
     render();
-    const observer = new MutationObserver((mutations) => {
-      if (mutations.some((item) => item.type === "attributes" && item.attributeName === "lang")) render();
-      if (!document.querySelector(".lp4-hero") || !document.querySelector(".site-header .lp4-header-cta")) render();
+    window.setTimeout(render, 120);
+    window.setTimeout(render, 600);
+    const languageObserver = new MutationObserver((mutations) => {
+      if (mutations.some((item) => item.attributeName === "lang")) render();
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
-    observer.observe(document.body, { childList: true, subtree: true });
+    languageObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
   else init();
 })();
