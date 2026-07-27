@@ -182,7 +182,7 @@
     local procedure UpdateAccessState()
     var
         Setup: Record "DH Setup";
-        BuyFullAnalysisLbl: Label 'Buy Full Analysis for detailed insights';
+        BuyFullAnalysisLbl: Label 'Start Assessment for detailed insights';
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
