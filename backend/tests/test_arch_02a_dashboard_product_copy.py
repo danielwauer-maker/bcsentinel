@@ -14,6 +14,14 @@ LANDING_EXECUTIVE_REPORTS_PAGE = (
     REPOSITORY_ROOT / "landingpage_neu" / "executive-reports.html"
 )
 LANDING_WHY_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "why-bcsentinel.html"
+BC_SETUP_PRODUCT_COPY_EXTENSION = (
+    REPOSITORY_ROOT
+    / "bc-extension"
+    / "app"
+    / "src"
+    / "pageextensions"
+    / "DHSetupProductCopy.PageExt.al"
+)
 BC_ISSUES_PAGE = (
     REPOSITORY_ROOT
     / "bc-extension"
@@ -73,6 +81,23 @@ def test_bc_issue_pages_use_assessment_as_the_customer_facing_offer() -> None:
         # The existing variable name remains stable because this wave changes
         # localized display copy only and does not rename technical identifiers.
         assert "BuyFullAnalysisLbl" in content
+
+
+def test_bc_setup_actions_use_canonical_offer_copy_with_legacy_action_names() -> None:
+    content = BC_SETUP_PRODUCT_COPY_EXTENSION.read_text(encoding="utf-8-sig")
+
+    assert "modify(BuyFullAnalysis)" in content
+    assert "Caption = 'Start Assessment';" in content
+    assert "checkout for an Assessment" in content
+    assert "Caption = 'Start Validation Check';" in content
+    assert "Caption = 'Start Monitoring Monthly';" in content
+    assert "Caption = 'Start Monitoring Annual';" in content
+
+    # Existing action names remain stable; only display copy is overridden.
+    assert "modify(BuyValidationCheck)" in content
+    assert "modify(StartMonitoringMonthly)" in content
+    assert "modify(StartMonitoringAnnual)" in content
+    assert "Buy Full Analysis" not in content
 
 
 def test_executive_report_uses_canonical_commercial_offer_copy() -> None:
