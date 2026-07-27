@@ -32,12 +32,9 @@
     </div>`;
   }
   function loadStyles(){if(document.querySelector('link[data-lp5-story]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/product-story-business-impact.css';l.dataset.lp5Story='true';document.head.appendChild(l)}
-  function removeLegacy(main){
-    const targets=[];let node=main.querySelector('.lp4-trust-strip')?.nextElementSibling;
-    while(node&&node.id!=="pricing"){const next=node.nextElementSibling;if(node.matches('section.section,section.section-split')||node.id==='problem'||node.id==='solution'||node.id==='how-it-works')targets.push(node);node=next}
-    targets.forEach(n=>n.remove());
-  }
-  function render(){if(!/\/(?:index\.html)?$/.test(location.pathname))return;const main=document.querySelector('main');const trust=main?.querySelector('.lp4-trust-strip');if(!main||!trust)return;removeLegacy(main);document.getElementById('lp5-product-story')?.remove();trust.insertAdjacentHTML('afterend',markup(copy[lang()]));}
+  function loadProductProof(){if(document.querySelector('script[data-lp6-proof]'))return;const s=document.createElement('script');s.src='js/product-proof.js';s.defer=true;s.dataset.lp6Proof='true';document.body.appendChild(s)}
+  function removeLegacy(main){const targets=[];let node=main.querySelector('.lp4-trust-strip')?.nextElementSibling;while(node&&node.id!=="pricing"){const next=node.nextElementSibling;if(node.matches('section.section,section.section-split')||node.id==='problem'||node.id==='solution'||node.id==='how-it-works')targets.push(node);node=next}targets.forEach(n=>n.remove())}
+  function render(){if(!/\/(?:index\.html)?$/.test(location.pathname))return;const main=document.querySelector('main');const trust=main?.querySelector('.lp4-trust-strip');if(!main||!trust)return;removeLegacy(main);document.getElementById('lp5-product-story')?.remove();trust.insertAdjacentHTML('afterend',markup(copy[lang()]));loadProductProof();}
   function init(){loadStyles();render();setTimeout(render,180);setTimeout(render,700);new MutationObserver(m=>{if(m.some(x=>x.attributeName==='lang'))render()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
