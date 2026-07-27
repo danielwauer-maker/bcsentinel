@@ -89,13 +89,31 @@ jobs:
             -failOn error `
             -keepContainer:$false
 
+      - name: Collect compiled app packages
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
+
+          $packages = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
+            Where-Object { $_.FullName -notmatch '[\\/]\.packages[\\/]' }
+
+          foreach ($package in $packages) {
+            Copy-Item $package.FullName (Join-Path $artifactFolder $package.Name) -Force
+            Write-Host "Collected package: $($package.FullName)"
+          }
+
+          if (-not (Get-ChildItem -Path $artifactFolder -Filter *.app -File -ErrorAction SilentlyContinue)) {
+            throw "The AL pipeline completed without leaving a compiled .app package in the workspace."
+          }
+
       - name: Publish AL build output
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bc-al-compile-output
-          path: |
-            .output/**
-            bc-extension/**/*.app
-          if-no-files-found: warn
-          retention-days: 7
+          path: artifacts/bc-app/*.app
+          if-no-files-found: error
+          retention-days: 14
