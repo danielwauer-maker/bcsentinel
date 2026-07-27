@@ -80,15 +80,26 @@ jobs:
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_dashboard_product_copy.py
 
       - name: Full backend regression
+        id: full_backend_regression
+        continue-on-error: true
+        working-directory: backend
+        shell: bash
+        run: python -m pytest -q --tb=short -x > arch-02a-full-pytest.log 2>&1
+
+      - name: Publish backend regression diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-02a-backend-regression
+          path: backend/arch-02a-full-pytest.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Report backend regression failure
+        if: steps.full_backend_regression.outcome == 'failure'
         working-directory: backend
         shell: bash
         run: |
-          set +e
-          python -m pytest -q --tb=short -x > /tmp/arch-02a-full-pytest.log 2>&1
-          status=$?
-          if [ "$status" -ne 0 ]; then
-            echo "Full backend regression failed. Showing concise diagnostic tail:"
-            tail -n 160 /tmp/arch-02a-full-pytest.log
-            exit "$status"
-          fi
-          cat /tmp/arch-02a-full-pytest.log
+          echo "Full backend regression failed. Diagnostic artifact: arch-02a-backend-regression"
+          tail -n 80 arch-02a-full-pytest.log
+          exit 1
