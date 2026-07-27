@@ -18,6 +18,7 @@ on:
       - "backend/tests/test_arch_02a_dashboard_product_copy.py"
       - "bc-extension/app/src/pages/DHDashboardIssues.Page.al"
       - "bc-extension/app/src/pages/DHDashboardIssuesList.Page.al"
+      - "landingpage_neu/index.html"
       - "landingpage_neu/pricing.html"
       - ".github/workflows/arch-02a-compatibility.yml"
   workflow_dispatch:
