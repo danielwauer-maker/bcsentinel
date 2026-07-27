@@ -7,6 +7,7 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = BACKEND_DIR.parent
 DASHBOARD_TRANSLATIONS_DIR = BACKEND_DIR / "app" / "translations" / "dashboard"
+EXECUTIVE_REPORT_TEMPLATE = BACKEND_DIR / "app" / "templates" / "executive_report.html"
 BC_ISSUES_PAGE = (
     REPOSITORY_ROOT
     / "bc-extension"
@@ -66,6 +67,20 @@ def test_bc_issue_pages_use_assessment_as_the_customer_facing_offer() -> None:
         # The existing variable name remains stable because this wave changes
         # localized display copy only and does not rename technical identifiers.
         assert "BuyFullAnalysisLbl" in content
+
+
+def test_executive_report_uses_canonical_commercial_offer_copy() -> None:
+    content = EXECUTIVE_REPORT_TEMPLATE.read_text(encoding="utf-8")
+
+    assert "<h2>Assessment starten</h2>" in content
+    assert ">ASSESSMENT STARTEN <" in content
+    assert "<h2>Monitoring starten</h2>" in content
+    assert ">MONITORING STARTEN <" in content
+    assert "Verfügbar mit Assessment oder Monitoring" in content
+
+    assert "Upgrade zur vollständigen Analyse" not in content
+    assert "ZUR VOLLSTÄNDIGEN ANALYSE" not in content
+    assert "BCSentinel Premium-Angeboten" not in content
 
 
 def test_legacy_translation_keys_remain_stable() -> None:
