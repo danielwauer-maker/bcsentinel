@@ -24,10 +24,10 @@ class BillingVariant(StrEnum):
 
 class ExperienceMode(StrEnum):
     FREE = "free"
-    ASSESSMENT_RESULT = "assessment_result"
-    VALIDATION_RESULT = "validation_result"
+    ASSESSMENT_RESULT = "assessment"
+    VALIDATION_RESULT = "validation"
     MONITORING = "monitoring"
-    LOCKED_PREVIEW = "locked_preview"
+    LOCKED_PREVIEW = "locked"
 
 
 class AccessState(StrEnum):
@@ -50,7 +50,6 @@ class Entitlement(StrEnum):
     TENANT_MULTI_ACCESS = "tenant.multi_access"
 
 
-# Existing persistent/API codes. These remain stable during ARCH-02A.
 STORAGE_DATA_HEALTH_SCORE = "data_health_score"
 STORAGE_FULL_ANALYSIS = "full_analysis"
 STORAGE_ASSESSMENT_LEGACY = "assessment"
@@ -84,54 +83,45 @@ OFFER_DISPLAY_NAMES: dict[CommercialOffer, str] = {
 }
 
 OFFER_ENTITLEMENTS: dict[CommercialOffer, frozenset[Entitlement]] = {
-    CommercialOffer.ASSESSMENT: frozenset(
-        {
-            Entitlement.SCAN_CORE,
-            Entitlement.FINDINGS_SUMMARY,
-            Entitlement.FINDINGS_FULL,
-            Entitlement.REPORT_EXECUTIVE,
-        }
-    ),
-    CommercialOffer.VALIDATION: frozenset(
-        {
-            Entitlement.SCAN_CORE,
-            Entitlement.FINDINGS_SUMMARY,
-            Entitlement.FINDINGS_FULL,
-            Entitlement.REPORT_EXECUTIVE,
-            Entitlement.VALIDATION_RUN,
-        }
-    ),
-    CommercialOffer.MONITORING: frozenset(
-        {
-            Entitlement.SCAN_CORE,
-            Entitlement.FINDINGS_SUMMARY,
-            Entitlement.FINDINGS_FULL,
-            Entitlement.REPORT_EXECUTIVE,
-            Entitlement.MONITORING_SCHEDULE,
-            Entitlement.MONITORING_HISTORY,
-            Entitlement.EXCEPTIONS_MANAGE,
-            Entitlement.ANALYTICS_FULL,
-        }
-    ),
+    CommercialOffer.ASSESSMENT: frozenset({
+        Entitlement.SCAN_CORE,
+        Entitlement.FINDINGS_SUMMARY,
+        Entitlement.FINDINGS_FULL,
+        Entitlement.REPORT_EXECUTIVE,
+    }),
+    CommercialOffer.VALIDATION: frozenset({
+        Entitlement.SCAN_CORE,
+        Entitlement.FINDINGS_SUMMARY,
+        Entitlement.FINDINGS_FULL,
+        Entitlement.REPORT_EXECUTIVE,
+        Entitlement.VALIDATION_RUN,
+    }),
+    CommercialOffer.MONITORING: frozenset({
+        Entitlement.SCAN_CORE,
+        Entitlement.FINDINGS_SUMMARY,
+        Entitlement.FINDINGS_FULL,
+        Entitlement.REPORT_EXECUTIVE,
+        Entitlement.MONITORING_SCHEDULE,
+        Entitlement.MONITORING_HISTORY,
+        Entitlement.EXCEPTIONS_MANAGE,
+        Entitlement.ANALYTICS_FULL,
+    }),
 }
 
 
 def canonical_offer_for_storage_code(value: str | None) -> CommercialOffer | None:
     """Resolve an existing storage/API code to the canonical commercial offer."""
-
     normalized = (value or "").strip().lower()
     return STORAGE_TO_OFFER.get(normalized)
 
 
 def billing_variant_for_storage_code(value: str | None) -> BillingVariant | None:
     """Resolve billing cadence without changing the persisted product code."""
-
     normalized = (value or "").strip().lower()
     return STORAGE_TO_BILLING_VARIANT.get(normalized)
 
 
 def entitlements_for_storage_code(value: str | None) -> frozenset[Entitlement]:
     """Return canonical entitlements for a legacy or current product code."""
-
     offer = canonical_offer_for_storage_code(value)
     return OFFER_ENTITLEMENTS.get(offer, frozenset()) if offer is not None else frozenset()
