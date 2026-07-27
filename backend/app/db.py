@@ -5,9 +5,10 @@ from pathlib import Path
 
 from alembic.config import Config
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.schema import DefaultClause
 
 from app.core.settings import settings
 
@@ -17,6 +18,29 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 class Base(DeclarativeBase):
     pass
+
+
+@event.listens_for(Base.metadata, "before_create")
+def _normalize_sqlite_server_defaults(metadata, connection, **_kwargs) -> None:
+    """Keep ORM-created SQLite test schemas compatible with PostgreSQL defaults.
+
+    Production schemas continue to be managed by Alembic on PostgreSQL. SQLite is
+    used by the backend regression suite, where ``DEFAULT now()`` is not valid
+    DDL. SQL's portable ``CURRENT_TIMESTAMP`` preserves the intended behavior
+    without changing PostgreSQL migrations or runtime access semantics.
+    """
+
+    if connection.dialect.name != "sqlite":
+        return
+
+    for table in metadata.tables.values():
+        for column in table.columns:
+            server_default = column.server_default
+            if server_default is None:
+                continue
+            default_argument = getattr(server_default, "arg", None)
+            if str(default_argument).strip().lower() == "now()":
+                column.server_default = DefaultClause(text("CURRENT_TIMESTAMP"))
 
 
 engine_kwargs = {
