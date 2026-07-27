@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BCSentinel Enterprise Design System</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/bcsentinel-enterprise-system.css">
+  <style>
+    .preview-header { padding: 1rem 0; background: #fff; border-bottom: 1px solid var(--bc-border); }
+    .preview-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .preview-brand { font-weight: 800; letter-spacing: -.02em; }
+    .preview-links { display: flex; gap: 1rem; color: var(--bc-muted); font-size: .9rem; }
+    .preview-hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+    .preview-product { display: grid; gap: 1rem; padding: 1rem; border-radius: 1.5rem; background: var(--bc-surface-100); border: 1px solid var(--bc-border); }
+    .preview-product-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+    .preview-findings { display: grid; gap: .75rem; }
+    .preview-finding { display: grid; grid-template-columns: auto 1fr auto; gap: .75rem; align-items: center; padding: .85rem; border: 1px solid var(--bc-border); border-radius: .8rem; background: white; }
+    .swatches { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: .75rem; }
+    .swatch { min-height: 7rem; padding: .8rem; display: flex; align-items: end; border-radius: .9rem; font-size: .75rem; font-weight: 750; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+    .loss-formula { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .75rem; align-items: stretch; }
+    .formula-item { padding: 1rem; border: 1px solid var(--bc-border); border-radius: .85rem; background: #fff; }
+    .formula-result { border-color: rgba(217,92,92,.35); background: var(--bc-red-100); }
+    @media (max-width: 900px) { .preview-hero { grid-template-columns: 1fr; } .swatches { grid-template-columns: repeat(3,1fr); } .loss-formula { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .preview-links { display:none; } .preview-product-top, .swatches, .loss-formula { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="preview-header">
+    <div class="bc-container preview-nav">
+      <div class="preview-brand">BCSentinel <span class="bc-kicker">Enterprise System</span></div>
+      <nav class="preview-links" aria-label="Design system sections">
+        <a href="#hero">Hero</a><a href="#components">Components</a><a href="#loss">Estimated Loss</a><a href="#dark">Dark Section</a>
+      </nav>
+      <a class="bc-button bc-button--primary" href="#components">View system</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="bc-section bc-section--light" id="hero">
+      <div class="bc-container preview-hero">
+        <div class="bc-stack">
+          <span class="bc-eyebrow">Business Central Data Health Management</span>
+          <h1 class="bc-hero-title">Turn data quality into measurable business decisions.</h1>
+          <p class="bc-lead">BCSentinel detects data-quality risks, estimates operational and financial impact, and shows teams what to fix first.</p>
+          <div class="bc-button-row">
+            <a class="bc-button bc-button--primary" href="#components">Start assessment</a>
+            <a class="bc-button bc-button--secondary" href="#loss">View sample report</a>
+          </div>
+        </div>
+        <div class="preview-product" aria-label="Illustrative BCSentinel product composition">
+          <div class="preview-product-top">
+            <div class="bc-card bc-metric"><span class="bc-metric__label">Health Score</span><strong class="bc-metric__value">72</strong><span class="bc-metric__meta">of 100</span></div>
+            <div class="bc-card bc-metric"><span class="bc-metric__label">Estimated Loss</span><strong class="bc-metric__value">48.3k</strong><span class="bc-metric__meta">EUR / year</span></div>
+            <div class="bc-card bc-metric"><span class="bc-metric__label">Findings</span><strong class="bc-metric__value">37</strong><span class="bc-metric__meta">8 critical</span></div>
+          </div>
+          <div class="preview-findings">
+            <div class="preview-finding"><span class="bc-badge bc-badge--critical">Critical</span><span>Duplicate vendor bank accounts</span><strong>€18,400</strong></div>
+            <div class="preview-finding"><span class="bc-badge bc-badge--high">High</span><span>Customers without payment terms</span><strong>€7,250</strong></div>
+            <div class="preview-finding"><span class="bc-badge bc-badge--info">Medium</span><span>Inactive items in open documents</span><strong>28 records</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bc-section bc-section--soft" id="components">
+      <div class="bc-container bc-stack">
+        <div class="bc-stack">
+          <span class="bc-eyebrow">Visual foundation</span>
+          <h2 class="bc-section-title">A restrained enterprise palette with purposeful product colors.</h2>
+          <p class="bc-lead">Orange is reserved for conversion. Blue communicates analysis. Green, amber and red are reserved for data states and findings.</p>
+        </div>
+        <div class="swatches">
+          <div class="swatch" style="background:#081426;color:white">Navy 950</div>
+          <div class="swatch" style="background:#f47a2a;color:white">Primary Orange</div>
+          <div class="swatch" style="background:#367bf5;color:white">Data Blue</div>
+          <div class="swatch" style="background:#2f9c69;color:white">Success Green</div>
+          <div class="swatch" style="background:#d99a24;color:#081426">Warning Amber</div>
+          <div class="swatch" style="background:#d95c5c;color:white">Critical Red</div>
+        </div>
+        <div class="bc-grid bc-grid--3">
+          <article class="bc-card"><span class="bc-badge bc-badge--info">Assessment</span><h3 class="bc-card-title">Understand the current position.</h3><p class="bc-copy">Deep scan, Health Score, prioritized findings, business impact and executive report.</p></article>
+          <article class="bc-card"><span class="bc-badge bc-badge--healthy">Validation</span><h3 class="bc-card-title">Confirm corrective actions.</h3><p class="bc-copy">Targeted re-scan, improvement comparison and an updated management view.</p></article>
+          <article class="bc-card bc-card--feature"><span class="bc-badge">Monitoring</span><h3 class="bc-card-title">Maintain continuous control.</h3><p class="bc-copy">Scheduled scans, trend analysis, new critical findings and ongoing governance.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="bc-section bc-section--light" id="loss">
+      <div class="bc-container bc-stack">
+        <span class="bc-eyebrow">Estimated Loss Transparency</span>
+        <h2 class="bc-section-title">Separate measured data from model assumptions.</h2>
+        <p class="bc-lead">Every example must show what BCSentinel detected, what the model assumes and how the annual estimate is calculated.</p>
+        <div class="loss-formula">
+          <div class="formula-item"><span class="bc-kicker">Measured</span><strong class="bc-card-title">43 records</strong><p>Affected customers detected by the scan.</p></div>
+          <div class="formula-item"><span class="bc-kicker">Assumption</span><strong class="bc-card-title">3 events/year</strong><p>Conservative process-frequency model.</p></div>
+          <div class="formula-item"><span class="bc-kicker">Assumption</span><strong class="bc-card-title">15 min × €42</strong><p>Correction effort and process-cost rate.</p></div>
+          <div class="formula-item formula-result"><span class="bc-kicker">Estimated</span><strong class="bc-card-title">€1,354.50</strong><p>Modeled annual operational impact.</p></div>
+        </div>
+        <div class="bc-callout bc-callout--loss"><strong>Required disclaimer:</strong> Estimated Loss is a modeled decision-support value, not a guarantee of realized or avoidable cost.</div>
+      </div>
+    </section>
+
+    <section class="bc-section bc-section--dark" id="dark">
+      <div class="bc-container bc-grid bc-grid--2">
+        <div class="bc-stack">
+          <span class="bc-eyebrow">Executive Report</span>
+          <h2 class="bc-section-title">A report management can actually use.</h2>
+          <p class="bc-lead">Plain-language summary, quantified impact, prioritized recommendations and a professional PDF designed for decision makers.</p>
+          <div class="bc-button-row"><a class="bc-button bc-button--primary" href="#">Download sample report</a><a class="bc-button bc-button--secondary" href="#">See methodology</a></div>
+        </div>
+        <div class="bc-card bc-card--dark bc-stack">
+          <span class="bc-badge bc-badge--info">Executive Summary</span>
+          <strong class="bc-metric__value">72</strong>
+          <p>Health Score with 37 findings, 8 critical issues and an estimated annual impact of €48,300.</p>
+          <div class="bc-grid bc-grid--2"><div><span class="bc-kicker">Potential Saving</span><strong class="bc-card-title">€31,700</strong></div><div><span class="bc-kicker">Priority</span><strong class="bc-card-title">Finance</strong></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
