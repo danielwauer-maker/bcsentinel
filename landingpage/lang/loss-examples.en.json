@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "locale": "en",
+    "schema_version": "lp-gl-11a-loss-v1",
+    "title": "BCSentinel – Estimated Loss explained transparently",
+    "description": "Transparent Estimated Loss examples for data-quality issues in Microsoft Dynamics 365 Business Central."
+  },
+  "hero": {
+    "eyebrow": "Estimated Loss explained transparently",
+    "title": "Understand how a data issue becomes a defensible business impact.",
+    "lead": "BCSentinel separates directly measured scan values from documented model assumptions. This makes clear what comes from Business Central, how the calculation works, and why a finding matters to the business.",
+    "primary": "View products and access",
+    "secondary": "Review examples",
+    "trust": ["Measured values identified", "Assumptions disclosed", "No guaranteed savings"],
+    "exampleTitle": "Example: customers without payment terms",
+    "estimatedAnnual": "Estimated annual value",
+    "directlyMeasured": "Directly measured",
+    "recordsValue": "48 records"
+  },
+  "summary": {
+    "eyebrow": "Management summary",
+    "title": "A number is useful only when its origin remains understandable.",
+    "lead": "Estimated Loss is not an accounted financial loss. It is a modeled decision-support value that makes recurring rework, delays, control effort, and other operational friction visible.",
+    "kpis": [["Estimated Loss", "€10,492", "Illustrative total of example issues"], ["Potential Saving", "€7,344", "Modeled improvement potential"], ["Check catalog", "66", "Different data-quality checks"]]
+  },
+  "method": {
+    "eyebrow": "Calculation logic",
+    "title": "Five factors make the model calculation understandable.",
+    "lead": "Not every finding necessarily uses the same weighting. The general principle remains consistent: detected scope is combined with conservative process assumptions.",
+    "factors": [["Affected records", "Scope measured directly by the scan."], ["Probability", "How often the condition creates actual process effort."], ["Handling time", "Conservative manual effort per relevant case."], ["Process cost rate", "Blended internal hourly rate for the business case."], ["Frequency", "How often the effect occurs during the period."]],
+    "measured": "Directly measured",
+    "assumption": "Model assumption",
+    "derived": "Calculated value"
+  },
+  "examples": {
+    "eyebrow": "Concrete issue examples",
+    "title": "Five complete examples from different business areas.",
+    "lead": "Each example shows business relevance, measured scope, assumptions, formula, result, and a concrete recommended action.",
+    "labels": {"measured":"Directly measured","assumption":"Model assumption","derived":"Calculated value","why":"Why cost occurs","action":"Recommended action","records":"Affected records","prob":"Probability","effort":"Minutes per case","rate":"Hourly rate","freq":"Frequency per year","annual":"Estimated Loss per year"},
+    "items": [
+      {"code":"SALES_LINES_ZERO_PRICE","title":"Sales lines with price 0","why":"Zero-price sales lines often create invoice corrections, coordination effort, and margin leakage.","count":18,"prob":70,"minutes":15,"rate":75,"frequency":12,"loss":2835,"action":"Review pricing and approval logic; prioritize open documents with zero prices."},
+      {"code":"ITEMS_NEGATIVE_INVENTORY","title":"Items with negative inventory","why":"Negative inventory weakens replenishment, delivery commitments, and coordination across warehouse, purchasing, and sales.","count":22,"prob":60,"minutes":20,"rate":75,"frequency":12,"loss":3960,"action":"Analyze inventory causes, correct posting sequence, and monitor critical items."},
+      {"code":"CUSTOMERS_MISSING_PAYMENT_TERMS","title":"Customers missing payment terms","why":"Missing payment terms create follow-ups, inconsistent due dates, and extra collection effort.","count":48,"prob":30,"minutes":10,"rate":75,"frequency":12,"loss":2160,"action":"Complete payment terms and embed validation in customer creation."},
+      {"code":"CUSTOMER_LEDGER_OVERDUE_30","title":"Customer ledger overdue over 30 days","why":"Overdue receivables tie up liquidity and create recurring collection and clarification work.","count":42,"prob":35,"minutes":16,"rate":75,"frequency":12,"loss":3528,"action":"Segment overdue entries, assign ownership, and define escalation rules."},
+      {"code":"PURCHASE_LINES_ZERO_COST","title":"Purchase lines with cost 0","why":"Zero-cost purchase lines distort acquisition cost, margin, and follow-up costing.","count":16,"prob":65,"minutes":14,"rate":75,"frequency":12,"loss":2184,"action":"Introduce price validation before approval and correct affected open documents."}
+    ]
+  },
+  "catalog": {
+    "eyebrow": "Additional issue groups",
+    "title": "Estimated Loss covers more than isolated master-data issues.",
+    "groups": [["Customers & receivables", ["Missing payment terms", "Overdue receivables", "Duplicates and incomplete master data"]], ["Vendors & purchasing", ["Duplicate bank accounts", "Zero-cost purchase lines", "Old open purchase orders"]], ["Items & inventory", ["Negative inventory", "Blocked items in open documents", "Inconsistent units and prices"]], ["Finance & dimensions", ["Missing posting groups", "Invalid dimensions", "Blocked or delayed posting"]]]
+  },
+  "disclaimer": {"title":"Important notice:","text":"Estimated Loss is a modeled orientation and decision-support value based on detected data conditions and documented assumptions. It is not a guarantee of costs already incurred, avoidable damage, or savings that will actually be achieved. Customers should validate assumptions such as hourly rate, frequency, and handling time against their own processes."},
+  "final": {"eyebrow":"From data issue to priority","title":"Make visible which data issues should be resolved first.","lead":"Start with the free scan. Assessment unlocks the already generated complete analysis for seven days.","primary":"View access models","secondary":"View findings"},
+  "accessibility": {"workedExample":"Worked Estimated Loss example","primaryNavigation":"Primary navigation"}
+}
