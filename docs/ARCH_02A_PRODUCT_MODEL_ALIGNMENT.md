@@ -1,6 +1,6 @@
 # ARCH-02A Product Model Alignment
 
-Status: In Progress  
+Status: Review Ready  
 Base branch: `staging`  
 Working branch: `arch-02a-product-model-alignment`
 
@@ -12,7 +12,7 @@ Align the Core Product with the canonical Product System model without changing 
 
 - Commercial offers: Assessment, Validation, Monitoring
 - Billing variants: one-time, monthly, annual
-- Experience modes: free, assessment result, validation result, monitoring, locked preview
+- Experience modes: free, assessment, validation, monitoring, locked
 - Entitlements: explicit capability identifiers
 - Access states: active, inactive, expired, locked
 
@@ -37,37 +37,42 @@ No migration or customer-access change is introduced by the current contract.
 - `backend/app/services/access_control_service.py` exposes an additive `product_model` section.
 - the authoritative snapshot version is `p0d-v2-product-model`.
 - existing capability names and legacy access fields remain unchanged.
-- tests cover contract mapping, license/storage compatibility, product context, TTL and legacy API behavior.
-- `.github/workflows/arch-02a-compatibility.yml` runs the compatibility gate for relevant pull requests.
+- customer-facing copy uses Assessment, Validation and Monitoring.
+- technical compatibility identifiers such as `full_analysis` remain stable.
+- Dashboard, Executive Report, Landingpage and BC Setup copy are contract-tested.
+- BC Extension compile, CodeCop and PTECop are executed in GitHub Actions.
+- `.app` and warning diagnostics are published as workflow artifacts.
 
-## Verified compatibility gate
+## Final verification
 
-The GitHub Actions run for ARCH-02A completed successfully.
+### ARCH-02A Compatibility Gate — Run 61
 
-Successful test groups:
+- Product model contract: PASS
+- License and storage compatibility: PASS
+- Access snapshot product context: PASS
+- TTL and legacy API regression: PASS
+- Dashboard, BC, report and landing product copy contract: PASS
+- Full backend regression: PASS
 
-- Product model contract;
-- License and storage compatibility;
-- Access snapshot product context;
-- TTL and legacy API regression.
+### BC AL Compile and Cop Gate — Run 12
+
+- Business Central 27 AL compile: PASS
+- CodeCop: PASS
+- PTECop: PASS
+- `.app` artifact: PASS
+- warning diagnostics artifact: PASS
+- detected AL, CodeCop and PTECop warnings: 0
 
 The tests use an explicit isolated test environment and do not require a product-data migration or production database.
 
-## Confirmed current drift
+## Intentional compatibility debt
 
-- `product_license_service.py` still acts as the runtime and storage compatibility layer.
-- Display copy still exposes `Full Analysis` and historical `Premium` vocabulary in several surfaces.
-- Feature sets still contain legacy string flags alongside the new entitlement model.
-- Access snapshots intentionally retain historical `premium_*` fields for compatibility.
-- Monitoring cadence and commercial offer remain encoded in the existing storage code.
+- `product_license_service.py` remains the runtime and storage compatibility layer.
+- access snapshots intentionally retain historical `premium_*` fields.
+- monitoring cadence remains encoded in the existing storage code.
+- legacy translation keys and technical action names remain until all consumers are migrated.
 
-## Next controlled steps
-
-1. Inventory product copy in Dashboard, Reports and BC Extension.
-2. Classify `Premium`, `Full Analysis` and similar terms as compatibility, marketing or obsolete copy.
-3. Replace only approved UI copy with Assessment, Validation and Monitoring terminology.
-4. Keep existing storage/API fields until consumers are migrated and regression-tested.
-5. Run broader backend regression and complete PR review.
+These items are deliberate compatibility boundaries, not unresolved defects in ARCH-02A.
 
 ## Safety rules
 
@@ -76,3 +81,4 @@ The tests use an explicit isolated test environment and do not require a product
 - No Stripe price remapping in this phase.
 - No removal of legacy API fields before all consumers are migrated.
 - All new access decisions fail closed.
+- Merge to `staging` only after explicit approval.
