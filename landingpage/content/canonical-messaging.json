@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "sprint": "LP-GL-01",
   "status": "canonical",
   "product_model": {
@@ -7,7 +7,23 @@
     "experience_modes": ["free", "assessment", "validation", "monitoring", "locked"],
     "forbidden_visible_product_names": ["premium", "full_analysis"],
     "descriptive_only_terms": ["Full Analysis"],
-    "technical_compatibility_codes": ["full_analysis"]
+    "technical_compatibility_codes": ["full_analysis"],
+    "entitlements": {
+      "assessment": {
+        "access_days": 7,
+        "unlocks_existing_full_analysis": true,
+        "scan_credits": 0
+      },
+      "validation": {
+        "access_days": 7,
+        "scan_credits": 1,
+        "purpose": "follow_up_scan_after_remediation"
+      },
+      "monitoring": {
+        "access_while_subscription_active": true,
+        "scheduled_scans": true
+      }
+    }
   },
   "positioning": {
     "de": {
@@ -47,13 +63,15 @@
   ],
   "product_lifecycle": {
     "assessment": {
-      "de": "Aktuelle Data-Health-Position verstehen.",
-      "en": "Understand the current data-health position.",
-      "recommended_start": true
+      "de": "Die bereits erstellte Full Analysis für sieben Tage freischalten.",
+      "en": "Unlock the already generated Full Analysis for seven days.",
+      "recommended_start": true,
+      "scan_credit": false
     },
     "validation": {
-      "de": "Bestätigen, dass Korrekturmaßnahmen gewirkt haben.",
-      "en": "Confirm that corrective actions worked."
+      "de": "Mit einem Folgescan bestätigen, dass Korrekturmaßnahmen gewirkt haben.",
+      "en": "Use a follow-up scan to confirm that corrective actions worked.",
+      "scan_credit": true
     },
     "monitoring": {
       "de": "Datenqualität dauerhaft unter Kontrolle halten.",
@@ -64,48 +82,17 @@
     "page": "loss-examples.html",
     "priority": "P0",
     "homepage_position": "after_problem_business_impact",
-    "required_entry_points": [
-      "homepage",
-      "kpi_explanation",
-      "findings",
-      "executive_report",
-      "faq",
-      "footer"
-    ],
+    "required_entry_points": ["homepage", "kpi_explanation", "findings", "executive_report", "faq", "footer"],
     "disclaimer": {
       "de": "Der Estimated Loss ist ein modellierter Orientierungswert auf Basis erkannter Datenzustände und dokumentierter Annahmen. Er ist keine Garantie für bereits entstandene Kosten oder tatsächlich erzielbare Einsparungen.",
       "en": "Estimated Loss is a modelled orientation value based on detected data conditions and documented assumptions. It is not a guarantee of costs already incurred or savings that will be achieved."
     },
-    "required_example_fields": [
-      "finding",
-      "measured_values",
-      "derived_values",
-      "assumptions",
-      "formula",
-      "time_horizon",
-      "estimated_loss",
-      "business_interpretation",
-      "recommended_action"
-    ]
+    "required_example_fields": ["finding", "measured_values", "derived_values", "assumptions", "formula", "time_horizon", "estimated_loss", "business_interpretation", "recommended_action"]
   },
-  "audiences": [
-    "management_cfo",
-    "it_erp_owners",
-    "bc_partners_consultants",
-    "managed_service_providers"
-  ],
+  "audiences": ["management_cfo", "it_erp_owners", "bc_partners_consultants", "managed_service_providers"],
   "trust_rules": {
     "allow_only_verified_claims": true,
-    "forbidden": [
-      "invented_customer_logos",
-      "invented_testimonials",
-      "unsupported_microsoft_partnership",
-      "unsupported_compliance_badges",
-      "guaranteed_savings",
-      "guaranteed_loss_prevention",
-      "artificial_urgency",
-      "vague_ai_claims"
-    ]
+    "forbidden": ["invented_customer_logos", "invented_testimonials", "unsupported_microsoft_partnership", "unsupported_compliance_badges", "guaranteed_savings", "guaranteed_loss_prevention", "artificial_urgency", "vague_ai_claims"]
   },
   "visual_direction": {
     "name": "Hybrid Enterprise",
@@ -113,14 +100,6 @@
     "dark_surface_share_percent": 30,
     "primary_action_color": "orange",
     "data_colors": ["blue", "green", "amber", "red"],
-    "principles": [
-      "real_product_visuals",
-      "restrained_shadows",
-      "limited_glassmorphism",
-      "fewer_repetitive_cards",
-      "strong_typographic_hierarchy",
-      "no_stock_photos",
-      "no_generic_ai_illustrations"
-    ]
+    "principles": ["real_product_visuals", "restrained_shadows", "limited_glassmorphism", "fewer_repetitive_cards", "strong_typographic_hierarchy", "no_stock_photos", "no_generic_ai_illustrations"]
   }
 }
