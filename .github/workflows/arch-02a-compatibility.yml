@@ -6,6 +6,7 @@ on:
       - staging
     paths:
       - "backend/app/core/product_model.py"
+      - "backend/app/db.py"
       - "backend/app/services/access_control_service.py"
       - "backend/app/services/product_license_service.py"
       - "backend/app/templates/executive_report.html"
@@ -16,9 +17,11 @@ on:
       - "backend/tests/test_access_snapshot_product_model.py"
       - "backend/tests/test_arch_02a_compatibility_regression.py"
       - "backend/tests/test_arch_02a_dashboard_product_copy.py"
-      - "bc-extension/app/src/pages/DHDashboardIssues.Page.al"
-      - "bc-extension/app/src/pages/DHDashboardIssuesList.Page.al"
-      - "bc-extension/app/src/pageextensions/DHSetupProductCopy.PageExt.al"
+      - "bc-extension/app.json"
+      - "bc-extension/.vscode/settings.json"
+      - "bc-extension/app.ruleset.json"
+      - "bc-extension/app/src/**/*.al"
+      - "scripts/validate_bc_extension.py"
       - "landingpage_neu/assets/js/i18n.js"
       - "landingpage_neu/lang/product-copy.de.json"
       - "landingpage_neu/lang/product-copy.en.json"
@@ -58,6 +61,9 @@ jobs:
 
       - name: Install backend dependencies
         run: python -m pip install --quiet -r backend/requirements.txt
+
+      - name: BC extension source and analyzer preflight
+        run: python scripts/validate_bc_extension.py
 
       - name: Product model contract
         working-directory: backend
