@@ -36,7 +36,7 @@ jobs:
   compatibility:
     name: Product model compatibility
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       ENV: test
       APP_ENV: test
@@ -78,3 +78,7 @@ jobs:
       - name: Dashboard, BC, report and landing product copy contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_arch_02a_dashboard_product_copy.py
+
+      - name: Full backend regression
+        working-directory: backend
+        run: python -m pytest -q --tb=short
