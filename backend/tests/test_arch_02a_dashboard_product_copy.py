@@ -14,6 +14,8 @@ LANDING_EXECUTIVE_REPORTS_PAGE = (
     REPOSITORY_ROOT / "landingpage_neu" / "executive-reports.html"
 )
 LANDING_WHY_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "why-bcsentinel.html"
+LANDING_I18N_LOADER = REPOSITORY_ROOT / "landingpage_neu" / "assets" / "js" / "i18n.js"
+LANDING_PRODUCT_COPY_DIR = REPOSITORY_ROOT / "landingpage_neu" / "lang"
 BC_SETUP_PRODUCT_COPY_EXTENSION = (
     REPOSITORY_ROOT
     / "bc-extension"
@@ -163,6 +165,29 @@ def test_landing_assessment_pages_use_one_compatible_checkout_identifier() -> No
         assert 'data-product-code="assessment"' not in content
         assert 'data-checkout-product="assessment"' not in content
         assert "contact.html?intent=assessment" not in content
+
+
+def test_landing_product_copy_overlays_are_canonical_and_loaded_last() -> None:
+    de = json.loads(
+        (LANDING_PRODUCT_COPY_DIR / "product-copy.de.json").read_text(encoding="utf-8")
+    )
+    en = json.loads(
+        (LANDING_PRODUCT_COPY_DIR / "product-copy.en.json").read_text(encoding="utf-8")
+    )
+    loader = LANDING_I18N_LOADER.read_text(encoding="utf-8")
+
+    assert de["cta_assessment"] == "Assessment starten"
+    assert en["nav_cta"] == "Start Assessment"
+    assert en["product_assessment_badge"] == "Assessment"
+    assert en["plan_assessment_cta"] == "Start Assessment"
+
+    for values in (de.values(), en.values()):
+        assert all("Full Premium Analysis" not in value for value in values)
+        assert all("Buy Full Analysis" not in value for value in values)
+
+    assert "lang/product-copy.${code}.json" in loader
+    assert "{ ...(base[code] || {}), ...(overlays[code] || {}) }" in loader
+    assert "Could not load product copy overlay language file" in loader
 
 
 def test_legacy_translation_keys_remain_stable() -> None:
