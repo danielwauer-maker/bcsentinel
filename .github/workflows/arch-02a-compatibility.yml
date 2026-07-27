@@ -20,6 +20,8 @@ on:
       - "bc-extension/app/src/pages/DHDashboardIssuesList.Page.al"
       - "landingpage_neu/index.html"
       - "landingpage_neu/pricing.html"
+      - "landingpage_neu/executive-reports.html"
+      - "landingpage_neu/why-bcsentinel.html"
       - ".github/workflows/arch-02a-compatibility.yml"
   workflow_dispatch:
 
