@@ -7,6 +7,9 @@ on:
     paths:
       - "bc-extension/**"
       - ".github/workflows/bc-al-compile.yml"
+  push:
+    branches:
+      - staging
   workflow_dispatch:
 
 permissions:
