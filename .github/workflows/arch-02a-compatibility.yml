@@ -30,6 +30,9 @@ on:
       - "landingpage_neu/executive-reports.html"
       - "landingpage_neu/why-bcsentinel.html"
       - ".github/workflows/arch-02a-compatibility.yml"
+  push:
+    branches:
+      - staging
   workflow_dispatch:
 
 permissions:
