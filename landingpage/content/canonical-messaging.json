@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "sprint": "LP-GL-01",
+  "status": "canonical",
+  "product_model": {
+    "visible_products": ["assessment", "validation", "monitoring"],
+    "experience_modes": ["free", "assessment", "validation", "monitoring", "locked"],
+    "forbidden_visible_product_names": ["premium", "full_analysis"],
+    "descriptive_only_terms": ["Full Analysis"],
+    "technical_compatibility_codes": ["full_analysis"]
+  },
+  "positioning": {
+    "de": {
+      "headline": "Machen Sie die Datenqualität in Business Central messbar und steuerbar.",
+      "subheadline": "BCSentinel erkennt Datenqualitätsrisiken, schätzt ihre operativen und finanziellen Auswirkungen und zeigt Ihren Teams, was zuerst behoben werden sollte.",
+      "primary_cta": "Assessment starten",
+      "pilot_primary_cta": "Assessment anfragen",
+      "secondary_cta": "Beispielreport ansehen",
+      "loss_cta": "So wird der Estimated Loss berechnet"
+    },
+    "en": {
+      "headline": "Turn Business Central data quality into measurable business decisions.",
+      "subheadline": "BCSentinel detects data-quality risks, estimates their operational and financial impact, and shows your teams what to fix first.",
+      "primary_cta": "Start Assessment",
+      "pilot_primary_cta": "Request an Assessment",
+      "secondary_cta": "View sample report",
+      "loss_cta": "See how Estimated Loss is calculated"
+    }
+  },
+  "homepage_sections": [
+    "header",
+    "hero",
+    "trust_strip",
+    "problem_business_impact",
+    "estimated_loss_preview",
+    "how_it_works",
+    "product_lifecycle",
+    "findings",
+    "executive_report",
+    "dashboard",
+    "audience_benefits",
+    "security_trust",
+    "pricing",
+    "faq",
+    "final_cta",
+    "footer"
+  ],
+  "product_lifecycle": {
+    "assessment": {
+      "de": "Aktuelle Data-Health-Position verstehen.",
+      "en": "Understand the current data-health position.",
+      "recommended_start": true
+    },
+    "validation": {
+      "de": "Bestätigen, dass Korrekturmaßnahmen gewirkt haben.",
+      "en": "Confirm that corrective actions worked."
+    },
+    "monitoring": {
+      "de": "Datenqualität dauerhaft unter Kontrolle halten.",
+      "en": "Keep data health under continuous control."
+    }
+  },
+  "estimated_loss": {
+    "page": "loss-examples.html",
+    "priority": "P0",
+    "homepage_position": "after_problem_business_impact",
+    "required_entry_points": [
+      "homepage",
+      "kpi_explanation",
+      "findings",
+      "executive_report",
+      "faq",
+      "footer"
+    ],
+    "disclaimer": {
+      "de": "Der Estimated Loss ist ein modellierter Orientierungswert auf Basis erkannter Datenzustände und dokumentierter Annahmen. Er ist keine Garantie für bereits entstandene Kosten oder tatsächlich erzielbare Einsparungen.",
+      "en": "Estimated Loss is a modelled orientation value based on detected data conditions and documented assumptions. It is not a guarantee of costs already incurred or savings that will be achieved."
+    },
+    "required_example_fields": [
+      "finding",
+      "measured_values",
+      "derived_values",
+      "assumptions",
+      "formula",
+      "time_horizon",
+      "estimated_loss",
+      "business_interpretation",
+      "recommended_action"
+    ]
+  },
+  "audiences": [
+    "management_cfo",
+    "it_erp_owners",
+    "bc_partners_consultants",
+    "managed_service_providers"
+  ],
+  "trust_rules": {
+    "allow_only_verified_claims": true,
+    "forbidden": [
+      "invented_customer_logos",
+      "invented_testimonials",
+      "unsupported_microsoft_partnership",
+      "unsupported_compliance_badges",
+      "guaranteed_savings",
+      "guaranteed_loss_prevention",
+      "artificial_urgency",
+      "vague_ai_claims"
+    ]
+  },
+  "visual_direction": {
+    "name": "Hybrid Enterprise",
+    "light_surface_share_percent": 70,
+    "dark_surface_share_percent": 30,
+    "primary_action_color": "orange",
+    "data_colors": ["blue", "green", "amber", "red"],
+    "principles": [
+      "real_product_visuals",
+      "restrained_shadows",
+      "limited_glassmorphism",
+      "fewer_repetitive_cards",
+      "strong_typographic_hierarchy",
+      "no_stock_photos",
+      "no_generic_ai_illustrations"
+    ]
+  }
+}
