@@ -15,7 +15,6 @@ from app.core.settings import settings
 logger = logging.getLogger(__name__)
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 _SQLITE_DEFAULT_BACKUP_KEY = "_sqlite_server_default_backups"
-_IS_SQLITE = settings.DATABASE_URL.startswith("sqlite")
 
 
 class Base(DeclarativeBase):
@@ -66,24 +65,32 @@ engine_kwargs = {
     "pool_pre_ping": True,
 }
 
-if _IS_SQLITE:
-    # SQLite permits only one concurrent writer. Use a generous busy timeout and
-    # explicit BEGIN IMMEDIATE transactions so competing scan-start requests wait
-    # for the winning commit instead of continuing from stale read snapshots.
-    # PostgreSQL production behavior and Alembic migrations are unaffected.
+if settings.DATABASE_URL.startswith("sqlite"):
     engine_kwargs["connect_args"] = {
         "check_same_thread": False,
         "timeout": 30,
     }
-    engine_kwargs["isolation_level"] = None
 
 engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 
 
-if _IS_SQLITE:
-    @event.listens_for(engine, "begin")
-    def _begin_sqlite_transaction_immediately(connection) -> None:
-        connection.exec_driver_sql("BEGIN IMMEDIATE")
+if settings.DATABASE_URL.startswith("sqlite"):
+    @event.listens_for(engine, "connect")
+    def _configure_sqlite_connection(dbapi_connection, _connection_record) -> None:
+        """Allow concurrent regression reads while serializing SQLite writers.
+
+        WAL keeps readers from blocking a writer, while busy_timeout lets a losing
+        idempotent scan-start transaction wait for the winning commit. The normal
+        SQLAlchemy transaction model remains intact and PostgreSQL is unaffected.
+        """
+
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.execute("PRAGMA busy_timeout=30000")
+        finally:
+            cursor.close()
 
 
 SessionLocal = sessionmaker(
