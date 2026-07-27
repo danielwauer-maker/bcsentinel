@@ -1,16 +1,55 @@
-/* LP-GL-10 — Estimated Loss Examples */
-(function(){
-const examples=[
-{code:'SALES_LINES_ZERO_PRICE',de:'Verkaufszeilen mit Preis 0',en:'Sales lines with price 0',whyDe:'Preis-0-Zeilen führen häufig zu Korrekturrechnungen, Abstimmung und Margenverlusten.',whyEn:'Zero-price sales lines often create invoice corrections, coordination effort, and margin leakage.',count:18,prob:70,min:15,rate:75,freq:12,loss:2835,actionDe:'Preisfindung und Freigabelogik prüfen; offene Belege mit Preis 0 priorisiert bereinigen.',actionEn:'Review pricing and approval logic; prioritize open documents with zero prices.'},
-{code:'ITEMS_NEGATIVE_INVENTORY',de:'Artikel mit negativem Bestand',en:'Items with negative inventory',whyDe:'Negative Bestände schwächen Disposition, Lieferzusagen und die Abstimmung zwischen Lager, Einkauf und Vertrieb.',whyEn:'Negative inventory weakens replenishment, delivery commitments, and coordination across warehouse, purchasing, and sales.',count:22,prob:60,min:20,rate:75,freq:12,loss:3960,actionDe:'Bestandsursachen analysieren, Buchungsreihenfolge korrigieren und kritische Artikel überwachen.',actionEn:'Analyze inventory causes, correct posting sequence, and monitor critical items.'},
-{code:'CUSTOMERS_MISSING_PAYMENT_TERMS',de:'Kunden ohne Zahlungsbedingung',en:'Customers missing payment terms',whyDe:'Fehlende Zahlungsbedingungen erzeugen Rückfragen, inkonsistente Fälligkeiten und zusätzlichen Mahnaufwand.',whyEn:'Missing payment terms create follow-ups, inconsistent due dates, and extra collection effort.',count:48,prob:30,min:10,rate:75,freq:12,loss:2160,actionDe:'Zahlungsbedingungen ergänzen und Stammdatenprüfung im Anlageprozess verankern.',actionEn:'Complete payment terms and embed validation in customer creation.'},
-{code:'CUSTOMER_LEDGER_OVERDUE_30',de:'Überfällige Debitorenposten über 30 Tage',en:'Customer ledger overdue over 30 days',whyDe:'Überfällige Posten binden Liquidität und erzeugen wiederkehrende Mahn- und Klärungsarbeit.',whyEn:'Overdue receivables tie up liquidity and create recurring collection and clarification work.',count:42,prob:35,min:16,rate:75,freq:12,loss:3528,actionDe:'Überfällige Posten segmentieren, Verantwortlichkeiten zuweisen und Eskalationsregeln definieren.',actionEn:'Segment overdue entries, assign ownership, and define escalation rules.'},
-{code:'PURCHASE_LINES_ZERO_COST',de:'Einkaufszeilen mit Preis 0',en:'Purchase lines with cost 0',whyDe:'Preis-0-Zeilen verfälschen Einstandswerte, Margen und die spätere Nachkalkulation.',whyEn:'Zero-cost purchase lines distort acquisition cost, margin, and follow-up costing.',count:16,prob:65,min:14,rate:75,freq:12,loss:2184,actionDe:'Preisprüfung vor Freigabe einführen und bestehende offene Belege gezielt korrigieren.',actionEn:'Introduce price validation before approval and correct affected open documents.'}
-];
-const copy={de:{measured:'Direkt gemessen',assumption:'Modellannahme',derived:'Berechneter Wert',why:'Warum Kosten entstehen',action:'Empfohlene Maßnahme',records:'Betroffene Datensätze',prob:'Wahrscheinlichkeit',effort:'Minuten je Fall',rate:'Stundensatz',freq:'Häufigkeit pro Jahr',annual:'Estimated Loss pro Jahr'},en:{measured:'Directly measured',assumption:'Model assumption',derived:'Calculated value',why:'Why cost occurs',action:'Recommended action',records:'Affected records',prob:'Probability',effort:'Minutes per case',rate:'Hourly rate',freq:'Frequency per year',annual:'Estimated Loss per year'}};
-function lang(){return document.documentElement.lang==='en'?'en':'de'}
-function money(v){return new Intl.NumberFormat(lang()==='de'?'de-DE':'en-US',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v)}
-function render(){const root=document.getElementById('lxExamples');if(!root)return;const t=copy[lang()];root.innerHTML=examples.map(x=>`<article class="lx-example"><div class="lx-example-head"><div><h3>${lang()==='de'?x.de:x.en}</h3><span class="lx-code">${x.code}</span></div><div class="lx-amount">${money(x.loss)}</div></div><div class="lx-example-body"><div class="lx-copy"><h4>${t.why}</h4><p>${lang()==='de'?x.whyDe:x.whyEn}</p><div class="lx-action"><strong>${t.action}</strong>${lang()==='de'?x.actionDe:x.actionEn}</div></div><div class="lx-calc"><div class="lx-calc-grid"><div class="lx-data"><small>${t.records} · ${t.measured}</small><strong>${x.count}</strong></div><div class="lx-data"><small>${t.prob} · ${t.assumption}</small><strong>${x.prob}%</strong></div><div class="lx-data"><small>${t.effort} · ${t.assumption}</small><strong>${x.min}</strong></div><div class="lx-data"><small>${t.rate} · ${t.assumption}</small><strong>${money(x.rate)}/h</strong></div><div class="lx-data"><small>${t.freq} · ${t.assumption}</small><strong>${x.freq}</strong></div><div class="lx-data"><small>${t.annual} · ${t.derived}</small><strong>${money(x.loss)}</strong></div></div><div class="lx-equation">${x.count} × ${x.prob}% × ${x.min}/60 × ${money(x.rate)} × ${x.freq} = ${money(x.loss)}</div></div></div></article>`).join('')}
-function init(){render();new MutationObserver(m=>{if(m.some(x=>x.attributeName==='lang'))render()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+/* LP-GL-10 / LP-GL-11A — Estimated Loss Examples */
+(function () {
+  function locale() { return document.documentElement.lang === "en" ? "en" : "de"; }
+  function money(value) {
+    return new Intl.NumberFormat(locale() === "de" ? "de-DE" : "en-US", {
+      style: "currency", currency: "EUR", maximumFractionDigits: 0
+    }).format(value);
+  }
+  function examplesMarkup(section) {
+    const labels = section.labels;
+    return section.items.map((item) => `
+      <article class="lx-example">
+        <div class="lx-example-head"><div><h3>${item.title}</h3><span class="lx-code">${item.code}</span></div><div class="lx-amount">${money(item.loss)}</div></div>
+        <div class="lx-example-body">
+          <div class="lx-copy"><h4>${labels.why}</h4><p>${item.why}</p><div class="lx-action"><strong>${labels.action}</strong>${item.action}</div></div>
+          <div class="lx-calc"><div class="lx-calc-grid">
+            <div class="lx-data"><small>${labels.records} · ${labels.measured}</small><strong>${item.count}</strong></div>
+            <div class="lx-data"><small>${labels.prob} · ${labels.assumption}</small><strong>${item.prob}%</strong></div>
+            <div class="lx-data"><small>${labels.effort} · ${labels.assumption}</small><strong>${item.minutes}</strong></div>
+            <div class="lx-data"><small>${labels.rate} · ${labels.assumption}</small><strong>${money(item.rate)}/h</strong></div>
+            <div class="lx-data"><small>${labels.freq} · ${labels.assumption}</small><strong>${item.frequency}</strong></div>
+            <div class="lx-data"><small>${labels.annual} · ${labels.derived}</small><strong>${money(item.loss)}</strong></div>
+          </div><div class="lx-equation">${item.count} × ${item.prob}% × ${item.minutes}/60 × ${money(item.rate)} × ${item.frequency} = ${money(item.loss)}</div></div>
+        </div>
+      </article>`).join("");
+  }
+  function markup(content) {
+    const h = content.hero, s = content.summary, m = content.method, e = content.examples, c = content.catalog, d = content.disclaimer, f = content.final;
+    return `
+      <section class="lx-hero"><div class="lx-container lx-hero-grid"><div class="lx-head"><p class="lx-eyebrow">${h.eyebrow}</p><h1>${h.title}</h1><p>${h.lead}</p><div class="lx-actions"><a class="lx-btn primary" href="index.html#pricing">${h.primary}</a><a class="lx-btn secondary" href="#examples">${h.secondary}</a></div><div class="lx-trust">${h.trust.map((x) => `<span>${x}</span>`).join("")}</div></div><aside class="lx-hero-card" aria-label="${content.accessibility.workedExample}"><div class="lx-formula"><span>${h.exampleTitle}</span>48 × 30 % × 10/60 × 75 € × 12</div><div class="lx-result"><div><small>${h.estimatedAnnual}</small><br><strong>2.160 €</strong></div><div><small>${h.directlyMeasured}</small><br><b>${h.recordsValue}</b></div></div></aside></div></section>
+      <section class="lx-section" id="summary"><div class="lx-container"><div class="lx-head"><p class="lx-eyebrow">${s.eyebrow}</p><h2>${s.title}</h2><p>${s.lead}</p></div><div class="lx-kpis">${s.kpis.map((x) => `<article class="lx-kpi"><span>${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></article>`).join("")}</div></div></section>
+      <section class="lx-section alt" id="formula"><div class="lx-container"><div class="lx-head"><p class="lx-eyebrow">${m.eyebrow}</p><h2>${m.title}</h2><p>${m.lead}</p></div><div class="lx-method">${m.factors.map((x, i) => `<article><b>${i + 1}</b><h3>${x[0]}</h3><p>${x[1]}</p></article>`).join("")}</div><div class="lx-legend"><span class="lx-pill measured">${m.measured}</span><span class="lx-pill assumption">${m.assumption}</span><span class="lx-pill derived">${m.derived}</span></div></div></section>
+      <section class="lx-section" id="examples"><div class="lx-container"><div class="lx-head"><p class="lx-eyebrow">${e.eyebrow}</p><h2>${e.title}</h2><p>${e.lead}</p></div><div class="lx-examples">${examplesMarkup(e)}</div></div></section>
+      <section class="lx-section alt" id="catalog"><div class="lx-container"><div class="lx-head"><p class="lx-eyebrow">${c.eyebrow}</p><h2>${c.title}</h2></div><div class="lx-catalog">${c.groups.map((group) => `<article><h3>${group[0]}</h3><ul>${group[1].map((x) => `<li>${x}</li>`).join("")}</ul></article>`).join("")}</div></div></section>
+      <section class="lx-section"><div class="lx-container"><div class="lx-disclaimer"><strong>${d.title}</strong> ${d.text}</div></div></section>
+      <section class="lx-section dark"><div class="lx-container lx-final"><div class="lx-head"><p class="lx-eyebrow">${f.eyebrow}</p><h2>${f.title}</h2><p>${f.lead}</p></div><div class="lx-actions" style="justify-content:center"><a class="lx-btn primary" href="index.html#pricing">${f.primary}</a><a class="lx-btn secondary" href="index.html#findings">${f.secondary}</a></div></div></section>`;
+  }
+  async function render() {
+    const main = document.querySelector("main.lx-main");
+    if (!main || !window.BCSentinelContent) return;
+    const content = await window.BCSentinelContent.loadBundle("loss-examples", locale());
+    document.title = content.meta.title;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.content = content.meta.description;
+    main.innerHTML = markup(content);
+  }
+  function init() {
+    render().catch(() => {});
+    new MutationObserver((mutations) => {
+      if (mutations.some((item) => item.attributeName === "lang")) render().catch(() => {});
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
 })();
