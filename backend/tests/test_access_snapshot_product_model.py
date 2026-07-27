@@ -92,7 +92,7 @@ def test_assessment_and_validation_are_distinct_offers(monkeypatch) -> None:
 
     product_model = snapshot["product_model"]
     assert product_model["commercial_offers"] == ["assessment", "validation"]
-    assert product_model["experience_mode"] == "validation_result"
+    assert product_model["experience_mode"] == "validation"
     assert Entitlement.VALIDATION_RUN.value in product_model["entitlements"]
 
 
@@ -116,5 +116,5 @@ def test_free_and_locked_experience_modes_remain_fail_closed(monkeypatch) -> Non
         lambda _db, _tenant: _access(),
     )
     locked_snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
-    assert locked_snapshot["product_model"]["experience_mode"] == "locked_preview"
+    assert locked_snapshot["product_model"]["experience_mode"] == "locked"
     assert locked_snapshot["product_model"]["access_state"] == "locked"
