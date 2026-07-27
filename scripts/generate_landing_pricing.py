@@ -3,7 +3,8 @@
 Generate landingpage/pricing-snapshot.js with static product-pricing fallbacks.
 
 Runtime pricing is loaded from GET /pricing/public. The snapshot is only the
-no-API fallback for static landingpage rendering.
+no-API fallback for static landingpage rendering. It also bootstraps the
+homepage-only conversion module until the final landingpage bundle is assembled.
 """
 from __future__ import annotations
 
@@ -25,7 +26,7 @@ PRODUCTS = [
     },
     {
         "product_key": "full_analysis",
-        "display_name": "Full Analysis",
+        "display_name": "Assessment",
         "price_cents": 7900,
         "currency": "EUR",
         "billing_interval": "one_time",
@@ -33,7 +34,7 @@ PRODUCTS = [
     },
     {
         "product_key": "validation_check",
-        "display_name": "Validation Check",
+        "display_name": "Validation",
         "price_cents": 4900,
         "currency": "EUR",
         "billing_interval": "one_time",
@@ -79,6 +80,14 @@ def main() -> int:
         "window.__BCS_CANONICAL_BASE_EUR__ = 149;",
         "window.__BCS_PRODUCT_PRICING__ = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";",
         "",
+        "(function bootstrapLandingConversionCore() {",
+        '  if (!/\\/(?:index\\.html)?$/.test(window.location.pathname)) return;',
+        '  const script = document.createElement("script");',
+        '  script.src = "js/hero-conversion-core.js";',
+        "  script.defer = true;",
+        '  script.dataset.lp4Hero = "true";',
+        "  document.head.appendChild(script);",
+        "})();",
         "",
     ]
     body = "\n".join(js_lines)
