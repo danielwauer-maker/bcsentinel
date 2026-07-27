@@ -10,6 +10,10 @@ DASHBOARD_TRANSLATIONS_DIR = BACKEND_DIR / "app" / "translations" / "dashboard"
 EXECUTIVE_REPORT_TEMPLATE = BACKEND_DIR / "app" / "templates" / "executive_report.html"
 LANDING_HOME_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "index.html"
 LANDING_PRICING_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "pricing.html"
+LANDING_EXECUTIVE_REPORTS_PAGE = (
+    REPOSITORY_ROOT / "landingpage_neu" / "executive-reports.html"
+)
+LANDING_WHY_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "why-bcsentinel.html"
 BC_ISSUES_PAGE = (
     REPOSITORY_ROOT
     / "bc-extension"
@@ -120,6 +124,20 @@ def test_landing_pricing_uses_assessment_without_renaming_checkout_codes() -> No
     assert 'data-product-code="full_analysis"' in content
     assert 'data-checkout-product="full_analysis"' in content
     assert "contact.html?intent=full_analysis" in content
+
+
+def test_landing_assessment_pages_use_one_compatible_checkout_identifier() -> None:
+    for path in (LANDING_EXECUTIVE_REPORTS_PAGE, LANDING_WHY_PAGE):
+        content = path.read_text(encoding="utf-8")
+
+        assert ">Assessment starten</a>" in content
+        assert 'data-product-code="full_analysis"' in content
+        assert 'data-checkout-product="full_analysis"' in content
+        assert "contact.html?intent=full_analysis" in content
+
+        assert 'data-product-code="assessment"' not in content
+        assert 'data-checkout-product="assessment"' not in content
+        assert "contact.html?intent=assessment" not in content
 
 
 def test_legacy_translation_keys_remain_stable() -> None:
