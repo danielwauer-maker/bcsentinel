@@ -4,7 +4,7 @@ Generate landingpage/pricing-snapshot.js with static product-pricing fallbacks.
 
 Runtime pricing is loaded from GET /pricing/public. The snapshot is only the
 no-API fallback for static landingpage rendering. It also bootstraps the
-homepage-only conversion module until the final landingpage bundle is assembled.
+homepage conversion and pricing synchronization modules.
 """
 from __future__ import annotations
 
@@ -12,81 +12,38 @@ import json
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-OUT_PATHS = [
-    REPO / "landingpage" / "pricing-snapshot.js",
-]
+OUT_PATHS = [REPO / "landingpage" / "pricing-snapshot.js"]
 PRODUCTS = [
-    {
-        "product_key": "data_health_score",
-        "display_name": "Data Health Score",
-        "price_cents": 0,
-        "currency": "EUR",
-        "billing_interval": "one_time",
-        "is_active": True,
-    },
-    {
-        "product_key": "full_analysis",
-        "display_name": "Assessment",
-        "price_cents": 7900,
-        "currency": "EUR",
-        "billing_interval": "one_time",
-        "is_active": True,
-    },
-    {
-        "product_key": "validation_check",
-        "display_name": "Validation",
-        "price_cents": 4900,
-        "currency": "EUR",
-        "billing_interval": "one_time",
-        "is_active": True,
-    },
-    {
-        "product_key": "monitoring",
-        "display_name": "Monitoring",
-        "price_cents": 14900,
-        "currency": "EUR",
-        "billing_interval": "month",
-        "is_active": True,
-    },
-    {
-        "product_key": "monitoring_monthly",
-        "display_name": "Monitoring Monthly",
-        "price_cents": 14900,
-        "currency": "EUR",
-        "billing_interval": "month",
-        "is_active": True,
-    },
-    {
-        "product_key": "monitoring_annual",
-        "display_name": "Monitoring Annual",
-        "price_cents": 149000,
-        "currency": "EUR",
-        "billing_interval": "year",
-        "is_active": True,
-    },
+    {"product_key": "data_health_score", "display_name": "Data Health Score", "price_cents": 0, "currency": "EUR", "billing_interval": "one_time", "is_active": True},
+    {"product_key": "full_analysis", "display_name": "Assessment", "price_cents": 7900, "currency": "EUR", "billing_interval": "one_time", "is_active": True},
+    {"product_key": "validation_check", "display_name": "Validation", "price_cents": 4900, "currency": "EUR", "billing_interval": "one_time", "is_active": True},
+    {"product_key": "monitoring", "display_name": "Monitoring", "price_cents": 14900, "currency": "EUR", "billing_interval": "month", "is_active": True},
+    {"product_key": "monitoring_monthly", "display_name": "Monitoring Monthly", "price_cents": 14900, "currency": "EUR", "billing_interval": "month", "is_active": True},
+    {"product_key": "monitoring_annual", "display_name": "Monitoring Annual", "price_cents": 149000, "currency": "EUR", "billing_interval": "year", "is_active": True},
 ]
 
 
 def main() -> int:
-    payload = {
-        "source": "fallback",
-        "currency": "EUR",
-        "products": PRODUCTS,
-    }
+    payload = {"source": "fallback", "currency": "EUR", "products": PRODUCTS}
     js_lines = [
         "/* AUTO-GENERATED - do not edit. Source: scripts/generate_landing_pricing.py */",
         "/* Runtime source: GET /pricing/public */",
         "window.__BCS_MARKETING_STRINGS__ = {};",
         "window.__BCS_CANONICAL_BASE_EUR__ = 149;",
-        "window.__BCS_PRODUCT_PRICING__ = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";",
+        "window.__BCS_PRODUCT_PRICING__ = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";",
         "",
-        "(function bootstrapLandingConversionCore() {",
+        "(function bootstrapLandingModules() {",
         '  if (!/\\/(?:index\\.html)?$/.test(window.location.pathname)) return;',
-        '  const script = document.createElement("script");',
-        '  script.src = "js/hero-conversion-core.js";',
-        "  script.defer = true;",
-        '  script.dataset.lp4Hero = "true";',
-        "  document.head.appendChild(script);",
+        "  [",
+        '    ["js/hero-conversion-core.js", "lp4Hero"],',
+        '    ["js/pricing-runtime-sync.js", "lp7PricingSync"]',
+        "  ].forEach(([src, key]) => {",
+        '    const script = document.createElement("script");',
+        "    script.src = src;",
+        "    script.defer = true;",
+        '    script.dataset[key] = "true";',
+        "    document.head.appendChild(script);",
+        "  });",
         "})();",
         "",
     ]
