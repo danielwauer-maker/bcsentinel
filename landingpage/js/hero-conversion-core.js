@@ -117,6 +117,15 @@
     document.head.appendChild(link);
   }
 
+  function loadProductStory() {
+    if (document.querySelector('script[data-lp5-story]')) return;
+    const script = document.createElement("script");
+    script.src = "js/product-story-business-impact.js";
+    script.defer = true;
+    script.dataset.lp5Story = "true";
+    document.head.appendChild(script);
+  }
+
   function render() {
     if (!/\/(?:index\.html)?$/.test(location.pathname)) return;
     const main = document.querySelector("main#top, main");
@@ -148,6 +157,7 @@
     if (!/\/(?:index\.html)?$/.test(location.pathname)) return;
     loadStyles();
     render();
+    loadProductStory();
     window.setTimeout(render, 120);
     window.setTimeout(render, 600);
     const languageObserver = new MutationObserver((mutations) => {
