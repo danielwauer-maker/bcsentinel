@@ -1,4 +1,4 @@
-﻿page 53135 "DH Dashboard Issues"
+page 53135 "DH Dashboard Issues"
 {
     PageType = ListPart;
     SourceTable = "DH Dashboard Issue";
@@ -17,21 +17,19 @@
         {
             repeater(Issues)
             {
-                /*field("Source Type"; Rec."Source Type")
-                {
-                    ApplicationArea = All;
-                }*/
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Severity.';
+                    Caption = 'Severity';
+                    ToolTip = 'Specifies the severity assigned to the finding.';
                     StyleExpr = SeverityStyle;
                 }
 
                 field(Title; CatalogTitle)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Title.';
+                    Caption = 'Finding';
+                    ToolTip = 'Specifies the title of the detected data-quality finding.';
 
                     trigger OnDrillDown()
                     var
@@ -44,8 +42,8 @@
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
-                    Caption = 'Count';
-                    ToolTip = 'Specifies Count.';
+                    Caption = 'Affected Records';
+                    ToolTip = 'Specifies how many records are affected by the finding.';
 
                     trigger OnDrillDown()
                     var
@@ -58,15 +56,15 @@
                 field(ImpactDisplay; ImpactTxt)
                 {
                     ApplicationArea = All;
-                    Caption = 'Impact';
-                    ToolTip = 'Specifies the estimated impact in local currency.';
+                    Caption = 'Estimated Impact';
+                    ToolTip = 'Specifies the estimated financial impact in the company currency.';
                 }
 
                 field("Recommendation Review"; CatalogRecommendation)
                 {
                     ApplicationArea = All;
                     Caption = 'Recommendation';
-                    ToolTip = 'Specifies Recommendation.';
+                    ToolTip = 'Specifies the recommended action for resolving the finding.';
                     Visible = ShowPremiumDetails;
                 }
 
@@ -74,14 +72,8 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Access';
-                    ToolTip = 'Specifies Access.';
+                    ToolTip = 'Specifies whether the detailed recommendation is available.';
                 }
-
-                /*field("Issue Code"; Rec."Issue Code")
-                {
-                    ApplicationArea = All;
-                    Visible = ShowPremiumDetails;
-                }*/
             }
         }
     }
@@ -173,11 +165,11 @@
     local procedure UpdateAccessState()
     var
         Setup: Record "DH Setup";
-        BuyFullAnalysisLbl: Label 'Start Assessment for detailed insights';
+        StartAssessmentLbl: Label 'Start Assessment for detailed insights';
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
-        AccessText := BuyFullAnalysisLbl;
+        AccessText := StartAssessmentLbl;
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
@@ -199,7 +191,6 @@
     begin
         exit(CurrencyMgt.FormatLocalAmount(Rec."Estimated Impact (EUR)"));
     end;
-
 
     procedure SetDashboardScanEntryNo(DashboardScanEntryNo: Integer)
     begin
