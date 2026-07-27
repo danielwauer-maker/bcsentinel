@@ -1,0 +1,78 @@
+name: BC AL Compile and Cop Gate
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - "bc-extension/**"
+      - ".github/workflows/bc-al-compile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: BC 27 AL compile with CodeCop and PTECop
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install BcContainerHelper
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module BcContainerHelper -Force -Scope CurrentUser
+          Import-Module BcContainerHelper
+          Get-BcContainerHelperVersion
+
+      - name: Resolve BC 27 sandbox artifact
+        id: artifact
+        shell: pwsh
+        run: |
+          Import-Module BcContainerHelper
+          $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
+          if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
+            throw "No BC 27 sandbox artifact could be resolved."
+          }
+          "url=$artifactUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Using artifact: $artifactUrl"
+
+      - name: Compile extension with CodeCop and PTECop
+        shell: pwsh
+        run: |
+          Import-Module BcContainerHelper
+
+          $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
+          $credential = [PSCredential]::new("admin", $securePassword)
+          $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
+          $rulesetFile = Join-Path $appFolder "app.ruleset.json"
+
+          Run-AlPipeline `
+            -pipelineName "BCSentinel-ARCH-02A" `
+            -containerName "bcsentinel-arch02a" `
+            -baseFolder $env:GITHUB_WORKSPACE `
+            -appFolders @($appFolder) `
+            -artifact "${{ steps.artifact.outputs.url }}" `
+            -credential $credential `
+            -doNotRunTests `
+            -enableCodeCop `
+            -enablePerTenantExtensionCop `
+            -rulesetFile $rulesetFile `
+            -failOn error `
+            -keepContainer:$false
+
+      - name: Publish AL build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-al-compile-output
+          path: |
+            .output/**
+            bc-extension/**/*.app
+          if-no-files-found: warn
+          retention-days: 7
