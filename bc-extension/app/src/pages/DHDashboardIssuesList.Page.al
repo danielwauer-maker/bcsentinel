@@ -184,11 +184,11 @@ page 53161 "DH Dashboard Issues List"
     local procedure UpdateAccessState()
     var
         Setup: Record "DH Setup";
-        StartAssessmentLbl: Label 'Start Assessment for detailed insights';
+        BuyFullAnalysisLbl: Label 'Start Assessment for detailed insights';
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
-        AccessText := StartAssessmentLbl;
+        AccessText := BuyFullAnalysisLbl;
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
