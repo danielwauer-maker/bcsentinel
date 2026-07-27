@@ -81,4 +81,4 @@ jobs:
 
       - name: Full backend regression
         working-directory: backend
-        run: python -m pytest -q --tb=short
+        run: python -m pytest -q --tb=short -x
