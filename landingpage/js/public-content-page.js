@@ -4,6 +4,10 @@
     return document.body.dataset.publicPage || "";
   }
 
+  function locale() {
+    return document.documentElement.lang === "en" ? "en" : "de";
+  }
+
   function applyMeta(content) {
     if (content.metaTitle) document.title = content.metaTitle;
     const meta = document.querySelector('meta[name="description"]');
@@ -28,10 +32,22 @@
     root.innerHTML = markup(content);
   }
 
-  function init() {
+  async function refresh() {
     const page = currentPage();
     if (!page || !window.BCSentinelContent) return;
-    window.BCSentinelContent.subscribeBundle(page, (payload) => render(payload?.page));
+    try {
+      const payload = await window.BCSentinelContent.loadBundle(page, locale());
+      render(payload?.page);
+    } catch (error) {
+      console.error(`Unable to load ${page} content`, error);
+    }
+  }
+
+  function init() {
+    refresh();
+    new MutationObserver((mutations) => {
+      if (mutations.some((item) => item.attributeName === "lang")) refresh();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
