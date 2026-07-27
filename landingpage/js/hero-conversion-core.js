@@ -6,7 +6,7 @@
       title: "Machen Sie Datenqualität messbar und steuerbar.",
       lead: "BCSentinel erkennt Datenqualitätsrisiken, bewertet ihre operativen und finanziellen Auswirkungen und zeigt, welche Maßnahmen zuerst den größten Nutzen bringen.",
       primary: "Assessment starten",
-      secondary: "Beispielreport ansehen",
+      secondary: "Estimated Loss verstehen",
       proof1: "Keine Kreditkarte erforderlich",
       proof2: "Für Business Central entwickelt",
       proof3: "Managementtaugliche Ergebnisse",
@@ -32,7 +32,7 @@
       title: "Turn data quality into measurable business control.",
       lead: "BCSentinel detects data-quality risks, evaluates their operational and financial impact, and shows which actions should be addressed first.",
       primary: "Start assessment",
-      secondary: "View sample report",
+      secondary: "Understand Estimated Loss",
       proof1: "No credit card required",
       proof2: "Built for Business Central",
       proof3: "Executive-ready results",
@@ -69,7 +69,7 @@
             <p class="lp4-lead">${t.lead}</p>
             <div class="lp4-actions">
               <a class="lp4-btn lp4-btn-primary" href="#pricing">${t.primary}</a>
-              <a class="lp4-btn lp4-btn-secondary" href="executive-report-sample.pdf">${t.secondary}</a>
+              <a class="lp4-btn lp4-btn-secondary" href="loss-examples.html">${t.secondary}</a>
             </div>
             <div class="lp4-proof" aria-label="Product assurances">
               <span>${t.proof1}</span><span>${t.proof2}</span><span>${t.proof3}</span>
