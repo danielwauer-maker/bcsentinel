@@ -8,6 +8,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = BACKEND_DIR.parent
 DASHBOARD_TRANSLATIONS_DIR = BACKEND_DIR / "app" / "translations" / "dashboard"
 EXECUTIVE_REPORT_TEMPLATE = BACKEND_DIR / "app" / "templates" / "executive_report.html"
+LANDING_HOME_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "index.html"
 LANDING_PRICING_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "pricing.html"
 BC_ISSUES_PAGE = (
     REPOSITORY_ROOT
@@ -82,6 +83,25 @@ def test_executive_report_uses_canonical_commercial_offer_copy() -> None:
     assert "Upgrade zur vollständigen Analyse" not in content
     assert "ZUR VOLLSTÄNDIGEN ANALYSE" not in content
     assert "BCSentinel Premium-Angeboten" not in content
+
+
+def test_landing_home_uses_canonical_offer_copy_with_legacy_checkout_codes() -> None:
+    content = LANDING_HOME_PAGE.read_text(encoding="utf-8")
+
+    assert ">Assessment starten</a>" in content
+    assert "<span>A</span>Assessment" in content
+    assert "<h3>Assessment</h3>" in content
+    assert ">Validation Check starten</a>" in content
+    assert ">Monitoring starten</a>" in content
+
+    assert ">Full Analysis starten</a>" not in content
+    assert "<span>F</span>Full Analysis" not in content
+    assert "<h3>Full Analysis</h3>" not in content
+
+    # The historical integration identifier remains stable for checkout routing.
+    assert 'data-product-code="full_analysis"' in content
+    assert 'data-checkout-product="full_analysis"' in content
+    assert "contact.html?intent=full_analysis" in content
 
 
 def test_landing_pricing_uses_assessment_without_renaming_checkout_codes() -> None:
