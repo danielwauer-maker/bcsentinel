@@ -15,26 +15,37 @@ permissions:
 jobs:
   compile:
     name: BC 27 AL compile with CodeCop and PTECop
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 45
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install BcContainerHelper
-        shell: pwsh
+      - name: Bootstrap PowerShell package provider
+        shell: powershell
         run: |
+          $ErrorActionPreference = "Stop"
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Install-Module BcContainerHelper -Force -Scope CurrentUser
-          Import-Module BcContainerHelper
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+          Get-PackageProvider -Name NuGet | Format-List Name,Version
+
+      - name: Install BcContainerHelper
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module BcContainerHelper -Repository PSGallery -Force -AllowClobber -Scope CurrentUser
+          Import-Module BcContainerHelper -Force
           Get-BcContainerHelperVersion
 
       - name: Resolve BC 27 sandbox artifact
         id: artifact
-        shell: pwsh
+        shell: powershell
         run: |
-          Import-Module BcContainerHelper
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -43,12 +54,13 @@ jobs:
           Write-Host "Using artifact: $artifactUrl"
 
       - name: Compile extension with CodeCop and PTECop
-        shell: pwsh
+        shell: powershell
         run: |
-          Import-Module BcContainerHelper
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -Force
 
           $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
-          $credential = [PSCredential]::new("admin", $securePassword)
+          $credential = New-Object System.Management.Automation.PSCredential ("admin", $securePassword)
           $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
           $rulesetFile = Join-Path $appFolder "app.ruleset.json"
 
