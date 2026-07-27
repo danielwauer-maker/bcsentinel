@@ -8,6 +8,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = BACKEND_DIR.parent
 DASHBOARD_TRANSLATIONS_DIR = BACKEND_DIR / "app" / "translations" / "dashboard"
 EXECUTIVE_REPORT_TEMPLATE = BACKEND_DIR / "app" / "templates" / "executive_report.html"
+LANDING_PRICING_PAGE = REPOSITORY_ROOT / "landingpage_neu" / "pricing.html"
 BC_ISSUES_PAGE = (
     REPOSITORY_ROOT
     / "bc-extension"
@@ -81,6 +82,24 @@ def test_executive_report_uses_canonical_commercial_offer_copy() -> None:
     assert "Upgrade zur vollständigen Analyse" not in content
     assert "ZUR VOLLSTÄNDIGEN ANALYSE" not in content
     assert "BCSentinel Premium-Angeboten" not in content
+
+
+def test_landing_pricing_uses_assessment_without_renaming_checkout_codes() -> None:
+    content = LANDING_PRICING_PAGE.read_text(encoding="utf-8")
+
+    assert "<h3>Assessment</h3>" in content
+    assert ">Assessment starten</a>" in content
+    assert "<th>Assessment</th>" in content
+    assert ">Monitoring starten</a>" in content
+
+    assert "<h3>Full Analysis</h3>" not in content
+    assert ">Full Analysis freischalten</a>" not in content
+    assert ">Full Analysis starten</a>" not in content
+
+    # Existing integration codes are compatibility identifiers, not display copy.
+    assert 'data-product-code="full_analysis"' in content
+    assert 'data-checkout-product="full_analysis"' in content
+    assert "contact.html?intent=full_analysis" in content
 
 
 def test_legacy_translation_keys_remain_stable() -> None:
