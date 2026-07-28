@@ -20,6 +20,7 @@ BUNDLES = (
     "impressum",
     "help",
     "support",
+    "partner-auth",
 )
 
 
