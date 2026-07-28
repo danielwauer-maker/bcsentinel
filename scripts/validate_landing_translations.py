@@ -22,6 +22,7 @@ BUNDLES = (
     "support",
     "partner-auth",
     "partner-portal",
+    "billing",
 )
 
 
