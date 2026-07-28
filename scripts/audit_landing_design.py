@@ -11,7 +11,18 @@ LANDING = ROOT / "landingpage"
 EXCLUDED = {"blueprint.html", "design-system.html"}
 
 REQUIRED_SHARED_ASSETS = {
-    "index.html": ("styles.css", "js/site-shell.js"),
+    "index.html": (
+        "styles.css",
+        "css/home-layout-consolidation.css",
+        "css/primary-pages-visual-consistency.css",
+        "js/site-shell.js",
+    ),
+    "loss-examples.html": (
+        "styles.css",
+        "css/loss-examples-redesign.css",
+        "css/primary-pages-visual-consistency.css",
+        "js/site-shell.js",
+    ),
     "contact.html": ("css/public-content-pages.css", "css/contact-page.css", "js/site-shell.js"),
     "privacy.html": ("css/legal-content-pages.css", "js/site-shell.js"),
     "terms.html": ("css/legal-content-pages.css", "js/site-shell.js"),
@@ -58,6 +69,7 @@ def main() -> int:
     print("Landing design audit PASS")
     print(f"- audited public pages: {len(pages)}")
     print("- no inline CSS blocks, executable inline scripts, or inline style attributes")
+    print("- homepage and Estimated Loss share the primary visual-consistency layer")
     return 0
 
 
