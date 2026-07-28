@@ -9,7 +9,18 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 LANG_DIR = ROOT / "landingpage" / "lang"
-BUNDLES = ("redesign", "loss-examples", "security", "docs", "contact", "privacy", "terms", "impressum")
+BUNDLES = (
+    "redesign",
+    "loss-examples",
+    "security",
+    "docs",
+    "contact",
+    "privacy",
+    "terms",
+    "impressum",
+    "help",
+    "support",
+)
 
 
 def flatten(value: Any, prefix: str = "") -> dict[str, Any]:
