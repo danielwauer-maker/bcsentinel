@@ -12,18 +12,8 @@ EXCLUDED = {"blueprint.html", "design-system.html"}
 CONTENT_LEGAL_LAYER = "css/content-legal-visual-consistency.css"
 
 REQUIRED_SHARED_ASSETS = {
-    "index.html": (
-        "styles.css",
-        "css/home-layout-consolidation.css",
-        "css/primary-pages-visual-consistency.css",
-        "js/site-shell.js",
-    ),
-    "loss-examples.html": (
-        "styles.css",
-        "css/loss-examples-redesign.css",
-        "css/primary-pages-visual-consistency.css",
-        "js/site-shell.js",
-    ),
+    "index.html": ("styles.css", "css/home-layout-consolidation.css", "css/primary-pages-visual-consistency.css", "js/site-shell.js"),
+    "loss-examples.html": ("styles.css", "css/loss-examples-redesign.css", "css/primary-pages-visual-consistency.css", "js/site-shell.js"),
     "security.html": ("css/public-content-pages.css", CONTENT_LEGAL_LAYER, "js/site-shell.js"),
     "docs.html": ("css/public-content-pages.css", CONTENT_LEGAL_LAYER, "js/site-shell.js"),
     "help.html": ("css/public-content-pages.css", CONTENT_LEGAL_LAYER, "js/site-shell.js"),
@@ -61,11 +51,23 @@ def audit(path: Path) -> list[str]:
     return errors
 
 
+def audit_footer_ownership() -> list[str]:
+    errors: list[str] = []
+    shell = (LANDING / "js" / "site-shell.js").read_text(encoding="utf-8")
+    audience = (LANDING / "js" / "audience-faq-footer.js").read_text(encoding="utf-8")
+    if "function buildFooter()" not in shell or 'class="site-footer"' not in shell:
+        errors.append("site-shell.js: global footer component missing")
+    if "footerMarkup" in audience or "lp9-footer" in audience:
+        errors.append("audience-faq-footer.js: duplicate homepage footer renderer detected")
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     pages = [p for p in sorted(LANDING.glob("*.html")) if p.name not in EXCLUDED]
     for page in pages:
         errors.extend(audit(page))
+    errors.extend(audit_footer_ownership())
     if errors:
         print("Landing design audit FAILED")
         for error in errors:
@@ -76,6 +78,7 @@ def main() -> int:
     print("- no inline CSS blocks, executable inline scripts, or inline style attributes")
     print("- homepage and Estimated Loss share the primary visual-consistency layer")
     print("- Security, Docs, Help, Support and Legal pages share the content/legal visual layer")
+    print("- one global marketing footer is owned by site-shell.js across all public pages")
     return 0
 
 
