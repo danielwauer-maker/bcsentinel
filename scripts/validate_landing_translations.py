@@ -21,6 +21,7 @@ BUNDLES = (
     "help",
     "support",
     "partner-auth",
+    "partner-portal",
 )
 
 
