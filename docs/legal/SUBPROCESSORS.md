@@ -4,14 +4,15 @@ Stand: 29. Juli 2026
 
 Verantwortlicher Anbieter: Daniel Wauer, Geschäftsbezeichnung BCSentinel
 
-Diese Liste dokumentiert Dienstleister, die für Betrieb, Zahlungsabwicklung oder Kommunikation eingesetzt werden beziehungsweise für einen bereits beschlossenen technischen Wechsel vorgesehen sind. Die Liste ist bei Änderungen der produktiven Architektur vor Einsatz des neuen Dienstleisters zu aktualisieren.
+Diese Liste dokumentiert Dienstleister, die für Betrieb, Zahlungsabwicklung oder Kommunikation eingesetzt werden. Sie ist bei Änderungen der produktiven Architektur vor Einsatz eines neuen Dienstleisters zu aktualisieren.
 
 | Dienstleister | Status | Zweck | Betroffene Datenkategorien | Verarbeitungsort / Drittlandbezug | Vertrags- und Kontrollmaßnahme |
 |---|---|---|---|---|---|
 | Hetzner Online GmbH | aktiv | Hosting von Website, Backend, Datenbank, Speicher, Backups und technischen Protokollen | Account-, Tenant-, Company-, Scan-, Finding-, Report-, Support- und technische Protokolldaten | Falkenstein, Deutschland / EU | Auftragsverarbeitungsvertrag, Zugriffsbeschränkung, Verschlüsselung, Backup- und Löschkonzept |
 | Stripe Payments Europe, Limited | aktiv | Checkout, Zahlungsabwicklung, Abonnement- und Zahlungsstatus | Rechnungs-, Kontakt-, Vertrags-, Zahlungs- und Transaktionsdaten; vollständige Kartendaten werden nicht durch BCSentinel gespeichert | EWR; mögliche konzerninterne oder technische Drittlandverarbeitung nach Stripe-Vertragsunterlagen | Stripe-Datenschutz- und Vertragsunterlagen prüfen, Datenminimierung, Webhook-Signaturen, eingeschränkte Metadaten |
-| FormSubmit | vorübergehend aktiv | Weiterleitung von Anfragen des öffentlichen Kontaktformulars | Name, E-Mail-Adresse, Unternehmen, Thema, Nachricht und technische Übermittlungsdaten | nach Anbieter- und Infrastrukturangaben; Drittlandbezug möglich | Nur bis Abschluss von LP-LEGAL-02; keine vertraulichen Inhalte anfordern; anschließend vollständig entfernen |
-| Brevo / Sendinblue GmbH | geplant | Transaktionale Zustellung von Kontaktanfragen und später produktbezogenen E-Mails über das eigene Backend | Empfängeradresse, Absender-/Antwortadresse, Betreff, Nachrichteninhalt und technische Zustellinformationen | EU-Konfiguration bevorzugt; konkrete Vertrags- und Infrastrukturangaben vor Aktivierung verifizieren | Auftragsverarbeitungsvertrag, API-Schlüssel nur serverseitig, Datenminimierung, definierte Log- und Löschfristen |
+| Brevo / Sendinblue GmbH | aktiv für Kontaktzustellung | Transaktionale Zustellung von Kontaktanfragen über den eigenen BCSentinel-Backend-Endpunkt | Empfängeradresse, Antwortadresse, Betreff, Nachrichteninhalt und technische Zustellinformationen | EU-Konfiguration bevorzugt; mögliche weitere Verarbeitung nach Brevo-Vertragsunterlagen | Auftragsverarbeitungsvertrag, SMTP-Zugang nur serverseitig, Datenminimierung, Rate Limiting, definierte Log- und Löschfristen |
+
+FormSubmit ist seit LP-LEGAL-02 nicht mehr Bestandteil des öffentlichen Kontaktflusses. Verbleibende Zugangsdaten oder Konfigurationen sind aus Deployment und Secret Store zu entfernen.
 
 ## Änderungsprozess
 
