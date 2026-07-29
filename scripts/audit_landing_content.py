@@ -31,6 +31,14 @@ MIGRATED_PAGES = {
 }
 
 EXCLUDED_PAGES = {"blueprint.html", "design-system.html"}
+GO_LIVE_BUNDLES = {"docs", "help", "support"}
+PLACEHOLDER_PATTERNS = {
+    "vorläufig": re.compile(r"\bvorläufig", re.I),
+    "placeholder": re.compile(r"\bplaceholder\b", re.I),
+    "MVP notice": re.compile(r"\bMVP\b", re.I),
+    "AppSource preparation": re.compile(r"AppSource[- ](?:Vorbereitung|preparation)", re.I),
+    "future expansion notice": re.compile(r"(?:wird|will be) (?:fortlaufend )?(?:erweitert|extended)", re.I),
+}
 
 
 def read(path: Path) -> str:
@@ -39,6 +47,28 @@ def read(path: Path) -> str:
 
 def has_meta_description(html: str) -> bool:
     return bool(re.search(r'<meta\b(?=[^>]*\bname=["\']description["\'])[^>]*>', html, re.I))
+
+
+def audit_bundle_content(bundle_path: Path, bundle: str) -> list[str]:
+    errors: list[str] = []
+    try:
+        payload = json.loads(read(bundle_path))
+    except json.JSONDecodeError as exc:
+        return [f"{bundle_path.name}: invalid JSON ({exc})"]
+
+    locale = bundle_path.stem.rsplit(".", 1)[-1]
+    if payload.get("meta", {}).get("locale") != locale:
+        errors.append(f"{bundle_path.name}: invalid meta.locale")
+
+    if bundle in GO_LIVE_BUNDLES:
+        serialized = json.dumps(payload, ensure_ascii=False)
+        for label, pattern in PLACEHOLDER_PATTERNS.items():
+            if pattern.search(serialized):
+                errors.append(f"{bundle_path.name}: go-live placeholder language detected ({label})")
+        page = payload.get("page", {})
+        if len(page.get("sections", [])) < 4:
+            errors.append(f"{bundle_path.name}: insufficient go-live self-service depth")
+    return errors
 
 
 def audit_page(path: Path, bundle: str) -> list[str]:
@@ -65,13 +95,7 @@ def audit_page(path: Path, bundle: str) -> list[str]:
         if not bundle_path.exists():
             errors.append(f"{path.name}: missing bundle {bundle_path.name}")
             continue
-        try:
-            payload = json.loads(read(bundle_path))
-        except json.JSONDecodeError as exc:
-            errors.append(f"{bundle_path.name}: invalid JSON ({exc})")
-            continue
-        if payload.get("meta", {}).get("locale") != locale:
-            errors.append(f"{bundle_path.name}: invalid meta.locale")
+        errors.extend(audit_bundle_content(bundle_path, bundle))
     return errors
 
 
@@ -82,12 +106,20 @@ def main() -> int:
     for path in html_files:
         if path.name not in known:
             errors.append(f"Unclassified landing page: {path.name}")
+    audited_bundles: set[str] = set()
     for name, bundle in MIGRATED_PAGES.items():
         path = LANDING / name
         if not path.exists():
             errors.append(f"Missing migrated page: {name}")
             continue
+        # Shared bundles are validated once to avoid duplicate diagnostics.
+        if bundle in audited_bundles:
+            html = read(path)
+            if 'class="site-header"' not in html or 'class="site-footer"' not in html:
+                errors.append(f"{path.name}: incomplete shared shell")
+            continue
         errors.extend(audit_page(path, bundle))
+        audited_bundles.add(bundle)
 
     if errors:
         print("Landing content audit FAILED")
@@ -98,6 +130,7 @@ def main() -> int:
     print("Landing content audit PASS")
     print(f"- audited pages: {len(MIGRATED_PAGES)}")
     print(f"- excluded design/reference pages: {len(EXCLUDED_PAGES)}")
+    print("- Docs, Help and Support contain go-live self-service content without placeholder language")
     return 0
 
 
