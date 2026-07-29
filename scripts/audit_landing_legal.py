@@ -12,10 +12,17 @@ LANG = ROOT / "landingpage" / "lang"
 RUNTIME = ROOT / "landingpage" / "js" / "content-runtime.js"
 
 LEGAL_BUNDLES = ("impressum", "privacy", "terms", "contact")
+
+# Detect only genuine publishing placeholders or declarations that the visible
+# legal text is still a draft. Operational disclosures such as a planned
+# FormSubmit-to-Brevo migration must remain allowed and transparent.
 FORBIDDEN = (
     re.compile(r"\[(?:noch |to be |add |falls |if )?[^\]]*(?:ergänz|add|go-live|final)[^\]]*\]", re.I),
-    re.compile(r"Arbeitsfassung|working draft", re.I),
-    re.compile(r"muss(?:ten)? vor (?:öffentlichem )?Go-Live|must be .* before (?:public )?go-live", re.I),
+    re.compile(r"\bArbeitsfassung\b|\bworking draft\b", re.I),
+    re.compile(r"\b(?:rechtlich|abschließend) zu finalisieren\b", re.I),
+    re.compile(r"\bmust be legally finali[sz]ed\b", re.I),
+    re.compile(r"\b(?:vor|before) (?:dem |the )?(?:öffentlichen |public )?Go-Live zu ergänzen\b", re.I),
+    re.compile(r"\bto be (?:added|completed) before (?:public )?go-live\b", re.I),
 )
 
 
@@ -40,8 +47,12 @@ def main() -> int:
         for locale, payload in (("de", de), ("en", en)):
             text = json.dumps(payload, ensure_ascii=False)
             for pattern in FORBIDDEN:
-                if pattern.search(text):
-                    errors.append(f"{bundle}.{locale}.json: draft or placeholder language detected")
+                match = pattern.search(text)
+                if match:
+                    excerpt = match.group(0)[:120]
+                    errors.append(
+                        f"{bundle}.{locale}.json: draft or placeholder language detected ({excerpt!r})"
+                    )
 
     impressum_de = serialized("impressum", "de")
     privacy_de = serialized("privacy", "de")
