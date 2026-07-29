@@ -16,10 +16,6 @@ REQUIRED_PRODUCT_TERMS = {
     "de": ("Kostenlos", "Assessment", "Validation", "Monitoring"),
     "en": ("free", "Assessment", "Validation", "Monitoring"),
 }
-FORBIDDEN_PUBLIC_TERMS = (
-    re.compile(r"\bPremium(?:zugriff| access)?\b", re.I),
-    re.compile(r"\bFull Analysis\b", re.I),
-)
 
 
 def read(path: Path) -> str:
@@ -59,8 +55,15 @@ def audit_css() -> list[str]:
 def audit_product_journey() -> list[str]:
     errors: list[str] = []
     runtime = read(LANDING / "js" / "content-runtime.js")
-    if "normalizePublicCopy" not in runtime:
-        errors.append("content-runtime.js: public copy normalization missing")
+    runtime_markers = (
+        "COPY_REPLACEMENTS",
+        "function normalizeCopy(",
+        "normalizeCopy(deepMerge(fallback, published), targetLocale)",
+    )
+    for marker in runtime_markers:
+        if marker not in runtime:
+            errors.append(f"content-runtime.js: public copy normalization marker missing ({marker})")
+
     for locale in ("de", "en"):
         path = LANG / f"redesign.{locale}.json"
         payload = json.loads(read(path))
@@ -81,9 +84,22 @@ def audit_preview_assets() -> list[str]:
     for path in required:
         if not path.exists() or path.stat().st_size < 100:
             errors.append(f"missing or empty preview asset: {path.relative_to(ROOT)}")
+
     renderer = read(LANDING / "js" / "product-proof.js")
-    if "Dashboard concept preview" not in renderer or "Current design state" not in renderer:
-        errors.append("product-proof.js: explicit preview labels missing")
+    renderer_markers = (
+        'previewCopy("report")',
+        'previewCopy("dashboard")',
+        'class="lp6-preview-badge"',
+        "Aktueller Designstand",
+        "Current design state",
+        "Dashboard-Konzept",
+        "Dashboard concept",
+        "assets/report-free-preview.svg",
+        "assets/dashboard-concept-preview.svg",
+    )
+    for marker in renderer_markers:
+        if marker not in renderer:
+            errors.append(f"product-proof.js: preview marker missing ({marker})")
     return errors
 
 
