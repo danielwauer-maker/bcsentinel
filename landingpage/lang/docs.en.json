@@ -1,1 +1,100 @@
-{"meta":{"locale":"en","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Documentation | BCSentinel","metaDescription":"Getting started, setup, and usage guidance for BCSentinel and Microsoft Dynamics 365 Business Central.","eyebrow":"Documentation","title":"From the free scan to continuous monitoring.","lead":"This documentation explains registration, scanning, result access, Assessment, Validation, and Monitoring as one consistent customer journey.","asideAria":"BCSentinel documentation overview","heroAside":[{"title":"Start free","text":"Run the first scan from the Business Central extension."},{"title":"Unlock full analysis","text":"Assessment opens the existing Full Analysis for seven days."},{"title":"Confirm improvement","text":"Validation enables a new scan after remediation."}],"actions":[{"label":"Products and access","href":"index.html#pricing"},{"label":"Contact support","href":"contact.html?topic=support"}],"sections":[{"id":"getting-started","eyebrow":"Getting started","title":"The recommended flow in six steps.","lead":"The free scan comes first; Assessment is not an additional scan credit.","cards":[{"title":"1. Register tenant","text":"Register the Business Central tenant, environment, and company and confirm data processing."},{"title":"2. Test connection","text":"Verify API configuration and the registered tenant context in Business Central."},{"title":"3. Start the free scan","text":"Run the first data-health scan and open the limited result preview."},{"title":"4. Unlock Assessment","text":"Open the already generated Full Analysis for seven days."},{"title":"5. Remediate data","text":"Use findings, actions, dashboard, and Executive Report to prioritize work."},{"title":"6. Validate or monitor","text":"Run a new scan with Validation or activate Monitoring for continuous control."}]},{"id":"setup","eyebrow":"Setup","title":"Configuration directly in Business Central.","lead":"The extension combines registration, connection testing, access, and scan control.","cards":[{"title":"Extension setup","text":"Manage API URL, registration, and connection in the intended setup area."},{"title":"Refresh access","text":"Refresh license and access snapshot before product-related actions."},{"title":"Language","text":"German and English are supported using available user and tenant configuration."}]},{"id":"product-access","eyebrow":"Product access","title":"Free Preview, Assessment, Validation, and Monitoring remain clearly separated.","lead":"Each mode has distinct rights, durations, and scan capabilities.","cards":[{"title":"Free Preview","text":"Limited view of dashboard, issues, actions, and Executive Report."},{"title":"Assessment","text":"Seven days of full access to the already generated analysis; no additional scan credit."},{"title":"Validation","text":"One new scan credit followed by seven days of full access to the refreshed analysis."},{"title":"Monitoring","text":"Scheduled scans, history, trends, exceptions, and full access during the active term."}]},{"id":"troubleshooting","eyebrow":"Troubleshooting","title":"Classify common situations quickly.","lead":"Access and scan issues should be checked against the current product state and run lifecycle.","cards":[{"title":"No new scan available","text":"Assessment does not include a scan credit. A new scan requires Validation or active Monitoring."},{"title":"Tenant not registered","text":"Recheck registration, API configuration, and company context."},{"title":"Dashboard remains empty","text":"Check scan status, run completion, and the current access snapshot."},{"title":"Report link expired","text":"Create a new time-limited share through the intended product path."},{"title":"Wrong language","text":"Switch language and reload published content or the local fallback."}]},{"id":"docs-faq","eyebrow":"FAQ","title":"Important documentation notes.","lead":"Content will continue to expand with pilot, product, and AppSource maturity.","cards":[{"title":"Does BCSentinel change BC data automatically?","text":"The analysis identifies and prioritizes issues. Remediation and business decisions remain under customer control."},{"title":"Is the documentation complete?","text":"It reflects the current product state and will be extended with real screenshots, videos, and operating guidance."},{"title":"Where can I get support?","text":"Pilot, onboarding, and support requests are collected through the contact page."}]}]}}
+{
+  "meta": {"locale": "en", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Documentation | BCSentinel",
+    "metaDescription": "Setup, scans, product access, and troubleshooting for BCSentinel in Microsoft Dynamics 365 Business Central.",
+    "eyebrow": "Product documentation",
+    "title": "Set up BCSentinel safely, understand results, and use it continuously.",
+    "lead": "This documentation guides Business Central administrators from the first connection test through the free scan to Assessment, Validation, and Monitoring.",
+    "asideAria": "BCSentinel documentation overview",
+    "heroAside": [
+      {"title": "Start in Business Central", "text": "Registration, connection testing, and scans are controlled from the extension."},
+      {"title": "Keep access modes distinct", "text": "Free Preview, Assessment, Validation, and Monitoring have separate rights and durations."},
+      {"title": "Diagnose issues clearly", "text": "Run status, access snapshot, and product status are the primary diagnostic checkpoints."}
+    ],
+    "actions": [
+      {"label": "Products and pricing", "href": "index.html#pricing"},
+      {"label": "Contact support", "href": "contact.html?topic=support"}
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "eyebrow": "Quick start",
+        "title": "The recommended flow in six steps.",
+        "lead": "The free scan creates the first analysis. Assessment expands access afterwards; it does not add another scan.",
+        "cards": [
+          {"title": "1. Open setup", "text": "Open BCSentinel Setup in Business Central and verify the intended API address."},
+          {"title": "2. Register the tenant", "text": "Tenant, environment, and company are registered uniquely; required consent is confirmed in setup."},
+          {"title": "3. Test the connection", "text": "Run the integrated connection test and resolve HTTPS, API configuration, or tenant-context errors first."},
+          {"title": "4. Start the free scan", "text": "Trigger the first data-health scan, follow the run to completion, and then open the Free Preview."},
+          {"title": "5. Use Assessment", "text": "Open the existing analysis in full for seven days and review findings, actions, dashboard, and Executive Report."},
+          {"title": "6. Validate or monitor", "text": "After remediation, run a new scan with Validation or activate Monitoring for scheduled scans, history, and trends."}
+        ]
+      },
+      {
+        "id": "setup",
+        "eyebrow": "Setup",
+        "title": "The key settings in Business Central.",
+        "lead": "For stable operation, verify connectivity, tenant context, and access before the first production scan.",
+        "cards": [
+          {"title": "API and HTTPS", "text": "Use only the intended HTTPS API. Unreachable or different endpoints lead to connection failures."},
+          {"title": "Tenant, environment, and company", "text": "The combination identifies the customer context. When changing company, the active context must remain unambiguous."},
+          {"title": "Refresh access", "text": "License Refresh or Access Refresh reloads product status, credits, and the current access window."},
+          {"title": "Language and currency", "text": "German and English are supported; financial values are displayed in the intended currency context."}
+        ]
+      },
+      {
+        "id": "product-access",
+        "eyebrow": "Products and rights",
+        "title": "Free Preview, Assessment, Validation, and Monitoring.",
+        "lead": "Each mode supports a different step in the data-health journey.",
+        "cards": [
+          {"title": "Free Preview", "text": "One free first scan, if not already used, with a limited preview of issues, actions, dashboard, and report."},
+          {"title": "Assessment · €79 one-time", "text": "No scan credit. Opens the existing full analysis for seven days, including record details and business impact."},
+          {"title": "Validation · €49 one-time", "text": "One deep-scan credit after remediation followed by a new seven-day full-access window."},
+          {"title": "Monitoring · €149 monthly", "text": "Full access with scheduled scans, history, trends, progress, and exceptions during the active term."},
+          {"title": "Monitoring · €1,490 annually", "text": "The same product scope with annual billing and a fixed annual price."}
+        ]
+      },
+      {
+        "id": "results",
+        "eyebrow": "Results",
+        "title": "How scan results should be interpreted.",
+        "lead": "BCSentinel connects technical findings with priority, affected records, and business relevance.",
+        "cards": [
+          {"title": "Health Score", "text": "Condenses evaluated checks into a fast overall indication. Exceptions are considered according to their treatment."},
+          {"title": "Findings", "text": "Show severity, rule, affected records, status, and the business need for action."},
+          {"title": "Actions", "text": "Translate findings into prioritized next steps while business changes remain under customer control."},
+          {"title": "Estimated Loss", "text": "Uses measured values and labelled assumptions as decision support, not as a guaranteed loss figure."},
+          {"title": "Executive Report", "text": "Summarizes score, business impact, risks, and next steps for management and project owners."}
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "eyebrow": "Troubleshooting",
+        "title": "Check common situations systematically.",
+        "lead": "Start with connectivity, run lifecycle, product status, and access snapshot.",
+        "cards": [
+          {"title": "Registration fails", "text": "Check tenant, environment, company context, and whether the contact email is already in use. Then reload registration or access."},
+          {"title": "Scan does not start", "text": "Check the available scan credit, active Monitoring, connection test, and whether another run is already active."},
+          {"title": "Run remains in Running", "text": "Review run ID, latest heartbeat, and the error message in scan history. Contact support with these details if the state persists."},
+          {"title": "Dashboard remains empty", "text": "Confirm that the run completed and the current access snapshot permits result access."},
+          {"title": "Assessment does not allow a new scan", "text": "This is expected: Assessment opens the existing analysis. A new scan requires Validation or Monitoring."},
+          {"title": "Report or share is no longer available", "text": "Check the access window and link expiry, then create a new permitted share when required."}
+        ]
+      },
+      {
+        "id": "docs-faq",
+        "eyebrow": "Principles",
+        "title": "Important guidance for production use.",
+        "lead": "The analysis supports decisions but does not replace business review or change data without control.",
+        "cards": [
+          {"title": "Does BCSentinel change data automatically?", "text": "BCSentinel analyses, prioritizes, and recommends. Business remediation and approval remain with the customer."},
+          {"title": "Are Estimated Loss values guaranteed?", "text": "No. They are transparent estimates based on detected records, model assumptions, and configured factors."},
+          {"title": "What belongs in a support request?", "text": "BC version, environment, company, run ID, timestamp, exact error message, and short reproduction steps."},
+          {"title": "What must not be sent?", "text": "Do not send passwords, complete API tokens, or unnecessary personal or confidential business data."}
+        ]
+      }
+    ]
+  }
+}
