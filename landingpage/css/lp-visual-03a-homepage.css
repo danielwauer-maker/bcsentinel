@@ -1,0 +1,53 @@
+/* LP-VISUAL-03A — homepage composition inspired by the approved enterprise-light direction. */
+.home-03a{background:#fff;color:#10213d}
+.home-03a .section{padding:72px 0}
+.home-03a .section.alt{background:#f7faff;border-block:1px solid #e8eef8}
+.home-03a .section-head{max-width:760px;margin:0 auto 34px;text-align:center}
+.home-03a .section-head.left{margin-inline:0;text-align:left}
+.home-03a .eyebrow{display:inline-flex;padding:7px 11px;border-radius:999px;background:#eaf2ff;color:#1457d9;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.home-03a h1,.home-03a h2,.home-03a h3{color:#0d2346;letter-spacing:-.035em}
+.home-03a h1{font-size:clamp(2.8rem,5.5vw,5rem);line-height:.98;margin:18px 0 20px;max-width:720px}
+.home-03a h2{font-size:clamp(2rem,3.4vw,3.15rem);line-height:1.05;margin:12px 0 16px}
+.home-03a .lead{font-size:1.08rem;color:#506583;line-height:1.75}
+.home-03a .hero-03a{padding:54px 0 34px;background:radial-gradient(circle at 84% 14%,#dcecff 0,transparent 36%),linear-gradient(180deg,#fff 0,#f4f8ff 100%)}
+.home-03a .hero-grid-03a{display:grid;grid-template-columns:minmax(0,.92fr) minmax(560px,1.28fr);gap:42px;align-items:center}
+.home-03a .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin:28px 0}
+.home-03a .btn-primary-03a,.home-03a .btn-secondary-03a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:8px;font-weight:800;transition:.2s ease}
+.home-03a .btn-primary-03a{background:#ff6500;color:#fff;box-shadow:0 12px 26px rgba(255,101,0,.24)}
+.home-03a .btn-primary-03a:hover{transform:translateY(-2px);background:#eb5d00}
+.home-03a .btn-secondary-03a{background:#fff;color:#18345f;border:1px solid #bac7dc}
+.home-03a .hero-proof{display:flex;flex-wrap:wrap;gap:18px;color:#425a7d;font-size:.9rem;font-weight:700}
+.home-03a .hero-proof span::before{content:'✓';color:#14875d;margin-right:7px}
+.home-03a .dashboard-shell{background:#071a3b;border:1px solid #173b70;border-radius:14px;padding:12px;box-shadow:0 26px 60px rgba(7,32,75,.25);transform:perspective(1200px) rotateY(-1.5deg)}
+.home-03a .dashboard-topbar{height:34px;display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:.8rem;padding:0 8px}
+.home-03a .dashboard-body{display:grid;grid-template-columns:120px 1fr;min-height:400px;background:#f7f9fd;border-radius:9px;overflow:hidden}
+.home-03a .dashboard-nav{background:#0b2a5b;color:#cbd9f1;padding:18px 12px;display:grid;align-content:start;gap:11px;font-size:.75rem}
+.home-03a .dashboard-nav b{color:#fff;margin-bottom:12px}
+.home-03a .dashboard-main{padding:18px;display:grid;gap:14px}
+.home-03a .dashboard-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.home-03a .dash-card{background:#fff;border:1px solid #e1e8f3;border-radius:8px;padding:13px;box-shadow:0 5px 14px rgba(18,43,82,.06)}
+.home-03a .dash-card small{display:block;color:#667a98;font-size:.66rem}.home-03a .dash-card strong{display:block;margin-top:8px;font-size:1.15rem;color:#102a54}
+.home-03a .dashboard-lower{display:grid;grid-template-columns:1.2fr .9fr;gap:12px}
+.home-03a .fake-chart{height:155px;background:linear-gradient(180deg,rgba(22,111,232,.06),transparent),repeating-linear-gradient(0deg,#eef2f8 0 1px,transparent 1px 31px);position:relative}
+.home-03a .fake-chart::after{content:'';position:absolute;inset:46px 12px 24px;background:linear-gradient(165deg,transparent 0 18%,#148f6b 19% 21%,transparent 22% 38%,#148f6b 39% 41%,transparent 42% 54%,#148f6b 55% 57%,transparent 58% 70%,#148f6b 71% 73%,transparent 74%)}
+.home-03a .fake-donut{width:120px;height:120px;border-radius:50%;margin:12px auto;background:conic-gradient(#155cdb 0 36%,#2f7bf0 36% 65%,#74a8ff 65% 82%,#b7cdf6 82%);position:relative}.home-03a .fake-donut::after{content:'';position:absolute;inset:28px;background:#fff;border-radius:50%}
+.home-03a .hero-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px;max-width:650px}
+.home-03a .metric-card{background:#fff;border:1px solid #e2e9f3;border-radius:10px;padding:16px;box-shadow:0 10px 26px rgba(15,44,88,.07)}
+.home-03a .metric-card span{color:#6b7f9d;font-size:.78rem;font-weight:700}.home-03a .metric-card strong{display:block;font-size:1.35rem;color:#10284e;margin-top:6px}
+.home-03a .evidence-strip{padding:20px 0;background:#fff;border-bottom:1px solid #e7edf6}
+.home-03a .evidence-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.home-03a .evidence-placeholder{position:relative;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px 12px 10px;border:1px dashed #9eb0cb;border-radius:9px;background:#f9fbff;color:#29476f;font-weight:800;font-size:.8rem}
+.home-03a .evidence-placeholder::before{content:'PLATZHALTER · VOR GO-LIVE ERSETZEN';position:absolute;top:5px;left:7px;right:7px;color:#a55b23;font-size:.54rem;letter-spacing:.04em}
+html[lang='en'] .home-03a .evidence-placeholder::before{content:'PLACEHOLDER · REPLACE BEFORE GO-LIVE'}
+.home-03a .report-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:42px;align-items:center}
+.home-03a .check-list{list-style:none;padding:0;margin:22px 0;display:grid;gap:11px;color:#3e5678}.home-03a .check-list li::before{content:'✓';color:#0c9b6a;font-weight:900;margin-right:10px}
+.home-03a .report-preview{background:#fff;border:1px solid #dfe7f2;border-radius:12px;padding:18px;box-shadow:0 20px 50px rgba(13,43,88,.12);display:grid;grid-template-columns:140px 1fr;gap:16px}
+.home-03a .report-cover{background:linear-gradient(155deg,#061d47,#1059d4);color:#fff;border-radius:8px;padding:20px 16px;min-height:285px;display:flex;flex-direction:column;justify-content:space-between}.home-03a .report-cover strong{font-size:1.35rem}.home-03a .report-page{padding:8px}.home-03a .report-page h3{margin:0 0 15px;font-size:1.1rem}.home-03a .report-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.home-03a .report-summary div{border:1px solid #e4eaf3;border-radius:7px;padding:10px}.home-03a .report-bars{display:grid;gap:9px;margin-top:18px}.home-03a .report-bars i{height:9px;border-radius:99px;background:#2270e8;display:block}.home-03a .report-bars i:nth-child(2){width:82%}.home-03a .report-bars i:nth-child(3){width:66%}.home-03a .report-bars i:nth-child(4){width:50%}
+.home-03a .flow-grid,.home-03a .journey-grid,.home-03a .audience-grid,.home-03a .security-grid{display:grid;gap:14px}.home-03a .flow-grid{grid-template-columns:repeat(4,1fr)}.home-03a .journey-grid{grid-template-columns:repeat(4,1fr)}.home-03a .audience-grid{grid-template-columns:repeat(3,1fr)}.home-03a .security-grid{grid-template-columns:repeat(4,1fr)}
+.home-03a .info-card{background:#fff;border:1px solid #e1e8f2;border-radius:10px;padding:20px;box-shadow:0 8px 20px rgba(16,46,91,.055)}.home-03a .info-card .num{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#155fdd;color:#fff;font-size:.78rem;font-weight:900}.home-03a .info-card h3{font-size:1rem;margin:13px 0 8px}.home-03a .info-card p{font-size:.9rem;color:#637795;margin:0;line-height:1.55}
+.home-03a .impact-total{margin-top:15px;border:1px solid #dce6f2;border-radius:10px;background:#fff;padding:16px 20px;display:flex;justify-content:center;gap:20px;align-items:baseline;color:#3f587a}.home-03a .impact-total strong{font-size:2rem;color:#07885c}
+.home-03a .pricing-grid-03a{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.home-03a .price-card-03a{position:relative;background:#fff;border:1px solid #dfe7f2;border-radius:11px;padding:22px;display:flex;flex-direction:column;min-height:390px}.home-03a .price-card-03a.featured{border:2px solid #ff6b16;box-shadow:0 16px 36px rgba(255,101,0,.14)}.home-03a .price-card-03a .badge{align-self:flex-start;padding:5px 9px;border-radius:999px;background:#eef4ff;color:#1558cf;font-size:.7rem;font-weight:900}.home-03a .price-card-03a .price{font-size:2rem;color:#102448;font-weight:900;margin:16px 0 2px}.home-03a .price-card-03a .period{font-size:.8rem;color:#6b7c98}.home-03a .price-card-03a ul{padding-left:18px;color:#536a8a;font-size:.88rem;display:grid;gap:9px;margin:20px 0}.home-03a .price-card-03a .btn-secondary-03a,.home-03a .price-card-03a .btn-primary-03a{margin-top:auto;width:100%}
+.home-03a .story-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:30px;align-items:center}.home-03a .story-placeholder{min-height:260px;border-radius:12px;background:linear-gradient(145deg,#e8f0fd,#cad9ef);display:grid;place-items:center;color:#294b7c;font-weight:900;border:1px dashed #9eb0cb;text-align:center;padding:28px}.home-03a .story-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.home-03a .story-stats div{background:#fff;border:1px solid #e1e8f2;border-radius:9px;padding:16px}.home-03a .story-stats strong{display:block;color:#145bd6;font-size:1.5rem}.home-03a .story-stats span{color:#627794;font-size:.8rem}
+.home-03a .final-cta-03a{background:linear-gradient(135deg,#082657,#0d4db1);color:#fff;border-radius:12px;padding:34px 38px;display:grid;grid-template-columns:1fr auto;gap:26px;align-items:center;box-shadow:0 18px 44px rgba(8,38,87,.22)}.home-03a .final-cta-03a h2{color:#fff;margin:0}.home-03a .final-cta-03a p{color:#d7e5ff;margin:10px 0 0}
+@media(max-width:1080px){.home-03a .hero-grid-03a,.home-03a .report-grid,.home-03a .story-grid{grid-template-columns:1fr}.home-03a .hero-grid-03a{gap:30px}.home-03a .pricing-grid-03a,.home-03a .flow-grid,.home-03a .journey-grid,.home-03a .security-grid{grid-template-columns:repeat(2,1fr)}.home-03a .evidence-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.home-03a .section{padding:52px 0}.home-03a .dashboard-body{grid-template-columns:1fr}.home-03a .dashboard-nav{display:none}.home-03a .dashboard-kpis{grid-template-columns:repeat(2,1fr)}.home-03a .dashboard-lower,.home-03a .hero-metrics,.home-03a .audience-grid,.home-03a .story-stats,.home-03a .pricing-grid-03a,.home-03a .flow-grid,.home-03a .journey-grid,.home-03a .security-grid,.home-03a .evidence-grid{grid-template-columns:1fr}.home-03a .report-preview{grid-template-columns:1fr}.home-03a .report-cover{min-height:180px}.home-03a .final-cta-03a{grid-template-columns:1fr;padding:28px}.home-03a .final-cta-03a .hero-actions{margin:0}.home-03a h1{font-size:2.7rem}}
