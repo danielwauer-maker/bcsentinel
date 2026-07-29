@@ -32,11 +32,14 @@ class Settings(BaseSettings):
     SMTP_USE_TLS: bool = True
     SMTP_FROM_EMAIL: str | None = None
     SMTP_FROM_NAME: str = "BCSentinel"
+    CONTACT_RECIPIENT_EMAIL: str = "support@bcsentinel.com"
+    CONTACT_RATE_LIMIT_ATTEMPTS: int = 5
+    CONTACT_RATE_LIMIT_WINDOW_SECONDS: int = 600
 
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in
     # config/pricing_canonical.json or license_pricing_config change, create matching
-    # new Prices in Stripe and update these env vars Ã¢â‚¬â€ see backend/README.md.
+    # new Prices in Stripe and update these env vars — see backend/README.md.
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
     STRIPE_PRICE_ID_ASSESSMENT: str | None = None
@@ -183,8 +186,6 @@ def validate_settings() -> None:
             )
 
         if settings.ADMIN_USERNAME.strip().lower() == "admin":
-            # erlaubt, aber bewusst nur als Hinweis im Code-Kommentar dokumentiert;
-            # kein Runtime-Block, damit dein bestehender Admin-Zugang weiter funktioniert
             pass
 
         if settings.ADMIN_PASSWORD in insecure_admin_password_values or len(settings.ADMIN_PASSWORD) < 16:
