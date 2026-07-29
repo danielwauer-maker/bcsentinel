@@ -1,1 +1,83 @@
-{"meta":{"locale":"de","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Hilfe | BCSentinel","metaDescription":"Hilfe für BCSentinel-Anwender und Administratoren in Microsoft Dynamics 365 Business Central.","eyebrow":"Hilfe und Einstieg","title":"Schnell zur passenden Anleitung für BCSentinel.","lead":"Diese Seite bündelt die wichtigsten Einstiegs-, Produkt- und Fehlerbehebungsthemen für Anwender und Business-Central-Administratoren.","asideAria":"Hilfe-Navigation","heroAside":[{"title":"Neu bei BCSentinel?","text":"Starten Sie mit Registrierung, Verbindungstest und kostenlosem Scan."},{"title":"Technisches Problem?","text":"Nutzen Sie zuerst Dokumentation und Troubleshooting, danach den Support-Kanal."},{"title":"Produktzugriff","text":"Assessment, Validation und Monitoring werden direkt in Business Central freigeschaltet."}],"actions":[{"label":"Dokumentation öffnen","href":"docs.html"},{"label":"Support kontaktieren","href":"support.html"}],"sections":[{"id":"getting-started","eyebrow":"Erste Schritte","title":"Vom Setup zum ersten Ergebnis","lead":"Der empfohlene Ablauf bleibt bewusst schlank.","cards":[{"title":"1. Tenant registrieren","text":"BCSentinel in Business Central öffnen, Datenverarbeitung bestätigen und Tenant, Umgebung sowie Unternehmen registrieren."},{"title":"2. Verbindung prüfen","text":"API-Konfiguration und Zugriff über den integrierten Verbindungstest validieren."},{"title":"3. Kostenlosen Scan starten","text":"Den ersten Scan ausführen und die begrenzte Vorschau auf Ergebnisse, Findings, Maßnahmen und Report ansehen."}]},{"id":"product-access","eyebrow":"Produkte","title":"Welcher Zugriff passt zu welchem Schritt?","lead":"Die Produkte bauen aufeinander auf, enthalten aber unterschiedliche Rechte.","cards":[{"title":"Assessment","text":"Schaltet die bereits erzeugte vollständige Analyse sieben Tage frei. Kein zusätzlicher Scan-Credit."},{"title":"Validation","text":"Enthält einen neuen Scan-Credit und danach weitere sieben Tage vollständigen Zugriff."},{"title":"Monitoring","text":"Ergänzt geplante Scans, Historie, Trends, Ausnahmen und laufenden Vollzugriff während der aktiven Laufzeit."}]},{"id":"results","eyebrow":"Ergebnisse verstehen","title":"Findings, Estimated Loss und Executive Report","lead":"BCSentinel verbindet technische Datenprobleme mit geschäftlicher Relevanz.","cards":[{"title":"Findings","text":"Schweregrad, betroffene Datensätze, Status und Handlungsempfehlungen helfen bei der Priorisierung."},{"title":"Estimated Loss","text":"Gemessene Werte und Modellannahmen werden getrennt dargestellt. Die Berechnung ist ein Entscheidungswert, keine Kostengarantie."},{"title":"Executive Report","text":"Der Report fasst Health Score, Business Impact, Prioritäten und nächste Schritte managementgerecht zusammen."}]},{"id":"troubleshooting","eyebrow":"Fehlerbehebung","title":"Häufige Ursachen zuerst prüfen","lead":"Viele Probleme lassen sich direkt im Setup oder über die Dokumentation lösen.","cards":[{"title":"Keine Ergebnisse sichtbar","text":"Scanstatus prüfen, Abschluss abwarten und anschließend Lizenz sowie Ergebniszugriff aktualisieren."},{"title":"Zugriff unvollständig","text":"Produktstatus und Access Snapshot aktualisieren. Assessment und Validation sind zeitlich begrenzt."},{"title":"Verbindung fehlgeschlagen","text":"API-URL, Token, Tenant-Kontext und HTTPS-Erreichbarkeit prüfen."}]},{"id":"next-step","eyebrow":"Weitere Hilfe","title":"Noch nicht gelöst?","lead":"Senden Sie eine Support-Anfrage mit möglichst konkretem Kontext.","cards":[{"title":"Dokumentation","text":"Detaillierte Schritte für Einrichtung, Scan, Produkte und Troubleshooting."},{"title":"Support","text":"Für konkrete technische Störungen, Zugriffsprobleme oder Pilot-Onboarding."},{"title":"Kontakt","text":"Für Demo, Produktfragen, Partnerschaft oder allgemeine Anfragen."}]}]}}
+{
+  "meta": {"locale": "de", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Hilfe | BCSentinel",
+    "metaDescription": "Schnelle Hilfe für Einrichtung, Scans, Produktzugriff und Ergebnisse in BCSentinel.",
+    "eyebrow": "Self-Service-Hilfe",
+    "title": "Die passende Lösung für die häufigsten BCSentinel-Fragen.",
+    "lead": "Kurze Prüfschritte helfen bei Setup, Scan, Zugriff und Ergebnisanzeige. Für vertiefende Erklärungen führt jeder Themenbereich zur Dokumentation oder zum Support.",
+    "asideAria": "BCSentinel Hilfeübersicht",
+    "heroAside": [
+      {"title": "Neu bei BCSentinel?", "text": "Setup öffnen, Tenant registrieren, Verbindung testen und den kostenlosen Scan starten."},
+      {"title": "Kein Zugriff auf Details?", "text": "Produktstatus und Access Snapshot aktualisieren und das aktive Zugriffsfenster prüfen."},
+      {"title": "Technische Störung?", "text": "Run-ID, Zeitpunkt und exakte Fehlermeldung notieren, bevor Sie Support kontaktieren."}
+    ],
+    "actions": [
+      {"label": "Dokumentation öffnen", "href": "docs.html"},
+      {"label": "Support kontaktieren", "href": "support.html"}
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "eyebrow": "Erster Start",
+        "title": "In wenigen Schritten zum ersten Ergebnis.",
+        "lead": "Der kostenlose Scan ist der Einstieg in die BCSentinel-Kundenreise.",
+        "cards": [
+          {"title": "Setup öffnen", "text": "BCSentinel Setup in Business Central öffnen und die vorgesehene API-Konfiguration prüfen."},
+          {"title": "Tenant registrieren", "text": "Tenant, Environment und Company registrieren und die erforderlichen Bestätigungen abschließen."},
+          {"title": "Verbindung testen", "text": "Der Connection Test muss erfolgreich sein, bevor ein Scan zuverlässig gestartet werden kann."},
+          {"title": "Kostenlosen Scan starten", "text": "Scan auslösen, Run-Status bis zum Abschluss verfolgen und danach die Free Preview öffnen."}
+        ]
+      },
+      {
+        "id": "product-access",
+        "eyebrow": "Zugriff",
+        "title": "Warum bestimmte Inhalte gesperrt oder zeitlich begrenzt sind.",
+        "lead": "Die vier Produktzustände besitzen bewusst unterschiedliche Scan- und Zugriffsrechte.",
+        "cards": [
+          {"title": "Free Preview", "text": "Zeigt einen begrenzten Überblick aus dem ersten kostenlosen Scan."},
+          {"title": "Assessment", "text": "Öffnet die vorhandene Analyse sieben Tage vollständig, enthält aber keinen neuen Scan."},
+          {"title": "Validation", "text": "Ermöglicht einen neuen Deep Scan nach der Bereinigung und öffnet das aktualisierte Ergebnis erneut sieben Tage."},
+          {"title": "Monitoring", "text": "Bietet während der aktiven Laufzeit vollständigen Zugriff, geplante Scans, Historie, Trends und Ausnahmen."}
+        ]
+      },
+      {
+        "id": "results",
+        "eyebrow": "Ergebnisse verstehen",
+        "title": "Was Score, Findings, Actions und Estimated Loss bedeuten.",
+        "lead": "Die Ergebnisse sollen Priorisierung erleichtern, nicht fachliche Entscheidungen automatisieren.",
+        "cards": [
+          {"title": "Health Score", "text": "Gesamtindikation über die bewerteten Datenqualitätsprüfungen. Der Wert sollte zusammen mit Schweregraden und Modulen gelesen werden."},
+          {"title": "Findings", "text": "Beschreiben das erkannte Problem, den Schweregrad und die betroffenen Datensätze."},
+          {"title": "Actions", "text": "Empfehlen einen sinnvollen nächsten Schritt; die konkrete Änderung wird fachlich geprüft und kontrolliert ausgeführt."},
+          {"title": "Estimated Loss", "text": "Transparenter Schätzwert auf Basis erkannter Datensätze und gekennzeichneter Annahmen, keine garantierte Schadenshöhe."}
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "eyebrow": "Schnellprüfung",
+        "title": "Die häufigsten Probleme und der erste sinnvolle Check.",
+        "lead": "Führen Sie die Schritte in dieser Reihenfolge aus, bevor Sie eine Support-Anfrage senden.",
+        "cards": [
+          {"title": "Verbindung fehlgeschlagen", "text": "API-URL, HTTPS-Erreichbarkeit, Token-Konfiguration und registrierten Tenant-Kontext prüfen."},
+          {"title": "Scan startet nicht", "text": "Prüfen, ob ein Scan-Credit oder aktives Monitoring vorhanden ist und ob bereits ein Run läuft."},
+          {"title": "Scan bleibt aktiv", "text": "Run-ID, Heartbeat und Fehlermeldung in der Scan-Historie kontrollieren."},
+          {"title": "Keine Ergebnisse sichtbar", "text": "Run-Abschluss abwarten und anschließend Produktstatus sowie Ergebniszugriff aktualisieren."},
+          {"title": "Details sind gesperrt", "text": "Aktiven Modus und Zugriffsfenster prüfen. Assessment und Validation sind zeitlich begrenzt."},
+          {"title": "Report-Link funktioniert nicht", "text": "Ablaufzeit und Zugriffsstatus prüfen und bei Bedarf eine neue zulässige Freigabe erzeugen."}
+        ]
+      },
+      {
+        "id": "next-step",
+        "eyebrow": "Nächster Schritt",
+        "title": "Wann Dokumentation, Support oder Kontakt richtig ist.",
+        "lead": "Der passende Kanal verkürzt die Bearbeitung und vermeidet Rückfragen.",
+        "cards": [
+          {"title": "Dokumentation", "text": "Für Einrichtung, Produktrechte, Ergebnisinterpretation und systematische Fehlerbehebung."},
+          {"title": "Support", "text": "Für konkrete technische Störungen, Run-Probleme, Zugriffsfehler oder betreutes Pilot-Onboarding."},
+          {"title": "Kontakt", "text": "Für Demo, Preise, Partnerschaft oder allgemeine Produktfragen."}
+        ]
+      }
+    ]
+  }
+}
