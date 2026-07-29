@@ -26,7 +26,7 @@ from app.services.public_contact_service import (
 
 router = APIRouter(tags=["public"])
 EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
-ALLOWED_TOPICS = {"Pricing", "Partner", "Support", "Pilot", "General"}
+ALLOWED_TOPICS = {"Pricing", "Partner", "Support", "Pilot", "Demo", "General"}
 
 
 class PublicProductPricingItemResponse(BaseModel):
