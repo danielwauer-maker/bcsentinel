@@ -8,8 +8,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LANG = ROOT / "landingpage" / "lang"
-RUNTIME = ROOT / "landingpage" / "js" / "content-runtime.js"
+LANDING = ROOT / "landingpage"
+LANG = LANDING / "lang"
+RUNTIME = LANDING / "js" / "content-runtime.js"
+PRICING = LANDING / "js" / "pricing-conversion-journey.js"
+LEGAL_DOCS = ROOT / "docs" / "legal"
+EXCLUDED_HTML = {"blueprint.html", "design-system.html"}
 
 LEGAL_BUNDLES = ("impressum", "privacy", "terms", "contact")
 
@@ -17,8 +21,6 @@ LEGAL_BUNDLES = ("impressum", "privacy", "terms", "contact")
 # legal text is still a draft. Operational disclosures such as a planned
 # FormSubmit-to-Brevo migration must remain allowed and transparent.
 FORBIDDEN = (
-    # Literal editorial placeholders only. The opening marker must start with
-    # one of the known placeholder phrases; ordinary JSON arrays are excluded.
     re.compile(r"\[(?:noch\b|to be\b|add\b|falls\b|if\b)[^\[\]\r\n]{0,180}\]", re.I),
     re.compile(r"\bArbeitsfassung\b|\bworking draft\b", re.I),
     re.compile(r"\b(?:rechtlich|abschließend) zu finalisieren\b", re.I),
@@ -35,6 +37,53 @@ def load(bundle: str, locale: str) -> dict:
 
 def serialized(bundle: str, locale: str) -> str:
     return json.dumps(load(bundle, locale), ensure_ascii=False)
+
+
+def audit_external_fonts() -> list[str]:
+    errors: list[str] = []
+    for path in sorted(LANDING.glob("*.html")):
+        if path.name in EXCLUDED_HTML:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "fonts.googleapis.com" in text or "fonts.gstatic.com" in text:
+            errors.append(f"{path.name}: external Google Fonts reference remains")
+    return errors
+
+
+def audit_operational_documents() -> list[str]:
+    errors: list[str] = []
+    required = {
+        "SUBPROCESSORS.md": (
+            "Hetzner Online GmbH",
+            "Stripe Payments Europe",
+            "FormSubmit",
+            "Brevo",
+        ),
+        "RETENTION_AND_DELETION_CONCEPT.md": (
+            "Server-Zugriffslogs",
+            "14 Tage",
+            "90 Tage",
+            "Backups",
+            "Löschablauf bei Vertragsende",
+        ),
+        "CHECKOUT_LEGAL_REQUIREMENTS.md": (
+            "§ 14 BGB",
+            "§ 19 UStG",
+            "Stripe-Checkout-Session",
+            "B2B-Bestätigung",
+            "Nutzungsbedingungen",
+        ),
+    }
+    for filename, markers in required.items():
+        path = LEGAL_DOCS / filename
+        if not path.exists():
+            errors.append(f"docs/legal/{filename}: missing")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in text:
+                errors.append(f"docs/legal/{filename}: required marker missing ({marker})")
+    return errors
 
 
 def main() -> int:
@@ -58,9 +107,11 @@ def main() -> int:
 
     impressum_de = serialized("impressum", "de")
     privacy_de = serialized("privacy", "de")
+    privacy_en = serialized("privacy", "en")
     terms_de = serialized("terms", "de")
     contact_de = serialized("contact", "de")
     runtime = RUNTIME.read_text(encoding="utf-8")
+    pricing = PRICING.read_text(encoding="utf-8")
 
     required = {
         "impressum.de.json: provider identity": (impressum_de, "Daniel Wauer"),
@@ -73,17 +124,25 @@ def main() -> int:
         "privacy.de.json: planned Brevo delivery": (privacy_de, "Brevo"),
         "privacy.de.json: Article 28 processing": (privacy_de, "Art. 28 DSGVO"),
         "privacy.de.json: supervisory authority": (privacy_de, "Hintere Bleiche 34"),
+        "privacy.de.json: system fonts": (privacy_de, "keine Schriftanfrage an Google Fonts"),
+        "privacy.en.json: system fonts": (privacy_en, "does not send a font request to Google Fonts"),
         "terms.de.json: entrepreneur-only scope": (terms_de, "§ 14 BGB"),
         "terms.de.json: contract formation": (terms_de, "Stripe-Checkouts"),
         "terms.de.json: liability": (terms_de, "Vorsatz und grober Fahrlässigkeit"),
         "terms.de.json: German law": (terms_de, "deutsches Recht"),
         "contact.de.json: privacy acknowledgement": (contact_de, "zur Kenntnis genommen"),
         "content-runtime.js: small-business price normalization": (runtime, "Kleinunternehmerregelung gemäß § 19 UStG"),
-        "content-runtime.js: Google Fonts disclosure": (runtime, "Google Fonts"),
+        "content-runtime.js: system-font normalization": (runtime, "keine Schriftanfrage an Google Fonts"),
+        "pricing-conversion-journey.js: B2B buyer notice": (pricing, "Ausschließlich für Geschäftskunden"),
+        "pricing-conversion-journey.js: entrepreneur confirmation": (pricing, "§ 14 BGB"),
+        "pricing-conversion-journey.js: small-business notice": (pricing, "§ 19 UStG"),
     }
     for label, (text, marker) in required.items():
         if marker not in text:
             errors.append(f"{label} missing")
+
+    errors.extend(audit_external_fonts())
+    errors.extend(audit_operational_documents())
 
     if errors:
         print("Landing legal audit FAILED")
@@ -95,7 +154,10 @@ def main() -> int:
     print("- provider is Daniel Wauer using BCSentinel as business and product name")
     print("- offer is restricted to entrepreneurs under section 14 BGB")
     print("- small-business VAT treatment under section 19 UStG is represented")
+    print("- no public page loads Google Fonts or another Google font endpoint")
+    print("- pricing journey contains visible B2B and small-business notices")
     print("- Hetzner, Stripe, temporary FormSubmit and planned Brevo use are disclosed")
+    print("- subprocessor register, retention concept and checkout requirements are documented")
     print("- privacy, B2B terms and contact acknowledgement contain no legal placeholders")
     print("- separate Article 28 DPA and first-party Brevo contact sprint remain operational deliverables")
     return 0
