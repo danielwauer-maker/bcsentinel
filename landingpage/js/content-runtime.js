@@ -1,9 +1,31 @@
-/* LP-GL-11A — centralized landing page content runtime. */
+/* LP-GL-11C — centralized landing-page content runtime and public terminology. */
 (function () {
   const cache = new Map();
   const listeners = new Set();
   let activeLocale = document.documentElement.lang === "en" ? "en" : "de";
   let activeContent = null;
+
+  const COPY_REPLACEMENTS = {
+    de: [
+      [/Full Analysis/g, "vollständige Analyse"],
+      [/Premiumzugriff/g, "Vollzugriff"],
+      [/Premium-Zugriff/g, "Vollzugriff"],
+      [/Premium/g, "vollständig"],
+      [/Starten Sie das Assessment/g, "Starten Sie den kostenlosen Scan"],
+      [/Assessment starten/g, "Kostenlosen Scan starten"],
+      [/Issues und Actions/g, "Findings und Maßnahmen"],
+      [/Issues/g, "Findings"],
+      [/Actions/g, "Maßnahmen"],
+    ],
+    en: [
+      [/Full Analysis/g, "complete analysis"],
+      [/premium access/gi, "full access"],
+      [/premium/gi, "full"],
+      [/Start Assessment/g, "Start free scan"],
+      [/Issues and Actions/g, "Findings and actions"],
+      [/Issues/g, "Findings"],
+    ],
+  };
 
   function locale() {
     return document.documentElement.lang === "en" ? "en" : "de";
@@ -19,6 +41,24 @@
         : value;
     });
     return result;
+  }
+
+  function normalizeString(value, targetLocale) {
+    return (COPY_REPLACEMENTS[targetLocale] || []).reduce(
+      (result, [pattern, replacement]) => result.replace(pattern, replacement),
+      value
+    );
+  }
+
+  function normalizeCopy(value, targetLocale) {
+    if (typeof value === "string") return normalizeString(value, targetLocale);
+    if (Array.isArray(value)) return value.map((item) => normalizeCopy(item, targetLocale));
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [key, normalizeCopy(item, targetLocale)])
+      );
+    }
+    return value;
   }
 
   async function loadStatic(targetLocale, bundle = "redesign") {
@@ -46,7 +86,7 @@
     const fallback = await loadStatic(targetLocale, bundle);
     let published = null;
     try { published = await loadPublished(targetLocale, bundle); } catch (_) { published = null; }
-    const merged = deepMerge(fallback, published);
+    const merged = normalizeCopy(deepMerge(fallback, published), targetLocale);
     cache.set(cacheKey, merged);
     return merged;
   }
