@@ -25,7 +25,21 @@ jobs:
   automated-pilot-readiness:
     name: Automated pilot readiness and evidence
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: bcsentinel_test_password
+          POSTGRES_DB: bcsentinel_pilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_pilot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       ENV: test
       APP_ENV: test
@@ -60,6 +74,19 @@ jobs:
         run: |
           python -m pytest -q --tb=short --junitxml=pilot-e2e-junit.xml > pilot-e2e-pytest.log 2>&1
 
+      - name: Run real PostgreSQL concurrency and transaction gate
+        id: postgres_gate
+        continue-on-error: true
+        working-directory: backend
+        shell: bash
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_pilot
+        run: |
+          python -m pytest -q --tb=short \
+            --junitxml=pilot-e2e-postgres-junit.xml \
+            tests/test_p0e_postgres_concurrency.py \
+            > pilot-e2e-postgres.log 2>&1
+
       - name: Generate pilot evidence report
         id: evidence
         if: always()
@@ -81,6 +108,9 @@ jobs:
           else
             echo "Pilot evidence report was not generated." >> "$GITHUB_STEP_SUMMARY"
           fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Real PostgreSQL gate" >> "$GITHUB_STEP_SUMMARY"
+          echo "Outcome: ${{ steps.postgres_gate.outcome }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish pilot evidence
         if: always()
@@ -92,6 +122,8 @@ jobs:
             build/pilot-e2e/pilot-e2e-evidence.md
             backend/pilot-e2e-junit.xml
             backend/pilot-e2e-pytest.log
+            backend/pilot-e2e-postgres-junit.xml
+            backend/pilot-e2e-postgres.log
           if-no-files-found: warn
           retention-days: 14
 
@@ -103,6 +135,11 @@ jobs:
           if [ "${{ steps.backend_regression.outcome }}" != "success" ]; then
             echo "Full backend regression failed."
             tail -n 100 backend/pilot-e2e-pytest.log || true
+            failed=1
+          fi
+          if [ "${{ steps.postgres_gate.outcome }}" != "success" ]; then
+            echo "Real PostgreSQL concurrency and transaction gate failed."
+            tail -n 100 backend/pilot-e2e-postgres.log || true
             failed=1
           fi
           if [ "${{ steps.evidence.outcome }}" != "success" ]; then
