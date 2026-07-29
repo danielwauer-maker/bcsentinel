@@ -26,6 +26,8 @@ from app.services.public_contact_service import (
 
 router = APIRouter(tags=["public"])
 EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+URL_PATTERN = re.compile(r"https?://", re.I)
+CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 ALLOWED_TOPICS = {"Pricing", "Partner", "Support", "Pilot", "Demo", "General"}
 
 
@@ -96,6 +98,15 @@ class PublicContactRequest(BaseModel):
     @classmethod
     def validate_topic(cls, value: str) -> str:
         return value if value in ALLOWED_TOPICS else "General"
+
+    @field_validator("message")
+    @classmethod
+    def validate_message_content(cls, value: str) -> str:
+        if CONTROL_CHAR_PATTERN.search(value):
+            raise ValueError("message contains unsupported control characters")
+        if len(URL_PATTERN.findall(value)) > 2:
+            raise ValueError("message contains too many external links")
+        return value
 
 
 class PublicContactResponse(BaseModel):
