@@ -1,1 +1,81 @@
-{"meta":{"locale":"en","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Support | BCSentinel","metaDescription":"Support for BCSentinel, pilot onboarding, and technical questions for Microsoft Dynamics 365 Business Central.","eyebrow":"BCSentinel support","title":"Resolve technical questions with clear context.","lead":"Use support for concrete incidents, access issues, scan questions, or pilot onboarding. General product and demo enquiries belong on the contact page.","asideAria":"Support guidance","heroAside":[{"title":"Before contacting support","text":"Review documentation, scan status, connection test, and product access."},{"title":"Helpful details","text":"Include tenant, environment, company context, run ID, timestamp, and exact error message."},{"title":"No public SLA commitment","text":"No fixed public response time or availability guarantee is currently published."}],"actions":[{"label":"Send support request","href":"contact.html?product=support"},{"label":"Review documentation","href":"docs.html"}],"sections":[{"id":"support-scope","eyebrow":"Support scope","title":"What support can help with","lead":"The channel is intended for concrete technical and access-related questions.","cards":[{"title":"Connection and registration","text":"API connection, registration, tenant mapping, or access snapshot errors."},{"title":"Scans and results","text":"Questions about run status, missing results, findings, dashboard, or Executive Report."},{"title":"Products and access","text":"Issues with Assessment, Validation, or Monitoring activation and term."}]},{"id":"request-details","eyebrow":"Prepare your request","title":"These details speed up analysis","lead":"Do not send passwords, complete tokens, or unnecessary personal data.","cards":[{"title":"Technical context","text":"Business Central version, environment, affected company, and incident time."},{"title":"References","text":"Run ID, finding code, HTTP status, or exact wording of the error."},{"title":"Reproduction steps","text":"Describe the action taken and the expected result."}]},{"id":"self-service","eyebrow":"Self-service","title":"Check these items first","lead":"Many causes can be narrowed down without support access.","cards":[{"title":"Connection test","text":"Validate API URL, HTTPS, and token configuration through the extension."},{"title":"Scan history","text":"Review run status, heartbeat, completion, or failure state."},{"title":"License refresh","text":"Reload product status, credits, and access from the backend."}]},{"id":"channels","eyebrow":"Contact channels","title":"Use the right channel for your request","lead":"This helps route the request with the right context.","cards":[{"title":"Technical support","text":"Use the contact form with Support selected or email support@bcsentinel.com."},{"title":"Pilot and onboarding","text":"For guided implementation, sandbox acceptance, and first customer scans."},{"title":"Product and partnership","text":"Use the contact page for demos, pricing, partner programme, or general collaboration."}]}]}}
+{
+  "meta": {"locale": "en", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Support | BCSentinel",
+    "metaDescription": "Technical support and pilot onboarding for BCSentinel in Microsoft Dynamics 365 Business Central.",
+    "eyebrow": "BCSentinel support",
+    "title": "Resolve technical issues faster with the right context.",
+    "lead": "Support helps with concrete incidents, access problems, scan questions, and guided pilot onboarding. General product, pricing, and demo enquiries belong on the contact page.",
+    "asideAria": "BCSentinel support guidance",
+    "heroAside": [
+      {"title": "Check first", "text": "Review the connection test, scan history, product status, and access snapshot."},
+      {"title": "Include technical context", "text": "Provide BC version, environment, company, run ID, timestamp, and exact error message."},
+      {"title": "Protect sensitive data", "text": "Do not send passwords, complete tokens, or unnecessary personal data."}
+    ],
+    "actions": [
+      {"label": "Send support request", "href": "contact.html?product=support"},
+      {"label": "Review documentation", "href": "docs.html"}
+    ],
+    "sections": [
+      {
+        "id": "support-scope",
+        "eyebrow": "Support scope",
+        "title": "What technical support covers.",
+        "lead": "The channel is intended for reproducible technical and access-related issues.",
+        "cards": [
+          {"title": "Connection and registration", "text": "HTTPS/API connection, tenant registration, company mapping, or access-snapshot errors."},
+          {"title": "Scans and run lifecycle", "text": "Runs that do not start, remain active, fail, or show unclear status transitions."},
+          {"title": "Results and report", "text": "Missing findings, an empty dashboard, an unavailable report, or unexpected result display."},
+          {"title": "Products and access", "text": "Assessment, Validation, or Monitoring activation, credits, and access-window questions."}
+        ]
+      },
+      {
+        "id": "request-details",
+        "eyebrow": "Prepare your request",
+        "title": "These details enable focused analysis.",
+        "lead": "A complete technical description reduces follow-up questions and speeds up diagnosis.",
+        "cards": [
+          {"title": "System context", "text": "Business Central version, environment, affected company, and extension version."},
+          {"title": "Time and reference", "text": "Timestamp with time zone, run ID, finding code, report ID, or checkout reference where available."},
+          {"title": "Observed error", "text": "Provide exact wording, HTTP status, and visible state; send screenshots only without sensitive content."},
+          {"title": "Reproduction steps", "text": "Briefly describe the action, expected result, and actual result."}
+        ]
+      },
+      {
+        "id": "self-service",
+        "eyebrow": "Initial checks",
+        "title": "Run these four checks first.",
+        "lead": "Many causes can be narrowed down directly in Business Central.",
+        "cards": [
+          {"title": "1. Connection test", "text": "Verify API URL, HTTPS availability, and registered tenant context."},
+          {"title": "2. Scan history", "text": "Review run status, latest heartbeat, start and end time, and error message."},
+          {"title": "3. License refresh", "text": "Reload product status, credits, and access window from the backend."},
+          {"title": "4. Reopen the result", "text": "Open dashboard or report again with current access and rule out a stale browser view."}
+        ]
+      },
+      {
+        "id": "priority",
+        "eyebrow": "Urgency",
+        "title": "Describe the impact clearly.",
+        "lead": "BCSentinel currently publishes no fixed public SLA. A factual impact description still supports prioritization.",
+        "cards": [
+          {"title": "Blocking", "text": "Registration, scanning, or paid access is completely unavailable for the affected customer."},
+          {"title": "Degraded", "text": "A core function is impaired while an alternative path or partial functionality remains available."},
+          {"title": "Question or display issue", "text": "A content question, unexpected metric, or visual problem without a blocked workflow."}
+        ]
+      },
+      {
+        "id": "channels",
+        "eyebrow": "Contact channels",
+        "title": "Use the right channel for each request.",
+        "lead": "Choose the channel based on the type of request, not only its urgency.",
+        "cards": [
+          {"title": "Technical support", "text": "Use the contact form with Support selected or email support@bcsentinel.com for concrete technical cases."},
+          {"title": "Pilot and onboarding", "text": "For guided setup, sandbox acceptance, and support during the first customer scan."},
+          {"title": "Product, demo, and pricing", "text": "Use the contact page for commercial or general product questions."},
+          {"title": "Partnership", "text": "Use partner registration or the contact page for referral, commission, and cooperation questions."}
+        ]
+      }
+    ]
+  }
+}
