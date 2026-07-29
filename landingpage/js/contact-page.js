@@ -2,11 +2,18 @@
 (function(){
   let activeContent=null;
   function locale(){return document.documentElement.lang==='en'?'en':'de'}
-  function endpoint(){
-    const configured=window.BCSENTINEL_API_BASE_URL||document.querySelector('meta[name="bcsentinel-api-base-url"]')?.content||'';
-    const local=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8000':'';
-    return new URL('/public/contact',configured||local||location.origin).toString();
+  function apiBase(){
+    const meta=document.querySelector('meta[name="bcsentinel-api-base"]')?.content?.trim();
+    if(meta)return meta.replace(/\/+$/,'');
+    const configured=typeof window.__BCSENTINEL_API_BASE__==='string'?window.__BCSENTINEL_API_BASE__.trim():'';
+    if(configured)return configured.replace(/\/+$/,'');
+    const host=(location.hostname||'').toLowerCase();
+    if(host==='bcsentinel.com'||host==='www.bcsentinel.com')return 'https://api.bcsentinel.com';
+    if(host==='dev.bcsentinel.com')return 'https://dev-api.bcsentinel.com';
+    if(host==='localhost'||host==='127.0.0.1')return 'http://localhost:8000';
+    return location.origin.replace(/\/+$/,'');
   }
+  function endpoint(){return `${apiBase()}/public/contact`}
   function optionMarkup(items){return items.map(x=>`<option value="${x.value}">${x.label}</option>`).join('')}
   function markup(t){return `<div class="contact-page"><div class="contact-container"><section class="contact-hero"><div><p class="contact-eyebrow">${t.eyebrow}</p><h1>${t.title}</h1><p class="contact-lead">${t.lead}</p></div><aside class="contact-hero-aside" aria-label="${t.asideAria}">${t.promises.map(x=>`<div class="contact-promise"><strong>${x.title}</strong><p>${x.text}</p></div>`).join('')}</aside></section><section class="contact-grid"><article class="contact-card"><h2>${t.formTitle}</h2><p class="contact-note">${t.formNote}</p><form id="contactForm" class="contact-form" novalidate aria-label="${t.formAria}"><div class="contact-honeypot" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div><div class="contact-field-row"><label class="contact-field"><span>${t.fields.name}</span><input id="name" name="name" type="text" minlength="2" maxlength="120" required placeholder="${t.placeholders.name}"></label><label class="contact-field"><span>${t.fields.email}</span><input id="email" name="email" type="email" maxlength="254" required placeholder="${t.placeholders.email}"></label></div><div class="contact-field-row"><label class="contact-field"><span>${t.fields.company}</span><input id="company" name="company" type="text" maxlength="160" placeholder="${t.placeholders.company}"></label><label class="contact-field"><span>${t.fields.topic}</span><select id="topic" name="topic">${optionMarkup(t.topics)}</select></label></div><label class="contact-field"><span>${t.fields.message}</span><textarea id="message" name="message" minlength="10" maxlength="5000" required placeholder="${t.placeholders.message}"></textarea></label><label class="contact-field"><span>${t.fields.privacy}</span><span class="contact-consent"><input id="privacyConsent" name="privacyConsent" type="checkbox" required><span>${t.privacyText} <a href="privacy.html">${t.privacyLink}</a></span></span></label><div id="formStatus" class="contact-status" role="status" aria-live="polite"></div><button id="submitBtn" class="contact-submit" type="submit">${t.submit}</button></form></article><aside class="contact-card"><h2>${t.asideTitle}</h2><p class="contact-note">${t.directText}</p><div class="contact-side-list"><div class="contact-side-item"><strong>${t.emailLabel}</strong><p><a href="mailto:support@bcsentinel.com">support@bcsentinel.com</a></p></div><div class="contact-side-item"><strong>${t.topicsLabel}</strong><p>${t.topicsText}</p></div></div><div class="contact-security-note">${t.securityNote}</div></aside></section></div></div>`}
   function applyMeta(t){document.title=t.metaTitle;const m=document.querySelector('meta[name="description"]');if(m)m.content=t.metaDescription}
