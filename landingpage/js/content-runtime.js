@@ -1,4 +1,4 @@
-/* LP-GL-11C — centralized landing-page content runtime and public terminology. */
+/* LP-GL-11C / LP-LEGAL-01 — centralized landing-page content runtime and public terminology. */
 (function () {
   const cache = new Map();
   const listeners = new Set();
@@ -16,6 +16,8 @@
       [/Issues und Actions/g, "Findings und Maßnahmen"],
       [/Issues/g, "Findings"],
       [/Actions/g, "Maßnahmen"],
+      [/Alle Preise sind B2B-Listenpreise in EUR\. Gesetzliche Steuern können abhängig von Kunde und Abrechnungsland hinzukommen\. Maßgeblich sind die im Checkout beziehungsweise Vertrag ausgewiesenen Konditionen\./g, "Alle Preise sind B2B-Endpreise in EUR. Daniel Wauer wendet derzeit die Kleinunternehmerregelung gemäß § 19 UStG an; deutsche Umsatzsteuer wird nicht ausgewiesen. Maßgeblich sind die im Checkout beziehungsweise Vertrag ausgewiesenen Konditionen."],
+      [/Für den produktiven Go-Live werden keine extern von Google geladenen Schriftarten benötigt\. Die Website verwendet lokal verfügbare beziehungsweise systemseitige Schriftarten, sodass beim reinen Seitenaufruf keine Schriftanfrage an Google erforderlich ist\./g, "Die Website lädt derzeit die Schriftart Inter über Google Fonts. Dabei wird technisch eine Verbindung zu Google-Servern hergestellt und insbesondere die IP-Adresse übertragen. Diese externe Einbindung wird vor dem öffentlichen Go-Live entfernt und durch lokal verfügbare beziehungsweise systemseitige Schriftarten ersetzt."],
     ],
     en: [
       [/Full Analysis/g, "complete analysis"],
@@ -24,6 +26,8 @@
       [/Start Assessment/g, "Start free scan"],
       [/Issues and Actions/g, "Findings and actions"],
       [/Issues/g, "Findings"],
+      [/All prices are B2B list prices in EUR\. Statutory taxes may be added depending on the customer and billing country\. The terms shown in checkout or the contract apply\./g, "All prices are B2B final prices in EUR. Daniel Wauer currently applies the German small-business VAT exemption under section 19 UStG; German VAT is not shown. The terms shown in checkout or the contract apply."],
+      [/The production go-live does not require fonts loaded from Google\. The website uses locally available or system fonts so that a normal page view does not require a font request to Google\./g, "The website currently loads Inter through Google Fonts. This technically creates a connection to Google servers and transfers data including the IP address. The external integration will be removed before public go-live and replaced with locally available or system fonts."],
     ],
   };
 
