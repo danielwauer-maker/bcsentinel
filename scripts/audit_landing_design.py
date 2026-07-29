@@ -11,6 +11,7 @@ LANDING = ROOT / "landingpage"
 EXCLUDED = {"blueprint.html", "design-system.html"}
 CONTENT_LEGAL_LAYER = "css/content-legal-visual-consistency.css"
 FORM_AUTH_LAYER = "css/form-auth-visual-consistency.css"
+ACCOUNT_TRANSACTION_LAYER = "css/account-transaction-visual-consistency.css"
 
 REQUIRED_SHARED_ASSETS = {
     "index.html": ("styles.css", "css/home-layout-consolidation.css", "css/primary-pages-visual-consistency.css", "js/site-shell.js"),
@@ -26,9 +27,9 @@ REQUIRED_SHARED_ASSETS = {
     "partner-register.html": ("css/partner-auth-pages.css", FORM_AUTH_LAYER, "js/site-shell.js"),
     "partner-login.html": ("css/partner-auth-pages.css", FORM_AUTH_LAYER, "js/site-shell.js"),
     "partner-reset-password.html": ("css/partner-auth-pages.css", FORM_AUTH_LAYER, "js/site-shell.js"),
-    "partner-portal.html": ("css/partner-portal.css", "js/site-shell.js"),
-    "billing-success.html": ("css/billing-result-pages.css", "js/site-shell.js"),
-    "billing-cancel.html": ("css/billing-result-pages.css", "js/site-shell.js"),
+    "partner-portal.html": ("css/partner-portal.css", ACCOUNT_TRANSACTION_LAYER, "js/site-shell.js"),
+    "billing-success.html": ("css/billing-result-pages.css", ACCOUNT_TRANSACTION_LAYER, "js/site-shell.js"),
+    "billing-cancel.html": ("css/billing-result-pages.css", ACCOUNT_TRANSACTION_LAYER, "js/site-shell.js"),
 }
 
 
@@ -80,6 +81,7 @@ def main() -> int:
     print("- homepage and Estimated Loss share the primary visual-consistency layer")
     print("- Security, Docs, Help, Support and Legal pages share the content/legal visual layer")
     print("- Contact and partner authentication share the form/auth visual layer")
+    print("- Partner Portal and Billing pages share the account/transaction visual layer")
     print("- one global marketing footer is owned by site-shell.js across all public pages")
     return 0
 
