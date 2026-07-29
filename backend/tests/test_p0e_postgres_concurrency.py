@@ -213,7 +213,7 @@ def test_parallel_access_snapshot_refresh_is_tenant_bound(client, tenant_factory
     assert {response.status_code for response in responses} == {200}
     snapshots = [response.json() for response in responses]
     assert {snapshot["tenant_id"] for snapshot in snapshots} == {tenant["tenant_id"]}
-    assert {snapshot["snapshot_version"] for snapshot in snapshots} == {"p0d-v1"}
+    assert {snapshot["snapshot_version"] for snapshot in snapshots} == {"p0d-v4-runtime-policy-drift"}
 
 
 def test_parallel_token_issuance_after_expiry_is_denied(client, tenant_factory):

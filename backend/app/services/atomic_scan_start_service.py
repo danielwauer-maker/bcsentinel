@@ -145,7 +145,7 @@ def _assert_recoverable_orphan_scan(
         raise ScanStartConflictError(
             "The scan ID is already owned by another tenant. Start a new scan with a new scan ID.",
             code="SCAN_ID_TENANT_CONFLICT",
-            message_de="Die Scan-ID gehört bereits zu einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
+            message_de="Die Scan-ID gehört bereits einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
         )
 
     bound_request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == scan.scan_id))
@@ -222,14 +222,40 @@ def _claim_credit(db: Session, *, tenant_id: str, scan_id: str, product_codes: s
     return candidate
 
 
+def _claim_free_data_health_score(db: Session, *, tenant: Tenant) -> bool:
+    claimed_free = db.execute(
+        update(Tenant)
+        .where(Tenant.id == tenant.id, Tenant.free_assessment_used.is_(False))
+        .values(free_assessment_used=True)
+    )
+    if claimed_free.rowcount != 1:
+        return False
+    db.flush()
+    tenant.free_assessment_used = True
+    return True
+
+
 def _resolve_access_and_credit(
     db: Session, *, tenant: Tenant, requested_mode: str, scan_id: str
 ) -> tuple[str | None, TenantScanCredit | None, bool]:
     monitoring_active = has_active_monitoring_subscription(db, tenant) or bool(
         set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
     )
+
+    if requested_mode == "monitoring":
+        if monitoring_active:
+            return "monitoring", None, False
+        raise MonitoringInactiveError("Monitoring is not active for this tenant.")
+
     if monitoring_active:
         return "monitoring", None, False
+
+    if requested_mode == "data_health_score":
+        if _claim_free_data_health_score(db, tenant=tenant):
+            return PRODUCT_DATA_HEALTH_SCORE, None, True
+        raise FreeScanAlreadyUsedError(
+            "The one-time free Data Health Score has already been started for this tenant."
+        )
 
     credit = _claim_credit(
         db,
@@ -240,15 +266,14 @@ def _resolve_access_and_credit(
     if credit is not None:
         return PRODUCT_VALIDATION_CHECK, credit, False
 
-    # This conditional update and the request/scan insert share one transaction.
-    claimed_free = db.execute(
-        update(Tenant)
-        .where(Tenant.id == tenant.id, Tenant.free_assessment_used.is_(False))
-        .values(free_assessment_used=True)
-    )
-    if claimed_free.rowcount == 1:
-        db.flush()
-        tenant.free_assessment_used = True
+    if requested_mode == "validation":
+        raise ScanCreditUnavailableError(
+            "A Validation Check requires an available validation credit or active Monitoring."
+        )
+
+    # Preserve the legacy first-run behavior for assessment/deep callers only.
+    # Explicit validation and monitoring requests must never be downgraded to Free.
+    if _claim_free_data_health_score(db, tenant=tenant):
         return PRODUCT_DATA_HEALTH_SCORE, None, True
 
     raise ScanCreditUnavailableError(
@@ -315,7 +340,7 @@ def accept_scan_start(
                 raise ScanStartConflictError(
                     "The scan ID is already owned by another tenant. Start a new scan with a new scan ID.",
                     code="SCAN_ID_TENANT_CONFLICT",
-                    message_de="Die Scan-ID gehört bereits zu einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
+                    message_de="Die Scan-ID gehört bereits einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
                 )
             raise ScanStartConflictError(
                 "The scan ID already has an unbound lifecycle and cannot be adopted safely. Start a new scan.",

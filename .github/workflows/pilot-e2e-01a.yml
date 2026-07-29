@@ -1,0 +1,149 @@
+name: PILOT-E2E-01A Automated Readiness
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - "backend/app/**"
+      - "backend/tests/**"
+      - "bc-extension/app.json"
+      - "bc-extension/app/src/**/*.al"
+      - "quality/pilot-e2e/**"
+      - "scripts/generate_pilot_e2e_evidence.py"
+      - "docs/PILOT_E2E_01A_*.md"
+      - ".github/workflows/pilot-e2e-01a.yml"
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  automated-pilot-readiness:
+    name: Automated pilot readiness and evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: bcsentinel_test_password
+          POSTGRES_DB: bcsentinel_pilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_pilot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/pilot-e2e-01a.sqlite3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+
+      - name: Validate pilot evidence contract
+        working-directory: backend
+        run: python -m pytest -q --tb=short --noconftest tests/test_pilot_e2e_evidence_contract.py
+
+      - name: Run full automated backend regression
+        id: backend_regression
+        continue-on-error: true
+        working-directory: backend
+        shell: bash
+        run: |
+          python -m pytest -q --tb=short --junitxml=pilot-e2e-junit.xml > pilot-e2e-pytest.log 2>&1
+
+      - name: Run real PostgreSQL concurrency and transaction gate
+        id: postgres_gate
+        continue-on-error: true
+        working-directory: backend
+        shell: bash
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_pilot
+        run: |
+          python -m pytest -q --tb=short \
+            --junitxml=pilot-e2e-postgres-junit.xml \
+            tests/test_p0e_postgres_concurrency.py \
+            > pilot-e2e-postgres.log 2>&1
+
+      - name: Generate pilot evidence report
+        id: evidence
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python scripts/generate_pilot_e2e_evidence.py \
+            --junit backend/pilot-e2e-junit.xml \
+            --json-out build/pilot-e2e/pilot-e2e-evidence.json \
+            --markdown-out build/pilot-e2e/pilot-e2e-evidence.md \
+            --fail-on-automated-p0
+
+      - name: Add evidence summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f build/pilot-e2e/pilot-e2e-evidence.md ]; then
+            cat build/pilot-e2e/pilot-e2e-evidence.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Pilot evidence report was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Real PostgreSQL gate" >> "$GITHUB_STEP_SUMMARY"
+          echo "Outcome: ${{ steps.postgres_gate.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish pilot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-e2e-01a-evidence
+          path: |
+            build/pilot-e2e/pilot-e2e-evidence.json
+            build/pilot-e2e/pilot-e2e-evidence.md
+            backend/pilot-e2e-junit.xml
+            backend/pilot-e2e-pytest.log
+            backend/pilot-e2e-postgres-junit.xml
+            backend/pilot-e2e-postgres.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce automated pilot gate
+        if: always()
+        shell: bash
+        run: |
+          failed=0
+          if [ "${{ steps.backend_regression.outcome }}" != "success" ]; then
+            echo "Full backend regression failed."
+            tail -n 100 backend/pilot-e2e-pytest.log || true
+            failed=1
+          fi
+          if [ "${{ steps.postgres_gate.outcome }}" != "success" ]; then
+            echo "Real PostgreSQL concurrency and transaction gate failed."
+            tail -n 100 backend/pilot-e2e-postgres.log || true
+            failed=1
+          fi
+          if [ "${{ steps.evidence.outcome }}" != "success" ]; then
+            echo "One or more automated P0 pilot gates lack passing evidence."
+            failed=1
+          fi
+          exit "$failed"
