@@ -1,0 +1,13 @@
+/* LP-GL-11D — Realistic dashboard and report preview assets. */
+.lp6-asset-frame{position:relative;margin:0;border:1px solid rgba(255,255,255,.11);border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 28px 80px rgba(0,0,0,.28)}
+.lp6-asset-frame img{display:block;width:100%;height:auto}
+.lp6-preview-badge{position:absolute;z-index:2;top:18px;left:18px;display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(7,20,38,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:.76rem;font-weight:800;letter-spacing:.04em;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.lp6-report-asset{width:min(100%,440px);justify-self:center;transform:rotate(-1deg)}
+.lp6-report-asset:after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);pointer-events:none}
+.lp6-dashboard-asset{border-color:rgba(15,39,75,.12);box-shadow:0 26px 72px rgba(22,45,82,.16)}
+html[data-theme="dark"] .lp6-section.alt{background:#0b172b}
+html[data-theme="dark"] .lp6-section.alt .lp6-head h2{color:#f2f6ff}
+html[data-theme="dark"] .lp6-section.alt .lp6-head>p:last-child,html[data-theme="dark"] .lp6-section.alt .lp6-caption{color:#aebbd7}
+@media(max-width:960px){.lp6-report-asset{width:min(100%,390px);transform:none}.lp6-report-grid{gap:30px}.lp6-report-copy{max-width:720px}}
+@media(max-width:650px){.lp6-asset-frame{border-radius:17px}.lp6-preview-badge{top:12px;left:12px;min-height:30px;padding:0 10px;font-size:.68rem}.lp6-report-asset{width:min(88vw,350px)}.lp6-dashboard-asset{overflow-x:auto}.lp6-dashboard-asset img{width:900px;max-width:none}.lp6-caption{text-align:left}}
+@media(prefers-reduced-motion:reduce){.lp6-report-asset{transform:none}}
