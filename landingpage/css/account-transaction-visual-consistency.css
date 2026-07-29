@@ -1,0 +1,179 @@
+/* LP-GL-11B group 4 — shared partner portal and billing result visual layer. */
+:root {
+  --account-page-width: 1180px;
+  --account-gutter: 40px;
+  --account-gutter-mobile: 28px;
+  --account-radius-card: 22px;
+  --account-radius-control: 13px;
+  --account-focus: 0 0 0 4px rgba(74, 141, 255, .16);
+  --account-shadow-light: 0 20px 58px rgba(22, 46, 84, .09);
+  --account-shadow-dark: 0 24px 68px rgba(0, 0, 0, .25);
+}
+
+.pp-container,
+.billing-container {
+  width: min(var(--account-page-width), calc(100% - var(--account-gutter)));
+}
+
+.pp-card,
+.billing-card {
+  border-radius: var(--account-radius-card);
+}
+
+.pp-logout,
+.pp-tab,
+.pp-button,
+.pp-form input,
+.billing-btn {
+  border-radius: var(--account-radius-control);
+}
+
+.pp-logout,
+.pp-tab,
+.pp-button,
+.billing-btn {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.pp-logout:hover,
+.pp-tab:hover,
+.pp-button:hover,
+.billing-btn:hover {
+  transform: translateY(-1px);
+}
+
+.pp-logout:focus-visible,
+.pp-tab:focus-visible,
+.pp-button:focus-visible,
+.pp-form input:focus-visible,
+.billing-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--account-focus);
+}
+
+.pp-form input:focus-visible {
+  border-color: #4a8dff;
+}
+
+.pp-card,
+.billing-card {
+  box-shadow: var(--account-shadow-light);
+}
+
+html[data-theme="dark"] .pp-card,
+html[data-theme="dark"] .billing-card {
+  box-shadow: var(--account-shadow-dark);
+}
+
+.pp-table-wrap {
+  border: 1px solid var(--pp-line);
+  border-radius: 15px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.pp-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pp-surface);
+}
+
+.pp-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pp-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--pp-soft) 72%, transparent);
+}
+
+.pp-message,
+.billing-status,
+.billing-note,
+.billing-summary-card {
+  line-height: 1.55;
+}
+
+.pp-message.show,
+.billing-status,
+.billing-note {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .015);
+}
+
+.billing-page {
+  min-height: 62vh;
+  display: grid;
+  align-items: center;
+}
+
+.billing-card {
+  overflow: hidden;
+}
+
+.billing-card h1 {
+  letter-spacing: -.04em;
+  line-height: 1.08;
+}
+
+.billing-lead,
+.billing-status-sub,
+.billing-note p,
+.billing-fineprint {
+  line-height: 1.65;
+}
+
+.billing-note p:last-child,
+.billing-fineprint:last-child {
+  margin-bottom: 0;
+}
+
+.billing-btn.primary {
+  box-shadow: 0 14px 34px rgba(255, 118, 24, .2);
+}
+
+.billing-btn.secondary:hover {
+  border-color: rgba(74, 141, 255, .38);
+}
+
+@media (max-width: 700px) {
+  .pp-container,
+  .billing-container {
+    width: min(var(--account-page-width), calc(100% - var(--account-gutter-mobile)));
+  }
+
+  .pp-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pp-tab,
+  .pp-logout,
+  .pp-profile-actions .pp-button,
+  .billing-btn {
+    width: 100%;
+  }
+
+  .pp-table-wrap {
+    margin-inline: -2px;
+  }
+
+  .pp-form input {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-logout,
+  .pp-tab,
+  .pp-button,
+  .billing-btn {
+    transition: none;
+  }
+
+  .pp-logout:hover,
+  .pp-tab:hover,
+  .pp-button:hover,
+  .billing-btn:hover {
+    transform: none;
+  }
+}
