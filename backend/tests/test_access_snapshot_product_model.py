@@ -106,12 +106,18 @@ def test_free_and_locked_experience_modes_remain_fail_closed(monkeypatch) -> Non
             free_access_permanent=True,
             has_completed_data_health_score=True,
             can_view_dashboard=True,
+            can_view_issues=True,
+            can_view_reports=True,
             can_run_data_health_score=True,
         ),
     )
     free_snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
     assert free_snapshot["product_model"]["commercial_offers"] == []
     assert free_snapshot["product_model"]["experience_mode"] == "free"
+    assert free_snapshot["capabilities"][access_control_service.CAPABILITY_DASHBOARD]["granted"] is True
+    assert free_snapshot["capabilities"][access_control_service.CAPABILITY_ISSUES]["granted"] is True
+    assert free_snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is True
+    assert free_snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is False
     assert free_snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is True
 
     monkeypatch.setattr(
