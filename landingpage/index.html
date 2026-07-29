@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,22 +10,181 @@
   <link href="css/home-layout-consolidation.css" rel="stylesheet" />
   <link href="css/primary-pages-visual-consistency.css" rel="stylesheet" />
   <link href="css/enterprise-light-redesign.css" rel="stylesheet" />
+  <link href="css/lp-visual-03a-homepage.css" rel="stylesheet" />
 </head>
-<body>
-  <div class="site-bg" aria-hidden="true"></div>
+<body class="home-03a">
   <header class="site-header"></header>
   <main id="top">
-    <section class="hero section" aria-label="BCSentinel"></section>
-    <section id="pricing" aria-label="Produkte und Preise"></section>
-    <noscript>
-      <section class="section">
-        <div class="container card card-highlight">
-          <h1>BCSentinel</h1>
-          <p>Bitte aktiviere JavaScript, um die vollständige Produktseite anzuzeigen.</p>
-          <p><a href="contact.html">Kontakt aufnehmen</a></p>
+    <section class="hero-03a" aria-label="BCSentinel">
+      <div class="container hero-grid-03a">
+        <div>
+          <span class="eyebrow" data-i18n="hero_eyebrow">Für Microsoft Dynamics 365 Business Central entwickelt</span>
+          <h1 data-i18n="hero_title">Versteckte Datenprobleme in Microsoft Dynamics 365 Business Central aufdecken.</h1>
+          <p class="lead" data-i18n="hero_sub">Erkenne Datenprobleme, quantifiziere finanzielle Auswirkungen und überwache die Gesundheit deines ERP kontinuierlich.</p>
+          <div class="hero-actions">
+            <a class="btn-primary-03a" href="#pricing" data-i18n="hero_cta_primary">Produkte ansehen</a>
+            <a class="btn-secondary-03a" href="#journey" data-i18n="hero_cta_secondary">So funktioniert es</a>
+          </div>
+          <div class="hero-proof" aria-label="Produktvorteile">
+            <span data-i18n="hero_trust_1">Tiefenscan deiner Business-Central-Daten</span>
+            <span data-i18n="hero_trust_2">Realistischer Jahresverlust und Einsparpotenzial</span>
+            <span data-i18n="hero_trust_3">Kontinuierliches Monitoring</span>
+          </div>
+          <div class="hero-metrics" aria-label="Beispielkennzahlen">
+            <div class="metric-card"><span>Data Health Score</span><strong>82/100</strong></div>
+            <div class="metric-card"><span data-i18n="metric_loss_label">Geschätzter Jahresverlust</span><strong>€ 1.246.000</strong></div>
+            <div class="metric-card"><span data-i18n="metric_save_label">Potenzielle Einsparung</span><strong>€ 892.000</strong></div>
+          </div>
         </div>
-      </section>
-    </noscript>
+        <div class="dashboard-shell" role="img" aria-label="Illustrative BCSentinel Dashboard-Vorschau">
+          <div class="dashboard-topbar"><strong>BCSentinel</strong><span>Übersicht</span></div>
+          <div class="dashboard-body">
+            <aside class="dashboard-nav"><b>BCSentinel</b><span>◉ Übersicht</span><span>◇ Assessment</span><span>◇ Validation Check</span><span>◇ Monitoring</span><span>◇ Findings</span><span>◇ Berichte</span></aside>
+            <div class="dashboard-main">
+              <div class="dashboard-kpis">
+                <div class="dash-card"><small>Data Health Score</small><strong>82</strong></div>
+                <div class="dash-card"><small>Estimated Loss</small><strong>€ 1,25 Mio.</strong></div>
+                <div class="dash-card"><small>Potential Saving</small><strong>€ 892 Tsd.</strong></div>
+                <div class="dash-card"><small>Findings</small><strong>142</strong></div>
+              </div>
+              <div class="dashboard-lower">
+                <div class="dash-card"><small>Score-Verlauf</small><div class="fake-chart"></div></div>
+                <div class="dash-card"><small>Top-Fehlerkategorien</small><div class="fake-donut"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="evidence-strip" aria-label="Nachweise und Integrationen">
+      <div class="container evidence-grid">
+        <div class="evidence-placeholder">Microsoft Dynamics 365 Business Central</div>
+        <div class="evidence-placeholder">Microsoft AppSource</div>
+        <div class="evidence-placeholder">Microsoft Azure</div>
+        <div class="evidence-placeholder">DSGVO / GDPR</div>
+        <div class="evidence-placeholder">Security / Certification Badge</div>
+      </div>
+    </section>
+
+    <section class="section" id="solution">
+      <div class="container report-grid">
+        <div>
+          <span class="eyebrow" data-i18n="demo_eyebrow">Business Impact</span>
+          <h2 data-i18n="demo_title">Zeige dem Management einen echten Business Case – nicht nur eine Datenliste.</h2>
+          <p class="lead" data-i18n="demo_text">BCSentinel verbindet technische Findings mit finanzieller Relevanz.</p>
+          <ul class="check-list">
+            <li data-i18n="demo_list_1">Klarer Data Health Score</li>
+            <li data-i18n="demo_list_2">Geschätzter Jahresverlust und Einsparpotenzial</li>
+            <li data-i18n="demo_list_3">Issue-Kategorien und Hochrisikobereiche</li>
+            <li data-i18n="demo_list_4">Basis für Monitoring und Entscheidungen</li>
+          </ul>
+          <a href="loss-examples.html" class="btn-secondary-03a" data-i18n="value_stat_1_link">Wie wird das berechnet?</a>
+        </div>
+        <div class="report-preview" role="img" aria-label="Illustrative Executive Report-Vorschau">
+          <div class="report-cover"><strong>Executive Report</strong><span>Data Quality.<br />Measurable Impact.</span></div>
+          <div class="report-page">
+            <h3>Executive Summary</h3>
+            <div class="report-summary"><div><small>Score</small><strong>82</strong></div><div><small>Loss</small><strong>€ 1,25 Mio.</strong></div><div><small>Saving</small><strong>€ 892 Tsd.</strong></div></div>
+            <div class="report-bars"><strong>Top Findings</strong><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="problem">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="impact_eyebrow">Warum das relevant ist</span>
+          <h2 data-i18n="impact_title">Schlechte Daten sind nicht nur nervig. Sie sind teuer.</h2>
+        </div>
+        <div class="flow-grid">
+          <article class="info-card"><span class="num">1</span><h3 data-i18n="impact_item_1_title">Verlorene Marge</h3><p data-i18n="impact_item_1_text">Falsche Preise und Rabatte reduzieren die Profitabilität.</p></article>
+          <article class="info-card"><span class="num">2</span><h3 data-i18n="impact_item_2_title">Manuelle Nacharbeit</h3><p data-i18n="impact_item_2_text">Teams verbringen Zeit mit vermeidbaren Korrekturen.</p></article>
+          <article class="info-card"><span class="num">3</span><h3 data-i18n="impact_item_3_title">Prozessverzögerungen</h3><p data-i18n="impact_item_3_text">Unvollständige Setups blockieren Abläufe.</p></article>
+          <article class="info-card"><span class="num">4</span><h3 data-i18n="impact_item_4_title">Falsche Entscheidungen</h3><p data-i18n="impact_item_4_text">Schwache Datenqualität verzerrt Berichte und KPIs.</p></article>
+        </div>
+        <div class="impact-total"><span data-i18n="metric_save_label">Potenzielle Einsparung</span><strong>€ 892.000</strong><span>/ Jahr</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="journey">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="how_eyebrow">So funktioniert es</span>
+          <h2 data-i18n="how_title">Vom Data Health Score zum laufenden Monitoring.</h2>
+          <p class="lead" data-i18n="how_sub">Ein klarer Weg von der ersten Analyse bis zur kontinuierlichen Verbesserung.</p>
+        </div>
+        <div class="journey-grid">
+          <article class="info-card"><span class="num">1</span><h3>Data Health Score</h3><p data-i18n="step_1_text">Starte den ersten Scan direkt aus Business Central.</p></article>
+          <article class="info-card"><span class="num">2</span><h3>Full Analysis</h3><p data-i18n="plan_assessment_title">Vollzugriff für deinen ersten Business Case.</p></article>
+          <article class="info-card"><span class="num">3</span><h3 data-i18n="step_3_title">Validation Check</h3><p data-i18n="step_3_text">Validiere Verbesserungen nach der Bereinigung.</p></article>
+          <article class="info-card"><span class="num">4</span><h3>Monitoring</h3><p data-i18n="product_monitoring_monthly_title">Kontinuierliche Kontrolle und laufende Transparenz.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <div class="section-head"><h2>Für Entscheider. Für bessere Entscheidungen.</h2></div>
+        <div class="audience-grid">
+          <article class="info-card"><h3>Finance</h3><p>Finanziellen Impact quantifizieren, verlorene Marge sichtbar machen und Verbesserungen priorisieren.</p></article>
+          <article class="info-card"><h3>Operations</h3><p>Prozesse stabilisieren, manuelle Nacharbeit reduzieren und Datenqualität im Alltag verbessern.</p></article>
+          <article class="info-card"><h3>IT</h3><p>Datenqualität automatisiert überwachen, Risiken früher erkennen und Governance stärken.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="security">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="security_eyebrow">Sicherheit</span>
+          <h2 data-i18n="security_title">Entwickelt für datensensible Business-Central-Umgebungen.</h2>
+          <p class="lead" data-i18n="security_sub">Privacy-first Architektur und klare Mandantentrennung.</p>
+        </div>
+        <div class="security-grid">
+          <article class="info-card"><h3 data-i18n="security_1">DSGVO-bewusstes Setup</h3><p>Datenschutz und Datenminimierung als Teil der Produktarchitektur.</p></article>
+          <article class="info-card"><h3 data-i18n="security_2">Hosting auf deutschem Server</h3><p>Für den aktuellen Pilot- und Direktkundenbetrieb vorgesehen.</p></article>
+          <article class="info-card"><h3 data-i18n="security_3">Privacy-first Architektur</h3><p>Begrenzte Exponierung sensibler ERP-Informationen.</p></article>
+          <article class="info-card"><h3 data-i18n="security_4">Klare Trennung zwischen Mandanten</h3><p>Tenant- und Company-bezogene Zugriffskontrolle.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="pricing" aria-label="Produkte und Preise">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="pricing_eyebrow">Preise</span>
+          <h2 data-i18n="pricing_title">Klare Produktpreise für Scan und Monitoring.</h2>
+          <p class="lead" data-i18n="pricing_sub">Starte kostenlos mit dem Data Health Score, schalte Details per Full Analysis frei oder nutze kontinuierliches Monitoring.</p>
+        </div>
+        <div class="pricing-grid-03a">
+          <article class="price-card-03a featured"><span class="badge">Empfohlener Einstieg</span><h3>Full Analysis</h3><p data-i18n="product_assessment_title">7 Tage Zugriff auf die vollständige Analyse.</p><div class="price" data-product-price="full_analysis">79 €</div><span class="period" data-i18n="price_one_time">einmalig</span><ul><li data-i18n="product_assessment_1">Vollständige Issues und Actions</li><li data-i18n="product_assessment_2">Reports und Business-Impact-Details</li><li data-i18n="product_assessment_3">Datensatzdetails im Zugriffsfenster</li></ul><a class="btn-primary-03a" href="contact.html" data-i18n="plan_assessment_cta">Full Analysis starten</a></article>
+          <article class="price-card-03a"><span class="badge">Validation Check</span><h3>Validation Check</h3><p data-i18n="product_validation_title">Folgescan nach der Bereinigung.</p><div class="price" data-product-price="validation_check">49 €</div><span class="period" data-i18n="price_one_time">einmalig</span><ul><li data-i18n="product_validation_1">Validation-Scan-Credit</li><li data-i18n="product_validation_2">Verbesserungsvergleich</li><li data-i18n="product_validation_3">Aktualisierte Executive-Sicht</li></ul><a class="btn-secondary-03a" href="contact.html">Validation Check starten</a></article>
+          <article class="price-card-03a"><span class="badge">Monitoring Monthly</span><h3>Monitoring</h3><p data-i18n="product_monitoring_monthly_title">Kontinuierliche Kontrolle, monatlich abgerechnet.</p><div class="price" data-product-price="monitoring_monthly">149 €</div><span class="period" data-i18n="price_month">/ Monat</span><ul><li data-i18n="product_monitoring_1">Wiederkehrender Dashboard-Zugriff</li><li data-i18n="product_monitoring_2">Issue-Details und Empfehlungen</li><li data-i18n="product_monitoring_3">Business-Central-Aktionen</li></ul><a class="btn-secondary-03a" href="contact.html">Monitoring starten</a></article>
+          <article class="price-card-03a"><span class="badge">Monitoring Annual</span><h3>Monitoring Annual</h3><p data-i18n="product_monitoring_annual_title">Jährliches Monitoring mit fixem Jahrespreis.</p><div class="price" data-product-price="monitoring_annual">1.490 €</div><span class="period" data-i18n="price_year">/ Jahr</span><ul><li data-i18n="product_monitoring_1">Wiederkehrender Dashboard-Zugriff</li><li data-i18n="product_monitoring_2">Issue-Details und Empfehlungen</li><li data-i18n="product_monitoring_3">Business-Central-Aktionen</li></ul><a class="btn-secondary-03a" href="contact.html">Jahresmonitoring wählen</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container story-grid">
+        <div class="story-placeholder evidence-placeholder">Gründer-/Unternehmensbild wird vor Go-Live durch freigegebenes Original ersetzt.</div>
+        <div>
+          <span class="eyebrow">Warum BCSentinel</span>
+          <h2>Aus Business-Central-Erfahrung für messbaren Data Health Impact entwickelt.</h2>
+          <p class="lead">BCSentinel verbindet Datenqualität, Management-Transparenz und konkrete Verbesserungsschritte in einem klaren Produktpfad.</p>
+          <div class="story-stats"><div><strong>1</strong><span>fokussierte Plattform</span></div><div><strong>4</strong><span>klare Produktstufen</span></div><div><strong>100%</strong><span>Fokus auf Business Impact</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="faq">
+      <div class="container final-cta-03a">
+        <div><h2 data-i18n="cta_title">Sieh, was deine Business-Central-Daten kosten.</h2><p data-i18n="cta_sub">Starte mit dem Data Health Score, schalte Full Analysis frei und nutze Monitoring für kontinuierliche Transparenz.</p></div>
+        <div class="hero-actions"><a class="btn-secondary-03a" href="#pricing" data-i18n="cta_primary">Produkt wählen</a><a class="btn-primary-03a" href="contact.html">Demo anfragen</a></div>
+      </div>
+    </section>
   </main>
   <footer class="site-footer"></footer>
   <script src="pricing-snapshot.js"></script>
