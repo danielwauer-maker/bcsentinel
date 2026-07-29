@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Literal
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, field_validator
@@ -29,6 +29,7 @@ EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
 URL_PATTERN = re.compile(r"https?://", re.I)
 CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 ALLOWED_TOPICS = {"Pricing", "Partner", "Support", "Pilot", "Demo", "General"}
+ALLOWED_LOCALES = {"de", "en"}
 
 
 class PublicProductPricingItemResponse(BaseModel):
@@ -73,45 +74,50 @@ class PublicLossExampleConfigResponse(BaseModel):
 
 
 class PublicContactRequest(BaseModel):
-    name: str = Field(min_length=2, max_length=120)
-    email: str = Field(min_length=5, max_length=254)
+    # Required-field, length, email and content checks are intentionally handled
+    # in the endpoint so every rejected public contact request returns a stable,
+    # JSON-serializable 422 response through the existing HTTPException handler.
+    name: str = Field(default="", max_length=120)
+    email: str = Field(default="", max_length=254)
     company: str | None = Field(default=None, max_length=160)
     topic: str = Field(default="General", max_length=40)
-    message: str = Field(min_length=10, max_length=5000)
-    locale: Literal["de", "en"] = "de"
+    message: str = Field(default="", max_length=5000)
+    locale: str = Field(default="de", max_length=5)
     website: str | None = Field(default=None, max_length=200)
 
-    @field_validator("name", "email", "company", "topic", "message", "website", mode="before")
+    @field_validator("name", "email", "company", "topic", "message", "locale", "website", mode="before")
     @classmethod
     def strip_strings(cls, value):
         return value.strip() if isinstance(value, str) else value
-
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, value: str) -> str:
-        normalized = value.lower()
-        if not EMAIL_PATTERN.fullmatch(normalized):
-            raise ValueError("invalid email address")
-        return normalized
-
-    @field_validator("topic")
-    @classmethod
-    def validate_topic(cls, value: str) -> str:
-        return value if value in ALLOWED_TOPICS else "General"
-
-    @field_validator("message")
-    @classmethod
-    def validate_message_content(cls, value: str) -> str:
-        if CONTROL_CHAR_PATTERN.search(value):
-            raise ValueError("message contains unsupported control characters")
-        if len(URL_PATTERN.findall(value)) > 2:
-            raise ValueError("message contains too many external links")
-        return value
 
 
 class PublicContactResponse(BaseModel):
     accepted: bool
     request_id: str | None = None
+
+
+def _validate_public_contact(payload: PublicContactRequest) -> None:
+    errors: list[dict[str, str]] = []
+
+    if len(payload.name) < 2:
+        errors.append({"field": "name", "message": "Name must contain at least 2 characters."})
+
+    normalized_email = payload.email.lower()
+    if len(normalized_email) < 5 or not EMAIL_PATTERN.fullmatch(normalized_email):
+        errors.append({"field": "email", "message": "A valid email address is required."})
+
+    if len(payload.message) < 10:
+        errors.append({"field": "message", "message": "Message must contain at least 10 characters."})
+    elif CONTROL_CHAR_PATTERN.search(payload.message):
+        errors.append({"field": "message", "message": "Message contains unsupported control characters."})
+    elif len(URL_PATTERN.findall(payload.message)) > 2:
+        errors.append({"field": "message", "message": "Message contains too many external links."})
+
+    if payload.locale not in ALLOWED_LOCALES:
+        errors.append({"field": "locale", "message": "Locale must be de or en."})
+
+    if errors:
+        raise HTTPException(status_code=422, detail={"code": "INVALID_CONTACT_PAYLOAD", "errors": errors})
 
 
 @router.get("/pricing/public", response_model=PublicProductPricingResponse)
@@ -152,9 +158,12 @@ def get_public_loss_examples_config() -> PublicLossExampleConfigResponse:
 def submit_public_contact(payload: PublicContactRequest, request: Request) -> PublicContactResponse:
     request_id = getattr(request.state, "request_id", None)
 
-    # Honeypot submissions receive the same accepted response without delivery.
+    # Honeypot submissions receive the same accepted response without validation
+    # details or delivery, so bots cannot use the endpoint as an oracle.
     if payload.website:
         return PublicContactResponse(accepted=True, request_id=request_id)
+
+    _validate_public_contact(payload)
 
     require_rate_limit(
         request,
@@ -163,13 +172,14 @@ def submit_public_contact(payload: PublicContactRequest, request: Request) -> Pu
         window_seconds=settings.CONTACT_RATE_LIMIT_WINDOW_SECONDS,
     )
 
+    topic = payload.topic if payload.topic in ALLOWED_TOPICS else "General"
     try:
         send_public_contact_message(
             PublicContactMessage(
                 name=payload.name,
-                email=payload.email,
+                email=payload.email.lower(),
                 company=payload.company or None,
-                topic=payload.topic,
+                topic=topic,
                 message=payload.message,
                 locale=payload.locale,
                 request_id=request_id,
