@@ -264,7 +264,9 @@ def test_free_scan_is_once_per_tenant_and_idempotent(client, tenant_factory):
     request_id = str(uuid4())
     assert _start(client, tenant, request_id=request_id, run_id="RUN_FREE_ONCE", mode="data_health_score").status_code == 200
     assert _start(client, tenant, request_id=request_id, run_id="RUN_FREE_ONCE", mode="data_health_score").status_code == 200
-    assert _start(client, tenant, run_id="RUN_FREE_TWICE", mode="data_health_score").status_code == 402
+    second = _start(client, tenant, run_id="RUN_FREE_TWICE", mode="data_health_score")
+    assert second.status_code == 409
+    assert second.json()["code"] == "FREE_SCAN_ALREADY_USED"
 
 
 def test_transaction_rolls_back_credit_scan_request_and_ledger(monkeypatch, tenant_factory):
@@ -282,6 +284,7 @@ def test_transaction_rolls_back_credit_scan_request_and_ledger(monkeypatch, tena
 def test_new_request_ids_create_new_scans_when_credits_exist(client, tenant_factory):
     tenant = tenant_factory()
     _grant(tenant["tenant_id"], "validation_check", 2)
-    assert _start(client, tenant, run_id="RUN_NEW_1").status_code == 200
-    assert _start(client, tenant, run_id="RUN_NEW_2").status_code == 200
-    assert _counts(tenant["tenant_id"])["consumed"] == 2
+    assert _start(client, tenant).status_code == 200
+    assert _start(client, tenant).status_code == 200
+    counts = _counts(tenant["tenant_id"])
+    assert counts["consumed"] == counts["scans"] == counts["requests"] == counts["consumption_ledger"] == 2
