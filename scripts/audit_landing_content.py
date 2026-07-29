@@ -99,6 +99,27 @@ def audit_page(path: Path, bundle: str) -> list[str]:
     return errors
 
 
+def audit_public_terminology() -> list[str]:
+    runtime_path = LANDING / "js" / "content-runtime.js"
+    runtime = read(runtime_path)
+    errors: list[str] = []
+    required_markers = (
+        "COPY_REPLACEMENTS",
+        "normalizeCopy",
+        '[/Full Analysis/g, "vollständige Analyse"]',
+        '[/Full Analysis/g, "complete analysis"]',
+        '[/Assessment starten/g, "Kostenlosen Scan starten"]',
+        '[/Start Assessment/g, "Start free scan"]',
+        '[/Issues und Actions/g, "Findings und Maßnahmen"]',
+    )
+    for marker in required_markers:
+        if marker not in runtime:
+            errors.append(f"content-runtime.js: missing public terminology rule {marker}")
+    if "normalizeCopy(deepMerge(fallback, published), targetLocale)" not in runtime:
+        errors.append("content-runtime.js: terminology is not applied after published-content merge")
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     html_files = sorted(LANDING.glob("*.html"))
@@ -121,6 +142,8 @@ def main() -> int:
         errors.extend(audit_page(path, bundle))
         audited_bundles.add(bundle)
 
+    errors.extend(audit_public_terminology())
+
     if errors:
         print("Landing content audit FAILED")
         for error in errors:
@@ -131,6 +154,7 @@ def main() -> int:
     print(f"- audited pages: {len(MIGRATED_PAGES)}")
     print(f"- excluded design/reference pages: {len(EXCLUDED_PAGES)}")
     print("- Docs, Help and Support contain go-live self-service content without placeholder language")
+    print("- public DE/EN terminology is normalized after static and published content are merged")
     return 0
 
 
