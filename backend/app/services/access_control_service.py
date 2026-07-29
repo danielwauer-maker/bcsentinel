@@ -116,12 +116,12 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
     monitoring_until = access.get("monitoring_access_until")
 
     paid_product_active = bool(policy.active_offers) and bool(access["premium_active"])
-    issue_access = _paid_capability(
+    paid_issue_access = _paid_capability(
         policy,
         Entitlement.FINDINGS_FULL,
         legacy_granted=bool(access["can_view_issue_details"] and access["can_view_issues"]),
     )
-    report_access = _paid_capability(
+    paid_report_access = _paid_capability(
         policy,
         Entitlement.REPORT_EXECUTIVE,
         legacy_granted=bool(access["can_view_executive_report"] and access["can_view_reports"]),
@@ -132,6 +132,16 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
         legacy_granted=bool(access["can_use_monitoring"]),
     )
     subscription_active = policy.has_offer(CommercialOffer.MONITORING) and bool(access["monitoring_active"])
+
+    # A completed free score grants permanent access to the stored result,
+    # findings summary and free executive report. These are established free
+    # capabilities, not paid entitlements, and must remain available even when
+    # no commercial offer is active.
+    free_result_access = bool(
+        access.get("free_access_permanent") or access.get("has_completed_data_health_score")
+    )
+    free_issue_access = free_result_access and bool(access["can_view_issues"])
+    free_report_access = free_result_access and bool(access["can_view_reports"])
 
     deep_scan_access = _paid_capability(
         policy,
@@ -152,12 +162,12 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             reason="dashboard_access_inactive",
         ),
         CAPABILITY_ISSUES: _capability(
-            granted=issue_access,
+            granted=bool(paid_issue_access or free_issue_access),
             valid_until=access.get("issue_access_until"),
             reason="issues_access_inactive",
         ),
         CAPABILITY_REPORT: _capability(
-            granted=report_access,
+            granted=bool(paid_report_access or free_report_access),
             valid_until=access.get("report_access_until"),
             reason="report_access_inactive",
         ),
