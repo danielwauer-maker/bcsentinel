@@ -1,1 +1,83 @@
-{"meta":{"locale":"en","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Help | BCSentinel","metaDescription":"Help for BCSentinel users and administrators in Microsoft Dynamics 365 Business Central.","eyebrow":"Help and onboarding","title":"Find the right BCSentinel guidance quickly.","lead":"This page brings together the most important onboarding, product, and troubleshooting topics for users and Business Central administrators.","asideAria":"Help navigation","heroAside":[{"title":"New to BCSentinel?","text":"Start with registration, connection testing, and the free scan."},{"title":"Technical issue?","text":"Review documentation and troubleshooting first, then use the support channel."},{"title":"Product access","text":"Assessment, Validation, and Monitoring are activated directly from Business Central."}],"actions":[{"label":"Open documentation","href":"docs.html"},{"label":"Contact support","href":"support.html"}],"sections":[{"id":"getting-started","eyebrow":"Getting started","title":"From setup to the first result","lead":"The recommended flow remains intentionally lightweight.","cards":[{"title":"1. Register the tenant","text":"Open BCSentinel in Business Central, confirm data processing, and register tenant, environment, and company."},{"title":"2. Test the connection","text":"Validate API configuration and access through the integrated connection test."},{"title":"3. Start the free scan","text":"Run the first scan and review the limited preview of results, findings, actions, and report."}]},{"id":"product-access","eyebrow":"Products","title":"Which access fits each step?","lead":"The products form one journey but grant different rights.","cards":[{"title":"Assessment","text":"Unlocks the already generated complete analysis for seven days. No additional scan credit."},{"title":"Validation","text":"Includes one new scan credit followed by another seven days of full access."},{"title":"Monitoring","text":"Adds scheduled scans, history, trends, exceptions, and ongoing full access during the active term."}]},{"id":"results","eyebrow":"Understanding results","title":"Findings, Estimated Loss, and Executive Report","lead":"BCSentinel connects technical data issues with business relevance.","cards":[{"title":"Findings","text":"Severity, affected records, status, and recommendations support prioritization."},{"title":"Estimated Loss","text":"Measured values and model assumptions are shown separately. The calculation is a decision-support value, not a cost guarantee."},{"title":"Executive Report","text":"The report summarizes Health Score, business impact, priorities, and next steps for management."}]},{"id":"troubleshooting","eyebrow":"Troubleshooting","title":"Check common causes first","lead":"Many issues can be resolved directly in setup or through the documentation.","cards":[{"title":"No results visible","text":"Check scan status, wait for completion, then refresh license and result access."},{"title":"Incomplete access","text":"Refresh product status and the access snapshot. Assessment and Validation are time-limited."},{"title":"Connection failed","text":"Check API URL, token, tenant context, and HTTPS availability."}]},{"id":"next-step","eyebrow":"More help","title":"Still unresolved?","lead":"Send a support request with as much concrete context as possible.","cards":[{"title":"Documentation","text":"Detailed steps for setup, scans, products, and troubleshooting."},{"title":"Support","text":"For concrete technical incidents, access issues, or pilot onboarding."},{"title":"Contact","text":"For demos, product questions, partnership, or general enquiries."}]}]}}
+{
+  "meta": {"locale": "en", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Help | BCSentinel",
+    "metaDescription": "Quick help for setup, scans, product access, and results in BCSentinel.",
+    "eyebrow": "Self-service help",
+    "title": "Find the right answer to common BCSentinel questions.",
+    "lead": "Short checks help with setup, scans, access, and result display. Each topic leads to documentation or support when deeper guidance is needed.",
+    "asideAria": "BCSentinel help overview",
+    "heroAside": [
+      {"title": "New to BCSentinel?", "text": "Open setup, register the tenant, test the connection, and start the free scan."},
+      {"title": "No access to details?", "text": "Refresh product status and the access snapshot, then check the active access window."},
+      {"title": "Technical incident?", "text": "Record the run ID, timestamp, and exact error message before contacting support."}
+    ],
+    "actions": [
+      {"label": "Open documentation", "href": "docs.html"},
+      {"label": "Contact support", "href": "support.html"}
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "eyebrow": "First start",
+        "title": "Reach the first result in a few steps.",
+        "lead": "The free scan is the entry point into the BCSentinel customer journey.",
+        "cards": [
+          {"title": "Open setup", "text": "Open BCSentinel Setup in Business Central and verify the intended API configuration."},
+          {"title": "Register the tenant", "text": "Register tenant, environment, and company and complete the required confirmations."},
+          {"title": "Test the connection", "text": "The connection test should pass before a scan can be started reliably."},
+          {"title": "Start the free scan", "text": "Trigger the scan, follow the run status to completion, and then open the Free Preview."}
+        ]
+      },
+      {
+        "id": "product-access",
+        "eyebrow": "Access",
+        "title": "Why some content is locked or time-limited.",
+        "lead": "The four product states intentionally grant different scan and access rights.",
+        "cards": [
+          {"title": "Free Preview", "text": "Shows a limited overview from the first free scan."},
+          {"title": "Assessment", "text": "Opens the existing analysis in full for seven days but does not include another scan."},
+          {"title": "Validation", "text": "Enables a new deep scan after remediation and opens the refreshed result for another seven days."},
+          {"title": "Monitoring", "text": "Provides full access, scheduled scans, history, trends, and exceptions during the active term."}
+        ]
+      },
+      {
+        "id": "results",
+        "eyebrow": "Understanding results",
+        "title": "What score, findings, actions, and Estimated Loss mean.",
+        "lead": "Results support prioritization; they do not automate business decisions.",
+        "cards": [
+          {"title": "Health Score", "text": "An overall indication across evaluated data-quality checks. Read it together with severity and module results."},
+          {"title": "Findings", "text": "Describe the detected issue, severity, and affected records."},
+          {"title": "Actions", "text": "Recommend a sensible next step while the actual change remains subject to business review and control."},
+          {"title": "Estimated Loss", "text": "A transparent estimate based on detected records and labelled assumptions, not a guaranteed loss amount."}
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "eyebrow": "Quick checks",
+        "title": "Common issues and the first useful check.",
+        "lead": "Follow these steps in order before sending a support request.",
+        "cards": [
+          {"title": "Connection failed", "text": "Check API URL, HTTPS availability, token configuration, and registered tenant context."},
+          {"title": "Scan does not start", "text": "Confirm that a scan credit or active Monitoring exists and that no run is already active."},
+          {"title": "Scan remains active", "text": "Review run ID, heartbeat, and the error message in scan history."},
+          {"title": "No results visible", "text": "Wait for run completion, then refresh product status and result access."},
+          {"title": "Details are locked", "text": "Check the active mode and access window. Assessment and Validation are time-limited."},
+          {"title": "Report link does not work", "text": "Check expiry and access status, then create a new permitted share when required."}
+        ]
+      },
+      {
+        "id": "next-step",
+        "eyebrow": "Next step",
+        "title": "When to use documentation, support, or contact.",
+        "lead": "Choosing the right channel reduces follow-up questions and speeds up handling.",
+        "cards": [
+          {"title": "Documentation", "text": "For setup, product rights, result interpretation, and systematic troubleshooting."},
+          {"title": "Support", "text": "For concrete technical incidents, run issues, access errors, or guided pilot onboarding."},
+          {"title": "Contact", "text": "For demos, pricing, partnership, or general product questions."}
+        ]
+      }
+    ]
+  }
+}
