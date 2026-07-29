@@ -1,0 +1,36 @@
+/* LP-GL-11B group 3 — shared contact and partner-auth form consistency. */
+:root{
+  --form-shell-width:1180px;
+  --form-gutter:40px;
+  --form-gutter-mobile:28px;
+  --form-radius-lg:28px;
+  --form-radius-md:16px;
+  --form-control-height:50px;
+  --form-focus:#4a8dff;
+  --form-focus-ring:rgba(74,141,255,.16);
+  --form-shadow:0 24px 70px rgba(21,43,82,.1);
+  --form-shadow-dark:0 26px 80px rgba(0,0,0,.3);
+}
+.contact-container,.partner-auth-container{width:min(var(--form-shell-width),calc(100% - var(--form-gutter)));margin-inline:auto}
+.contact-hero-aside,.contact-card,.partner-auth-copy,.partner-auth-panel{border-radius:var(--form-radius-lg);box-shadow:var(--form-shadow)}
+.contact-field input,.contact-field textarea,.contact-field select,.partner-auth-form input,.partner-auth-form textarea,.partner-forgot-row input{min-height:var(--form-control-height);border-radius:14px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+.contact-field input:hover,.contact-field textarea:hover,.contact-field select:hover,.partner-auth-form input:hover,.partner-auth-form textarea:hover,.partner-forgot-row input:hover{border-color:rgba(74,141,255,.34)}
+.contact-field input:focus-visible,.contact-field textarea:focus-visible,.contact-field select:focus-visible,.partner-auth-form input:focus-visible,.partner-auth-form textarea:focus-visible,.partner-forgot-row input:focus-visible{outline:none;border-color:var(--form-focus);box-shadow:0 0 0 4px var(--form-focus-ring)}
+.contact-field input::placeholder,.contact-field textarea::placeholder,.partner-auth-form input::placeholder,.partner-auth-form textarea::placeholder,.partner-forgot-row input::placeholder{color:#8290a7;opacity:1}
+.contact-submit,.partner-auth-submit,.partner-auth-secondary{min-height:50px;border-radius:14px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease}
+.contact-submit:hover,.partner-auth-submit:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(255,118,24,.28)}
+.partner-auth-secondary:hover{transform:translateY(-1px);border-color:rgba(74,141,255,.35)}
+.contact-submit:focus-visible,.partner-auth-submit:focus-visible,.partner-auth-secondary:focus-visible,.contact-consent input:focus-visible,.partner-auth-check input:focus-visible,.partner-auth-links a:focus-visible{outline:3px solid var(--form-focus);outline-offset:3px}
+.contact-status,.partner-auth-status{border-radius:var(--form-radius-md);font-weight:650}
+.contact-status[role="status"],.partner-auth-status[role="status"]{scroll-margin-top:90px}
+.contact-consent,.partner-auth-check{padding:2px 0}
+.contact-consent input,.partner-auth-check input{accent-color:#f27a2b}
+.partner-auth-links a{text-underline-offset:4px;text-decoration-thickness:1px}
+.partner-auth-links a:hover{text-decoration:underline}
+.partner-auth-panel{align-self:start}
+.partner-auth-form label,.contact-field{line-height:1.35}
+html[data-theme="dark"] .contact-hero-aside,html[data-theme="dark"] .contact-card,html[data-theme="dark"] .partner-auth-copy,html[data-theme="dark"] .partner-auth-panel{box-shadow:var(--form-shadow-dark)}
+html[data-theme="dark"] .contact-field input::placeholder,html[data-theme="dark"] .contact-field textarea::placeholder,html[data-theme="dark"] .partner-auth-form input::placeholder,html[data-theme="dark"] .partner-auth-form textarea::placeholder,html[data-theme="dark"] .partner-forgot-row input::placeholder{color:#7f91ad}
+@media(max-width:920px){.contact-container,.partner-auth-container{width:min(var(--form-shell-width),calc(100% - 32px))}.contact-hero-aside{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){.contact-container,.partner-auth-container{width:min(var(--form-shell-width),calc(100% - var(--form-gutter-mobile)))}.contact-hero-aside{grid-template-columns:1fr}.contact-submit,.partner-auth-submit,.partner-auth-secondary{width:100%}.partner-auth-links{display:grid;gap:10px}.partner-auth-links a{width:max-content}.contact-field input,.contact-field textarea,.contact-field select,.partner-auth-form input,.partner-auth-form textarea,.partner-forgot-row input{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.contact-submit,.partner-auth-submit,.partner-auth-secondary,.contact-field input,.contact-field textarea,.contact-field select,.partner-auth-form input,.partner-auth-form textarea,.partner-forgot-row input{transition:none}.contact-submit:hover,.partner-auth-submit:hover,.partner-auth-secondary:hover{transform:none}}
