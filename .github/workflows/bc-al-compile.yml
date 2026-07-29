@@ -6,6 +6,9 @@ on:
       - staging
     paths:
       - "bc-extension/**"
+      - "backend/app/core/product_model.py"
+      - "backend/app/core/runtime_product_policy.py"
+      - "backend/app/services/access_control_service.py"
       - ".github/workflows/bc-al-compile.yml"
   push:
     branches:
@@ -85,8 +88,8 @@ jobs:
           Start-Transcript -Path $transcriptPath -Force | Out-Null
           try {
             Run-AlPipeline `
-              -pipelineName "BCSentinel-ARCH-02A" `
-              -containerName "bcsentinel-arch02a" `
+              -pipelineName "BCSentinel-BC-Gate" `
+              -containerName "bcsentinel-bc-gate" `
               -baseFolder $env:GITHUB_WORKSPACE `
               -appFolders @($appFolder) `
               -artifact "${{ steps.artifact.outputs.url }}" `

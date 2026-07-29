@@ -7,19 +7,14 @@ from typing import Any
 from fastapi import HTTPException
 
 from app.core.observability import get_request_id, log_event
-from app.core.product_model import (
-    AccessState,
-    CommercialOffer,
-    Entitlement,
-    ExperienceMode,
-    OFFER_ENTITLEMENTS,
-)
+from app.core.product_model import CommercialOffer, Entitlement
+from app.core.runtime_product_policy import RuntimeProductPolicy, build_runtime_product_policy
 from app.models import Tenant
 from app.services.product_license_service import build_product_access_snapshot
 
 logger = logging.getLogger(__name__)
 
-ACCESS_SNAPSHOT_VERSION = "p0d-v2-product-model"
+ACCESS_SNAPSHOT_VERSION = "p0d-v3-runtime-product-model"
 ACCESS_SNAPSHOT_TTL_SECONDS = 60
 TOKEN_AUDIENCE = "bcsentinel-protected-content"
 
@@ -65,47 +60,20 @@ def _capability(*, granted: bool, valid_until: Any, reason: str) -> dict[str, An
     }
 
 
-def _canonical_product_context(access: dict[str, Any]) -> dict[str, Any]:
-    """Build additive canonical product metadata from the compatibility snapshot.
+def _paid_capability(
+    policy: RuntimeProductPolicy,
+    entitlement: Entitlement,
+    *,
+    legacy_granted: bool,
+) -> bool:
+    """Require canonical entitlement and the existing legacy access decision.
 
-    Existing fields remain authoritative for access decisions during ARCH-02A.
-    This context exposes the new product model without changing stored codes,
-    customer rights, or legacy API fields.
+    The legacy decision remains a guard during ARCH-02B. This makes the
+    canonical model authoritative enough to prevent mismatched paid access,
+    while guaranteeing that the migration cannot widen existing rights.
     """
 
-    active_offers: list[CommercialOffer] = []
-    if bool(access.get("assessment_access_active") or access.get("full_analysis_access_active")):
-        active_offers.append(CommercialOffer.ASSESSMENT)
-    if bool(access.get("validation_access_active") or access.get("validation_check_access_active")):
-        active_offers.append(CommercialOffer.VALIDATION)
-    if bool(access.get("monitoring_active")):
-        active_offers.append(CommercialOffer.MONITORING)
-
-    entitlement_values: set[Entitlement] = set()
-    for offer in active_offers:
-        entitlement_values.update(OFFER_ENTITLEMENTS[offer])
-
-    free_access = bool(access.get("free_access_permanent") or access.get("has_completed_data_health_score"))
-    if CommercialOffer.MONITORING in active_offers:
-        experience_mode = ExperienceMode.MONITORING
-    elif CommercialOffer.VALIDATION in active_offers:
-        experience_mode = ExperienceMode.VALIDATION_RESULT
-    elif CommercialOffer.ASSESSMENT in active_offers:
-        experience_mode = ExperienceMode.ASSESSMENT_RESULT
-    elif free_access:
-        experience_mode = ExperienceMode.FREE
-    else:
-        experience_mode = ExperienceMode.LOCKED_PREVIEW
-
-    access_state = AccessState.ACTIVE if bool(access.get("can_view_dashboard")) else AccessState.LOCKED
-
-    return {
-        "commercial_offers": [offer.value for offer in active_offers],
-        "experience_mode": experience_mode.value,
-        "entitlements": sorted(entitlement.value for entitlement in entitlement_values),
-        "access_state": access_state.value,
-        "compatibility_source": "product_license_service",
-    }
+    return policy.has_entitlement(entitlement) and bool(legacy_granted)
 
 
 def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | None = None) -> dict[str, Any]:
@@ -142,11 +110,49 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             correlation_id=get_request_id(),
         )
         raise
+
+    policy = build_runtime_product_policy(access)
     premium_until = access.get("premium_access_until")
     monitoring_until = access.get("monitoring_access_until")
+
+    paid_product_active = bool(policy.active_offers) and bool(access["premium_active"])
+    paid_issue_access = _paid_capability(
+        policy,
+        Entitlement.FINDINGS_FULL,
+        legacy_granted=bool(access["can_view_issue_details"] and access["can_view_issues"]),
+    )
+    paid_report_access = _paid_capability(
+        policy,
+        Entitlement.REPORT_EXECUTIVE,
+        legacy_granted=bool(access["can_view_executive_report"] and access["can_view_reports"]),
+    )
+    monitoring_access = _paid_capability(
+        policy,
+        Entitlement.MONITORING_SCHEDULE,
+        legacy_granted=bool(access["can_use_monitoring"]),
+    )
+    subscription_active = policy.has_offer(CommercialOffer.MONITORING) and bool(access["monitoring_active"])
+
+    # A completed free score grants permanent access to the stored result,
+    # findings summary and free executive report. These are established free
+    # capabilities, not paid entitlements, and must remain available even when
+    # no commercial offer is active.
+    free_result_access = bool(
+        access.get("free_access_permanent") or access.get("has_completed_data_health_score")
+    )
+    free_issue_access = free_result_access and bool(access["can_view_issues"])
+    free_report_access = free_result_access and bool(access["can_view_reports"])
+
+    deep_scan_access = _paid_capability(
+        policy,
+        Entitlement.SCAN_CORE,
+        legacy_granted=bool(access["can_run_deep_scan"]),
+    )
+    free_scan_access = bool(access["can_run_data_health_score"])
+
     capabilities = {
         CAPABILITY_PRODUCT: _capability(
-            granted=bool(access["premium_active"]),
+            granted=paid_product_active,
             valid_until=premium_until,
             reason="product_inactive",
         ),
@@ -156,28 +162,28 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             reason="dashboard_access_inactive",
         ),
         CAPABILITY_ISSUES: _capability(
-            granted=bool(access["can_view_issue_details"] and access["can_view_issues"]),
+            granted=bool(paid_issue_access or free_issue_access),
             valid_until=access.get("issue_access_until"),
             reason="issues_access_inactive",
         ),
         CAPABILITY_REPORT: _capability(
-            granted=bool(access["can_view_executive_report"] and access["can_view_reports"]),
+            granted=bool(paid_report_access or free_report_access),
             valid_until=access.get("report_access_until"),
             reason="report_access_inactive",
         ),
         CAPABILITY_MONITORING: _capability(
-            granted=bool(access["can_use_monitoring"]),
+            granted=monitoring_access,
             valid_until=monitoring_until,
             reason="monitoring_inactive",
         ),
         CAPABILITY_SUBSCRIPTION: _capability(
-            granted=bool(access["monitoring_active"]),
+            granted=subscription_active,
             valid_until=monitoring_until,
             reason="subscription_inactive",
         ),
         CAPABILITY_SCAN_START: _capability(
-            granted=bool(access["can_run_deep_scan"] or access["can_run_data_health_score"]),
-            valid_until=monitoring_until if access["monitoring_active"] else premium_until,
+            granted=bool(deep_scan_access or free_scan_access),
+            valid_until=monitoring_until if subscription_active else premium_until,
             reason="scan_start_inactive",
         ),
     }
@@ -195,7 +201,7 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             "company_id": tenant.bc_company_id,
             "company_name": tenant.bc_company_name,
         },
-        "product_model": _canonical_product_context(access),
+        "product_model": policy.to_snapshot(),
         "capabilities": capabilities,
     }
     log_event(
