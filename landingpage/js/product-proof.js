@@ -28,13 +28,18 @@
     </div>`;
   }
 
-  function loadStyles() {
-    if (document.querySelector('link[data-lp6-proof]')) return;
+  function addStyle(href, key) {
+    if (document.querySelector(`link[data-${key}]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/product-proof.css";
-    link.dataset.lp6Proof = "true";
+    link.href = href;
+    link.dataset[key] = "true";
     document.head.appendChild(link);
+  }
+
+  function loadStyles() {
+    addStyle("css/product-proof.css", "lp6Proof");
+    addStyle("css/product-preview-assets.css", "lp6Preview");
   }
 
   function loadPricing() {
