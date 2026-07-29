@@ -64,12 +64,35 @@ def audit_footer_ownership() -> list[str]:
     return errors
 
 
+def audit_product_previews() -> list[str]:
+    errors: list[str] = []
+    proof = (LANDING / "js" / "product-proof.js").read_text(encoding="utf-8")
+    required = (
+        "assets/dashboard-concept-preview.svg",
+        "assets/report-free-preview.svg",
+        "css/product-preview-assets.css",
+        "lp6-preview-badge",
+    )
+    for token in required:
+        if token not in proof:
+            errors.append(f"product-proof.js: missing product preview integration {token}")
+    for relative in (
+        "assets/dashboard-concept-preview.svg",
+        "assets/report-free-preview.svg",
+        "css/product-preview-assets.css",
+    ):
+        if not (LANDING / relative).exists():
+            errors.append(f"landingpage/{relative}: required preview asset missing")
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     pages = [p for p in sorted(LANDING.glob("*.html")) if p.name not in EXCLUDED]
     for page in pages:
         errors.extend(audit(page))
     errors.extend(audit_footer_ownership())
+    errors.extend(audit_product_previews())
     if errors:
         print("Landing design audit FAILED")
         for error in errors:
@@ -82,6 +105,7 @@ def main() -> int:
     print("- Security, Docs, Help, Support and Legal pages share the content/legal visual layer")
     print("- Contact and partner authentication share the form/auth visual layer")
     print("- Partner Portal and Billing pages share the account/transaction visual layer")
+    print("- dashboard and Free Scan report use explicit concept-preview assets")
     print("- one global marketing footer is owned by site-shell.js across all public pages")
     return 0
 
