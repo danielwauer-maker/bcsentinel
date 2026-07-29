@@ -54,35 +54,36 @@ def audit_operational_documents() -> list[str]:
     errors: list[str] = []
     required = {
         "SUBPROCESSORS.md": (
-            "Hetzner Online GmbH",
-            "Stripe Payments Europe",
-            "FormSubmit",
-            "Brevo",
+            ("Hetzner Online GmbH",),
+            ("Stripe Payments Europe",),
+            ("FormSubmit",),
+            ("Brevo",),
         ),
         "RETENTION_AND_DELETION_CONCEPT.md": (
-            "Server-Zugriffslogs",
-            "14 Tage",
-            "90 Tage",
-            "Backups",
-            "Löschablauf bei Vertragsende",
+            ("Server-Zugriffslogs", "Webserver-Zugriffslogs"),
+            ("14 Tage",),
+            ("90 Tage",),
+            ("Backups",),
+            ("Löschablauf bei Vertragsende",),
         ),
         "CHECKOUT_LEGAL_REQUIREMENTS.md": (
-            "§ 14 BGB",
-            "§ 19 UStG",
-            "Stripe-Checkout-Session",
-            "B2B-Bestätigung",
-            "Nutzungsbedingungen",
+            ("§ 14 BGB",),
+            ("§ 19 UStG",),
+            ("Stripe-Checkout-Session",),
+            ("B2B-Bestätigung",),
+            ("Nutzungsbedingungen",),
         ),
     }
-    for filename, markers in required.items():
+    for filename, marker_groups in required.items():
         path = LEGAL_DOCS / filename
         if not path.exists():
             errors.append(f"docs/legal/{filename}: missing")
             continue
         text = path.read_text(encoding="utf-8")
-        for marker in markers:
-            if marker not in text:
-                errors.append(f"docs/legal/{filename}: required marker missing ({marker})")
+        for alternatives in marker_groups:
+            if not any(marker in text for marker in alternatives):
+                expected = " or ".join(alternatives)
+                errors.append(f"docs/legal/{filename}: required marker missing ({expected})")
     return errors
 
 
@@ -154,11 +155,11 @@ def main() -> int:
     print("- provider is Daniel Wauer using BCSentinel as business and product name")
     print("- offer is restricted to entrepreneurs under section 14 BGB")
     print("- small-business VAT treatment under section 19 UStG is represented")
+    print("- Hetzner, Stripe, temporary FormSubmit and planned Brevo use are disclosed")
+    print("- privacy, B2B terms and contact acknowledgement contain no legal placeholders")
     print("- no public page loads Google Fonts or another Google font endpoint")
     print("- pricing journey contains visible B2B and small-business notices")
-    print("- Hetzner, Stripe, temporary FormSubmit and planned Brevo use are disclosed")
     print("- subprocessor register, retention concept and checkout requirements are documented")
-    print("- privacy, B2B terms and contact acknowledgement contain no legal placeholders")
     print("- separate Article 28 DPA and first-party Brevo contact sprint remain operational deliverables")
     return 0
 
