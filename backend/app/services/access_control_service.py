@@ -8,13 +8,17 @@ from fastapi import HTTPException
 
 from app.core.observability import get_request_id, log_event
 from app.core.product_model import CommercialOffer, Entitlement
-from app.core.runtime_product_policy import RuntimeProductPolicy, build_runtime_product_policy
+from app.core.runtime_product_policy import (
+    RuntimeProductPolicy,
+    build_runtime_product_policy,
+    detect_runtime_policy_drift,
+)
 from app.models import Tenant
 from app.services.product_license_service import build_product_access_snapshot
 
 logger = logging.getLogger(__name__)
 
-ACCESS_SNAPSHOT_VERSION = "p0d-v3-runtime-product-model"
+ACCESS_SNAPSHOT_VERSION = "p0d-v4-runtime-policy-drift"
 ACCESS_SNAPSHOT_TTL_SECONDS = 60
 TOKEN_AUDIENCE = "bcsentinel-protected-content"
 
@@ -66,12 +70,7 @@ def _paid_capability(
     *,
     legacy_granted: bool,
 ) -> bool:
-    """Require canonical entitlement and the existing legacy access decision.
-
-    The legacy decision remains a guard during ARCH-02B. This makes the
-    canonical model authoritative enough to prevent mismatched paid access,
-    while guaranteeing that the migration cannot widen existing rights.
-    """
+    """Require canonical entitlement and the existing legacy access decision."""
 
     return policy.has_entitlement(entitlement) and bool(legacy_granted)
 
@@ -112,6 +111,7 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
         raise
 
     policy = build_runtime_product_policy(access)
+    policy_drift = detect_runtime_policy_drift(access, policy)
     premium_until = access.get("premium_access_until")
     monitoring_until = access.get("monitoring_access_until")
 
@@ -133,10 +133,6 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
     )
     subscription_active = policy.has_offer(CommercialOffer.MONITORING) and bool(access["monitoring_active"])
 
-    # A completed free score grants permanent access to the stored result,
-    # findings summary and free executive report. These are established free
-    # capabilities, not paid entitlements, and must remain available even when
-    # no commercial offer is active.
     free_result_access = bool(
         access.get("free_access_permanent") or access.get("has_completed_data_health_score")
     )
@@ -201,9 +197,28 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             "company_id": tenant.bc_company_id,
             "company_name": tenant.bc_company_name,
         },
-        "product_model": policy.to_snapshot(),
+        "product_model": policy.to_snapshot(policy_drift),
         "capabilities": capabilities,
     }
+
+    if policy_drift:
+        log_event(
+            logger,
+            logging.WARNING,
+            "runtime_product_policy_drift_detected",
+            "Canonical product policy and legacy runtime flags are inconsistent.",
+            tenant_reference=tenant.tenant_id,
+            company_reference=tenant.bc_company_id,
+            capability="product_model",
+            reason_code="runtime_policy_drift",
+            drift_count=len(policy_drift),
+            drift_codes=[item.code for item in policy_drift],
+            snapshot_age_seconds=0,
+            server_time=snapshot["current_time_utc"],
+            expiry=snapshot["snapshot_expires_at_utc"],
+            correlation_id=get_request_id(),
+        )
+
     log_event(
         logger,
         logging.INFO,

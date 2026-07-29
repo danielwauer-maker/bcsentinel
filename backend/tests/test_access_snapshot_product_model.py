@@ -68,11 +68,14 @@ def test_monitoring_snapshot_exposes_canonical_product_context(monkeypatch) -> N
     )
 
     product_model = snapshot["product_model"]
-    assert snapshot["snapshot_version"] == "p0d-v3-runtime-product-model"
+    assert snapshot["snapshot_version"] == "p0d-v4-runtime-policy-drift"
     assert product_model["commercial_offers"] == ["monitoring"]
     assert product_model["experience_mode"] == "monitoring"
     assert product_model["access_state"] == "active"
     assert product_model["runtime_policy"] == "canonical_with_legacy_guard"
+    assert product_model["runtime_policy_version"] == "arch-02c-v1"
+    assert product_model["consistency_status"] == "consistent"
+    assert product_model["drift_count"] == 0
     assert Entitlement.MONITORING_SCHEDULE.value in product_model["entitlements"]
     assert Entitlement.MONITORING_HISTORY.value in product_model["entitlements"]
     assert snapshot["capabilities"][access_control_service.CAPABILITY_MONITORING]["granted"] is True
@@ -114,6 +117,7 @@ def test_free_and_locked_experience_modes_remain_fail_closed(monkeypatch) -> Non
     free_snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
     assert free_snapshot["product_model"]["commercial_offers"] == []
     assert free_snapshot["product_model"]["experience_mode"] == "free"
+    assert free_snapshot["product_model"]["consistency_status"] == "consistent"
     assert free_snapshot["capabilities"][access_control_service.CAPABILITY_DASHBOARD]["granted"] is True
     assert free_snapshot["capabilities"][access_control_service.CAPABILITY_ISSUES]["granted"] is True
     assert free_snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is True
@@ -146,6 +150,8 @@ def test_paid_runtime_capability_requires_canonical_entitlement_and_legacy_grant
     snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
 
     assert snapshot["product_model"]["commercial_offers"] == []
+    assert snapshot["product_model"]["consistency_status"] == "drift_detected"
+    assert snapshot["product_model"]["drift_count"] == 3
     assert snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is False
     assert snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is False
     assert snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is False
@@ -168,6 +174,7 @@ def test_canonical_offer_does_not_bypass_legacy_runtime_denial(monkeypatch) -> N
     snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
 
     assert snapshot["product_model"]["commercial_offers"] == ["assessment"]
+    assert snapshot["product_model"]["consistency_status"] == "drift_detected"
     assert snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is True
     assert snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is False
     assert snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is False
