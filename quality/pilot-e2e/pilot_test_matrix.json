@@ -1,0 +1,227 @@
+{
+  "schema_version": "pilot-e2e-01a-v1",
+  "title": "BCSentinel Pilot E2E Readiness Matrix",
+  "policy": {
+    "allowed_statuses": ["PASS", "FAIL", "BLOCKED", "MANUAL", "NOT_RUN"],
+    "go_rule": "All P0 automated tests PASS and all P0 BC sandbox/manual gates are completed with evidence.",
+    "no_false_green": true
+  },
+  "tests": [
+    {
+      "id": "PILOT-REG-001",
+      "priority": "P0",
+      "area": "registration",
+      "title": "Idempotent tenant, environment and company registration",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*registration*.py", "backend/tests/test_*tenant*.py"],
+      "expected": "Repeated registration does not create conflicting identities or cross-tenant access.",
+      "evidence": "pytest JUnit and backend regression log"
+    },
+    {
+      "id": "PILOT-MT-001",
+      "priority": "P0",
+      "area": "multi_tenant",
+      "title": "Tenant and company isolation",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*multi_tenant*.py", "backend/tests/test_*membership*.py", "backend/tests/test_*tenant*.py"],
+      "expected": "Foreign tenant and company resources are rejected.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-FREE-001",
+      "priority": "P0",
+      "area": "free",
+      "title": "Free scan and permanent result access",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*free_access*.py", "backend/tests/test_*data_health_score*.py", "backend/tests/test_access_snapshot_product_model.py"],
+      "expected": "Completed free score keeps dashboard, findings summary and free report access without paid rights.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-ACCESS-001",
+      "priority": "P0",
+      "area": "access",
+      "title": "Canonical product policy with legacy guard",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_product_model_contract.py", "backend/tests/test_product_license_contract_alignment.py", "backend/tests/test_access_snapshot_product_model.py"],
+      "expected": "Paid capability requires canonical entitlement and legacy grant; mismatches fail closed.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-ACCESS-002",
+      "priority": "P1",
+      "area": "access",
+      "title": "Runtime policy drift diagnostics",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_access_snapshot_product_model.py"],
+      "expected": "Canonical and legacy mismatches are visible without changing the decision.",
+      "evidence": "pytest JUnit and access snapshot assertions"
+    },
+    {
+      "id": "PILOT-CREDIT-001",
+      "priority": "P0",
+      "area": "credits",
+      "title": "Atomic one-time credit consumption",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*credit*.py", "backend/tests/test_*atomic*.py"],
+      "expected": "Exactly one credit is consumed and retries cannot double-consume it.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-RUN-001",
+      "priority": "P0",
+      "area": "scan_lifecycle",
+      "title": "Queued to terminal scan lifecycle",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*scan*lifecycle*.py", "backend/tests/test_*run*.py", "backend/tests/test_*execution*.py"],
+      "expected": "Runs reach completed, failed or cancelled and do not remain indefinitely running.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-RUN-002",
+      "priority": "P0",
+      "area": "recovery",
+      "title": "Lease, heartbeat and stale-run recovery",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*lease*.py", "backend/tests/test_*heartbeat*.py", "backend/tests/test_*recovery*.py"],
+      "expected": "Lost workers are detected and stale runs are recovered without duplicate execution.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-REPORT-001",
+      "priority": "P0",
+      "area": "reporting",
+      "title": "Executive report data and rendering contracts",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*report*.py", "backend/tests/test_*pdf*.py"],
+      "expected": "Report payload, language, access and PDF generation remain valid.",
+      "evidence": "pytest JUnit; Chromium/PDF artifact where available"
+    },
+    {
+      "id": "PILOT-EXC-001",
+      "priority": "P0",
+      "area": "exceptions",
+      "title": "Data-health exceptions lifecycle and score exclusion",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*exception*.py", "backend/tests/test_*exclusion*.py"],
+      "expected": "Create, duplicate guard, deactivate/reactivate, history and score/report exclusion are correct.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-SCHED-001",
+      "priority": "P0",
+      "area": "monitoring",
+      "title": "Monitoring scheduling and authorization",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*schedul*.py", "backend/tests/test_*monitoring*.py"],
+      "expected": "Only active monitoring tenants can schedule scans and duplicate execution is prevented.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-COMM-001",
+      "priority": "P1",
+      "area": "commercial",
+      "title": "Checkout and webhook idempotency",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*stripe*.py", "backend/tests/test_*checkout*.py", "backend/tests/test_*webhook*.py"],
+      "expected": "Duplicate or reordered events do not duplicate licenses, credits or memberships.",
+      "evidence": "pytest JUnit using test doubles/test mode"
+    },
+    {
+      "id": "PILOT-EXP-001",
+      "priority": "P0",
+      "area": "expiry",
+      "title": "Expiry and downgrade protection",
+      "execution": "automated",
+      "source_patterns": ["backend/tests/test_*expiry*.py", "backend/tests/test_*access*.py", "backend/tests/test_arch_02a_compatibility_regression.py"],
+      "expected": "Expired paid rights are removed while permanent free results remain available.",
+      "evidence": "pytest JUnit"
+    },
+    {
+      "id": "PILOT-BC-001",
+      "priority": "P0",
+      "area": "bc_build",
+      "title": "BC 27 AL compile with CodeCop and PTECop",
+      "execution": "automated_external",
+      "source_patterns": [".github/workflows/bc-al-compile.yml", "bc-extension/app.json", "bc-extension/app/src/**/*.al"],
+      "expected": "Extension compiles and build plus warning artifacts are published.",
+      "evidence": "BC AL Compile and Cop Gate workflow"
+    },
+    {
+      "id": "PILOT-DB-001",
+      "priority": "P0",
+      "area": "postgresql",
+      "title": "Transactional PostgreSQL smoke test",
+      "execution": "environment_required",
+      "source_patterns": ["backend/tests/test_*postgres*.py", "backend/tests/test_*transaction*.py"],
+      "expected": "Real PostgreSQL transaction, constraints and rollback behave as required.",
+      "evidence": "Test database URL and captured command output",
+      "blocker": "Requires reachable disposable PostgreSQL test database. SQLite is not accepted as evidence."
+    },
+    {
+      "id": "PILOT-BC-002",
+      "priority": "P0",
+      "area": "bc_sandbox",
+      "title": "Install extension in real Business Central sandbox",
+      "execution": "manual_or_sandbox_automation",
+      "source_patterns": [],
+      "expected": "APP installs without dependency, permission or schema errors.",
+      "evidence": "BC Extension Management screenshot and version",
+      "blocker": "Requires real BC sandbox and authorized user/app registration."
+    },
+    {
+      "id": "PILOT-BC-003",
+      "priority": "P0",
+      "area": "bc_sandbox",
+      "title": "Real BC registration, free scan and result synchronization",
+      "execution": "manual_or_sandbox_automation",
+      "source_patterns": [],
+      "expected": "BC registers the correct tenant/company, starts a free scan and receives the terminal result.",
+      "evidence": "Screenshots, run ID, tenant/company IDs and backend correlation ID",
+      "blocker": "Requires real BC sandbox, backend URL and credentials."
+    },
+    {
+      "id": "PILOT-BC-004",
+      "priority": "P0",
+      "area": "bc_sandbox",
+      "title": "Real paid assessment, findings, report and validation path",
+      "execution": "manual_or_sandbox_automation",
+      "source_patterns": [],
+      "expected": "One credit is consumed, deep scan completes, findings/report are available and validation runs.",
+      "evidence": "Run IDs, credit before/after, report and BC screenshots",
+      "blocker": "Requires sandbox license/credit fixture and real BC execution."
+    },
+    {
+      "id": "PILOT-BC-005",
+      "priority": "P0",
+      "area": "bc_sandbox",
+      "title": "Real monitoring scheduler and job queue execution",
+      "execution": "manual_or_sandbox_automation",
+      "source_patterns": [],
+      "expected": "Scheduled job executes once, records history and handles failure/retry safely.",
+      "evidence": "Job Queue entries, scheduled run and backend logs",
+      "blocker": "Requires real BC sandbox and elapsed scheduler window or controlled test trigger."
+    },
+    {
+      "id": "PILOT-BC-006",
+      "priority": "P0",
+      "area": "bc_sandbox",
+      "title": "Extension upgrade and retained configuration",
+      "execution": "manual_or_sandbox_automation",
+      "source_patterns": [],
+      "expected": "Upgrade installs successfully and retains setup, history and access context.",
+      "evidence": "Before/after versions, setup and history screenshots",
+      "blocker": "Requires two signed/compiled APP versions and real BC sandbox."
+    },
+    {
+      "id": "PILOT-UAT-001",
+      "priority": "P1",
+      "area": "ux",
+      "title": "Guided setup and customer comprehension",
+      "execution": "manual",
+      "source_patterns": [],
+      "expected": "A first-time user can complete setup and understand statuses, findings and next steps without developer help.",
+      "evidence": "Completed UAT checklist with observations"
+    }
+  ]
+}
