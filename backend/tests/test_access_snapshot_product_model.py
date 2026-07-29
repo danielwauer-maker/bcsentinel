@@ -68,12 +68,14 @@ def test_monitoring_snapshot_exposes_canonical_product_context(monkeypatch) -> N
     )
 
     product_model = snapshot["product_model"]
-    assert snapshot["snapshot_version"] == "p0d-v2-product-model"
+    assert snapshot["snapshot_version"] == "p0d-v3-runtime-product-model"
     assert product_model["commercial_offers"] == ["monitoring"]
     assert product_model["experience_mode"] == "monitoring"
     assert product_model["access_state"] == "active"
+    assert product_model["runtime_policy"] == "canonical_with_legacy_guard"
     assert Entitlement.MONITORING_SCHEDULE.value in product_model["entitlements"]
     assert Entitlement.MONITORING_HISTORY.value in product_model["entitlements"]
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_MONITORING]["granted"] is True
 
 
 def test_assessment_and_validation_are_distinct_offers(monkeypatch) -> None:
@@ -104,11 +106,13 @@ def test_free_and_locked_experience_modes_remain_fail_closed(monkeypatch) -> Non
             free_access_permanent=True,
             has_completed_data_health_score=True,
             can_view_dashboard=True,
+            can_run_data_health_score=True,
         ),
     )
     free_snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
     assert free_snapshot["product_model"]["commercial_offers"] == []
     assert free_snapshot["product_model"]["experience_mode"] == "free"
+    assert free_snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is True
 
     monkeypatch.setattr(
         access_control_service,
@@ -118,3 +122,46 @@ def test_free_and_locked_experience_modes_remain_fail_closed(monkeypatch) -> Non
     locked_snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
     assert locked_snapshot["product_model"]["experience_mode"] == "locked"
     assert locked_snapshot["product_model"]["access_state"] == "locked"
+
+
+def test_paid_runtime_capability_requires_canonical_entitlement_and_legacy_grant(monkeypatch) -> None:
+    monkeypatch.setattr(
+        access_control_service,
+        "build_product_access_snapshot",
+        lambda _db, _tenant: _access(
+            premium_active=True,
+            can_view_dashboard=True,
+            can_view_executive_report=True,
+            can_view_reports=True,
+            can_run_deep_scan=True,
+        ),
+    )
+
+    snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
+
+    assert snapshot["product_model"]["commercial_offers"] == []
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is False
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is False
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is False
+
+
+def test_canonical_offer_does_not_bypass_legacy_runtime_denial(monkeypatch) -> None:
+    monkeypatch.setattr(
+        access_control_service,
+        "build_product_access_snapshot",
+        lambda _db, _tenant: _access(
+            premium_active=True,
+            assessment_access_active=True,
+            can_view_dashboard=True,
+            can_view_executive_report=False,
+            can_view_reports=False,
+            can_run_deep_scan=False,
+        ),
+    )
+
+    snapshot = access_control_service.build_authoritative_access_snapshot(object(), _tenant())
+
+    assert snapshot["product_model"]["commercial_offers"] == ["assessment"]
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_PRODUCT]["granted"] is True
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_REPORT]["granted"] is False
+    assert snapshot["capabilities"][access_control_service.CAPABILITY_SCAN_START]["granted"] is False
