@@ -1,1 +1,81 @@
-{"meta":{"locale":"de","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Support | BCSentinel","metaDescription":"Support für BCSentinel, Pilot-Onboarding und technische Fragen zu Microsoft Dynamics 365 Business Central.","eyebrow":"BCSentinel Support","title":"Technische Fragen strukturiert und nachvollziehbar klären.","lead":"Nutzen Sie den Support für konkrete Störungen, Zugriffsprobleme, Scan-Fragen oder Pilot-Onboarding. Für allgemeine Produkt- und Demoanfragen steht die Kontaktseite bereit.","asideAria":"Support-Hinweise","heroAside":[{"title":"Vor der Anfrage","text":"Dokumentation, Scanstatus, Verbindungstest und Produktzugriff prüfen."},{"title":"Hilfreiche Angaben","text":"Tenant-, Environment- und Company-Kontext, Run-ID, Zeitpunkt und Fehlermeldung angeben."},{"title":"Keine öffentlichen SLA-Versprechen","text":"Aktuell ist keine feste öffentliche Reaktionszeit oder Verfügbarkeitsgarantie veröffentlicht."}],"actions":[{"label":"Support-Anfrage senden","href":"contact.html?product=support"},{"label":"Dokumentation prüfen","href":"docs.html"}],"sections":[{"id":"support-scope","eyebrow":"Supportumfang","title":"Wobei der Support hilft","lead":"Der Kanal ist für konkrete technische und zugriffsbezogene Anliegen vorgesehen.","cards":[{"title":"Verbindung und Registrierung","text":"Fehler bei API-Verbindung, Registrierung, Tenant-Zuordnung oder Access Snapshot."},{"title":"Scans und Ergebnisse","text":"Fragen zu Run-Status, fehlenden Ergebnissen, Findings, Dashboard oder Executive Report."},{"title":"Produkte und Zugriff","text":"Probleme mit Assessment-, Validation- oder Monitoring-Freischaltung und Laufzeit."}]},{"id":"request-details","eyebrow":"Anfrage vorbereiten","title":"Diese Angaben beschleunigen die Analyse","lead":"Bitte keine Passwörter, vollständigen Tokens oder unnötige personenbezogene Daten senden.","cards":[{"title":"Technischer Kontext","text":"Business-Central-Version, Umgebung, betroffene Company und Zeitpunkt des Problems."},{"title":"Referenzen","text":"Run-ID, Finding-Code, HTTP-Status oder exakter Wortlaut der Fehlermeldung."},{"title":"Reproduktionsschritte","text":"Kurz beschreiben, welche Aktion ausgeführt wurde und welches Ergebnis erwartet wurde."}]},{"id":"self-service","eyebrow":"Self-Service","title":"Vorher selbst prüfen","lead":"Viele Ursachen können ohne Supportzugriff eingegrenzt werden.","cards":[{"title":"Connection Test","text":"API-URL, HTTPS und Token-Konfiguration über die Extension prüfen."},{"title":"Scan History","text":"Run-Status, Heartbeat, Abschluss oder Fehlerzustand kontrollieren."},{"title":"License Refresh","text":"Produktstatus, Credits und Zugriff erneut vom Backend laden."}]},{"id":"channels","eyebrow":"Kontaktwege","title":"Der passende Kanal für Ihr Anliegen","lead":"So landet die Anfrage direkt im richtigen Kontext.","cards":[{"title":"Technischer Support","text":"Über das Kontaktformular mit Thema Support oder per E-Mail an support@bcsentinel.com."},{"title":"Pilot und Onboarding","text":"Für betreute Einführung, Sandbox-Abnahme und erste Kundenscans."},{"title":"Produkt und Partnerschaft","text":"Für Demo, Preise, Partnerprogramm oder allgemeine Zusammenarbeit die Kontaktseite nutzen."}]}]}}
+{
+  "meta": {"locale": "de", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Support | BCSentinel",
+    "metaDescription": "Technischer Support und Pilot-Onboarding für BCSentinel in Microsoft Dynamics 365 Business Central.",
+    "eyebrow": "BCSentinel Support",
+    "title": "Technische Probleme mit dem richtigen Kontext schneller klären.",
+    "lead": "Der Support hilft bei konkreten Störungen, Zugriffsproblemen, Scan-Fragen und betreutem Pilot-Onboarding. Allgemeine Produkt-, Preis- und Demoanfragen gehören auf die Kontaktseite.",
+    "asideAria": "BCSentinel Supporthinweise",
+    "heroAside": [
+      {"title": "Zuerst selbst prüfen", "text": "Connection Test, Scan-Historie, Produktstatus und Access Snapshot kontrollieren."},
+      {"title": "Technischen Kontext mitsenden", "text": "BC-Version, Environment, Company, Run-ID, Zeitpunkt und exakte Fehlermeldung angeben."},
+      {"title": "Sensible Daten schützen", "text": "Keine Passwörter, vollständigen Tokens oder unnötigen personenbezogenen Daten übermitteln."}
+    ],
+    "actions": [
+      {"label": "Support-Anfrage senden", "href": "contact.html?product=support"},
+      {"label": "Dokumentation prüfen", "href": "docs.html"}
+    ],
+    "sections": [
+      {
+        "id": "support-scope",
+        "eyebrow": "Supportumfang",
+        "title": "Wobei der technische Support unterstützt.",
+        "lead": "Der Kanal ist für reproduzierbare technische und zugriffsbezogene Anliegen vorgesehen.",
+        "cards": [
+          {"title": "Verbindung und Registrierung", "text": "Fehler bei HTTPS/API-Verbindung, Tenant-Registrierung, Company-Zuordnung oder Access Snapshot."},
+          {"title": "Scans und Run-Lifecycle", "text": "Nicht startende, hängen gebliebene oder fehlgeschlagene Runs sowie unklare Statusübergänge."},
+          {"title": "Ergebnisse und Report", "text": "Fehlende Findings, leeres Dashboard, nicht erreichbarer Report oder unerwartete Ergebnisdarstellung."},
+          {"title": "Produkte und Zugriff", "text": "Fragen zu Assessment-, Validation- oder Monitoring-Freischaltung, Credits und Zugriffsfenstern."}
+        ]
+      },
+      {
+        "id": "request-details",
+        "eyebrow": "Anfrage vorbereiten",
+        "title": "Diese Angaben ermöglichen eine zielgerichtete Analyse.",
+        "lead": "Eine vollständige technische Beschreibung reduziert Rückfragen und beschleunigt die Eingrenzung.",
+        "cards": [
+          {"title": "Systemkontext", "text": "Business-Central-Version, Environment, betroffene Company und Extension-Version."},
+          {"title": "Zeit und Referenz", "text": "Zeitpunkt mit Zeitzone, Run-ID, Finding-Code, Report-ID oder Checkout-Referenz, soweit vorhanden."},
+          {"title": "Fehlerbild", "text": "Exakten Wortlaut, HTTP-Status und sichtbaren Status angeben; Screenshots nur ohne sensible Inhalte senden."},
+          {"title": "Reproduktionsschritte", "text": "Kurz beschreiben, welche Aktion ausgeführt wurde, was erwartet wurde und was tatsächlich geschah."}
+        ]
+      },
+      {
+        "id": "self-service",
+        "eyebrow": "Vorprüfung",
+        "title": "Diese vier Checks zuerst durchführen.",
+        "lead": "Viele Ursachen lassen sich direkt in Business Central eingrenzen.",
+        "cards": [
+          {"title": "1. Connection Test", "text": "API-URL, HTTPS-Erreichbarkeit und registrierten Tenant-Kontext prüfen."},
+          {"title": "2. Scan History", "text": "Run-Status, letzten Heartbeat, Start- und Endzeit sowie Fehlermeldung kontrollieren."},
+          {"title": "3. License Refresh", "text": "Produktstatus, Credits und Zugriffsfenster erneut vom Backend laden."},
+          {"title": "4. Erneut anmelden oder öffnen", "text": "Dashboard beziehungsweise Report mit aktuellem Zugriff neu öffnen und veraltete Browseransichten ausschließen."}
+        ]
+      },
+      {
+        "id": "priority",
+        "eyebrow": "Dringlichkeit",
+        "title": "Auswirkungen klar beschreiben.",
+        "lead": "BCSentinel veröffentlicht derzeit keine feste öffentliche SLA. Eine sachliche Auswirkungsbeschreibung hilft dennoch bei der Priorisierung.",
+        "cards": [
+          {"title": "Blockierend", "text": "Registrierung, Scan oder bezahlter Zugriff ist für den betroffenen Kunden vollständig nicht nutzbar."},
+          {"title": "Eingeschränkt", "text": "Eine Kernfunktion ist beeinträchtigt, während alternative Schritte oder Teilfunktionen verfügbar bleiben."},
+          {"title": "Frage oder Darstellung", "text": "Inhaltliche Rückfrage, unerwartete Kennzahl oder rein visuelles Problem ohne blockierten Ablauf."}
+        ]
+      },
+      {
+        "id": "channels",
+        "eyebrow": "Kontaktwege",
+        "title": "Der passende Kanal für jedes Anliegen.",
+        "lead": "Bitte wählen Sie den Kanal nach Art der Anfrage, nicht nur nach Dringlichkeit.",
+        "cards": [
+          {"title": "Technischer Support", "text": "Kontaktformular mit Thema Support oder E-Mail an support@bcsentinel.com für konkrete technische Fälle."},
+          {"title": "Pilot und Onboarding", "text": "Für betreute Einrichtung, Sandbox-Abnahme und Begleitung des ersten Kundenscans."},
+          {"title": "Produkt, Demo und Preise", "text": "Kontaktseite für kommerzielle oder allgemeine Produktfragen verwenden."},
+          {"title": "Partnerschaft", "text": "Partnerregistrierung oder Kontaktseite für Referral-, Provisions- und Kooperationsfragen nutzen."}
+        ]
+      }
+    ]
+  }
+}
