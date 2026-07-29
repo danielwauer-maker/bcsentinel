@@ -1,0 +1,29 @@
+{
+  "schema_version": "pilot-e2e-01b-v1",
+  "environment": {
+    "environment_type": "sandbox",
+    "environment_name": "REPLACE_ME",
+    "bc_version": "REPLACE_ME",
+    "company_name": "BCSentinel Pilot E2E",
+    "company_system_id": "00000000-0000-0000-0000-000000000000",
+    "backend_tier": "staging",
+    "backend_ready_http_status": 0,
+    "app_version": "REPLACE_ME",
+    "app_commit_sha": "REPLACE_ME"
+  },
+  "gates": [
+    {"id":"PILOT-BC-002","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"notes":"Extension installation"},
+    {"id":"PILOT-BC-003","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"run_ids":[],"correlation_ids":[],"notes":"Registration, free scan and synchronization"},
+    {"id":"PILOT-BC-004","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"run_ids":[],"credit_before":null,"credit_after":null,"notes":"Assessment, findings, report and validation"},
+    {"id":"PILOT-BC-005","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"run_ids":[],"notes":"Monitoring scheduler and Job Queue"},
+    {"id":"PILOT-BC-006","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"version_before":null,"version_after":null,"notes":"Extension upgrade and retained configuration"},
+    {"id":"PILOT-UAT-001","status":"NOT_RUN","executed_at_utc":null,"evidence_files":[],"notes":"Guided user acceptance"}
+  ],
+  "attestation": {
+    "production_used": false,
+    "real_customer_data_used": false,
+    "secrets_in_evidence": false,
+    "completed_by": "REPLACE_ME",
+    "completed_at_utc": null
+  }
+}
