@@ -113,9 +113,9 @@
       "area": "monitoring",
       "title": "Monitoring scheduling and authorization",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*schedul*.py", "backend/tests/test_*monitoring*.py"],
+      "source_patterns": ["backend/tests/test_gl01f_fix01_background_scan.py", "backend/tests/test_p0b_atomic_credit.py", "backend/tests/test_p0c_scan_lifecycle.py", "backend/tests/test_product_licensing_p0.py"],
       "expected": "Only active monitoring tenants can schedule scans and duplicate execution is prevented.",
-      "evidence": "pytest JUnit"
+      "evidence": "pytest JUnit: automatic scheduler path, idempotent scheduler retry, stale queued recovery and monitoring authorization"
     },
     {
       "id": "PILOT-COMM-001",
@@ -123,9 +123,9 @@
       "area": "commercial",
       "title": "Checkout and webhook idempotency",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*stripe*.py", "backend/tests/test_*checkout*.py", "backend/tests/test_*webhook*.py"],
+      "source_patterns": ["backend/tests/test_billing.py", "backend/tests/test_product_licensing_p0.py", "backend/tests/test_product_license_contract_alignment.py"],
       "expected": "Duplicate or reordered events do not duplicate licenses, credits or memberships.",
-      "evidence": "pytest JUnit using test doubles/test mode"
+      "evidence": "pytest JUnit using Stripe test doubles and signed webhook fixtures"
     },
     {
       "id": "PILOT-EXP-001",
