@@ -1,1 +1,100 @@
-{"meta":{"locale":"de","schema_version":"lp-gl-11a-v1"},"page":{"metaTitle":"Dokumentation | BCSentinel","metaDescription":"Einstieg, Einrichtung und Nutzung von BCSentinel für Microsoft Dynamics 365 Business Central.","eyebrow":"Dokumentation","title":"Vom kostenlosen Scan bis zum laufenden Monitoring.","lead":"Diese Dokumentation erklärt Registrierung, Scan, Ergebniszugriff, Assessment, Validation und Monitoring in einer konsistenten Kundenreise.","asideAria":"BCSentinel Dokumentationsüberblick","heroAside":[{"title":"Kostenlos starten","text":"Ersten Scan in der Business-Central-Erweiterung ausführen."},{"title":"Vollständig analysieren","text":"Assessment schaltet die vorhandene Full Analysis sieben Tage frei."},{"title":"Verbesserung bestätigen","text":"Validation ermöglicht einen erneuten Scan nach der Bereinigung."}],"actions":[{"label":"Produkte und Zugriff","href":"index.html#pricing"},{"label":"Support kontaktieren","href":"contact.html?topic=support"}],"sections":[{"id":"getting-started","eyebrow":"Erste Schritte","title":"Der empfohlene Ablauf in sechs Schritten.","lead":"Der kostenlose Scan steht am Anfang; Assessment ist keine zusätzliche Scan-Gutschrift.","cards":[{"title":"1. Tenant registrieren","text":"Business-Central-Tenant, Umgebung und Unternehmen registrieren und die Datenverarbeitung bestätigen."},{"title":"2. Verbindung testen","text":"API-Konfiguration und registrierten Mandantenkontext in Business Central prüfen."},{"title":"3. Kostenlosen Scan starten","text":"Den ersten Data-Health-Scan ausführen und den begrenzten Ergebnisüberblick öffnen."},{"title":"4. Assessment freischalten","text":"Die bereits erzeugte Full Analysis sieben Tage vollständig öffnen."},{"title":"5. Daten bereinigen","text":"Findings, Actions, Dashboard und Executive Report zur Priorisierung verwenden."},{"title":"6. Validieren oder monitoren","text":"Mit Validation erneut scannen oder Monitoring für laufende Kontrolle aktivieren."}]},{"id":"setup","eyebrow":"Einrichtung","title":"Konfiguration direkt in Business Central.","lead":"Die Extension bündelt Registrierung, Verbindungstest, Zugriff und Scansteuerung.","cards":[{"title":"Extension Setup","text":"API-URL, Registrierung und Verbindung im vorgesehenen Setup-Bereich verwalten."},{"title":"Zugriff aktualisieren","text":"Lizenz- und Zugriffssnapshot vor produktbezogenen Aktionen aktualisieren."},{"title":"Sprache","text":"Deutsch und Englisch werden anhand der verfügbaren Benutzer- und Tenant-Konfiguration unterstützt."}]},{"id":"product-access","eyebrow":"Produktzugriff","title":"Free Preview, Assessment, Validation und Monitoring bleiben klar getrennt.","lead":"Jeder Modus besitzt eigene Rechte, Laufzeiten und Scan-Funktionen.","cards":[{"title":"Kostenlose Vorschau","text":"Begrenzte Sicht auf Dashboard, Issues, Actions und Executive Report."},{"title":"Assessment","text":"Sieben Tage vollständiger Zugriff auf die bereits erzeugte Analyse; kein zusätzlicher Scan-Credit."},{"title":"Validation","text":"Ein neuer Scan-Credit und anschließend sieben Tage vollständiger Zugriff auf die aktualisierte Analyse."},{"title":"Monitoring","text":"Geplante Scans, Historie, Trends, Ausnahmen und vollständiger Zugriff während der aktiven Laufzeit."}]},{"id":"troubleshooting","eyebrow":"Fehlerbehebung","title":"Häufige Situationen schnell einordnen.","lead":"Zugriffs- und Scanprobleme sollten anhand des aktuellen Produktstatus und Run-Lifecycles geprüft werden.","cards":[{"title":"Kein neuer Scan möglich","text":"Assessment enthält keinen Scan-Credit. Für einen erneuten Scan ist Validation oder aktives Monitoring erforderlich."},{"title":"Tenant nicht registriert","text":"Registrierung, API-Konfiguration und Company-Kontext erneut prüfen."},{"title":"Dashboard bleibt leer","text":"Scanstatus, Abschluss des Runs und aktuellen Zugriffssnapshot prüfen."},{"title":"Report-Link abgelaufen","text":"Eine neue zeitlich begrenzte Freigabe über den vorgesehenen Produktpfad erzeugen."},{"title":"Falsche Sprache","text":"Sprache wechseln und den veröffentlichten Content beziehungsweise lokalen Fallback neu laden."}]},{"id":"docs-faq","eyebrow":"FAQ","title":"Wichtige Hinweise zur Dokumentation.","lead":"Die Inhalte werden mit Pilot-, Produkt- und AppSource-Reife fortlaufend erweitert.","cards":[{"title":"Ändert BCSentinel automatisch BC-Daten?","text":"Die Analyse identifiziert und priorisiert Probleme. Bereinigung und fachliche Entscheidungen bleiben kontrolliert beim Kunden."},{"title":"Ist die Dokumentation vollständig?","text":"Sie bildet den aktuellen Produktstand ab und wird um reale Screenshots, Videos und Betriebsanleitungen ergänzt."},{"title":"Wo erhalte ich Unterstützung?","text":"Pilot-, Onboarding- und Supportanfragen werden über die Kontaktseite gebündelt."}]}]}}
+{
+  "meta": {"locale": "de", "schema_version": "lp-gl-12-v1"},
+  "page": {
+    "metaTitle": "Dokumentation | BCSentinel",
+    "metaDescription": "Einrichtung, Scans, Produktzugriff und Fehlerbehebung für BCSentinel in Microsoft Dynamics 365 Business Central.",
+    "eyebrow": "Produktdokumentation",
+    "title": "BCSentinel sicher einrichten, Ergebnisse verstehen und dauerhaft nutzen.",
+    "lead": "Diese Dokumentation führt Business-Central-Administratoren vom ersten Verbindungstest über den kostenlosen Scan bis zu Assessment, Validation und Monitoring.",
+    "asideAria": "BCSentinel Dokumentationsüberblick",
+    "heroAside": [
+      {"title": "In Business Central starten", "text": "Registrierung, Verbindungstest und Scan werden aus der Extension gesteuert."},
+      {"title": "Zugriff klar trennen", "text": "Free Preview, Assessment, Validation und Monitoring besitzen eigene Rechte und Laufzeiten."},
+      {"title": "Probleme nachvollziehbar prüfen", "text": "Run-Status, Zugriffssnapshot und Produktstatus bilden die wichtigsten Diagnosepunkte."}
+    ],
+    "actions": [
+      {"label": "Produkte und Preise", "href": "index.html#pricing"},
+      {"label": "Support kontaktieren", "href": "contact.html?topic=support"}
+    ],
+    "sections": [
+      {
+        "id": "getting-started",
+        "eyebrow": "Schnellstart",
+        "title": "Der empfohlene Ablauf in sechs Schritten.",
+        "lead": "Der kostenlose Scan erzeugt die erste Analyse. Assessment erweitert anschließend den Zugriff, nicht die Anzahl verfügbarer Scans.",
+        "cards": [
+          {"title": "1. Setup öffnen", "text": "BCSentinel Setup in Business Central öffnen und die vorgesehene API-Adresse prüfen."},
+          {"title": "2. Tenant registrieren", "text": "Tenant, Environment und Company werden eindeutig registriert; erforderliche Einwilligungen werden im Setup bestätigt."},
+          {"title": "3. Verbindung testen", "text": "Den integrierten Connection Test ausführen und Fehler bei HTTPS, API-Konfiguration oder Tenant-Kontext zuerst beheben."},
+          {"title": "4. Kostenlosen Scan starten", "text": "Den ersten Data-Health-Scan auslösen, den Run bis zum Abschluss verfolgen und anschließend die Free Preview öffnen."},
+          {"title": "5. Assessment nutzen", "text": "Die bereits erzeugte Analyse sieben Tage vollständig öffnen und Findings, Actions, Dashboard sowie Executive Report auswerten."},
+          {"title": "6. Validieren oder monitoren", "text": "Nach der Bereinigung mit Validation erneut scannen oder Monitoring für geplante Scans, Historie und Trends aktivieren."}
+        ]
+      },
+      {
+        "id": "setup",
+        "eyebrow": "Einrichtung",
+        "title": "Die wichtigsten Einstellungen in Business Central.",
+        "lead": "Für einen stabilen Betrieb sollten Verbindung, Mandantenkontext und Zugriff vor dem ersten produktiven Scan geprüft werden.",
+        "cards": [
+          {"title": "API und HTTPS", "text": "Nur die vorgesehene HTTPS-API verwenden. Abweichende oder nicht erreichbare Endpunkte führen zu Verbindungsfehlern."},
+          {"title": "Tenant, Environment und Company", "text": "Die Kombination identifiziert den Kundenkontext. Bei einem Company-Wechsel muss der aktuelle Kontext eindeutig erkennbar bleiben."},
+          {"title": "Zugriff aktualisieren", "text": "License Refresh beziehungsweise Access Refresh lädt Produktstatus, Credits und aktuelles Zugriffsfenster erneut."},
+          {"title": "Sprache und Währung", "text": "Deutsch und Englisch werden unterstützt; finanzielle Werte werden im vorgesehenen Währungskontext dargestellt."}
+        ]
+      },
+      {
+        "id": "product-access",
+        "eyebrow": "Produkte und Rechte",
+        "title": "Free Preview, Assessment, Validation und Monitoring.",
+        "lead": "Jeder Modus beantwortet einen anderen Schritt der Data-Health-Reise.",
+        "cards": [
+          {"title": "Free Preview", "text": "Ein kostenloser erster Scan, sofern noch nicht genutzt, mit begrenzter Vorschau auf Issues, Actions, Dashboard und Report."},
+          {"title": "Assessment · 79 € einmalig", "text": "Kein Scan-Credit. Öffnet die vorhandene vollständige Analyse sieben Tage inklusive Datensatzdetails und Business Impact."},
+          {"title": "Validation · 49 € einmalig", "text": "Ein Deep-Scan-Credit nach der Bereinigung und anschließend ein neues siebentägiges Vollzugriffsfenster."},
+          {"title": "Monitoring · 149 € monatlich", "text": "Vollzugriff mit geplanten Scans, Historie, Trends, Fortschritt und Ausnahmen während der aktiven Laufzeit."},
+          {"title": "Monitoring · 1.490 € jährlich", "text": "Identischer Produktumfang mit jährlicher Abrechnung und festem Jahrespreis."}
+        ]
+      },
+      {
+        "id": "results",
+        "eyebrow": "Ergebnisse",
+        "title": "So werden Scan-Ergebnisse eingeordnet.",
+        "lead": "BCSentinel verbindet technische Findings mit Priorität, betroffenen Datensätzen und wirtschaftlicher Relevanz.",
+        "cards": [
+          {"title": "Health Score", "text": "Verdichtet die bewerteten Prüfungen zu einer schnellen Gesamtindikation. Ausnahmen werden entsprechend ihrer Behandlung berücksichtigt."},
+          {"title": "Findings", "text": "Zeigen Schweregrad, Regel, betroffene Datensätze, Status und fachlichen Handlungsbedarf."},
+          {"title": "Actions", "text": "Übersetzen Findings in priorisierte nächste Schritte; die fachliche Änderung bleibt unter Kontrolle des Kunden."},
+          {"title": "Estimated Loss", "text": "Verwendet gemessene Werte und gekennzeichnete Annahmen als Entscheidungsunterstützung, nicht als garantierten Schaden."},
+          {"title": "Executive Report", "text": "Fasst Score, Business Impact, Risiken und nächste Schritte für Management und Projektverantwortliche zusammen."}
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "eyebrow": "Fehlerbehebung",
+        "title": "Häufige Situationen systematisch prüfen.",
+        "lead": "Prüfen Sie zuerst Verbindung, Run-Lifecycle, Produktstatus und Zugriffssnapshot.",
+        "cards": [
+          {"title": "Registrierung schlägt fehl", "text": "Tenant-, Environment- und Company-Kontext sowie die bereits verwendete Kontaktadresse prüfen. Danach Registrierung oder Zugriff erneut laden."},
+          {"title": "Scan startet nicht", "text": "Verfügbaren Scan-Credit, aktives Monitoring, Verbindungstest und einen eventuell bereits laufenden Run kontrollieren."},
+          {"title": "Run bleibt auf Running", "text": "Run-ID, letzten Heartbeat und Fehlermeldung in der Scan-Historie prüfen. Bei anhaltendem Zustand Support mit diesen Angaben kontaktieren."},
+          {"title": "Dashboard bleibt leer", "text": "Sicherstellen, dass der Run abgeschlossen ist und der aktuelle Zugriffssnapshot Ergebniszugriff erlaubt."},
+          {"title": "Assessment erlaubt keinen neuen Scan", "text": "Das ist erwartetes Verhalten: Assessment öffnet die bestehende Analyse. Für einen neuen Scan ist Validation oder Monitoring erforderlich."},
+          {"title": "Report oder Freigabe nicht mehr verfügbar", "text": "Zugriffsfenster und Ablauf des verwendeten Links prüfen und bei Bedarf eine neue zulässige Freigabe erzeugen."}
+        ]
+      },
+      {
+        "id": "docs-faq",
+        "eyebrow": "Grundsätze",
+        "title": "Wichtige Hinweise für den produktiven Einsatz.",
+        "lead": "Die Analyse unterstützt Entscheidungen, ersetzt aber keine fachliche Prüfung und verändert Daten nicht unkontrolliert.",
+        "cards": [
+          {"title": "Ändert BCSentinel automatisch Daten?", "text": "BCSentinel analysiert, priorisiert und empfiehlt. Fachliche Bereinigung und Freigabe bleiben beim Kunden."},
+          {"title": "Sind Estimated-Loss-Werte garantiert?", "text": "Nein. Sie sind transparente Schätzwerte auf Basis erkannter Datensätze, Modellannahmen und konfigurierter Faktoren."},
+          {"title": "Welche Angaben gehören in eine Support-Anfrage?", "text": "BC-Version, Environment, Company, Run-ID, Zeitpunkt, exakte Fehlermeldung und kurze Reproduktionsschritte."},
+          {"title": "Welche Angaben dürfen nicht gesendet werden?", "text": "Keine Passwörter, vollständigen API-Tokens oder unnötigen personenbezogenen beziehungsweise vertraulichen Geschäftsdaten."}
+        ]
+      }
+    ]
+  }
+}
