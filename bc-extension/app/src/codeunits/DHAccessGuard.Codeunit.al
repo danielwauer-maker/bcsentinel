@@ -7,6 +7,16 @@ codeunit 53195 "DH Access Guard"
         EnsureCapability('issues_access', true);
     end;
 
+    procedure EnsureFullIssueDetailsAccess()
+    var
+        Setup: Record "DH Setup";
+    begin
+        EnsureIssuesAccess();
+        GetSetup(Setup);
+        if not Setup."Premium Enabled" then
+            Error(FullIssueDetailsRequiredErr);
+    end;
+
     procedure EnsureDashboardAccess()
     begin
         EnsureCapability('dashboard_access', true);
@@ -167,7 +177,8 @@ codeunit 53195 "DH Access Guard"
     var
         AccessNotVerifiedErr: Label 'Current product access could not be verified. Protected details remain blocked. Check the connection and refresh product access.';
         AccessExpiredErr: Label 'Product access has expired or is not active. Refresh product access or open license management.';
-        IssuesAccessExpiredErr: Label 'Access to detailed findings has expired or could not be verified. Refresh product access or open license management.';
+        IssuesAccessExpiredErr: Label 'Access to findings has expired or could not be verified. Refresh product access or open license management.';
+        FullIssueDetailsRequiredErr: Label 'Detailed finding records are available with Assessment, Validation, or Monitoring. The Free Data Health Score includes the findings summary only.';
         DashboardAccessExpiredErr: Label 'Dashboard access has expired or could not be verified. Refresh product access or open license management.';
         ReportAccessExpiredErr: Label 'Report access has expired or could not be verified. Refresh product access or open license management.';
         SetupMissingErr: Label 'BCSentinel setup is missing. Complete setup before opening protected details.';
