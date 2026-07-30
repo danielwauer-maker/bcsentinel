@@ -2,19 +2,19 @@ codeunit 53142 "DH Issue Drilldown Mgt."
 {
     procedure OpenDashboardIssue(var DashboardIssue: Record "DH Dashboard Issue")
     begin
-        EnsureIssuesAccess();
+        EnsureFullIssueDetailsAccess();
         OpenByIssueCode(DashboardIssue."Issue Code");
     end;
 
     procedure OpenScanIssue(var ScanIssue: Record "DH Scan Issue")
     begin
-        EnsureIssuesAccess();
+        EnsureFullIssueDetailsAccess();
         OpenByIssueCode(ScanIssue."Issue Code");
     end;
 
     procedure OpenDeepScanFinding(var DeepFinding: Record "DH Deep Scan Finding")
     begin
-        EnsureIssuesAccess();
+        EnsureFullIssueDetailsAccess();
         OpenByIssueCode(DeepFinding."Issue Code");
     end;
 
@@ -22,14 +22,14 @@ codeunit 53142 "DH Issue Drilldown Mgt."
     var
         IssueDrilldownDispatcher: Codeunit "DH Issue Drilldown Dispatcher";
     begin
-        EnsureIssuesAccess();
+        EnsureFullIssueDetailsAccess();
         IssueDrilldownDispatcher.OpenByIssueCode(IssueCode);
     end;
 
-    local procedure EnsureIssuesAccess()
+    local procedure EnsureFullIssueDetailsAccess()
     var
         AccessGuard: Codeunit "DH Access Guard";
     begin
-        AccessGuard.EnsureIssuesAccess();
+        AccessGuard.EnsureFullIssueDetailsAccess();
     end;
 }
