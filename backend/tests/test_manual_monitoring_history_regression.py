@@ -36,9 +36,11 @@ def test_manual_monitoring_action_creates_history_before_background_processing()
     )
     assert "DeepScanRun.Insert(true);" in internal_path
     assert "CreateOrUpdateScanHeader(DeepScanRun);" in internal_path
-    assert internal_path.index("DeepScanRun.Insert(true);") < internal_path.index(
-        "StartDeepScanSession(DeepScanRun)"
+    new_run_path = internal_path.split("EntryNo := GetNextRunEntryNo();", 1)[1]
+
+    assert new_run_path.index("DeepScanRun.Insert(true);") < new_run_path.index(
+    "StartDeepScanSession(DeepScanRun)"
     )
-    assert internal_path.index("CreateOrUpdateScanHeader(DeepScanRun);") < internal_path.index(
-        "StartDeepScanSession(DeepScanRun)"
+    assert new_run_path.index("CreateOrUpdateScanHeader(DeepScanRun);") < new_run_path.index(
+    "StartDeepScanSession(DeepScanRun)"
     )
