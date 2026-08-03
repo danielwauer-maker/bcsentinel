@@ -30,7 +30,10 @@ def test_manual_monitoring_action_creates_history_before_background_processing()
         "procedure QueueDataHealthScore", 1
     )[0]
 
-    assert "StartInNewSession" in queue_path
+    assert (
+    'QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true)'
+    in queue_path
+    )
     assert "DeepScanRun.Insert(true);" in internal_path
     assert "CreateOrUpdateScanHeader(DeepScanRun);" in internal_path
     assert internal_path.index("DeepScanRun.Insert(true);") < internal_path.index(
