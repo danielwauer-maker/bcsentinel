@@ -32,7 +32,7 @@ pageextension 53200 "DH Setup Monitoring Async" extends "DH Setup"
                         exit;
 
                     Setup := Rec;
-                    if not Session.StartSession(SessionId, Codeunit::"DH Manual Monitoring Background", CompanyName(), Setup) then
+                    if not Session.StartSession(SessionId, Codeunit::"DH Manual Monitoring BG", CompanyName(), Setup) then
                         Error(BackgroundSessionStartErr);
 
                     Message(MonitoringScanStartedMsg);
