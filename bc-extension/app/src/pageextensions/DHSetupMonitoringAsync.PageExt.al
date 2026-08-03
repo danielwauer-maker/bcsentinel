@@ -1,4 +1,4 @@
-pageextension 53199 "DH Setup Monitoring Async" extends "DH Setup"
+pageextension 53200 "DH Setup Monitoring Async" extends "DH Setup"
 {
     actions
     {
@@ -12,7 +12,7 @@ pageextension 53199 "DH Setup Monitoring Async" extends "DH Setup"
             action(StartMonitoringScanAsync)
             {
                 Caption = 'Start Monitoring Scan';
-                ToolTip = 'Starts the Monitoring scan in a background session so the Business Central client remains responsive.';
+                ToolTip = 'Creates the Monitoring scan immediately and processes it in a background session so the Business Central client remains responsive.';
                 Image = Start;
                 ApplicationArea = All;
                 Enabled = Rec."Monitoring Active" and (Rec."Tenant ID" <> '');
@@ -24,17 +24,14 @@ pageextension 53199 "DH Setup Monitoring Async" extends "DH Setup"
                 var
                     Setup: Record "DH Setup";
                     DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                    EntryNo: Integer;
-                    MonitoringScanStartedMsg: Label 'The Monitoring scan was started in the background. You can follow its progress in the scan history.';
+                    StartConfirmQst: Label 'Do you want to start a Monitoring scan in the background?';
+                    MonitoringScanStartedMsg: Label 'The Monitoring scan was created and started in the background. You can follow its progress in the scan history.';
                 begin
-                    Setup := Rec;
-                    EntryNo := DeepScanMgt.QueueDeepScanInNewSession(Setup);
-                    if EntryNo = 0 then
+                    if not Confirm(StartConfirmQst, false) then
                         exit;
 
-                    if Rec.Get('SETUP') then
-                        CurrPage.Update(false);
-
+                    Setup := Rec;
+                    DeepScanMgt.QueueDeepScanInNewSession(Setup);
                     Message(MonitoringScanStartedMsg);
                 end;
             }
