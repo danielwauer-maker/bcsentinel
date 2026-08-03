@@ -25,7 +25,10 @@ codeunit 53129 "DH Deep Scan Failure"
         CreateOrUpdateFailedScanHeader(DeepScanRun);
         Commit();
         TryUpdateBackendFailure(DeepScanRun);
-        DeepScanRun.Get(DeepScanRun."Entry No.");
+
+        if not DeepScanRun.Get(DeepScanRun."Entry No.") then
+            exit;
+
         Clear(DeepScanRun."Lease Expires At");
         Clear(DeepScanRun."Execution Token");
         DeepScanRun.Modify(true);
@@ -50,7 +53,11 @@ codeunit 53129 "DH Deep Scan Failure"
             exit;
 
         ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed', 'Scan failed', 'Scan failed');
-        DeepScanRun.Modify(true);
+
+        // UpdateScanProgress may refresh or modify the run record. Reload it before
+        // any later write so the original scan error is not replaced by an
+        // optimistic-concurrency error such as "This page was just updated".
+        DeepScanRun.Get(DeepScanRun."Entry No.");
     end;
 
     local procedure CreateOrUpdateFailedScanHeader(var DeepScanRun: Record "DH Deep Scan Run")
