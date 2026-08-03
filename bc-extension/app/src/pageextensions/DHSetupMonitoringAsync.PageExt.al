@@ -23,17 +23,17 @@ pageextension 53200 "DH Setup Monitoring Async" extends "DH Setup"
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
-                    EntryNo: Integer;
+                    SessionId: Integer;
+                    StartConfirmQst: Label 'Do you want to start a Monitoring scan in the background?';
                     MonitoringScanStartedMsg: Label 'The Monitoring scan was started in the background. You can follow its progress in the scan history.';
+                    BackgroundSessionStartErr: Label 'The Monitoring scan could not be started in a background session. Please try again.';
                 begin
-                    Setup := Rec;
-                    EntryNo := DeepScanMgt.QueueDeepScanInNewSession(Setup);
-                    if EntryNo = 0 then
+                    if not Confirm(StartConfirmQst, false) then
                         exit;
 
-                    if Rec.Get('SETUP') then
-                        CurrPage.Update(false);
+                    Setup := Rec;
+                    if not Session.StartSession(SessionId, Codeunit::"DH Manual Monitoring Background", CompanyName(), Setup) then
+                        Error(BackgroundSessionStartErr);
 
                     Message(MonitoringScanStartedMsg);
                 end;
