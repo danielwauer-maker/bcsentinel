@@ -12,7 +12,7 @@ pageextension 53200 "DH Setup Monitoring Async" extends "DH Setup"
             action(StartMonitoringScanAsync)
             {
                 Caption = 'Start Monitoring Scan';
-                ToolTip = 'Starts the Monitoring scan in a background session so the Business Central client remains responsive.';
+                ToolTip = 'Creates the Monitoring scan immediately and processes it in a background session so the Business Central client remains responsive.';
                 Image = Start;
                 ApplicationArea = All;
                 Enabled = Rec."Monitoring Active" and (Rec."Tenant ID" <> '');
@@ -23,18 +23,15 @@ pageextension 53200 "DH Setup Monitoring Async" extends "DH Setup"
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    SessionId: Integer;
+                    DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
                     StartConfirmQst: Label 'Do you want to start a Monitoring scan in the background?';
-                    MonitoringScanStartedMsg: Label 'The Monitoring scan was started in the background. You can follow its progress in the scan history.';
-                    BackgroundSessionStartErr: Label 'The Monitoring scan could not be started in a background session. Please try again.';
+                    MonitoringScanStartedMsg: Label 'The Monitoring scan was created and started in the background. You can follow its progress in the scan history.';
                 begin
                     if not Confirm(StartConfirmQst, false) then
                         exit;
 
                     Setup := Rec;
-                    if not Session.StartSession(SessionId, Codeunit::"DH Manual Monitoring BG", CompanyName(), Setup) then
-                        Error(BackgroundSessionStartErr);
-
+                    DeepScanMgt.QueueDeepScanInNewSession(Setup);
                     Message(MonitoringScanStartedMsg);
                 end;
             }
