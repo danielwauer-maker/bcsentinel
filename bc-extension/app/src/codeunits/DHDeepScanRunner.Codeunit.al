@@ -1856,6 +1856,7 @@ codeunit 53128 "DH Deep Scan Runner"
             Commit();
             exit;
         end;
+        DeepScanRun.Get(DeepScanRun."Entry No.");
         if DeepScanRun."Backend Sync Status" = DeepScanRun."Backend Sync Status"::RetryRequired then begin
             DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Pending;
             DeepScanRun."Backend Sync Error" := '';
