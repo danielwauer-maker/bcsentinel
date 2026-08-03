@@ -1,28 +1,28 @@
 # BCSentinel Action Plan – 10 betreute Pilotkunden
 
-**Ausgangslage:** Audit vom 2026-08-03, `staging@be29fd134465a0e05fdb5eca83c06ffc1e702b66`  
-**Ziel:** schnellster sichere Weg zu einem und anschließend zehn betreuten Pilotkunden  
+**Ausgangslage:** Audit vom 2026-08-03, Branch `audit/release-1.0.2.16`; reale BC-Baseline auf Extension `1.0.2.12` und `1.0.2.16`
+**Ziel:** schnellster sicherer Weg zu einem und anschließend zehn betreuten Pilotkunden
 **Regel:** Kein Schritt gilt durch Code oder Dokumentation allein als abgeschlossen. Das jeweilige Exit-Kriterium und der verlangte Beweis müssen vorliegen.
 
 ## Verbindliche Reihenfolge und Gates
 
 | Nr. | Sprint | Phase | Ziel/Ergebnis | Priorität | Codex | Daniel | Voraussetzung | Readiness-Gewinn |
 | ---: | --- | --- | --- | --- | ---: | ---: | --- | ---: |
-| 1 | RC-00A | 0 | Releasezweige konsolidiert, RC-SHA festgelegt | P0 | 2–4 h | 1 h | PR #20/#15 zugänglich | +4 % |
-| 2 | RC-00B | 0 | reproduzierbares 1.0.2.17-Artefakt, AL/CodeCop/PTECop grün | P0 | 2–4 h | 1 h | RC-00A | +8 % |
+| 1 | RC-00A | 0 | finaler RC-SHA, Extension-Version und Scope festgelegt | P0 | 1–2 h | 1 h | Releaseentscheidung | +2 % |
+| 2 | RC-00B | 0 | reproduzierbares finales RC-Artefakt; Objekt-IDs/AL/CodeCop/PTECop grün | P0 | 2–4 h | 1 h | RC-00A | +7 % |
 | 3 | DB-00C | 0 | PostgreSQL Migration/Konkurrenz und U/D/U grün | P0 | 2–4 h | 1 h | isolierte Test-DB | +6 % |
-| 4 | EXT-P0-01 | 1 | BC Install/Registrierung/Free Journey bestanden | P0 | 3–5 h | 2–3 h | RC-Artefakt, BC-27-Sandbox | +8 % |
-| 5 | EXT-P0-02 | 1 | Assessment/Validation/Zugriffsablauf bestanden | P0 | 3–5 h | 2 h | EXT-P0-01 | +5 % |
+| 4 | RC-REG-01 | 1 | kompakte RC-Regression der auf `1.0.2.12`/`1.0.2.16` bestandenen Grundfunktionen | P0 | 2–3 h | 1–2 h | RC-Artefakt, BC-Sandbox | +3 % |
+| 5 | UPG-P0-02 | 1 | Upgrade auf finalen RC mit Datenerhalt, Zugriff, neuem Scan und Monitoring bestanden | P0 | 3–5 h | 2–3 h | RC-REG-01 | +7 % |
 | 6 | MON-P0-03 | 1 | manueller und geplanter Monitoringlauf inkl. Historie bestanden | P0 | 4–6 h | 3 h + 24 h Wartefenster | Monitoringgrant, Schedulerrolle | +10 % |
 | 7 | REC-P0-04 | 1 | Abbruch/Lease/Retry/kein Doppelcredit real bestanden | P0 | 3–5 h | 2 h | MON-P0-03 | +5 % |
 | 8 | OPS-P0-05 | 1/5 | Backup/Restore, Alarming, Rollback und Adminhärtung bewiesen | P0 | 1–2 d | 1 d | Stage/Backupziel/Alarmkanal | +10 % |
-| 9 | COM-01 | 2 | kontrollierte manuelle Pilotfreischaltung und Reconciliation | P0 | 0.5–1 d | 2 h | Adminportal/Vertrag | +4 % |
+| 9 | COM-01 | 2 | kontrollierte manuelle Pilotfreischaltung, Rechnung und Reconciliation | P1; zulässiger Pilotersatz für Stripe | 0.5 d | 2 h | Adminportal/Vertrag | +2 % |
 | 10 | BILL-02 | 2 | Stripe Testmode E2E oder bewusst aus Pilotumfang ausgeschlossen | P1 | 1–2 d | 0.5–1 d | Stripe Testkonto | +3 % |
 | 11 | MAIL-01 | 3 | Zugang, Fehlerwarnung und Pilotkommunikation zuverlässig | P0/P1 | 0.5–1 d | 2–3 h | SMTP oder sicherer Ersatzkanal | +4 % |
 | 12 | DOC-01 | 4 | kundenfertiges Pilotpaket und Operatorhandbuch | P0 | 1–2 d | 0.5–1 d | stabiler RC/Prozess | +7 % |
 | 13 | UX-01 | 4 | Pilotpfade ohne Legacycopy, Platzhalter und mobile Clippingfehler | P1 | 1–2 d | 2–3 h | kanonische Produktentscheidung | +3 % |
 | 14 | OPS-10A | 5 | 10-Tenant Last-/Soak- und Kapazitätsgate | P0 für Kunde 10 | 1–2 d | 0.5 d | Stage, synthetische Tenants | +7 % |
-| 15 | DRY-01 | 6 | vollständiger Pilot-Dry-Run inklusive Upgrade | P0 | 1 d | 1 d | Schritte 1–14 relevant grün | +8 % |
+| 15 | DRY-01 | 6 | kompakter finaler RC-Dry-Run inklusive Upgrade/Monitoring/Recovery | P0 | 0.5–1 d | 0.5–1 d | Schritte 1–14 relevant grün | +5 % |
 | 16 | GO-01 | 7 | Freigabe Kunde 1 | P0 | 1 h | 1 h | Gate A vollständig | +4 % |
 | 17 | WAVE-02 | 7 | Pilotstaffel 2→3→5→10 mit Review je Welle | P0 | 2 h/Welle | 2–4 h/Welle | keine offenen P0, SLO stabil | +6 % |
 
@@ -32,17 +32,17 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 
 ### Schritt 1 – RC-00A: Release Candidate definieren
 
-- **Ziel:** genau ein unveränderlicher Commit als Pilotbasis; Empfehlung: Inhalt von `origin/release/1.0.2.16@023f3a6` (Manifest 1.0.2.17) plus aktuell integriertes Sandbox-Evidence-Gate.
-- **Begründung:** `staging` ist wegen doppelter AL-ID nicht releasefähig; parallele offene Release-PRs verhindern eindeutige Evidenz.
-- **Aufgaben:** PR #20 diff/History prüfen; #17–#19 als durch #20 superseded schließen oder dokumentieren; PR #15 rebasen bzw. Evidence-Dateien konfliktfrei übernehmen; keine funktional unabhängigen Branches blind mergen; RC-Branch `codex/pilot-rc-1.0.2.17` oder freigegebene Alternative erstellen; Commit SHA protokollieren.
+- **Ziel:** genau ein unveränderlicher Commit mit expliziter Extension-Version als Pilotbasis.
+- **Begründung:** reale Evidence für `1.0.2.12` und `1.0.2.16` ersetzt keine eindeutige finale RC-Basis.
+- **Aufgaben:** finalen Releasezweig und Commit auswählen; enthaltene/ausgeschlossene Fixes dokumentieren; SHA, Extension-Version und Scope protokollieren; keine Produktänderung allein durch dieses Audit auslösen.
 - **Komponenten:** Git, BC Extension, CI/Evidence.
 - **Abhängigkeiten:** keine Produktivmutation; Daniel entscheidet Merge-/Branchstrategie.
-- **Akzeptanzkriterien:** ein RC-SHA; saubere Working Tree Basis; alle enthaltenen/ausgeschlossenen PRs mit Grund; App-Version eindeutig 1.0.2.17; keine parallele „neueste“ Releasebasis.
+- **Akzeptanzkriterien:** ein RC-SHA; saubere Working Tree Basis; enthaltene/ausgeschlossene Änderungen mit Grund; Extension-Version eindeutig; keine parallele „neueste“ Releasebasis.
 - **Automatische Tests:** `git diff --check`; `scripts/validate_bc_extension.py`; Source-Uniqueness.
 - **Manuelle Tests:** PR-Metadaten/Commitgraph/Files gegen Audit prüfen.
 - **Codex-Anteil:** Analyse, Konfliktprüfung, Integrationspatch nach Freigabe.
 - **Daniel-Anteil:** Merge-/Branchfreigabe, alte PRs ordnen.
-- **Aufwand:** C 2–4 h; D 1 h.
+- **Aufwand:** C 1–2 h; D 1 h.
 - **Exit:** RC-SHA und Scope im Releaseprotokoll.
 - **Gate:** **NO-GO**, solange zwei mögliche Releasebasen existieren.
 
@@ -80,45 +80,45 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 
 ## Phase 1 – Technische P0-Blocker schließen
 
-### Schritt 4 – EXT-P0-01: Installation, Registrierung und Free Scan
+### Schritt 4 – RC-REG-01: kompakte Grundfunktions-Regression
 
-- **Ziel:** erster Kundenpfad bis zum verwertbaren Free-Ergebnis.
-- **Begründung:** dies ist der kleinste reale Wertstrom und Voraussetzung für alle Produkte.
-- **Aufgaben:** frische BC-27-Sandbox; App installieren; Rollen zuweisen; Setup; Registrierung; simulierte verlorene Antwort + Retry; Free Scan; Status/History; Findings; Dashboard; Free HTML/PDF.
-- **Komponenten:** BC, API, DB, Dashboard, Report.
-- **Abhängigkeiten:** RC-00B, DB-00C, Stage API/HTTPS, Pilotmail.
-- **Akzeptanzkriterien:** genau ein Tenant/User/Membership; Company-/Environmentbindung korrekt; ein abgeschlossener Run; keine Secrets in UI/Logs; Ergebnis dauerhaft erreichbar; Fremdtenant-Negativtest 401/403.
-- **Automatische Tests:** vollständige Backend-Suite und Evidence-Validator.
-- **Manuelle Tests:** Audit M02–M04.
-- **Codex-Anteil:** begleiten, Logs korrelieren, nur reproduzierte Fehler minimal beheben.
-- **Daniel-Anteil:** BC-Sandbox bedienen und Screenshots/Evidence ablegen.
+- **Ziel:** die auf `1.0.2.12`/`1.0.2.16` bereits bestandenen Grundfunktionen auf dem finalen RC mit minimaler Wiederholung bestätigen.
+- **Begründung:** Setup, HTTPS, Registrierung/Duplicate-Schutz, Tenant-/Company-/Membership-Zuordnung, Free Scan, Historie, Findings, Dashboard, HTML/PDF, Assessment, Validation und Zugriffslaufzeit sind real belegt; der Nachweis ist aber versionsgebunden.
+- **Aufgaben:** finalen RC frisch installieren; Setup/HTTPS prüfen; Registrierung und Duplicate-Schutz; einen Free Scan; History/Findings/Dashboard/HTML/PDF; Assessmentgrant/Laufzeit; einen Validation Credit zuweisen und verbrauchen; Data-Health-Ausnahme und Rescan stichprobenartig prüfen.
+- **Komponenten:** BC, API, DB, Admin, Dashboard, Report.
+- **Abhängigkeiten:** RC-00B, DB-00C, BC-Sandbox.
+- **Akzeptanzkriterien:** Baseline ohne Regression; genau ein Tenant/Company/Membership; abgeschlossener Scan; Credit genau einmal verbraucht; Ausgaben erreichbar; keine Secrets in UI/Logs.
+- **Automatische Tests:** vollständige relevante Regression und Evidence-Validator.
+- **Manuelle Tests:** Audit M02–M06 und M10 in kompakter Form.
+- **Codex-Anteil:** Evidence korrelieren und nur reproduzierte Abweichungen analysieren.
+- **Daniel-Anteil:** BC-Sandbox bedienen und versionsgenaue Evidence ablegen.
+- **Aufwand:** C 2–3 h; D 1–2 h.
+- **Exit:** kompakter finaler RC-Smoke PASS.
+- **Gate:** **NO-GO** bei Regression; bestandene `1.0.2.12`-/`1.0.2.16`-Tests bleiben als Baseline dokumentiert.
+
+### Schritt 5 – UPG-P0-02: vollständige Upgrade-Evidence
+
+- **Ziel:** Upgrade auf den finalen RC einschließlich Datenerhalt und anschließender Betriebsfähigkeit bestätigen.
+- **Begründung:** Das Upgrade auf `1.0.2.16` war nach mehreren Versuchen erfolgreich, belegt aber noch nicht Datenerhalt, Monitoring und Background Scan nach dem finalen Upgrade.
+- **Aufgaben:** repräsentativen `1.0.2.12`-Stand mit Setup, Token, Rechten, Historie, Findings, Ausnahmen und Credits vorbereiten; auf finalen RC upgraden; Vor/Nach-Zählungen; Free-/Validationpfad stichprobenartig; manuellen und geplanten Monitoringlauf ausführen.
+- **Komponenten:** BC Upgrade, API, DB, Entitlements, Scheduler.
+- **Abhängigkeiten:** RC-REG-01.
+- **Akzeptanzkriterien:** Setup/Token/Rechte/Historie/Findings/Ausnahmen erhalten; kein Objekt-/Schemafehler; neuer Scan möglich; Monitoring und Background Scan nach Upgrade funktionieren.
+- **Automatische Tests:** Migrations-/AL-Contracts, P0B/P0D/Product Licensing/Billing Regression.
+- **Manuelle Tests:** Audit M11 plus Monitoringteil M07–M08.
+- **Codex-Anteil:** Vor/Nach-Evidence und Fehleranalyse.
+- **Daniel-Anteil:** Upgrade und BC-/Scheduler-Aktionen.
 - **Aufwand:** C 3–5 h; D 2–3 h.
-- **Exit:** Installation-/Registration-/Free-Gates PASS.
-- **Gate:** **NO-GO** bei jedem Fehler oder fehlender Evidence.
-
-### Schritt 5 – EXT-P0-02: Assessment, Validation und Ablauf
-
-- **Ziel:** mindestens ein kompletter bezahlbarer Produktfluss ohne Stripeabhängigkeit.
-- **Begründung:** Pilotwert entsteht durch vollständige Findings/Report und kontrollierten Folgecheck.
-- **Aufgaben:** Assessment via Admin grant; Snapshot refresh; vollständige Findings/Report; Ablauf testen; Validationcredit zuweisen; Start/Retry/Konkurrenz; Ledger prüfen; Rechte nach Abschluss/Ablauf prüfen.
-- **Komponenten:** Admin, Entitlements, BC, Dashboard, Reports, Ledger.
-- **Abhängigkeiten:** EXT-P0-01.
-- **Akzeptanzkriterien:** Rechte sofort und tenantgebunden; Assessment erzeugt keinen unberechtigten neuen Scan; Validation verbraucht genau einen Credit; Retry verbraucht keinen zweiten; Ablauf fail-closed mit erlaubtem Free-Fallback.
-- **Automatische Tests:** P0B/P0D/Product Licensing/Billing Regression.
-- **Manuelle Tests:** Audit M05–M06.
-- **Codex-Anteil:** Testdaten/Evidenceauswertung.
-- **Daniel-Anteil:** Admin- und BC-Aktionen.
-- **Aufwand:** C 3–5 h; D 2 h.
-- **Exit:** Product Journey PASS.
-- **Gate:** **NO-GO** bei Isolation-, Credit- oder Ablaufabweichung.
+- **Exit:** Upgrade-Evidence PASS.
+- **Gate:** bleibt `IMPLEMENTED_NOT_E2E_VERIFIED`, bis alle Akzeptanzkriterien belegt sind.
 
 ### Schritt 6 – MON-P0-03: Monitoring manuell und geplant
 
 - **Ziel:** bekannter Background-Monitoringfehler nachweislich geschlossen.
 - **Begründung:** Monitoring ist Kernelement und der letzte reale Pilotversuch zeigte fehlende Historie.
-- **Aufgaben:** 1.0.2.17 installieren; Monitoring grant; manuellen Start auslösen; Responsiveness/Historie/Backendstatus prüfen; TaskScheduler konfigurieren; Nutzer abmelden; geplanten Lauf abwarten; Erfolgs- und Failurefelder/Next Run prüfen; mindestens 24 Stunden Soak.
+- **Aufgaben:** finalen RC verwenden; Monitoringgrant prüfen; manuellen Start auslösen; automatische UI-/Historienaktualisierung ohne erzwungenen Refresh und Backendstatus prüfen; TaskScheduler konfigurieren; Nutzer abmelden; geplanten Lauf abwarten; Erfolgs- und Failurefelder/Next Run prüfen; mindestens 24 Stunden beobachten.
 - **Komponenten:** BC Background Session, TaskScheduler, API Lifecycle, History.
-- **Abhängigkeiten:** EXT-P0-02; Scheduler Permission Set.
+- **Abhängigkeiten:** UPG-P0-02; Scheduler Permission Set.
 - **Akzeptanzkriterien:** manueller Start kehrt sofort zurück; Run erscheint; queued→running→completed; geplanter Lauf ohne User Session; nächster Task geplant; Fehler schreibt Originaldiagnose statt Concurrencyfehler.
 - **Automatische Tests:** GL01F Background Contract, Fix03–05, P0C.
 - **Manuelle Tests:** Audit M07–M08.
@@ -168,7 +168,7 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 - **Begründung:** zehn betreute Kunden lassen sich mit Auditlog und Checkliste kontrolliert manuell führen.
 - **Aufgaben:** Pilotvereinbarung/Bestellbestätigung; Tenant-ID gegen Kunde prüfen; Assessment/Validation/Monitoring grant; Laufzeit/Credit festhalten; Adminaudit prüfen; Rechnung extern; tägliche Reconciliationliste; Vier-Augen-Check bei Revoke/Reset/Delete.
 - **Komponenten:** Adminportal, CRM/Vertragsablage außerhalb Repo, Auditlog.
-- **Abhängigkeiten:** EXT-P0-02, Rechts-/Datenschutzfreigabe.
+- **Abhängigkeiten:** RC-REG-01, Rechts-/Datenschutzfreigabe.
 - **Akzeptanzkriterien:** keine direkte DB-Manipulation; jede Freischaltung hat Ticket/Vertrag/Tenant-ID/Produkt/Zeitraum/Audit-Event; Rücknahme getestet.
 - **Automatische Tests:** Admin Grant/Revoke/Credit/Audit.
 - **Manuelle Tests:** Testkunde komplett freischalten und widerrufen.
@@ -176,13 +176,13 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 - **Daniel-Anteil:** Vertrag, Rechnung, Freigabe.
 - **Aufwand:** C 0.5–1 d; D 2 h Setup + 15 min/Kunde.
 - **Exit:** Pilotfreischaltungsprotokoll freigegeben.
-- **Gate:** **GO WITH CONDITIONS** möglich; Stripe bleibt out of scope.
+- **Gate:** **GO WITH CONDITIONS** möglich; Stripe Live, Refund und Chargeback bleiben für den ersten betreuten Pilot out of scope. Adminfreischaltung und externe manuelle Rechnung sind die zulässige Übergangslösung.
 
 ### Schritt 10 – BILL-02: Stripe Testmode
 
 - **Ziel:** optionaler Checkout verlässlich; nicht auf kritischen Pilotpfad setzen, bis grün.
 - **Begründung:** Code ist mockgetestet, Provider-/Tax-/Fehlerfälle nicht.
-- **Aufgaben:** vier Testprodukte/Prices; Beträge; Checkout success/cancel; Webhooksignatur; Duplicate/Delay; Test Clock renewal/cancel/failure; Portal; Tenantzuordnung; Refund/Dispute als manueller Runbookfall; keine echten Zahlungen.
+- **Aufgaben:** vier Testprodukte/Prices; Beträge; Checkout success/cancel; Webhooksignatur; Duplicate/Delay; Test Clock renewal/cancel/failure; Portal; Tenantzuordnung; Refund/Dispute als späterer manueller Runbookfall; keine echten Zahlungen.
 - **Komponenten:** Stripe Testmode, API, Admin, Entitlements.
 - **Abhängigkeiten:** Price-Signoff, Stripe-Zugang.
 - **Akzeptanzkriterien:** alle Testmode-Fälle PASS; Idempotenz; korrekte Rechte; Events redigiert dokumentiert; Live bleibt deaktiviert bis Steuer/Recht grün.
@@ -192,7 +192,7 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 - **Daniel-Anteil:** Stripe Dashboard/Test Clock.
 - **Aufwand:** C 1–2 d; D 0.5–1 d.
 - **Exit:** Stripe-Testmatrix signiert oder förmlich als „nicht im Pilot“ markiert.
-- **Gate:** P1 Pilot, P0 vor Self-Service.
+- **Gate:** P1 im betreuten Pilot; Stripe Live, Refund und Chargeback sind erst vor Self-Service beziehungsweise regulärem Zahlungsbetrieb P0.
 
 ## Phase 3 – Statusmails und Kommunikation
 
@@ -217,8 +217,8 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 ### Schritt 12 – DOC-01: Pilotpaket
 
 - **Ziel:** Kunde und Operator folgen einem einzigen aktuellen Satz von Anleitungen.
-- **Begründung:** bestehende technische Audits sind kein kundenfähiges Onboarding.
-- **Aufgaben:** Installation/Upgrade; QuickStart mit Registrierung/Free Scan; manuelle Assessmentfreischaltung; Validation; Monitoring/TaskScheduler; Dashboard/Findings/Reports; Exceptions; Rollen; Troubleshooting/Request ID; Deinstallation; Datenschutz/DPA; Known Limitations; Pilotcheckliste/-abnahme; Admin-/Backup-/Incident-/Release-/Rollbackhandbuch.
+- **Begründung:** viele deutsche Release-, CAT-, Pilot-, Exception- und Operationsdokumente sind vorhanden; offen sind Konsolidierung, finale RC-Versionierung und praktische Operatorabnahme.
+- **Aufgaben:** vorhandene Inhalte zu Installation/Upgrade, QuickStart mit Registrierung/Free Scan, manueller Assessmentfreischaltung/Rechnung, Validation, Monitoring/TaskScheduler, Dashboard/Findings/Reports, Exceptions, Rollen, Troubleshooting/Request ID, Deinstallation, Datenschutz/DPA, Known Limitations, Pilotcheckliste/-abnahme sowie Admin-/Backup-/Incident-/Release-/Rollbackbetrieb konsolidieren.
 - **Komponenten:** `docs/`, Kundenpaket.
 - **Abhängigkeiten:** stabile UI/RC und getestete Schritte.
 - **Akzeptanzkriterien:** keine alten Versionen/Preise/Legacybegriffe/Platzhalter; Screenshot je kritischem Schritt; fremder Testnutzer schafft Journey ohne Zusatzwissen; Dokumentversion = RC.
@@ -282,9 +282,9 @@ Readiness-Gewinne sind Planungswerte, nicht additiv garantierte Messwerte.
 
 ## Phase 6 – Pilot-Dry-Run
 
-### Schritt 15 – DRY-01: vollständige Simulation
+### Schritt 15 – DRY-01: kompakte finale RC-Simulation
 
-Der Dry-Run wird mit synthetischen Daten, nicht in PROD und ohne echte Zahlung/Mail an Kunden ausgeführt.
+Der Dry-Run wird mit synthetischen Daten, nicht in PROD und ohne echte Zahlung/Mail an Kunden ausgeführt. Die Schritte 3–10 sind eine kompakte Regression der auf `1.0.2.12`/`1.0.2.16` bestandenen Baseline; Upgrade, Monitoring, Recovery und Betrieb werden dagegen vollständig geprüft.
 
 | # | Aktion | erwartetes Ergebnis / Evidence |
 | ---: | --- | --- |
@@ -305,7 +305,7 @@ Der Dry-Run wird mit synthetischen Daten, nicht in PROD und ohne echte Zahlung/M
 | 15 | Support/Recovery testen | Diagnose/Antwort innerhalb Pilot-SLA |
 | 16 | Upgrade installieren | Setup/Token/History/Rechte erhalten; neuer Scan erfolgreich |
 
-- **Akzeptanzkriterien:** 16/16 PASS; Beweise im Evidencepaket; keine offene P0-Abweichung.
+- **Akzeptanzkriterien:** 16/16 PASS; Grundfunktionen kompakt, Upgrade/Monitoring/Recovery vollständig; Beweise versionsgenau im Evidencepaket; keine offene P0-Abweichung.
 - **Automatische Tests:** vollständige Suite, PostgreSQL, Compile/Analyzer, Evidence-Validator.
 - **Manuelle Tests:** Audit M01–M20 soweit pilotrelevant.
 - **Codex-Anteil:** Evidenceprüfung/Fehleranalyse, Abschlussbericht.
@@ -322,13 +322,13 @@ Alle Kästchen müssen erfüllt sein:
 
 - [ ] RC-SHA und `.app`-SHA festgelegt; AL/CodeCop/PTECop grün.
 - [ ] vollständige Backend-Suite PASS; PostgreSQL 7/7 PASS; Alembic U/D/U PASS.
-- [ ] Install/Registration/Free/Assessment/Scan/Findings/Dashboard/HTML/PDF PASS.
+- [ ] kompakte final-RC-Regression von Install/Setup/Registration/Duplicate-Schutz/Free/Assessment/Validation/Scan/Findings/Dashboard/HTML/PDF PASS; `1.0.2.12`-/`1.0.2.16`-Baseline referenziert.
 - [ ] manueller und geplanter Monitoringlauf inkl. Historie PASS.
 - [ ] Failure/Recovery/kein Doppelcredit PASS.
-- [ ] Upgrade von repräsentativer Vorversion PASS.
+- [ ] Upgrade von `1.0.2.12` beziehungsweise repräsentativer Vorversion auf den finalen RC mit Datenerhalt, neuem Scan, Monitoring und Background Scan PASS.
 - [ ] Backup/Restore und Rollback PASS; Alerts empfangen.
 - [ ] Adminbereich gehärtet; Secrets/HTTPS/Headers geprüft.
-- [ ] QuickStart, Support, DPA/Pilotvertrag, Known Limitations, Abnahmeprotokoll fertig.
+- [ ] vorhandene QuickStart-, Support-, DPA/Pilotvertrag-, Known-Limitations-, Abnahme- und Operatorunterlagen auf den finalen RC konsolidiert und praktisch geprüft.
 - [ ] Betreiber und Stellvertreter, SLA, tägliche Kontrolle und Eskalation bestätigt.
 - [ ] keine echten Kundenmails/Zahlungen im Dry-Run ausgelöst.
 
@@ -372,4 +372,6 @@ Aufnahme in Wellen: Kunde 1 → Review nach erstem vollständigem Monitoringlauf
 
 ## Finale Planentscheidung
 
-Heute bleibt das Gate **NO-GO**. Der früheste seriöse Start für einen betreuten Einzelpiloten ist nach den Schritten 1–9, 11–12 und 15–16 realistisch in **3–5 fokussierten Arbeitstagen plus mindestens 24 Stunden Monitoring-/Soakzeit**, sofern die Umgebungen sofort verfügbar sind und kein neuer Defekt auftritt. Zehn Piloten erfordern zusätzlich OPS-10A und eine gestaffelte Aufnahme; realistisch **7–10 Arbeitstage** bis zum ersten Zehner-Gate, nicht zwingend bis alle zehn gleichzeitig gestartet sind.
+Heute bleibt das Gate **NO-GO**. Durch die reale `1.0.2.12`-/`1.0.2.16`-Evidence steigt die Readiness für einen betreuten Einzelpiloten auf **78 %**; die Grundjourney wird im finalen RC nur kompakt regressiert. Der früheste seriöse Start ist nach den Schritten 1–9, 11–12 und 15–16 realistisch in **2–4 fokussierten Arbeitstagen plus mindestens 24 Stunden Schedulerzeit**, sofern die Umgebungen sofort verfügbar sind und die Monitoring-Regression ohne neuen Defekt schließt. Zehn Piloten stehen bei **63 %** und erfordern zusätzlich OPS-10A sowie eine gestaffelte Aufnahme; realistisch **5–8 Arbeitstage** bis zum ersten Zehner-Gate.
+
+**Unmittelbar nächster Sprint:** `RC-00B – finaler RC Build & Analyzer Gate`. Zu Sprintbeginn wird `RC-00A` als kurzer Freeze-Schritt erledigt; danach sind AL-Build, Objekt-ID-Eindeutigkeit, CodeCop und PTECop für exakt diesen RC zu belegen. Der unmittelbar folgende Runtime-Sprint ist `UPG-P0-02` zusammen mit `MON-P0-03`, weil Upgrade-Datenerhalt und die Monitoring-/Background-Regression die höchste verbleibende BC-Risikoaggregation bilden.

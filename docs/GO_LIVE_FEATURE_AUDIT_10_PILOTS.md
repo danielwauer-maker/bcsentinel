@@ -6,32 +6,30 @@
 
 ## 1. Executive Summary
 
-BCSentinel besitzt einen substanziellen, überwiegend automatisiert getesteten Produktkern: tenantgebundene Registrierung, gehashte Backend-Tokens, IsolatedStorage in Business Central, Free-/Assessment-/Validation-/Monitoring-Entitlements, atomare Scan-Credits, Scan-Lifecycle mit Lease/Heartbeat/Recovery, Findings, Dashboard, Adminfunktionen sowie tenantgebundene HTML-/PDF-Reports. Die lokale Testsuite bestätigt 387 Tests; sieben PostgreSQL-Konkurrenztests wurden mangels laufender PostgreSQL-/Docker-Runtime übersprungen.
+BCSentinel besitzt einen substanziellen, überwiegend automatisiert getesteten Produktkern. Zusätzlich liegt jetzt reale BC-Sandbox-Evidence vor: Extension `1.0.2.12` wurde installiert; `1.0.2.16` wurde nach mehreren Versuchen als Upgrade installiert. Setup, HTTPS zu `https://dev-api.bcsentinel.com`, Registrierung einschließlich Duplicate-Schutz, Tenant-/Company-/Membership-Zuordnung, Free Scan, Historie, Findings, Dashboard sowie HTML-/PDF-Report funktionierten. Auf `1.0.2.16` wurden außerdem Assessment, Validation Credit einschließlich Verbrauch, Zugriffslaufzeit, Monitoring-Freischaltung, manueller Monitoring-Scan, Data-Health-Ausnahmen und ein sauberer zweiseitiger A4-PDF-Render praktisch nachgewiesen.
 
-Der aktuell ausgecheckte Stand `staging@be29fd134465a0e05fdb5eca83c06ffc1e702b66` ist dennoch **kein Release Candidate**. Zwei Page Extensions verwenden die AL-Objekt-ID `53199`; damit scheitern der Source-Uniqueness-Guard und `scripts/validate_bc_extension.py`. Der offene PR #20 auf `origin/release/1.0.2.16` (`023f3a68e0ebdbe51033ddd4cd345c49d2beccf0`, Manifestversion 1.0.2.17) behebt die Kollision und enthält weitere Monitoring-Hotfixes. Für diesen Commit fehlen jedoch ein belegter AL-/CodeCop-/PTECop-Lauf und vor allem die echte BC-Sandbox-Abnahme. PR #15 enthält das Evidence-Gate für genau diese Abnahme, ist aber noch offen und gegenüber `staging` veraltet.
+Diese Nachweise gelten versionsgenau und attestieren **nicht automatisch den finalen Release Candidate**. Das Upgrade bleibt `IMPLEMENTED_NOT_E2E_VERIFIED`, weil Datenerhalt, Monitoring und Background Scan nach einem Upgrade auf den finalen RC noch nicht vollständig geprüft sind. Monitoring bleibt `PARTIAL`: In einem früheren Stand lief mindestens ein geplanter Scan erfolgreich; auf `1.0.2.16` trat später eine mögliche Regression ohne neuen Background-Scan beziehungsweise Historieneintrag auf. Der manuelle Monitoring-Scan lief, die Anzeige aktualisierte sich aber erst nach Refresh.
 
-Weitere Pilotblocker sind: kein aktueller realer Install-/Upgrade-/Monitoring-Dry-Run in BC; kein aktueller PostgreSQL Upgrade/Downgrade/Upgrade- und Konkurrenznachweis; kein belegter Backup-/Restore-Test; kein freigegebener, unveränderlicher Release Candidate; keine ausreichende Betriebsüberwachung/Alarmierung; produktive Terminologie- und Preisdrift; sichtbare Landingpage-Artefakte; sowie unvollständige Pilot- und Betriebsdokumentation. SMTP-, Stripe-, DNS-, Steuer-, Rechts- und Produktionskonfiguration sind nur extern prüfbar.
+Weitere Pilotblocker sind: kein freigegebener, unveränderlicher finaler RC mit grünem AL-Build, eindeutigen AL-Objekt-IDs und grünem CodeCop/PTECop; kein aktueller PostgreSQL Upgrade/Downgrade/Upgrade- und Konkurrenznachweis; kein realer Recovery-, Backup-/Restore- oder Alerting-/Incident-Test; kein geschlossener Monitoring-Regressions- und 24-Stunden-Scheduler-Nachweis; sowie unvollständige Operator- und Pilotunterlagen. Für zehn Piloten fehlen zusätzlich 10-Tenant-Last-/Soak- und Betriebsevidence.
 
-**Schnellster seriöser Weg:** PR #20 als technische Basis festlegen, alle automatisierten Gates darauf ausführen, einen echten BC-27-Sandbox-Dry-Run inklusive Monitoring und Upgrade durchführen, PostgreSQL- und Restore-Gates schließen und den Pilot zunächst manuell freischalten/abrechnen. Stripe ist für einen betreuten Pilot nicht P0; für den ersten regulären Self-Service-Kunden ist der vollständige Live-Prozess P0.
+**Schnellster seriöser Weg:** finalen RC festlegen und bauen, danach nur einen kompakten Regressionstest der bereits bestandenen Grundfunktionen plus vollständige Upgrade-/Monitoring-/Recovery-Evidence ausführen. Parallel sind PostgreSQL-, Restore-, Alerting- und Operator-Gates zu schließen. Stripe Live, Refund und Chargeback sind für den ersten betreuten Pilot nicht P0; dokumentierte manuelle Pilotfreischaltung und Rechnungsstellung sind als Übergangslösung zulässig.
 
 ## 2. Geprüfter Branch, Commit und Release-Stand
 
 | Gegenstand | Ergebnis | Bewertung |
 | --- | --- | --- |
-| Arbeitsbaum | sauber vor Audit; nur diese beiden Auditdokumente werden neu erstellt | keine fremden Änderungen angetroffen |
-| Aktueller Branch | `staging`, Tracking `origin/staging` | aktive Entwicklungsbasis, aber kein RC |
-| Aktueller Commit | `be29fd134465a0e05fdb5eca83c06ffc1e702b66`, 2026-08-03, `chore: bump BCSentinel extension to 1.0.2.13` | AL-Guard reproduzierbar rot |
-| `main` | `28640ee`; 131 Commits hinter und 9 Merge-Commits divergent zu `staging` | nicht Pilotbasis |
+| Arbeitsbaum | vor Aktualisierung sauber; ausschließlich diese beiden Auditdokumente werden geändert | keine fremden Änderungen angetroffen |
+| Aktueller Branch | `audit/release-1.0.2.16`, Tracking `origin/audit/release-1.0.2.16` | Auditbasis; nicht automatisch finaler RC |
+| Aktueller Commit | `a5875cd1fd67572a092d0571f361bb3e874d4612`, 2026-08-03, `docs: add go-live audit and pilot action plan` | reiner Auditstand; RC-SHA weiterhin festzulegen |
 | Tags | nur `pre-repo-01a-build-hygiene` | kein versionierter Release-Tag |
 | Offene relevante PRs | #15, #17, #18, #19, #20 | mehrere übereinander aufbauende, noch nicht integrierte Releasezweige |
-| Neuester funktionaler Releasezweig | `origin/release/1.0.2.16` @ `023f3a6`, Manifest 1.0.2.17 | beste technische Pilotbasis, noch kein freigegebener RC |
-| PR #20 | mergeable, 14 Commits, 5 Dateien; Objekt-ID-Fix und Monitoring-Wrapper | vor Pilot integrieren und vollständig gaten |
-| PR #15 | reale BC-Sandbox-Evidence-Struktur, mergeable, aber 6 Commits hinter `staging` | rebasen/integrieren oder Runbook manuell verwenden |
-| CI-Status über GitHub-Connector | keine Commit-Statuskontexte für `be29fd1`, `023f3a6`, `2cbe862` zurückgegeben | **nicht verifiziert**; Actions UI/Logs manuell prüfen |
+| Manuell getestete Extension-Versionen | Neuinstallation `1.0.2.12`; Upgradeziel `1.0.2.16` | reale Sandbox-Evidence, aber kein pauschaler Nachweis für den finalen RC |
+| Finaler Release Candidate | noch nicht unveränderlich mit SHA, Artefakthash und Version attestiert | P0-Gate bleibt offen |
+| CI-/Buildstatus finaler RC | in dieser Dokumentenaktualisierung nicht ausgeführt | **nicht verifiziert**; AL-/Objekt-ID-/CodeCop-/PTECop-Gate bleibt offen |
 | PROD öffentlich | `/health` 200, `/health/ready` 200; OpenAPI 0.7.0 mit 102 Pfaden | erreichbar, Deploymentinhalt nicht commitgenau attestiert |
 | DEV öffentlich | `/health` 200; OpenAPI 0.7.0 mit 120 Pfaden | sichtbare PROD/DEV-Drift |
 
-**Empfohlene Pilotbasis:** `023f3a68e0ebdbe51033ddd4cd345c49d2beccf0` nach Integration in einen neu festgelegten RC-Branch/Tag und nach grünen Gates. Diese Empfehlung ist eine Codebasisentscheidung, keine GO-Freigabe.
+**Empfohlene Pilotbasis:** ein explizit festgelegter, unveränderlicher finaler RC-SHA mit Extension-Version, Artefakthash und grünen Gates. Die reale `1.0.2.12`-/`1.0.2.16`-Evidence ist die Regression-Baseline, aber keine GO-Freigabe für diesen RC.
 
 ## 3. Auditumfang und Methode
 
@@ -76,36 +74,36 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 
 | Feature | Status | Evidenz | Vorhandene Tests | Fehlender Test | Pilot-Relevanz / Risiko | Maßnahme / Aufwand | Prio |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Installation | IMPLEMENTED_NOT_E2E_VERIFIED | `DHInstall.Codeunit.al`, `app.json` | AL-Vertragstests | frische BC-27-Sandbox-Installation 1.0.2.17 | zwingend; Installationsfehler blockiert Nutzung | RC kompilieren/installieren; C 1h, D 1h | P0 |
-| Upgrade | IMPLEMENTED_NOT_E2E_VERIFIED | `DHUpgrade.Codeunit.al`, stabile App-ID | Migrations-/AL-Contracts | echte Upgrades von installierten Pilotversionen auf 1.0.2.17 | zwingend; Daten-/Setupverlust | Upgrade-Matrix mit Evidence; C 2h, D 2–3h | P0 |
+| Installation | PARTIAL | `DHInstall.Codeunit.al`, `app.json`; reale BC-Sandbox-Installation `1.0.2.12` PASS | AL-Vertragstests plus manueller `1.0.2.12`-Nachweis | frische Installation des finalen RC | Grundfunktion real belegt; RC-Kompatibilität offen | finalen RC kompakt installieren; C 30m, D 30m | P0 |
+| Upgrade | IMPLEMENTED_NOT_E2E_VERIFIED | `DHUpgrade.Codeunit.al`, stabile App-ID; Upgrade auf `1.0.2.16` nach mehreren Versuchen PASS | Migrations-/AL-Contracts plus manueller `1.0.2.16`-Installationsnachweis | Datenerhalt, Monitoring und Background Scan nach Upgrade auf finalen RC | P0; Upgradeerfolg allein belegt keinen vollständigen Datenerhalt | fokussierte RC-Upgrade-Matrix; C 2h, D 2h | P0 |
 | Uninstall/Reinstall | PARTIAL | keine Uninstall-Codeunit; Daten/IsolatedStorage-Verhalten nur Plattformstandard | keine | Uninstall mit/ohne Datenlöschung, Reinstall, Tokenzustand | P1; Support-/Datenschutzrisiko | Sandbox-Test und Anleitung; C 1h, D 1h | P1 |
-| Manifest/Objektbestand | BLOCKED | `staging`: Page Extensions 53199 doppelt; PR #20 nutzt 53199/53200/53201 | `Test-ALSourceUniqueness.ps1` FAIL; `validate_bc_extension.py` FAIL | grüner RC-Guard/Compile | P0; aktueller Stand nicht baubar | PR #20 integrieren; C 1h, D 15m | P0 |
-| Setup-Seite/Guided Setup | VERIFIED | `DHSetup.Page.al`, `DHGuidedExperience.Codeunit.al` | `test_gl01f_fix01_background_scan`, `Test-GL01FFirstRunUX.ps1` PASS | reale Bedien-/Berechtigungsabnahme | zwingend, mittleres UX-Risiko | Sandbox UAT; C 1h, D 1h | P1 |
-| Registrierung | VERIFIED | `DHApiClient`, `DHTenantIdentityMgt`, `/tenant/register` | P0A-, Registration-, Multi-Tenant-Tests PASS | echter BC→PROD/Stage Retry nach Responseverlust | P0 | Sandbox-E2E; C 1h, D 1h | P0 |
-| Tenant/Environment/Company-Zuordnung | VERIFIED | stabile Identity-Dimensionen und DB-Constraints | P0A/Multi-Tenant PASS | reale Mehrcompany-Abnahme | P0, hohe Isolation | 2 Companies/2 Environments testen; C 1h, D 1h | P0 |
+| Manifest/Objektbestand | IMPLEMENTED_NOT_E2E_VERIFIED | Objektbestand und Validierungsskripte vorhanden | frühere Source-Uniqueness-Befunde/Fixes dokumentiert | Source-Uniqueness und Compile auf dem finalen RC grün | P0; finaler RC nicht attestiert | finalen RC-Guard ausführen; C 30m, D 15m | P0 |
+| Setup-Seite/Guided Setup | VERIFIED | `DHSetup.Page.al`, `DHGuidedExperience.Codeunit.al`; reale Bedienung auf `1.0.2.12`/`1.0.2.16` PASS | automatisierte Contracts plus Sandbox-Nachweis | kompakte RC-Regressionsstichprobe | Grundfunktion belegt | im RC-Smoke wiederholen; C/D je 15m | P1 |
+| Registrierung | VERIFIED | reale Registrierung auf `1.0.2.12`/`1.0.2.16` inklusive verhinderter Doppelregistrierung PASS | P0A-, Registration-, Multi-Tenant-Tests PASS | kompakte RC-Regressionsstichprobe und Responseverlustfall | P0-Grundfunktion real belegt | RC-Smoke + Retry-Negativfall; C/D je 30m | P0 |
+| Tenant/Environment/Company-Zuordnung | VERIFIED | Tenant, Company und Membership im Backend auf `1.0.2.12`/`1.0.2.16` korrekt zugeordnet | P0A/Multi-Tenant PASS plus Sandbox-Nachweis | Mehrcompany-/Fremdtenant-Negativfall auf finalem RC | P0, hohe Isolation | RC-Isolationsstichprobe; C/D je 30m | P0 |
 | sichere Token-Speicherung | IMPLEMENTED_NOT_E2E_VERIFIED | `DHSecretMgt`: `IsolatedStorage`, Scope Company; Backend speichert Hash | Token-/Registration-Tests PASS | BC-IsolatedStorage Upgrade/Reinstall/Permission | P0 | Sandbox-Negativtest; C 30m, D 45m | P0 |
-| HTTPS-only API | VERIFIED | `DHApiUrlPolicy`, prod Transport-Middleware, Nginx TLS | P0A Transporttests PASS | Zertifikats-/Proxytest in endgültigem PROD | P0 | externes TLS-Gate; C 30m, D 30m | P0 |
+| HTTPS-only API | VERIFIED | reale Verbindung von BC zu `https://dev-api.bcsentinel.com` auf `1.0.2.12`/`1.0.2.16` PASS | P0A Transporttests PASS plus Sandbox-Nachweis | Zertifikats-/Proxytest in endgültigem PROD | P0 | externes TLS-Gate; C 30m, D 30m | P0 |
 | Permission Sets | IMPLEMENTED_NOT_E2E_VERIFIED | Viewer/Scan/Setup/Admin/Scheduler in `BCSentinelPermissionSets.al` | P0D Quellcontracts PASS | echte Positiv-/Negativtests je Rolle | P0/P1; über- oder unterprivilegierte Nutzer | Sandbox-Rollenmatrix; C 2h, D 2h | P0 |
 | Deep Scan / manueller Scan | VERIFIED | `DHDeepScanMgt`, Runner, Dispatcher, Backend `/scan/start`/`sync` | Scan-, P0B/C-, Consolidation-Tests PASS | realer großer Tenant | P0 | Dry-Run; C 1h, D 1–2h | P0 |
-| kostenloser Scan | VERIFIED | once-per-tenant, permanente Free-Ergebnisfähigkeiten | GL01F Free, Product Licensing PASS | echter erster Kunde | P0 | Dry-Run; C 30m, D 45m | P0 |
-| Assessment | IMPLEMENTED_NOT_E2E_VERIFIED | Alias `full_analysis`→Assessment, 7-Tage-Zugriff | Product Model/Licensing/Billing PASS | Kauf/Freischaltung→BC→Report real | P0 als mindestens ein vollständiger Produktpfad | Pilot manuell freischalten und testen; C 1h, D 1h | P0 |
-| Validation Check | VERIFIED | eigener Credit/Ledger/Entitlement | P0B, Licensing, Billing PASS | echter BC-Folgescan | P1 | Dry-Run; C 45m, D 45m | P1 |
-| Monitoring-Entitlement | VERIFIED | monthly/annual→Monitoring-Rechte | Entitlement/Licensing PASS | echter Laufzeitablauf | P0 für Monitoring-Pilot | Sandbox/Stage; C 45m, D 45m | P0 |
-| manueller Monitoring-Start | BLOCKED | `staging` kollidiert; PR #20 behebt Session-Setup-Reload | Quellcontract auf staging, aber kein 1.0.2.17 Runtimebeleg | echter Start mit Historieneintrag | P0; bekannter Pilotfehler | PR #20 + BC Runtime; C 2h, D 1h | P0 |
-| geplanter Background Scan | IMPLEMENTED_NOT_E2E_VERIFIED | BC `TaskScheduler.CreateTask`, Failure Codeunit, Scheduler-Status | GL01F Background Contracts PASS | reale TaskScheduler-Ausführung über Nacht/Fehlerfall | P0 für 10 Piloten | 24h-Sandboxlauf; C 2h, D 2h verteilt | P0 |
-| Scan-Status/-Historie | VERIFIED | lokale Run/Finding-Tabellen, Backend RunStatus/Event | Scan Status, Fix05, History Contracts PASS | reale UI-Synchronität bei Abbruch | P0 | Dry-Run Fehlerfall; C 1h, D 1h | P0 |
-| Findings / Drilldown / Open in BC | VERIFIED | Finding-Seiten, Dispatcher, Worklists | P0D Direct-Page Guards, GL01C PASS | alle Drilldowns mit echten Datensätzen | P0 | Sandbox-Stichprobe; C 1h, D 1–2h | P0 |
-| Dashboard-Aufruf | VERIFIED | Analytics Page/ControlAddIn und Embed Token | Analytics Security/P0D PASS | Browser-in-BC-Frame real | P0 | BC-Webclient-Test; C 30m, D 45m | P0 |
-| HTML-/PDF-Report-Aufruf | VERIFIED | `DHApiClient` Report URLs; sichere Backendroutes | Report/P0D PASS | realer Download aus BC | P0 | Dry-Run; C 30m, D 30m | P0 |
-| Produktzugriff/abgelaufener Zugriff | VERIFIED | `DHAccessGuard`, frischer Access Snapshot | P0D/Entitlements PASS | Ablauf während geöffneter BC-Seite | P0 | Time-travel/Stage-Test; C 1h, D 45m | P0 |
+| kostenloser Scan | VERIFIED | Free Scan auf `1.0.2.12`/`1.0.2.16` gestartet und abgeschlossen; neuer Historieneintrag vorhanden | GL01F Free, Product Licensing PASS plus Sandbox-Nachweis | kompakte RC-Regressionsstichprobe | P0-Grundfunktion real belegt | auf finalem RC einmal wiederholen; C/D je 30m | P0 |
+| Assessment | VERIFIED | auf `1.0.2.16` erfolgreich freigeschaltet; Findings, Historie, Report und Zugriffslaufzeit praktisch angezeigt | Product Model/Licensing/Billing PASS plus Sandbox-Nachweis | kompakte RC-Regressionsstichprobe | vollständiger manueller Pilotpfad belegt | RC-Smoke; C/D je 30m | P1 |
+| Validation Check | VERIFIED | Credit auf `1.0.2.16` zugewiesen und beim Validation Scan verbraucht; Findings, Historie und Report PASS | P0B, Licensing, Billing PASS plus Sandbox-Nachweis | Konkurrenz-/Retryfall auf PostgreSQL und finalem RC | Grundfunktion real belegt | fokussierte RC-/DB-Stichprobe | P1 |
+| Monitoring-Entitlement | VERIFIED | Monitoring auf `1.0.2.16` erfolgreich freigeschaltet | Entitlement/Licensing PASS plus Sandbox-Nachweis | Ablauf und RC-Snapshot-Sync | P0 für Monitoring-Pilot | RC-Smoke; C/D je 30m | P0 |
+| manueller Monitoring-Start | PARTIAL | manueller Scan auf `1.0.2.16` lief; Anzeige aktualisierte sich erst nach Refresh | Quellcontracts plus Sandbox-Nachweis | sofortige UI-/Historienaktualisierung auf finalem RC | P0; Refresh-Abhängigkeit und Regression offen | reproduzieren und RC-regressieren; C 2h, D 1h | P0 |
+| geplanter Background Scan | IMPLEMENTED_NOT_E2E_VERIFIED | mindestens ein geplanter Lauf in früherem Stand PASS; auf `1.0.2.16` später kein neuer Background-Scan/Historieneintrag | GL01F Background Contracts PASS plus widersprüchliche Runtime-Evidence | Regression schließen; geplanter Lauf nach finalem Upgrade und 24h-Nachweis | P0 für Monitoring; frühere Evidence reicht nicht für RC | fokussierter 24h-RC-Lauf; C 2h, D 2h verteilt | P0 |
+| Scan-Status/-Historie | VERIFIED | Free-, Validation- und manuelle Scans auf `1.0.2.16` in der Historie sichtbar; Monitoringanzeige teils erst nach Refresh | Scan Status, Fix05, History Contracts PASS | Refresh-/Background-Regressionsfall auf finalem RC | Grundfunktion real belegt, Monitoringteil offen | kompakte RC-Stichprobe | P0 |
+| Findings / Drilldown / Open in BC | VERIFIED | Findings auf `1.0.2.12`/`1.0.2.16` angezeigt | P0D Direct-Page Guards, GL01C PASS plus Sandbox-Nachweis | Drilldown-Stichprobe auf finalem RC | Grundfunktion real belegt | RC-Smoke | P1 |
+| Dashboard-Aufruf | VERIFIED | Dashboard auf `1.0.2.12`/`1.0.2.16` aus BC geöffnet | Analytics Security/P0D PASS plus Sandbox-Nachweis | kompakte RC-Regressionsstichprobe | P0-Grundfunktion real belegt | RC-Smoke | P1 |
+| HTML-/PDF-Report-Aufruf | VERIFIED | HTML und PDF auf `1.0.2.12`/`1.0.2.16` aus dem Pilotpfad geöffnet | Report/P0D PASS plus Sandbox-Nachweis | kompakte RC-Regressionsstichprobe | P0-Grundfunktion real belegt | RC-Smoke | P1 |
+| Produktzugriff/abgelaufener Zugriff | VERIFIED | Assessment-Zugriffslaufzeit auf `1.0.2.16` praktisch angezeigt | P0D/Entitlements PASS plus Sandbox-Nachweis | Ablauf nach finalem RC-Upgrade | P0 | fokussierter Upgrade-/Ablauftest | P0 |
 | Scan Credits | VERIFIED | BC Snapshot + atomarer Backend-Ledger | P0B PASS | PostgreSQL Konkurrenz real lokal derzeit SKIP | P0 | PostgreSQL-Gate; C 1h, D 30m | P0 |
-| Data-Health-Ausnahmen | VERIFIED | Exception Table/Mgt/UI, Report count | GL01C/Exception Contract/Report PASS | Debitor/Kreditor/Artikel UAT | P1 | UAT; C 1h, D 1h | P1 |
+| Data-Health-Ausnahmen | VERIFIED | Ausnahmen auf `1.0.2.16` angelegt und erneuter Scan ausgelöst | GL01C/Exception Contract/Report PASS plus Sandbox-Nachweis | Ergebniswirkung über alle Entitätstypen auf finalem RC | P1 | RC-UAT-Stichprobe; C/D je 30m | P1 |
 | DE/EN | PARTIAL | XLIFF 1519 Targets; direkte deutsche AL-Texte vorhanden | Target-Abdeckung; Localization-Script FAIL | BC Runtime DE/EN und globale Bereinigung | P1; sichtbare Sprachmischung | Pilotpfade bereinigen; C 1–2d, D 2h | P1 |
 | Fehlermeldungen/Diagnose | PARTIAL | strukturierte Backendcodes, lokale Failure-Felder | Fix03/04/05, Observability PASS | Endnutzer-/Supportabnahme; Telemetrie fehlt | P0/P1 | Fehlerkatalog/Runbook; C 1d, D 2h | P1 |
 | Idempotenz/Wiederholbarkeit | VERIFIED | Client Request ID, Run ID, Retry-Vertrag | P0A/B/C/Fix03/04 PASS | Netzwerkfehler real | P0 | Chaosfall im Dry-Run; C 1h, D 1h | P0 |
-| Recovery abgebrochener Scans | VERIFIED | Lease/Heartbeat/periodische Recovery | P0C/Fix04/Fix05 PASS | echter BC-Sessionkill + Recovery | P0 | Sandbox-Fehlerfall; C 1h, D 1h | P0 |
+| Recovery abgebrochener Scans | IMPLEMENTED_NOT_E2E_VERIFIED | Lease/Heartbeat/periodische Recovery im Code vorhanden | P0C/Fix04/Fix05 PASS | echter BC-Sessionkill + Recovery auf finalem RC | P0; reale Recovery nicht belegt | Sandbox-Fehlerfall; C 1h, D 1h | P0 |
 | Telemetrie | PARTIAL | Request IDs, Events, lokale Schedulerfelder | Observability PASS | zentraler Alert/Trace, BC-Telemetriesink | P1 bei 10 Kunden | zunächst täglicher manueller Check; C 1–2d, D 30m/Tag | P1 |
-| AL Compile / CodeCop / PTECop | BLOCKED | Workflow vorhanden, lokaler Docker/Compiler nicht verfügbar, staging preflight rot | kein aktueller grüner RC-Lauf belegt | 1.0.2.17 Compile + Analyzerlogs | P0 | Actions manuell ausführen/belegen; C 1h, D 30m | P0 |
+| AL Compile / CodeCop / PTECop | IMPLEMENTED_NOT_E2E_VERIFIED | Workflow und Buildskripte vorhanden | kein aktueller grüner finaler RC-Lauf belegt | finaler RC Compile + CodeCop-/PTECop-Logs | P0 | RC-Gate ausführen/belegen; C 1h, D 30m | P0 |
 | AppSourceCop | PARTIAL | Konfiguration/Baseline vorhanden | nicht in aktuellem Lauf | bekannte Baseline + neue Warnungen | P3 Pilot, P0 AppSource | späteres Zertifizierungsgate; C 2–5d, D 1–2d | P3 |
 
 ### B. Backend und API
@@ -121,7 +119,7 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 | Queue/Lifecycle | VERIFIED | Start, sync, status, events, reconcile | P0B/C/Fix04/05 PASS | echter BC Worker | P0 | Dry-Run; C 1h, D 1h | P0 |
 | atomarer Credit-Verbrauch | VERIFIED | Transaktion, Unique Constraints, Ledger | P0B PASS | 7 PostgreSQL-Tests aktuell SKIP | P0 | CI/PostgreSQL-Gate belegen; C 1h, D 30m | P0 |
 | Idempotenz | VERIFIED | Webhook-ID, Start Request, Scan-ID-Verträge | Billing/P0B/C PASS | Stripe CLI Wiederholung real | P0/P1 | Testmode-Replay; C 1h, D 1h | P1 |
-| Heartbeat/Lease/Recovery | VERIFIED | `scan_status_service`, Startup + 60s Task | P0C/Fix04 PASS | Prozesskill in Stage | P0 | Chaos-Dry-Run; C 1h, D 1h | P0 |
+| Heartbeat/Lease/Recovery | IMPLEMENTED_NOT_E2E_VERIFIED | `scan_status_service`, Startup + 60s Task | P0C/Fix04 PASS | realer Prozess-/BC-Sessionkill und Recovery | P0 | Chaos-Dry-Run; C 1h, D 1h | P0 |
 | Deep-Scan-Verarbeitung | VERIFIED | `/scan/start`, `/scan/sync`, Scoring/Impact | Scan/Product Tests PASS | Last-/Volumentest | P0 | 10-Tenant synthetischer Test; C 1d, D 1h | P1 |
 | Findings/Score/KPIs | VERIFIED | Scoring, impact, translation services | Scan, Pricing, Report PASS | fachliche Golden Dataset-Abnahme | P0 | 2–3 Golden Tenants; C 1d, D 1d | P1 |
 | Produktmodell/Entitlements | VERIFIED | kanonischer Offer-/Entitlement-Vertrag plus Legacy-Aliase | ARCH-02A/B/C, Licensing PASS | reale Laufzeitmatrix | P0 | Dry-Run aller vier Produkte; C 1d, D 2h | P1 |
@@ -183,17 +181,17 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 
 | Feature | Status | Evidenz | Vorhandene Tests | Fehlender Test | Pilot-Relevanz / Risiko | Maßnahme / Aufwand | Prio |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Free/Assessment/Validation/Monitoring Report | PARTIAL | ein gemeinsamer Executive-Report mit Produktzugriff; keine klar getrennten vier Templates | Report/Licensing PASS | fachliche Variantenmatrix | P0: mindestens Free+bezahlter Pfad | Pilotvarianten UAT; C 1d, D 2h | P1 |
-| HTML | VERIFIED | Jinja Template/CSS | Reporttests PASS | reale Browsermatrix | P0 | Stage UAT; C 1h, D 1h | P0 |
-| PDF | VERIFIED | Playwright Chromium mit Fallback | Reporttests; getracktes 2-Seiten-Chromium-PDF visuell geprüft | aktueller RC-Container, große Findingsmenge | P0 | Image/Stage Render; C 1h, D 1h | P0 |
-| Dashboard-/HTML-/PDF-Datenkonsistenz | VERIFIED | gemeinsamer Reportbuilder/Scanmodell | JSON/HTML/PDF Test PASS | echter Kunde | P0 | Dry-Run Screenshotvergleich; C 1h, D 1h | P0 |
+| Free/Assessment/Validation/Monitoring Report | PARTIAL | Free-, Assessment- und Validation-Report auf `1.0.2.12`/`1.0.2.16` praktisch geöffnet; Monitoring-RC-Pfad offen | Report/Licensing PASS plus Sandbox-Nachweis | Monitoringvariante nach geschlossener Regression auf finalem RC | bezahlte Grundpfade belegt | kompakte RC-Variantenstichprobe; C/D je 45m | P1 |
+| HTML | VERIFIED | HTML-Report auf `1.0.2.12`/`1.0.2.16` praktisch geöffnet | Reporttests PASS plus Sandbox-Nachweis | kompakte finale RC-Stichprobe | P0-Grundfunktion belegt | RC-Smoke | P1 |
+| PDF | VERIFIED | PDF auf `1.0.2.12`/`1.0.2.16` praktisch geöffnet | Reporttests plus Sandbox-Nachweis | kompakte finale RC-Stichprobe | P0-Grundfunktion belegt | RC-Smoke | P1 |
+| Dashboard-/HTML-/PDF-Datenkonsistenz | VERIFIED | gemeinsamer Reportbuilder/Scanmodell; Pilotpfade auf `1.0.2.16` sichtbar | JSON/HTML/PDF Test PASS plus Sandbox-Stichprobe | finaler RC-Screenshotvergleich | P0-Grundfunktion belegt | RC-Smoke | P1 |
 | Score/KPI/Severity/finanzieller Impact | VERIFIED | Builder/Template, Score/Impact Services | Report/Scoring Tests PASS | fachliche Golden Results | P0 | Daniel fachliche Freigabe; C 1d, D 1d | P0 |
 | Findings/Empfehlungen | IMPLEMENTED_NOT_E2E_VERIFIED | ReportFinding/Priority Items, Free-Redaktion | Tests | große/Sonderzeichen-Daten | P1 | Edge-Dataset; C 0.5d, D 1h | P1 |
-| Branding/Layout/Druck | VERIFIED | 2 A4-Seiten, lokale Fonts, Footer 01/02 | existierender Chromium-Render visuell ohne Überlauf geprüft | aktueller 1.0.2.17/Containerrender | P0 | finalen RC rendern; C 1h, D 30m | P0 |
+| Branding/Layout/Druck | VERIFIED | sauberer zweiseitiger A4-PDF-Render auf dem mit `1.0.2.16` getesteten Pilotpfad | Chromium-Render visuell ohne Überlauf geprüft | finaler RC-Containerrender mit großen Zahlen | Grundlayout real belegt | finalen RC rendern; C 1h, D 30m | P1 |
 | große Zahlen/Sonderzeichen | IMPLEMENTED_NOT_E2E_VERIFIED | `money-long`, UTF-8, Edge-Case Test | String-/CSS-Test PASS | echter Chromium-Render der >1 Mio.-Variante | P1 | Render/Screenshot; C 1h, D 30m | P1 |
 | DE/EN | VERIFIED | Builder Labels/Template | German/English tests PASS | redaktionelle UAT | P1 | beide PDFs sign-off; C 1h, D 1h | P1 |
 | sichere Links/TTL/Tenant-Schutz | VERIFIED | typ-/scan-/tenantgebundene Tokens + Recheck | Share/Expiry/Isolation PASS | Proxylogs/Referrer real | P0 | PROD-Logging prüfen; C 1h, D 30m | P0 |
-| Erzeugung aus BC | IMPLEMENTED_NOT_E2E_VERIFIED | AL öffnet API-Routen | Access Contracts | echter BC-Download | P0 | Dry-Run; C 30m, D 30m | P0 |
+| Erzeugung aus BC | VERIFIED | HTML/PDF auf `1.0.2.12`/`1.0.2.16` aus BC aufgerufen | Access Contracts plus Sandbox-Nachweis | kompakte finale RC-Stichprobe | P0-Grundfunktion belegt | RC-Smoke; C/D je 15m | P1 |
 | E-Mail-Versand Report | MISSING | kein Reportmail-Event | keine | SMTP/PDF-Link-Flow | im betreuten Pilot manuell ersetzbar | Support sendet Link manuell; D 5m/Report | P2 |
 | Terminologie | PARTIAL | getrackter PDF-Render und Fallback enthalten „Vollständige Analyse“, „Premium“, „Full Analysis“ | ARCH-Test deckt nur Teile | kompletter Output-Sweep | P1/Reputation | auf Assessment angleichen; C 0.5d, D 1h | P1 |
 
@@ -257,13 +255,13 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 
 | Feature | Status | Evidenz | Vorhandene Tests | Fehlender Test | Pilot-Relevanz / Risiko | Maßnahme / Aufwand | Prio |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Installation/Upgrade | PARTIAL | Release-/CAT-/Upgrade-Dokumente | keine aktuelle Nutzerprobe | 1.0.2.17 Schrittfolge/Screenshots | P0 | konsolidierte Pilot-Anleitung | P0 |
-| QuickStart/Free Scan | MISSING | kein als QuickStart identifizierbares Dokument | keine | Nutzerprobe | P0 | 1–2 Seiten erstellen; C 0.5d, D 1h | P0 |
-| Registrierung | PARTIAL | CAT/Runbooks | Contracttests | aktueller Screenshot/Fehlerpfad | P0 | in QuickStart integrieren | P0 |
-| Assessment kaufen/verwenden | MISSING | Preis-/Billingdocs, kein Kundenguide | keine | Pilotablauf | Pilot manuell freischaltbar | Adminfreischaltung dokumentieren | P0 |
-| Validation Check | PARTIAL | CAT/Billingmatrix | Tests | Kundenschritte | P1 | Kurzguide | P1 |
-| Monitoring/TaskScheduler | PARTIAL | CAT/Runbooks | Contracts | 1.0.2.17 Screenshots und 24h-Lauf | P0 | Pilotguide + Evidence | P0 |
-| Dashboard/Findings/Reports | PARTIAL | Landingdocs, CAT, Exceptions Guide | Linkchecks | aktuelle Screenshots/Benutzerprobe | P0 | QuickStart-Kapitel | P0 |
+| Installation/Upgrade | PARTIAL | `BC_EXTENSION_RELEASE_PACKAGE.md`, `BC_EXTENSION_RELEASE_CHECKLIST.md`, `BC_EXTENSION_UPGRADE_TEST_REPORT.md`, CAT und Runbooks | reale Nutzerprobe für `1.0.2.12`→`1.0.2.16` | finaler RC, Datenerhalt und aktuelle Screenshots | P0 | versionsgenau konsolidieren | P0 |
+| QuickStart/Free Scan | PARTIAL | `PILOT_E2E_01A_MANUAL_RUNBOOK_DE.md`, `PILOT_GO_LIVE_RUNBOOK.md`, CAT und Go-Live-Checkliste enthalten die Schritte | manueller Free-Pfad auf `1.0.2.12`/`1.0.2.16` PASS | kompakter kundenlesbarer RC-QuickStart/Nutzerprobe | P0 | vorhandene Inhalte konsolidieren; C 0.5d, D 1h | P0 |
+| Registrierung | IMPLEMENTED_NOT_E2E_VERIFIED | CAT und deutsche Pilot-Runbooks; realer Ablauf auf `1.0.2.12`/`1.0.2.16` PASS | Contracttests plus Sandbox-Nachweis | finaler RC-Screenshot und Fehler-/Recoverypfad | P0 | QuickStart aktualisieren | P0 |
+| Assessment kaufen/verwenden | DOCUMENTED_ONLY | Billing-/Produktmatrix, CAT und Pilot-Runbooks beschreiben Adminfreischaltung; `1.0.2.16` praktisch freigeschaltet | manuelle Produktsicht belegt | kundenfertiger Ablauf einschließlich manueller Rechnung | zulässige Pilotübergangslösung | bestehende Inhalte konsolidieren | P1 |
+| Validation Check | IMPLEMENTED_NOT_E2E_VERIFIED | CAT/Billingmatrix; Creditverbrauch auf `1.0.2.16` praktisch belegt | automatisierte Tests plus Sandbox-Nachweis | kundenfertige RC-Kurzschritte | P1 | Kurzguide aktualisieren | P1 |
+| Monitoring/TaskScheduler | PARTIAL | CAT, `GL_EXT_P0E_SANDBOX_RELEASE_GATE.md` und Pilot-Runbooks | früher geplanter Lauf PASS; `1.0.2.16` mit späterer Regression | finaler RC-Screenshot, Regression und 24h-Lauf | P0 | Guide nach Regression finalisieren | P0 |
+| Dashboard/Findings/Reports | IMPLEMENTED_NOT_E2E_VERIFIED | CAT, Pilot-Runbooks und Exceptions Guide; auf `1.0.2.12`/`1.0.2.16` praktisch belegt | Linkchecks plus Sandbox-Nachweis | finaler RC-Screenshotsatz/Nutzerprobe | P1 | vorhandenes QuickStart-Kapitel aktualisieren | P1 |
 | Data-Health-Ausnahmen | VERIFIED | `DH_EXCEPTIONS_USER_ADMIN_GUIDE.md` | GL01C Tests | Nutzerprobe | P1 | UAT | P1 |
 | Benutzer/Berechtigungen | PARTIAL | Rollenmatrix | Source Contracts | Sandboxrolle | P0 | Pilot-Rollenblatt | P0 |
 | Deinstallation | PARTIAL | CAT erwähnt Verhalten | keine | echte Durchführung | P1 | Runbook | P1 |
@@ -271,11 +269,11 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 | Datenschutz/Datenverarbeitung | PARTIAL | Processing/Retention/DPA-Checkliste | keine | Rechts-/Kundenfreigabe | P0 vor echten Daten | Daniel finalisiert DPA | P0 |
 | Supportprozess | PARTIAL | Pilot Runbook | keine Übung | Kontakt, SLA, Eskalation | P0 | verbindlich festlegen | P0 |
 | Pilot-Onboarding-Checkliste | PARTIAL | Pilot-/Go-Live-Runbooks | keine | vollständiger Dry-Run | P0 | konsolidieren | P0 |
-| Pilot-Abnahmeprotokoll | MISSING | Evidence-PR #15 offen, kein fertiges Kundenprotokoll im Branch | Contract nur in PR | signierbares Protokoll | P0 | Template erstellen | P0 |
-| Admin-Betriebshandbuch | MISSING | technische Einzeldokumente | keine | Operatorprobe | P0 | 10-Kunden-Runbook | P0 |
+| Pilot-Abnahmeprotokoll | DOCUMENTED_ONLY | `BC_EXTENSION_CUSTOMER_ACCEPTANCE_TEST.md`, `MANUAL_GO_LIVE_CHECKLIST.md` und `GL_PILOT_01_SANDBOX_VALIDATION.md` vorhanden | Struktur vorhanden | konsolidiertes signierbares RC-Protokoll | P0 | vorhandene Vorlagen konsolidieren | P0 |
+| Admin-Betriebshandbuch | PARTIAL | `docs/ops/pilot-runbook.md`, `PILOT_GO_LIVE_RUNBOOK.md` und technische Operationsdokumente vorhanden | keine Operatorprobe | konsolidierter 10-Kunden-Betrieb und Vertretung | P0 | vorhandene Inhalte konsolidieren | P0 |
 | Backup/Restore | DOCUMENTED_ONLY | `docs/ops/backup-restore.md` | keine | echter Restore | P0 | testen und Werte eintragen | P0 |
 | Incident/Release/Rollback | PARTIAL | Deployment/Release/Pilot-Runbooks | keine Übung | Drill und letzte Version | P0 | Dry-Run | P0 |
-| bekannte Einschränkungen | MISSING | verteilt in Audits, nicht kundenlesbar | keine | Signoff | P0 Transparenz | kompakte Liste | P0 |
+| bekannte Einschränkungen | DOCUMENTED_ONLY | Einschränkungen in Audit-, Release- und Pilotdokumenten verteilt vorhanden | keine | kompakte kundenlesbare RC-Fassung und Signoff | P0 Transparenz | vorhandene Inhalte konsolidieren | P0 |
 
 ### J. Betrieb, Sicherheit und Support
 
@@ -291,7 +289,7 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 | Deployment | PARTIAL | GitHub Action deployt main/staging via SSH und destruktivem clean auf Server | YAML/Healthpfad | aktuelle Actions-Evidenz, Schutzregeln | P0 | manuelles RC-Gate vor Push | P0 |
 | Rollback | DOCUMENTED_ONLY | Runbooks, kein automatisierter DB/App Rollback | keine | Restore/previous image | P0 | Drill | P0 |
 | Migrationen | IMPLEMENTED_NOT_E2E_VERIFIED | Deploy führt upgrade head aus | Tests/Head PASS | PostgreSQL U/D/U | P0 | Test-DB-Gate | P0 |
-| Releaseartefakt/BC-Download | PARTIAL | getrackte `.app` bis 1.0.2.13; kein 1.0.2.17-Artefakt/Signatur | kein aktueller Compile | reproduzierbares RC-Artefakt/Hash | P0 | CI-Artefakt erzeugen | P0 |
+| Releaseartefakt/BC-Download | PARTIAL | installierte Artefakte `1.0.2.12`/`1.0.2.16` praktisch belegt; kein attestiertes finales RC-Artefakt | kein aktueller finaler RC-Compile | reproduzierbares finales RC-Artefakt/Hash | P0 | CI-Artefakt erzeugen | P0 |
 | Verfügbarkeit/Performance | BLOCKED | Health online; keine SLO-/Lastdaten | keine | 10-Tenant Last/SLA | P0 für zehnten Kunden | Last-/Soaktest | P0 |
 | Dependency Security | BLOCKED | gepinnte Requirements; `pip check` PASS; kein lokaler pip-audit/trivy | Konsistenz PASS | CVE/SBOM/Image Scan | P1 | CI pip-audit + image scan | P1 |
 | Datenschutz/DPA/Retention | PARTIAL | DPA-/Processing-/Retentiondocs | Delete Test | Rechtsfreigabe + technische Retention | P0/P1 | Pilotvereinbarung/manuelle Retention | P0 |
@@ -311,7 +309,7 @@ Die Bereichsangabe jedes Matrixeintrags ist die jeweilige Unterüberschrift A–
 | `docker compose -f docker-compose.p0e.yml config --quiet` mit Audit-Platzhaltern | PASS | Syntax |
 | PROD Compose Config | BLOCKED: `.env.prod` absichtlich nicht lokal vorhanden | externes Gate |
 | Docker Build/Compose Runtime | BLOCKED: Docker Engine nicht aktiv | kein Image-/Postgreslauf |
-| `Test-ALSourceUniqueness.ps1` | FAIL: doppelte Page Extension ID 53199 | Releaseblocker auf staging |
+| `Test-ALSourceUniqueness.ps1` | historischer FAIL-Befund dokumentiert; für finalen RC in diesem Dokumentensprint nicht ausgeführt | P0 offen, bis finaler RC grün |
 | `Test-GL01CDHExceptions.ps1` | PASS: 7 Contracts | AL-Ausnahmen |
 | `Test-GL01FFirstRunUX.ps1` | PASS | Setup/First Run Contracts |
 | `scripts/validate_bc_extension.py` | FAIL: doppelte AL-ID | Releaseblocker |
@@ -332,7 +330,7 @@ Warnungen der Vollsuite: Starlette `TemplateResponse`-Deprecations und python-jo
 
 ### 7. BC-Extension
 
-Codekern und Zugriffsschutz sind stark, aber der ausgecheckte Branch ist nicht baubar und der letzte bekannte echte Monitoringfehler ist nur auf einem offenen Releasezweig korrigiert. Ohne echten BC-27-Compile, Rollen-, Install-, Upgrade-, manuellen Monitoring- und TaskScheduler-Test bleibt die Extension P0-blockiert.
+Codekern und Zugriffsschutz sind stark. Die reale BC-Sandbox-Journey belegt die Grundfunktionen auf `1.0.2.12` und `1.0.2.16`; sie muss nicht vollständig neu erfunden werden. Offen bleiben der grüne Build samt Objekt-ID-Eindeutigkeit und CodeCop/PTECop des finalen RC, ein kompakter RC-Regressionstest, vollständiger Datenerhalt nach Upgrade sowie die Monitoring-Regression einschließlich 24-Stunden-TaskScheduler- und Recovery-Nachweis.
 
 ### 8. Backend/API
 
@@ -348,7 +346,7 @@ Die notwendigen manuellen Pilotoperationen sind vorhanden. HTTP Basic allein ist
 
 ### 11. Reports
 
-HTML/PDF, Tenant-Schutz, TTL, DE/EN und Kennzahlen sind gut getestet. Der getrackte Chromium-Render ist visuell sauber. P1 sind Terminologie, fachliche Golden Results und ein aktueller Container-/RC-Render mit großen Zahlen und vielen Findings.
+HTML/PDF, Tenant-Schutz, TTL, DE/EN und Kennzahlen sind gut getestet. Auf dem `1.0.2.16`-Pilotpfad funktionierten HTML und PDF; das Ergebnis war ein sauberer zweiseitiger A4-Render. P1 bleiben Terminologie, fachliche Golden Results und ein kompakter finaler RC-Render mit großen Zahlen und vielen Findings.
 
 ### 12. Landingpage
 
@@ -364,7 +362,7 @@ Nur Dashboard-/Partner-Einladungen und Admin-Testmails sind als produktive SMTP-
 
 ### 15. Dokumentation
 
-Viele technische Audits existieren, aber der Kunde benötigt wenige konsolidierte, aktuelle Dokumente. Vor Kunde 1: Installation/Upgrade, QuickStart/Registrierung/Free Scan, Monitoring/TaskScheduler, Dashboard/Findings/Report, Rollen, Troubleshooting, Datenschutz/DPA, Support, Abnahmeprotokoll, Known Limitations und Operator-/Backup-/Incident-Runbook.
+Viele deutsche technische, Pilot- und Abnahmedokumente existieren bereits. Das Defizit ist überwiegend Konsolidierung, Versionsaktualität und praktische Operatorabnahme, nicht pauschales Fehlen. Vor Kunde 1 sind die vorhandenen Inhalte zu Installation/Upgrade, QuickStart/Registrierung/Free Scan, Monitoring/TaskScheduler, Dashboard/Findings/Report, Rollen, Troubleshooting, Datenschutz/DPA, Support, Abnahme, Known Limitations und Operator-/Backup-/Incidentbetrieb auf den finalen RC zu bündeln.
 
 ### 16. Operations, Security, Datenschutz
 
@@ -374,8 +372,8 @@ Healthchecks, TLS, Sicherheitsheader und Deployworkflow sind vorhanden. Fehlend 
 
 | Ziel | Readiness | Entscheidung | P0-Blocker | wichtigste P1-Risiken | manuelle Prozesse | realistische Restdauer* |
 | --- | ---: | --- | --- | --- | --- | --- |
-| 1 betreuter Pilotkunde | 68 % | **NO-GO heute** | RC/AL-Gate; echte BC Install/Registration/Free/Assessment/Monitoring/Upgrade Journey; PostgreSQL U/D/U; Restore; Alerting/Support | Copy/Localization, Loginlimit, Golden Results | Admin-Grant, Rechnung, Statusmails, tägliche Kontrolle | 3–5 fokussierte Arbeitstage plus 24h Soak |
-| 10 betreute Pilotkunden | 55 % | **NO-GO** | alle obigen plus 10-Tenant Last/Soak, Monitoringalarm, Operatorcockpit, Backup/Restore/Rollback, Supportkapazität | Admin-Härtung, Retention, Runbooks | tägliches Scan-/Billing-/Backup-Cockpit, wöchentliche Review | 7–10 Arbeitstage plus Pilotstaffelung |
+| 1 betreuter Pilotkunde | 78 % | **NO-GO heute** | finaler RC mit AL-/Objekt-ID-/CodeCop-/PTECop-Gate; kompakte RC-Regression und vollständiger Upgrade-Datenerhalt; Monitoring-Regression/24h-Scheduler; PostgreSQL U/D/U/Konkurrenz; realer Recovery-, Restore- und Alerting-/Incident-Test; minimales Operator-/Pilotpaket | Copy/Localization, Loginlimit, Golden Results | Admin-Grant und Auditlog, manuelle Rechnung, Statusmails, tägliche Kontrolle | 2–4 fokussierte Arbeitstage plus 24h Schedulerfenster |
+| 10 betreute Pilotkunden | 63 % | **NO-GO** | alle obigen plus 10-Tenant Last-/Soaktest, Operatorcockpit, Backup-/Rollbackbetrieb und Supportkapazität | Admin-Härtung, Retention, Runbookkonsolidierung | tägliches Scan-/Billing-/Backup-Cockpit, wöchentliche Review | 5–8 Arbeitstage plus Pilotstaffelung |
 | erster regulär zahlender Kunde | 43 % | **NO-GO** | Stripe Live/Tax/Invoice/E2E oder rechtskonforme manuelle Bestellung; Rechtsseiten/Vertrag; Zahlungsfehler/Kündigung/Refundprozess | E-Mail-Automation, Passwortreset, SLA | nur mit individuell unterschriebenem B2B-Vertrag und manueller Rechnung vertretbar | 2–4 Wochen |
 | Public Go-Live | 28 % | **NO-GO** | Self-Service, Rechts-/Cookiefreigabe, Security/Load/DR, automatisierte Kommunikation, öffentliche Supportfähigkeit | SEO/A11y, Reconciliation, Content | manuelle Prozesse skalieren nicht | 4–8 Wochen |
 | AppSource | 18 % | **NO-GO** | AppSourceCop/Metadaten/ID-Range/Signierung, vollständige BC Runtime-/Upgrade-/Permission-Evidence, Listing/Support | Telemetrie/Localization/Marketplace Docs | nicht sinnvoll manuell ersetzbar | 6–12+ Wochen |
@@ -386,16 +384,17 @@ Healthchecks, TLS, Sicherheitsheader und Deployworkflow sind vorhanden. Fehlend 
 
 ### P0 – vor erstem bzw. zehntem Pilotkunden
 
-1. RC auf Basis `023f3a6` festlegen, offene Branches integrieren/abgrenzen, SHA/Artefakt/Hash einfrieren.
-2. AL Source-Uniqueness, Compile, CodeCop und PTECop grün; keine neuen Analyzerwarnungen.
-3. Echte BC-27-Sandbox-Journey: Install, Registrierung, Free, manuelle Freischaltung/Assessment, Scan, Findings, Dashboard, HTML/PDF, Monitoring manuell/geplant, Fehler/Recovery, Upgrade.
-4. Reale PostgreSQL-Konkurrenztests und Alembic Upgrade/Downgrade/Upgrade auf isolierter Test-DB.
-5. Backup erstellen und in isolierter Umgebung erfolgreich restaurieren; RPO/RTO und Verantwortliche festhalten.
-6. Externes Health-/Readiness-/Scanfehler-Alerting und täglicher Betreibercheck.
-7. Adminbereich netzwerkseitig härten; Support-/Incident-/Rollback-Prozess testen.
-8. Kundenfertige Minimaldokumente und Pilotabnahmeprotokoll.
-9. Datenschutz-/DPA-/Pilotvereinbarung und Retentionprozess vor echten Kundendaten.
-10. Vor Kunde 10: 10-Tenant Last-/Soaktest und 24h TaskScheduler-Nachweis.
+1. Finalen RC mit SHA, Extension-Version, Artefakt und Hash einfrieren.
+2. Finalen RC mit eindeutigen AL-Objekt-IDs grün bauen; Source-Uniqueness, CodeCop und PTECop ohne neue Releasebefunde.
+3. Kompakte BC-Sandbox-Regression auf dem finalen RC: Installation/Setup/Registrierung/Duplicate-Schutz/Free/History/Findings/Dashboard/HTML/PDF sowie Assessment/Validation stichprobenartig wiederholen; die bestandenen `1.0.2.12`-/`1.0.2.16`-Nachweise bleiben Baseline.
+4. Upgrade auf den finalen RC mit Datenerhalt, Setup/Token/Rechten, Historie, erneutem Scan, Monitoring und Background Scan vollständig belegen.
+5. Monitoring-Regression schließen und manuellen sowie geplanten Lauf einschließlich Historie und 24-Stunden-Schedulerfenster auf dem finalen RC nachweisen.
+6. Echten BC-Recoverytest durchführen; kein orphaned Run und kein Doppelcredit.
+7. Reale PostgreSQL-Konkurrenztests und Alembic Upgrade/Downgrade/Upgrade auf isolierter Test-DB.
+8. Backup/Restore, externes Alerting und Incident-/Rollback-Probe erfolgreich ausführen; Adminzugang und tägliche Betreiberchecks absichern.
+9. Vor Kunde 1: vorhandene Operator-/Pilot-/Abnahme-/Datenschutzunterlagen auf den finalen RC konsolidieren und praktisch abnehmen. Vor Kunde 10 zusätzlich 10-Tenant-Last-/Soaktest und belastbaren Operatorbetrieb nachweisen.
+
+Stripe Live, Refund und Chargeback gehören **nicht** zu diesen P0-Punkten für den ersten betreuten Pilotkunden. Zulässige Übergangslösung sind protokollierte Adminfreischaltung, Auditlog, externe manuelle Rechnung und tägliche Reconciliation.
 
 ### P1 – im Onboarding bzw. vor mehreren aktiven Kunden
 
@@ -423,17 +422,17 @@ Healthchecks, TLS, Sicherheitsheader und Deployworkflow sind vorhanden. Fehlend 
 
 | ID | Voraussetzungen/Testdaten | Schritte | Erwartetes Ergebnis | PASS/FAIL | Beweis |
 | --- | --- | --- | --- | --- | --- |
-| M01 RC/CI | PR #20, Actionszugriff | PR-Head prüfen; AL, CodeCop, PTECop, Backend, PostgreSQL Gates ausführen; Logs archivieren | alle Pflichtjobs grün, SHA identisch | ☐ | Actions-URLs + Artefakthash |
-| M02 Install | leere BC-27-Sandbox, Testcompany | RC-App installieren; Rollen zuweisen; Setup öffnen | keine Fehler, Setup einmalig vorhanden | ☐ | Screenshots + BC Version/App Version |
-| M03 Registrierung/Free | neue Tenant/Environment/Company-ID, Pilotmail | registrieren; Responseverlust einmal simulieren; erneut registrieren; Free Scan starten | ein Tenant/ein User/ein Scan; Token nicht sichtbar; Ergebnis/Historie vorhanden | ☐ | Screenshots + redigierte Request IDs/DB-Zählung |
+| M01 RC/CI | finaler RC-SHA, Actionszugriff | AL, Objekt-ID-Eindeutigkeit, CodeCop, PTECop, Backend und PostgreSQL-Gates ausführen; Logs archivieren | alle Pflichtjobs grün, SHA und Extension-Version identisch | ☐ | Actions-URLs + Artefakthash |
+| M02 Install | reale BC-Sandbox; Baseline `1.0.2.12` PASS | finalen RC kompakt installieren; Rollen/Setup stichprobenartig prüfen | keine Fehler, Setup vorhanden; Baseline bleibt erhalten | ☐ | Screenshots + BC-/Extension-Version |
+| M03 Registrierung/Free | Baseline `1.0.2.12`/`1.0.2.16` PASS | auf finalem RC Registrierung/Duplicate-Schutz/Free/History/Findings/Dashboard/HTML/PDF kompakt regressieren | genau ein Tenant/Membership; ein abgeschlossener Scan; Ausgaben erreichbar | ☐ | Screenshots + redigierte Request IDs/DB-Zählung |
 | M04 Isolation | zwei Tenants, zwei Companies, zwei User | Tokens/URLs/Sessionkontext kreuzweise verwenden | jeder Fremdzugriff 401/403, keine Datenanzeige | ☐ | Screenshots + Logs ohne Secrets |
-| M05 Assessment manuell | Adminzugriff, Free-Ergebnis | Assessment grant; BC Snapshot refresh; Dashboard/Findings/Report öffnen; Ablauf simulieren | Rechte sofort aktiv; nach Ablauf nur erlaubte Free-Sicht | ☐ | Adminaudit + BC/Dashboard Screenshots |
-| M06 Validation | 1 Credit, bereinigte Testdaten | Validation starten, Retry mit gleicher ID, zweiten konkurrierenden Start versuchen | genau ein Credit/Scan; Vergleich aktualisiert | ☐ | Ledger/Run/History-Screenshots |
-| M07 Monitoring manuell | App 1.0.2.17, Monitoring aktiv | „Start Monitoring Scan“; Client weiter bedienen; Historie beobachten | sofortige Rückkehr; Run queued→running→completed; Historie vorhanden | ☐ | Zeitstempelvideo/Screenshots + Request ID |
+| M05 Assessment manuell | `1.0.2.16` Baseline PASS | Grant, Zugriffslaufzeit, Findings und Report auf finalem RC stichprobenartig wiederholen; Ablauf prüfen | Rechte sofort aktiv; nach Ablauf nur erlaubte Free-Sicht | ☐ | Adminaudit + BC/Dashboard Screenshots |
+| M06 Validation | `1.0.2.16` Baseline PASS, 1 Credit | Validation auf finalem RC starten; Retry und konkurrierenden Start prüfen | genau ein Credit/Scan; Findings/History/Report aktualisiert | ☐ | Ledger/Run/History-Screenshots |
+| M07 Monitoring manuell | finaler RC, Monitoring aktiv; `1.0.2.16` nur PARTIAL | „Start Monitoring Scan“; Client weiter bedienen; Historie ohne manuellen Refresh beobachten | sofortige Rückkehr; Run queued→running→completed; Historie selbstständig aktuell | ☐ | Zeitstempelvideo/Screenshots + Request ID |
 | M08 Monitoring geplant | TaskSchedulerrechte, kurzer Testzeitpunkt | täglichen Task planen; Benutzer abmelden; Ausführung abwarten | Task läuft ohne Session; nächster Termin/Status korrekt | ☐ | Task-/History-/Backendlogs |
 | M09 Fehler/Recovery | aktiver Scan | BC-Session oder Backendworker kontrolliert stoppen; Lease ablaufen/retry; wiederherstellen | kein ewiges Running; gleicher Run kontrolliert recovered/failed; kein Doppelcredit | ☐ | Eventfolge + Ledger |
-| M10 Reports | DE/EN, Sonderzeichen, große Werte/viele Findings | HTML/PDF aus BC und Dashboard öffnen; drucken | 2 bzw. erwartete Seiten, keine Überläufe, Footer/Seitenzahlen, Daten identisch | ☐ | PDFs + Screenshots |
-| M11 Upgrade | installierte 1.0.2.7/10/11/13 Teststände | je Version Daten/Setup/Token/History anlegen; Upgrade auf RC; erneut scannen | Daten und Zugriff kompatibel, keine Objekt-/Schemafehler | ☐ | Upgradeprotokoll + Vor/Nach-Zählungen |
+| M10 Reports | `1.0.2.16`-Baseline: sauberes zweiseitiges A4-PDF | finalen RC mit DE/EN, Sonderzeichen, großen Werten/vielen Findings kompakt rendern | erwartete Seiten, keine Überläufe, Footer/Seitenzahlen, Daten identisch | ☐ | PDFs + Screenshots |
+| M11 Upgrade | installierte `1.0.2.12` mit Setup/Token/History/Rechten; Upgrade auf `1.0.2.16` bereits grundsätzlich PASS | Upgrade auf finalen RC; Datenerhalt zählen; manuellen und Background Scan ausführen | Setup/Token/History/Rechte erhalten; Monitoring und neuer Scan funktionieren | ☐ | Upgradeprotokoll + Vor/Nach-Zählungen |
 | M12 PostgreSQL | isolierte PostgreSQL-Test-DB | Migration head; P0E-Tests; downgrade auf letzten sicheren Schritt; wieder head | alle Tests grün, Datenzählungen stabil | ☐ | Logs/JUnit/Schema-Version |
 | M13 Backup/Restore | Stage-DB + Objectstorageziel | Backup; Prüfsumme; isolierte DB restaurieren; Ready + Stichproben | Restore verwendbar innerhalb RTO; keine PROD-Veränderung | ☐ | Backup-ID/Hash/Restorelog/RTO |
 | M14 Betrieb | externer Monitor/Alarmkanal | Backend/DB testweise in Stage stören; Alarm empfangen; Incident/Recovery ausführen | Alarm innerhalb Zielzeit, Runbook funktioniert | ☐ | Alarm + Incidenttimeline |
@@ -454,11 +453,11 @@ Ausgeschlossen: öffentlicher Self-Service, AppSource, automatische Refunds/Char
 
 ## 25. Bekannte Einschränkungen
 
-- aktueller `staging`-Commit scheitert am AL-Objekt-ID-Gate;
-- bester Fixstand ist ein offener PR, kein attestierter Release;
-- echte BC-, PostgreSQL-, Stripe-, SMTP-, Restore- und Last-Evidence fehlt;
+- der finale RC ist noch nicht mit grünem AL-Build, Objekt-ID-Eindeutigkeit, CodeCop/PTECop und Artefakthash attestiert;
+- reale BC-Evidence liegt für `1.0.2.12` und `1.0.2.16` vor, gilt aber nicht automatisch für den finalen RC;
+- PostgreSQL-, SMTP-, Restore-, Alerting-/Incident- und Last-/Soak-Evidence fehlt;
 - parallele Produkt-/Landingmodelle und Legacybegriffe bestehen;
-- Monitoring-Hotfix ist real noch nicht verifiziert;
+- Monitoring ist widersprüchlich belegt: früher geplanter Lauf erfolgreich, auf `1.0.2.16` später mögliche Regression; 24h-RC-Nachweis fehlt;
 - Dashboard-Passwortreset, umfangreiche Benutzerselbstverwaltung und automatische Statusmails fehlen;
 - Operations/Alerting/DR sind nicht ausreichend belegt;
 - öffentliche Rechts-/Contentseiten benötigen Freigabe und Bereinigung.
