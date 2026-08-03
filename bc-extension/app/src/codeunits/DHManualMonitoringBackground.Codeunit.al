@@ -1,4 +1,4 @@
-codeunit 53201 "DH Manual Monitoring Background"
+codeunit 53201 "DH Manual Monitoring BG"
 {
     TableNo = "DH Setup";
 
