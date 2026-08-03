@@ -4,7 +4,7 @@
   "publisher": "BCSentinel Analytics - Daniel Wauer",
   "version": "1.0.2.13",
   "brief": "Monitor and improve data quality in Microsoft Dynamics 365 Business Central.",
-  "description": "BCSentinel evaluates your Business Central data, generates a Data Health Score, and detects critical data quality issues - helping you ensure reliable data, optimize processes, and make better business decisions.",
+  "description": "BCSentinel evaluates your Business Central data, generates a Data Health Score, and detects critical data quality issues - helping you ensure reliable data, optimize processes, and make better decisions with continuous monitoring.",
   "url": "https://bcsentinel.com",
   "privacyStatement": "https://bcsentinel.com/privacy.html",
   "help": "https://bcsentinel.com",
