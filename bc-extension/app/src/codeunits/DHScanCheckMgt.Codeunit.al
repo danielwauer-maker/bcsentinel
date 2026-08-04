@@ -345,9 +345,7 @@ codeunit 53196 "DH Scan Check Mgt."
         if not Setup."Monitoring Active" then
             exit(true);
 
-        EnsureDefaultChecks();
         if not ScanCheck.Get(CheckCode) then begin
-            AddCheck(CheckCode, 'CUSTOM', '', 999000);
             exit(true);
         end;
 
