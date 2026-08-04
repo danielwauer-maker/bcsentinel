@@ -41,12 +41,17 @@ jobs:
             --fail-on-p0
       - name: Publish summary
         if: always()
-        run: cat build/p0-06/operator-alerts.md >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          if [ -f build/p0-06/operator-alerts.md ]; then
+            cat build/p0-06/operator-alerts.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "P0-06 evidence was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload P0-06 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: p0-06-operator-alerting-evidence
           path: build/p0-06/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
