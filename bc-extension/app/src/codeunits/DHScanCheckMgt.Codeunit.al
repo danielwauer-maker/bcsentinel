@@ -345,11 +345,8 @@ codeunit 53196 "DH Scan Check Mgt."
         if not Setup."Monitoring Active" then
             exit(true);
 
-        EnsureDefaultChecks();
-        if not ScanCheck.Get(CheckCode) then begin
-            AddCheck(CheckCode, 'CUSTOM', '', 999000);
+        if not ScanCheck.Get(CheckCode) then
             exit(true);
-        end;
 
         exit(ScanCheck.Enabled);
     end;
@@ -466,11 +463,25 @@ codeunit 53196 "DH Scan Check Mgt."
     local procedure AddCheck(CheckCode: Code[50]; ModuleName: Text[100]; RiskLevel: Code[20]; SortOrder: Integer)
     var
         ScanCheck: Record "DH Scan Check Selection";
+        ExpectedName: Text[150];
+        ExpectedDescription: Text[250];
     begin
+        ExpectedName := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Name));
+        ExpectedDescription := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Description));
+
         if ScanCheck.Get(CheckCode) then begin
+            if (ScanCheck."Module" = ModuleName) and
+               (ScanCheck.Name = ExpectedName) and
+               (ScanCheck.Description = ExpectedDescription) and
+               ScanCheck."Default Enabled" and
+               (ScanCheck."Risk Level" = RiskLevel) and
+               (ScanCheck."Sort Order" = SortOrder)
+            then
+                exit;
+
             ScanCheck."Module" := ModuleName;
-            ScanCheck.Name := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Name));
-            ScanCheck.Description := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Description));
+            ScanCheck.Name := ExpectedName;
+            ScanCheck.Description := ExpectedDescription;
             ScanCheck."Default Enabled" := true;
             ScanCheck."Risk Level" := RiskLevel;
             ScanCheck."Sort Order" := SortOrder;
@@ -481,8 +492,8 @@ codeunit 53196 "DH Scan Check Mgt."
         ScanCheck.Init();
         ScanCheck."Check Code" := CheckCode;
         ScanCheck."Module" := ModuleName;
-        ScanCheck.Name := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Name));
-        ScanCheck.Description := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Description));
+        ScanCheck.Name := ExpectedName;
+        ScanCheck.Description := ExpectedDescription;
         ScanCheck.Enabled := true;
         ScanCheck."Default Enabled" := true;
         ScanCheck."Risk Level" := RiskLevel;
