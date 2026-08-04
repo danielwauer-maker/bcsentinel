@@ -63,6 +63,8 @@ P0-08 schützt die bestehende Dashboard-Anmeldung, Einladungsaktivierung und SMT
 - Digest: `sha256:2382d89c20358610b44ca90b8440282cbee560eaabb72636932b6669781957db`
 - Aufbewahrung bis: `2026-09-03`
 
+Der parallele Pilot-E2E-Lauf scheiterte unabhängig davon erneut am bereits bekannten flakigen SQLite-Paralleltest `test_parallel_identical_requests_create_one_scan_and_ledger` mit einem einzelnen HTTP-409 bei vier identischen gleichzeitigen Requests. Alle 408 übrigen Backendtests sowie das echte PostgreSQL-Konkurrenz-/Transaktionsgate waren erfolgreich. Der fehlgeschlagene Workflowlauf wurde erneut angestoßen.
+
 ## 7. Auditstatus
 
 **Aktueller Status:** `VERIFIED_IN_CI / PASS`
