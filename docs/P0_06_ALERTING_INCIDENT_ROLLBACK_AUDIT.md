@@ -79,7 +79,7 @@ Jeder Alert enthält einen stabilen Code und eine Runbook-ID, unter anderem:
 - `RB-TLS-01`
 - `RB-CONTAINER-01`
 
-## 6. Evidenz
+## 6. CI-Evidenz
 
 Der Workflow erzeugt:
 
@@ -90,11 +90,29 @@ Der Workflow erzeugt:
 - Alertcodes, Detailtexte und Runbook-Referenzen
 - 30 Tage aufbewahrtes GitHub-Artefakt
 
+Verifizierter Lauf:
+
+- Workflow: `P0-06 Operator Alerting`
+- Run: `#4`
+- Run-ID: `30958166322`
+- Ergebnis: `success`
+- Head-SHA: `0f971f23d6b7300722571d9cbca075f8e9d9cddf`
+- Evidenzartefakt: `p0-06-operator-alerting-evidence`
+- Artefakt-ID: `8911876261`
+- Digest: `sha256:2665e9e19177e6223588bd2ff1e796f45e9dccfc73c61ee1e156e6a83ce18c4a`
+- Aufbewahrung bis: `2026-09-03`
+
+Zusätzlich erfolgreich auf demselben Head:
+
+- `PILOT-E2E-01A Automated Readiness #55`
+- `P0-04 PostgreSQL Migration Cycle #16`
+- `P0-05 PostgreSQL Backup Restore #11`
+
 ## 7. Auditstatus
 
-**Aktueller Status:** `IMPLEMENTED_NOT_YET_CI_VERIFIED`
+**Aktueller Status:** `VERIFIED_IN_CI / PASS`
 
-Nach grünem Workflow kann die technische Schwellenwert- und Klassifizierungslogik auf `VERIFIED_IN_CI / PASS` gesetzt werden.
+Die Schwellenwert-, Klassifizierungs- und Runbook-Zuordnungslogik ist auf dem aktuellen PR-Head erfolgreich getestet. Der zuvor fehlerhafte dynamische Testimport wurde korrigiert; die vollständige Backend-Regression und das Pilot-E2E-Gate sind anschließend ebenfalls erfolgreich durchgelaufen.
 
 ## 8. Noch offenes reales Betriebs-Gate
 
@@ -110,4 +128,4 @@ Die CI-Prüfung ersetzt nicht den produktiven Alarmweg. Vor Kunde 1 müssen noch
 
 ## 9. Bewertung
 
-Die Repository-Seite von P0-06 ist damit strukturiert umgesetzt. Für das vollständige Gate G6 bleiben reale Alarmzustellung, Incident-Drill und Rollback-Nachweis offen.
+Die Repository- und CI-Seite von P0-06 ist abgeschlossen. Für das vollständige betriebliche Gate G6 bleiben reale Alarmzustellung, Incident-Drill und Rollback-Nachweis offen.
