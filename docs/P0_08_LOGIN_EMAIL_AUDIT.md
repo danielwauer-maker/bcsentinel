@@ -41,23 +41,35 @@ P0-08 schützt die bestehende Dashboard-Anmeldung, Einladungsaktivierung und SMT
 
 ## 5. Akzeptanzkriterien
 
-| ID | Kriterium | Status vor Workflowlauf |
+| ID | Kriterium | Status |
 | --- | --- | --- |
-| 08.1 | Login-/Logout-/Invite-Routen vorhanden | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.2 | generische Loginfehler verhindern Benutzerermittlung | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.3 | starke Kennwort- und Tokenregeln | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.4 | Token wird nach Aktivierung ungültig | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.5 | SMTP TLS/Auth/Timeout/Fehlerstatus | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.6 | DE/EN-Vorlagen und öffentliche Dashboard-URL | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 08.7 | JUnit-, Log- und Markdown-Evidenz | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
+| 08.1 | Login-/Logout-/Invite-Routen vorhanden | PASS |
+| 08.2 | generische Loginfehler verhindern Benutzerermittlung | PASS |
+| 08.3 | starke Kennwort- und Tokenregeln | PASS |
+| 08.4 | Token wird nach Aktivierung ungültig | PASS |
+| 08.5 | SMTP TLS/Auth/Timeout/Fehlerstatus | PASS |
+| 08.6 | DE/EN-Vorlagen und öffentliche Dashboard-URL | PASS |
+| 08.7 | JUnit-, Log- und Markdown-Evidenz | PASS |
 
-## 6. Auditstatus
+## 6. CI-Evidenz
 
-**Aktueller Status:** `IMPLEMENTED_NOT_YET_CI_VERIFIED`
+- Workflow: `P0-08 Login Email Contract`
+- Run: `#2`
+- Run-ID: `30959466337`
+- Ergebnis: `success`
+- Head-SHA: `c221b29ffb3a86e847397a9e4f0ca879199648e3`
+- Evidenzartefakt: `p0-08-login-email-evidence`
+- Artefakt-ID: `8912357582`
+- Digest: `sha256:2382d89c20358610b44ca90b8440282cbee560eaabb72636932b6669781957db`
+- Aufbewahrung bis: `2026-09-03`
 
-Nach grünem Workflow kann die technische Login-/Invite-/SMTP-Vertragsprüfung auf `VERIFIED_IN_CI / PASS` gesetzt werden.
+## 7. Auditstatus
 
-## 7. Bewusst noch offene Punkte
+**Aktueller Status:** `VERIFIED_IN_CI / PASS`
+
+Die technische Login-, Invite- und SMTP-Vertragsprüfung ist auf dem aktuellen PR-Head erfolgreich durchgelaufen.
+
+## 8. Bewusst noch offene Punkte
 
 Der aktuelle Sprint belegt den vorhandenen Einladungs- und Loginpfad, ersetzt aber nicht folgende noch nötige Funktionen und Realtests:
 
@@ -70,6 +82,6 @@ Der aktuelle Sprint belegt den vorhandenen Einladungs- und Loginpfad, ersetzt ab
 7. Betreiberwarnung bei wiederholten Versandfehlern,
 8. vollständige Einladung, Aktivierung, Logout und erneute Anmeldung in der Pilotumgebung.
 
-## 8. Bewertung
+## 9. Bewertung
 
-P0-08 schafft einen reproduzierbaren Mindestnachweis für den bereits vorhandenen Login- und Einladungsversand. Für einen professionellen Betrieb mit zehn Pilotkunden bleiben Passwortreset, Login-Throttling, SMTP-Retry und reale Zustellbarkeit weiterhin priorisierte Folgearbeiten.
+P0-08 ist auf Repository- und CI-Ebene abgeschlossen. Für einen professionellen Betrieb mit zehn Pilotkunden bleiben Passwortreset, Login-Throttling, SMTP-Retry und reale Zustellbarkeit priorisierte Folgearbeiten.
