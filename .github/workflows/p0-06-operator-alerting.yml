@@ -1,0 +1,57 @@
+name: P0-06 Operator Alerting
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "backend/scripts/evaluate_operator_alerts.py"
+      - "backend/tests/test_p0_06_operator_alerts.py"
+      - "quality/p0-06/**"
+      - ".github/workflows/p0-06-operator-alerting.yml"
+      - "docs/P0_06_ALERTING_INCIDENT_ROLLBACK_AUDIT.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  operator-alerting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Run alert threshold tests
+        working-directory: backend
+        run: python -m pytest -q --tb=short tests/test_p0_06_operator_alerts.py
+      - name: Evaluate healthy operator snapshot
+        run: |
+          python backend/scripts/evaluate_operator_alerts.py \
+            --snapshot quality/p0-06/healthy-snapshot.json \
+            --json-out build/p0-06/operator-alerts.json \
+            --markdown-out build/p0-06/operator-alerts.md \
+            --fail-on-p0
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f build/p0-06/operator-alerts.md ]; then
+            cat build/p0-06/operator-alerts.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "P0-06 evidence was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload P0-06 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-06-operator-alerting-evidence
+          path: build/p0-06/
+          if-no-files-found: warn
+          retention-days: 30

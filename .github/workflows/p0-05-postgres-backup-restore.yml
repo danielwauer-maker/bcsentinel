@@ -1,0 +1,117 @@
+name: P0-05 PostgreSQL Backup Restore
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "backend/alembic/**"
+      - "backend/alembic.ini"
+      - "backend/app/models.py"
+      - "backend/scripts/verify_postgres_backup_restore.py"
+      - "backend/tests/test_p0_05_backup_restore_contract.py"
+      - ".github/workflows/p0-05-postgres-backup-restore.yml"
+      - "docs/P0_05_POSTGRES_BACKUP_RESTORE_AUDIT.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup-restore:
+    name: Backup and isolated restore on PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: bcsentinel_test_password
+          POSTGRES_DB: bcsentinel_p0_05_source_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_p0_05_source_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_source_test
+      BCSENTINEL_P0_05_SOURCE_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_source_test
+      BCSENTINEL_P0_05_RESTORE_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_restore_test
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Validate P0-05 contract
+        working-directory: backend
+        run: python -m pytest -q --tb=short --noconftest tests/test_p0_05_backup_restore_contract.py
+      - name: Create isolated restore database
+        env:
+          PGPASSWORD: bcsentinel_test_password
+        run: createdb -h localhost -U bcsentinel_test bcsentinel_p0_05_restore_test
+      - name: Upgrade source database to Alembic head
+        working-directory: backend
+        run: alembic upgrade head
+      - name: Seed representative restore fixture
+        working-directory: backend
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          from sqlalchemy import create_engine
+          from sqlalchemy.orm import Session
+          from app.models import Tenant
+          from app.core.settings import settings
+
+          engine = create_engine(settings.DATABASE_URL)
+          with Session(engine) as session:
+              session.add(Tenant(
+                  tenant_id="ten_p0_05_restore_fixture",
+                  environment_name="P0-05",
+                  app_version="1.0.2.20",
+                  created_at_utc=datetime.now(timezone.utc),
+                  preferred_language="de",
+                  current_plan="monitoring",
+                  license_status="active",
+              ))
+              session.commit()
+          engine.dispose()
+          PY
+      - name: Run backup and isolated restore verification
+        working-directory: backend
+        run: |
+          python scripts/verify_postgres_backup_restore.py \
+            --json-out ../build/p0-05/backup-restore.json \
+            --markdown-out ../build/p0-05/backup-restore.md
+      - name: Run restored database PostgreSQL smoke
+        working-directory: backend
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_restore_test
+        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f build/p0-05/backup-restore.md ]; then
+            cat build/p0-05/backup-restore.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload P0-05 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-05-postgres-backup-restore-evidence
+          path: build/p0-05/
+          if-no-files-found: error
+          retention-days: 30

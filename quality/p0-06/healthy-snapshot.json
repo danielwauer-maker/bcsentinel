@@ -1,0 +1,15 @@
+{
+  "api_ready": true,
+  "database_ready": true,
+  "worker_ready": true,
+  "scheduler_ready": true,
+  "failed_scans_15m": 0,
+  "stuck_scans": 0,
+  "recovery_failures_1h": 0,
+  "oldest_queue_age_seconds": 0,
+  "disk_used_percent": 50,
+  "backup_age_hours": 2,
+  "smtp_failures_1h": 0,
+  "certificate_days_remaining": 90,
+  "container_restarts_1h": 0
+}

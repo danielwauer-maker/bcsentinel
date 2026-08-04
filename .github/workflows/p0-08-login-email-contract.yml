@@ -1,0 +1,71 @@
+name: P0-08 Login Email Contract
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "backend/app/routers/dashboard.py"
+      - "backend/app/services/dashboard_invite_service.py"
+      - "backend/app/services/email_template_service.py"
+      - "backend/tests/test_p0_08_login_email_contract.py"
+      - ".github/workflows/p0-08-login-email-contract.yml"
+      - "docs/P0_08_LOGIN_EMAIL_AUDIT.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  login-email-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/p0-08-login-email.sqlite3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Run P0-08 login and email contract tests
+        working-directory: backend
+        run: |
+          mkdir -p ../build/p0-08
+          python -m pytest -q --tb=short \
+            --junitxml=../build/p0-08/p0-08-junit.xml \
+            tests/test_p0_08_login_email_contract.py \
+            | tee ../build/p0-08/p0-08-pytest.log
+      - name: Generate evidence summary
+        if: always()
+        run: |
+          mkdir -p build/p0-08
+          {
+            echo "# P0-08 Login and Email Contract"
+            echo
+            echo "- Workflow: P0-08 Login Email Contract"
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Result: ${{ job.status }}"
+            echo "- Login: generic failure, strong invite password, token invalidation"
+            echo "- Invite: random hashed seven-day token and persisted mail status"
+            echo "- SMTP: TLS, authentication, timeout, delivery and failure contract"
+            echo "- Templates: DE/EN invite templates and public dashboard URL"
+          } > build/p0-08/p0-08-evidence.md
+          cat build/p0-08/p0-08-evidence.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload P0-08 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-08-login-email-evidence
+          path: build/p0-08/
+          if-no-files-found: error
+          retention-days: 30
