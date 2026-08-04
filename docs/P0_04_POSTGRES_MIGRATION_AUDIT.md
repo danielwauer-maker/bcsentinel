@@ -49,16 +49,27 @@ Der CI-Workflow verwendet ausschließlich die temporäre Datenbank `bcsentinel_p
 
 ## 5. Akzeptanzkriterien
 
-| ID | Kriterium | Status vor Workflowlauf |
+| ID | Kriterium | Status |
 | --- | --- | --- |
-| 04.1 | Reproduzierbare PostgreSQL-Testdatenbank ohne Produktivdaten | IMPLEMENTIERT |
-| 04.2 | Upgrade auf aktuellen Alembic-Head | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 04.3 | Downgrade auf direkten freigegebenen Rücksprungpunkt | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 04.4 | Erneutes Upgrade ohne Schema-Drift | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 04.5 | Datenerhalt plus PostgreSQL-Konkurrenz-/Transaktionssmoke | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 04.6 | Migrationsreport mit Revisionen, Hashes und Laufzeit | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
+| 04.1 | Reproduzierbare PostgreSQL-Testdatenbank ohne Produktivdaten | PASS |
+| 04.2 | Upgrade auf aktuellen Alembic-Head | PASS |
+| 04.3 | Downgrade auf direkten freigegebenen Rücksprungpunkt | PASS |
+| 04.4 | Erneutes Upgrade ohne Schema-Drift | PASS |
+| 04.5 | Datenerhalt plus PostgreSQL-Konkurrenz-/Transaktionssmoke | PASS |
+| 04.6 | Migrationsreport mit Revisionen, Hashes und Laufzeit | PASS |
 
-## 6. Evidenzfelder
+## 6. Evidenz
+
+- Workflow: `P0-04 PostgreSQL Migration Cycle`
+- Run: `#3`
+- Run-ID: `30956859723`
+- Ergebnis: `success`
+- Commit: `36f8d29ad659ca6d9671e610bac3bfa87a72f2c2`
+- Evidenzartefakt: `p0-04-postgres-migration-evidence`
+- Artefakt-ID: `8911382870`
+- Artefakt-Digest: `sha256:e25e05e1c4c4d383aff5d92e0aa772c34d2aab42ed6da544a9e0df4d44d97b2d`
+- Aufbewahrung bis: `2026-09-03`
+- Begleitender PILOT-E2E-Run: `#42`, Ergebnis `success`
 
 Der Report enthält mindestens:
 
@@ -75,13 +86,13 @@ Der Report enthält mindestens:
 
 ## 7. Auditbewertung
 
-**Aktueller Status:** `IMPLEMENTED_NOT_YET_CI_VERIFIED`
+**Aktueller Status:** `VERIFIED / PASS`
 
-Die technische Umsetzung von P0-04 ist vollständig im Repository vorhanden. Das Gate darf erst auf `VERIFIED / PASS` gesetzt werden, wenn der neue Workflow auf dem Pull Request erfolgreich durchgelaufen ist und das Evidenzartefakt geprüft wurde.
+Die technische Umsetzung von P0-04 ist vollständig im Repository vorhanden und wurde erfolgreich gegen einen echten PostgreSQL-16-Service ausgeführt. Upgrade, Downgrade, erneutes Upgrade, Schema-Drift-Prüfung, Sentinel-Datenerhalt sowie die vorhandenen PostgreSQL-Konkurrenz-/Transaktionstests waren erfolgreich.
 
 ## 8. Auswirkung auf die Go-Live-Readiness
 
-Bei grünem Workflow wird der bisher offene Punkt „PostgreSQL Migration Upgrade/Downgrade/Upgrade“ geschlossen. Das verbessert insbesondere:
+Der bisher offene Punkt „PostgreSQL Migration Upgrade/Downgrade/Upgrade“ ist geschlossen. Das verbessert insbesondere:
 
 - Datenbank- und Deployment-Sicherheit,
 - Rollback-Fähigkeit,
