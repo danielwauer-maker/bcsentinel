@@ -48,23 +48,42 @@ Der Test deckt mindestens folgende Verträge ab:
 
 ## 5. Akzeptanzkriterien
 
-| ID | Kriterium | Status vor Workflowlauf |
+| ID | Kriterium | Status |
 | --- | --- | --- |
-| 07.1 | Dashboard-Kernrouten vollständig vorhanden | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.2 | Dashboard-Session an Benutzer, Membership und Tenant gebunden | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.3 | Cookie-Härtung und Dashboard-Template geprüft | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.4 | JSON-, HTML- und PDF-Reportverträge vorhanden | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.5 | Share-Token gegen Scan-/Typwechsel geschützt | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.6 | Report-Capability und PDF-Antwortvertrag geprüft | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
-| 07.7 | JUnit-, Log- und Markdown-Evidenz erzeugt | IMPLEMENTIERT, CI-NACHWEIS AUSSTEHEND |
+| 07.1 | Dashboard-Kernrouten vollständig vorhanden | PASS |
+| 07.2 | Dashboard-Session an Benutzer, Membership und Tenant gebunden | PASS |
+| 07.3 | Cookie-Härtung und Dashboard-Template geprüft | PASS |
+| 07.4 | JSON-, HTML- und PDF-Reportverträge vorhanden | PASS |
+| 07.5 | Share-Token gegen Scan-/Typwechsel geschützt | PASS |
+| 07.6 | Report-Capability und PDF-Antwortvertrag geprüft | PASS |
+| 07.7 | JUnit-, Log- und Markdown-Evidenz erzeugt | PASS |
 
-## 6. Auditstatus
+## 6. CI-Evidenz
 
-**Aktueller Status:** `IMPLEMENTED_NOT_YET_CI_VERIFIED`
+- Workflow: `P0-07 Dashboard Report Contract`
+- Run: `#2`
+- Run-ID: `30958804497`
+- Ergebnis: `success`
+- Head-SHA: `a3cf83be8a047e20f8e409513acc61f0cda3445e`
+- Evidenzartefakt: `p0-07-dashboard-report-evidence`
+- Artefakt-ID: `8912114323`
+- Digest: `sha256:61a3fd868d2248403e9b19d3e5e2a69f1f0d65a89cb823cb982a6163191ce94e`
+- Aufbewahrung bis: `2026-09-03`
 
-Nach grünem Workflow kann die technische Vertrags- und Sicherheitsprüfung auf `VERIFIED_IN_CI / PASS` gesetzt werden.
+Zusätzlich erfolgreich auf demselben Head:
 
-## 7. Grenzen des automatisierten Nachweises
+- `PILOT-E2E-01A Automated Readiness #59`
+- `P0-04 PostgreSQL Migration Cycle #20`
+- `P0-05 PostgreSQL Backup Restore #15`
+- `P0-06 Operator Alerting #8`
+
+## 7. Auditstatus
+
+**Aktueller Status:** `VERIFIED_IN_CI / PASS`
+
+Die technischen Dashboard- und Reportverträge sind auf dem aktuellen PR-Head erfolgreich geprüft. Der automatisierte Mindestnachweis für Routen, Session-/Tenant-Bindung, Cookie-Härtung, Reportformate und Share-Token-Schutz ist damit geschlossen.
+
+## 8. Grenzen des automatisierten Nachweises
 
 Der Contract-Test ersetzt keine vollständige visuelle und fachliche Abnahme. Zusätzlich offen bleiben:
 
@@ -75,6 +94,6 @@ Der Contract-Test ersetzt keine vollständige visuelle und fachliche Abnahme. Zu
 - Vergleich von HTML- und PDF-Inhalt mit echten Pilotdaten,
 - manuelle Prüfung aller Links und Browser-Konsolenfehler.
 
-## 8. Bewertung
+## 9. Bewertung
 
-P0-07 schließt die bisher fehlende automatisierte Mindestabsicherung für Dashboard- und Reportverträge. Bei grünem CI-Lauf steigt die technische Nachweisqualität beider Produktkomponenten deutlich; die reale visuelle Pilotabnahme bleibt ein separates gemeinsames Gate.
+Die Repository- und CI-Seite von P0-07 ist abgeschlossen. Die reale visuelle Pilotabnahme bleibt ein separates gemeinsames Gate.
