@@ -1,0 +1,85 @@
+name: P0-04 PostgreSQL Migration Cycle
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "backend/alembic/**"
+      - "backend/alembic.ini"
+      - "backend/app/models.py"
+      - "backend/scripts/verify_postgres_migration_cycle.py"
+      - "backend/tests/test_p0_04_migration_cycle_contract.py"
+      - ".github/workflows/p0-04-postgres-migration-cycle.yml"
+      - "docs/P0_04_POSTGRES_MIGRATION_AUDIT.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  migration-cycle:
+    name: Upgrade downgrade upgrade on PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: bcsentinel_test_password
+          POSTGRES_DB: bcsentinel_p0_04_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_p0_04_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_test
+      BCSENTINEL_P0_04_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_test
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Validate P0-04 contract
+        working-directory: backend
+        run: python -m pytest -q --tb=short --noconftest tests/test_p0_04_migration_cycle_contract.py
+      - name: Run PostgreSQL migration cycle
+        working-directory: backend
+        run: |
+          python scripts/verify_postgres_migration_cycle.py \
+            --json-out ../build/p0-04/migration-cycle.json \
+            --markdown-out ../build/p0-04/migration-cycle.md
+      - name: Run PostgreSQL transaction/concurrency smoke
+        working-directory: backend
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_test
+        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f build/p0-04/migration-cycle.md ]; then
+            cat build/p0-04/migration-cycle.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload P0-04 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-04-postgres-migration-evidence
+          path: build/p0-04/
+          if-no-files-found: error
+          retention-days: 30
