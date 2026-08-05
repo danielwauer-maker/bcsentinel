@@ -4,7 +4,7 @@ Diese Liste ist vor jedem Pilot-Onboarding aktiv zu erläutern. Sie ist kein Ers
 
 ## Betrieb
 
-- Der reale Restore-Drill auf der finalen Pilot-/Hosting-Infrastruktur ist noch ausstehend.
+- Der Nachweis eines realen Restore auf der finalen Pilot-/Hosting-Infrastruktur ist noch ausstehend.
 - Produktive Alarmzustellung an Daniel plus Ersatzkontakt ist noch nicht vollständig abgenommen.
 - Incident- und Backend-Rollback-Drill in der Pilot-Infrastruktur sind noch offen.
 - Der 48- bis 72-Stunden-Soak- und 10-Tenant-Lasttest ist noch nicht abgeschlossen.
