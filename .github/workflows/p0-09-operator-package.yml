@@ -1,0 +1,68 @@
+name: P0-09 Operator Package
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "docs/pilot/**"
+      - "backend/tests/test_p0_09_operator_package_contract.py"
+      - ".github/workflows/p0-09-operator-package.yml"
+      - "docs/P0_09_OPERATOR_PACKAGE_AUDIT.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  operator-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/p0-09-operator-package.sqlite3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Run P0-09 operator package contract
+        working-directory: backend
+        run: |
+          mkdir -p ../build/p0-09
+          python -m pytest -q --tb=short \
+            --junitxml=../build/p0-09/p0-09-junit.xml \
+            tests/test_p0_09_operator_package_contract.py \
+            | tee ../build/p0-09/p0-09-pytest.log
+      - name: Generate evidence summary
+        if: always()
+        run: |
+          mkdir -p build/p0-09
+          {
+            echo "# P0-09 Operator Package"
+            echo
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Result: ${{ job.status }}"
+            echo "- Operator handbook contract checked"
+            echo "- Support and escalation contract checked"
+            echo "- Known limitations contract checked"
+            echo "- Onboarding and offboarding checklist checked"
+          } > build/p0-09/p0-09-evidence.md
+          cat build/p0-09/p0-09-evidence.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload P0-09 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-09-operator-package-evidence
+          path: build/p0-09/
+          if-no-files-found: error
+          retention-days: 30
