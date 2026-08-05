@@ -46,11 +46,19 @@ Der P0-09-Workflow prüft:
 5. Onboarding und Offboarding enthalten die erforderlichen Lebenszykluskontrollen,
 6. JUnit-, Pytest- und Markdown-Evidenz wird erzeugt.
 
+Verifizierter Stand:
+
+- Head-SHA: `62ab77235761c5c37aa3975c8c8c10bbb1eac875`
+- `P0-09 Operator Package #2`: `success`
+- `PILOT-E2E-01A Automated Readiness #68`: `success`
+- vollständige Backend-Regression einschließlich P0-09-Contract-Test: PASS
+- reales PostgreSQL-Konkurrenz-/Transaktionsgate: PASS
+
 ## 5. Auditstatus
 
-**Aktueller Status:** `IMPLEMENTED_NOT_YET_CI_VERIFIED`
+**Aktueller Status:** `VERIFIED_IN_CI / PASS`
 
-Nach erfolgreichem Workflow kann der Repository- und Strukturteil auf `VERIFIED_IN_CI / PASS` gesetzt werden.
+Der Repository-, Struktur- und Contract-Teil von P0-09 ist abgeschlossen und auf dem aktuellen PR-Head verifiziert.
 
 ## 6. Noch manuell offen
 
@@ -68,4 +76,4 @@ Vor Kunde 1 müssen ergänzt oder freigegeben werden:
 
 ## 7. Bewertung
 
-Mit P0-09 ist der automatisierbare Kern des Operator- und Supportpakets umgesetzt. Der Sprint schließt keine externen oder unternehmerischen Entscheidungen, reduziert aber das Risiko inkonsistenter Onboardings, unklarer Incidents und nicht dokumentierter manueller Eingriffe deutlich.
+Mit P0-09 ist der automatisierbare Kern des Operator- und Supportpakets abgeschlossen. Der Sprint schließt keine externen oder unternehmerischen Entscheidungen, reduziert aber das Risiko inkonsistenter Onboardings, unklarer Incidents und nicht dokumentierter manueller Eingriffe deutlich.
