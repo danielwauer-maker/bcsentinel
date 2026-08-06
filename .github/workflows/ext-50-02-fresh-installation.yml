@@ -28,6 +28,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install test dependency
+        run: python -m pip install --disable-pip-version-check pytest
+
       - name: Run EXT-50-02 evidence contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_ext_50_02_fresh_installation_contract.py
