@@ -11,6 +11,7 @@ PLAN = ROOT / "docs" / "EXT_50_02_FRESH_INSTALLATION.md"
 EXPECTED_VERSION = "1.0.2.20"
 EXPECTED_FILE = "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app"
 EXPECTED_SHA256 = "62a5a5d380008f3d212bbc2834429ad4b3f3d36787b4ee567b7e68a2f4e78756"
+ALLOWED_EVIDENCE_STATES = {"PENDING", "PARTIAL", "PASS", "FAIL"}
 
 
 def _evidence() -> dict:
@@ -32,8 +33,8 @@ def test_ext_50_02_requires_a_genuinely_fresh_bc_environment():
     assert target["tenant_type"] == "Business Central SaaS sandbox"
     assert target["fresh_install_required"] is True
     assert target["previous_bcsentinel_version_allowed"] is False
-    assert target["environment_name"]
-    assert target["company"]
+    assert target["environment_name"] == "BCSentinel-Pilot-Fresh"
+    assert target["bc_version"] == "28.3"
 
 
 def test_ext_50_02_tracks_all_runtime_acceptance_evidence():
@@ -57,13 +58,31 @@ def test_ext_50_02_tracks_all_runtime_acceptance_evidence():
         "scheduled_monitoring_scan",
     }
     assert required == set(evidence["required_evidence"])
+    assert set(evidence["required_evidence"].values()).issubset(ALLOWED_EVIDENCE_STATES)
 
 
-def test_ext_50_02_does_not_claim_runtime_pass_before_manual_evidence():
+def test_ext_50_02_records_installation_and_setup_progress_without_premature_pass():
     evidence = _evidence()
-    assert evidence["status"] == "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE"
-    assert set(evidence["required_evidence"].values()) == {"PENDING"}
+    runtime = evidence["required_evidence"]
+    assert evidence["status"] == "SETUP_VERIFIED_REGISTRATION_PENDING"
+    assert runtime["app_upload"] == "PASS"
+    assert runtime["app_install"] == "PASS"
+    assert runtime["extension_version_visible"] == "PASS"
+    assert runtime["setup_page_open"] == "PASS"
+    assert runtime["permission_assignment"] == "PARTIAL"
+    assert runtime["backend_registration"] == "PENDING"
     assert evidence["acceptance"]["all_required_evidence_pass"] is False
+
+
+def test_ext_50_02_records_expected_permission_sets():
+    evidence = _evidence()
+    assert evidence["delivered_permission_sets"] == [
+        "BCSENTINEL ADMIN",
+        "BCSENTINEL SCAN",
+        "BCSENTINEL SCHEDULER",
+        "BCSENTINEL SETUP",
+        "BCSENTINEL VIEWER",
+    ]
 
 
 def test_ext_50_02_plan_contains_stop_and_acceptance_criteria():
