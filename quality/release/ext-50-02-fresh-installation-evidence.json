@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-02",
-  "status": "REGISTRATION_VERIFIED_FREE_SCAN_PENDING",
+  "status": "FREE_SCAN_VERIFIED_REPORT_AND_MONITORING_PENDING",
   "baseline": {
     "extension_version": "1.0.2.20",
     "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
@@ -31,13 +31,13 @@
     "setup_page_open": "PASS",
     "backend_registration": "PASS",
     "duplicate_registration_protection": "PASS",
-    "free_scan_start": "PENDING",
-    "free_scan_completed": "PENDING",
-    "history_entry": "PENDING",
-    "findings_visible": "PENDING",
+    "free_scan_start": "PASS",
+    "free_scan_completed": "PASS",
+    "history_entry": "PASS",
+    "findings_visible": "PASS_WITH_DEFECT",
     "html_report": "PENDING",
     "pdf_report": "PENDING",
-    "dashboard_link": "PENDING",
+    "dashboard_link": "PASS",
     "manual_monitoring_scan": "PENDING",
     "scheduled_monitoring_scan": "PENDING"
   },
@@ -47,6 +47,28 @@
     "no_duplicate_registration": true,
     "no_manual_database_change": true,
     "all_required_evidence_pass": false
+  },
+  "observed_defects": [
+    {
+      "id": "EXT-50-02-FREE-ENTITLEMENT-01",
+      "severity": "P1",
+      "title": "Free users can see estimated finding value and open finding detail drilldowns",
+      "expected": "The Free plan must hide Estimated Value and must not allow record-level finding detail pages to open.",
+      "actual": "Estimated Value is visible in the findings list and the finding title opens the record-level detail page.",
+      "disposition": "Fix before broad 50-customer go-live; does not invalidate fresh installation or scan execution evidence."
+    }
+  ],
+  "scan_result": {
+    "started_at_local": "2026-08-06 12:07",
+    "finished_at_local": "2026-08-06 12:07",
+    "status": "Completed",
+    "modules": "10/10",
+    "checks": "199/199",
+    "score": "54/100",
+    "rating": "Critical",
+    "issues": 80,
+    "estimated_impact_eur": 49269.01,
+    "free_scan_consumed": true
   },
   "notes": [
     "Fresh Business Central SaaS sandbox confirmed by UI environment indicator.",
@@ -62,8 +84,10 @@
     "Registration completed successfully on 2026-08-06 at 12:03 local time.",
     "Existing account was reused and the Sandbox environment was added successfully.",
     "Connection status is Configured and registration status is Registered.",
-    "Free access plan and Data Health Score availability were received from the backend.",
-    "After successful registration the Register action disappears, preventing a duplicate registration from the UI.",
+    "After successful registration the Register action disappears, preventing duplicate registration from the UI.",
+    "Free Data Health Score completed successfully with 10/10 modules and 199/199 checks.",
+    "Scan history, free dashboard, findings list, and a finding detail drilldown were opened successfully.",
+    "Free access entitlement defect recorded: estimated value and record-level detail remain visible when they should be gated.",
     "Permission assignment remains PARTIAL until a non-SUPER test user is verified."
   ]
 }
