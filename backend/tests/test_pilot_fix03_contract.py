@@ -56,7 +56,7 @@ def test_backend_recovery_requires_tenant_ownership_empty_result_and_no_ledger()
     assert "ScanIssueRecord.scan_id == scan.scan_id" in service
     assert "run.result_persisted_at_utc is not None" in service
     assert "run.lease_owner is not None" in service
-    assert "existing_run.tenant_id != tenant.tenant_id" in service
+    assert "run.tenant_id != tenant.tenant_id" in service
     assert "unbound lifecycle and cannot be adopted safely" in service
     assert 'code="SCAN_ID_TENANT_CONFLICT"' in service
     assert 'code="SCAN_ID_REQUEST_CONFLICT"' in service
