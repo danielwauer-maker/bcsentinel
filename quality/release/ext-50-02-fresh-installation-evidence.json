@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-02",
-  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "status": "FRESH_INSTALLATION_VERIFIED_RUNTIME_TESTS_PENDING",
   "baseline": {
     "extension_version": "1.0.2.20",
     "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
@@ -10,15 +10,15 @@
   "target_environment": {
     "tenant_type": "Business Central SaaS sandbox",
     "environment_name": "BCSentinel-Pilot-Fresh",
-    "bc_version": "27.x or current compatible BC 27 sandbox",
-    "company": "CRONUS DE",
+    "bc_version": "28.3",
+    "company": "BCSentinel-Pilot-Fresh",
     "fresh_install_required": true,
     "previous_bcsentinel_version_allowed": false
   },
   "required_evidence": {
-    "app_upload": "PENDING",
-    "app_install": "PENDING",
-    "extension_version_visible": "PENDING",
+    "app_upload": "PASS",
+    "app_install": "PASS",
+    "extension_version_visible": "PASS",
     "permission_assignment": "PENDING",
     "setup_page_open": "PENDING",
     "backend_registration": "PENDING",
@@ -34,11 +34,19 @@
     "scheduled_monitoring_scan": "PENDING"
   },
   "acceptance": {
-    "no_install_error": false,
-    "no_schema_error": false,
+    "no_install_error": true,
+    "no_schema_error": true,
     "no_duplicate_registration": false,
-    "no_manual_database_change": false,
+    "no_manual_database_change": true,
     "all_required_evidence_pass": false
   },
-  "notes": []
+  "notes": [
+    "Fresh Business Central SaaS sandbox confirmed by UI environment indicator.",
+    "Environment/company shown as BCSentinel-Pilot-Fresh.",
+    "BC version 28.3 (platform 28.0.52916.0, application 28.3.52162.53160).",
+    "BCSentinel was not installed before the test.",
+    "No BCSentinel Job Queue Entry existed before installation.",
+    "Extension 1.0.2.20 uploaded and installed successfully on 2026-08-06 at 11:39 local time.",
+    "No installation warnings, schema errors, or manual database changes were required."
+  ]
 }
