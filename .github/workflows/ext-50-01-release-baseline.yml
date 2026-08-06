@@ -1,0 +1,89 @@
+name: EXT-50-01 Release Baseline
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "bc-extension/app.json"
+      - "bc-extension/app.cloud.json"
+      - "quality/release/ext-50-01-release-baseline.json"
+      - "backend/tests/test_ext_50_01_release_baseline_contract.py"
+      - ".github/workflows/ext-50-01-release-baseline.yml"
+      - "docs/EXT_50_01_RELEASE_BASELINE.md"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/ext-50-01-release-baseline.sqlite3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+
+      - name: Run EXT-50-01 release baseline contract
+        working-directory: backend
+        run: |
+          mkdir -p ../build/ext-50-01
+          python -m pytest -q --tb=short \
+            --junitxml=../build/ext-50-01/ext-50-01-junit.xml \
+            tests/test_ext_50_01_release_baseline_contract.py \
+            | tee ../build/ext-50-01/ext-50-01-pytest.log
+
+      - name: Generate release baseline evidence
+        if: always()
+        run: |
+          mkdir -p build/ext-50-01
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          app = json.loads(Path('bc-extension/app.json').read_text(encoding='utf-8'))
+          cloud = json.loads(Path('bc-extension/app.cloud.json').read_text(encoding='utf-8'))
+          manifest = Path('quality/release/ext-50-01-release-baseline.json')
+          manifest_sha = hashlib.sha256(manifest.read_bytes()).hexdigest()
+          evidence = Path('build/ext-50-01/ext-50-01-evidence.md')
+          evidence.write_text(
+              '# EXT-50-01 Release Baseline\n\n'
+              f'- Commit: {__import__("os").environ.get("GITHUB_SHA", "unknown")}\n'
+              f'- Extension version: {app["version"]}\n'
+              f'- BC platform/application: {app["platform"]} / {app["application"]}\n'
+              f'- Runtime: {app["runtime"]}\n'
+              f'- Manifest parity: {app == cloud}\n'
+              f'- Release manifest SHA-256: `{manifest_sha}`\n'
+              '- APP filename/SHA-256 remain pending until the green AL compile artifact is archived.\n',
+              encoding='utf-8',
+          )
+          PY
+          cat build/ext-50-01/ext-50-01-evidence.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload EXT-50-01 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ext-50-01-release-baseline-evidence
+          path: build/ext-50-01/
+          if-no-files-found: error
+          retention-days: 30
