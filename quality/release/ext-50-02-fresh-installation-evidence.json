@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-02",
-  "status": "SETUP_VERIFIED_REGISTRATION_PENDING",
+  "status": "REGISTRATION_VERIFIED_FREE_SCAN_PENDING",
   "baseline": {
     "extension_version": "1.0.2.20",
     "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
@@ -13,7 +13,8 @@
     "bc_version": "28.3",
     "company": "BCSentinel-Pilot-Fresh",
     "fresh_install_required": true,
-    "previous_bcsentinel_version_allowed": false
+    "previous_bcsentinel_version_allowed": false,
+    "api_base_url": "https://dev-api.bcsentinel.com"
   },
   "delivered_permission_sets": [
     "BCSENTINEL ADMIN",
@@ -28,8 +29,8 @@
     "extension_version_visible": "PASS",
     "permission_assignment": "PARTIAL",
     "setup_page_open": "PASS",
-    "backend_registration": "PENDING",
-    "duplicate_registration_protection": "PENDING",
+    "backend_registration": "PASS",
+    "duplicate_registration_protection": "PASS",
     "free_scan_start": "PENDING",
     "free_scan_completed": "PENDING",
     "history_entry": "PENDING",
@@ -43,7 +44,7 @@
   "acceptance": {
     "no_install_error": true,
     "no_schema_error": true,
-    "no_duplicate_registration": false,
+    "no_duplicate_registration": true,
     "no_manual_database_change": true,
     "all_required_evidence_pass": false
   },
@@ -57,7 +58,12 @@
     "No installation warnings, schema errors, or manual database changes were required.",
     "Five BCSentinel permission sets are delivered by the extension.",
     "Fresh setup page opens successfully and shows not configured / not registered state.",
-    "API base URL defaults to https://api.bcsentinel.com.",
+    "API base URL changed from production default to https://dev-api.bcsentinel.com for sandbox validation.",
+    "Registration completed successfully on 2026-08-06 at 12:03 local time.",
+    "Existing account was reused and the Sandbox environment was added successfully.",
+    "Connection status is Configured and registration status is Registered.",
+    "Free access plan and Data Health Score availability were received from the backend.",
+    "After successful registration the Register action disappears, preventing a duplicate registration from the UI.",
     "Permission assignment remains PARTIAL until a non-SUPER test user is verified."
   ]
 }
