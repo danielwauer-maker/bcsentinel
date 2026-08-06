@@ -11,7 +11,11 @@ PLAN = ROOT / "docs" / "EXT_50_02_FRESH_INSTALLATION.md"
 EXPECTED_VERSION = "1.0.2.20"
 EXPECTED_FILE = "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app"
 EXPECTED_SHA256 = "62a5a5d380008f3d212bbc2834429ad4b3f3d36787b4ee567b7e68a2f4e78756"
-ALLOWED_EVIDENCE_STATES = {"PENDING", "PARTIAL", "PASS", "FAIL"}
+ALLOWED_EVIDENCE_STATES = {
+    "PASS",
+    "PASS_WITH_DEFECT",
+    "DEFERRED_TO_EXT_50_04",
+}
 
 
 def _evidence() -> dict:
@@ -35,6 +39,7 @@ def test_ext_50_02_requires_a_genuinely_fresh_bc_environment():
     assert target["previous_bcsentinel_version_allowed"] is False
     assert target["environment_name"] == "BCSentinel-Pilot-Fresh"
     assert target["bc_version"] == "28.3"
+    assert target["api_base_url"] == "https://dev-api.bcsentinel.com"
 
 
 def test_ext_50_02_tracks_all_runtime_acceptance_evidence():
@@ -61,17 +66,16 @@ def test_ext_50_02_tracks_all_runtime_acceptance_evidence():
     assert set(evidence["required_evidence"].values()).issubset(ALLOWED_EVIDENCE_STATES)
 
 
-def test_ext_50_02_records_installation_and_setup_progress_without_premature_pass():
+def test_ext_50_02_runtime_evidence_is_complete():
     evidence = _evidence()
     runtime = evidence["required_evidence"]
-    assert evidence["status"] == "SETUP_VERIFIED_REGISTRATION_PENDING"
-    assert runtime["app_upload"] == "PASS"
-    assert runtime["app_install"] == "PASS"
-    assert runtime["extension_version_visible"] == "PASS"
-    assert runtime["setup_page_open"] == "PASS"
-    assert runtime["permission_assignment"] == "PARTIAL"
-    assert runtime["backend_registration"] == "PENDING"
-    assert evidence["acceptance"]["all_required_evidence_pass"] is False
+    assert evidence["status"] == "VERIFIED_WITH_KNOWN_DEFECTS"
+    assert runtime["permission_assignment"] == "DEFERRED_TO_EXT_50_04"
+    assert runtime["findings_visible"] == "PASS_WITH_DEFECT"
+    for key, value in runtime.items():
+        if key not in {"permission_assignment", "findings_visible"}:
+            assert value == "PASS", f"{key} must be PASS"
+    assert evidence["acceptance"]["all_required_evidence_pass"] is True
 
 
 def test_ext_50_02_records_expected_permission_sets():
@@ -83,6 +87,32 @@ def test_ext_50_02_records_expected_permission_sets():
         "BCSENTINEL SETUP",
         "BCSENTINEL VIEWER",
     ]
+
+
+def test_ext_50_02_records_monitoring_success():
+    evidence = _evidence()
+    monitoring = evidence["monitoring_access"]
+    assert monitoring["plan"] == "Monitoring Monatsabo"
+    assert monitoring["dashboard_access"] == "FULL"
+    assert monitoring["findings_access"] == "FULL"
+    assert monitoring["report_access"] == "FULL"
+    assert monitoring["active_modules"] == "10/10"
+    assert monitoring["active_checks"] == "199/199"
+
+    manual = evidence["scan_result"]["manual_monitoring_scan"]
+    scheduled = evidence["scan_result"]["scheduled_monitoring_scan"]
+    assert manual["status"] == "Completed"
+    assert manual["modules"] == "10/10"
+    assert manual["checks"] == "199/199"
+    assert scheduled["status"] == "Completed"
+    assert scheduled["runs_without_open_bc_client"] is True
+
+
+def test_ext_50_02_records_known_defects_without_hiding_them():
+    evidence = _evidence()
+    defects = {item["id"]: item for item in evidence["observed_defects"]}
+    assert defects["EXT-50-02-FREE-ENTITLEMENT-01"]["severity"] == "P1"
+    assert defects["EXT-50-02-UI-REFRESH-01"]["severity"] == "P2"
 
 
 def test_ext_50_02_plan_contains_stop_and_acceptance_criteria():
