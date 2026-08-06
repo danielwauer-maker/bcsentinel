@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- EXT-50-01 legt die reproduzierbare Extension-Release-Baseline 1.0.2.20 für BC 27 fest, synchronisiert `app.json` und `app.cloud.json`, ergänzt ein maschinenlesbares Release-Manifest sowie ein eigenes CI-/Evidence-Gate gegen erneuten Manifestdrift.
 - REPORT-01G setzt das finale Executive-Report-Design um: Referenzlayout über zwei A4-Seiten, ausschließlich am Hero dynamische Statusfarben, vollständig sichtbare EUR-KPIs, zentrale deutsche Modullokalisierung, überarbeitete SVG-Diagramme, Executive Recommendations und hochwertige Produktsignaturen.
 - REPORT-RUNTIME-01 installiert Playwright Chromium und alle Linux-Abhängigkeiten reproduzierbar im Backend-Image, verifiziert den PDF-Renderer beim Build und protokolliert Ursachen vor dem Emergency-Fallback.
 - REPORT-01F finalisiert die KPI-Reihe mit finanzieller Auswirkung, potenzieller Einsparung, betroffenen Datensätzen und durchgeführten Prüfungen in der freigegebenen Farb- und Inhaltslogik.
