@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 
@@ -12,6 +13,8 @@ RELEASE_MANIFEST = ROOT / "quality" / "release" / "ext-50-01-release-baseline.js
 REQUIRED_VERSION = "1.0.2.20"
 REQUIRED_PLATFORM = "27.0.0.0"
 REQUIRED_RUNTIME = "16.0"
+EXPECTED_APP_FILE = "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app"
+EXPECTED_APP_SHA256 = "62a5a5d380008f3d212bbc2834429ad4b3f3d36787b4ee567b7e68a2f4e78756"
 
 
 def _read_json(path: Path) -> dict:
@@ -46,12 +49,12 @@ def test_release_baseline_targets_bc27_and_version_1_0_2_20():
     assert app["runtime"] == REQUIRED_RUNTIME
 
 
-def test_release_manifest_matches_al_manifest_and_is_not_placeholder():
+def test_release_manifest_matches_al_manifest_and_final_artifact():
     app = _read_json(APP_MANIFEST)
     release = _read_json(RELEASE_MANIFEST)
 
     assert release["sprint"] == "EXT-50-01"
-    assert release["release_status"] == "BASELINE_LOCKED_FOR_RC_VALIDATION"
+    assert release["release_status"] == "VERIFIED_IN_CI"
     assert release["extension"]["name"] == app["name"]
     assert release["extension"]["app_id"] == app["id"]
     assert release["extension"]["version"] == app["version"]
@@ -59,16 +62,19 @@ def test_release_manifest_matches_al_manifest_and_is_not_placeholder():
     assert release["extension"]["application"] == app["application"]
     assert release["extension"]["runtime"] == app["runtime"]
     assert release["source_branch"] == "staging"
-    assert release["artifact"]["sha256"] == "PENDING_CI_ARTIFACT"
-    assert release["artifact"]["file_name"] == "PENDING_CI_ARTIFACT"
+    assert release["artifact"]["file_name"] == EXPECTED_APP_FILE
+    assert release["artifact"]["sha256"] == EXPECTED_APP_SHA256
+    assert re.fullmatch(r"[0-9a-f]{64}", release["artifact"]["sha256"])
+    assert release["artifact"]["workflow_run_id"] == 31081200637
+    assert release["artifact"]["workflow_artifact_id"] == 8960052092
 
 
-def test_release_baseline_documents_required_manual_gates():
+def test_release_baseline_documents_remaining_manual_gates():
     release = _read_json(RELEASE_MANIFEST)
     required = {
         "fresh_installation",
         "upgrade_matrix",
-        "artifact_archive_and_sha256",
         "production_release_approval",
     }
     assert required.issubset(set(release["manual_gates_open"]))
+    assert "artifact_archive_and_sha256" not in release["manual_gates_open"]
