@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-02",
-  "status": "FRESH_INSTALLATION_VERIFIED_RUNTIME_TESTS_PENDING",
+  "status": "SETUP_VERIFIED_REGISTRATION_PENDING",
   "baseline": {
     "extension_version": "1.0.2.20",
     "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
@@ -15,12 +15,19 @@
     "fresh_install_required": true,
     "previous_bcsentinel_version_allowed": false
   },
+  "delivered_permission_sets": [
+    "BCSENTINEL ADMIN",
+    "BCSENTINEL SCAN",
+    "BCSENTINEL SCHEDULER",
+    "BCSENTINEL SETUP",
+    "BCSENTINEL VIEWER"
+  ],
   "required_evidence": {
     "app_upload": "PASS",
     "app_install": "PASS",
     "extension_version_visible": "PASS",
-    "permission_assignment": "PENDING",
-    "setup_page_open": "PENDING",
+    "permission_assignment": "PARTIAL",
+    "setup_page_open": "PASS",
     "backend_registration": "PENDING",
     "duplicate_registration_protection": "PENDING",
     "free_scan_start": "PENDING",
@@ -47,6 +54,10 @@
     "BCSentinel was not installed before the test.",
     "No BCSentinel Job Queue Entry existed before installation.",
     "Extension 1.0.2.20 uploaded and installed successfully on 2026-08-06 at 11:39 local time.",
-    "No installation warnings, schema errors, or manual database changes were required."
+    "No installation warnings, schema errors, or manual database changes were required.",
+    "Five BCSentinel permission sets are delivered by the extension.",
+    "Fresh setup page opens successfully and shows not configured / not registered state.",
+    "API base URL defaults to https://api.bcsentinel.com.",
+    "Permission assignment remains PARTIAL until a non-SUPER test user is verified."
   ]
 }
