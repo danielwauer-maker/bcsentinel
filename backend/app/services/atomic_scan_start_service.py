@@ -4,6 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from time import sleep
 from uuid import UUID
 
 from sqlalchemy import select, update
@@ -126,6 +127,38 @@ def _existing_result(db: Session, *, tenant_id: str, client_request_id: str, pay
             message_de="Diese Scan-Anfrage wurde bereits mit anderen Startdaten verwendet. Verwenden Sie die ursprüngliche Anfrage oder starten Sie einen neuen Scan.",
         )
     return _result_from_request(db, request, replay=True)
+
+
+def _wait_for_existing_result(
+    db: Session,
+    *,
+    tenant_id: str,
+    client_request_id: str,
+    payload_hash: str,
+    attempts: int = 10,
+    delay_seconds: float = 0.025,
+) -> ScanStartResult | None:
+    """Wait briefly for a concurrent identical start transaction to become visible.
+
+    A scan row can become observable immediately before its durable request binding
+    on SQLite and under tightly scheduled concurrent requests. Treating that tiny
+    visibility window as a permanent scan-ID conflict breaks idempotent retries.
+    Each attempt starts a fresh transaction snapshot and only returns a replay when
+    the exact tenant, client request ID and payload hash match.
+    """
+    for attempt in range(attempts):
+        db.rollback()
+        replay = _existing_result(
+            db,
+            tenant_id=tenant_id,
+            client_request_id=client_request_id,
+            payload_hash=payload_hash,
+        )
+        if replay is not None:
+            return replay
+        if attempt + 1 < attempts:
+            sleep(delay_seconds)
+    return None
 
 
 def _same_text(left: str | None, right: str | None) -> bool:
@@ -292,6 +325,7 @@ def accept_scan_start(
     company_name: str | None,
     environment_name: str | None,
 ) -> ScanStartResult:
+    tenant_id = tenant.tenant_id
     request_id = normalize_client_request_id(client_request_id)
     requested_mode = normalize_requested_scan_mode(scan_mode)
     normalized_run_id = (run_id or "").strip()
@@ -305,7 +339,7 @@ def accept_scan_start(
         environment_name=environment_name,
     )
     replay = _existing_result(
-        db, tenant_id=tenant.tenant_id, client_request_id=request_id, payload_hash=payload_hash
+        db, tenant_id=tenant_id, client_request_id=request_id, payload_hash=payload_hash
     )
     if replay is not None:
         db.commit()
@@ -313,12 +347,11 @@ def accept_scan_start(
 
     existing_scan = db.scalar(select(Scan).where(Scan.scan_id == normalized_run_id))
     if existing_scan is not None:
-        # A concurrent identical request may have committed between the first
-        # idempotency lookup and this scan lookup. Restart the read snapshot so
-        # the durable request binding becomes visible before declaring conflict.
-        db.rollback()
-        replay = _existing_result(
-            db, tenant_id=tenant.tenant_id, client_request_id=request_id, payload_hash=payload_hash
+        replay = _wait_for_existing_result(
+            db,
+            tenant_id=tenant_id,
+            client_request_id=request_id,
+            payload_hash=payload_hash,
         )
         if replay is not None:
             return replay
@@ -336,7 +369,7 @@ def accept_scan_start(
     else:
         existing_run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == normalized_run_id))
         if existing_run is not None:
-            if existing_run.tenant_id != tenant.tenant_id:
+            if existing_run.tenant_id != tenant_id:
                 raise ScanStartConflictError(
                     "The scan ID is already owned by another tenant. Start a new scan with a new scan ID.",
                     code="SCAN_ID_TENANT_CONFLICT",
@@ -350,7 +383,7 @@ def accept_scan_start(
 
     now = _now()
     request = ScanStartRequest(
-        tenant_id=tenant.tenant_id,
+        tenant_id=tenant_id,
         client_request_id=request_id,
         payload_hash=payload_hash,
         scan_id=normalized_run_id,
@@ -379,7 +412,7 @@ def accept_scan_start(
             db.add(
                 Scan(
                     scan_id=normalized_run_id,
-                    tenant_id=tenant.tenant_id,
+                    tenant_id=tenant_id,
                     scan_type=stored_scan_type,
                     generated_at_utc=now,
                     data_score=0,
@@ -394,7 +427,7 @@ def accept_scan_start(
         create_or_get_scan_run(
             db,
             run_id=normalized_run_id,
-            tenant_id=tenant.tenant_id,
+            tenant_id=tenant_id,
             scan_mode=requested_mode,
             company_name=company_name,
             environment_name=environment_name,
@@ -405,7 +438,7 @@ def accept_scan_start(
         if credit is not None:
             db.add(
                 CreditLedgerEntry(
-                    tenant_id=tenant.tenant_id,
+                    tenant_id=tenant_id,
                     credit_id=credit.id,
                     source_purchase_id=credit.source_purchase_id,
                     scan_start_request_id=request.id,
@@ -413,7 +446,7 @@ def accept_scan_start(
                     product_code=credit.product_code,
                     operation_type="SCAN_CONSUMED",
                     amount=-1,
-                    balance_after=scan_credit_count(db, tenant.tenant_id),
+                    balance_after=scan_credit_count(db, tenant_id),
                     reason="Credit consumed when scan start was durably accepted",
                     created_at_utc=now,
                 )
@@ -421,9 +454,11 @@ def accept_scan_start(
         tenant.last_seen_at_utc = now
         db.commit()
     except IntegrityError:
-        db.rollback()
-        replay = _existing_result(
-            db, tenant_id=tenant.tenant_id, client_request_id=request_id, payload_hash=payload_hash
+        replay = _wait_for_existing_result(
+            db,
+            tenant_id=tenant_id,
+            client_request_id=request_id,
+            payload_hash=payload_hash,
         )
         if replay is not None:
             return replay
