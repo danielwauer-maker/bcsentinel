@@ -1,0 +1,47 @@
+{
+  "sprint": "EXT-50-01",
+  "release_status": "BASELINE_LOCKED_FOR_RC_VALIDATION",
+  "source_branch": "staging",
+  "baseline_date": "2026-08-06",
+  "extension": {
+    "name": "BCSentinel",
+    "app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
+    "publisher": "BCSentinel Analytics - Daniel Wauer",
+    "version": "1.0.2.20",
+    "platform": "27.0.0.0",
+    "application": "27.0.0.0",
+    "runtime": "16.0",
+    "id_range": {
+      "from": 53100,
+      "to": 53201
+    }
+  },
+  "backend": {
+    "compatibility_branch": "staging",
+    "database": "PostgreSQL",
+    "migration_policy": "alembic upgrade/downgrade/upgrade required for schema changes"
+  },
+  "artifact": {
+    "file_name": "PENDING_CI_ARTIFACT",
+    "sha256": "PENDING_CI_ARTIFACT",
+    "retention": "archive final green CI artifact before EXT-50-02"
+  },
+  "required_ci_gates": [
+    "BC 27 AL compile with CodeCop and PTECop",
+    "ARCH-02A Compatibility Gate",
+    "PILOT-E2E-01A Automated Readiness",
+    "EXT-50-01 Release Baseline"
+  ],
+  "manual_gates_open": [
+    "fresh_installation",
+    "upgrade_matrix",
+    "artifact_archive_and_sha256",
+    "production_release_approval"
+  ],
+  "scope_exclusions": [
+    "dashboard visual redesign",
+    "landing page redesign",
+    "self-service checkout",
+    "AppSource submission"
+  ]
+}
