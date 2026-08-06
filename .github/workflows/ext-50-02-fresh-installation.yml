@@ -1,0 +1,48 @@
+name: EXT-50-02 Fresh Installation Contract
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "quality/release/ext-50-02-fresh-installation-evidence.json"
+      - "docs/EXT_50_02_FRESH_INSTALLATION.md"
+      - "backend/tests/test_ext_50_02_fresh_installation_contract.py"
+      - ".github/workflows/ext-50-02-fresh-installation.yml"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-installation-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run EXT-50-02 evidence contract
+        working-directory: backend
+        run: python -m pytest -q --tb=short --noconftest tests/test_ext_50_02_fresh_installation_contract.py
+
+      - name: Publish current manual gate status
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data = json.loads(Path('quality/release/ext-50-02-fresh-installation-evidence.json').read_text(encoding='utf-8'))
+          print('# EXT-50-02 Fresh Installation')
+          print()
+          print(f'- Status: {data["status"]}')
+          print(f'- Extension: {data["baseline"]["extension_version"]}')
+          print(f'- Environment: {data["target_environment"]["environment_name"]}')
+          print(f'- Pending runtime evidence: {sum(v == "PENDING" for v in data["required_evidence"].values())}')
+          print('- CI validates the evidence contract only; real BC runtime installation remains a manual gate.')
+          PY
