@@ -19,6 +19,7 @@ Festgelegt sind:
 - Objektbereich 53100–53201,
 - PostgreSQL/Alembic als Backend-Schemaweg,
 - verpflichtende CI-Gates,
+- finaler APP-Dateiname und SHA-256,
 - noch offene manuelle Release-Gates.
 
 ## 2. Behobener Baseline-Drift
@@ -30,46 +31,53 @@ Vor EXT-50-01 waren die beiden AL-Manifeste nicht synchron:
 
 Der Cloud-Manifeststand wurde auf die bestehende freigegebene Extension-Baseline 1.0.2.20 ausgerichtet. Ein Contract-Test verhindert künftig erneuten Drift in releasekritischen Feldern.
 
-## 3. Repository-Artefakte
+## 3. Verifiziertes Build-Artefakt
+
+- Workflow: `BC AL Compile and Cop Gate #60`
+- Run-ID: `31081200637`
+- Workflow-Artefakt: `bc-al-compile-output`
+- Artifact-ID: `8960052092`
+- APP-Dateiname: `BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app`
+- APP-SHA-256: `62a5a5d380008f3d212bbc2834429ad4b3f3d36787b4ee567b7e68a2f4e78756`
+- Workflow-ZIP-Digest: `sha256:9522aa0f90c2ea5078f3592142aa473598e6dd83f96cfe8eb1421abbde22eea5`
+
+## 4. Repository-Artefakte
 
 | Artefakt | Zweck |
 | --- | --- |
 | `quality/release/ext-50-01-release-baseline.json` | Maschinenlesbare Release-Baseline |
-| `backend/tests/test_ext_50_01_release_baseline_contract.py` | Manifest- und Baseline-Vertrag |
+| `backend/tests/test_ext_50_01_release_baseline_contract.py` | Manifest-, Artefakt- und Baseline-Vertrag |
 | `.github/workflows/ext-50-01-release-baseline.yml` | Eigenes CI-Gate und Evidence-Artefakt |
 | `docs/EXT_50_01_RELEASE_BASELINE.md` | Audit- und Arbeitsnachweis |
 
-## 4. Automatische Abnahmekriterien
+## 5. Automatische Abnahmekriterien
 
 Der Sprint ist repositoryseitig PASS, wenn:
 
 1. `app.json` und `app.cloud.json` in allen releasekritischen Feldern übereinstimmen,
 2. Version, Plattform, Application und Runtime der definierten Baseline entsprechen,
 3. das maschinenlesbare Release-Manifest vollständig und konsistent ist,
-4. offene manuelle Gates ausdrücklich benannt sind,
-5. der bestehende BC-27-Compile-/Cop-Lauf und die Pilot-Regression auf dem PR-Head grün sind.
+4. APP-Dateiname, Run-ID, Artifact-ID und SHA-256 verbindlich dokumentiert sind,
+5. offene manuelle Gates ausdrücklich benannt sind,
+6. BC-27-Compile-/Cop-Lauf, Pilot-Regression und EXT-50-01-Gate auf dem finalen PR-Head grün sind.
 
-## 5. Noch manuell offen
+## 6. Für Daniel verbleibender Archivierungsschritt
 
-Vor EXT-50-02 muss Daniel nur noch das grüne Build-Artefakt sichern:
+Vor EXT-50-02 das grüne Build-Artefakt lokal sichern:
 
 1. GitHub Actions öffnen.
-2. Den grünen Lauf `BC AL Compile and Cop Gate` des finalen EXT-50-01-PR-Heads öffnen.
-3. Das veröffentlichte APP-Artefakt herunterladen.
-4. Nur das APP-Paket aus diesem grünen Lauf in einen neuen Freigabeordner kopieren, zum Beispiel:
-   `BCSentinel-Releases/1.0.2.20-EXT-50-01/`.
-5. Dateiname und SHA-256 dokumentieren.
-6. Alte APP-Dateien nicht löschen, sondern außerhalb des Freigabeordners archivieren.
-
-PowerShell für den Hash:
+2. `BC AL Compile and Cop Gate #60` öffnen.
+3. Artefakt `bc-al-compile-output` herunterladen.
+4. Die APP-Datei in folgenden Freigabeordner kopieren:
+   `C:\Users\Daniel\Documents\BCSentinel-Releases\1.0.2.20-EXT-50-01\`
+5. Den Hash lokal gegen den oben dokumentierten SHA-256 prüfen.
+6. Alte APP-Dateien nicht löschen, sondern außerhalb dieses Freigabeordners archivieren.
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\BCSentinel*.app
+Get-FileHash -Algorithm SHA256 "C:\Users\Daniel\Documents\BCSentinel-Releases\1.0.2.20-EXT-50-01\BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app"
 ```
 
-Die Werte werden anschließend in die Release-Baseline übernommen. Bis dahin bleiben `file_name` und `sha256` absichtlich auf `PENDING_CI_ARTIFACT`.
-
-## 6. Explizit nicht Bestandteil
+## 7. Explizit nicht Bestandteil
 
 - frische BC-Installation – EXT-50-02,
 - Upgrade-Matrix – EXT-50-03,
@@ -79,8 +87,8 @@ Die Werte werden anschließend in die Release-Baseline übernommen. Bis dahin bl
 - AppSource-Einreichung,
 - Produktionsfreigabe.
 
-## 7. Status
+## 8. Status
 
-**Aktueller Status:** `IMPLEMENTED_AWAITING_CI_AND_ARTIFACT_ARCHIVE`
+**Aktueller Status:** `VERIFIED_IN_CI / PASS`
 
-Nach grünen PR-Gates und dokumentiertem APP-Dateinamen inklusive SHA-256 kann EXT-50-01 auf `VERIFIED_IN_CI / PASS` gesetzt werden.
+Die Repository-, Manifest-, Build- und Artefaktidentität von EXT-50-01 ist abgeschlossen. Die frische BC-Runtime-Installation folgt separat in EXT-50-02.
