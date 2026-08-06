@@ -1,0 +1,44 @@
+{
+  "sprint": "EXT-50-02",
+  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "baseline": {
+    "extension_version": "1.0.2.20",
+    "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
+    "app_sha256": "62a5a5d380008f3d212bbc2834429ad4b3f3d36787b4ee567b7e68a2f4e78756",
+    "source_branch": "staging"
+  },
+  "target_environment": {
+    "tenant_type": "Business Central SaaS sandbox",
+    "environment_name": "BCSentinel-Pilot-Fresh",
+    "bc_version": "27.x or current compatible BC 27 sandbox",
+    "company": "CRONUS DE",
+    "fresh_install_required": true,
+    "previous_bcsentinel_version_allowed": false
+  },
+  "required_evidence": {
+    "app_upload": "PENDING",
+    "app_install": "PENDING",
+    "extension_version_visible": "PENDING",
+    "permission_assignment": "PENDING",
+    "setup_page_open": "PENDING",
+    "backend_registration": "PENDING",
+    "duplicate_registration_protection": "PENDING",
+    "free_scan_start": "PENDING",
+    "free_scan_completed": "PENDING",
+    "history_entry": "PENDING",
+    "findings_visible": "PENDING",
+    "html_report": "PENDING",
+    "pdf_report": "PENDING",
+    "dashboard_link": "PENDING",
+    "manual_monitoring_scan": "PENDING",
+    "scheduled_monitoring_scan": "PENDING"
+  },
+  "acceptance": {
+    "no_install_error": false,
+    "no_schema_error": false,
+    "no_duplicate_registration": false,
+    "no_manual_database_change": false,
+    "all_required_evidence_pass": false
+  },
+  "notes": []
+}
