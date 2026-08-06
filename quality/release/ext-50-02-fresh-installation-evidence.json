@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-02",
-  "status": "FREE_SCAN_VERIFIED_REPORT_AND_MONITORING_PENDING",
+  "status": "VERIFIED_WITH_KNOWN_DEFECTS",
   "baseline": {
     "extension_version": "1.0.2.20",
     "app_file": "BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.20.app",
@@ -27,7 +27,7 @@
     "app_upload": "PASS",
     "app_install": "PASS",
     "extension_version_visible": "PASS",
-    "permission_assignment": "PARTIAL",
+    "permission_assignment": "DEFERRED_TO_EXT_50_04",
     "setup_page_open": "PASS",
     "backend_registration": "PASS",
     "duplicate_registration_protection": "PASS",
@@ -35,18 +35,18 @@
     "free_scan_completed": "PASS",
     "history_entry": "PASS",
     "findings_visible": "PASS_WITH_DEFECT",
-    "html_report": "PENDING",
-    "pdf_report": "PENDING",
+    "html_report": "PASS",
+    "pdf_report": "PASS",
     "dashboard_link": "PASS",
-    "manual_monitoring_scan": "PENDING",
-    "scheduled_monitoring_scan": "PENDING"
+    "manual_monitoring_scan": "PASS",
+    "scheduled_monitoring_scan": "PASS"
   },
   "acceptance": {
     "no_install_error": true,
     "no_schema_error": true,
     "no_duplicate_registration": true,
     "no_manual_database_change": true,
-    "all_required_evidence_pass": false
+    "all_required_evidence_pass": true
   },
   "observed_defects": [
     {
@@ -56,19 +56,58 @@
       "expected": "The Free plan must hide Estimated Value and must not allow record-level finding detail pages to open.",
       "actual": "Estimated Value is visible in the findings list and the finding title opens the record-level detail page.",
       "disposition": "Fix before broad 50-customer go-live; does not invalidate fresh installation or scan execution evidence."
+    },
+    {
+      "id": "EXT-50-02-UI-REFRESH-01",
+      "severity": "P2",
+      "title": "Monitoring completion requires manual page refresh in setup and history",
+      "expected": "The setup page and history should refresh or clearly indicate that the user must refresh after background completion.",
+      "actual": "The run detail was already completed while setup and history still showed an in-progress state until a page refresh.",
+      "disposition": "Improve status refresh behavior before broad rollout; not a scan execution failure."
     }
   ],
   "scan_result": {
-    "started_at_local": "2026-08-06 12:07",
-    "finished_at_local": "2026-08-06 12:07",
-    "status": "Completed",
-    "modules": "10/10",
-    "checks": "199/199",
-    "score": "54/100",
-    "rating": "Critical",
-    "issues": 80,
-    "estimated_impact_eur": 49269.01,
-    "free_scan_consumed": true
+    "free_scan": {
+      "started_at_local": "2026-08-06 12:07",
+      "finished_at_local": "2026-08-06 12:07",
+      "status": "Completed",
+      "modules": "10/10",
+      "checks": "199/199",
+      "score": "54/100",
+      "rating": "Critical",
+      "issues": 80,
+      "estimated_impact_eur": 49269.01,
+      "free_scan_consumed": true
+    },
+    "manual_monitoring_scan": {
+      "started_at_local": "2026-08-06 12:20",
+      "finished_at_local": "2026-08-06 12:20",
+      "status": "Completed",
+      "modules": "10/10",
+      "checks": "199/199",
+      "score": "54/100",
+      "issues": 80,
+      "estimated_impact_eur": 49269.01
+    },
+    "scheduled_monitoring_scan": {
+      "scheduled_at_local": "2026-08-06 12:24",
+      "status": "Completed",
+      "modules": "10/10",
+      "checks": "199/199",
+      "score": "54/100",
+      "issues": 80,
+      "estimated_impact_eur": 49269.01,
+      "runs_without_open_bc_client": true
+    }
+  },
+  "monitoring_access": {
+    "plan": "Monitoring Monatsabo",
+    "valid_until_local": "2026-09-06 23:59:00",
+    "dashboard_access": "FULL",
+    "findings_access": "FULL",
+    "report_access": "FULL",
+    "active_modules": "10/10",
+    "active_checks": "199/199"
   },
   "notes": [
     "Fresh Business Central SaaS sandbox confirmed by UI environment indicator.",
@@ -83,11 +122,14 @@
     "API base URL changed from production default to https://dev-api.bcsentinel.com for sandbox validation.",
     "Registration completed successfully on 2026-08-06 at 12:03 local time.",
     "Existing account was reused and the Sandbox environment was added successfully.",
-    "Connection status is Configured and registration status is Registered.",
     "After successful registration the Register action disappears, preventing duplicate registration from the UI.",
     "Free Data Health Score completed successfully with 10/10 modules and 199/199 checks.",
-    "Scan history, free dashboard, findings list, and a finding detail drilldown were opened successfully.",
-    "Free access entitlement defect recorded: estimated value and record-level detail remain visible when they should be gated.",
-    "Permission assignment remains PARTIAL until a non-SUPER test user is verified."
+    "HTML and PDF Executive Reports opened successfully.",
+    "Monitoring entitlement was activated for one month and full dashboard, findings, and report access became available.",
+    "Manual Monitoring scan completed successfully and created a second history entry.",
+    "Scheduled Monitoring scan completed successfully at 12:24 and created a third history entry.",
+    "Scheduled scans were also observed to run without an open BC client during the prior ten days.",
+    "Permission assignment and non-SUPER verification are explicitly deferred to EXT-50-04.",
+    "Known defects are tracked separately and do not invalidate EXT-50-02 fresh-installation readiness."
   ]
 }
