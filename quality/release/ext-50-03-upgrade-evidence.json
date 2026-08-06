@@ -1,0 +1,77 @@
+{
+  "sprint": "EXT-50-03",
+  "title": "Upgrade and data preservation",
+  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "baseline": {
+    "source_version": "1.0.2.16",
+    "target_version": "1.0.2.20",
+    "target_environment": "Business Central SaaS Sandbox",
+    "backend": "https://dev-api.bcsentinel.com",
+    "target_app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
+    "target_publisher": "BCSentinel Analytics - Daniel Wauer",
+    "runtime": "16.0",
+    "platform": "27.0.0.0",
+    "application": "27.0.0.0",
+    "object_range": "53100-53201"
+  },
+  "pre_upgrade": {
+    "source_version_installed": "PENDING",
+    "registered": "PENDING",
+    "api_url_preserved_candidate": "PENDING",
+    "product_access_recorded": "PENDING",
+    "scan_history_count": "PENDING",
+    "last_run_id": "PENDING",
+    "last_score": "PENDING",
+    "scheduler_configuration_recorded": "PENDING",
+    "job_queue_entry_count": "PENDING",
+    "findings_dashboard_report_access": "PENDING"
+  },
+  "upgrade": {
+    "app_uploaded": "PENDING",
+    "upgrade_without_uninstall": "PENDING",
+    "schema_sync_successful": "PENDING",
+    "target_version_visible": "PENDING",
+    "installation_errors": "PENDING"
+  },
+  "data_preservation": {
+    "setup_opens": "PENDING",
+    "registration_preserved": "PENDING",
+    "api_url_preserved": "PENDING",
+    "product_access_preserved_or_refreshed": "PENDING",
+    "scan_history_preserved": "PENDING",
+    "run_ids_preserved": "PENDING",
+    "score_preserved": "PENDING",
+    "findings_preserved": "PENDING",
+    "html_report_opens": "PENDING",
+    "pdf_report_opens": "PENDING",
+    "dashboard_opens": "PENDING",
+    "scheduler_configuration_preserved": "PENDING",
+    "single_job_queue_entry": "PENDING",
+    "no_duplicate_local_data": "PENDING"
+  },
+  "post_upgrade_function": {
+    "product_access_refresh": "PENDING",
+    "manual_monitoring_scan": "PENDING",
+    "manual_scan_history_entry": "PENDING",
+    "scheduled_monitoring_scan": "PENDING",
+    "scheduled_scan_history_entry": "PENDING",
+    "next_scan_calculated": "PENDING",
+    "no_duplicate_credit_or_run": "PENDING"
+  },
+  "deferred": {
+    "non_super_user_and_role_matrix": "EXT-50-04"
+  },
+  "known_defects_carried_forward": [
+    {
+      "severity": "P1",
+      "id": "P1-free-entitlement-leak",
+      "description": "Free plan exposes financial impact and finding drilldown. Must be fixed before 50-customer go-live."
+    },
+    {
+      "severity": "P2",
+      "id": "P2-background-page-refresh",
+      "description": "Setup and history require a manual page refresh to display a completed background scan."
+    }
+  ],
+  "decision": "NOT_READY_FOR_PASS_UNTIL_MANUAL_RUNTIME_EVIDENCE"
+}
