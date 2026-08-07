@@ -78,6 +78,51 @@ Pflichtprüfungen:
 6. Neuen Historieneintrag und nächsten geplanten Scan prüfen.
 7. Prüfen, dass keine Dubletten und keine doppelte Creditbuchung entstanden sind.
 
+## Technisches Problem: Registrierung meldet „Dienst nicht erreichbar“
+
+### Symptom
+
+Nach einer frischen Installation kann die BCSentinel-Registrierung mit einer Meldung scheitern, dass der Dienst nicht erreichbar sei, obwohl die konfigurierte API-URL im Browser erreichbar ist.
+
+### Beobachteter Fall
+
+- Business Central SaaS Sandbox neu erstellt
+- BCSentinel 1.0.2.16 als PTE erfolgreich installiert
+- API-Basis-URL `https://dev-api.bcsentinel.com` korrekt eingetragen
+- Registrierung schlug wiederholt fehl
+- Backend-Logs zeigten zum Registrierungszeitpunkt keinen eingehenden Registrierungs-Request
+- In den Business-Central-Erweiterungseinstellungen war `HttpClient-Anfragen zulassen` deaktiviert
+- Nach Aktivierung der Option konnte die Registrierung erfolgreich durchgeführt werden
+
+### Ursache
+
+Business Central blockiert externe HTTP-Aufrufe einer Extension, wenn für die betreffende PTE `HttpClient-Anfragen zulassen` nicht aktiviert ist. In diesem Zustand erreicht der Registrierungsrequest das BCSentinel-Backend nicht. Die Fehlermeldung in der Extension kann deshalb wie ein Backend-/Netzwerkfehler wirken, obwohl die eigentliche Ursache eine lokale Erweiterungseinstellung in Business Central ist.
+
+### Lösung für Administratoren
+
+1. In Business Central `Erweiterungsverwaltung` öffnen.
+2. BCSentinel auswählen.
+3. `Erweiterungseinstellungen` öffnen.
+4. `HttpClient-Anfragen zulassen` aktivieren.
+5. Einstellung speichern.
+6. BCSentinel-Einrichtung erneut öffnen.
+7. Registrierung erneut ausführen.
+
+### Support-Diagnose
+
+Wenn die Registrierung weiterhin scheitert:
+
+1. API-Basis-URL prüfen.
+2. `HttpClient-Anfragen zulassen` prüfen.
+3. Registrierung erneut auslösen und genaue Uhrzeit notieren.
+4. Backend-Logs zu diesem Zeitpunkt prüfen.
+5. Fehlt dort der Registrierungsrequest vollständig, liegt das Problem vor dem Backend-Aufruf.
+6. Ist ein Request sichtbar, HTTP-Status und Backendfehler analysieren.
+
+### Dokumentationshinweis für Go-Live
+
+Dieser Punkt muss in die Kunden-/Administrator-Dokumentation unter `Technische Probleme / Registrierung` aufgenommen werden. Besonders bei frisch hochgeladenen Per-Tenant-Extensions sollte `HttpClient-Anfragen zulassen` als verpflichtender Installations-Check aufgeführt werden.
+
 ## Abnahmekriterien
 
 EXT-50-03 ist PASS, wenn:
