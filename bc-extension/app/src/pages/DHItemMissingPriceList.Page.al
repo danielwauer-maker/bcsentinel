@@ -1,4 +1,4 @@
-﻿page 53148 "DH Item Missing Price List"
+page 53148 "DH Item Missing Price List"
 {
     PageType = List;
     SourceTable = Item;
@@ -17,19 +17,24 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
-                    ToolTip = 'Specifies Item No..';
+                    ToolTip = 'Opens the original item card for the selected record.';
                     Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Item Card", Rec);
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Description.';
+                    ToolTip = 'Specifies the item description.';
                     Editable = false;
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Unit Price.';
+                    ToolTip = 'Specifies the unit price.';
                     AutoFormatType = 1;
                     AutoFormatExpression = GetLocalCurrencyCode();
                     DecimalPlaces = 2 : 2;
@@ -37,7 +42,7 @@
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Unit Cost.';
+                    ToolTip = 'Specifies the unit cost.';
                     Editable = false;
                     AutoFormatType = 1;
                     AutoFormatExpression = GetLocalCurrencyCode();
@@ -46,7 +51,7 @@
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Inventory.';
+                    ToolTip = 'Specifies the inventory quantity.';
                     Editable = false;
                 }
             }
@@ -57,12 +62,28 @@
     {
         area(Processing)
         {
+            action(OpenItemCard)
+            {
+                Caption = 'Open Item Card';
+                ToolTip = 'Opens the original Business Central item card for the selected record.';
+                ApplicationArea = All;
+                Image = Card;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Item Card", Rec);
+                end;
+            }
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
-                ToolTip = 'Runs Exclude from Analysis.';
+                ToolTip = 'Excludes the selected item from this BCSentinel check without requiring an issue code.';
                 ApplicationArea = All;
                 Image = Cancel;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -75,9 +96,11 @@
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
-                ToolTip = 'Runs Mark as Corrected.';
+                ToolTip = 'Documents the selected item as corrected for this BCSentinel check.';
                 ApplicationArea = All;
-                Image = EditLines;
+                Image = Approve;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -85,19 +108,6 @@
                 begin
                     ExceptionMgt.MarkItemCorrected(Rec, 'ITEMS_WITHOUT_UNIT_PRICE', 'Datensatz manuell als korrigiert markiert.');
                     CurrPage.Update(false);
-                end;
-            }
-
-            action(OpenItemCard)
-            {
-                Caption = 'Open List';
-                ToolTip = 'Runs Open List.';
-                ApplicationArea = All;
-                Image = Card;
-
-                trigger OnAction()
-                begin
-                    Page.Run(Page::"Item Card", Rec);
                 end;
             }
         }
