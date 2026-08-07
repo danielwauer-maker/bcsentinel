@@ -1,13 +1,13 @@
 {
   "sprint": "EXT-50-03",
   "title": "Upgrade and data preservation",
-  "status": "MANUAL_RUNTIME_EVIDENCE_PARTIAL_PASS",
+  "status": "MANUAL_RUNTIME_EVIDENCE_PARTIAL_PASS_WITH_KNOWN_DEFECTS",
   "baseline": {
     "source_version": "1.0.2.16",
     "target_version": "1.0.2.20",
     "target_environment": "Business Central SaaS Sandbox",
-    "sandbox": "BCSentinel-v10216",
-    "company": "Chronus DE",
+    "primary_sandbox": "BCSentinel-v10216",
+    "secondary_sandbox": "BCSentinel-v10220",
     "backend": "https://dev-api.bcsentinel.com",
     "target_app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
     "target_publisher": "BCSentinel Analytics - Daniel Wauer",
@@ -18,71 +18,89 @@
   },
   "pre_upgrade": {
     "source_version_installed": "PASS - 1.0.2.16 installed successfully in clean sandbox",
-    "registered": "PASS - tenant registration successful",
+    "registered": "PASS - tenant registration successful after enabling Allow HttpClient Requests for the PTE",
     "api_url_preserved_candidate": "PASS - https://dev-api.bcsentinel.com recorded",
-    "product_access_recorded": "PASS - Kostenloser Data Health Score",
-    "scan_history_count": 1,
-    "last_run_id": "RUN_20260807_00000... (UI truncated)",
-    "last_score": "48/100",
-    "last_scan_modules": "10/10",
-    "last_scan_checks": "199/199",
-    "last_scan_findings": 92,
-    "last_scan_financial_impact_eur": 58370.02,
-    "scheduler_configuration_recorded": "NOT_CONFIGURED_FOR_THIS_EVIDENCE_YET",
-    "job_queue_entry_count": "PENDING",
-    "findings_dashboard_report_access": "PASS - Findings, dashboard and reports opened successfully before upgrade"
+    "free_scan": "PASS",
+    "full_analysis_access": "PASS - granted to allow findings/exception testing",
+    "dh_exceptions_created": "PASS - two records excluded from analysis",
+    "dh_exceptions_effective": "PASS - exclusions affected subsequent scan and analysis dashboard",
+    "corrected_record_marked": "OBSERVED - one record was marked as corrected, but its persistence/representation is not yet understood because it does not appear in the DH Exceptions list",
+    "monitoring_licensed": "PASS - Monitoring Monatsabo active",
+    "monitoring_access_until_expected": "07.09.2026 23:59",
+    "product_access_until_observed": "14.08.2026 13:27:44",
+    "product_access_until_status": "DEFECT - field still reflects 7-day Full Analysis access instead of monitoring entitlement",
+    "manual_monitoring_scan": "KNOWN_1.0.2.16_BUG - manual monitoring scan could not be completed on source version",
+    "scheduled_monitoring_scan": "PASS - automatic scheduler monitoring scan completed successfully on 1.0.2.16",
+    "scheduler_configuration_recorded": "PASS - scheduler/monitoring active before upgrade",
+    "findings_dashboard_report_access": "PASS"
   },
   "upgrade": {
     "app_uploaded": "PASS - 1.0.2.20 uploaded successfully",
     "upgrade_without_uninstall": "PASS - direct update from 1.0.2.16 to 1.0.2.20",
     "schema_sync_successful": "PASS - installation completed successfully",
-    "target_version_visible": "PASS - 1.0.2.20 installed; 1.0.2.16 no longer active",
+    "target_version_visible": "PASS - 1.0.2.20 installed",
     "installation_errors": "PASS - none observed"
   },
   "data_preservation": {
     "setup_opens": "PASS",
-    "registration_preserved": "PASS - setup remains registered",
-    "api_url_preserved": "PASS - https://dev-api.bcsentinel.com remains present",
-    "product_access_preserved_or_refreshed": "PASS - product access refresh completed successfully after upgrade",
-    "scan_history_preserved": "PASS - pre-upgrade scan remains visible together with new post-upgrade scan",
-    "run_ids_preserved": "PASS - original run remains present in scan history",
-    "score_preserved": "PASS - original 48/100 retained",
-    "findings_preserved": "PASS_FOR_EXISTING_SCAN_DATA - findings from upgraded tenant remain accessible; preservation of user-edited finding state still to be tested separately",
-    "html_report_opens": "PASS - HTML report opened successfully after upgrade",
-    "pdf_report_opens": "PASS - PDF report opened successfully after upgrade",
-    "dashboard_opens": "PASS - dashboard opened successfully after upgrade",
-    "scheduler_configuration_preserved": "PENDING - scheduler baseline was not configured before this upgrade run",
-    "single_job_queue_entry": "PENDING",
-    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - original scan plus exactly one new post-upgrade validation scan are visible; no accidental duplicate history entries observed"
+    "registration_preserved": "PASS",
+    "api_url_preserved": "PASS",
+    "product_access_preserved_or_refreshed": "PASS_WITH_DEFECT - monitoring entitlement remains active, but Product access until displays the wrong date",
+    "scan_history_preserved": "PASS - pre-upgrade history remains present",
+    "run_ids_preserved": "PASS",
+    "scores_preserved": "PASS",
+    "dh_exceptions_preserved": "PASS - two exclusions created on 1.0.2.16 are still present after upgrade",
+    "corrected_record_state_preserved": "PENDING - corrected-state behavior must be clarified and tested separately",
+    "html_report_opens": "PASS",
+    "pdf_report_opens": "PASS",
+    "dashboard_opens": "PASS",
+    "scheduler_configuration_preserved": "PASS - scheduler monitoring continued to run after upgrade",
+    "single_job_queue_entry": "PENDING_EXPLICIT_CHECK",
+    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - no accidental duplicate scan history observed"
   },
   "post_upgrade_function": {
-    "product_access_refresh": "PASS - refresh completed successfully",
-    "manual_validation_scan": "PASS - Validation Check completed successfully after upgrade",
-    "manual_scan_history_entry": "PASS - new Validation Check history entry created at 07.08.2026 13:36",
-    "manual_monitoring_scan": "PENDING - current entitlement is free/validation, not monitoring",
-    "scheduled_monitoring_scan": "PENDING",
-    "scheduled_scan_history_entry": "PENDING",
-    "next_scan_calculated": "PENDING",
-    "no_duplicate_credit_or_run": "PASS_WITH_CURRENT_EVIDENCE - one new validation run created; no duplicate run observed"
+    "product_access_refresh": "PASS",
+    "manual_validation_scan": "PASS",
+    "manual_monitoring_scan": "PASS - completed successfully on 1.0.2.20",
+    "scheduled_monitoring_scan": "PASS - completed successfully on 1.0.2.20",
+    "scheduled_scan_history_entry": "PASS - automatic monitoring entries visible after upgrade",
+    "scan_history_progression": "PASS - free scan, validation scan and multiple monitoring scans coexist correctly",
+    "next_scan_calculated": "PASS_WITH_RUNTIME_EVIDENCE - scheduler continued to execute after upgrade",
+    "no_duplicate_credit_or_run": "PASS_WITH_CURRENT_EVIDENCE"
   },
   "manual_evidence_date": "2026-08-07",
   "manual_evidence_summary": [
-    "Clean sandbox created without BCSentinel installed",
+    "Second clean sandbox BCSentinel-v10220 created",
     "BCSentinel 1.0.2.16 installed successfully",
-    "Tenant registration successful",
-    "Initial free scan completed successfully",
-    "Scan history entry created successfully",
-    "Dashboard, reports and findings opened successfully before upgrade",
-    "BCSentinel 1.0.2.20 installed successfully as an upgrade",
-    "BCSentinel setup data remained present after upgrade",
-    "Registration remained present after upgrade",
-    "Original scan history and score remained present after upgrade",
-    "Findings opened successfully after upgrade",
-    "Dashboard opened successfully after upgrade",
-    "HTML and PDF reports opened successfully after upgrade",
-    "Product access refresh completed successfully after upgrade",
-    "Post-upgrade Validation Check completed successfully",
-    "New post-upgrade scan history entry created successfully"
+    "Registration succeeded after Allow HttpClient Requests was enabled",
+    "Free scan completed successfully",
+    "Full Analysis access granted for findings and exception testing",
+    "Two DH exclusions were created and affected scan/dashboard results",
+    "One record was marked corrected; behavior requires follow-up because it is not shown in DH Exceptions",
+    "Monitoring licensed before upgrade",
+    "Scheduled monitoring scan succeeded on 1.0.2.16",
+    "Upgrade 1.0.2.16 to 1.0.2.20 completed successfully",
+    "DH exclusions remained present after upgrade",
+    "Scan history remained present after upgrade",
+    "Manual monitoring scan succeeded after upgrade",
+    "Scheduled monitoring scan succeeded after upgrade"
+  ],
+  "follow_up_gaps": [
+    {
+      "severity": "P1",
+      "id": "P1-finding-remediation-consistency",
+      "description": "All record-based finding detail pages should provide consistent actions 'Von Analyse ausschließen' and 'Als korrigiert markieren' and allow drilldown to the original Business Central record. Some pages currently expose the actions, others require manual DH Exception creation, and some custom lists do not open the underlying record."
+    },
+    {
+      "severity": "P1",
+      "id": "P1-corrected-record-state-clarification",
+      "description": "A record marked 'Als korrigiert markieren' does not appear in the DH Exceptions list. Verify intended data model, persistence across scans/upgrades, UI visibility, and whether corrected state should affect scoring until the next scan."
+    },
+    {
+      "severity": "P1",
+      "id": "P1-monitoring-product-access-until",
+      "description": "With Monitoring Monatsabo valid until 07.09.2026 23:59, the setup field 'Produktzugriff bis' still shows the prior 7-day Full Analysis date 14.08.2026 13:27:44. The field must reflect the effective monitoring entitlement."
+    }
   ],
   "deferred": {
     "non_super_user_and_role_matrix": "EXT-50-04"
@@ -99,5 +117,5 @@
       "description": "Setup and history require a manual page refresh to display a completed background scan."
     }
   ],
-  "decision": "PARTIAL_PASS - CORE_UPGRADE, PRIMARY_DATA_PRESERVATION_AND_POST_UPGRADE_VALIDATION_FUNCTION_VERIFIED; FINAL_PASS_REQUIRES_EDITED_FINDING_STATE_PRESERVATION_AND_SCHEDULER/MONITORING_UPGRADE_EVIDENCE"
+  "decision": "PARTIAL_PASS - CORE UPGRADE, DH EXCEPTION PRESERVATION, SCAN HISTORY PRESERVATION, MANUAL MONITORING AND SCHEDULED MONITORING ARE VERIFIED. FINAL PASS REQUIRES EXPLICIT SINGLE JOB-QUEUE CHECK AND CLARIFICATION/TEST OF CORRECTED-RECORD STATE. PRODUCT-ACCESS-UNTIL DATE IS A CONFIRMED P1 DEFECT BUT DOES NOT INVALIDATE THE UPGRADE PATH ITSELF."
 }
