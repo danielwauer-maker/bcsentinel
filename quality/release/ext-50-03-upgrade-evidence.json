@@ -1,0 +1,123 @@
+{
+  "sprint": "EXT-50-03",
+  "title": "Upgrade and data preservation",
+  "status": "PASS_WITH_KNOWN_DEFECTS",
+  "baseline": {
+    "source_version": "1.0.2.16",
+    "target_version": "1.0.2.20",
+    "target_environment": "Business Central SaaS Sandbox",
+    "primary_sandbox": "BCSentinel-v10216",
+    "secondary_sandbox": "BCSentinel-v10220",
+    "backend": "https://dev-api.bcsentinel.com",
+    "target_app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
+    "target_publisher": "BCSentinel Analytics - Daniel Wauer",
+    "runtime": "16.0",
+    "platform": "27.0.0.0",
+    "application": "27.0.0.0",
+    "object_range": "53100-53201"
+  },
+  "pre_upgrade": {
+    "source_version_installed": "PASS - 1.0.2.16 installed successfully in clean sandbox",
+    "registered": "PASS - tenant registration successful after enabling Allow HttpClient Requests for the PTE",
+    "api_url_preserved_candidate": "PASS - https://dev-api.bcsentinel.com recorded",
+    "free_scan": "PASS",
+    "full_analysis_access": "PASS - granted to allow findings/exception testing",
+    "dh_exceptions_created": "PASS - two records excluded from analysis",
+    "dh_exceptions_effective": "PASS - exclusions affected subsequent scan and analysis dashboard",
+    "corrected_record_marked": "OBSERVED - one record was marked as corrected, but its persistence/representation is not yet understood because it does not appear in the DH Exceptions list",
+    "monitoring_licensed": "PASS - Monitoring Monatsabo active",
+    "monitoring_access_until_expected": "07.09.2026 23:59",
+    "product_access_until_observed": "14.08.2026 13:27:44",
+    "product_access_until_status": "DEFECT - field still reflects 7-day Full Analysis access instead of monitoring entitlement",
+    "manual_monitoring_scan": "KNOWN_1.0.2.16_BUG - manual monitoring scan could not be completed on source version",
+    "scheduled_monitoring_scan": "PASS - automatic scheduler monitoring scan completed successfully on 1.0.2.16",
+    "scheduler_configuration_recorded": "PASS - scheduler/monitoring active before upgrade",
+    "findings_dashboard_report_access": "PASS"
+  },
+  "upgrade": {
+    "app_uploaded": "PASS - 1.0.2.20 uploaded successfully",
+    "upgrade_without_uninstall": "PASS - direct update from 1.0.2.16 to 1.0.2.20",
+    "schema_sync_successful": "PASS - installation completed successfully",
+    "target_version_visible": "PASS - 1.0.2.20 installed",
+    "installation_errors": "PASS - none observed"
+  },
+  "data_preservation": {
+    "setup_opens": "PASS",
+    "registration_preserved": "PASS",
+    "api_url_preserved": "PASS",
+    "product_access_preserved_or_refreshed": "PASS_WITH_DEFECT - monitoring entitlement remains active, but Product access until displays the wrong date",
+    "scan_history_preserved": "PASS - pre-upgrade history remains present",
+    "run_ids_preserved": "PASS",
+    "scores_preserved": "PASS",
+    "dh_exceptions_preserved": "PASS - two exclusions created on 1.0.2.16 are still present after upgrade",
+    "corrected_record_state_preserved": "NOT_REQUIRED_FOR_UPGRADE_PASS - behavior is tracked separately as product defect / UX clarification",
+    "html_report_opens": "PASS",
+    "pdf_report_opens": "PASS",
+    "dashboard_opens": "PASS",
+    "scheduler_configuration_preserved": "PASS - scheduler monitoring continued to run after upgrade",
+    "job_queue_model": "NOT_APPLICABLE - no BCSentinel entry is present in the standard Business Central Job Queue page; scheduler functionality is verified by actual scheduled runs instead",
+    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - no accidental duplicate scan history observed"
+  },
+  "post_upgrade_function": {
+    "product_access_refresh": "PASS",
+    "manual_validation_scan": "PASS",
+    "manual_monitoring_scan": "PASS - completed successfully on 1.0.2.20",
+    "scheduled_monitoring_scan": "PASS - two intentionally planned monitoring tasks completed successfully on 1.0.2.20",
+    "scheduled_scan_history_entry": "PASS - both expected scheduled monitoring entries are visible; no unintended duplicate run was observed",
+    "scan_history_progression": "PASS - free scan, validation scan and monitoring scans coexist correctly",
+    "next_scan_calculated": "PASS_WITH_RUNTIME_EVIDENCE - scheduler continued to execute after upgrade",
+    "no_duplicate_credit_or_run": "PASS - the two close-together scheduled monitoring runs were both intentionally planned tasks, not a scheduler duplicate"
+  },
+  "manual_evidence_date": "2026-08-07",
+  "manual_evidence_summary": [
+    "Second clean sandbox BCSentinel-v10220 created",
+    "BCSentinel 1.0.2.16 installed successfully",
+    "Registration succeeded after Allow HttpClient Requests was enabled",
+    "Free scan completed successfully",
+    "Full Analysis access granted for findings and exception testing",
+    "Two DH exclusions were created and affected scan/dashboard results",
+    "One record was marked corrected; behavior requires follow-up because it is not shown in DH Exceptions",
+    "Monitoring licensed before upgrade",
+    "Scheduled monitoring scan succeeded on 1.0.2.16",
+    "Upgrade 1.0.2.16 to 1.0.2.20 completed successfully",
+    "DH exclusions remained present after upgrade",
+    "Scan history remained present after upgrade",
+    "Manual monitoring scan succeeded after upgrade",
+    "Two intentionally planned scheduler monitoring tasks succeeded after upgrade",
+    "No unintended duplicate scheduler run was observed",
+    "Standard Business Central Job Queue does not show a BCSentinel entry; runtime scheduler behavior is therefore the acceptance evidence"
+  ],
+  "follow_up_gaps": [
+    {
+      "severity": "P1",
+      "id": "P1-finding-remediation-consistency",
+      "description": "All record-based finding detail pages should provide consistent actions 'Von Analyse ausschließen' and 'Als korrigiert markieren' and allow drilldown to the original Business Central record. Some pages currently expose the actions, others require manual DH Exception creation, and some custom lists do not open the underlying record."
+    },
+    {
+      "severity": "P1",
+      "id": "P1-corrected-record-state-clarification",
+      "description": "A record marked 'Als korrigiert markieren' does not appear in the DH Exceptions list. Verify intended data model, persistence across scans/upgrades, UI visibility, and whether corrected state should affect scoring until the next scan."
+    },
+    {
+      "severity": "P1",
+      "id": "P1-monitoring-product-access-until",
+      "description": "With Monitoring Monatsabo valid until 07.09.2026 23:59, the setup field 'Produktzugriff bis' still shows the prior 7-day Full Analysis date 14.08.2026 13:27:44. The field must reflect the effective monitoring entitlement."
+    }
+  ],
+  "deferred": {
+    "non_super_user_and_role_matrix": "EXT-50-04"
+  },
+  "known_defects_carried_forward": [
+    {
+      "severity": "P1",
+      "id": "P1-free-entitlement-leak",
+      "description": "Free plan exposes financial impact and finding drilldown. Must be fixed before 50-customer go-live."
+    },
+    {
+      "severity": "P2",
+      "id": "P2-background-page-refresh",
+      "description": "Setup and history require a manual page refresh to display a completed background scan."
+    }
+  ],
+  "decision": "PASS_WITH_KNOWN_DEFECTS - THE UPGRADE 1.0.2.16 TO 1.0.2.20, PRIMARY DATA PRESERVATION, DH EXCEPTION PRESERVATION, SCAN HISTORY PRESERVATION, MANUAL MONITORING AND SCHEDULED MONITORING ARE VERIFIED. THE TWO CLOSE-TOGETHER SCHEDULED RUNS WERE INTENTIONALLY PLANNED TASKS, SO NO SCHEDULER DUPLICATION DEFECT IS PRESENT. REMAINING P1 ITEMS ARE TRACKED PRODUCT/UX DEFECTS AND DO NOT INVALIDATE THE UPGRADE PATH."
+}
