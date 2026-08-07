@@ -1,7 +1,8 @@
-﻿page 53131 "DH Deep Scan Findings"
+page 53131 "DH Deep Scan Findings"
 {
     PageType = ListPart;
     SourceTable = "DH Deep Scan Finding";
+    SourceTableTemporary = true;
     Permissions = tabledata "DH Deep Scan Finding" = R;
     ApplicationArea = All;
     UsageCategory = None;
@@ -20,20 +21,15 @@
                 field(Category; Rec.Category)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Category.';
-                }
-
-                field("Issue Code"; Rec."Issue Code")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies Issue Code.';
-                    Visible = ShowPremiumDetails;
+                    ToolTip = 'Specifies the finding category.';
                 }
 
                 field(Title; CatalogTitle)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Title.';
+                    Caption = 'Finding';
+                    ToolTip = 'Specifies the title of the detected data-quality finding.';
+                    Visible = ShowPremiumDetails;
 
                     trigger OnDrillDown()
                     var
@@ -46,14 +42,24 @@
                 field(Severity; Rec.Severity)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Severity.';
+                    ToolTip = 'Specifies the severity assigned to the finding.';
                     StyleExpr = SeverityStyle;
+                }
+
+                field(FreeAffectedCount; Rec."Affected Count")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Affected Records';
+                    ToolTip = 'Shows the total affected record count aggregated by category and severity.';
+                    Visible = ShowFreeSummary;
                 }
 
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Affected Count.';
+                    Caption = 'Affected Records';
+                    ToolTip = 'Specifies how many records are affected by the finding.';
+                    Visible = ShowPremiumDetails;
 
                     trigger OnDrillDown()
                     var
@@ -67,21 +73,14 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Impact';
-                    ToolTip = 'Specifies the estimated impact in local currency.';
-                }
-
-                field("Recommendation Preview"; CatalogRecommendation)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies Recommendation Preview.';
-                    Visible = ShowPremiumDetails;
+                    ToolTip = 'Shows the estimated financial impact for Full Analysis. In Free mode the amount is protected.';
                 }
 
                 field(Access; AccessText)
                 {
                     ApplicationArea = All;
                     Caption = 'Access';
-                    ToolTip = 'Specifies Access.';
+                    ToolTip = 'Specifies whether detailed findings are available.';
                 }
             }
         }
@@ -90,7 +89,6 @@
     trigger OnAfterGetRecord()
     begin
         UpdateCatalogText();
-        UpdateAccessState();
         SeverityStyle := GetSeverityStyle();
         ImpactTxt := GetImpactText();
     end;
@@ -100,43 +98,67 @@
         AccessGuard: Codeunit "DH Access Guard";
     begin
         AccessGuard.EnsureIssuesAccess();
-        EnsureSortFields();
         UpdateAccessState();
-        Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
-        Rec.Ascending(true);
+        LoadPageData();
     end;
 
     var
         CatalogTitle: Text[250];
-        CatalogRecommendation: Text[2048];
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
+        ShowFreeSummary: Boolean;
         AccessText: Text[80];
         ImpactTxt: Text[50];
+        ProtectedImpactLbl: Label '•••• EUR';
 
-    local procedure EnsureSortFields()
+    local procedure LoadPageData()
     var
-        Issue: Record "DH Deep Scan Finding";
-        NeedsUpdate: Boolean;
+        SourceFinding: Record "DH Deep Scan Finding";
+        NextTempEntryNo: Integer;
     begin
-        Issue.CopyFilters(Rec);
-        if Issue.FindSet() then
+        SourceFinding.CopyFilters(Rec);
+        Rec.Reset();
+        Rec.DeleteAll();
+        NextTempEntryNo := 1;
+
+        if SourceFinding.FindSet() then
             repeat
-                NeedsUpdate := false;
+                if ShowPremiumDetails then begin
+                    Rec := SourceFinding;
+                    Rec.Insert();
+                end else
+                    AddFreeAggregate(SourceFinding, NextTempEntryNo);
+            until SourceFinding.Next() = 0;
 
-                if Issue."Severity Sort Order" <> GetSeveritySortOrder(Issue.Severity) then begin
-                    Issue."Severity Sort Order" := GetSeveritySortOrder(Issue.Severity);
-                    NeedsUpdate := true;
-                end;
+        Rec.Reset();
+        Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
+        Rec.Ascending(true);
+    end;
 
-                if Issue."Affected Count Sort Value" <> -Issue."Affected Count" then begin
-                    Issue."Affected Count Sort Value" := -Issue."Affected Count";
-                    NeedsUpdate := true;
-                end;
+    local procedure AddFreeAggregate(SourceFinding: Record "DH Deep Scan Finding"; var NextTempEntryNo: Integer)
+    begin
+        Rec.Reset();
+        Rec.SetRange(Category, SourceFinding.Category);
+        Rec.SetRange(Severity, SourceFinding.Severity);
 
-                if NeedsUpdate then
-                    Issue.Modify(true);
-            until Issue.Next() = 0;
+        if Rec.FindFirst() then begin
+            Rec."Affected Count" := Rec."Affected Count" + SourceFinding."Affected Count";
+            Rec."Affected Count Sort Value" := -Rec."Affected Count";
+            Rec.Modify();
+        end else begin
+            Rec.Init();
+            Rec."Entry No." := NextTempEntryNo;
+            NextTempEntryNo := NextTempEntryNo + 1;
+            Rec."Deep Scan Entry No." := SourceFinding."Deep Scan Entry No.";
+            Rec.Category := SourceFinding.Category;
+            Rec.Severity := SourceFinding.Severity;
+            Rec."Affected Count" := SourceFinding."Affected Count";
+            Rec."Severity Sort Order" := GetSeveritySortOrder(SourceFinding.Severity);
+            Rec."Affected Count Sort Value" := -SourceFinding."Affected Count";
+            Rec.Insert();
+        end;
+
+        Rec.Reset();
     end;
 
     local procedure GetSeveritySortOrder(SeverityValue: Code[20]): Integer
@@ -174,15 +196,17 @@
     local procedure UpdateAccessState()
     var
         Setup: Record "DH Setup";
-        BuyFullAnalysisLbl: Label 'Buy Full Analysis';
+        BuyFullAnalysisLbl: Label 'Start Assessment for detailed insights';
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
+        ShowFreeSummary := true;
         AccessText := BuyFullAnalysisLbl;
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
                 ShowPremiumDetails := true;
+                ShowFreeSummary := false;
                 AccessText := UnlockedLbl;
             end;
     end;
@@ -198,17 +222,18 @@
     var
         CurrencyMgt: Codeunit "DH Currency Mgt.";
     begin
+        if not ShowPremiumDetails then
+            exit(ProtectedImpactLbl);
+
         exit(CurrencyMgt.FormatLocalAmount(Rec."Estimated Impact (EUR)"));
     end;
-
 
     procedure SetDeepScanEntryNo(DeepScanEntryNo: Integer)
     begin
         Rec.Reset();
         Rec.SetRange("Deep Scan Entry No.", DeepScanEntryNo);
-        EnsureSortFields();
-        Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
-        Rec.Ascending(true);
+        UpdateAccessState();
+        LoadPageData();
         CurrPage.Update(false);
     end;
 
@@ -216,7 +241,10 @@
     var
         CheckCatalogMgt: Codeunit "DH Check Catalog Mgt.";
     begin
+        Clear(CatalogTitle);
+        if not ShowPremiumDetails then
+            exit;
+
         CatalogTitle := CheckCatalogMgt.ResolveTitle(Rec."Issue Code");
-        CatalogRecommendation := CheckCatalogMgt.ResolveRecommendation(Rec."Issue Code");
     end;
 }
