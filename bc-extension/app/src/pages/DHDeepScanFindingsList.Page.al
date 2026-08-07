@@ -48,9 +48,6 @@ page 53160 "DH Deep Scan Findings List"
                     var
                         IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
                     begin
-                        if not ShowPremiumDetails then
-                            exit;
-
                         IssueDrilldownMgt.OpenDeepScanFinding(Rec);
                     end;
                 }
@@ -62,19 +59,25 @@ page 53160 "DH Deep Scan Findings List"
                     StyleExpr = SeverityStyle;
                 }
 
+                field(FreeAffectedCount; Rec."Affected Count")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Affected Records';
+                    ToolTip = 'Shows the total affected record count aggregated by category and severity.';
+                    Visible = ShowFreeSummary;
+                }
+
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
                     Caption = 'Affected Records';
-                    ToolTip = 'Specifies the affected record count. In Free mode this is aggregated by category and severity.';
+                    ToolTip = 'Specifies how many records are affected by the finding.';
+                    Visible = ShowPremiumDetails;
 
                     trigger OnDrillDown()
                     var
                         IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
                     begin
-                        if not ShowPremiumDetails then
-                            exit;
-
                         IssueDrilldownMgt.OpenDeepScanFinding(Rec);
                     end;
                 }
@@ -122,6 +125,7 @@ page 53160 "DH Deep Scan Findings List"
         NoFindingsLbl: Label 'No findings are available.';
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
+        ShowFreeSummary: Boolean;
         AccessText: Text[80];
         ImpactTxt: Text[50];
         ProtectedImpactLbl: Label '•••• EUR';
@@ -157,13 +161,13 @@ page 53160 "DH Deep Scan Findings List"
         Rec.SetRange(Severity, SourceFinding.Severity);
 
         if Rec.FindFirst() then begin
-            Rec."Affected Count" += SourceFinding."Affected Count";
+            Rec."Affected Count" := Rec."Affected Count" + SourceFinding."Affected Count";
             Rec."Affected Count Sort Value" := -Rec."Affected Count";
             Rec.Modify();
         end else begin
             Rec.Init();
             Rec."Entry No." := NextTempEntryNo;
-            NextTempEntryNo += 1;
+            NextTempEntryNo := NextTempEntryNo + 1;
             Rec."Deep Scan Entry No." := SourceFinding."Deep Scan Entry No.";
             Rec.Category := SourceFinding.Category;
             Rec.Severity := SourceFinding.Severity;
@@ -215,11 +219,13 @@ page 53160 "DH Deep Scan Findings List"
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
+        ShowFreeSummary := true;
         AccessText := BuyFullAnalysisLbl;
 
         if Setup.Get('SETUP') then
             if Setup."Premium Enabled" then begin
                 ShowPremiumDetails := true;
+                ShowFreeSummary := false;
                 AccessText := UnlockedLbl;
             end;
     end;
