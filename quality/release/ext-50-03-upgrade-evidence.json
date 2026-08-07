@@ -1,11 +1,13 @@
 {
   "sprint": "EXT-50-03",
   "title": "Upgrade and data preservation",
-  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "status": "MANUAL_RUNTIME_EVIDENCE_PARTIAL_PASS",
   "baseline": {
     "source_version": "1.0.2.16",
     "target_version": "1.0.2.20",
     "target_environment": "Business Central SaaS Sandbox",
+    "sandbox": "BCSentinel-v10216",
+    "company": "Chronus DE",
     "backend": "https://dev-api.bcsentinel.com",
     "target_app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
     "target_publisher": "BCSentinel Analytics - Daniel Wauer",
@@ -15,39 +17,43 @@
     "object_range": "53100-53201"
   },
   "pre_upgrade": {
-    "source_version_installed": "PENDING",
-    "registered": "PENDING",
-    "api_url_preserved_candidate": "PENDING",
-    "product_access_recorded": "PENDING",
-    "scan_history_count": "PENDING",
-    "last_run_id": "PENDING",
-    "last_score": "PENDING",
-    "scheduler_configuration_recorded": "PENDING",
+    "source_version_installed": "PASS - 1.0.2.16 installed successfully in clean sandbox",
+    "registered": "PASS - tenant registration successful",
+    "api_url_preserved_candidate": "PASS - https://dev-api.bcsentinel.com recorded",
+    "product_access_recorded": "PASS - Kostenloser Data Health Score",
+    "scan_history_count": 1,
+    "last_run_id": "RUN_20260807_00000... (UI truncated)",
+    "last_score": "48/100",
+    "last_scan_modules": "10/10",
+    "last_scan_checks": "199/199",
+    "last_scan_findings": 92,
+    "last_scan_financial_impact_eur": 58370.02,
+    "scheduler_configuration_recorded": "NOT_CONFIGURED_FOR_THIS_EVIDENCE_YET",
     "job_queue_entry_count": "PENDING",
-    "findings_dashboard_report_access": "PENDING"
+    "findings_dashboard_report_access": "PASS - Findings, dashboard and reports opened successfully before upgrade"
   },
   "upgrade": {
-    "app_uploaded": "PENDING",
-    "upgrade_without_uninstall": "PENDING",
-    "schema_sync_successful": "PENDING",
-    "target_version_visible": "PENDING",
-    "installation_errors": "PENDING"
+    "app_uploaded": "PASS - 1.0.2.20 uploaded successfully",
+    "upgrade_without_uninstall": "PASS - direct update from 1.0.2.16 to 1.0.2.20",
+    "schema_sync_successful": "PASS - installation completed successfully",
+    "target_version_visible": "PASS - 1.0.2.20 installed; 1.0.2.16 no longer active",
+    "installation_errors": "PASS - none observed"
   },
   "data_preservation": {
-    "setup_opens": "PENDING",
-    "registration_preserved": "PENDING",
-    "api_url_preserved": "PENDING",
-    "product_access_preserved_or_refreshed": "PENDING",
-    "scan_history_preserved": "PENDING",
-    "run_ids_preserved": "PENDING",
-    "score_preserved": "PENDING",
-    "findings_preserved": "PENDING",
-    "html_report_opens": "PENDING",
-    "pdf_report_opens": "PENDING",
-    "dashboard_opens": "PENDING",
-    "scheduler_configuration_preserved": "PENDING",
+    "setup_opens": "PASS",
+    "registration_preserved": "PASS - setup remains registered",
+    "api_url_preserved": "PASS - https://dev-api.bcsentinel.com remains present",
+    "product_access_preserved_or_refreshed": "PASS - free product access remains present and marked used",
+    "scan_history_preserved": "PASS - pre-upgrade scan remains visible",
+    "run_ids_preserved": "PASS - original run remains present",
+    "score_preserved": "PASS - 48/100 retained",
+    "findings_preserved": "PARTIAL - findings access/data existed before upgrade; preservation of user-edited finding state still to be tested",
+    "html_report_opens": "PENDING_POST_UPGRADE_RECHECK",
+    "pdf_report_opens": "PENDING_POST_UPGRADE_RECHECK",
+    "dashboard_opens": "PENDING_POST_UPGRADE_RECHECK",
+    "scheduler_configuration_preserved": "PENDING - scheduler baseline not yet configured for this run",
     "single_job_queue_entry": "PENDING",
-    "no_duplicate_local_data": "PENDING"
+    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - one original scan history record visible after upgrade; deeper duplicate checks still covered by final post-upgrade verification"
   },
   "post_upgrade_function": {
     "product_access_refresh": "PENDING",
@@ -58,6 +64,19 @@
     "next_scan_calculated": "PENDING",
     "no_duplicate_credit_or_run": "PENDING"
   },
+  "manual_evidence_date": "2026-08-07",
+  "manual_evidence_summary": [
+    "Clean sandbox created without BCSentinel installed",
+    "BCSentinel 1.0.2.16 installed successfully",
+    "Tenant registration successful",
+    "Initial free scan completed successfully",
+    "Scan history entry created successfully",
+    "Dashboard, reports and findings opened successfully before upgrade",
+    "BCSentinel 1.0.2.20 installed successfully as an upgrade",
+    "BCSentinel setup data remained present after upgrade",
+    "Registration remained present after upgrade",
+    "Original scan history and score remained present after upgrade"
+  ],
   "deferred": {
     "non_super_user_and_role_matrix": "EXT-50-04"
   },
@@ -73,5 +92,5 @@
       "description": "Setup and history require a manual page refresh to display a completed background scan."
     }
   ],
-  "decision": "NOT_READY_FOR_PASS_UNTIL_MANUAL_RUNTIME_EVIDENCE"
+  "decision": "PARTIAL_PASS - CORE_UPGRADE_AND_PRIMARY_DATA_PRESERVATION_VERIFIED; FINAL_PASS_REQUIRES_FINDING_EDIT_PRESERVATION_AND_POST_UPGRADE_FUNCTIONAL_RECHECKS"
 }
