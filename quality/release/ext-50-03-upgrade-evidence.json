@@ -43,26 +43,27 @@
     "setup_opens": "PASS",
     "registration_preserved": "PASS - setup remains registered",
     "api_url_preserved": "PASS - https://dev-api.bcsentinel.com remains present",
-    "product_access_preserved_or_refreshed": "PASS - free product access remains present and marked used",
-    "scan_history_preserved": "PASS - pre-upgrade scan remains visible",
-    "run_ids_preserved": "PASS - original run remains present",
-    "score_preserved": "PASS - 48/100 retained",
-    "findings_preserved": "PARTIAL - findings access/data existed before upgrade; preservation of user-edited finding state still to be tested",
-    "html_report_opens": "PENDING_POST_UPGRADE_RECHECK",
-    "pdf_report_opens": "PENDING_POST_UPGRADE_RECHECK",
-    "dashboard_opens": "PENDING_POST_UPGRADE_RECHECK",
-    "scheduler_configuration_preserved": "PENDING - scheduler baseline not yet configured for this run",
+    "product_access_preserved_or_refreshed": "PASS - product access refresh completed successfully after upgrade",
+    "scan_history_preserved": "PASS - pre-upgrade scan remains visible together with new post-upgrade scan",
+    "run_ids_preserved": "PASS - original run remains present in scan history",
+    "score_preserved": "PASS - original 48/100 retained",
+    "findings_preserved": "PASS_FOR_EXISTING_SCAN_DATA - findings from upgraded tenant remain accessible; preservation of user-edited finding state still to be tested separately",
+    "html_report_opens": "PASS - HTML report opened successfully after upgrade",
+    "pdf_report_opens": "PASS - PDF report opened successfully after upgrade",
+    "dashboard_opens": "PASS - dashboard opened successfully after upgrade",
+    "scheduler_configuration_preserved": "PENDING - scheduler baseline was not configured before this upgrade run",
     "single_job_queue_entry": "PENDING",
-    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - one original scan history record visible after upgrade; deeper duplicate checks still covered by final post-upgrade verification"
+    "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - original scan plus exactly one new post-upgrade validation scan are visible; no accidental duplicate history entries observed"
   },
   "post_upgrade_function": {
-    "product_access_refresh": "PENDING",
-    "manual_monitoring_scan": "PENDING",
-    "manual_scan_history_entry": "PENDING",
+    "product_access_refresh": "PASS - refresh completed successfully",
+    "manual_validation_scan": "PASS - Validation Check completed successfully after upgrade",
+    "manual_scan_history_entry": "PASS - new Validation Check history entry created at 07.08.2026 13:36",
+    "manual_monitoring_scan": "PENDING - current entitlement is free/validation, not monitoring",
     "scheduled_monitoring_scan": "PENDING",
     "scheduled_scan_history_entry": "PENDING",
     "next_scan_calculated": "PENDING",
-    "no_duplicate_credit_or_run": "PENDING"
+    "no_duplicate_credit_or_run": "PASS_WITH_CURRENT_EVIDENCE - one new validation run created; no duplicate run observed"
   },
   "manual_evidence_date": "2026-08-07",
   "manual_evidence_summary": [
@@ -75,7 +76,13 @@
     "BCSentinel 1.0.2.20 installed successfully as an upgrade",
     "BCSentinel setup data remained present after upgrade",
     "Registration remained present after upgrade",
-    "Original scan history and score remained present after upgrade"
+    "Original scan history and score remained present after upgrade",
+    "Findings opened successfully after upgrade",
+    "Dashboard opened successfully after upgrade",
+    "HTML and PDF reports opened successfully after upgrade",
+    "Product access refresh completed successfully after upgrade",
+    "Post-upgrade Validation Check completed successfully",
+    "New post-upgrade scan history entry created successfully"
   ],
   "deferred": {
     "non_super_user_and_role_matrix": "EXT-50-04"
@@ -92,5 +99,5 @@
       "description": "Setup and history require a manual page refresh to display a completed background scan."
     }
   ],
-  "decision": "PARTIAL_PASS - CORE_UPGRADE_AND_PRIMARY_DATA_PRESERVATION_VERIFIED; FINAL_PASS_REQUIRES_FINDING_EDIT_PRESERVATION_AND_POST_UPGRADE_FUNCTIONAL_RECHECKS"
+  "decision": "PARTIAL_PASS - CORE_UPGRADE, PRIMARY_DATA_PRESERVATION_AND_POST_UPGRADE_VALIDATION_FUNCTION_VERIFIED; FINAL_PASS_REQUIRES_EDITED_FINDING_STATE_PRESERVATION_AND_SCHEDULER/MONITORING_UPGRADE_EVIDENCE"
 }
