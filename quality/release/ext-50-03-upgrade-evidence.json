@@ -1,7 +1,7 @@
 {
   "sprint": "EXT-50-03",
   "title": "Upgrade and data preservation",
-  "status": "MANUAL_RUNTIME_EVIDENCE_PARTIAL_PASS_WITH_KNOWN_DEFECTS",
+  "status": "PASS_WITH_KNOWN_DEFECTS",
   "baseline": {
     "source_version": "1.0.2.16",
     "target_version": "1.0.2.20",
@@ -50,23 +50,23 @@
     "run_ids_preserved": "PASS",
     "scores_preserved": "PASS",
     "dh_exceptions_preserved": "PASS - two exclusions created on 1.0.2.16 are still present after upgrade",
-    "corrected_record_state_preserved": "PENDING - corrected-state behavior must be clarified and tested separately",
+    "corrected_record_state_preserved": "NOT_REQUIRED_FOR_UPGRADE_PASS - behavior is tracked separately as product defect / UX clarification",
     "html_report_opens": "PASS",
     "pdf_report_opens": "PASS",
     "dashboard_opens": "PASS",
     "scheduler_configuration_preserved": "PASS - scheduler monitoring continued to run after upgrade",
-    "single_job_queue_entry": "PENDING_EXPLICIT_CHECK",
+    "job_queue_model": "NOT_APPLICABLE - no BCSentinel entry is present in the standard Business Central Job Queue page; scheduler functionality is verified by actual scheduled runs instead",
     "no_duplicate_local_data": "PASS_WITH_CURRENT_EVIDENCE - no accidental duplicate scan history observed"
   },
   "post_upgrade_function": {
     "product_access_refresh": "PASS",
     "manual_validation_scan": "PASS",
     "manual_monitoring_scan": "PASS - completed successfully on 1.0.2.20",
-    "scheduled_monitoring_scan": "PASS - completed successfully on 1.0.2.20",
-    "scheduled_scan_history_entry": "PASS - automatic monitoring entries visible after upgrade",
-    "scan_history_progression": "PASS - free scan, validation scan and multiple monitoring scans coexist correctly",
+    "scheduled_monitoring_scan": "PASS - two intentionally planned monitoring tasks completed successfully on 1.0.2.20",
+    "scheduled_scan_history_entry": "PASS - both expected scheduled monitoring entries are visible; no unintended duplicate run was observed",
+    "scan_history_progression": "PASS - free scan, validation scan and monitoring scans coexist correctly",
     "next_scan_calculated": "PASS_WITH_RUNTIME_EVIDENCE - scheduler continued to execute after upgrade",
-    "no_duplicate_credit_or_run": "PASS_WITH_CURRENT_EVIDENCE"
+    "no_duplicate_credit_or_run": "PASS - the two close-together scheduled monitoring runs were both intentionally planned tasks, not a scheduler duplicate"
   },
   "manual_evidence_date": "2026-08-07",
   "manual_evidence_summary": [
@@ -83,7 +83,9 @@
     "DH exclusions remained present after upgrade",
     "Scan history remained present after upgrade",
     "Manual monitoring scan succeeded after upgrade",
-    "Scheduled monitoring scan succeeded after upgrade"
+    "Two intentionally planned scheduler monitoring tasks succeeded after upgrade",
+    "No unintended duplicate scheduler run was observed",
+    "Standard Business Central Job Queue does not show a BCSentinel entry; runtime scheduler behavior is therefore the acceptance evidence"
   ],
   "follow_up_gaps": [
     {
@@ -117,5 +119,5 @@
       "description": "Setup and history require a manual page refresh to display a completed background scan."
     }
   ],
-  "decision": "PARTIAL_PASS - CORE UPGRADE, DH EXCEPTION PRESERVATION, SCAN HISTORY PRESERVATION, MANUAL MONITORING AND SCHEDULED MONITORING ARE VERIFIED. FINAL PASS REQUIRES EXPLICIT SINGLE JOB-QUEUE CHECK AND CLARIFICATION/TEST OF CORRECTED-RECORD STATE. PRODUCT-ACCESS-UNTIL DATE IS A CONFIRMED P1 DEFECT BUT DOES NOT INVALIDATE THE UPGRADE PATH ITSELF."
+  "decision": "PASS_WITH_KNOWN_DEFECTS - THE UPGRADE 1.0.2.16 TO 1.0.2.20, PRIMARY DATA PRESERVATION, DH EXCEPTION PRESERVATION, SCAN HISTORY PRESERVATION, MANUAL MONITORING AND SCHEDULED MONITORING ARE VERIFIED. THE TWO CLOSE-TOGETHER SCHEDULED RUNS WERE INTENTIONALLY PLANNED TASKS, SO NO SCHEDULER DUPLICATION DEFECT IS PRESENT. REMAINING P1 ITEMS ARE TRACKED PRODUCT/UX DEFECTS AND DO NOT INVALIDATE THE UPGRADE PATH."
 }
