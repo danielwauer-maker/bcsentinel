@@ -1,4 +1,4 @@
-﻿page 53136 "DH Item Neg. Inventory"
+page 53136 "DH Item Neg. Inventory"
 {
     PageType = List;
     SourceTable = Item;
@@ -18,12 +18,17 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
-                    ToolTip = 'Specifies Item No..';
+                    ToolTip = 'Opens the original item card for the selected record.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Item Card", Rec);
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Description.';
+                    ToolTip = 'Specifies the item description.';
                 }
                 field("Location Filter"; Rec."Location Filter")
                 {
@@ -33,12 +38,12 @@
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Inventory.';
+                    ToolTip = 'Specifies the inventory quantity.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Blocked.';
+                    ToolTip = 'Specifies whether the item is blocked.';
                 }
             }
         }
@@ -48,12 +53,28 @@
     {
         area(Processing)
         {
+            action(OpenItemCard)
+            {
+                Caption = 'Open Item Card';
+                ToolTip = 'Opens the original Business Central item card for the selected record.';
+                ApplicationArea = All;
+                Image = Card;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Item Card", Rec);
+                end;
+            }
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
-                ToolTip = 'Runs Exclude from Analysis.';
+                ToolTip = 'Excludes the selected item from this BCSentinel check without requiring an issue code.';
                 ApplicationArea = All;
                 Image = Cancel;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -66,9 +87,11 @@
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
-                ToolTip = 'Runs Mark as Corrected.';
+                ToolTip = 'Documents the selected item as corrected for this BCSentinel check.';
                 ApplicationArea = All;
-                Image = EditLines;
+                Image = Approve;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -78,23 +101,10 @@
                     CurrPage.Update(false);
                 end;
             }
-
-            action(OpenItemCard)
-            {
-                Caption = 'Correct Data';
-                ToolTip = 'Runs Correct Data.';
-                ApplicationArea = All;
-                Image = EditLines;
-
-                trigger OnAction()
-                begin
-                    Page.Run(Page::"Item Card", Rec);
-                end;
-            }
             action(OpenLedgerEntries)
             {
-                Caption = 'Show Issue';
-                ToolTip = 'Runs Show Issue.';
+                Caption = 'Show Ledger Entries';
+                ToolTip = 'Opens item ledger entries for the selected item.';
                 ApplicationArea = All;
                 Image = LedgerEntries;
 
