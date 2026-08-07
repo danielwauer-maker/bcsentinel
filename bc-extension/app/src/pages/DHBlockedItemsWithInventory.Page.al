@@ -1,4 +1,4 @@
-﻿page 53138 "DH Blocked Items Inv"
+page 53138 "DH Blocked Items Inv"
 {
     PageType = List;
     SourceTable = Item;
@@ -18,27 +18,32 @@
                 {
                     ApplicationArea = All;
                     Caption = 'Item No.';
-                    ToolTip = 'Specifies Item No..';
+                    ToolTip = 'Opens the original item card for the selected record.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Item Card", Rec);
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Description.';
+                    ToolTip = 'Specifies the item description.';
                 }
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Inventory.';
+                    ToolTip = 'Specifies the inventory quantity.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Blocked.';
+                    ToolTip = 'Specifies whether the item is blocked.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Unit Cost.';
+                    ToolTip = 'Specifies the unit cost.';
                     AutoFormatType = 1;
                     AutoFormatExpression = GetLocalCurrencyCode();
                     DecimalPlaces = 2 : 2;
@@ -51,12 +56,28 @@
     {
         area(Processing)
         {
+            action(OpenItemCard)
+            {
+                Caption = 'Open Item Card';
+                ToolTip = 'Opens the original Business Central item card for the selected record.';
+                ApplicationArea = All;
+                Image = Card;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Item Card", Rec);
+                end;
+            }
             action(ExcludeFromIssue)
             {
                 Caption = 'Exclude from Analysis';
-                ToolTip = 'Runs Exclude from Analysis.';
+                ToolTip = 'Excludes the selected item from this BCSentinel check without requiring an issue code.';
                 ApplicationArea = All;
                 Image = Cancel;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -69,9 +90,11 @@
             action(MarkCorrected)
             {
                 Caption = 'Mark as Corrected';
-                ToolTip = 'Runs Mark as Corrected.';
+                ToolTip = 'Documents the selected item as corrected for this BCSentinel check.';
                 ApplicationArea = All;
-                Image = EditLines;
+                Image = Approve;
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -79,19 +102,6 @@
                 begin
                     ExceptionMgt.MarkItemCorrected(Rec, 'BLOCKED_ITEMS_WITH_INVENTORY', 'Datensatz manuell als korrigiert markiert.');
                     CurrPage.Update(false);
-                end;
-            }
-
-            action(OpenItemCard)
-            {
-                Caption = 'Correct Data';
-                ToolTip = 'Runs Correct Data.';
-                ApplicationArea = All;
-                Image = EditLines;
-
-                trigger OnAction()
-                begin
-                    Page.Run(Page::"Item Card", Rec);
                 end;
             }
         }
