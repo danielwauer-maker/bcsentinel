@@ -2,7 +2,7 @@ page 53199 "DH Corrections"
 {
     PageType = List;
     SourceTable = "DH Issue Action Log";
-    SourceTableView = sorting("Table ID", "Record SystemId", "Action At") order(descending) where("Action Type" = filter(CORRECTED | REOPENED));
+    SourceTableView = sorting("Table ID", "Record SystemId", "Action At") order(descending);
     ApplicationArea = All;
     UsageCategory = History;
     Caption = 'BCSentinel Corrections';
@@ -115,6 +115,7 @@ page 53199 "DH Corrections"
 
     trigger OnOpenPage()
     begin
+        Rec.SetFilter("Action Type", '%1|%2', 'CORRECTED', 'REOPENED');
         ExplanationTxt := CorrectionExplanationLbl;
     end;
 
@@ -127,7 +128,7 @@ page 53199 "DH Corrections"
         ExplanationTxt: Text[500];
         CurrentStatusTxt: Text[30];
         CurrentStatusStyle: Text[30];
-        CorrectionExplanationLbl: Label 'Mark as Corrected is a persistent audit/documentation status. It does not suppress a finding and does not change the score by itself. Every future scan re-evaluates the actual Business Central data. Use Exclude from Analysis only for a deliberate persistent scan exception.';
+        CorrectionExplanationLbl: Label 'Mark as Corrected is a persistent audit/documentation status. It does not suppress a finding and does not change the score by itself. Future scans re-evaluate the actual Business Central data. Use Exclude from Analysis only for a deliberate persistent scan exception.';
         CorrectedLbl: Label 'Corrected';
         ReopenedLbl: Label 'Reopened';
 
