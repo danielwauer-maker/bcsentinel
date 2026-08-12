@@ -1,0 +1,54 @@
+name: EXT-50-04 Permission Role Matrix
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'bc-extension/app/src/permissionsets/**'
+      - 'backend/tests/test_ext_50_04_permission_role_matrix_contract.py'
+      - 'docs/EXT_50_04_PERMISSION_ROLE_MATRIX.md'
+      - '.github/workflows/ext-50-04-permission-role-matrix.yml'
+  push:
+    branches:
+      - staging
+    paths:
+      - 'bc-extension/app/src/permissionsets/**'
+      - 'backend/tests/test_ext_50_04_permission_role_matrix_contract.py'
+      - 'docs/EXT_50_04_PERMISSION_ROLE_MATRIX.md'
+      - '.github/workflows/ext-50-04-permission-role-matrix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  permission-role-matrix-contract:
+    name: Permission role matrix contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependency
+        run: python -m pip install --quiet pytest
+
+      - name: Validate BC extension source
+        run: python scripts/validate_bc_extension.py
+
+      - name: Run EXT-50-04 permission contract
+        run: python -m pytest -q --tb=short --noconftest backend/tests/test_ext_50_04_permission_role_matrix_contract.py
+
+      - name: Summarize runtime gate
+        if: always()
+        run: |
+          echo '## EXT-50-04 Permission Role Matrix' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Automated permission contract: executed in this run' >> "$GITHUB_STEP_SUMMARY"
+          echo '- BC runtime role tests without SUPER: manual evidence still required before final PASS' >> "$GITHUB_STEP_SUMMARY"

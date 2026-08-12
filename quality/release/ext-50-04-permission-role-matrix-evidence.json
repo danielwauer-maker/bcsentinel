@@ -1,0 +1,81 @@
+{
+  "sprint": "EXT-50-04",
+  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "branch": "sprint/ext-50-04-permission-role-matrix",
+  "ci": {
+    "permission_role_matrix_contract": "PASS",
+    "pilot_e2e_automated_readiness": "PASS"
+  },
+  "runtime_environment": {
+    "sandbox": "",
+    "bc_version": "",
+    "extension_version": "1.0.2.20"
+  },
+  "roles": {
+    "viewer": {
+      "permission_set": "BCSENTINEL VIEWER",
+      "super": false,
+      "tests": {
+        "open_dashboard": "PENDING",
+        "read_history_findings": "PENDING",
+        "open_finding_drilldown": "PENDING",
+        "create_exception_denied": "PENDING",
+        "mark_corrected_denied": "PENDING",
+        "manual_scan_denied": "PENDING",
+        "setup_change_denied": "PENDING"
+      }
+    },
+    "scan_user": {
+      "permission_set": "BCSENTINEL SCAN",
+      "super": false,
+      "tests": {
+        "open_dashboard": "PENDING",
+        "read_history_findings": "PENDING",
+        "create_exception": "PENDING",
+        "mark_corrected": "PENDING",
+        "manual_scan": "PENDING",
+        "setup_change_denied": "PENDING"
+      }
+    },
+    "setup_admin": {
+      "permission_set": "BCSENTINEL SETUP",
+      "super": false,
+      "tests": {
+        "registration_and_setup": "PENDING",
+        "change_check_selection": "PENDING",
+        "configure_scheduler": "PENDING",
+        "scan_result_write_denied": "PENDING"
+      }
+    },
+    "scheduler_user": {
+      "permission_set": "BCSENTINEL SCHEDULER",
+      "super": false,
+      "tests": {
+        "scheduled_scan": "PENDING",
+        "interactive_pages_not_required": "PENDING",
+        "setup_change_denied": "PENDING"
+      }
+    },
+    "admin": {
+      "permission_set": "BCSENTINEL ADMIN",
+      "super": false,
+      "tests": {
+        "dashboard": "PENDING",
+        "manual_scan": "PENDING",
+        "setup": "PENDING",
+        "remediation": "PENDING",
+        "scheduler": "PENDING"
+      }
+    },
+    "plain_bc_user": {
+      "permission_set": "NONE",
+      "super": false,
+      "tests": {
+        "dashboard_denied": "PENDING",
+        "setup_denied": "PENDING",
+        "scan_denied": "PENDING"
+      }
+    }
+  },
+  "decision": "PENDING"
+}
