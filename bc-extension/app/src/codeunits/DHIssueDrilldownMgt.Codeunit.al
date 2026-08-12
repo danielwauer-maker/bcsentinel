@@ -21,8 +21,10 @@ codeunit 53142 "DH Issue Drilldown Mgt."
     procedure OpenByIssueCode(IssueCode: Code[50])
     var
         IssueDrilldownDispatcher: Codeunit "DH Issue Drilldown Dispatcher";
+        RemediationContext: Codeunit "DH Remediation Context";
     begin
         EnsureIssuesAccess();
+        RemediationContext.SetIssueCode(IssueCode);
         IssueDrilldownDispatcher.OpenByIssueCode(IssueCode);
     end;
 
