@@ -23,7 +23,7 @@ def test_target_extension_baseline_is_release_1_0_2_20() -> None:
     assert app["runtime"] == "16.0"
     assert app["platform"] == "27.0.0.0"
     assert app["application"] == "27.0.0.0"
-    assert app["idRanges"] == [{"from": 53100, "to": 53201}]
+    assert app["idRanges"] == [{"from": 53100, "to": 53202}]
 
 
 def test_upgrade_baseline_and_runtime_decision_are_explicit() -> None:
