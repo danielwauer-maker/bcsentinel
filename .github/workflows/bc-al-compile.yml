@@ -99,6 +99,7 @@ jobs:
               -enableCodeCop `
               -enablePerTenantExtensionCop `
               -rulesetFile $rulesetFile `
+              -containerEventLogFile (Join-Path $diagnosticsFolder "bc-container.evtx") `
               -failOn error `
               -keepContainer:$false
           }

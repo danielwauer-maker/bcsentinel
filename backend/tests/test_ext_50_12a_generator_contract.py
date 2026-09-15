@@ -177,6 +177,8 @@ def test_de_and_en_translations_have_complete_matching_units():
 def test_ci_compiles_separate_qa_and_never_claims_runtime_pass():
     ci = (ROOT / '.github/workflows/bc-al-compile.yml').read_text()
     assert '-appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE "bc-performance"))' in ci
+    assert '-containerEventLogFile' in ci
+    assert '-doNotPublishApps' not in ci
     evidence = json.loads((ROOT / 'quality/release/ext-50-12a-test-data-generator-evidence.json').read_text())
     assert evidence['status'] == 'AWAITING_MANUAL_BC_RUNTIME_EVIDENCE'
     assert evidence['runtime']['profile'] == 'LARGE'
