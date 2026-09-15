@@ -11,6 +11,8 @@ codeunit 53404 "BCP References"
         // Fail closed on missing read permission. Include conditional/polymorphic number
         // fields as well as declared relations; do not silently skip inaccessible tables.
         Metadata.SetRange(Class, Metadata.Class::Normal);
+        Metadata.SetRange(Enabled, true);
+        Metadata.SetFilter(ObsoleteState, '<>%1', Metadata.ObsoleteState::Removed);
         Metadata.SetFilter(TableNo, '<%1', 2000000000);
         Metadata.SetFilter(Type, '%1|%2', Metadata.Type::Code, Metadata.Type::Text);
         if Metadata.FindSet() then
@@ -27,7 +29,13 @@ codeunit 53404 "BCP References"
     end;
 
     local procedure IsReferenceCandidate(Metadata: Record Field; TargetTable: Integer): Boolean
+    var
+        TableMetadata: Record "Table Metadata";
     begin
+        TableMetadata.Get(Metadata.TableNo);
+        if (TableMetadata.TableType <> TableMetadata.TableType::Normal) or
+           (TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed) then
+            exit(false); // not an active local business table
         if Metadata.TableNo in [Database::"BCP Run", Database::"BCP Owned Record"] then
             exit(false);
         // UOM ownership is checked individually by cleanup before the standard item cascade.
@@ -43,6 +51,8 @@ codeunit 53404 "BCP References"
     var
         RecordLink: Record "Record Link";
         ApprovalEntry: Record "Approval Entry";
+        EntityText: Record "Entity Text";
+        UnitGroup: Record "Unit Group";
     begin
         RecordLink.SetRange("Record ID", Owned."Record ID");
         if not RecordLink.IsEmpty() then
@@ -50,6 +60,15 @@ codeunit 53404 "BCP References"
         ApprovalEntry.SetRange("Record ID to Approve", Owned."Record ID");
         if not ApprovalEntry.IsEmpty() then
             Error(RelatedErr);
+        if Owned."Table ID" = Database::Item then begin
+            EntityText.SetRange(Company, CompanyName());
+            EntityText.SetRange("Source Table Id", Database::Item);
+            EntityText.SetRange("Source System Id", Owned."Record SystemId");
+            if not EntityText.IsEmpty() then
+                Error(ReferenceErr, Owned."Record No.", EntityText.TableCaption(), EntityText.FieldCaption("Source System Id"));
+            if UnitGroup.Get(UnitGroup."Source Type"::Item, Owned."Record SystemId") then
+                Error(ReferenceErr, Owned."Record No.", UnitGroup.TableCaption(), UnitGroup.FieldCaption("Source Id"));
+        end;
     end;
 
     var

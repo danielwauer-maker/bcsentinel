@@ -222,7 +222,10 @@ Deletion order: items with their owned UOM -> customers -> vendors. Each batch:
 3. Locks each tracked target and verifies table allowlist, run namespace, exact
    SystemId, exact RecordId and original modification timestamp. Missing, renamed,
    replaced or externally edited targets refuse the batch; there is no force flag.
-4. Refuses record links/approval records. For items, every UOM row must be tracked
+4. Refuses record links/approval records and the standard item's GUID-based
+   Entity Text/Unit Group cascades. The metadata scan covers active local normal
+   tables; removed fields and nonpersistent/external tables are not queried.
+   For items, every UOM row must be tracked
    by the same run and unchanged before the standard item cascade can delete it.
 5. Calls standard `Delete(true)` and verifies supporting records disappeared,
    then removes ownership. The batch's deletes/counters commit atomically.

@@ -134,6 +134,15 @@ def test_no_bulk_business_delete_no_findings_no_permission_escalation():
     assert 'tabledata "BCP Owned Record" = Rd' in cleanup
 
 
+def test_cleanup_covers_standard_guid_cascades_and_active_local_metadata():
+    refs = code('BCPReferences.Codeunit.al')
+    assert 'EntityText.SetRange("Source System Id", Owned."Record SystemId")' in refs
+    assert 'UnitGroup.Get(UnitGroup."Source Type"::Item, Owned."Record SystemId")' in refs
+    assert 'TableMetadata.TableType::Normal' in refs
+    assert 'Metadata.SetRange(Enabled, true)' in refs
+    assert 'Metadata.ObsoleteState::Removed' in refs
+
+
 def test_all_mutation_entrypoints_require_sandbox_and_core_has_no_ui():
     policy = code('BCPPolicy.Codeunit.al')
     for guard in ['not EnvironmentInformation.IsSaaS()', 'not EnvironmentInformation.IsSandbox()',

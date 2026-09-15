@@ -46,13 +46,14 @@
     }
   },
   "automated": {
-    "source_contracts": "PASS: 16 tests",
-    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 40 tests",
+    "source_contracts": "PASS: 17 tests",
+    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 41 tests",
     "source_uniqueness_and_gl_contracts": "PASS: 109 product objects; GL-01C 7 contracts; GL-01F passed",
     "qa_bc27_compile_codecop_ptecop": "PASS: zero errors/warnings; four AL test methods compiled only",
     "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
     "al_behavior_tests": "COMPILE_ONLY_RUNTIME_PENDING",
-    "ci": "PENDING"
+    "ci": "PENDING",
+    "billing_date_regression": "PASS: reproduced expired fixed-date fixture, retained every assertion and used relative future periods"
   },
   "runtime": {
     "profile": "LARGE",
@@ -114,5 +115,12 @@
     "AA0018": 24,
     "AA0005": 16,
     "AA0139": 67
+  },
+  "pr": {
+    "number": 38,
+    "url": "https://github.com/danielwauer-maker/bcsentinel/pull/38",
+    "base": "staging",
+    "branch": "sprint/ext-50-12a-test-data-generator",
+    "merged": false
   }
 }
