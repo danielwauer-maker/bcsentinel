@@ -1,0 +1,118 @@
+{
+  "sprint": "EXT-50-12A",
+  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "baseline": {
+    "source_branch": "origin/staging",
+    "extension_version": "1.0.2.20",
+    "application": "27.0.0.0",
+    "runtime": "16.0",
+    "product_object_range": [
+      53100,
+      53202
+    ],
+    "qa_object_range": [
+      53400,
+      53449
+    ],
+    "protected_pr": 37,
+    "commit": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3"
+  },
+  "generator_version": "1.0.0.0",
+  "schema_version": 1,
+  "profiles": {
+    "DEV": {
+      "customers": 6000,
+      "vendors": 2000,
+      "items": 12000,
+      "business_records": 20000
+    },
+    "LARGE": {
+      "customers": 150000,
+      "vendors": 50000,
+      "items": 300000,
+      "business_records": 500000
+    },
+    "XL": {
+      "customers": 600000,
+      "vendors": 200000,
+      "items": 1200000,
+      "business_records": 2000000
+    },
+    "STRESS": {
+      "customers": 1500000,
+      "vendors": 500000,
+      "items": 3000000,
+      "business_records": 5000000
+    }
+  },
+  "automated": {
+    "source_contracts": "PASS: 16 tests",
+    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 40 tests",
+    "source_uniqueness_and_gl_contracts": "PASS: 109 product objects; GL-01C 7 contracts; GL-01F passed",
+    "qa_bc27_compile_codecop_ptecop": "PASS: zero errors/warnings; four AL test methods compiled only",
+    "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
+    "al_behavior_tests": "COMPILE_ONLY_RUNTIME_PENDING",
+    "ci": "PENDING"
+  },
+  "runtime": {
+    "profile": "LARGE",
+    "seed": 5001,
+    "error_rate": 10,
+    "target_business_records": 500000,
+    "actual_run_id": null,
+    "actual_business_records": null,
+    "generation_duration_seconds": null,
+    "required_evidence": {
+      "non_super_generation_permissions": "PENDING",
+      "non_super_cleanup_permissions": "PENDING",
+      "production_and_company_guard": "PENDING",
+      "dev_resume_cancel_failure_rollback": "PENDING",
+      "al_behavior_tests": "PENDING",
+      "large_completed_exact_counts": "PENDING",
+      "bc_remains_responsive": "PENDING",
+      "tracking_identity": "PENDING",
+      "cleanup_preview": "PENDING",
+      "cleanup_only_generated_data": "PENDING",
+      "changed_renamed_replaced_referenced_records_refused": "PENDING",
+      "normal_records_and_setup_unchanged": "PENDING",
+      "normal_deep_scan_and_findings": "PENDING"
+    }
+  },
+  "restrictions": {
+    "merge": false,
+    "production_deployment": false,
+    "automatic_xl_stress_execution": false,
+    "production_findings_written_by_generator": false
+  },
+  "evidence_paths": [
+    "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
+    ".build/ext-50-12a/contracts.xml",
+    ".build/bc-extension/PerformanceQA/compile-final.log"
+  ],
+  "product_appsource_baseline": {
+    "status": "EXPECTED_BASELINE_FAILURE",
+    "diagnostics": {
+      "AS0092": 1,
+      "AS0051": 3,
+      "AS0084": 1
+    }
+  },
+  "product_codecop_warning_counts": {
+    "AA0215": 23,
+    "AA0470": 4,
+    "AA0137": 19,
+    "AA0228": 20,
+    "AA0225": 9,
+    "AA0218": 36,
+    "AA0202": 1,
+    "AA0194": 1,
+    "AA0206": 3,
+    "AA0175": 2,
+    "AA0217": 14,
+    "AA0021": 25,
+    "AA0205": 6,
+    "AA0018": 24,
+    "AA0005": 16,
+    "AA0139": 67
+  }
+}

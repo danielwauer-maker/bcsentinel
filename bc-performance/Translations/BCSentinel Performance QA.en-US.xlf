@@ -1,0 +1,693 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="BCSentinel Performance QA">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 1552029301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>QA record ownership</source>
+          <target state="translated">QA record ownership</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 3301121544 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Original modification timestamp</source>
+          <target state="translated">Original modification timestamp</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Modified At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 2897660500 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record ID</source>
+          <target state="translated">Record ID</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Record ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 485252710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record number</source>
+          <target state="translated">Record number</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Record No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 3793541599 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record SystemId</source>
+          <target state="translated">Record SystemId</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Record SystemId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <target state="translated">Run ID</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 910027226 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected check</source>
+          <target state="translated">Expected check</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Scenario - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 1892005169 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Supporting record</source>
+          <target state="translated">Supporting record</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Supporting - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1552029301 - Field 3135334477 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <target state="translated">Table ID</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Owned Record - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>QA generation run</source>
+          <target state="translated">QA generation run</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 596754667 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Batch size</source>
+          <target state="translated">Batch size</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Batch Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 621087581 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deleted records including support</source>
+          <target state="translated">Deleted records including support</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Cleanup Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2849708263 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current batch</source>
+          <target state="translated">Current batch</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Current Batch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3206652746 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current phase</source>
+          <target state="translated">Current phase</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Current Phase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 785461938 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer configuration snapshot</source>
+          <target state="translated">Customer configuration snapshot</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Customer Config - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 686244631 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer target</source>
+          <target state="translated">Customer target</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Customer Target - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3606140129 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers</source>
+          <target state="translated">Customers</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Customers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3470450981 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ended at</source>
+          <target state="translated">Ended at</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Ended At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 1298153030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error rate (%)</source>
+          <target state="translated">Error rate (%)</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Error Rate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 1476062623 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error text</source>
+          <target state="translated">Error text</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Error Text - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 4062487029 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Injected scenarios</source>
+          <target state="translated">Injected scenarios</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Expected Scenarios - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2865675451 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed batches</source>
+          <target state="translated">Failed batches</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Failed Batches - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2121348881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item configuration snapshot</source>
+          <target state="translated">Item configuration snapshot</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Item Config - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2363007208 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item target</source>
+          <target state="translated">Item target</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Item Target - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 1554554962 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Items</source>
+          <target state="translated">Items</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Items - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2971253925 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last batch at</source>
+          <target state="translated">Last batch at</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Last Batch At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 596358669 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Profile</source>
+          <target state="translated">Profile</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Profile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <target state="translated">Run ID</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3911796413 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Schema version</source>
+          <target state="translated">Schema version</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Schema Version - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3416119001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Seed</source>
+          <target state="translated">Seed</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Seed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 2014922888 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Started at</source>
+          <target state="translated">Started at</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Started At - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 513339096 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3872503978 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor configuration snapshot</source>
+          <target state="translated">Vendor configuration snapshot</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Vendor Config - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 3551270847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor target</source>
+          <target state="translated">Vendor target</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Vendor Target - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 517085540 - Field 713531721 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors</source>
+          <target state="translated">Vendors</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Table BCP Run - Field Vendors - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3323907531 - NamedType 2146373006" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel an active run before cleanup. Only completed, cancelled, failed or cleaning runs can be cleaned.</source>
+          <target state="translated">Cancel an active run before cleanup. Only completed, cancelled, failed or cleaning runs can be cleaned.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Cleanup - NamedType StateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4003636335 - NamedType 1779880074" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup refused: a tracked record is missing, changed, renamed, replaced or not owned. Review manually; no forced cleanup is available.</source>
+          <target state="translated">Cleanup refused: a tracked record is missing, changed, renamed, replaced or not owned. Review manually; no forced cleanup is available.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Cleanup Batch - NamedType OwnershipErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 885732595 - NamedType 496693286" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use a dedicated disposable company whose name starts with BCS-PERF-.</source>
+          <target state="translated">Use a dedicated disposable company whose name starts with BCS-PERF-.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Policy - NamedType CompanyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 885732595 - NamedType 125578617" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invalid QA configuration, profile, schema, or number range. Review the generator guide.</source>
+          <target state="translated">Invalid QA configuration, profile, schema, or number range. Review the generator guide.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Policy - NamedType ConfigErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 885732595 - NamedType 381116628" size-unit="char" translate="yes" xml:space="preserve">
+          <source>QA generator requires a Business Central SaaS sandbox. Production and unknown environments are blocked.</source>
+          <target state="translated">QA generator requires a Business Central SaaS sandbox. Production and unknown environments are blocked.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Policy - NamedType SandboxErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2659353867 - NamedType 4224312178" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup refused: %1 is referenced by %2.%3.</source>
+          <target state="translated">Cleanup refused: %1 is referenced by %2.%3.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = generated number, %2 = table, %3 = field</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP References - NamedType ReferenceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2659353867 - NamedType 3449142334" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup refused because record links or approvals exist.</source>
+          <target state="translated">Cleanup refused because record links or approvals exist.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP References - NamedType RelatedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>INTERNAL QA - New performance run</source>
+          <target state="translated">INTERNAL QA - New performance run</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 4126130292 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sandbox data generation</source>
+          <target state="translated">Sandbox data generation</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control Configuration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3846718947 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set 1 to 5000 business records per committed batch.</source>
+          <target state="translated">Set 1 to 5000 business records per committed batch.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control BatchSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 833665071 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the customer count for Custom runs.</source>
+          <target state="translated">Set the customer count for Custom runs.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control CustomerTarget - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3612022360 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select a configured QA customer. Only setup codes are copied, with no personal data.</source>
+          <target state="translated">Select a configured QA customer. Only setup codes are copied, with no personal data.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control CustomerTemplate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3612022360 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer configuration source</source>
+          <target state="translated">Customer configuration source</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control CustomerTemplate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 2586006014 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose 1, 5, 10 or 20 percent.</source>
+          <target state="translated">Choose 1, 5, 10 or 20 percent.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control ErrorRate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 1236473736 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the item count for Custom runs.</source>
+          <target state="translated">Set the item count for Custom runs.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control ItemTarget - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3045192975 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select an item with posting groups, category and base unit of measure.</source>
+          <target state="translated">Select an item with posting groups, category and base unit of measure.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control ItemTemplate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3045192975 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item configuration source</source>
+          <target state="translated">Item configuration source</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control ItemTemplate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 596358669 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select the centrally defined dataset size, or Custom.</source>
+          <target state="translated">Select the centrally defined dataset size, or Custom.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control Profile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 3416119001 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the deterministic seed, from 0 to 1000000.</source>
+          <target state="translated">Set the deterministic seed, from 0 to 1000000.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control Seed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 897246711 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the vendor count for Custom runs.</source>
+          <target state="translated">Set the vendor count for Custom runs.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control VendorTarget - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 1317736832 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select a configured QA vendor. Only setup codes are copied.</source>
+          <target state="translated">Select a configured QA vendor. Only setup codes are copied.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control VendorTemplate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1913811664 - Control 1317736832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor configuration source</source>
+          <target state="translated">Vendor configuration source</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP New Run - Control VendorTemplate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>INTERNAL QA - Performance runs</source>
+          <target state="translated">INTERNAL QA - Performance runs</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - NamedType 3453859018" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete up to %1 tracked records in this sandbox company? Changed or referenced data will be refused. This cannot be undone.</source>
+          <target state="translated">Delete up to %1 tracked records in this sandbox company? Changed or referenced data will be refused. This cannot be undone.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = candidate count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - NamedType CleanupQst</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - NamedType 1143179046" size-unit="char" translate="yes" xml:space="preserve">
+          <source>INTERNAL QA ONLY. Create synthetic data in this disposable sandbox company?</source>
+          <target state="translated">INTERNAL QA ONLY. Create synthetic data in this disposable sandbox company?</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - NamedType CreateQst</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - NamedType 1484865421" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 tracked cleanup candidates including supporting records. This is a count preview, not proof of deletability. Each deletion rechecks identity, modification and references.</source>
+          <target state="translated">%1 tracked cleanup candidates including supporting records. This is a count preview, not proof of deletability. Each deletion rechecks identity, modification and references.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = candidate count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - NamedType PreviewMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - NamedType 1989516010" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run %1 targets %2 business records. Start or resume sandbox generation?</source>
+          <target state="translated">Run %1 targets %2 business records. Start or resume sandbox generation?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = run id, %2 = target count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - NamedType StartQst</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 506096960 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows committed generation batches.</source>
+          <target state="translated">Shows committed generation batches.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Batch - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1623067720 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows deleted business and support records.</source>
+          <target state="translated">Shows deleted business and support records.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Cleaned - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 3606140129 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows committed customers.</source>
+          <target state="translated">Shows committed customers.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Customers - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1637095154 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows elapsed generation wall time including interruptions.</source>
+          <target state="translated">Shows elapsed generation wall time including interruptions.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Duration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1637095154 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Duration</source>
+          <target state="translated">Duration</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Duration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 230155085 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the generation end time.</source>
+          <target state="translated">Shows the generation end time.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control EndedAt - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2586006014 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the requested scenario percentage.</source>
+          <target state="translated">Shows the requested scenario percentage.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control ErrorRate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2810311271 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the most recent failure diagnostic.</source>
+          <target state="translated">Shows the most recent failure diagnostic.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control ErrorText - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1600162533 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows caught batch failures, including cleanup.</source>
+          <target state="translated">Shows caught batch failures, including cleanup.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Failures - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1554554962 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows committed items.</source>
+          <target state="translated">Shows committed items.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Items - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2200549265 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the last committed entity phase.</source>
+          <target state="translated">Shows the last committed entity phase.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Phase - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 596358669 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the dataset profile.</source>
+          <target state="translated">Shows the dataset profile.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Profile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 4237402031 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows generated business records as a percentage of the target.</source>
+          <target state="translated">Shows generated business records as a percentage of the target.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Progress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 4237402031 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Progress (%)</source>
+          <target state="translated">Progress (%)</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Progress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1691657080 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Identifies this company-scoped generator run.</source>
+          <target state="translated">Identifies this company-scoped generator run.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control RunId - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2215568871 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows injected problems, not the number of aggregate finding rows.</source>
+          <target state="translated">Shows injected problems, not the number of aggregate finding rows.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Scenarios - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 3416119001 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the deterministic seed.</source>
+          <target state="translated">Shows the deterministic seed.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Seed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 3422631048 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the generation start time.</source>
+          <target state="translated">Shows the generation start time.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control StartedAt - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 513339096 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows the last committed run status. Refresh to see updates.</source>
+          <target state="translated">Shows the last committed run status. Refresh to see updates.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1125457875 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Excludes supporting and ownership records.</source>
+          <target state="translated">Excludes supporting and ownership records.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Target - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 1125457875 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Target business records</source>
+          <target state="translated">Target business records</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Target - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2923016766 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows average business records per second of wall time.</source>
+          <target state="translated">Shows average business records per second of wall time.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Throughput - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 2923016766 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Records/sec</source>
+          <target state="translated">Records/sec</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Throughput - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Control 713531721 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shows committed vendors.</source>
+          <target state="translated">Shows committed vendors.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Control Vendors - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3853918465 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel after the current transaction releases its lock. Generated data remains tracked.</source>
+          <target state="translated">Cancel after the current transaction releases its lock. Generated data remains tracked.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CancelRun - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3853918465 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel run</source>
+          <target state="translated">Cancel run</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CancelRun - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3645443723 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clean terminal runs in this company. Cancel active runs first. No company or setup data is deleted.</source>
+          <target state="translated">Clean terminal runs in this company. Cancel active runs first. No company or setup data is deleted.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CleanupAll - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3645443723 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup all runs</source>
+          <target state="translated">Cleanup all runs</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CleanupAll - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 1610072347 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete only unchanged owned records, using standard business delete triggers.</source>
+          <target state="translated">Delete only unchanged owned records, using standard business delete triggers.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CleanupRun - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 1610072347 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup run</source>
+          <target state="translated">Cleanup run</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action CleanupRun - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 2759207095 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Configure and create a pending sandbox run.</source>
+          <target state="translated">Configure and create a pending sandbox run.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action NewRun - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 2759207095 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create DEV / LARGE / XL / STRESS / Custom</source>
+          <target state="translated">Create DEV / LARGE / XL / STRESS / Custom</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action NewRun - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3503391125 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generate one bounded batch for smoke tests or controlled progress.</source>
+          <target state="translated">Generate one bounded batch for smoke tests or controlled progress.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action NextBatch - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3503391125 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run one batch</source>
+          <target state="translated">Run one batch</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action NextBatch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3298619254 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Count tracked candidates. Identity and dependency checks run again before each deletion.</source>
+          <target state="translated">Count tracked candidates. Identity and dependency checks run again before each deletion.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action PreviewCleanup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 3298619254 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preview cleanup</source>
+          <target state="translated">Preview cleanup</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action PreviewCleanup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 1724385043 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run committed batches until completion. Interrupted runs can resume from their checkpoint.</source>
+          <target state="translated">Run committed batches until completion. Interrupted runs can resume from their checkpoint.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action Resume - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 978109957 - Action 1724385043 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start / resume</source>
+          <target state="translated">Start / resume</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCP Runs - Action Resume - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3531586862 - EnumValue 3431463797 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="translated">Custom</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Profile - EnumValue Custom - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3531586862 - EnumValue 1926753897 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEV</source>
+          <target state="translated">DEV</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Profile - EnumValue DEV - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3531586862 - EnumValue 3242657463 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LARGE</source>
+          <target state="translated">LARGE</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Profile - EnumValue LARGE - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3531586862 - EnumValue 1921498004 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>STRESS</source>
+          <target state="translated">STRESS</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Profile - EnumValue STRESS - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3531586862 - EnumValue 1545038288 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>XL</source>
+          <target state="translated">XL</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Profile - EnumValue XL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 4069904181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <target state="translated">Cancelled</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Cancelled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 1623067720 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleaned</source>
+          <target state="translated">Cleaned</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Cleaned - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 810552423 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleaning</source>
+          <target state="translated">Cleaning</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Cleaning - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 3665605423 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <target state="translated">Completed</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Completed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 3826689261 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <target state="translated">Failed</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Failed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 3481143665 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pending</source>
+          <target state="translated">Pending</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Pending - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1316259135 - EnumValue 1752522425 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Running</source>
+          <target state="translated">Running</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Enum BCP Status - EnumValue Running - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 353795147 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel QA cleanup</source>
+          <target state="translated">BCSentinel QA cleanup</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCP CLEANUP - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1600593974 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel QA generation</source>
+          <target state="translated">BCSentinel QA generation</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCP GENERATE - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

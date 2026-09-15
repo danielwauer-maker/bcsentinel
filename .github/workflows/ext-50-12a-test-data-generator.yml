@@ -1,0 +1,52 @@
+name: EXT-50-12A Generator Safety Contract
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "bc-performance/**"
+      - "bc-extension/**"
+      - "backend/tests/test_ext_50_12a_generator_contract.py"
+      - "quality/release/ext-50-12a-test-data-generator-evidence.json"
+      - "docs/EXT_50_12A_TEST_DATA_GENERATOR.md"
+      - ".github/workflows/ext-50-12a-test-data-generator.yml"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install contract dependency
+        run: python -m pip install pytest
+      - name: Generator and extension regression contracts
+        working-directory: backend
+        run: >-
+          python -m pytest --noconftest -q --tb=short
+          tests/test_ext_50_12a_generator_contract.py
+          tests/test_ext_50_01_release_baseline_contract.py
+          tests/test_ext_50_02_fresh_installation_contract.py
+          tests/test_ext_50_03_upgrade_contract.py
+          tests/test_ext_50_03a_finding_remediation_contract.py
+          tests/test_ext_50_03a_free_findings_contract.py
+          --junitxml=../.build/ext-50-12a/contracts.xml
+      - name: Source uniqueness and existing GL contracts
+        shell: pwsh
+        run: |
+          ./bc-extension/scripts/Test-ALSourceUniqueness.ps1
+          ./bc-extension/scripts/Test-GL01CDHExceptions.ps1
+          ./bc-extension/scripts/Test-GL01FFirstRunUX.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ext-50-12a-contracts
+          path: .build/ext-50-12a/contracts.xml

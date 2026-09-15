@@ -6,6 +6,7 @@ on:
       - staging
     paths:
       - "bc-extension/**"
+      - "bc-performance/**"
       - "backend/app/core/product_model.py"
       - "backend/app/core/runtime_product_policy.py"
       - "backend/app/services/access_control_service.py"
@@ -91,7 +92,7 @@ jobs:
               -pipelineName "BCSentinel-BC-Gate" `
               -containerName "bcsentinel-bc-gate" `
               -baseFolder $env:GITHUB_WORKSPACE `
-              -appFolders @($appFolder) `
+              -appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE "bc-performance")) `
               -artifact "${{ steps.artifact.outputs.url }}" `
               -credential $credential `
               -doNotRunTests `

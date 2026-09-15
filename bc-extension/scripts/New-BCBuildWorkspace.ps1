@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19")]
+    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "PerformanceQA")]
     [string]$Profile = "ReleaseCloud",
 
     [string]$OutputPath
@@ -48,6 +48,43 @@ function Test-IsSameOrChildPath {
 
 $alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
 $repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
+
+if ($Profile -eq 'PerformanceQA') {
+    $qaSource = Join-Path $repositoryRoot 'bc-performance'
+    $qaOutput = Join-Path $repositoryRoot '.build\bc-extension\PerformanceQA'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $qaOutput) {
+        throw 'PerformanceQA output must be .build/bc-extension/PerformanceQA.'
+    }
+    # Incremental copy only: do not delete any pre-existing build artifacts.
+    New-Item -ItemType Directory -Path $qaOutput -Force | Out-Null
+    $generatedSource = Join-Path $qaOutput 'src'
+    if (Test-Path -LiteralPath $generatedSource) {
+        Get-ChildItem -LiteralPath $generatedSource -Filter '*.al' -File | ForEach-Object {
+            $resolvedFile = [System.IO.Path]::GetFullPath($_.FullName)
+            if (-not (Test-IsSameOrChildPath -Candidate $resolvedFile -Parent $qaOutput)) {
+                throw 'Generated source escaped the QA workspace.'
+            }
+            if (-not (Test-Path -LiteralPath (Join-Path (Join-Path $qaSource 'src') $_.Name))) {
+                Remove-Item -LiteralPath $resolvedFile
+            }
+        }
+    }
+    Copy-Item -LiteralPath (Join-Path $qaSource 'src') -Destination $qaOutput -Recurse -Force
+    Copy-Item -LiteralPath (Join-Path $qaSource 'app.json') -Destination $qaOutput -Force
+    $qaSymbols = Join-Path $qaOutput '.alpackages'
+    New-Item -ItemType Directory -Path $qaSymbols -Force | Out-Null
+    Get-ChildItem -LiteralPath (Join-Path $alProjectRoot '.alpackages') -Filter '*_27.*.app' -File | ForEach-Object {
+        $symbolTarget = Join-Path $qaSymbols $_.Name
+        if (-not (Test-Path -LiteralPath $symbolTarget)) {
+            Copy-Item -LiteralPath $_.FullName -Destination $symbolTarget
+        }
+    }
+    if (Test-Path -LiteralPath (Join-Path $qaSource 'Translations')) {
+        Copy-Item -LiteralPath (Join-Path $qaSource 'Translations') -Destination $qaOutput -Recurse -Force
+    }
+    Write-Host "Prepared QA build workspace: $qaOutput"
+    return
+}
 
 $manifestByProfile = @{
     DevCloud = "app.cloud.json"
