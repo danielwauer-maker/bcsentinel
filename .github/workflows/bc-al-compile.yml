@@ -126,8 +126,10 @@ jobs:
             exit 0
           }
 
+          # BcContainerHelper emits GitHub annotations as well as raw compiler lines.
+          $warningPattern = '(?i)(?:\bwarning\s+|::warning[^\r\n]*?::)((?:AA|AL)[0-9]{4})\b'
           $warningLines = Get-Content $transcriptPath |
-            Where-Object { $_ -match '(?i)\bwarning\s+(AA|AL)[0-9]{4}\b' } |
+            Where-Object { $_ -match $warningPattern } |
             ForEach-Object { $_.Trim() } |
             Sort-Object -Unique
 
@@ -139,7 +141,7 @@ jobs:
           }
 
           $codes = foreach ($line in $warningLines) {
-            if ($line -match '(?i)\bwarning\s+((?:AA|AL)[0-9]{4})\b') {
+            if ($line -match $warningPattern) {
               $Matches[1].ToUpperInvariant()
             }
           }

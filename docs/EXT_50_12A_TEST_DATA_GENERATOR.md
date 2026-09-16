@@ -444,4 +444,77 @@ Primary references:
 [pinned package](https://www.powershellgallery.com/packages/BcContainerHelper/6.1.18),
 [Microsoft known admin-shell issue (page currently labels BC 28)](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/upgrade/known-issues#business-central-admin-shell-modules-fail-in-powershell7-remote-sessions).
 The helper's BC 27-specific implementation is the applicability evidence for this
-pipeline. Re-running the complete install gate is required to verify the fix.
+pipeline. The complete install gate passed in run `35038536708`, and again for reviewed
+code `573d6fc` in run `35039164370`: both apps compiled, published, synchronized
+and installed. BC artifact/platform, PowerShell and OS versions match the failed
+run; the first successful container event log has no AsyncInterfaces entry.
+
+## 12. Abschließender Code-Review
+
+Prüfung gegen den tatsächlichen BC-27-Standardquellcode aus den Symbolpaketen,
+nicht allein gegen die Python-Verträge. Scope: kompletter PR gegen die dokumentierte
+staging-Baseline; Produkt-AL und Produktberechtigungen bleiben unverändert.
+
+| Bereich | Statischer Befund | Offener Runtime-Nachweis |
+|---|---|---|
+| Security | SaaS/Sandbox/Production/Firmen-Guard an mutierenden Eintrittspunkten; getrennte BCP GENERATE/BCP CLEANUP, indirekte Datenrechte, kein SUPER | Effektive Standard-BC-Rechte und Negativtests in SaaS |
+| Ownership | Eindeutiger Table/SystemId-Schlüssel, Run ID, RecordId, ModifiedAt, zusätzlicher Nummernraum; Insert und Tracking gemeinsam | Unveränderte Zuordnung nach echten Inserts/Triggern |
+| Cleanup | Item/UOM vor Customer vor Vendor; Metadaten-/Polymorphie-Referenzscan, RecordId-/GUID-Schutz, Standard Delete(true); keine eigenen Business-DeleteAll-Aufrufe | Referenzen, veränderte/fehlende/ersetzte Daten und fremde UOM verweigern |
+| Transaktionen | Bounded worker, Run-Lock, CommitBehavior Error, Boolean Codeunit.Run, Fehlerstatus erst nach Rollback; erster Fehlversuch behält Startzeit | Unterbrechung, Resume, Rollback, Teil-Cleanup |
+| Determinismus | Explizite Modulo-Permutation, genaue Quoten je 100er-Block, feste 100er-Item-Szenariowechsel; Run-Identität/Zeiten variieren | Reproduzierbare Werte unter identischem Setup |
+| Standard-Seiteneffekte | Insert(false) vermeidet Contacts/Default Dimensions/Unit Group; eine explizit getrackte UOM; Kategorieattribute inklusive Eltern vor jedem Batch verweigert | Keine weiteren durch Subscriber erzeugten Datensätze |
+| Performance | Maximal 5.000 Business-Zeilen je Batch; Kategorieprüfung einmal je Batch, Referenzscan einmal je Cleanup-Batch; kein Vollbestand im Speicher | Keine gemessene Durchsatz-/Skalierbarkeitszusage; Referenzscans können teuer sein |
+| Szenarien | Vier IDs entsprechen produktiven Deep-Scan-Prüfungen; Generator schreibt keine Findings | Normale Scans und reale Check-Deltas |
+
+Die Standard-Delete-Trigger enthalten selbst kaskadierende Löschungen. Deshalb
+prüft der Generator fremde Referenzen vorher und behandelt eigene Item-UOM-Zeilen
+explizit. Das ist kein Beweis für beliebige Drittanbieter-Codeunits/Subscribers.
+Nur die isolierte, vorab geprüfte QA-App-Konfiguration verwenden; kein paralleler
+Geschäftszugriff und nur ein Cleanup-Operator je Firma. Geänderte Tracking-Ziele
+bleiben zur Untersuchung stehen; kein Force-Cleanup oder manuelles Zurücksetzen
+von Ownership/Änderungszeiten.
+
+Standardquellen zur erneuten Prüfung: Customer/Vendor/Item OnInsert, OnDelete,
+validierte Konfigurationsfelder; Item Unit of Measure OnInsert; Item Category Code
+OnValidate und Item Attribute Management.InheritAttributesFromItemCategory sowie
+Item Attribute Value.LoadCategoryAttributesFactBoxData (einschließlich Eltern).
+Letztere Prüfung führte zum zusätzlichen Category-Guard in diesem PR.
+
+Assembly-Diagnose: Version 10.0.0.11 ist die im Fehler verlangte Assembly-Identität,
+kein Nachweis der installierten .NET-Runtime-Version. Der unmittelbare Verbraucher
+ist der BC-Administrations-/Response-Serialisierungspfad. BcContainerHelper bestimmt
+dessen Sitzungsart; die AL-Apps enthalten diese .NET-Abhängigkeit nicht. Ein Defekt
+im Generator oder der Lizenzlogik ist dafür nicht belegt. DLL-Dateibestand und die
+exakte direkt referenzierende Binärdatei sind im alten Diagnosepaket nicht enthalten.
+Runner-Image des Fehlerlaufs: windows-2022, 20260907.297.1. Ohne vorheriges Vergleichs-
+image lässt sich kein konkretes Runner-Update als Auslöser behaupten.
+
+## 13. Automated evidence snapshot (2026-09-16)
+
+Reviewed AL/backend code commit: `573d6fcf37385acf26c876e49295afad47c56453`.
+The subsequent evidence/warning-report update changes no AL or backend behavior.
+
+| Gate | Actual result | Evidence |
+|---|---|---|
+| Generator contracts + extension regression | PASS: 42 (18 new + 24 existing) | [Run 35039164196](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164196) |
+| Backend | PASS: 459; SKIP: 7 PostgreSQL-specific cases in this suite | [Pilot 35039164219](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164219) |
+| Real PostgreSQL | PASS: 7, no failures/skips | Separate gate in the same Pilot run; overlapping tests, do not add totals |
+| QA + product BC 27 compile/publish/sync/install | PASS | [AL run 35039164370](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370) |
+| QA CodeCop/PTECop | PASS: zero warnings/errors | Local compile-final.log; CI transcript |
+| Product CodeCop/PTECop | PASS with 270 existing warnings, zero errors | Local compile-cops-final.log; CI transcript |
+| AppSourceCop product baseline | EXPECTED BASELINE FAILURE: AS0051 x3, AS0084 x1, AS0092 x1 | Prior local probe; product source unchanged |
+| Source uniqueness / GL | PASS: 109 objects; GL-01C 7; GL-01F | Contract workflow |
+| Translations | PASS: 115 units in each language match generated source | Local catalog comparison and source contracts |
+| AL behavior + SaaS generation/cleanup | PENDING, not executed | DEV procedure in section 9 |
+
+The original warning summary missed GitHub annotation syntax and falsely displayed
+zero warnings. The corrected parser accepts both raw compiler and annotation lines;
+the archived transcript reproduces exactly 270 warnings. No gate is relaxed.
+
+Install the reviewed QA package from
+[bc-al-compile-output, artifact 10425301221](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370/artifacts/10425301221).
+The exact filename, local path and SHA256 are in the evidence JSON. Artifacts expire
+after 14 days; retain the verified QA package locally. It contains the final AL
+sources. Container install success is not SaaS, non-SUPER or generation evidence.
+
+**Overall: AWAITING_MANUAL_BC_RUNTIME_EVIDENCE. No merge, production deployment or GO.**

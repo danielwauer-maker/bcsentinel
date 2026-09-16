@@ -52,10 +52,13 @@
     "qa_bc27_compile_codecop_ptecop": "PASS: zero errors/warnings; four AL test methods compiled only",
     "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
     "al_behavior_tests": "COMPILE_ONLY_RUNTIME_PENDING",
-    "ci": "PENDING",
+    "ci": "PASS: all three workflows for reviewed code commit 573d6fcf37385acf26c876e49295afad47c56453; runtime remains pending",
     "billing_date_regression": "PASS: reproduced expired fixed-date fixture; all assertions preserved; focused test and 20 billing tests pass",
-    "full_backend_regression": "PASS: 458 passed, 7 PostgreSQL-specific tests skipped here and passed in separate PostgreSQL gate",
-    "postgresql_gate": "PASS: 7 real PostgreSQL tests"
+    "full_backend_regression": "PASS: 459 passed, 7 skipped in backend suite; all 7 PostgreSQL tests passed in separate gate",
+    "postgresql_gate": "PASS: 7 real PostgreSQL tests",
+    "qa_bc27_ci_compile_install": "PASS: QA and product compiled, published, synchronized and installed in BC 27 container; no SaaS generator execution",
+    "warning_report_parser": "PASS: raw compiler and GitHub annotation fixtures; archived transcript correctly yields 270 baseline warnings",
+    "translations": "PASS: 115 EN and DE units match compiler-generated sources"
   },
   "runtime": {
     "profile": "LARGE",
@@ -78,7 +81,9 @@
       "cleanup_only_generated_data": "PENDING",
       "changed_renamed_replaced_referenced_records_refused": "PENDING",
       "normal_records_and_setup_unchanged": "PENDING",
-      "normal_deep_scan_and_findings": "PENDING"
+      "normal_deep_scan_and_findings": "PENDING",
+      "dev_completed_and_cleaned_before_large": "PENDING",
+      "category_attribute_rejection": "PENDING"
     },
     "dev_prerequisite": {
       "status": "PENDING",
@@ -106,7 +111,9 @@
         "category_attributes_refused",
         "normal_data_unchanged"
       ]
-    }
+    },
+    "support_records": 300000,
+    "cleanup_candidates": 800000
   },
   "restrictions": {
     "merge": false,
@@ -118,7 +125,12 @@
   "evidence_paths": [
     "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
     ".build/ext-50-12a/contracts.xml",
-    ".build/bc-extension/PerformanceQA/compile-final.log"
+    ".build/bc-extension/PerformanceQA/compile-final.log",
+    ".build/bc-extension/Ext5012AProduct/compile-cops-final.log",
+    ".build/ext-50-12a/reviewed-ci-diagnostics/al-compile-transcript.txt",
+    ".build/ext-50-12a/reviewed-ci-diagnostics/bc-container.evtx",
+    ".build/ext-50-12a/final-pilot-ci/backend/pilot-e2e-junit.xml",
+    ".build/ext-50-12a/final-pilot-ci/backend/pilot-e2e-postgres-junit.xml"
   ],
   "product_appsource_baseline": {
     "status": "EXPECTED_BASELINE_FAILURE",
@@ -162,10 +174,45 @@
     "cop_warnings": 0
   },
   "ci_evidence": {
-    "pilot_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35009957459",
-    "pilot_commit": "364767a",
-    "contracts_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35009957468",
-    "al_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35010288574",
-    "al_status": "FAIL: BC admin PowerShell remote-session assembly loading; helper 6.1.18 correction awaiting CI"
+    "reviewed_code_commit": "573d6fcf37385acf26c876e49295afad47c56453",
+    "pilot_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164219",
+    "contracts_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164196",
+    "al_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370",
+    "al_status": "PASS",
+    "root_fix_first_success_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35038536708",
+    "failed_before_fix_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35010288574",
+    "helper_version": "6.1.18",
+    "host_powershell": "7.6.5",
+    "bc_artifact": "27.5.46862.54684/w1",
+    "bc_platform": "27.0.54564.0"
+  },
+  "qa_install_package": {
+    "workflow": "BC AL Compile and Cop Gate",
+    "artifact": "bc-al-compile-output",
+    "artifact_url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370/artifacts/10425301221",
+    "filename": "BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app",
+    "local_path": ".build/ext-50-12a/reviewed-ci-apps/BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app",
+    "sha256": "f18afc28f1a33dfd5ccde9245ce2f076785e18e0a688039f07704536959877d1",
+    "extension_name": "BCSentinel Performance QA",
+    "version": "1.0.0.0",
+    "product_dependency": null,
+    "product_for_scan_validation": "BCSentinel 1.0.2.20",
+    "permission_sets": [
+      "BCP GENERATE",
+      "BCP CLEANUP"
+    ],
+    "additional_standard_bc_permissions": "Required; exact non-SUPER SaaS matrix pending DEV validation"
+  },
+  "static_review": {
+    "status": "COMPLETE_WITH_RUNTIME_GATES_OPEN",
+    "code_commit": "573d6fcf37385acf26c876e49295afad47c56453",
+    "category_inheritance": "Rejected for own and ancestor attributes at run creation and before each batch",
+    "cleanup_scope": "Exact ownership plus identity/timestamp/reference guards; isolated QA baseline and single cleanup operator required",
+    "limitations": [
+      "Unknown third-party GUID/text references or subscriber effects require separate audit",
+      "Actual generation/cleanup performance unmeasured",
+      "Changed records have no force-cleanup path",
+      "Standard BC non-SUPER permission dependencies not yet verified in SaaS"
+    ]
   }
 }
