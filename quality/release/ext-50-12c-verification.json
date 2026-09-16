@@ -1,0 +1,49 @@
+{
+  "status": "NOT_READY_FOR_LARGE",
+  "runtime_status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "head": "89faeb721ed5488ee97c07a620c5184deba6f2e8",
+  "branch": "codex/ext-50-12c-detection-accuracy",
+  "test_runs": {
+    "accuracy-contract.xml": {
+      "cases": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfail": 3
+    },
+    "backend-regression.xml": {
+      "cases": 468,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7,
+      "xfail": 0
+    },
+    "existing-contracts.xml": {
+      "cases": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfail": 0
+    },
+    "recovery-contract.xml": {
+      "cases": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfail": 0
+    }
+  },
+  "compile": {
+    "product_codecop_ptecop": "PASS",
+    "errors": 0,
+    "existing_warnings": 270,
+    "appsource": "EXPECTED_BASELINE_FAILURE",
+    "appsource_errors": {
+      "AS0051": 3,
+      "AS0084": 1
+    },
+    "appsource_warnings": {
+      "AS0092": 1
+    }
+  }
+}
