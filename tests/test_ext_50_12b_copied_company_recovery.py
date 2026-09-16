@@ -22,7 +22,7 @@ def test_recovery_is_local_only_and_never_force_rebinds_backend():
     assert "backend call" in lowered
 
 
-def test_identity_mismatch_uses_full_bc_identity_snapshot():
+def test_identity_mismatch_uses_access_snapshot_and_current_bc_context():
     source = text(RECOVERY)
     for field in (
         '"Access Snapshot Tenant ID"',
@@ -31,8 +31,10 @@ def test_identity_mismatch_uses_full_bc_identity_snapshot():
         '"Access Snapshot Company ID"',
     ):
         assert field in source
-    for getter in ("GetEntraTenantId", "GetEnvironmentName", "GetEnvironmentType", "GetCompanyId"):
+    assert 'LowerCase(Setup."Access Snapshot Tenant ID") <> LowerCase(Setup."Tenant ID")' in source
+    for getter in ("GetEnvironmentName", "GetEnvironmentType", "GetCompanyId"):
         assert getter in source
+    assert "GetEntraTenantId" not in source
     assert "Legacy" in source and "Mismatch" in source and "Matched" in source
 
 
