@@ -17,7 +17,9 @@ codeunit 53191 "DH Copied Company Recovery"
         if not HasIdentitySnapshot(Setup) then
             exit('Legacy');
 
-        if LowerCase(Setup."Access Snapshot Tenant ID") <> LowerCase(IdentityMgt.GetEntraTenantId()) then
+        // Access Snapshot Tenant ID is the BCSentinel tenant ID returned by the backend,
+        // not the Entra tenant ID. The stable BC company context is environment/type/company ID.
+        if LowerCase(Setup."Access Snapshot Tenant ID") <> LowerCase(Setup."Tenant ID") then
             exit('Mismatch');
         if LowerCase(Setup."Access Snapshot Environment") <> LowerCase(IdentityMgt.GetEnvironmentName()) then
             exit('Mismatch');
