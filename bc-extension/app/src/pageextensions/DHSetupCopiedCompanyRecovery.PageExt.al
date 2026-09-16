@@ -25,6 +25,7 @@ pageextension 53201 "DH Setup Copy Recovery" extends "DH Setup"
                 ToolTip = 'Removes only the copied local BCSentinel binding and BCSentinel history from this company so it can be registered separately. Business Central business data and the source company are not changed.';
                 Image = ResetStatus;
                 Visible = RecoveryVisible;
+                AccessByPermission = codeunit "DH Copied Company Recovery" = X;
 
                 trigger OnAction()
                 begin
