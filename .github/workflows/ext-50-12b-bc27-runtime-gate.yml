@@ -1,0 +1,81 @@
+name: EXT-50-12B BC27 Runtime Gate
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "bc-extension/**"
+      - ".github/workflows/ext-50-12b-bc27-runtime-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Compile publish and install on BC27
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install validated BcContainerHelper
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $moduleVersion = "6.1.18"
+          $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
+          $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
+          $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
+          New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+          Invoke-WebRequest -Uri "https://www.powershellgallery.com/api/v2/package/BcContainerHelper/$moduleVersion" -OutFile $packagePath -UseBasicParsing
+          Copy-Item $packagePath $packageZip -Force
+          Expand-Archive -Path $packageZip -DestinationPath $moduleRoot -Force
+          Import-Module (Join-Path $moduleRoot "BcContainerHelper.psd1") -Force
+          Write-Host "BcContainerHelper version: $((Get-Module BcContainerHelper).Version)"
+
+      - name: Compile publish and install extension
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
+          $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
+          if ([string]::IsNullOrWhiteSpace($artifactUrl)) { throw "No BC 27 sandbox artifact could be resolved." }
+          $randomPassword = "Aa1!" + [Guid]::NewGuid().ToString("N")
+          $securePassword = ConvertTo-SecureString $randomPassword -AsPlainText -Force
+          $credential = [PSCredential]::new("admin", $securePassword)
+          $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
+          $rulesetFile = Join-Path $appFolder "app.ruleset.json"
+          Run-AlPipeline `
+            -pipelineName "EXT-50-12B-BC27" `
+            -containerName "bcs12b-bc27" `
+            -baseFolder $env:GITHUB_WORKSPACE `
+            -appFolders @($appFolder) `
+            -artifact $artifactUrl `
+            -credential $credential `
+            -doNotRunTests `
+            -enableCodeCop `
+            -enablePerTenantExtensionCop `
+            -rulesetFile $rulesetFile `
+            -failOn error `
+            -keepContainer:$false
+
+      - name: Collect compiled app
+        if: always()
+        shell: pwsh
+        run: |
+          $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
+            Where-Object { $_.FullName -notmatch '[\\/]\.packages[\\/]' } |
+            ForEach-Object { Copy-Item $_.FullName (Join-Path $artifactFolder $_.Name) -Force }
+
+      - name: Publish app artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ext-50-12b-bc27-app
+          path: artifacts/bc-app/*.app
+          if-no-files-found: error
+          retention-days: 14
