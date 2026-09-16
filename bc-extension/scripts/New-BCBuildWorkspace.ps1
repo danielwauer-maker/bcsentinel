@@ -1,9 +1,10 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19")]
+    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "DiagnosticsQA")]
     [string]$Profile = "ReleaseCloud",
 
-    [string]$OutputPath
+    [string]$OutputPath,
+    [string]$SymbolSourcePath
 )
 
 $ErrorActionPreference = "Stop"
@@ -48,6 +49,31 @@ function Test-IsSameOrChildPath {
 
 $alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
 $repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
+
+if ($Profile -eq 'DiagnosticsQA') {
+    $diagnosticsRoot = Join-Path $repositoryRoot 'bc-diagnostics'
+    $diagnosticsOutput = Join-Path $repositoryRoot '.build\bc-extension\DiagnosticsQA'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $diagnosticsOutput) {
+        throw 'DiagnosticsQA output must be .build/bc-extension/DiagnosticsQA.'
+    }
+    New-Item -ItemType Directory -Path $diagnosticsOutput -Force | Out-Null
+    foreach ($entry in @('src', 'Translations', 'app.json')) {
+        $source = Join-Path $diagnosticsRoot $entry
+        if (Test-Path -LiteralPath $source) {
+            Copy-Item -LiteralPath $source -Destination $diagnosticsOutput -Recurse -Force
+        }
+    }
+    $symbols = Join-Path $diagnosticsOutput '.alpackages'
+    New-Item -ItemType Directory -Path $symbols -Force | Out-Null
+    if ($SymbolSourcePath) {
+        Get-ChildItem -LiteralPath $SymbolSourcePath -Filter '*.app' -File | ForEach-Object {
+            $target = Join-Path $symbols $_.Name
+            if (-not (Test-Path -LiteralPath $target)) { Copy-Item -LiteralPath $_.FullName -Destination $target }
+        }
+    }
+    Write-Host "Prepared read-only diagnostics build workspace: $diagnosticsOutput"
+    return
+}
 
 $manifestByProfile = @{
     DevCloud = "app.cloud.json"

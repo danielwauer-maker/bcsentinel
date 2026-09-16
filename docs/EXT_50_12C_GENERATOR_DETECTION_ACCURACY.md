@@ -1,5 +1,12 @@
 # EXT-50-12C — Generator Detection Accuracy & Benchmark Validation
 
+**CORRECTION (12C.1):** The backend sync applies last-row-per-code projection after
+computing commercials. Therefore it does not preserve all BC finding rows; BC and
+backend occurrence sums can differ. The normal response is already deduplicated, so
+the surviving last-group impact updates the first BC row for that code. See the
+12C.1 pipeline section for the corrected analysis; original runtime conclusions below
+remain unverified.
+
 Historical 12C audit, preserved for provenance. Follow-up: EXT_50_12C_1_RUNTIME_RECONCILIATION.md.
 The later 12C.1 user report confirms app 1.0.2.21, CRONUS origin and 7/10 modules;
 statements below about missing confirmations describe the original audit. The separate
