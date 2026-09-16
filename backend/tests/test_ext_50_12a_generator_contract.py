@@ -187,3 +187,16 @@ def test_ci_compiles_separate_qa_and_never_claims_runtime_pass():
     assert evidence['runtime']['seed'] == 5001
     assert evidence['runtime']['error_rate'] == 10
     assert all(v == 'PENDING' for v in evidence['runtime']['required_evidence'].values())
+
+
+def test_inherited_category_attributes_refused_before_any_batch_insert():
+    config = code('BCPConfig.Codeunit.al')
+    assert 'AttributeMapping.SetRange("Table ID", Database::"Item Category")' in config
+    assert 'AttributeMapping.SetRange("No.", CategoryCode)' in config
+    assert 'if not AttributeMapping.IsEmpty() then' in config
+    assert 'CategoryCode := ItemCategory."Parent Category"' in config
+    assert 'Visited.Contains(CategoryCode)' in config
+    assert 'Config.ValidateItemConfig(GenerationRun."Item Config")' in code('BCPManagement.Codeunit.al')
+    batch = code('BCPBatch.Codeunit.al')
+    assert batch.index('Config.ValidateItemConfig(') < batch.index('while (Remaining > 0)')
+    assert 'tabledata "Item Attribute Value Mapping" = R' in source('BCPGENERATE.PermissionSet.al')

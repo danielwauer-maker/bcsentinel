@@ -46,8 +46,8 @@
     }
   },
   "automated": {
-    "source_contracts": "PASS: 17 tests",
-    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 41 tests",
+    "source_contracts": "PASS: 18 tests",
+    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 42 tests",
     "source_uniqueness_and_gl_contracts": "PASS: 109 product objects; GL-01C 7 contracts; GL-01F passed",
     "qa_bc27_compile_codecop_ptecop": "PASS: zero errors/warnings; four AL test methods compiled only",
     "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
@@ -79,13 +79,41 @@
       "changed_renamed_replaced_referenced_records_refused": "PENDING",
       "normal_records_and_setup_unchanged": "PENDING",
       "normal_deep_scan_and_findings": "PENDING"
+    },
+    "dev_prerequisite": {
+      "status": "PENDING",
+      "profile": "DEV",
+      "seed": 5001,
+      "error_rate": 10,
+      "customers": 6000,
+      "vendors": 2000,
+      "items": 12000,
+      "business_records": 20000,
+      "support_records": 12000,
+      "cleanup_candidates": 32000,
+      "actual_run_id": null,
+      "required_cases": [
+        "completed_exact_counts",
+        "non_super_generation_and_cleanup",
+        "interruption_resume",
+        "failed_batch_rollback",
+        "partial_cleanup",
+        "changed_record_refused",
+        "foreign_reference_refused",
+        "foreign_uom_refused",
+        "without_cleanup_permission",
+        "without_generate_permission",
+        "category_attributes_refused",
+        "normal_data_unchanged"
+      ]
     }
   },
   "restrictions": {
     "merge": false,
     "production_deployment": false,
     "automatic_xl_stress_execution": false,
-    "production_findings_written_by_generator": false
+    "production_findings_written_by_generator": false,
+    "automatic_large_execution": false
   },
   "evidence_paths": [
     "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
@@ -126,8 +154,8 @@
     "merged": false
   },
   "qa_local_package": {
-    "path": ".build/bc-extension/PerformanceQA/QA.bc27.ci-fix.app",
-    "sha256": "ef44078f05f721a34b6c6484c191c9a0d15b14674bccb0f3fedc9268f7e6a69b",
+    "path": ".build/bc-extension/PerformanceQA/QA.bc27.reviewed.app",
+    "sha256": "0a54340981e1f90fe2241dcae39ed5d4d702cf2c08b19cca237f9b06058067a6",
     "compiler": "17.0.34.45391",
     "symbol_major": 27,
     "cop_errors": 0,

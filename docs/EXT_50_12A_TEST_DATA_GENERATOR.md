@@ -144,6 +144,10 @@ The import explicitly calls the standard `UpdateReferencedIds` methods and sets
 master modification timestamps; API reference IDs are not left stale merely
 because the OnInsert trigger is skipped. UOM ownership is captured after final
 item validation so its timestamp reflects the final state of the batch.
+Category OnValidate can inherit attribute mappings even before Item.Insert.
+Configuration creation and each batch therefore reject categories with mappings
+at any ancestor, including cyclic hierarchies, before inserting business rows.
+This preserves the explicit one-UOM-per-item support contract.
 
 Generation order: vendors -> customers -> items. Every item references a vendor
 from its own run. `BCP Batch` locks and rereads the run, performs at most one
@@ -272,43 +276,131 @@ write or SQLite substitution is part of this sprint. Existing product AppSourceC
 baseline remains 3×AS0051, 1×AS0084, 1×AS0092; QA uses CodeCop/PTECop and is not an
 AppSource customer release. No existing test is removed or weakened.
 
-## 9. Manual acceptance, then first LARGE run
+## 9. Manuelle Abnahme: zuerst DEV, danach separat LARGE
 
-1. Prepare a disposable SaaS sandbox company `BCS-PERF-LARGE`. Install the QA APP
-   alongside BCSentinel 1.0.2.20. Set the BCSentinel backend to the approved test
-   endpoint, with valid scan access. Keep a before snapshot of normal records/setup.
-2. Assign a non-SUPER QA operator the separate generate/cleanup permissions plus
-   necessary BC read/system rights. Prepare three **synthetic** source masters with
-   the configuration fields above. Record BC version and installed app inventory.
-3. Open **INTERNAL QA - Performance runs**. First use Custom (e.g. 3/2/5), seed
-   5001, 10%, batch 2: run one batch, resume, cancel a second run and preview/clean.
-   Run the four AL tests. Test a deliberate number collision and a validation
-   failure: no business/ownership/counter changes from the failed batch may remain.
-4. In independent DEV fixtures, test concurrent resume, session interruption,
-   cancellation at a batch boundary, changed/renamed/replaced/missing targets,
-   added foreign UOM/comment/dimension/document/record-link references, a normal
-   untracked master with the same prefix, and missing delete/read permissions.
-   Cleanup must refuse unsafe targets and preserve normal rows. Verify the
-   production/unknown-environment guard without generating any production data.
-5. Create **LARGE, seed 5001, error rate 10%, batch 1000**, choose the configuration
-   sources and confirm **Start / resume**. Record the Run ID. Refresh the list from
-   another client and record responsiveness, elapsed time and failures.
-6. Require Completed, **150,000 customers + 50,000 vendors + 300,000 items**, 300,000
-   supporting UOM rows, 800,000 tracking rows and 50,000 injected scenarios.
-   Record generation duration/records per second; retain exports/screenshots.
-7. Run the normal BCSentinel scan. Compare the four mapped affected-record counts
-   against baseline plus 15,000/5,000/15,000/15,000, respecting enabled checks and
-   exceptions. Measure scan duration; review Findings, dashboard and reports.
-8. Preview cleanup: **800,000 candidates** for an untouched full run. Confirm
-   cleanup only after retaining benchmark evidence. Require Cleaned, zero ownership
-   rows for that run and no remaining generated masters/UOM. Before/after evidence
-   must show normal source masters/setup unchanged. Record any refusal verbatim.
+**Noch nicht ausgeführt.** Dies ist eine Testanleitung, kein Runtime-Nachweis.
+LARGE setzt einen bestandenen DEV-Lauf einschließlich Sicherheitsfällen voraus.
+XL/STRESS werden nicht automatisch gestartet.
 
-Save genuine results in
-`quality/release/ext-50-12a-test-data-generator-evidence.json`, including Run ID,
-actual counts, timing and evidence paths. Do not replace PENDING with PASS using
-source inspection or a compile log. Overall status stays
-**AWAITING_MANUAL_BC_RUNTIME_EVIDENCE** until these gates pass.
+### 9.1 Paket und Vorbereitung
+
+- Workflow **BC AL Compile and Cop Gate**, Artifact **bc-al-compile-output**.
+  QA-Datei: `BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app`.
+  Extension **BCSentinel Performance QA**, Publisher **BCSentinel Analytics - Daniel Wauer**,
+  Version **1.0.0.0**, ID `1bf95437-93b6-4329-bc49-40585f1272a0`.
+  Erfolgreichen Run und Paket-SHA256 aus dem Evidence-Dokument verwenden.
+  Das Artifact enthält auch das Produktpaket; dieses nicht mit der QA-App verwechseln.
+- Keine BCSentinel-Abhängigkeit im QA-Manifest. BC-Anwendung/Plattform mindestens
+  27.0.0.0, Runtime 16.0. Für Findings zusätzlich BCSentinel 1.0.2.20 mit gültigem
+  Scan-Zugang und freigegebenem Testbackend verwenden.
+- Ausdrücklich ausgewiesene **BC-27-SaaS-Sandbox**, isolierte Firma **BCS-PERF-DEV**.
+  Version und App-Inventar festhalten. Keine parallelen Buchungen, Stammdatenpflege
+  oder App-Installationen während der Tests.
+- Admin: **Erweiterungsverwaltung > Erweiterung hochladen**, QA-Datei auswählen,
+  Name/Version prüfen und erfolgreichen Installationsstatus abwarten. Danach als
+  separater QA-Operator neu anmelden. Installation ist kein Generierungsnachweis.
+- QA-Operator: **BCP GENERATE** und **BCP CLEANUP**, auf diese Firma begrenzt,
+  zusätzlich normale BC-Anmeldung/Systemausführung und erforderliche Leserechte.
+  **Kein SUPER**, auch nicht aus Gruppen. Effektive Rechte exportieren. Keine
+  direkten Schreibrechte auf Ownership/Run-Tabellen vergeben. Zwei Negativtest-
+  Benutzer vorbereiten: Generate-only und Cleanup-only, ohne breite Codeunit-Rechte.
+- Die genaue Standard-BC-Lese-/Ausführungsmatrix bleibt ein SaaS-Abnahme-Gate.
+  Bei Verweigerung Objekt/Operation festhalten und nur erforderliche Rechte ergänzen.
+  Kein SUPER, kein Überspringen unlesbarer Referenztabellen. Ein Standardrollenname
+  ist kein Beweis für ausschließlich lesende Rechte.
+- Synthetische Quellen außerhalb des BCP-Nummernraums vorbereiten, beispielsweise
+  `QA-SOURCE-C`, `QA-SOURCE-V`, `QA-SOURCE-I`. Customer/Vendor: gültige nichtleere
+  Buchungsgruppe, Geschäftsbuchungsgruppe, MwSt.-Geschäftsbuchungsgruppe,
+  Länder-/Regionscode, Zahlungsbedingungscode und Zahlungsformcode. Item: Basiseinheit,
+  Lagerbuchungsgruppe, Produktbuchungsgruppe, MwSt.-Produktbuchungsgruppe,
+  Artikelkategorie **ohne eigene/geerbte Attribute**. Bestehende gültige Setup-Codes dieser QA-Firma verwenden.
+- Vorher-Bestand normaler Cronus-/Teststammdaten, Quellen, Setup, Contacts, Item UOM,
+  Item References, Extended Text und Default Dimensions mit Schlüsseln, SystemIds
+  und Änderungszeiten exportieren. Keine echten Kundendaten ins Evidence-Repository.
+
+Lesende Kontrolle: dieselbe Tenant-/Sandbox-URL mit
+`?company=BCS-PERF-DEV&table=53401` öffnen, vorhandene Seitenparameter ersetzen.
+Tabelle 53400 = Run, 53401 = Ownership, 18 = Customer, 23 = Vendor, 27 = Item,
+5404 = Item UOM. Die Ansicht ist schreibgeschützt und benötigt Tabellen-Leserecht
+sowie direkte Ausführung von Systemobjekt **1350 Run table**.
+[Microsoft Tabellenansicht](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-view-table-data).
+Ownership nach Run ID filtern. Exakte Zahlen aus vollständigem lesendem Export
+oder Tabellenstatistik erfassen; eine sichtbare Browserseite reicht nicht.
+
+### 9.2 Vollständiger erster DEV-Lauf
+
+1. Alt+Q: **INTERNAL QA - Performance runs**; alternativ in derselben Sandbox
+   `?company=BCS-PERF-DEV&page=53401`. Deutsche Beschriftungen sind übersetzt.
+2. **Create DEV / LARGE / XL / STRESS / Custom**: **DEV**, Seed **5001**, Error Rate
+   **10**, Batch Size **1000**, drei Quellen wählen. OK und QA-Bestätigung.
+3. Pending-Run ID notieren, Ziel **20.000** prüfen. Baseline-Scan der vier relevanten
+   BCSentinel-Prüfungen vor dem Start sichern.
+4. **Start / resume**, Run ID und Zielzahl bestätigen. Zweiten Client regelmäßig
+   aktualisieren: Phase, Fortschritt, Zähler, Batch, Start/Ende, Fehler festhalten.
+5. Soll: **Completed**, **100 %**, **6.000 Customers / 2.000 Vendors / 12.000 Items**,
+   **20 Batches** ohne Unterbrechung/Fehler, **2.000 Injected scenarios**.
+6. Originaltabellen kontrollieren: Nummernpräfix `BCP` + sechsstellige Run ID +
+   C/V/I; Run 1 beispielsweise `BCP000001C*`. Zähler unabhängig überprüfen.
+7. **12.000 Item UOM**, **32.000 Ownership**: Table ID 18=6.000, 23=2.000,
+   27=12.000, 5404=12.000. Nur 5404 hat Supporting=true. Zusätzlich ein Run-Datensatz.
+8. Stichproben bei Seed 5001: `...C0000011` E-Mail leer; `...V0000011` Telefon leer;
+   `...I0000011` Preis=0, Kosten positiv; `...I0000111` Kosten=0, Preis positiv.
+   Sequenz 1 jeweils ohne diesen Fehler. Buchungsgruppen, eigene Vendor-Relation,
+   Basis-UOM und UOM-Menge=1 prüfen. SystemId/RecordId/Modified At mit Ownership vergleichen.
+9. Szenariomengen **600 / 200 / 600 / 600**. Normale BCSentinel-Prüfung ausführen;
+   betroffene Datensätze gegenüber Baseline vergleichen. Aggregierte Findings sind
+   keine 2.000 einzelnen Finding-Zeilen. Weitere Checks können Baseline-Probleme melden.
+10. Keine zusätzlichen Contacts, Item References, Extended Text oder Default Dimensions
+    erwarten. Ungeplante Subscriber-Effekte sind ein zu untersuchender FAIL, kein
+    Anlass, ungetrackte Daten zu löschen.
+11. **Preview cleanup** für diesen Run: **32.000 Kandidaten**. Exporte sichern.
+    Die Vorschau zählt Kandidaten, sie beweist keine Löschbarkeit.
+12. **Cleanup run**: Kandidatenzahl prüfen, bewusst bestätigen. Soll **Cleaned**,
+    Cleanup Count **32.000**, Ownership für Run ID **0**, eigene Stammdaten/UOM **0**.
+    Historische Generierungszähler bleiben erhalten. Fehlertext bei Verweigerung sichern.
+13. Normale Cronus-/Testdaten, Quellen und Setup müssen in Schlüssel, SystemId,
+    relevanten Werten und Änderungszeit unverändert sein. Vorher-/Nachher-Vergleich
+    dokumentieren. QA-App/Ownership nicht vor erfolgreichem Cleanup deinstallieren.
+
+### 9.3 Sicherheits- und Recovery-Fälle vor LARGE
+
+Pro Fall eigene Run ID und Vorher-/Nachher-Beweise. Zusätzliche Daten legt ein
+separater Vorbereiter ausschließlich synthetisch in dieser QA-Firma an. Operator
+bleibt ohne SUPER. Keine unbekannten/echt verwendeten Daten entfernen.
+
+| Fall | Konkrete Schritte | Erwartung |
+|---|---|---|
+| Checkpoint + Resume | Custom: Customer 3, Vendor 2, Item 5, Seed 5001, Rate 10, Batch 2. Run one batch, schließen, neu öffnen, Start / resume. | Erst Running/Vendor=2/Ownership=2; danach Completed mit 10 Business + 5 UOM, Ownership=15, keine Duplikate. Cleanup=15. |
+| Echte Unterbrechung | Zusätzlichen DEV-Run starten. Admin beendet gezielt dessen dokumentierte Benutzersitzung über die Sandbox-Sitzungsverwaltung. Nach Stillstand Zähler/Ownership sichern, neu anmelden, Resume. Browser-Schließen allein beweist keinen Serverabbruch. | Vollständig committete Batches bleiben, laufender Batch ganz oder gar nicht. Running ohne Fehlertext möglich. Nach Resume genaue DEV-Zahlen. Ohne Sitzungsverwaltung bleibt dieser Fall PENDING. |
+| Fehler / Kollision | Custom 3/2/5, Batch 2, Pending anlegen. Vorbereiter legt ungetrackten synthetischen Vendor mit dessen zweiter Nummer `BCPrrrrrrV0000002` an, Identität sichern. Run one batch. | Failed, Failed Batches=1, Start/Ende gesetzt, Zähler/Ownership=0; Vendor 1 aus dem fehlgeschlagenen Batch fehlt ebenfalls. Kollisionsdatensatz unverändert. Nur diesen synthetischen Datensatz in freie `QA-COLLISION-...`-Nummer umbenennen, Resume testen. Er bleibt nach Cleanup erhalten. |
+| Teil-Cleanup | Custom 3/2/5, Batch 2, ein Batch, Cancel run, Preview/Cleanup. | Cancelled; Preview=2 Vendors, Cleanup=2, Cleaned. Start nach Cancelled/Cleaned erzeugt nichts. |
+| Geänderter Datensatz | Eigenen Custom-Run abschließen. Vorbereiter ändert Artikelbeschreibung auf normaler Karte, Identität/Zeiten sichern, Cleanup versuchen. | Betroffener Artikel/UOM bleiben; Fehler wegen geänderter Identität. Frühere Cleanup-Batches können schon committet sein. Text zurückändern stellt SystemModifiedAt nicht wieder her: zur Untersuchung stehenlassen, kein Tracking-Reset. |
+| Fremde Referenz | Eigener abgeschlossener Custom-Run. Über Artikelkarte > Referenzen synthetischen Item-Reference-Eintrag hinzufügen; prüfen, dass Artikel selbst unverändert bleibt. Cleanup. | Phase verweigert Löschung, Referenz und Artikel bleiben. Ändert die UI auch den Artikel, ist dies zusätzlich Änderungsfall und kein isolierter Referenzbeweis. Künstliche Referenz nur nach bewusster manueller Prüfung entfernen. |
+| Fremde UOM | Eigener abgeschlossener Custom-Run, zusätzliche Artikel-Einheit anlegen, Cleanup. | Keine Löschung der ungetrackten UOM über Standardkaskade, betroffener Batch rollt zurück. |
+| Ohne Cleanup | Generate-only-Benutzer erzeugt kleinen Run, versucht Preview/Cleanup. Effektive Rechte prüfen. | Zugriff verweigert, keine Löschungen. Sichtbare Aktion ist kein Berechtigungsnachweis. |
+| Ohne Generate | Cleanup-only-Benutzer versucht Create / Start / Run one batch am vorhandenen Pending-Run. | Zugriff verweigert, keine neuen Stammdaten/Ownership. Cleanup eines vorbereiteten terminalen Runs separat möglich. |
+| Kategorieattribute | Eigene synthetische Kategorie mit Attribut oder Elternkategorie mit Attribut als Quelle wählen. Zusätzlich bei Pending-Run danach ein Attribut an dessen QA-Kategorie ergänzen und Run one batch ausführen. | Anlage bzw. Batch verweigert; keine ungetrackten Artikelattribute. Im Batch-Fall Failed und vollständiger Rollback. Änderungen nur an dedizierter Testkonfiguration. |
+| No-SUPER | Vollständiger DEV-Lauf und Cleanup mit effektiven Operator-Rechten aus 9.1. | Beide ohne SUPER erfolgreich. Verweigerte Standardobjekte gezielt ergänzen, kein pauschaler Vollzugriff. |
+| Firmen-Guard | In anderer Testfirma ohne BCS-PERF- die QA-Seite öffnen. | Verweigerung ohne Datenänderung. Keine Installation in Produktion für einen Guard-Test. |
+
+Vier AL-Selbsttests der Codeunit **53407 BCP Self Tests** mit einem für diese
+Sandbox bereitgestellten AL-Test-Runner ausführen und Ergebnisse exportieren.
+Die QA-App enthält keinen Runner. Ist er nicht verfügbar, bleibt AL-Runtime PENDING;
+Source Contracts ersetzen weder AL-Ausführung noch Transaktions-/Berechtigungstests.
+
+### 9.4 LARGE nach erfolgreicher DEV-Abnahme separat
+
+**LARGE / Seed 5001 / 10 % / Batch 1000**. Gegen SetProfile, CreateItem und Track
+verifiziert: **150.000 Customers + 50.000 Vendors + 300.000 Items = 500.000 Business**,
+**300.000 explizite UOM**, **800.000 Ownership/Cleanup-Kandidaten**, ein Run-Datensatz.
+Weitere Subscriber-Effekte müssen im DEV ausgeschlossen sein.
+
+Baseline, Ist-Tabellenzahlen, Laufzeit, Reaktionsfähigkeit, Fehler und Scan-Deltas
+**15.000 / 5.000 / 15.000 / 15.000** sichern. Danach bewusst Cleanup mit Preview=800.000:
+Cleaned, Cleanup Count=800.000, eigene Stammdaten/UOM/Ownership=0, normale Daten unverändert.
+Run IDs, Zeiten, Ergebnisse und repository-relative Beweispfade im Evidence-JSON
+hinterlegen. Gesamtstatus bis zu echten Nachweisen:
+**AWAITING_MANUAL_BC_RUNTIME_EVIDENCE**.
 
 ## 10. Later XL/STRESS and EXT-50-12
 

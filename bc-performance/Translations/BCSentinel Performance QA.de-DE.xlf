@@ -225,6 +225,12 @@
           <note from="Developer" annotates="general" priority="2" />
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Cleanup Batch - NamedType OwnershipErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 112322197 - NamedType 223241615" size-unit="char" translate="yes" xml:space="preserve">
+          <source>QA generation requires an item category without own or inherited attributes and without a circular parent hierarchy.</source>
+          <target state="translated">Die QA-Erzeugung erfordert eine Artikelkategorie ohne eigene oder geerbte Attribute und ohne zyklische übergeordnete Kategorien.</target>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCP Config - NamedType CategoryErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 885732595 - NamedType 496693286" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use a dedicated disposable company whose name starts with BCS-PERF-.</source>
           <target state="translated">Verwenden Sie einen eigenen entbehrlichen Testmandanten, dessen Name mit BCS-PERF- beginnt.</target>

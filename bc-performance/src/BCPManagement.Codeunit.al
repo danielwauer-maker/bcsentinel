@@ -25,6 +25,7 @@ codeunit 53403 "BCP Management"
         GenerationRun."Customer Config" := Config.Snapshot(Database::Customer, CustomerNo);
         GenerationRun."Vendor Config" := Config.Snapshot(Database::Vendor, VendorNo);
         GenerationRun."Item Config" := Config.Snapshot(Database::Item, ItemNo);
+        Config.ValidateItemConfig(GenerationRun."Item Config");
         GenerationRun.Status := GenerationRun.Status::Pending;
         GenerationRun.Insert();
     end;

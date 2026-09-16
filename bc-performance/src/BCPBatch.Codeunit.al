@@ -25,6 +25,9 @@ codeunit 53402 "BCP Batch"
         Policy.ValidateRun(GenerationRun);
         if not (GenerationRun.Status in [GenerationRun.Status::Pending, GenerationRun.Status::Running, GenerationRun.Status::Failed]) then
             exit;
+        // Category validation can create inherited attribute mappings. Reject that setup
+        // once per batch, including resumed runs after configuration changes.
+        Config.ValidateItemConfig(GenerationRun."Item Config");
         if GenerationRun."Started At" = 0DT then
             GenerationRun."Started At" := CurrentDateTime();
         GenerationRun.Status := GenerationRun.Status::Running;

@@ -18,6 +18,7 @@ permissionset 53400 "BCP GENERATE"
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "Inventory Posting Group" = R,
                   tabledata "Item Category" = R,
+                  tabledata "Item Attribute Value Mapping" = R,
                   tabledata "Unit of Measure" = R,
                   tabledata "Payment Terms" = R,
                   tabledata "Payment Method" = R,

@@ -54,6 +54,31 @@ codeunit 53401 "BCP Config"
         exit(CopyStr(Token.AsValue().AsText(), 1, 10));
     end;
 
+    procedure ValidateItemConfig(ConfigText: Text)
+    var
+        ItemCategory: Record "Item Category";
+        AttributeMapping: Record "Item Attribute Value Mapping";
+        Config: JsonObject;
+        Token: JsonToken;
+        CategoryCode: Code[20];
+        Visited: List of [Code[20]];
+    begin
+        Config.ReadFrom(ConfigText);
+        Config.Get('5702', Token);
+        CategoryCode := CopyStr(Token.AsValue().AsText(), 1, MaxStrLen(CategoryCode));
+        AttributeMapping.SetRange("Table ID", Database::"Item Category");
+        repeat
+            if Visited.Contains(CategoryCode) then
+                Error(CategoryErr);
+            Visited.Add(CategoryCode);
+            ItemCategory.Get(CategoryCode);
+            AttributeMapping.SetRange("No.", CategoryCode);
+            if not AttributeMapping.IsEmpty() then
+                Error(CategoryErr);
+            CategoryCode := ItemCategory."Parent Category";
+        until CategoryCode = '';
+    end;
+
     local procedure GetFields(TableId: Integer; var FieldIds: List of [Integer])
     begin
         case TableId of
@@ -63,4 +88,7 @@ codeunit 53401 "BCP Config"
                 FieldIds.AddRange(8, 11, 91, 99, 5702);
         end;
     end;
+
+    var
+        CategoryErr: Label 'QA generation requires an item category without own or inherited attributes and without a circular parent hierarchy.';
 }
