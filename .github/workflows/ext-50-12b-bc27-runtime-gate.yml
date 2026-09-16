@@ -20,6 +20,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure Docker engine is ready
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $service = Get-Service -Name docker -ErrorAction SilentlyContinue
+          if ($service -and $service.Status -ne 'Running') {
+            Write-Host "Starting Docker service (current state: $($service.Status))..."
+            Start-Service docker
+          }
+
+          $ready = $false
+          for ($attempt = 1; $attempt -le 12; $attempt++) {
+            try {
+              docker version | Out-Host
+              if ($LASTEXITCODE -eq 0) {
+                $ready = $true
+                break
+              }
+            }
+            catch {
+              Write-Host "Docker readiness attempt $attempt failed: $($_.Exception.Message)"
+            }
+            Write-Host "Docker engine not ready yet (attempt $attempt/12); waiting 10 seconds..."
+            Start-Sleep -Seconds 10
+          }
+          if (-not $ready) {
+            throw "Docker engine did not become ready after 120 seconds; this is runner infrastructure failure, not an AL compile result."
+          }
+
       - name: Install validated BcContainerHelper
         shell: pwsh
         run: |
