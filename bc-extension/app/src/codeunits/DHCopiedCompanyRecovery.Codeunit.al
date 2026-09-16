@@ -1,4 +1,4 @@
-codeunit 53202 "DH Copied Company Recovery"
+codeunit 53197 "DH Copied Company Recovery"
 {
     Permissions =
         tabledata "DH Setup" = RIMD,
