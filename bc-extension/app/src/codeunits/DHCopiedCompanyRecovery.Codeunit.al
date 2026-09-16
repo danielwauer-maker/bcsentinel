@@ -68,18 +68,19 @@ codeunit 53200 "DH Copied Company Recovery"
         end;
     end;
 
-    procedure RecoverCopiedCompany(var Setup: Record "DH Setup")
+    procedure RecoverCopiedCompany(var Setup: Record "DH Setup"): Boolean
     begin
         if not CanOfferRecovery(Setup) then
             Error(RecoveryNotRequiredErr);
 
         if not Confirm(RecoveryConfirmQst, false) then
-            exit;
+            exit(false);
 
         ResetCopiedSchedulerState(Setup);
         DeleteCopiedBCSentinelHistory();
         ResetCopiedRegistrationState(Setup);
         Setup.Modify(true);
+        exit(true);
     end;
 
     local procedure HasIdentitySnapshot(var Setup: Record "DH Setup"): Boolean
