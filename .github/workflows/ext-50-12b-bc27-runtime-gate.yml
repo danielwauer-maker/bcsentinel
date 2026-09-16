@@ -47,11 +47,14 @@ jobs:
           $credential = [PSCredential]::new("admin", $securePassword)
           $appFolder = Join-Path $env:GITHUB_WORKSPACE "bc-extension"
           $rulesetFile = Join-Path $appFolder "app.ruleset.json"
+          $outputFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
           Run-AlPipeline `
             -pipelineName "EXT-50-12B-BC27" `
             -containerName "bcs12b-bc27" `
             -baseFolder $env:GITHUB_WORKSPACE `
             -appFolders @($appFolder) `
+            -outputFolder $outputFolder `
             -artifact $artifactUrl `
             -credential $credential `
             -doNotRunTests `
@@ -61,21 +64,22 @@ jobs:
             -failOn error `
             -keepContainer:$false
 
-      - name: Collect compiled app
-        if: always()
+      - name: Verify compiled app
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Stop"
           $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
-          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
-            Where-Object { $_.FullName -notmatch '[\\/]\.packages[\\/]' } |
-            ForEach-Object { Copy-Item $_.FullName (Join-Path $artifactFolder $_.Name) -Force }
+          $packages = @(Get-ChildItem -Path $artifactFolder -Filter *.app -File -Recurse -ErrorAction SilentlyContinue)
+          if ($packages.Count -eq 0) {
+            throw "BC27 compile/publish/install passed but no compiled .app was emitted to the explicit output folder."
+          }
+          $packages | ForEach-Object { Write-Host "Compiled app: $($_.FullName) ($($_.Length) bytes)" }
 
       - name: Publish app artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ext-50-12b-bc27-app
-          path: artifacts/bc-app/*.app
+          path: artifacts/bc-app/**/*.app
           if-no-files-found: error
           retention-days: 14
