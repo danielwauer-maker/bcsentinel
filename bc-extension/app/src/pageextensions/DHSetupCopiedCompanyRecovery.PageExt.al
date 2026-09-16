@@ -28,7 +28,9 @@ pageextension 53201 "DH Setup Copy Recovery" extends "DH Setup"
 
                 trigger OnAction()
                 begin
-                    RecoveryMgt.RecoverCopiedCompany(Rec);
+                    if not RecoveryMgt.RecoverCopiedCompany(Rec) then
+                        exit;
+
                     RecoveryVisible := RecoveryMgt.CanOfferRecovery(Rec);
                     CurrPage.Update(false);
                     Message(RecoveryCompletedMsg);
