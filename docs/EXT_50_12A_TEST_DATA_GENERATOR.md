@@ -318,3 +318,38 @@ finding counts, dashboard/report behavior and cleanup first. Only then approve X
 STRESS comes last. This sprint supplies fixtures and generation metrics. It does
 not certify 50-tenant/customer readiness, production performance, scheduler scale,
 or a GO decision for release. Outstanding sandbox and permission gates block GO.
+
+## 11. CI dependency incident, 2026-09-16
+
+Failed run `35010288574` compiled both extensions, then failed installing the
+unchanged product app through the BC Administration Shell. The retained event log
+reports `ReflectionTypeLoadException` in
+`Microsoft.Dynamics.Nav.Types.SerializationUtilities.TypesToBeAddedAsKnownTypes`
+and `ChangeNavAppStateResponse.NavBaseExceptions`: the administration response
+serializer could not resolve `Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.11`.
+This is a managed dependency of the BC administration type-loading path, not an
+AL extension dependency. The exact referring assembly and whether the DLL was
+absent on disk versus unavailable to that load context were not captured; the
+old container has been removed. A runner-update causal claim is not established.
+
+Observed environment: BcContainerHelper 6.1.14; host PowerShell 7.6.5;
+Windows Server 2022 host 10.0.20348.5499, container 10.0.20348.5622;
+BC artifact 27.5.46862.54684/w1, platform 27.0.54564.0. The helper release notes
+identify .NET 10 assembly-loading problems with remote PowerShell sessions.
+The exact container .NET runtime inventory was not retained.
+
+Correction: pin **BcContainerHelper 6.1.18** for all three module references.
+Its published package defaults `usePsSessionForBc27=false` and selects `docker exec`
+for BC 27 administration calls, avoiding the affected remote session. The earlier
+6.1.14 fix addressed System.IO.Pipelines only; 6.1.18 extends the general BC 28
+remote-session workaround to BC 27. No install/publish gate is removed, no errors
+are ignored, and no business/security rules are changed to address this failure.
+The independent pending start-time correction preserves the timestamp of a first
+failed generation batch after rollback; it is not a CI-install workaround.
+
+Primary references:
+[Microsoft helper release notes](https://github.com/microsoft/navcontainerhelper/blob/main/ReleaseNotes.txt),
+[pinned package](https://www.powershellgallery.com/packages/BcContainerHelper/6.1.18),
+[Microsoft known admin-shell issue (page currently labels BC 28)](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/upgrade/known-issues#business-central-admin-shell-modules-fail-in-powershell7-remote-sessions).
+The helper's BC 27-specific implementation is the applicability evidence for this
+pipeline. Re-running the complete install gate is required to verify the fix.

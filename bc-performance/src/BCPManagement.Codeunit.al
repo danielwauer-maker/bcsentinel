@@ -33,18 +33,22 @@ codeunit 53403 "BCP Management"
     var
         GenerationRun: Record "BCP Run";
         Failure: Text;
+        AttemptStartedAt: DateTime;
     begin
         Policy.RequireSandbox();
         GenerationRun.Get(RunId);
         repeat
             Commit();
             ClearLastError();
+            AttemptStartedAt := CurrentDateTime();
             if not Codeunit.Run(Codeunit::"BCP Batch", GenerationRun) then begin
                 Failure := GetLastErrorText();
                 GenerationRun.LockTable();
                 GenerationRun.Get(RunId);
                 // Do not overwrite a concurrent cancellation or cleanup transition.
                 if GenerationRun.Status in [GenerationRun.Status::Pending, GenerationRun.Status::Running, GenerationRun.Status::Failed] then begin
+                    if GenerationRun."Started At" = 0DT then
+                        GenerationRun."Started At" := AttemptStartedAt;
                     GenerationRun.Status := GenerationRun.Status::Failed;
                     GenerationRun."Error Text" := CopyStr(Failure, 1, MaxStrLen(GenerationRun."Error Text"));
                     GenerationRun."Failed Batches" += 1;

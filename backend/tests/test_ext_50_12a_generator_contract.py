@@ -90,6 +90,7 @@ def test_atomic_batch_checkpoint_and_terminal_status():
     assert 'GetLastErrorText()' in management
     assert 'GenerationRun."Failed Batches" += 1' in management
     assert 'GenerationRun.Status := GenerationRun.Status::Failed' in management
+    assert 'GenerationRun."Started At" := AttemptStartedAt' in management
     assert 'GenerationRun.Status := GenerationRun.Status::Cancelled' in management
 
 
@@ -177,6 +178,7 @@ def test_de_and_en_translations_have_complete_matching_units():
 def test_ci_compiles_separate_qa_and_never_claims_runtime_pass():
     ci = (ROOT / '.github/workflows/bc-al-compile.yml').read_text()
     assert '-appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE "bc-performance"))' in ci
+    assert ci.count('6.1.18') == 4
     assert '-containerEventLogFile' in ci
     assert '-doNotPublishApps' not in ci
     evidence = json.loads((ROOT / 'quality/release/ext-50-12a-test-data-generator-evidence.json').read_text())

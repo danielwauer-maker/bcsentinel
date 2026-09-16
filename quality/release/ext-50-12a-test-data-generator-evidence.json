@@ -53,7 +53,9 @@
     "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
     "al_behavior_tests": "COMPILE_ONLY_RUNTIME_PENDING",
     "ci": "PENDING",
-    "billing_date_regression": "PASS: reproduced expired fixed-date fixture, retained every assertion and used relative future periods"
+    "billing_date_regression": "PASS: reproduced expired fixed-date fixture; all assertions preserved; focused test and 20 billing tests pass",
+    "full_backend_regression": "PASS: 458 passed, 7 PostgreSQL-specific tests skipped here and passed in separate PostgreSQL gate",
+    "postgresql_gate": "PASS: 7 real PostgreSQL tests"
   },
   "runtime": {
     "profile": "LARGE",
@@ -122,5 +124,20 @@
     "base": "staging",
     "branch": "sprint/ext-50-12a-test-data-generator",
     "merged": false
+  },
+  "qa_local_package": {
+    "path": ".build/bc-extension/PerformanceQA/QA.bc27.ci-fix.app",
+    "sha256": "ef44078f05f721a34b6c6484c191c9a0d15b14674bccb0f3fedc9268f7e6a69b",
+    "compiler": "17.0.34.45391",
+    "symbol_major": 27,
+    "cop_errors": 0,
+    "cop_warnings": 0
+  },
+  "ci_evidence": {
+    "pilot_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35009957459",
+    "pilot_commit": "364767a",
+    "contracts_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35009957468",
+    "al_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35010288574",
+    "al_status": "FAIL: BC admin PowerShell remote-session assembly loading; helper 6.1.18 correction awaiting CI"
   }
 }

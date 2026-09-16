@@ -33,7 +33,8 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $moduleVersion = "6.1.14"
+          # 6.1.18 avoids the known BC 27 PowerShell 7 remote-session assembly loader failure.
+          $moduleVersion = "6.1.18"
           $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
           $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
           $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
@@ -63,7 +64,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -75,7 +76,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
 
           $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
           $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
