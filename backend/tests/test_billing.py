@@ -567,7 +567,10 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
 ):
     annual_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_annual_order")
     monthly_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_monthly_regression")
-    period_end = datetime(2027, 1, 15, 12, 0, tzinfo=timezone.utc)
+    # Exercise event ordering with active subscriptions, independent of the calendar date.
+    event_time = datetime.now(timezone.utc).replace(microsecond=0)
+    period_end = event_time + timedelta(days=365)
+    monthly_period_end = event_time + timedelta(days=30)
 
     annual_updated = client.post(
         "/billing/webhook",
@@ -576,7 +579,7 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
             "event_id": "evt_annual_updated_active",
             "event_type": "subscription.updated",
             "tenant_id": annual_tenant["tenant_id"],
-            "occurred_at_utc": "2026-01-15T12:00:00Z",
+            "occurred_at_utc": event_time.isoformat(),
             "subscription": {
                 "id": "sub_annual_order",
                 "product_code": "monitoring_annual",
@@ -600,7 +603,7 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
                 "status": "active",
                 "currency": "EUR",
                 "amount_monthly": 99.0,
-                "current_period_end_utc": "2026-08-15T12:00:00Z",
+                "current_period_end_utc": monthly_period_end.isoformat(),
             },
         },
     )
@@ -611,7 +614,7 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
             "event_id": "evt_annual_created_late_incomplete",
             "event_type": "subscription.created",
             "tenant_id": annual_tenant["tenant_id"],
-            "occurred_at_utc": "2026-01-15T12:01:00Z",
+            "occurred_at_utc": (event_time + timedelta(minutes=1)).isoformat(),
             "subscription": {
                 "id": "sub_annual_order",
                 "product_code": "monitoring_annual",

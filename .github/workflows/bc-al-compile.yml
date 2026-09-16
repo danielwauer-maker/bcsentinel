@@ -32,7 +32,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $moduleVersion = "6.1.14"
+          $moduleVersion = "6.1.18"
           $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
           $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
           $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
@@ -62,7 +62,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -74,11 +74,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
 
           $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
           $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          $outputFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
           New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+          New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
 
           $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
           $credential = [PSCredential]::new("admin", $securePassword)
@@ -92,6 +94,7 @@ jobs:
               -containerName "bcsentinel-bc-gate" `
               -baseFolder $env:GITHUB_WORKSPACE `
               -appFolders @($appFolder) `
+              -outputFolder $outputFolder `
               -artifact "${{ steps.artifact.outputs.url }}" `
               -credential $credential `
               -doNotRunTests `
@@ -162,32 +165,24 @@ jobs:
           $summary | Set-Content -Path $summaryPath -Encoding utf8
           $summary | ForEach-Object { Write-Host $_ }
 
-      - name: Collect compiled app packages
+      - name: Verify compiled app packages
         if: always()
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
-          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
-
-          $packages = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
-            Where-Object { $_.FullName -notmatch '[\\/]\.packages[\\/]' }
-
-          foreach ($package in $packages) {
-            Copy-Item $package.FullName (Join-Path $artifactFolder $package.Name) -Force
-            Write-Host "Collected package: $($package.FullName)"
+          $packages = @(Get-ChildItem -Path $artifactFolder -Filter *.app -File -Recurse -ErrorAction SilentlyContinue)
+          if ($packages.Count -eq 0) {
+            throw "The AL pipeline completed without emitting a compiled .app package to the explicit output folder."
           }
-
-          if (-not (Get-ChildItem -Path $artifactFolder -Filter *.app -File -ErrorAction SilentlyContinue)) {
-            throw "The AL pipeline completed without leaving a compiled .app package in the workspace."
-          }
+          $packages | ForEach-Object { Write-Host "Compiled package: $($_.FullName)" }
 
       - name: Publish AL build output
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bc-al-compile-output
-          path: artifacts/bc-app/*.app
+          path: artifacts/bc-app/**/*.app
           if-no-files-found: error
           retention-days: 14
 
