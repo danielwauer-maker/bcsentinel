@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19")]
+    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "PerformanceQA", "PerformanceQABaseline")]
     [string]$Profile = "ReleaseCloud",
 
     [string]$OutputPath
@@ -48,6 +48,59 @@ function Test-IsSameOrChildPath {
 
 $alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
 $repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
+
+if ($Profile -eq 'PerformanceQABaseline') {
+    # Immutable source of the QA version already installed in the SaaS sandbox.
+    $baselineCommit = '78dc59d1266caa2d1175ad79926482e18a2b0eb6'
+    $baselineOutput = Join-Path $repositoryRoot '.build\bc-extension\PerformanceQABaseline'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $baselineOutput) {
+        throw 'PerformanceQABaseline output must be .build/bc-extension/PerformanceQABaseline.'
+    }
+    New-Item -ItemType Directory -Path $baselineOutput -Force | Out-Null
+    $sourceArchive = Join-Path $baselineOutput ("source-{0}.zip" -f [guid]::NewGuid())
+    & git -C $repositoryRoot archive --format=zip "--output=$sourceArchive" $baselineCommit bc-performance
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to archive the pinned QA upgrade baseline.' }
+    Expand-Archive -LiteralPath $sourceArchive -DestinationPath $baselineOutput -Force
+    Write-Host "Prepared pinned QA 1.0.0.0 baseline: $baselineOutput\bc-performance"
+    return
+}
+
+if ($Profile -eq 'PerformanceQA') {
+    $qaSource = Join-Path $repositoryRoot 'bc-performance'
+    $qaOutput = Join-Path $repositoryRoot '.build\bc-extension\PerformanceQA'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $qaOutput) {
+        throw 'PerformanceQA output must be .build/bc-extension/PerformanceQA.'
+    }
+    # Incremental copy only: do not delete any pre-existing build artifacts.
+    New-Item -ItemType Directory -Path $qaOutput -Force | Out-Null
+    $generatedSource = Join-Path $qaOutput 'src'
+    if (Test-Path -LiteralPath $generatedSource) {
+        Get-ChildItem -LiteralPath $generatedSource -Filter '*.al' -File | ForEach-Object {
+            $resolvedFile = [System.IO.Path]::GetFullPath($_.FullName)
+            if (-not (Test-IsSameOrChildPath -Candidate $resolvedFile -Parent $qaOutput)) {
+                throw 'Generated source escaped the QA workspace.'
+            }
+            if (-not (Test-Path -LiteralPath (Join-Path (Join-Path $qaSource 'src') $_.Name))) {
+                Remove-Item -LiteralPath $resolvedFile
+            }
+        }
+    }
+    Copy-Item -LiteralPath (Join-Path $qaSource 'src') -Destination $qaOutput -Recurse -Force
+    Copy-Item -LiteralPath (Join-Path $qaSource 'app.json') -Destination $qaOutput -Force
+    $qaSymbols = Join-Path $qaOutput '.alpackages'
+    New-Item -ItemType Directory -Path $qaSymbols -Force | Out-Null
+    Get-ChildItem -LiteralPath (Join-Path $alProjectRoot '.alpackages') -Filter '*_27.*.app' -File | ForEach-Object {
+        $symbolTarget = Join-Path $qaSymbols $_.Name
+        if (-not (Test-Path -LiteralPath $symbolTarget)) {
+            Copy-Item -LiteralPath $_.FullName -Destination $symbolTarget
+        }
+    }
+    if (Test-Path -LiteralPath (Join-Path $qaSource 'Translations')) {
+        Copy-Item -LiteralPath (Join-Path $qaSource 'Translations') -Destination $qaOutput -Recurse -Force
+    }
+    Write-Host "Prepared QA build workspace: $qaOutput"
+    return
+}
 
 $manifestByProfile = @{
     DevCloud = "app.cloud.json"
