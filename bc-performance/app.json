@@ -2,7 +2,7 @@
   "id": "1bf95437-93b6-4329-bc49-40585f1272a0",
   "name": "BCSentinel Performance QA",
   "publisher": "BCSentinel Analytics - Daniel Wauer",
-  "version": "1.0.0.0",
+  "version": "1.0.0.1",
   "brief": "Internal sandbox-only deterministic master data generator.",
   "description": "EXT-50-12A internal QA tool. Install only in a dedicated disposable sandbox company.",
   "runtime": "16.0",

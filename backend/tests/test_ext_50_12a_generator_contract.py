@@ -25,6 +25,10 @@ def test_separate_app_and_nonoverlapping_object_inventory():
     product = json.loads((ROOT / "bc-extension/app.json").read_text())
     qa = json.loads((QA / "app.json").read_text())
     assert qa["id"] != product["id"]
+    assert qa["id"] == "1bf95437-93b6-4329-bc49-40585f1272a0"
+    assert qa["version"] == "1.0.0.1"
+    assert qa["name"] == "BCSentinel Performance QA"
+    assert qa["publisher"] == "BCSentinel Analytics - Daniel Wauer"
     assert qa["idRanges"] == [{"from": 53400, "to": 53449}]
     assert product["version"] == "1.0.2.20"
     assert product["idRanges"] == [{"from": 53100, "to": 53202}]
@@ -61,7 +65,7 @@ def test_seed_oracle_is_explicit_and_al_behavior_tests_exist():
     policy = code("BCPPolicy.Codeunit.al")
     assert '((Sequence mod 100) * 37 + (Seed mod 100)) mod 100 < Rate' in policy
     tests = source("BCPSelfTests.Codeunit.al")
-    assert tests.count('[Test]') == 4
+    assert tests.count('[Test]') == 8
     assert 'for Sequence := 1 to 10000' in tests
     assert 'asserterror Policy.ValidateRun' in tests
 
@@ -200,3 +204,36 @@ def test_inherited_category_attributes_refused_before_any_batch_insert():
     batch = code('BCPBatch.Codeunit.al')
     assert batch.index('Config.ValidateItemConfig(') < batch.index('while (Remaining > 0)')
     assert 'tabledata "Item Attribute Value Mapping" = R' in source('BCPGENERATE.PermissionSet.al')
+
+
+def test_new_dialog_materializes_request_before_editing_and_uses_central_profiles():
+    page = code('BCPNewRun.Page.al')
+    assert 'SourceTableTemporary = true' in page
+    opening = page.split('trigger OnOpenPage()', 1)[1].split('procedure Create()', 1)[0]
+    assert opening.index('Policy.RequireSandbox()') < opening.index('Policy.InitializeTemporaryRequest(Rec)')
+    profile = page.split('field(Profile;', 1)[1].split('field(Seed;', 1)[0]
+    assert 'trigger OnValidate()' in profile and 'Policy.SetProfile(Rec)' in profile
+    assert page.count('Editable = CustomTargetsEditable') == 3
+    assert 'CustomTargetsEditable := Rec.Profile = Rec.Profile::Custom' in page
+    assert not re.search(r'\b(6000|2000|12000|150000|50000|300000)\b', page)
+    assert 'GenerationRun."Run ID" := 0' in page
+    policy = code('BCPPolicy.Codeunit.al')
+    init = policy.split('procedure InitializeTemporaryRequest', 1)[1].split('procedure RequireSandbox', 1)[0]
+    assert init.index('not Request.IsTemporary()') < init.index('Request.Insert()')
+    assert init.index('SetProfile(Request)') < init.index('ValidateRun(Request)') < init.index('Request.Insert()')
+
+
+def test_ci_requires_real_al_behavior_and_separate_fresh_upgrade_gates():
+    ci = (ROOT / '.github/workflows/bc-al-compile.yml').read_text()
+    assert 'deployment: [fresh, upgrade]' in ci
+    assert '-previousApps $previousApps' in ci
+    assert 'Run-TestsInBcContainer' in ci
+    assert '-extensionId "1bf95437-93b6-4329-bc49-40585f1272a0"' in ci
+    assert '$cases.Count -ne 8' in ci
+    assert '//testcase/failure|//testcase/error|//testcase/skipped' in ci
+    assert 'if (-not $passed) { throw' in ci
+    assert 'continue-on-error' not in ci
+    assert 'treatTestFailuresAsWarnings' not in ci
+    builder = (ROOT / 'bc-extension/scripts/New-BCBuildWorkspace.ps1').read_text()
+    assert '78dc59d1266caa2d1175ad79926482e18a2b0eb6' in builder
+    assert "'.build\\bc-extension\\PerformanceQABaseline'" in builder

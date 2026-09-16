@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "PerformanceQA")]
+    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "PerformanceQA", "PerformanceQABaseline")]
     [string]$Profile = "ReleaseCloud",
 
     [string]$OutputPath
@@ -48,6 +48,22 @@ function Test-IsSameOrChildPath {
 
 $alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
 $repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
+
+if ($Profile -eq 'PerformanceQABaseline') {
+    # Immutable source of the QA version already installed in the SaaS sandbox.
+    $baselineCommit = '78dc59d1266caa2d1175ad79926482e18a2b0eb6'
+    $baselineOutput = Join-Path $repositoryRoot '.build\bc-extension\PerformanceQABaseline'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $baselineOutput) {
+        throw 'PerformanceQABaseline output must be .build/bc-extension/PerformanceQABaseline.'
+    }
+    New-Item -ItemType Directory -Path $baselineOutput -Force | Out-Null
+    $sourceArchive = Join-Path $baselineOutput ("source-{0}.zip" -f [guid]::NewGuid())
+    & git -C $repositoryRoot archive --format=zip "--output=$sourceArchive" $baselineCommit bc-performance
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to archive the pinned QA upgrade baseline.' }
+    Expand-Archive -LiteralPath $sourceArchive -DestinationPath $baselineOutput -Force
+    Write-Host "Prepared pinned QA 1.0.0.0 baseline: $baselineOutput\bc-performance"
+    return
+}
 
 if ($Profile -eq 'PerformanceQA') {
     $qaSource = Join-Path $repositoryRoot 'bc-performance'

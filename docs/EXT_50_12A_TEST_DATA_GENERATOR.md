@@ -1,6 +1,7 @@
 # EXT-50-12A — BCSentinel Performance Test Data Generator
 
-Status: **AWAITING_MANUAL_BC_RUNTIME_EVIDENCE**. No merge, production deployment,
+Status: **AWAITING_MANUAL_BC_RUNTIME_EVIDENCE**. Current QA version: **1.0.0.1**.
+The first actual SaaS test found a New Run dialog defect in 1.0.0.0; see section 14. No merge, production deployment,
 or XL/STRESS execution is authorized by this implementation.
 
 ## 1. Repository audit and decision
@@ -37,7 +38,7 @@ Audited architecture:
   scoring in `scoring_service.py` is not the scenario oracle.
 
 **Architecture A: separate sandbox-only extension**, `bc-performance/app.json`,
-app ID `1bf95437-93b6-4329-bc49-40585f1272a0`, version 1.0.0.0, schema 1,
+app ID `1bf95437-93b6-4329-bc49-40585f1272a0`, current version 1.0.0.1, schema 1,
 reserved range **53400–53449**. No dependency on the customer extension is needed:
 both operate on the same standard company tables. Separate packaging keeps the
 tool out of normal customer installations and install/upgrade hooks. A customer
@@ -262,9 +263,10 @@ artifacts are not removed. Use a new output APP filename for each local compile.
 The existing `.github/workflows/bc-al-compile.yml` compiles customer and QA apps
 with CodeCop/PTECop. The separate `ext-50-12a-test-data-generator.yml` runs source,
 safety, evidence and existing extension regression contracts plus GL/source checks.
-BC runtime tests are not enabled by the central compile workflow.
+The central workflow now executes eight pure AL behavior tests in both fresh
+and upgrade containers. SaaS UI, generation and cleanup remain separate manual gates.
 
-`BCP Self Tests` contains four real AL test methods: preset counts; exact rates
+`BCP Self Tests` originally contained four AL test methods, now extended to eight: preset counts; exact rates
 across 10,000 sequences and multiple seeds; namespace isolation/bounds; rejected
 configuration values. They require the BC Test Tool to execute. Merely compiling
 them is **not PASS** for AL behavior. Python tests are explicitly source contracts,
@@ -278,16 +280,18 @@ AppSource customer release. No existing test is removed or weakened.
 
 ## 9. Manuelle Abnahme: zuerst DEV, danach separat LARGE
 
-**Noch nicht ausgeführt.** Dies ist eine Testanleitung, kein Runtime-Nachweis.
+**DEV-Erzeugung/Cleanup noch nicht ausgeführt.** Installation und Firmen-Guard
+wurden vom Benutzer in SaaS bestätigt; die Run-Anlage scheiterte in 1.0.0.0.
+Nach Upgrade auf 1.0.0.1 zuerst den Dialog-Retest in Abschnitt 14 ausführen.
 LARGE setzt einen bestandenen DEV-Lauf einschließlich Sicherheitsfällen voraus.
 XL/STRESS werden nicht automatisch gestartet.
 
 ### 9.1 Paket und Vorbereitung
 
 - Workflow **BC AL Compile and Cop Gate**, Artifact **bc-al-compile-output**.
-  QA-Datei: `BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app`.
+  QA-Datei: `BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.1.app`.
   Extension **BCSentinel Performance QA**, Publisher **BCSentinel Analytics - Daniel Wauer**,
-  Version **1.0.0.0**, ID `1bf95437-93b6-4329-bc49-40585f1272a0`.
+  Version **1.0.0.1**, ID `1bf95437-93b6-4329-bc49-40585f1272a0`.
   Erfolgreichen Run und Paket-SHA256 aus dem Evidence-Dokument verwenden.
   Das Artifact enthält auch das Produktpaket; dieses nicht mit der QA-App verwechseln.
 - Keine BCSentinel-Abhängigkeit im QA-Manifest. BC-Anwendung/Plattform mindestens
@@ -383,10 +387,12 @@ bleibt ohne SUPER. Keine unbekannten/echt verwendeten Daten entfernen.
 | No-SUPER | Vollständiger DEV-Lauf und Cleanup mit effektiven Operator-Rechten aus 9.1. | Beide ohne SUPER erfolgreich. Verweigerte Standardobjekte gezielt ergänzen, kein pauschaler Vollzugriff. |
 | Firmen-Guard | In anderer Testfirma ohne BCS-PERF- die QA-Seite öffnen. | Verweigerung ohne Datenänderung. Keine Installation in Produktion für einen Guard-Test. |
 
-Vier AL-Selbsttests der Codeunit **53407 BCP Self Tests** mit einem für diese
+Acht AL-Selbsttests der Codeunit **53407 BCP Self Tests** mit einem für diese
 Sandbox bereitgestellten AL-Test-Runner ausführen und Ergebnisse exportieren.
-Die QA-App enthält keinen Runner. Ist er nicht verfügbar, bleibt AL-Runtime PENDING;
-Source Contracts ersetzen weder AL-Ausführung noch Transaktions-/Berechtigungstests.
+Die QA-App enthält keinen Runner; die CI installiert ihn separat und führt die
+Request-/Policy-Tests aus. Ein optionaler SaaS-Wiederholungslauf benötigt ebenfalls
+einen Runner. Source Contracts ersetzen weder AL-Ausführung noch die manuellen
+Transaktions-/Berechtigungstests.
 
 ### 9.4 LARGE nach erfolgreicher DEV-Abnahme separat
 
@@ -518,3 +524,88 @@ after 14 days; retain the verified QA package locally. It contains the final AL
 sources. Container install success is not SaaS, non-SUPER or generation evidence.
 
 **Overall: AWAITING_MANUAL_BC_RUNTIME_EVIDENCE. No merge, production deployment or GO.**
+
+## 14. Echter SaaS-Runtime-Fund: leerer New-Run-Dialog (1.0.0.0)
+
+**Quelle: manueller Benutzer-Test in BC 27 SaaS, Firma BCS-PERF-DEV.**
+Installation und Sandbox-/Firmen-Guard waren erfolgreich. Die Firma ist eine
+bewusste CRONUS-DE-Kopie, deren vorhandene Daten als Fremddaten-Baseline erhalten
+bleiben. QA-SOURCE-C, QA-SOURCE-V und QA-SOURCE-I sind bereits vorbereitet.
+
+**Expected:** DEV / Seed 5001 / Rate 10 / Batch 1000 / Targets 6000, 2000, 12000.
+**Actual:** Alle sieben an Rec gebundenen Felder waren leer und ausgegraut;
+die drei variablengebundenen Quellenfelder funktionierten. Nach OK und korrekt
+angezeigter Safety-Abfrage verweigerte CreateRun die ungültige Konfiguration.
+Es entstand laut Benutzer kein gültiger Run. Dies ist ein echter Runtime-Fund,
+kein Fehler der eingegebenen CRONUS-Konfiguration.
+
+### Ursache und Korrektur
+
+Die StandardDialog-Seite hat SourceTableTemporary=true. OnOpenPage setzte nur
+Felder des Record-Puffers, fügte aber keinen temporären Datensatz ein. Damit
+fehlte die SourceTable-Zeile für die gebundenen Felder. Die Variablenfelder für
+CustomerNo/VendorNo/ItemNo benötigen diese Zeile nicht. Zusätzlich fehlten der
+initiale SetProfile-Aufruf und OnValidate für Profilwechsel. Der Enum-Wert 0
+ist bereits DEV; eine vermeintlich fehlende neue Enum-Option war nicht die Ursache.
+Das nachgelagerte Management.Init kopiert die Eingabeoptionen aus TempRequest
+zurück und setzt vor ValidateRun die Policy-Targets; es kann verlorene Seed-/Rate-/
+Batch-Eingaben des Dialogs jedoch nicht ersetzen.
+
+`BCP Policy.InitializeTemporaryRequest` verweigert echte/persistente und bereits
+vorhandene Requests. Es initialisiert DEV, 5001, 10, DefaultBatchSize(), Schema 1,
+ruft SetProfile und ValidateRun auf und **fügt eine temporäre Zeile ein**.
+OnOpenPage ruft zuerst unverändert RequireSandbox und danach diesen Initializer.
+Profil-OnValidate ruft ausschließlich die zentrale SetProfile-Policy auf; keine
+Preset-Zahlen werden in der Page dupliziert. Nur bei Custom werden die drei
+Zielzahlen editierbar. Seed, Rate und Batch bleiben konfigurierbar. Die temporäre
+Identität wird vor Übergabe an CreateRun auf 0 gesetzt; echte Run-IDs entstehen
+weiterhin ausschließlich im Management. Source-Snapshot, Kategorieprüfung,
+Sicherheitsabfrage und alle bestehenden Guards bleiben erhalten.
+
+App-Version **1.0.0.1**, unveränderte App-ID/Name/Publisher/Objekt-IDs und unveränderte
+Tabellenstruktur. Kein Datenreset und kein neues Upgrade-Codeunit erforderlich.
+Upgrade erfolgt durch normale BC-App-Synchronisierung/Datenaktualisierung.
+
+### Automatisierte Regression
+
+Acht AL-Tests: ursprüngliche Quoten-/Namespace-/Validierungsprüfungen, genaue
+Preset-Zahlen, eingefügter und erneut gelesener temporärer Default-Request,
+Profilwechsel mit Erhalt von Seed/Rate/Batch/Schema, Custom-Wechsel und Abweisung
+persistenter/bereits vorhandener Requests. Ungültige Seeds, Schema, Batchgrößen,
+Raten und Null-Targets bleiben abgewiesen. Die Page-Verknüpfung und Editable-Regeln
+werden zusätzlich durch Source Contracts geschützt. Source Contracts allein
+beweisen keine Webclient-Darstellung.
+
+Die CI behält einen **fresh**-Installationspfad bei und ergänzt einen unabhängigen
+**upgrade**-Pfad. Die alte QA-Version wird aus dem unveränderlichen Git-Commit
+78dc59d gebaut; es besteht keine Abhängigkeit von ablaufenden Artifacts. Beide Pfade
+müssen 1.0.0.1 installiert melden und alle acht AL-Tests ohne Skip ausführen.
+Die AL-Tests prüfen Request-Verhalten, keine Umgehung des SaaS-Guards. Ein BC-
+Container ersetzt weder SaaS-Webclient- noch No-SUPER-Nachweise. Der Upgrade-Pfad
+prüft Schema-/Installationskompatibilität; er erzeugt keine synthetischen SaaS-Daten.
+
+### Retest exakt an der bisherigen Stelle
+
+1. Neue **BCSentinel Performance QA 1.0.0.1** über Erweiterungsverwaltung hochladen
+   und die vorhandene App regulär aktualisieren. **Nicht deinstallieren** und keine
+   App-Daten löschen. Version 1.0.0.1 und unveränderte App-ID anschließend prüfen.
+2. In **BCS-PERF-DEV** bleiben alle CRONUS-Daten und die drei vorhandenen Quellen.
+   Als QA-Benutzer ohne SUPER neu anmelden bzw. den alten Dialog schließen.
+3. **Performance-Läufe > Create** öffnen. Unmittelbar sichtbar: **DEV, 5001, 10,
+   1000, 6000, 2000, 12000**. Profil/Seed/Rate/Batch müssen bedienbar sein. Die drei
+   Targets sind beim Preset bewusst schreibgeschützt, aber nicht leer.
+4. LARGE wählen: **150000 / 50000 / 300000**; XL: **600000 / 200000 / 1200000**;
+   STRESS: **1500000 / 500000 / 3000000**. Nicht erzeugen. Custom wählen und
+   Editierbarkeit der Ziele prüfen; anschließend wieder DEV wählen.
+5. DEV, Seed 5001, Rate 10, Batch 1000 prüfen. **QA-SOURCE-C**, **QA-SOURCE-V** und
+   **QA-SOURCE-I** auswählen. OK und die Safety-Abfrage bewusst bestätigen.
+6. Erwartet: genau ein **Pending**-Run mit Ziel **20.000**, Zählern 0, korrekten
+   Optionen und Schema 1. Run ID und Screenshots der Defaults/des Pending-Runs sichern.
+   Erst mit diesem tatsächlichen SaaS-Ergebnis wird RUNTIME-001 auf PASS gesetzt.
+7. Danach den eigentlichen DEV-Test aus Abschnitt 9 fortsetzen. LARGE bleibt bis
+   zur DEV- und Sicherheitsabnahme gesperrt.
+
+**Runtime-Fund bleibt OPEN_RETEST_REQUIRED. Gesamtstatus:
+AWAITING_MANUAL_BC_RUNTIME_EVIDENCE.** Code-Fix oder Container-Tests sind kein
+SaaS-Retest-PASS. Historische Nachweise aus Abschnitt 13 gelten für 1.0.0.0;
+maßgeblich für das neue Paket ist der aktuelle Runtime-Fix-Eintrag im Evidence-JSON.

@@ -1,5 +1,25 @@
 codeunit 53400 "BCP Policy"
 {
+    procedure InitializeTemporaryRequest(var Request: Record "BCP Run")
+    begin
+        // A source-bound dialog needs an inserted temporary row, not just a buffer.
+        // Refuse persistent records so this initializer cannot create real runs.
+        if not Request.IsTemporary() then
+            Error(ConfigErr);
+        if not Request.IsEmpty() then
+            Error(ConfigErr);
+        Request.Init();
+        Request."Run ID" := 0;
+        Request.Profile := Request.Profile::DEV;
+        Request.Seed := 5001;
+        Request."Error Rate" := 10;
+        Request."Batch Size" := DefaultBatchSize();
+        Request."Schema Version" := 1;
+        SetProfile(Request);
+        ValidateRun(Request);
+        Request.Insert();
+    end;
+
     procedure RequireSandbox()
     var
         EnvironmentInformation: Codeunit "Environment Information";
