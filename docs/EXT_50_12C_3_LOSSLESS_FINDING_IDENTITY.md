@@ -298,7 +298,7 @@ These packages are for the isolated QA sandbox only; CI/runtime gates apply.
 
 - `.build/bc-extension/ReleaseFinal/BCSentinel.1.0.2.22.validated.app` — SHA256 `467d1a2b45f4be636be62048430d0edf7f31dc7f1891f697e66e31ebc94fda30`
 
-- `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.final.app` — SHA256 `f44b2f2cf45714a547018007cbfe749611237251f526e85e4f0c4d36c3d7b3e8`
+- `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.distinct-identities.app` — SHA256 `c86550c2440d1a332a56240ae4b7783a6f1152be76db96a19a5c17b34e617899`
 
 
 ### Final-product backend run and CI infrastructure correction
@@ -317,3 +317,16 @@ engine before running the unchanged install/upgrade/test gates. This does not
 operate on local Docker or any real BC environment. Final workflow results remain
 a prerequisite; neither this infrastructure correction nor local compilation is
 an AL runtime pass.
+
+
+### Executed AL test finding and fixture repair
+
+The fresh job of run 35236375727 completed product/QA installation and executed
+all three AL tests: two PASS, one FAIL in the first group-impact assertion.
+The temporary-record fixture reused the SystemId while calling Init/Insert.
+It now explicitly assigns CreateGuid only when creating each temporary record,
+uses Insert(false, true), and asserts non-null/distinct IDs before mapping.
+All original impact, retry, count and sum assertions remain. Production persisted
+record creation and per-sync identity are unchanged. The corrected QA package
+compiles with zero warnings/errors; a subsequent real AL execution is required
+to close this reproduced fixture failure.

@@ -13,6 +13,9 @@ codeunit 53460 "BCS Finding Identity Tests"
         FirstId := TempFinding.SystemId;
         AddFinding(TempFinding, 2, 10, 'CHECK_A', 20);
         SecondId := TempFinding.SystemId;
+        AssertTrue(not IsNullGuid(FirstId));
+        AssertTrue(not IsNullGuid(SecondId));
+        AssertTrue(FirstId <> SecondId);
         TempFinding.ApplyBackendImpact(10, 'CHECK_A', SecondId, 'high', 250);
         TempFinding.ApplyBackendImpact(10, 'CHECK_A', FirstId, 'medium', 100);
         TempFinding.ApplyBackendImpact(10, 'CHECK_A', SecondId, 'high', 250);
@@ -75,7 +78,9 @@ codeunit 53460 "BCS Finding Identity Tests"
         TempFinding."Deep Scan Entry No." := RunEntryNo;
         TempFinding."Issue Code" := IssueCode;
         TempFinding."Affected Count" := Count;
-        TempFinding.Insert();
+        // Temporary records need explicit creation identities for this fixture.
+        TempFinding.SystemId := CreateGuid();
+        TempFinding.Insert(false, true);
     end;
 
     local procedure AssertTrue(Condition: Boolean)
