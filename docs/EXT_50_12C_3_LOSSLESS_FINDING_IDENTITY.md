@@ -125,7 +125,7 @@ identity. Free aggregate output still excludes protected finding details.
 Report aggregation continues summing all issue rows. HTML/PDF and report labels
 now call this value Prüftreffer / Check occurrences; technical schema compatibility
 is retained. Existing report layout and commercial calculations are unchanged.
-The existing executive HTML template's German editorial copy is not redesigned
+The changed metric is localized in DE/EN; the existing executive HTML template's other German editorial copy is not redesigned
 into a new localization architecture in this sprint.
 
 ## 15. Free / Full access
@@ -212,8 +212,8 @@ future QA actions; no deployment occurred during this sprint.
    Register that company normally; never share tokens in evidence. Confirm normal
    connectivity and module activation using existing setup procedures.
 3. Create five small customer QA records using valid posting setup: two customers
-   with exactly the same name/postcode/city tuple `QA Group A`, three with a
-   different identical tuple `QA Group B`. Use unique customer numbers and unique
+   with name `QA Group A` and the same valid, non-empty postcode and city, three with a
+   different name `QA Group B` and their own identical valid, non-empty postcode/city tuple. Use unique customer numbers and unique
    valid emails so groups are distinguishable. Do not weaken validation rules.
    These records must exist only in the new QA company. Keep other records out of
    those tuples. The customer name/postcode/city duplicate check must produce two
@@ -243,6 +243,32 @@ all pass. Maximum status is READY_FOR_MANUAL_BC_RUNTIME_RETEST, never LARGE GO.
 
 ## Execution evidence (updated after CI)
 
-CI and final artifact hashes pending. Local evidence is under `.build/` and CI
-uploads test XML, logs and packages. No merge, production deployment or BC data
-mutation has been performed.
+Repair PR: https://github.com/danielwauer-maker/bcsentinel/pull/41 (draft).
+First backend CI: https://github.com/danielwauer-maker/bcsentinel/actions/runs/35234706980
+— full regression 518 PASS / 1 baseline FAIL / 8 SKIP / 2 XFAIL;
+separate migration gate 2 PASS (SQLite + real PostgreSQL), real PostgreSQL API/
+identity/concurrency gate 23 PASS / 0 FAIL / 0 SKIP. Overall CI deliberately stays
+red because the known billing failure is not hidden.
+
+Local AL compiler 17.0.34.45391 against BC27 symbols: product and QA PASS.
+CodeCop/PTECop product: 270 warnings, exactly the same filename/code/message
+multiset as audit f312eaf; zero new warnings. QA: zero warnings/errors, three
+namespace informational notices. AppSourceCop: existing 3 AS0051 + 1 AS0084 errors,
+1 AS0092 warning; not an AppSource PASS. Source uniqueness: 109 canonical product
+objects PASS; GL01C seven contracts PASS; GL01F source contracts PASS.
+
+Chromium 130 (Playwright 1140): synthetic large-number executive report two PDF
+pages; both page boxes 794x1123 without horizontal/vertical overflow; visible
+224999 occurrences and EUR 2202021.49 / 1541415.04, footers visually inspected.
+This is a layout sample, not another runtime evidence file. The reproducible
+`scripts/verify_ext_50_12c_3_dashboard.py` executes real JavaScript for separate
+same-check rows, reordered action mapping, legacy row keys and DE/EN units.
+Local UI regression after supplementary metric labels: 41 PASS.
+
+BC CI fresh/upgrade: https://github.com/danielwauer-maker/bcsentinel/actions/runs/35234706976
+Fresh first attempt blocked at PowerShell Gallery WAF download; no AL tests ran
+in that job. Upgrade outcome pending. These infrastructure failures are separate
+from local compile evidence. Final package hashes and outcomes follow when ready.
+
+Local evidence stays under `.build/`; CI uploads XML/logs/packages. No merge,
+production deployment or real BC data mutation has been performed.

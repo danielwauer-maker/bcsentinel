@@ -25,7 +25,7 @@ const LOCAL_DASHBOARD_UI = {
     overview_subtitle: 'Executive overview of your data quality and business impact',
     analytics_subtitle: 'Score, loss and distribution analysis for the selected scan',
     scans_subtitle: 'Available scan runs and dashboard context',
-    issues_subtitle: 'Review detected data quality issues, business impact and affected records.',
+    issues_subtitle: 'Review detected data quality issues, business impact and check occurrences.',
     issue_detail: 'Issue detail',
     issue_detail_subtitle: 'Detailed issue context, impact and recommendation',
     actions_subtitle: 'Prioritized actions to reduce data quality risk and business impact.',
@@ -50,7 +50,7 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_potential: 'Potential Saving',
     business_impact_potential_helper: 'Estimated potential, not a guaranteed result.',
     business_impact_not_available: 'Not available',
-    business_impact_records: 'records',
+    business_impact_records: 'check occurrences',
     business_impact_signals: 'signals',
     business_impact_review_needed: 'Review needed',
     business_impact_elevated: 'Elevated',
@@ -123,7 +123,7 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_potential: 'Potential Saving',
     business_impact_potential_helper: 'Geschaetztes Potenzial, kein garantiertes Ergebnis.',
     business_impact_not_available: 'Nicht verfuegbar',
-    business_impact_records: 'Datensaetze',
+    business_impact_records: 'Prüftreffer',
     business_impact_signals: 'Signale',
     business_impact_review_needed: 'Pruefung erforderlich',
     business_impact_elevated: 'Erhoeht',
@@ -536,7 +536,7 @@ function updatePageHeader(tab) {
     overview: [t('overview', 'Overview'), t('overview_subtitle', 'Executive overview of your data quality and business impact')],
     analytics: [t('analytics', 'Analytics'), t('analytics_subtitle', 'Score, loss and distribution analysis for the selected scan')],
     scans: [t('scans', 'Scans'), t('scans_subtitle', 'Available scan runs and dashboard context')],
-    issues: [t('issues', 'Issues'), t('issues_subtitle', 'Review detected data quality issues, business impact and affected records.')],
+    issues: [t('issues', 'Issues'), t('issues_subtitle', 'Review detected data quality issues, business impact and check occurrences.')],
     'issue-detail': [t('issue_detail', 'Issue detail'), t('issue_detail_subtitle', 'Detailed issue context, impact and recommendation')],
     actions: [t('actions', 'Actions'), t('actions_subtitle', 'Prioritized actions to reduce data quality risk and business impact.')],
     reports: [t('reports', 'Reports'), t('reports_subtitle', 'Generate and review executive, operational and impact reports.')],
@@ -1814,7 +1814,7 @@ function businessImpactCurrencyValue(value) {
 function businessImpactOperationalValue(kpis) {
   const affectedRecords = safeNumber(kpis?.affected_records);
   const issueSignals = safeNumber(kpis?.issues_count);
-  if (affectedRecords > 0) return `${formatNumber(Math.round(affectedRecords))} ${t('business_impact_records', 'records')}`;
+  if (affectedRecords > 0) return `${formatNumber(Math.round(affectedRecords))} ${t('business_impact_records', 'check occurrences')}`;
   if (issueSignals > 0) return `${formatNumber(Math.round(issueSignals))} ${t('business_impact_signals', 'signals')}`;
   return t('business_impact_not_available');
 }
@@ -2658,7 +2658,7 @@ function reportDefinitions() {
     {
       key: 'issue_detail_report',
       title: 'Issue Detail Report',
-      description: 'Detailed list of detected issues and affected records.',
+      description: 'Detailed list of detected issues and check occurrences.',
       icon: 'ID',
     },
     {

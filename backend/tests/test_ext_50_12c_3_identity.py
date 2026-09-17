@@ -160,5 +160,6 @@ def test_dashboard_and_report_keep_groups_with_access_boundary(
             saved_tenant.preferred_language = language
             report = build_executive_report(db, saved_tenant, 'IDENTITY_RUN')
             html = render_executive_report_html(report, inline_css=True)
+            assert ('<h3>Prüftreffer</h3>' if language == 'de' else '<h3>Check occurrences</h3>') in html
             assert 'Betroffene Datensätze' not in html
             assert 'Affected Records' not in html

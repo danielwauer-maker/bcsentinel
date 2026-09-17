@@ -18,7 +18,7 @@
   "overview_subtitle": "Executive Overview deiner Datenqualität und Business-Auswirkung",
   "analytics_subtitle": "Score-, Verlust- und Verteilungsanalyse für den ausgewählten Scan",
   "scans_subtitle": "Verfügbare Scan-Läufe und Dashboard-Kontext",
-  "issues_subtitle": "Prüfe erkannte Datenqualitäts-Issues, Business Impact und betroffene Datensätze.",
+  "issues_subtitle": "Prüfe erkannte Datenqualitäts-Issues, Business Impact und Prüftreffer.",
   "issue_detail": "Issue Detail",
   "issue_detail_subtitle": "Detaillierter Issue-Kontext, Impact und Empfehlung",
   "actions_subtitle": "Priorisierte Aktionen zur Reduzierung von Datenqualitätsrisiko und Business Impact.",
