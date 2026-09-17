@@ -100,7 +100,9 @@ def test_declared_check_counts_match_executable_catalog(name):
     assert declared == sum(row['procedure'] == name for row in rows)
 
 
-@pytest.mark.xfail(strict=True, reason='Existing product duplicate defect: marker lookup cannot identify titles containing only IssueCode')
 def test_duplicate_marker_is_persisted_for_existing_lookup():
-    assert 'SetFilter(Title' in PROCEDURES['FindingExists']
+    assert 'SetRange("Group Key"' in PROCEDURES['FindingExists']
+    assert 'Finding.BuildGroupKey' in PROCEDURES['BuildGroupKey']
+    assert 'GenerateHash' in (ROOT / 'bc-extension/app/src/tables/DHDeepScanFinding.Table.al').read_text()
+    assert 'SetFilter(Title' not in PROCEDURES['FindingExists']
     assert 'ValueMarker' in PROCEDURES['InsertFinding'] or 'Marker' in PROCEDURES['InsertFinding']

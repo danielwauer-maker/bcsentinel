@@ -54,6 +54,11 @@ table 53129 "DH Deep Scan Finding"
             Caption = 'Estimated Impact';
             DecimalPlaces = 0 : 2;
         }
+        field(13; "Group Key"; Text[64])
+        {
+            Caption = 'Group Key';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -61,6 +66,9 @@ table 53129 "DH Deep Scan Finding"
         key(PK; "Entry No.")
         {
             Clustered = true;
+        }
+        key(GroupIdentity; "Deep Scan Entry No.", "Issue Code", "Group Key")
+        {
         }
         key(Key2; "Deep Scan Entry No.")
         {
@@ -75,4 +83,42 @@ table 53129 "DH Deep Scan Finding"
         {
         }
     }
+
+    procedure ApplyBackendImpact(RunEntryNo: Integer; IssueCode: Code[50]; FindingId: Guid; SeverityValue: Code[20]; Impact: Decimal)
+    begin
+        Reset();
+        if not GetBySystemId(FindingId) then
+            Error(FindingIdentityErr);
+        if ("Deep Scan Entry No." <> RunEntryNo) or ("Issue Code" <> IssueCode) then
+            Error(FindingIdentityErr);
+        if SeverityValue <> '' then begin
+            Severity := SeverityValue;
+            case LowerCase(SeverityValue) of
+                'critical': "Severity Sort Order" := 0;
+                'high': "Severity Sort Order" := 1;
+                'medium': "Severity Sort Order" := 2;
+                'low': "Severity Sort Order" := 3;
+                else "Severity Sort Order" := 99;
+            end;
+        end;
+        "Estimated Impact (EUR)" := Impact;
+        Modify(true);
+    end;
+
+    procedure BuildGroupKey(RunSystemId: Guid; IssueCode: Code[50]; ValueMarker: Text): Text[64]
+    var
+        Cryptography: Codeunit "Cryptography Management";
+        HashAlgorithm: Option MD5,SHA1,SHA256,SHA384,SHA512;
+        Parts: JsonArray;
+        Canonical: Text;
+    begin
+        Parts.Add(Format(RunSystemId));
+        Parts.Add(Format(IssueCode));
+        Parts.Add(UpperCase(ValueMarker));
+        Parts.WriteTo(Canonical);
+        exit(CopyStr(Cryptography.GenerateHash(Canonical, HashAlgorithm::SHA256), 1, 64));
+    end;
+
+    var
+        FindingIdentityErr: Label 'The backend finding identity does not belong to this run and check.';
 }

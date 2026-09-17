@@ -44,7 +44,7 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_financial: 'Financial Impact',
     business_impact_financial_helper: 'Estimated annual exposure from the current scan context.',
     business_impact_operational: 'Operational Impact',
-    business_impact_operational_helper: 'Affected records indicate operational review pressure.',
+    business_impact_operational_helper: 'Check occurrences indicate operational review pressure.',
     business_impact_governance: 'Governance Impact',
     business_impact_governance_helper: 'Business control relevance derived from the current score band.',
     business_impact_potential: 'Potential Saving',
@@ -117,7 +117,7 @@ const LOCAL_DASHBOARD_UI = {
     business_impact_financial: 'Financial Impact',
     business_impact_financial_helper: 'Geschaetzte jaehrliche Auswirkung aus dem aktuellen Scan-Kontext.',
     business_impact_operational: 'Operational Impact',
-    business_impact_operational_helper: 'Betroffene Datensaetze zeigen operativen Pruefdruck.',
+    business_impact_operational_helper: 'Prüftreffer zeigen operativen Pruefdruck.',
     business_impact_governance: 'Governance Impact',
     business_impact_governance_helper: 'Business-Control-Relevanz aus dem aktuellen Score-Band.',
     business_impact_potential: 'Potential Saving',
@@ -241,7 +241,7 @@ const STATIC_TEXT_TRANSLATIONS = [
   ['static_locked', 'Locked', 'Gesperrt'],
   ['static_not_available', 'Not available', 'Nicht verfÃ¼gbar'],
   ['static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'],
-  ['static_affected_records', 'Affected Records', 'Betroffene DatensÃ¤tze'],
+  ['static_affected_records', 'Check occurrences', 'Prüftreffer'],
   ['static_issue', 'Issue', 'Fehler'],
   ['static_module', 'Module', 'Modul'],
   ['static_severity', 'Severity', 'Schweregrad'],
@@ -1004,7 +1004,7 @@ function executiveHeroFacts(data, config) {
       value: topRisk.replace(/\.$/, ''),
     },
     {
-      label: 'Affected records',
+      label: 'Check occurrences',
       value: affectedRecords > 0 ? formatNumber(affectedRecords) : `${formatNumber(criticalIssues)} critical findings`,
     },
     {
@@ -1298,7 +1298,7 @@ function renderOverviewKpis(data) {
   renderHealthScoreExperience(data);
   setText('kpi-loss-label-title', 'Estimated Loss');
   setText('kpi-savings-label-title', 'Potential Savings');
-  setText('kpi-records-label-title', 'Affected Records');
+  setText('kpi-records-label-title', 'Check occurrences');
   setText('kpi-checks-label-title', 'Validation Checks');
   const scanTrendLabel = 'Historical trends available after additional scans';
 
@@ -2146,7 +2146,8 @@ function normalizeIssueItem(item, index, isLocked, data) {
   warnOnInvalidBcCompanyFormat(openInBcUrl);
 
   return {
-    id: item?.code || item?.id || `issue-${index + 1}`,
+    id: item?.finding_id || item?.id || `issue-${index + 1}`,
+    code: item?.code || '',
     rawTitle: title || t('issue_detail', 'Issue detail'),
     title: isLocked ? t('premium_issue_details', 'Premium issue details') : (title || t('static_issue', 'Issue')),
     group: group || t('static_general', 'General'),
@@ -2261,9 +2262,9 @@ function issueWhyMattersText(issue) {
   const group = issue?.group || td('static_general', 'General', 'Allgemein');
   const affected = issue?.locked ? td('static_locked', 'Locked', 'Gesperrt') : formatNumber(issue?.count);
   if (issue?.impact > 0) {
-    return `${escapeHtml(group)} ${escapeHtml(td('static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschaetzter Impact / Verlust'))}: ${escapeHtml(formatCurrency(issue.impact))}. ${escapeHtml(td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'))}: ${escapeHtml(affected)}.`;
+    return `${escapeHtml(group)} ${escapeHtml(td('static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschaetzter Impact / Verlust'))}: ${escapeHtml(formatCurrency(issue.impact))}. ${escapeHtml(td('static_affected_records', 'Check occurrences', 'Prüftreffer'))}: ${escapeHtml(affected)}.`;
   }
-  return `${escapeHtml(group)}. ${escapeHtml(td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'))}: ${escapeHtml(affected)}.`;
+  return `${escapeHtml(group)}. ${escapeHtml(td('static_affected_records', 'Check occurrences', 'Prüftreffer'))}: ${escapeHtml(affected)}.`;
 }
 
 function issueRecommendationText(issue) {
@@ -2332,7 +2333,7 @@ function renderIssueExecutiveCards(data, items, isLocked) {
             <strong>${escapeHtml(impactLabel)}</strong>
           </div>
           <div>
-            <span>${escapeHtml(td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'))}</span>
+            <span>${escapeHtml(td('static_affected_records', 'Check occurrences', 'Prüftreffer'))}</span>
             <strong>${escapeHtml(affectedLabel)}</strong>
           </div>
           <div>
@@ -2350,11 +2351,11 @@ function renderIssueExecutiveCards(data, items, isLocked) {
 
 function issueInfoRows(issue) {
   return [
-    [td('static_issue_code', 'Issue Code', 'Issue-Code'), issue.id],
+    [td('static_issue_code', 'Issue Code', 'Issue-Code'), issue.code],
     [td('static_module_category', 'Module / Category', 'Modul / Kategorie'), issue.group || td('static_general', 'General', 'Allgemein')],
     [td('static_severity', 'Severity', 'Schweregrad'), issue.severityLabel],
     [td('static_status', 'Status', 'Status'), issueStatusText(issue.status)],
-    [td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'), issue.locked ? td('static_locked', 'Locked', 'Gesperrt') : formatNumber(issue.count)],
+    [td('static_affected_records', 'Check occurrences', 'Prüftreffer'), issue.locked ? td('static_locked', 'Locked', 'Gesperrt') : formatNumber(issue.count)],
     [td('static_estimated_impact_loss', 'Estimated Impact / Loss', 'Geschaetzter Impact / Verlust'), issue.locked ? td('static_locked', 'Locked', 'Gesperrt') : (issue.impact > 0 ? formatCurrency(issue.impact) : td('static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'))],
     [td('static_last_scan_updated', 'Last Scan / Last Updated', 'Letzter Scan / Letzte Aktualisierung'), issue.detectedOn ? formatDateTime(issue.detectedOn) : td('static_not_available', 'Not available', 'Nicht verfuegbar')],
   ];
@@ -2395,7 +2396,7 @@ function renderIssueDetail(issue) {
     : `
       <div class="business-impact-grid">
         <div><span>${escapeHtml(td('static_estimated_loss', 'Estimated Loss', 'Geschaetzter Verlust'))}</span><strong>${escapeHtml(lossLabel)}</strong></div>
-        <div><span>${escapeHtml(td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>${escapeHtml(td('static_affected_records', 'Check occurrences', 'Prüftreffer'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
         <div><span>${escapeHtml(td('static_severity', 'Severity', 'Schweregrad'))}</span><strong>${escapeHtml(issue.severityLabel)}</strong></div>
         <div><span>${escapeHtml(td('static_potential_savings', 'Potential Savings', 'Potenzielle Einsparungen'))}</span><strong>${issue.potentialSaving > 0 ? formatCurrency(issue.potentialSaving) : escapeHtml(td('static_not_calculated_yet', 'Not calculated yet', 'Noch nicht berechnet'))}</strong></div>
       </div>
@@ -2432,7 +2433,7 @@ function renderIssueDetail(issue) {
         <p class="issue-detail-executive-text">${escapeHtml(issueProblemText(issue))}</p>
       </div>
       <div class="issue-detail-summary">
-        <div><span>${escapeHtml(td('static_affected_records', 'Affected Records', 'Betroffene Datensaetze'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
+        <div><span>${escapeHtml(td('static_affected_records', 'Check occurrences', 'Prüftreffer'))}</span><strong>${escapeHtml(affectedLabel)}</strong></div>
         <div><span>${escapeHtml(td('static_estimated_loss', 'Estimated Loss', 'Geschaetzter Verlust'))}</span><strong>${escapeHtml(lossLabel)}</strong></div>
       </div>
     </section>
@@ -2532,14 +2533,19 @@ function normalizeActionsForPage(data) {
   const actionsPage = data?.actions_page || {};
   const isLocked = Boolean(actionsPage.locked || data?.pages?.actions?.locked || !data?.visibility?.is_premium);
   const issues = normalizeIssuesForPage(data);
-  const issueByTitle = new Map(issues.map((issue) => [String(issue.rawTitle || issue.title || '').toLowerCase(), issue]));
+  const issueById = new Map(issues.map((issue) => [issue.id, issue]));
+  const issueByTitle = new Map();
+  issues.forEach((issue) => {
+    const key = String(issue.rawTitle || issue.title || '').toLowerCase();
+    issueByTitle.set(key, issueByTitle.has(key) ? null : issue);
+  });
   const candidates = collectActionCandidates(data, isLocked);
 
   return candidates.filter(Boolean).map((item, index) => {
     const explicitIssueTitle = item?.issue || item?.related_issue || item?.title || item?.name || '';
     const issue = item?.rawTitle || item?.openInBcUrl || item?.severityLabel
       ? item
-      : (issueByTitle.get(String(explicitIssueTitle).toLowerCase()) || issues[index] || {});
+      : (issueById.get(item?.finding_id) || issueByTitle.get(String(explicitIssueTitle).toLowerCase()) || issues[index] || {});
     const priority = normalizeIssueSeverity(item?.priority || item?.severity || issue?.severity || 'medium');
     const saving = safeNumber(item?.potential_saving_eur ?? item?.potential_savings_eur ?? item?.impact_eur ?? issue?.potentialSaving ?? issue?.impact);
     const openInBcUrl = String(item?.open_in_bc_url || item?.open_in_business_central_url || item?.bc_url || issue?.openInBcUrl || '');
@@ -3235,7 +3241,7 @@ function renderFeatureComparisonBody(host, data) {
     ['Free Health Score Dashboard', true, true, true, true],
     ['Active Issues Summary', true, true, true, true],
     ['Issue Details', false, true, true, true],
-    ['Affected Records', false, true, true, true],
+    ['Check occurrences', false, true, true, true],
     ['Actions & Recommendations', false, true, true, true],
     ['Open in Business Central', false, true, true, true],
     ['Reports', false, true, true, true],

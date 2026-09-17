@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "DiagnosticsQA")]
+    [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19", "DiagnosticsQA", "FindingTestsQA")]
     [string]$Profile = "ReleaseCloud",
 
     [string]$OutputPath,
@@ -49,6 +49,19 @@ function Test-IsSameOrChildPath {
 
 $alProjectRoot = Get-NormalizedPath -Path ".." -BasePath $PSScriptRoot
 $repositoryRoot = Get-NormalizedPath -Path ".." -BasePath $alProjectRoot
+
+if ($Profile -eq 'FindingTestsQA') {
+    $testOutput = Join-Path $repositoryRoot '.build\bc-extension\FindingTestsQA'
+    if ($OutputPath -and (Get-NormalizedPath -Path $OutputPath -BasePath $repositoryRoot) -ne $testOutput) {
+        throw 'FindingTestsQA output must be .build/bc-extension/FindingTestsQA.'
+    }
+    New-Item -ItemType Directory -Path $testOutput -Force | Out-Null
+    foreach ($entry in @('src', 'Translations', 'app.json')) {
+        Copy-Item -LiteralPath (Join-Path $repositoryRoot "bc-finding-tests\$entry") -Destination $testOutput -Recurse -Force
+    }
+    Write-Host "Prepared temporary-record AL test workspace: $testOutput"
+    return
+}
 
 if ($Profile -eq 'DiagnosticsQA') {
     $diagnosticsRoot = Join-Path $repositoryRoot 'bc-diagnostics'

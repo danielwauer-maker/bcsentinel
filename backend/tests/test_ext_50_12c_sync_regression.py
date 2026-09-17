@@ -1,7 +1,6 @@
-"""Characterizes an existing defect via real API/persistence in the isolated test DB.
+"""Verifies the repaired defect via real API/persistence in the isolated test DB.
 
-These assertions describe the defect, not the desired repair contract. Update the
-expected lossless behavior explicitly in the repair sprint. No SaaS connection.
+Same original counterexamples now require lossless behavior in the repair sprint. No SaaS connection.
 """
 import pytest
 import json
@@ -14,7 +13,7 @@ from test_product_licensing_p0 import _deep_scan_payload
 
 
 @pytest.mark.parametrize('counts', [(2, 3), (3, 2)])
-def test_same_code_groups_keep_last_but_commercial_total_keeps_both(
+def test_same_code_groups_and_commercial_total_keep_both(
     client, tenant_factory, auth_header_factory, counts
 ):
     tenant = tenant_factory(plan='free', license_status='trial')
@@ -24,24 +23,24 @@ def test_same_code_groups_keep_last_but_commercial_total_keeps_both(
                               severity='high', affected_count=count, premium_only=False) for count in counts]
     response = client.post('/scan/sync', headers=auth_header_factory(tenant), json=payload)
     assert response.status_code == 200, response.text
-    assert len(response.json()['issues']) == 1
-    assert response.json()['issues'][0]['affected_count'] == counts[-1]
+    assert len(response.json()['issues']) == 2
+    assert sorted(r['affected_count'] for r in response.json()['issues']) == [2, 3]
     assert response.json()['commercials']['estimated_loss_eur'] == 180
     with SessionLocal() as db:
         scan = db.query(Scan).filter_by(scan_id=payload['scan_id']).one()
         issues = db.query(ScanIssueRecord).filter_by(scan_id=payload['scan_id']).all()
         assert scan.issues_count == 2
         assert scan.estimated_loss_eur == 180
-        assert len(issues) == 1
-        assert issues[0].affected_count == counts[-1]
-        assert issues[0].estimated_impact_eur == counts[-1] * 36
+        assert len(issues) == 2
+        assert sorted(r.affected_count for r in issues) == [2, 3]
+        assert sorted(r.estimated_impact_eur for r in issues) == [72, 108]
     token = client.get('/analytics/get-token', headers=auth_header_factory(tenant))
     assert token.status_code == 200
     dashboard = client.get('/analytics/embed/data', params={'embed_token': token.json()['token']})
     assert dashboard.status_code == 200
     kpis = dashboard.json()['kpis']
     assert kpis['issues_count'] == 2
-    assert kpis['affected_records'] == counts[-1]
+    assert kpis['affected_records'] == 5
     assert kpis['estimated_loss_eur'] == 180
 
 

@@ -103,7 +103,7 @@
   "static_locked": "Gesperrt",
   "static_not_available": "Nicht verfügbar",
   "static_not_calculated_yet": "Noch nicht berechnet",
-  "static_affected_records": "Betroffene Datensätze",
+  "static_affected_records": "Prüftreffer",
   "static_estimated_impact_loss": "Geschätzter Impact / Verlust",
   "static_last_scan_updated": "Letzter Scan / Letzte Aktualisierung",
   "static_estimated_loss": "Geschätzter Verlust",

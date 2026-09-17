@@ -69,8 +69,8 @@ DASHBOARD_UI = {
         "last_updated": "Last updated",
         "scanned_records": "Scanned records",
         "scanned_records_helper": "Total volume used for pricing and scope",
-        "affected_records": "Affected records",
-        "affected_records_helper": "Records with action potential",
+        "affected_records": "Check occurrences",
+        "affected_records_helper": "Check matches; records may be counted more than once",
         "estimated_annual_loss": "Estimated annual loss",
         "estimated_annual_loss_helper": "Monetized impact",
         "checks_run": "Checks run",
@@ -151,8 +151,8 @@ DASHBOARD_UI = {
         "last_updated": "Zuletzt aktualisiert",
         "scanned_records": "Gescannte Datensaetze",
         "scanned_records_helper": "Gesamtvolumen fuer Preis- und Scope-Bewertung",
-        "affected_records": "Betroffene Datensaetze",
-        "affected_records_helper": "Datensaetze mit Handlungspotenzial",
+        "affected_records": "Prüftreffer",
+        "affected_records_helper": "Prüftreffer; Datensätze können mehrfach gezählt werden",
         "estimated_annual_loss": "Geschaetzter Jahresverlust",
         "estimated_annual_loss_helper": "Monetarisierter Impact",
         "checks_run": "Gepruefte Checks",
@@ -1122,7 +1122,7 @@ def _build_fallback_payload(company: str, environment: str, scan_mode: str | Non
             "button_label": ui["buy_assessment"],
             "button_action": "checkout",
             "highlights": [
-                "Betroffene Datensaetze und Issue-Details" if lang == "de" else "Affected records and issue details",
+                "Prüftreffer und Issue-Details" if lang == "de" else "Check occurrences and issue details",
                 "Handlungsempfehlungen" if lang == "de" else "Action recommendations",
                 "Business-Central-Navigation" if lang == "de" else "Business Central navigation",
             ],
@@ -1309,6 +1309,7 @@ def _build_dashboard_payload(
 
     top_findings = [
         {
+            "finding_id": issue.finding_id,
             "code": issue.code,
             "title": catalog_texts[issue.code].title,
             "severity": _normalize_severity(issue.severity),
@@ -1443,7 +1444,7 @@ def _build_dashboard_payload(
             "button_label": _ui(lang)["buy_assessment"],
             "button_action": "checkout",
             "highlights": [
-                "Betroffene Datensaetze in Business Central" if lang == "de" else "Affected records in Business Central",
+                "Prüftreffer in Business Central" if lang == "de" else "Check occurrences in Business Central",
                 "Klare Empfehlungen je Issue" if lang == "de" else "Clear recommendations per issue",
                 "Priorisierte Aktionen nach finanziellem Impact" if lang == "de" else "Prioritized actions by financial impact",
             ],

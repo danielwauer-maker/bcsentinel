@@ -103,7 +103,7 @@
   "static_locked": "Locked",
   "static_not_available": "Not available",
   "static_not_calculated_yet": "Not calculated yet",
-  "static_affected_records": "Affected Records",
+  "static_affected_records": "Check occurrences",
   "static_estimated_impact_loss": "Estimated Impact / Loss",
   "static_last_scan_updated": "Last Scan / Last Updated",
   "static_estimated_loss": "Estimated Loss",

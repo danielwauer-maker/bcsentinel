@@ -127,8 +127,8 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     kpis = html_response.text.split('<div class="kpis">', 1)[1].split('<div class="charts">', 1)[0]
     assert "Datenqualitäts" not in kpis
     assert kpis.index("Finanzielle Auswirkung") < kpis.index("Potenzielle Einsparung")
-    assert kpis.index("Potenzielle Einsparung") < kpis.index("Betroffene Datensätze")
-    assert kpis.index("Betroffene Datensätze") < kpis.index("Prüfungen durchgeführt")
+    assert kpis.index("Potenzielle Einsparung") < kpis.index("Prüftreffer")
+    assert kpis.index("Prüftreffer") < kpis.index("Prüfungen durchgeführt")
     assert "21.000,00 EUR" in kpis
     assert "Potenzielle jährliche Einsparungen" in kpis
     assert 'class="kpi-value kpi-value-money' in kpis

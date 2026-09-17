@@ -100,7 +100,7 @@ def test_165_is_catalog_count_for_seven_reported_modules():
     assert 199 - 12 - 10 - 12 == 165
 
 
-def test_actual_sync_source_discards_earlier_same_code_rows():
+def test_actual_sync_source_preserves_all_same_code_rows():
     source = ast.parse((ROOT / 'backend/app/routers/scans.py').read_text(encoding='utf-8'))
     function = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == 'sync_scan')
     assignment = next(n for n in ast.walk(function) if isinstance(n, ast.Assign)
@@ -109,8 +109,8 @@ def test_actual_sync_source_discards_earlier_same_code_rows():
     last = dict(code='DUPLICATE_TEST', affected_count=3, estimated_impact_eur=6)
     actual = eval(compile(ast.Expression(assignment.value), '<actual sync projection>', 'eval'),
                   {'commercials': {'issues': [first, last]}})
-    assert actual == [last]
-    assert sum(row['affected_count'] for row in actual) == 3  # Not 5.
+    assert actual == [first, last]
+    assert sum(row['affected_count'] for row in actual) == 5
 
 
 def test_last_per_code_export_is_distinguished_from_lossless_reconciliation():
