@@ -299,3 +299,21 @@ These packages are for the isolated QA sandbox only; CI/runtime gates apply.
 - `.build/bc-extension/ReleaseFinal/BCSentinel.1.0.2.22.validated.app` — SHA256 `467d1a2b45f4be636be62048430d0edf7f31dc7f1891f697e66e31ebc94fda30`
 
 - `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.final.app` — SHA256 `f44b2f2cf45714a547018007cbfe749611237251f526e85e4f0c4d36c3d7b3e8`
+
+
+### Final-product backend run and CI infrastructure correction
+
+At product commit `4cb591caf55c95c6418ca3db3911e5a1117c19bf`, backend run
+https://github.com/danielwauer-maker/bcsentinel/actions/runs/35236375730 repeats
+518 PASS / 1 unchanged billing FAIL / 8 SKIP / 2 XFAIL; separate migrations 2 PASS,
+PostgreSQL identity/concurrency 23 PASS; Chromium behavior PASS. Local complete
+regression agrees. English report metric assertions now check the English caption,
+while DE/EN identity tests require each respective localized caption.
+
+BC run 35236375727 found the hosted upgrade runner's Docker service unavailable
+before compilation. The dedicated repair workflow now explicitly starts the
+existing Docker service on the disposable hosted runner and requires a Windows
+engine before running the unchanged install/upgrade/test gates. This does not
+operate on local Docker or any real BC environment. Final workflow results remain
+a prerequisite; neither this infrastructure correction nor local compilation is
+an AL runtime pass.

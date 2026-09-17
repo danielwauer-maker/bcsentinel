@@ -40,6 +40,20 @@ jobs:
           ./bc-extension/scripts/New-BCBuildWorkspace.ps1 -Profile ReleaseCloud
           ./bc-extension/scripts/New-BCBuildWorkspace.ps1 -Profile FindingTestsQA
 
+      - name: Ensure Windows Docker service is ready on disposable CI runner
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dockerService = Get-Service -Name docker -ErrorAction Stop
+          if ($dockerService.Status -ne 'Running') { Start-Service -Name docker }
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 20; $attempt++) {
+            $dockerOS = docker info --format '{{.OSType}}' 2>$null
+            if ($LASTEXITCODE -eq 0 -and $dockerOS -eq 'windows') { $ready = $true; break }
+            Start-Sleep -Seconds 3
+          }
+          if (-not $ready) { throw 'Windows Docker engine is unavailable on this disposable CI runner.' }
+
       - name: Prepare immutable pilot 1.0.2.21 upgrade source
         if: matrix.deployment == 'upgrade'
         shell: pwsh
