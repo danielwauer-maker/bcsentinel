@@ -2485,6 +2485,7 @@ codeunit 53128 "DH Deep Scan Runner"
         FindingIdText: Text;
         FindingId: Guid;
         SeenFindingIds: Dictionary of [Guid, Boolean];
+        FindingIds: List of [Guid];
     begin
         if SyncResponseText = '' then
             exit;
@@ -2521,7 +2522,20 @@ codeunit 53128 "DH Deep Scan Runner"
             end;
             if SeenFindingIds.ContainsKey(FindingId) or (StrLen(CodeTxt) > 50) then
                 Error(FindingIdentityErr);
+            if not Finding.GetBySystemId(FindingId) then
+                Error(FindingIdentityErr);
+            if (Finding."Deep Scan Entry No." <> DeepScanRun."Entry No.") or (Finding."Issue Code" <> CodeTxt) then
+                Error(FindingIdentityErr);
             SeenFindingIds.Add(FindingId, true);
+            FindingIds.Add(FindingId);
+        end;
+
+        // TryFunction does not roll back writes: validate every identity first.
+        for i := 0 to IssuesArray.Count() - 1 do begin
+            IssuesArray.Get(i, IssueToken);
+            IssueObj := IssueToken.AsObject();
+            CodeTxt := GetJsonText(IssueObj, 'code');
+            FindingId := FindingIds.Get(i + 1);
             Finding.ApplyBackendImpact(DeepScanRun."Entry No.", CopyStr(CodeTxt, 1, 50), FindingId,
                 CopyStr(GetJsonText(IssueObj, 'severity'), 1, 20), ReadJsonDecimalFromObject(IssueObj, 'estimated_impact_eur'));
         end;

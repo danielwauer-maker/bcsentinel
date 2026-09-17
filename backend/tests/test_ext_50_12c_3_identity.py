@@ -147,8 +147,10 @@ def test_dashboard_and_report_keep_groups_with_access_boundary(
     if premium:
         assert len(data['top_findings']) == 2
         assert len({r['finding_id'] for r in data['top_findings']}) == 2
+        assert {r['finding_id'] for r in data['actions_page']['items']} == {r['finding_id'] for r in data['top_findings']}
     else:
         assert data['top_findings'] == []
+        assert data['actions_page']['items'] == []
         for row in data['free_insights']['top_findings']:
             assert not {'code', 'finding_id', 'recommendation_preview', 'open_in_bc_url'} & set(row)
     with SessionLocal() as db:

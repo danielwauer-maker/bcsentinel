@@ -1347,6 +1347,7 @@ def _build_dashboard_payload(
     pages = _dashboard_page_state(product_access, has_scan=True)
     actions_items = [
         {
+            "finding_id": item["finding_id"],
             "issue": item["title"],
             "suggested_action": item["recommendation_preview"] or "Review the affected records and resolve the underlying setup issue in Business Central.",
             "priority": item["severity"],

@@ -30,7 +30,8 @@ upserts by `(scan_id, finding_id)`.
 The AL response handler previously selected the first row matching run and check.
 It now parses `finding_id`, rejects duplicate/malformed identities and incomplete
 row counts, and uses `GetBySystemId` with explicit run/check validation.
-A missing identity is accepted only when that run/check has exactly one BC row.
+All identities are checked before any group impact write because AL TryFunction
+does not automatically roll back writes. A missing identity is accepted only when that run/check has exactly one BC row.
 Ambiguous old-backend responses fail synchronization instead of silently corrupting
 individual group impacts. Backend must be upgraded before the BC candidate.
 
@@ -116,7 +117,7 @@ permission set 53462 (no SUPER). DE/EN XLIFF accompanies new visible strings.
 ## 13. Dashboard
 
 Queries already sum stored issue rows; lossless storage makes those sums complete.
-Premium rows expose finding_id. JavaScript uses identity for row/action matching;
+Premium finding and action rows expose finding_id. JavaScript uses identity for row/action matching;
 check code is displayed separately. Ambiguous duplicate titles are not treated as
 identity. Free aggregate output still excludes protected finding details.
 
@@ -267,8 +268,34 @@ Local UI regression after supplementary metric labels: 41 PASS.
 
 BC CI fresh/upgrade: https://github.com/danielwauer-maker/bcsentinel/actions/runs/35234706976
 Fresh first attempt blocked at PowerShell Gallery WAF download; no AL tests ran
-in that job. Upgrade outcome pending. These infrastructure failures are separate
-from local compile evidence. Final package hashes and outcomes follow when ready.
+in that job. The first run was superseded by later repair commits. These infrastructure outcomes
+are separate from local compile evidence. Final-head run results are available in
+[BC CI](https://github.com/danielwauer-maker/bcsentinel/actions/workflows/ext-50-12c-3-al.yml)
+and [backend CI](https://github.com/danielwauer-maker/bcsentinel/actions/workflows/ext-50-12c-3-backend.yml).
+An unfinished or failed fresh/upgrade runtime gate is NOT a runtime PASS. The
+completion response records exact run IDs and observed outcomes.
 
 Local evidence stays under `.build/`; CI uploads XML/logs/packages. No merge,
 production deployment or real BC data mutation has been performed.
+
+### Changed AL objects
+
+- codeunit 53128 `DH Deep Scan Runner` — `bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al`
+- page 53135 `DH Dashboard Issues` — `bc-extension/app/src/pages/DHDashboardIssues.Page.al`
+- page 53161 `DH Dashboard Issues List` — `bc-extension/app/src/pages/DHDashboardIssuesList.Page.al`
+- page 53131 `DH Deep Scan Findings` — `bc-extension/app/src/pages/DHDeepScanFindings.Page.al`
+- page 53160 `DH Deep Scan Findings List` — `bc-extension/app/src/pages/DHDeepScanFindingsList.Page.al`
+- table 53129 `DH Deep Scan Finding` — `bc-extension/app/src/tables/DHDeepScanFinding.Table.al`
+- table 53128 `DH Deep Scan Run` — `bc-extension/app/src/tables/DHDeepScanRun.Table.al`
+- table 53120 `DH Scan Header` — `bc-extension/app/src/tables/DHScanHeader.Table.al`
+- permissionset 53462 `BCS FINDING QA` — `bc-finding-tests/src/BCSFINDINGQA.PermissionSet.al`
+- codeunit 53460 `BCS Finding Identity Tests` — `bc-finding-tests/src/BCSFindingIdentityTests.Codeunit.al`
+- page 53461 `BCS Finding QA Export` — `bc-finding-tests/src/BCSFindingQAExport.Page.al`
+
+### Local installable candidates
+
+These packages are for the isolated QA sandbox only; CI/runtime gates apply.
+
+- `.build/bc-extension/ReleaseFinal/BCSentinel.1.0.2.22.validated.app` — SHA256 `467d1a2b45f4be636be62048430d0edf7f31dc7f1891f697e66e31ebc94fda30`
+
+- `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.final.app` — SHA256 `f44b2f2cf45714a547018007cbfe749611237251f526e85e4f0c4d36c3d7b3e8`
