@@ -2,8 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
+import importlib.util
 import json
+import re
+import sys
+import types
 from collections import Counter, defaultdict
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -12,6 +17,168 @@ WEIGHTS = dict(zip(('System', 'Finance', 'Sales', 'Purchasing', 'Inventory', 'CR
                     'Manufacturing', 'Service', 'Jobs', 'HR'), (15, 20, 15, 10, 15, 5, 10, 5, 3, 2)))
 EXPECTED = dict(zip(('CUSTOMERS_MISSING_EMAIL', 'VENDORS_MISSING_PHONE',
                      'ITEMS_WITHOUT_UNIT_PRICE', 'ITEMS_WITHOUT_UNIT_COST'), (600, 200, 600, 600)))
+EVIDENCE_SHA256 = '4914706b1f8d259a0c46e4002a7dda20ac347be08b5bee5c46226504e4ba179f'
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def validate_shape(value, schema, path='$'):
+    """Closed export schema: unexpected fields and nested type changes are errors."""
+    if isinstance(schema, dict):
+        require(isinstance(value, dict) and set(value) == set(schema), 'Schema keys: ' + path)
+        for key, child in schema.items():
+            validate_shape(value[key], child, path + '.' + key)
+    elif isinstance(schema, list):
+        require(isinstance(value, list), 'Schema array: ' + path)
+        for child in value:
+            validate_shape(child, schema[0], path + '[]')
+    else:
+        valid = {'string': isinstance(value, str), 'boolean': type(value) is bool,
+                 'number': type(value) in (int, float, Decimal)}[schema]
+        require(valid, 'Schema type: ' + path)
+
+
+def impact_oracle(root=ROOT):
+    """Execute only existing pure pricing functions/constants; no app/DB imports."""
+    path = root / 'backend/app/services/impact_service.py'
+    tree = ast.parse(path.read_text(encoding='utf-8'))
+    names = {'_normalize_code', '_infer_category', '_round_money', '_fallback_definition',
+             '_calculate_issue_impact_amount', 'clamp_potential_saving_factor',
+             'normalize_commercial_values'}
+    nodes = [n for n in tree.body if
+             (isinstance(n, ast.ImportFrom) and n.module in ('__future__', 'dataclasses')) or
+             (isinstance(n, ast.ClassDef) and n.name == 'ImpactDefinition') or
+             (isinstance(n, ast.FunctionDef) and n.name in names) or
+             (isinstance(n, ast.Assign) and all(isinstance(t, ast.Name) and t.id.startswith('DEFAULT_') for t in n.targets)) or
+             (isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name) and n.target.id == 'EXPLICIT_ISSUE_IMPACTS')]
+    module = types.ModuleType('_ext_50_12c_pure_impact')
+    sys.modules[module.__name__] = module
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), module.__dict__)
+    return module
+
+
+def source_assignment(root, path, function, target, scope):
+    tree = ast.parse((root / path).read_text(encoding='utf-8'))
+    fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == function)
+    node = next(n for n in ast.walk(fn) if isinstance(n, ast.Assign)
+                and any(isinstance(t, ast.Name) and t.id == target for t in n.targets))
+    return eval(compile(ast.Expression(node.value), str(path), 'eval'), scope)
+
+
+def backend_projection(rows, root=ROOT):
+    return source_assignment(root, 'backend/app/routers/scans.py', 'sync_scan',
+                             'recalculated_issues', {'commercials': {'issues': rows}})
+
+
+def dashboard_occurrences(rows, root=ROOT):
+    return source_assignment(root, 'backend/app/routers/analytics.py', '_build_dashboard_payload',
+                             'affected_records', {'issues': [types.SimpleNamespace(**r) for r in rows], '_safe_int': int})
+
+
+def reconcile_runtime_export(data, root=ROOT):
+    """Authoritative single-run audit; raises on any inconsistent runtime invariant.
+
+    Source-derived score/impact replay proves numerical consistency, not the identity
+    of an unavailable deployed backend/configuration snapshot.
+    """
+    schema = json.loads((root / 'quality/release/ext-50-12c-export-schema.json').read_text())
+    validate_shape(data, schema)
+    require(data['schema_version'] == 1 and data['evidence_kind'] == 'BC_PERSISTED_FINDINGS_AND_CURRENT_READ_ONLY_ATTRIBUTION', 'Export version/kind')
+    context, snapshot, export = data['context'], data['run_snapshot'], data['exports']['bc']
+    scan = 'RUN_20260916_000001_43F57A071BFF485BAF20C68FF578B'
+    require(context['company'] == export['company'] == 'BCS-PERF-DEV' and context['scan_id'] == export['scan_id'] == scan, 'Run identity')
+    require(integer(context['generator_run_id']) == 1 and context['bcsentinel_version'] == '1.0.2.21' and context['generator_version'] == '1.0.0.1', 'Versions/generator')
+    rows = export['rows']
+    require(export['complete'] is True and integer(export['exported_row_count']) == len(rows) == integer(snapshot['issues_count']) == 95, '95 complete finding rows required')
+    require(len({r['id'] for r in rows}) == len(rows) and all(r['id'].isdigit() for r in rows), 'Unique numeric entry IDs')
+    require([int(r['id']) for r in rows] == sorted(int(r['id']) for r in rows), 'Payload order')
+    spec = importlib.util.spec_from_file_location('_ext_50_12c_catalog', root / 'scripts/audit_ext_50_12c.py')
+    audit = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(audit)
+    source = (root / audit.RUNNER).read_text(encoding='utf-8')
+    catalog = {r['code']: r for r in audit.catalog(source)[0]}
+    procedures = {name: body for name, _, body in audit.procedures(source)}
+    critical_markers = re.findall(r"StrPos\(IssueCodeUpper, '([^']+)'\)", procedures['IsCriticalImpactIssue'])
+    penalties = dict.fromkeys(WEIGHTS, 0)
+    totals = {m: dict(rows=0, occurrences=0, impact_eur=Decimal(0)) for m in WEIGHTS}
+    oracle, inventory = impact_oracle(root), []
+    category_module = dict(SYSTEM='System', FINANCE='Finance', CUSTOMER='Finance', VENDOR='Finance', LEDGER='Finance',
+                           SALES='Sales', PURCHASE='Purchasing', INVENTORY='Inventory', ITEM='Inventory', CRM='CRM',
+                           MANUFACTURING='Manufacturing', SERVICE='Service', JOB='Jobs', HR='HR')
+    for row in rows:
+        code, count, amount = row['code'], integer(row['affected_count']), money(row['impact_eur'])
+        require(code in catalog and row['check_name'] == code and row['scan_id'] == scan, 'Finding identity/catalog')
+        entry = catalog[code]
+        require(row['category'] == entry['category'] and row['module'] == category_module[entry['category']], 'Finding module')
+        require(row['severity'] in ('low', 'medium', 'high', 'critical'), 'Finding severity')
+        require(entry['aggregation'] == 'count' and row['aggregation_key_available'] is False, 'Unexpected group finding in this run')
+        severity = entry['severity']
+        if severity == 'high' and (any(marker in code for marker in critical_markers) or
+                                  (entry['initial_penalty'] >= 7 and count >= 10) or count >= 1000):
+            severity = 'critical'
+        require(row['severity'] == severity, 'Exported/pre-sync severity differs: ' + code)
+        tier = next((p for threshold, p in ((5000, 8), (1000, 6), (250, 4), (50, 2), (1, 1)) if count >= threshold), 0)
+        penalties[row['module']] += {'low': 1, 'medium': 3, 'high': 6, 'critical': 10}[severity] + tier
+        definition = oracle.EXPLICIT_ISSUE_IMPACTS.get(code) or oracle._fallback_definition(code)
+        expected_impact = money(oracle._calculate_issue_impact_amount(definition, count, oracle.DEFAULT_HOURLY_RATE_EUR))
+        require(amount == expected_impact, 'Default impact replay mismatch: ' + code)
+        total = totals[row['module']]
+        total['rows'] += 1
+        total['occurrences'] += count
+        total['impact_eur'] += amount
+        observation = data['scenario_observations'].get(code)
+        inventory.append(dict(entry_no=row['id'], code=code, module=row['module'], severity=row['severity'],
+                              pre_sync_source_severity=severity, affected_count=count, impact_eur=str(amount),
+                              generated_matches=observation['matching_owned_count'] if observation else None,
+                              non_owned_matches=observation['non_owned_nonexcluded_matches'] if observation else None,
+                              cronus_origin='UNPROVEN', aggregation='One company-wide count per check; overlaps across checks',
+                              verdict='DIRECT_DETECTION_RECONCILED' if observation else 'ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN',
+                              suspected_row_defect=None, evidence_level='BC_RUNTIME_PLUS_UNCHANGED_OWNED_FIELDS' if observation else 'BC_RUNTIME_AGGREGATE_PLUS_SOURCE',
+                              predicate=entry['condition'], procedure=entry['procedure'],
+                              impact_parameters=dict(minutes=definition.minutes_per_occurrence, probability=definition.probability,
+                                                     frequency=definition.frequency_per_year, hourly_rate=40)))
+    occurrences = sum(r['affected_count'] for r in rows)
+    impact = sum((money(r['impact_eur']) for r in rows), Decimal(0))
+    require(occurrences == integer(snapshot['affected_records']) == integer(snapshot['exported_occurrences']) == 224999, 'Occurrence totals')
+    require(impact == money(snapshot['estimated_loss_eur']) == money(snapshot['exported_row_impact_eur']) == Decimal('2202021.49'), 'Impact totals')
+    require(set(data['scenario_observations']) == set(EXPECTED), 'Four direct scenarios')
+    for code, expected, baseline in zip(EXPECTED, EXPECTED.values(), (1, 8, 30, 14)):
+        obs = data['scenario_observations'][code]
+        require(all(integer(obs[k]) == v for k, v in dict(generated_count=expected, matching_owned_count=expected,
+                    excluded_matching_owned_count=0, non_owned_nonexcluded_matches=baseline, missing_owned_records=0,
+                    modified_since_generation=0).items()), 'Direct attribution mismatch: ' + code)
+        matches = [r for r in rows if r['code'] == code]
+        require(len(matches) == 1 and matches[0]['affected_count'] == expected + baseline, 'Direct finding mismatch: ' + code)
+    enabled = [m for m, flag in data['current_setup_not_scan_time_snapshot'].items() if flag]
+    require(enabled == list(WEIGHTS)[:7], 'Seven expected active modules')
+    module_scores = {m: 100 - 100 * p // (p + 40) for m, p in penalties.items()}
+    require(module_scores == snapshot['module_scores'], 'Finding-derived module scores')
+    numerator = sum(module_scores[m] * WEIGHTS[m] for m in enabled)
+    denominator = sum(WEIGHTS[m] for m in enabled)
+    score = (numerator + denominator // 2) // denominator
+    require(score == integer(snapshot['score']) == 38, 'Overall score')
+    checks = sum(category_module[c['category']] in enabled for c in catalog.values())
+    require(checks == integer(snapshot['checks_count']) == 165, 'Enabled check catalog')
+    require('ChecksCount := ScanCheckMgt.GetExpectedChecksCount(Setup);' in procedures['RunChecks'], 'Final counter normalization missing')
+    saving = money(oracle.normalize_commercial_values(estimated_loss_eur=float(impact), estimated_premium_price_monthly=0)['potential_saving_eur'])
+    require(saving == money(snapshot['potential_saving_eur']) == Decimal('1541415.04'), 'Saving replay')
+    retained = backend_projection(rows, root)
+    require(len(retained) == len(rows) == 95, 'Unexpected duplicate Check-ID in this run')
+    require(dashboard_occurrences(retained, root) == occurrences, 'Dashboard projection occurrences')
+    for total in totals.values():
+        total['impact_eur'] = str(total['impact_eur'])
+    return dict(status='PASS', gate='READY_FOR_EXT_50_12C_REPAIR', large='BLOCKED',
+                evidence_kind='REAL_BC_SAAS_EXPORT_WITH_OFFLINE_SOURCE_REPLAY',
+                backend_persisted_export='NOT_SUPPLIED; projection only, no live backend identity assertion',
+                rows=95, distinct_check_ids=len(retained), occurrences=occurrences, impact_eur=str(impact),
+                potential_saving_eur=str(saving), direct_generated=2000, direct_non_owned=53,
+                other_unattributed_occurrences=occurrences-2053, unique_affected_records=None,
+                penalties=penalties, module_scores=module_scores, score=score, score_numerator=numerator,
+                score_weight=denominator, checks=checks, module_totals=totals, inventory=inventory)
 
 
 def integer(value):
@@ -148,11 +315,21 @@ def main():
     parser.add_argument('--input', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--bc-export', type=Path, help='Original JSON downloaded by the read-only SaaS diagnostic')
+    parser.add_argument('--authoritative-runtime', action='store_true', help='Validate the pinned real DEV export directly')
     args = parser.parse_args()
     if args.input.resolve() == args.output.resolve():
         parser.error('Output must not overwrite input evidence')
     raw = args.input.read_bytes()
-    data = json.loads(raw, parse_float=Decimal)
+    data = json.loads(raw.decode('utf-8-sig'), parse_float=Decimal)
+    if args.authoritative_runtime:
+        require(args.bc_export is None, 'Use direct --input for authoritative runtime')
+        require(hashlib.sha256(raw).hexdigest() == EVIDENCE_SHA256, 'Original evidence SHA256 differs')
+        result = reconcile_runtime_export(data)
+        result['evidence_sha256'] = EVIDENCE_SHA256
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+        print(result['status'] + ': ' + result['gate'] + '; LARGE BLOCKED')
+        return 0
     bc_raw = None
     if args.bc_export:
         if args.bc_export.resolve() == args.output.resolve():

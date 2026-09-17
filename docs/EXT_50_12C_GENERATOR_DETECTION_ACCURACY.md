@@ -1,3 +1,5 @@
+> Superseded runtime status: the real SaaS export is now reconciled in [EXT-50-12C.2](EXT_50_12C_RUNTIME_DETECTION_RECONCILIATION.md). Historical evidence below is retained. The 165 runtime check count is correct; intermediate counter drift is overwritten.
+
 # EXT-50-12C — Generator Detection Accuracy & Benchmark Validation
 
 **CORRECTION (12C.1):** The backend sync applies last-row-per-code projection after

@@ -1,3 +1,5 @@
+> Superseded runtime status: the real SaaS export is now reconciled in [EXT-50-12C.2](EXT_50_12C_RUNTIME_DETECTION_RECONCILIATION.md). Historical evidence below is retained. The 165 runtime check count is correct; intermediate counter drift is overwritten.
+
 # EXT-50-12C.1 — Manueller, lesender Runtime-Export
 
 Status: **MANUAL_RUNTIME_EXPORT_REQUIRED**. Keine LARGE-Freigabe.
