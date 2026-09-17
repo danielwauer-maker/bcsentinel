@@ -1,0 +1,18 @@
+{
+  "id": "9f9817da-79ae-4ac6-ae84-b7372899b541",
+  "name": "BCSentinel Runtime Evidence QA",
+  "publisher": "BCSentinel Analytics - Daniel Wauer",
+  "version": "1.0.0.0",
+  "brief": "Read-only export of the preserved EXT-50-12C DEV scan.",
+  "description": "Sandbox-only diagnostic export. No business, generator or scan data mutations.",
+  "runtime": "16.0",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "idRanges": [{"from": 53450, "to": 53459}],
+  "dependencies": [
+    {"id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111", "name": "BCSentinel", "publisher": "BCSentinel Analytics - Daniel Wauer", "version": "1.0.2.20"},
+    {"id": "1bf95437-93b6-4329-bc49-40585f1272a0", "name": "BCSentinel Performance QA", "publisher": "BCSentinel Analytics - Daniel Wauer", "version": "1.0.0.1"}
+  ],
+  "features": ["NoImplicitWith", "TranslationFile"],
+  "resourceExposurePolicy": {"allowDebugging": true, "allowDownloadingSource": true, "includeSourceInSymbolFile": true}
+}

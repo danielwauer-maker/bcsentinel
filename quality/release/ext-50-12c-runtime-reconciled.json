@@ -1,0 +1,2567 @@
+{
+  "status": "PASS",
+  "gate": "READY_FOR_EXT_50_12C_REPAIR",
+  "large": "BLOCKED",
+  "evidence_kind": "REAL_BC_SAAS_EXPORT_WITH_OFFLINE_SOURCE_REPLAY",
+  "backend_persisted_export": "NOT_SUPPLIED; projection only, no live backend identity assertion",
+  "rows": 95,
+  "distinct_check_ids": 95,
+  "occurrences": 224999,
+  "impact_eur": "2202021.49",
+  "potential_saving_eur": "1541415.04",
+  "direct_generated": 2000,
+  "direct_non_owned": 53,
+  "other_unattributed_occurrences": 222946,
+  "unique_affected_records": null,
+  "penalties": {
+    "System": 45,
+    "Finance": 215,
+    "Sales": 46,
+    "Purchasing": 51,
+    "Inventory": 218,
+    "CRM": 14,
+    "Manufacturing": 26,
+    "Service": 0,
+    "Jobs": 0,
+    "HR": 0
+  },
+  "module_scores": {
+    "System": 48,
+    "Finance": 16,
+    "Sales": 47,
+    "Purchasing": 44,
+    "Inventory": 16,
+    "CRM": 75,
+    "Manufacturing": 61,
+    "Service": 100,
+    "Jobs": 100,
+    "HR": 100
+  },
+  "score": 38,
+  "score_numerator": 3410,
+  "score_weight": 90,
+  "checks": 165,
+  "module_totals": {
+    "System": {
+      "rows": 5,
+      "occurrences": 7272,
+      "impact_eur": "58416.0"
+    },
+    "Finance": {
+      "rows": 33,
+      "occurrences": 59007,
+      "impact_eur": "801897.49"
+    },
+    "Sales": {
+      "rows": 10,
+      "occurrences": 68,
+      "impact_eur": "1096.0"
+    },
+    "Purchasing": {
+      "rows": 11,
+      "occurrences": 276,
+      "impact_eur": "3539.2"
+    },
+    "Inventory": {
+      "rows": 25,
+      "occurrences": 158288,
+      "impact_eur": "1335732.0"
+    },
+    "CRM": {
+      "rows": 6,
+      "occurrences": 68,
+      "impact_eur": "273.6"
+    },
+    "Manufacturing": {
+      "rows": 5,
+      "occurrences": 20,
+      "impact_eur": "1067.2"
+    },
+    "Service": {
+      "rows": 0,
+      "occurrences": 0,
+      "impact_eur": "0"
+    },
+    "Jobs": {
+      "rows": 0,
+      "occurrences": 0,
+      "impact_eur": "0"
+    },
+    "HR": {
+      "rows": 0,
+      "occurrences": 0,
+      "impact_eur": "0"
+    }
+  },
+  "inventory": [
+    {
+      "entry_no": "1",
+      "code": "GL_ENTRIES_MISSING_DIM1",
+      "module": "System",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 3936,
+      "impact_eur": "31488.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "GLEntry.\"Global Dimension 1 Code\" = ''"
+      ],
+      "procedure": "RunSystemConfigurationChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "2",
+      "code": "GL_ENTRIES_MISSING_DIM2",
+      "module": "System",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 1692,
+      "impact_eur": "13536.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "GLEntry.\"Global Dimension 2 Code\" = ''"
+      ],
+      "procedure": "RunSystemConfigurationChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "3",
+      "code": "GL_ENTRIES_MISSING_BOTH_DIMS",
+      "module": "System",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 1634,
+      "impact_eur": "13072.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(GLEntry.\"Global Dimension 1 Code\" = '') and (GLEntry.\"Global Dimension 2 Code\" = '')"
+      ],
+      "procedure": "RunSystemConfigurationChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "4",
+      "code": "GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED",
+      "module": "System",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 2,
+      "impact_eur": "64.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(not GLAccount.\"Direct Posting\") and HasGLEntriesForAccount(GLAccount.\"No.\")"
+      ],
+      "procedure": "RunSystemConfigurationChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "5",
+      "code": "SYSTEM_ITEMS_MISSING_INVENTORY_POSTING",
+      "module": "System",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 8,
+      "impact_eur": "256.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Inventory Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'SYSTEM_ITEMS_MISSING_INVENTORY_POSTING')"
+      ],
+      "procedure": "RunSystemConfigurationChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "6",
+      "code": "CUSTOMERS_MISSING_ADDRESS",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 1,
+      "impact_eur": "11.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.Address = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_ADDRESS')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 6,
+        "probability": 0.35,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "7",
+      "code": "CUSTOMERS_MISSING_CITY",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 1,
+      "impact_eur": "5.33",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.City = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CITY')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "8",
+      "code": "CUSTOMERS_MISSING_POST_CODE",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 1,
+      "impact_eur": "5.33",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Post Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_POST_CODE')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "9",
+      "code": "CUSTOMERS_MISSING_EMAIL",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 601,
+      "impact_eur": "4327.2",
+      "generated_matches": 600,
+      "non_owned_matches": 1,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "DIRECT_DETECTION_RECONCILED",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_PLUS_UNCHANGED_OWNED_FIELDS",
+      "predicate": [
+        "(Customer.\"E-Mail\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_EMAIL')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 3,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "10",
+      "code": "CUSTOMERS_MISSING_PHONE",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6,
+      "impact_eur": "19.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Phone No.\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PHONE')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 2,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "11",
+      "code": "CUSTOMERS_MISSING_PAYMENT_METHOD",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 5,
+      "impact_eur": "84.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Payment Method Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PAYMENT_METHOD')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 7,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "12",
+      "code": "CUSTOMERS_MISSING_CREDIT_LIMIT",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6,
+      "impact_eur": "48.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Credit Limit (LCY)\" = 0) and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CREDIT_LIMIT')"
+      ],
+      "procedure": "RunCustomerMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "13",
+      "code": "VENDORS_MISSING_ADDRESS",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 2,
+      "impact_eur": "22.4",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.Address = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_ADDRESS')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 6,
+        "probability": 0.35,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "14",
+      "code": "VENDORS_MISSING_CITY",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 3,
+      "impact_eur": "16.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.City = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_CITY')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "15",
+      "code": "VENDORS_MISSING_POST_CODE",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 2,
+      "impact_eur": "10.67",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Post Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_POST_CODE')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "16",
+      "code": "VENDORS_MISSING_EMAIL",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 3,
+      "impact_eur": "21.6",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"E-Mail\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_EMAIL')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 3,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "17",
+      "code": "VENDORS_MISSING_PHONE",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 208,
+      "impact_eur": "665.6",
+      "generated_matches": 200,
+      "non_owned_matches": 8,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "DIRECT_DETECTION_RECONCILED",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_PLUS_UNCHANGED_OWNED_FIELDS",
+      "predicate": [
+        "(Vendor.\"Phone No.\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PHONE')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 2,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "18",
+      "code": "VENDORS_MISSING_PAYMENT_TERMS",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 1,
+      "impact_eur": "21.6",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Payment Terms Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PAYMENT_TERMS')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 9,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "19",
+      "code": "VENDORS_MISSING_PAYMENT_METHOD",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 7,
+      "impact_eur": "109.76",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Payment Method Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PAYMENT_METHOD')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 7,
+        "probability": 0.28,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "20",
+      "code": "VENDORS_MISSING_BANK_ACCOUNT",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 2008,
+      "impact_eur": "106022.4",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Preferred Bank Account Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_BANK_ACCOUNT')"
+      ],
+      "procedure": "RunVendorMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 12,
+        "probability": 0.55,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "21",
+      "code": "CUSTOMER_LEDGER_OVERDUE_30",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 13,
+      "impact_eur": "582.4",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "CustLedgerEntry.Count()"
+      ],
+      "procedure": "RunLedgerAgingChecks",
+      "impact_parameters": {
+        "minutes": 16,
+        "probability": 0.35,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "22",
+      "code": "VENDOR_LEDGER_OVERDUE_30",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 21,
+      "impact_eur": "940.8",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "procedure": "RunLedgerAgingChecks",
+      "impact_parameters": {
+        "minutes": 16,
+        "probability": 0.35,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "23",
+      "code": "CUSTOMERS_MISSING_VAT_REG_NO",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 6001,
+      "impact_eur": "288048.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"VAT Registration No.\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_VAT_REG_NO')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 15,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "24",
+      "code": "CUSTOMERS_MISSING_SALESPERSON",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6001,
+      "impact_eur": "48008.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Salesperson Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_SALESPERSON')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "25",
+      "code": "CUSTOMERS_MISSING_PRICE_GROUP",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 6006,
+      "impact_eur": "48048.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Customer Price Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PRICE_GROUP')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "26",
+      "code": "CUSTOMERS_MISSING_DISC_GROUP",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 6006,
+      "impact_eur": "48048.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Customer Disc. Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_DISC_GROUP')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "27",
+      "code": "CUSTOMERS_MISSING_REMINDER_TERMS",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 6001,
+      "impact_eur": "48008.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Reminder Terms Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_REMINDER_TERMS')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "28",
+      "code": "CUSTOMERS_MISSING_FIN_CHARGE_TERMS",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6006,
+      "impact_eur": "48048.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Fin. Charge Terms Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_FIN_CHARGE_TERMS')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "29",
+      "code": "CUSTOMERS_MISSING_CONTACT",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6001,
+      "impact_eur": "48008.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.Contact = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CONTACT')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "30",
+      "code": "CUSTOMERS_MISSING_HOME_PAGE",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 6006,
+      "impact_eur": "48048.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Customer.\"Home Page\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_HOME_PAGE')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "31",
+      "code": "VENDORS_MISSING_VAT_REG_NO",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 2003,
+      "impact_eur": "16024.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"VAT Registration No.\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_VAT_REG_NO')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "32",
+      "code": "VENDORS_MISSING_PURCHASER",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 2008,
+      "impact_eur": "16064.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Purchaser Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PURCHASER')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "33",
+      "code": "VENDORS_MISSING_CONTACT",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 2003,
+      "impact_eur": "16024.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.Contact = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_CONTACT')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "34",
+      "code": "VENDORS_MISSING_HOME_PAGE",
+      "module": "Finance",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 2008,
+      "impact_eur": "16064.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Vendor.\"Home Page\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_HOME_PAGE')"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "35",
+      "code": "CUSTOMER_LEDGER_OVERDUE_60",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 13,
+      "impact_eur": "104.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "CustLedgerEntry.Count()"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "36",
+      "code": "CUSTOMER_LEDGER_OVERDUE_90",
+      "module": "Finance",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 13,
+      "impact_eur": "104.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "CustLedgerEntry.Count()"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "37",
+      "code": "VENDOR_LEDGER_OVERDUE_60",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 21,
+      "impact_eur": "168.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "38",
+      "code": "VENDOR_LEDGER_OVERDUE_90",
+      "module": "Finance",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 21,
+      "impact_eur": "168.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "procedure": "RunFinanceCommercialChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "39",
+      "code": "SALES_ORDERS_OLD_OPEN",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 9,
+      "impact_eur": "288.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"Document Date\" <= ThresholdDate"
+      ],
+      "procedure": "RunSalesDocumentQualityChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "40",
+      "code": "SALES_HEADERS_MISSING_PAYMENT_TERMS",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 5,
+      "impact_eur": "160.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"Payment Terms Code\" = ''"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "41",
+      "code": "SALES_HEADERS_MISSING_PAYMENT_METHOD",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 9,
+      "impact_eur": "288.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"Payment Method Code\" = ''"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "42",
+      "code": "SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 5,
+      "impact_eur": "40.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"Requested Delivery Date\" = 0D"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "43",
+      "code": "SALES_HEADERS_MISSING_SHIPMENT_METHOD",
+      "module": "Sales",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 9,
+      "impact_eur": "72.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"Shipment Method Code\" = ''"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "44",
+      "code": "SALES_HEADERS_MISSING_EXTERNAL_DOC_NO",
+      "module": "Sales",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 4,
+      "impact_eur": "32.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesHeader.\"External Document No.\" = ''"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "45",
+      "code": "SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE",
+      "module": "Sales",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 4,
+      "impact_eur": "32.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(SalesHeader.\"Requested Delivery Date\" <> 0D) and (SalesHeader.\"Requested Delivery Date\" < Today())"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "46",
+      "code": "SALES_LINES_PRICE_BELOW_UNIT_COST",
+      "module": "Sales",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 6,
+      "impact_eur": "48.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesLine.\"Unit Price\" < Item.\"Unit Cost\""
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "47",
+      "code": "SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 12,
+      "impact_eur": "96.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(SalesLine.\"Outstanding Quantity\" > 0) and (SalesLine.\"Shipment Date\" <> 0D) and (SalesLine.\"Shipment Date\" < Today())"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "48",
+      "code": "SALES_LINES_MISSING_LOCATION",
+      "module": "Sales",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 5,
+      "impact_eur": "40.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "SalesLine.\"Location Code\" = ''"
+      ],
+      "procedure": "RunSalesExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "49",
+      "code": "PURCHASE_ORDERS_MISSING_EXPECTED_DATE",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 9,
+      "impact_eur": "151.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseHeader.\"Expected Receipt Date\" = 0D"
+      ],
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "impact_parameters": {
+        "minutes": 7,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "50",
+      "code": "PURCHASE_ORDERS_OLD_OPEN",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 29,
+      "impact_eur": "928.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseHeader.\"Document Date\" <= ThresholdDate"
+      ],
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "51",
+      "code": "PURCHASE_LINES_MISSING_DIMENSIONS",
+      "module": "Purchasing",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 50,
+      "impact_eur": "500.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [],
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.25,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "52",
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_TERMS",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 3,
+      "impact_eur": "96.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseHeader.\"Payment Terms Code\" = ''"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "53",
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_METHOD",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 16,
+      "impact_eur": "512.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseHeader.\"Payment Method Code\" = ''"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 10,
+        "probability": 0.4,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "54",
+      "code": "PURCHASE_HEADERS_MISSING_PURCHASER",
+      "module": "Purchasing",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 29,
+      "impact_eur": "232.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseHeader.\"Purchaser Code\" = ''"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "55",
+      "code": "PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE",
+      "module": "Purchasing",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 20,
+      "impact_eur": "160.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(PurchaseHeader.\"Expected Receipt Date\" <> 0D) and (PurchaseHeader.\"Expected Receipt Date\" < Today())"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "56",
+      "code": "PURCHASE_LINES_RECEIVED_NOT_INVOICED",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 24,
+      "impact_eur": "192.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseLine.\"Quantity Received\" > PurchaseLine.\"Quantity Invoiced\""
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "57",
+      "code": "PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 28,
+      "impact_eur": "224.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(PurchaseLine.\"Outstanding Quantity\" > 0) and (PurchaseLine.\"Expected Receipt Date\" <> 0D) and (PurchaseLine.\"Expected Receipt Date\" < Today())"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "58",
+      "code": "PURCHASE_LINES_MISSING_LOCATION",
+      "module": "Purchasing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 48,
+      "impact_eur": "384.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "PurchaseLine.\"Location Code\" = ''"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "59",
+      "code": "PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST",
+      "module": "Purchasing",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 20,
+      "impact_eur": "160.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(PurchaseLine.\"Direct Unit Cost\" > 0) and (Item.\"Last Direct Cost\" > 0) and (PurchaseLine.\"Direct Unit Cost\" < Item.\"Last Direct Cost\")"
+      ],
+      "procedure": "RunPurchaseExecutionChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "60",
+      "code": "ITEMS_MISSING_CATEGORY",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 10,
+      "impact_eur": "64.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Item Category Code\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_CATEGORY')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "61",
+      "code": "ITEMS_MISSING_INVENTORY_POSTING",
+      "module": "Inventory",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 8,
+      "impact_eur": "345.6",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Inventory Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_INVENTORY_POSTING')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 12,
+        "probability": 0.45,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "62",
+      "code": "ITEMS_WITHOUT_VENDOR_NO",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 38,
+      "impact_eur": "243.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Vendor No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_VENDOR_NO')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "63",
+      "code": "ITEMS_WITHOUT_UNIT_COST",
+      "module": "Inventory",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 614,
+      "impact_eur": "35366.4",
+      "generated_matches": 600,
+      "non_owned_matches": 14,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "DIRECT_DETECTION_RECONCILED",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_PLUS_UNCHANGED_OWNED_FIELDS",
+      "predicate": [
+        "(Item.\"Unit Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_UNIT_COST')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 12,
+        "probability": 0.6,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "64",
+      "code": "ITEMS_WITHOUT_UNIT_PRICE",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 630,
+      "impact_eur": "42336.0",
+      "generated_matches": 600,
+      "non_owned_matches": 30,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "DIRECT_DETECTION_RECONCILED",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_PLUS_UNCHANGED_OWNED_FIELDS",
+      "predicate": [
+        "(Item.\"Unit Price\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_UNIT_PRICE')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 12,
+        "probability": 0.7,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "65",
+      "code": "ITEMS_NEGATIVE_INVENTORY",
+      "module": "Inventory",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 16,
+      "impact_eur": "1536.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.Inventory < 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_NEGATIVE_INVENTORY')"
+      ],
+      "procedure": "RunItemMasterDataChecks",
+      "impact_parameters": {
+        "minutes": 20,
+        "probability": 0.6,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "66",
+      "code": "ITEMS_PRICE_BELOW_UNIT_COST",
+      "module": "Inventory",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 2,
+      "impact_eur": "16.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Unit Price\" > 0) and (Item.\"Unit Cost\" > 0) and (Item.\"Unit Price\" < Item.\"Unit Cost\") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_UNIT_COST')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "67",
+      "code": "ITEMS_PRICE_BELOW_STANDARD_COST",
+      "module": "Inventory",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 5,
+      "impact_eur": "40.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Unit Price\" > 0) and (Item.\"Standard Cost\" > 0) and (Item.\"Unit Price\" < Item.\"Standard Cost\") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_STANDARD_COST')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "68",
+      "code": "ITEMS_STANDARD_COST_ZERO",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 12033,
+      "impact_eur": "96264.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Standard Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_STANDARD_COST_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "69",
+      "code": "ITEMS_LAST_DIRECT_COST_ZERO",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 12014,
+      "impact_eur": "96112.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Last Direct Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_LAST_DIRECT_COST_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "70",
+      "code": "ITEMS_MISSING_LEAD_TIME",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Format(Item.\"Lead Time Calculation\") = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_LEAD_TIME')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "71",
+      "code": "ITEMS_SAFETY_STOCK_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Safety Stock Quantity\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_SAFETY_STOCK_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "72",
+      "code": "ITEMS_REORDER_POINT_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12061,
+      "impact_eur": "96488.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Reorder Point\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_REORDER_POINT_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "73",
+      "code": "ITEMS_MAX_INVENTORY_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Maximum Inventory\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MAX_INVENTORY_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "74",
+      "code": "ITEMS_MIN_ORDER_QTY_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Minimum Order Quantity\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MIN_ORDER_QTY_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "75",
+      "code": "ITEMS_ORDER_MULTIPLE_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Order Multiple\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_ORDER_MULTIPLE_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "76",
+      "code": "ITEMS_MISSING_SHELF_NO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Shelf No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_SHELF_NO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "77",
+      "code": "ITEMS_MISSING_TARIFF_NO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12081,
+      "impact_eur": "96648.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Tariff No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_TARIFF_NO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "78",
+      "code": "ITEMS_GROSS_WEIGHT_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12066,
+      "impact_eur": "96528.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Gross Weight\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_GROSS_WEIGHT_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "79",
+      "code": "ITEMS_NET_WEIGHT_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12044,
+      "impact_eur": "96352.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Net Weight\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_NET_WEIGHT_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "80",
+      "code": "ITEMS_UNIT_VOLUME_ZERO",
+      "module": "Inventory",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 12066,
+      "impact_eur": "96528.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Unit Volume\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_UNIT_VOLUME_ZERO')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "81",
+      "code": "DEAD_STOCK_90",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 41,
+      "impact_eur": "328.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-90D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_90')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "82",
+      "code": "DEAD_STOCK_180",
+      "module": "Inventory",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 38,
+      "impact_eur": "304.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-180D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_180')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "83",
+      "code": "DEAD_STOCK_365",
+      "module": "Inventory",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 34,
+      "impact_eur": "272.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-365D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_365')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "84",
+      "code": "INVENTORY_WITHOUT_UNIT_COST",
+      "module": "Inventory",
+      "severity": "critical",
+      "pre_sync_source_severity": "critical",
+      "affected_count": 1,
+      "impact_eur": "72.8",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.Inventory > 0) and (Item.\"Unit Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'INVENTORY_WITHOUT_UNIT_COST')"
+      ],
+      "procedure": "RunInventoryValueChecks",
+      "impact_parameters": {
+        "minutes": 14,
+        "probability": 0.65,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "85",
+      "code": "CONTACTS_MISSING_EMAIL",
+      "module": "CRM",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 6,
+      "impact_eur": "43.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.\"E-Mail\" = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 3,
+        "probability": 0.3,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "86",
+      "code": "CONTACTS_MISSING_PHONE",
+      "module": "CRM",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 26,
+      "impact_eur": "83.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.\"Phone No.\" = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 2,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "87",
+      "code": "CONTACTS_MISSING_MOBILE_PHONE",
+      "module": "CRM",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 26,
+      "impact_eur": "83.2",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.\"Mobile Phone No.\" = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 2,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "88",
+      "code": "CONTACTS_MISSING_ADDRESS",
+      "module": "CRM",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 3,
+      "impact_eur": "16.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.Address = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "89",
+      "code": "CONTACTS_MISSING_CITY",
+      "module": "CRM",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 4,
+      "impact_eur": "32.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.City = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "90",
+      "code": "CONTACTS_MISSING_POST_CODE",
+      "module": "CRM",
+      "severity": "low",
+      "pre_sync_source_severity": "low",
+      "affected_count": 3,
+      "impact_eur": "16.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "Contact.\"Post Code\" = ''"
+      ],
+      "procedure": "RunCRMContactChecks",
+      "impact_parameters": {
+        "minutes": 4,
+        "probability": 0.25,
+        "frequency": 8,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "91",
+      "code": "MFG_ROUTING_LINES_ZERO_SETUP",
+      "module": "Manufacturing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 3,
+      "impact_eur": "24.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "RoutingLine.\"Setup Time\" = 0"
+      ],
+      "procedure": "RunManufacturingChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "92",
+      "code": "MFG_ROUTING_LINES_ZERO_RUN",
+      "module": "Manufacturing",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 1,
+      "impact_eur": "8.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "RoutingLine.\"Run Time\" = 0"
+      ],
+      "procedure": "RunManufacturingChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "93",
+      "code": "MFG_WORK_CENTERS_ZERO_COST",
+      "module": "Manufacturing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 1,
+      "impact_eur": "72.8",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "WorkCenter.\"Unit Cost\" = 0"
+      ],
+      "procedure": "RunManufacturingChecks",
+      "impact_parameters": {
+        "minutes": 14,
+        "probability": 0.65,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "94",
+      "code": "MFG_MACHINE_CENTERS_ZERO_COST",
+      "module": "Manufacturing",
+      "severity": "medium",
+      "pre_sync_source_severity": "medium",
+      "affected_count": 13,
+      "impact_eur": "946.4",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "MachineCenter.\"Unit Cost\" = 0"
+      ],
+      "procedure": "RunManufacturingChecks",
+      "impact_parameters": {
+        "minutes": 14,
+        "probability": 0.65,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    },
+    {
+      "entry_no": "95",
+      "code": "MFG_ITEMS_MISSING_ROUTING_NO",
+      "module": "Manufacturing",
+      "severity": "high",
+      "pre_sync_source_severity": "high",
+      "affected_count": 2,
+      "impact_eur": "16.0",
+      "generated_matches": null,
+      "non_owned_matches": null,
+      "cronus_origin": "UNPROVEN",
+      "aggregation": "One company-wide count per check; overlaps across checks",
+      "verdict": "ARITHMETIC_RECONCILED_MEMBERSHIP_UNPROVEN",
+      "suspected_row_defect": null,
+      "evidence_level": "BC_RUNTIME_AGGREGATE_PLUS_SOURCE",
+      "predicate": [
+        "(Item.\"Production BOM No.\" <> '') and (Item.\"Routing No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'MFG_ITEMS_MISSING_ROUTING_NO')"
+      ],
+      "procedure": "RunManufacturingChecks",
+      "impact_parameters": {
+        "minutes": 5,
+        "probability": 0.2,
+        "frequency": 12,
+        "hourly_rate": 40
+      }
+    }
+  ],
+  "evidence_sha256": "4914706b1f8d259a0c46e4002a7dda20ac347be08b5bee5c46226504e4ba179f"
+}

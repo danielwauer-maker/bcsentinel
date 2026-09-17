@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "context": {
+    "company": "BCS-PERF-DEV",
+    "scan_id": "RUN_20260916_000001_43F57A071BFF485BAF20C68FF578B",
+    "generator_run_id": 1,
+    "bc_version": "27 SaaS",
+    "bcsentinel_version": "1.0.2.21"
+  },
+  "provenance": {
+    "kind": "USER_REPORTED_NOT_RAW_EXPORT",
+    "date": "2026-09-16",
+    "note": "Seven module names inferred from seven non-100 scores; setup reported 7/10 and 165/165. Verify exact flags in export."
+  },
+  "user_reported": {
+    "enabled_modules": [
+      "System",
+      "Finance",
+      "Sales",
+      "Purchasing",
+      "Inventory",
+      "CRM",
+      "Manufacturing"
+    ],
+    "module_scores": {
+      "System": 48,
+      "Finance": 16,
+      "Sales": 47,
+      "Purchasing": 44,
+      "Inventory": 16,
+      "CRM": 75,
+      "Manufacturing": 61,
+      "Service": 100,
+      "Jobs": 100,
+      "HR": 100
+    },
+    "score": 38,
+    "finding_rows": 95,
+    "affected_occurrences": 224999,
+    "impact_eur": "2202021.49",
+    "potential_saving_display_eur": 1541415,
+    "active_checks": 165,
+    "scan_duration_seconds": "502.226",
+    "cronus_origin": true,
+    "recovery_manual_result": "PASS_USER_REPORTED",
+    "business_records_preserved": 20000
+  },
+  "exports": {}
+}
