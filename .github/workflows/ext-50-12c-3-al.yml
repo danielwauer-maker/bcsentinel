@@ -1,0 +1,305 @@
+name: EXT-50-12C.3 BC finding identity
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - sprint/ext-50-12c-runtime-detection-evidence
+    paths:
+      - "bc-extension/**"
+      - "bc-finding-tests/**"
+      - "backend/app/core/product_model.py"
+      - "backend/app/core/runtime_product_policy.py"
+      - "backend/app/services/access_control_service.py"
+      - ".github/workflows/ext-50-12c-3-al.yml"
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: BC 27 AL compile with CodeCop and PTECop (${{ matrix.deployment }})
+    runs-on: windows-2022
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment: [fresh, upgrade]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare isolated product and QA workspaces
+        shell: pwsh
+        run: |
+          ./bc-extension/scripts/New-BCBuildWorkspace.ps1 -Profile ReleaseCloud
+          ./bc-extension/scripts/New-BCBuildWorkspace.ps1 -Profile FindingTestsQA
+
+      - name: Ensure Windows Docker service is ready on disposable CI runner
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dockerService = Get-Service -Name docker -ErrorAction Stop
+          if ($dockerService.Status -ne 'Running') { Start-Service -Name docker }
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 20; $attempt++) {
+            $dockerOS = docker info --format '{{.OSType}}' 2>$null
+            if ($LASTEXITCODE -eq 0 -and $dockerOS -eq 'windows') { $ready = $true; break }
+            Start-Sleep -Seconds 3
+          }
+          if (-not $ready) { throw 'Windows Docker engine is unavailable on this disposable CI runner.' }
+
+      - name: Prepare immutable pilot 1.0.2.21 upgrade source
+        if: matrix.deployment == 'upgrade'
+        shell: pwsh
+        run: |
+          git fetch --no-tags --depth=1 origin 00b7b4ed31b70fd14681f0e3b913337bf29c1f78
+          if ($LASTEXITCODE -ne 0) { throw "Failed to fetch immutable pilot baseline." }
+          $baseline = Join-Path $env:GITHUB_WORKSPACE '.build/bc-extension/PilotBaseline'
+          New-Item -ItemType Directory -Path $baseline -Force | Out-Null
+          git archive --format=zip --output="$baseline/source.zip" 00b7b4ed31b70fd14681f0e3b913337bf29c1f78 bc-extension
+          if ($LASTEXITCODE -ne 0) { throw "Baseline archive failed." }
+          Expand-Archive -LiteralPath "$baseline/source.zip" -DestinationPath $baseline
+          & "$baseline/bc-extension/scripts/New-BCBuildWorkspace.ps1" -Profile ReleaseCloud
+
+      - name: Install pinned BcContainerHelper
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          # 6.1.18 avoids the known BC 27 PowerShell 7 remote-session assembly loader failure.
+          $moduleVersion = "6.1.18"
+          $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
+          $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
+          $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
+
+          New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+          Invoke-WebRequest `
+            -Uri "https://www.powershellgallery.com/api/v2/package/BcContainerHelper/$moduleVersion" `
+            -OutFile $packagePath `
+            -UseBasicParsing
+          Copy-Item $packagePath $packageZip -Force
+          Expand-Archive -Path $packageZip -DestinationPath $moduleRoot -Force
+
+          $manifestPath = Join-Path $moduleRoot "BcContainerHelper.psd1"
+          if (-not (Test-Path $manifestPath)) {
+            throw "BcContainerHelper manifest was not found after extracting $packagePath."
+          }
+
+          Import-Module $manifestPath -Force
+          $loadedModule = Get-Module BcContainerHelper
+          if (-not $loadedModule) {
+            throw "BcContainerHelper was extracted but could not be imported."
+          }
+          Write-Host "BcContainerHelper version: $($loadedModule.Version)"
+
+      - name: Resolve BC 27 sandbox artifact
+        id: artifact
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
+          $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
+          if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
+            throw "No BC 27 sandbox artifact could be resolved."
+          }
+          "url=$artifactUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Using artifact: $artifactUrl"
+
+      - name: Compile extension with CodeCop and PTECop
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
+
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
+          $securePassword = ConvertTo-SecureString "P@ssword123456789!" -AsPlainText -Force
+          $credential = [PSCredential]::new("admin", $securePassword)
+          $appFolder = Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\ReleaseCloud"
+          $rulesetFile = Join-Path $appFolder "app.ruleset.json"
+
+          Start-Transcript -Path $transcriptPath -Force | Out-Null
+          try {
+            $previousApps = @()
+            if ("${{ matrix.deployment }}" -eq "upgrade") {
+              # Build/install the immutable baseline in its own disposable container.
+              # No dependency on an expiring GitHub artifact or a production environment.
+              $baselineArtifacts = Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\PilotBaseline\artifacts"
+              Run-AlPipeline `
+                -pipelineName "BCSentinel-QA-Baseline" `
+                -containerName "bcsentinel-qa-baseline" `
+                -baseFolder $env:GITHUB_WORKSPACE `
+                -appFolders @((Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\PilotBaseline\.build\bc-extension\ReleaseCloud")) `
+                -artifact "${{ steps.artifact.outputs.url }}" `
+                -credential $credential `
+                -buildArtifactFolder $baselineArtifacts `
+                -doNotRunTests `
+                -enableCodeCop `
+                -enablePerTenantExtensionCop `
+                -containerEventLogFile (Join-Path $diagnosticsFolder "bc-baseline.evtx") `
+                -failOn error `
+                -keepContainer:$false
+              $previousApps = @(Get-ChildItem (Join-Path $baselineArtifacts "Apps") -Filter '*_BCSentinel_1.0.2.21.app' -File | ForEach-Object FullName)
+              if ($previousApps.Count -ne 1) { throw "Expected exactly one pilot 1.0.2.21 upgrade baseline package." }
+            }
+            Run-AlPipeline `
+              -pipelineName "BCSentinel-BC-Gate" `
+              -containerName "bcsentinel-bc-gate" `
+              -baseFolder $env:GITHUB_WORKSPACE `
+              -appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\FindingTestsQA")) `
+              -artifact "${{ steps.artifact.outputs.url }}" `
+              -credential $credential `
+              -previousApps $previousApps `
+              -doNotRunTests `
+              -enableCodeCop `
+              -enablePerTenantExtensionCop `
+              -rulesetFile $rulesetFile `
+              -containerEventLogFile (Join-Path $diagnosticsFolder "bc-container.evtx") `
+              -failOn error `
+              -keepContainer:$true
+
+            # Targeted real AL execution after the unchanged publish/install or upgrade gate.
+            Import-TestToolkitToBcContainer -containerName "bcsentinel-bc-gate" -credential $credential -includeTestRunnerOnly
+            $resultsFile = Join-Path $diagnosticsFolder "qa-al-tests.xml"
+            $passed = Run-TestsInBcContainer `
+              -containerName "bcsentinel-bc-gate" `
+              -credential $credential `
+              -extensionId "3c355631-e232-4acd-bcc9-34264f7d25b7" `
+              -testCodeunit "53460" `
+              -JUnitResultFileName $resultsFile `
+              -returnTrueIfAllPassed `
+              -detailed
+            if (-not $passed) { throw "QA AL behavior tests failed." }
+            [xml]$results = Get-Content $resultsFile -Raw
+            $cases = @($results.SelectNodes("//testcase"))
+            if ($cases.Count -ne 3 -or $results.SelectNodes("//testcase/failure|//testcase/error|//testcase/skipped").Count -ne 0) {
+              throw "Expected all three finding AL tests to execute and pass without skips."
+            }
+            $installedQA = @(Get-BcContainerAppInfo -containerName "bcsentinel-bc-gate" -tenant default -tenantSpecificProperties |
+              Where-Object { "$($_.AppId)" -eq "3c355631-e232-4acd-bcc9-34264f7d25b7" -and $_.IsInstalled })
+            if ($installedQA.Count -ne 1 -or "$($installedQA[0].Version)" -ne "1.0.0.0") {
+              throw "QA 1.0.0.0 was not installed after the deployment gate."
+            }
+            "${{ matrix.deployment }}: QA 1.0.0.0 installed; three AL tests passed." |
+              Set-Content (Join-Path $diagnosticsFolder "qa-deployment-result.txt")
+          }
+          finally {
+            try {
+              if (Test-BcContainer -containerName "bcsentinel-bc-gate") {
+                try {
+                  $eventLog = Get-BcContainerEventLog -containerName "bcsentinel-bc-gate" -doNotOpen
+                  Copy-Item $eventLog (Join-Path $diagnosticsFolder "bc-container-after-tests.evtx") -Force
+                }
+                finally {
+                  Remove-BcContainer -containerName "bcsentinel-bc-gate"
+                }
+              }
+            }
+            finally {
+              Stop-Transcript | Out-Null
+            }
+          }
+
+      - name: Generate AL warning report
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
+          $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
+          $warningsPath = Join-Path $diagnosticsFolder "al-warnings.txt"
+          $summaryPath = Join-Path $diagnosticsFolder "al-warning-summary.md"
+
+          New-Item -ItemType Directory -Path $diagnosticsFolder -Force | Out-Null
+
+          if (-not (Test-Path $transcriptPath)) {
+            "Compile transcript was not created." | Set-Content -Path $warningsPath -Encoding utf8
+            "# AL warning summary`n`nCompile transcript was not created." | Set-Content -Path $summaryPath -Encoding utf8
+            exit 0
+          }
+
+          # BcContainerHelper emits GitHub annotations as well as raw compiler lines.
+          $warningPattern = '(?i)(?:\bwarning\s+|::warning[^\r\n]*?::)((?:AA|AL)[0-9]{4})\b'
+          $warningLines = Get-Content $transcriptPath |
+            Where-Object { $_ -match $warningPattern } |
+            ForEach-Object { $_.Trim() } |
+            Sort-Object -Unique
+
+          if ($warningLines) {
+            $warningLines | Set-Content -Path $warningsPath -Encoding utf8
+          }
+          else {
+            "No AL, CodeCop or PTECop warnings detected." | Set-Content -Path $warningsPath -Encoding utf8
+          }
+
+          $codes = foreach ($line in $warningLines) {
+            if ($line -match $warningPattern) {
+              $Matches[1].ToUpperInvariant()
+            }
+          }
+
+          $summary = @(
+            "# AL warning summary"
+            ""
+            "Total unique warning lines: $(@($warningLines).Count)"
+            ""
+            "## Warning codes"
+          )
+
+          if ($codes) {
+            $summary += $codes |
+              Group-Object |
+              Sort-Object Name |
+              ForEach-Object { "- $($_.Name): $($_.Count)" }
+          }
+          else {
+            $summary += "- None"
+          }
+
+          $summary | Set-Content -Path $summaryPath -Encoding utf8
+          $summary | ForEach-Object { Write-Host $_ }
+
+      - name: Collect compiled app packages
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          New-Item -ItemType Directory -Path $artifactFolder -Force | Out-Null
+
+          $packages = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.app -File -Recurse |
+            Where-Object { $_.FullName -notmatch '[\\/]\.(?:al)?packages[\\/]' }
+
+          foreach ($package in $packages) {
+            Copy-Item $package.FullName (Join-Path $artifactFolder $package.Name) -Force
+            Write-Host "Collected package: $($package.FullName)"
+          }
+
+          if (-not (Get-ChildItem -Path $artifactFolder -Filter *.app -File -ErrorAction SilentlyContinue)) {
+            throw "The AL pipeline completed without leaving a compiled .app package in the workspace."
+          }
+
+      - name: Publish AL build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.deployment == 'fresh' && 'bc-al-compile-output' || 'bc-al-upgrade-output' }}
+          path: artifacts/bc-app/*.app
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish AL warning diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.deployment == 'fresh' && 'bc-al-warning-diagnostics' || 'bc-al-upgrade-diagnostics' }}
+          path: artifacts/bc-diagnostics/*
+          if-no-files-found: error
+          retention-days: 14

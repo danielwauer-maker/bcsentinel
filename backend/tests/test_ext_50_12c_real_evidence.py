@@ -84,20 +84,20 @@ def test_score_source_formula_and_final_counter_correction_are_explicit():
     assert list(result['module_scores'].values()) == [48, 16, 47, 44, 16, 75, 61, 100, 100, 100]
 
 
-def test_actual_projection_preserves_this_run_but_loses_same_code_groups():
+def test_actual_projection_preserves_this_run_and_same_code_groups():
     rows = evidence()['exports']['bc']['rows']
     assert audit.backend_projection(rows) == rows
     assert audit.dashboard_occurrences(rows) == 224999
     groups = [dict(code='CUSTOMERS_DUPLICATE_EMAIL', affected_count=n) for n in (2, 3)]
     retained = audit.backend_projection(groups)
-    assert retained == [groups[-1]]
-    assert audit.dashboard_occurrences(retained) == 3
+    assert retained == groups
+    assert audit.dashboard_occurrences(retained) == 5
     oracle = audit.impact_oracle()
     definition = oracle.EXPLICIT_ISSUE_IMPACTS[groups[0]['code']]
     full = sum(oracle._calculate_issue_impact_amount(definition, g['affected_count'], 40) for g in groups)
-    kept = oracle._calculate_issue_impact_amount(definition, retained[0]['affected_count'], 40)
-    assert (full, kept) == (180, 108)
-    assert audit.backend_projection(list(reversed(groups))) == [groups[0]]
+    kept = sum(oracle._calculate_issue_impact_amount(definition, g['affected_count'], 40) for g in retained)
+    assert (full, kept) == (180, 180)
+    assert audit.backend_projection(list(reversed(groups))) == list(reversed(groups))
 
 
 def test_authoritative_markdown_contains_all_95_rows():

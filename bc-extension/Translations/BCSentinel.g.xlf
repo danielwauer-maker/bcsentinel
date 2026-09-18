@@ -144,7 +144,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Affected Records</source>
+          <source>Check Occurrences</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Affected Records - Property Caption</note>
         </trans-unit>
@@ -719,7 +719,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Affected Records</source>
+          <source>Check Occurrences</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Affected Records - Property Caption</note>
         </trans-unit>
@@ -2539,7 +2539,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Affected Count - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3003571318 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Count</source>
+          <source>Check Occurrences</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues - Control Affected Count - Property Caption</note>
         </trans-unit>
@@ -2614,7 +2614,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Affected Count - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3740536628 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Count</source>
+          <source>Check Occurrences</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Dashboard Issues List - Control Affected Count - Property Caption</note>
         </trans-unit>
@@ -7587,6 +7587,41 @@
           <source>BCSentinel Viewer</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCSENTINEL VIEWER - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Table 1068438358 - NamedType 2982302002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend finding identity does not belong to this run and check.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - NamedType FindingIdentityErr</note>
+        </trans-unit>
+      <trans-unit id="Table 1068438358 - Field 1570108100 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Group Key - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Codeunit 4097836441 - NamedType 2982302002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an invalid or ambiguous finding identity. Update the backend and retry synchronization.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType FindingIdentityErr</note>
+        </trans-unit>
+      <trans-unit id="Page 204865987 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Occurrences</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control Affected Count - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Page 204865987 - Control 2441561575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Occurrences</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings - Control FreeAffectedCount - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Page 177555053 - Control 3925808139 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Occurrences</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control Affected Count - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Page 177555053 - Control 2441561575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Occurrences</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control FreeAffectedCount - Property Caption</note>
         </trans-unit>
       </group>
     </body>

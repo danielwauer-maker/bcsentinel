@@ -62,7 +62,7 @@ class ExecutiveReport(BaseModel):
     checks_count: int = Field(ge=0)
     checks_total: int = Field(ge=0, default=165)
     issues_count: int = Field(ge=0)
-    affected_records: int = Field(ge=0)
+    affected_records: int = Field(ge=0, description="Sum of finding check occurrences; a business record can match multiple checks.")
     applied_exception_count: int = Field(ge=0, default=0)
     estimated_loss_eur: float = 0.0
     potential_saving_eur: float = 0.0

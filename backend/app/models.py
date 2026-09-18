@@ -240,12 +240,16 @@ class Scan(Base):
 class ScanIssueRecord(Base):
     __tablename__ = "scan_issues"
     __table_args__ = (
-        UniqueConstraint("scan_id", "code", name="uq_scan_issues_scan_code"),
+        UniqueConstraint("scan_id", "finding_id", name="uq_scan_issues_scan_finding"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id"), index=True)
     code: Mapped[str] = mapped_column(String(80), index=True)
+    finding_id: Mapped[str] = mapped_column(
+        String(128), nullable=False,
+        default=lambda context: "legacy:" + context.get_current_parameters()["code"],
+    )
     category: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
     severity: Mapped[str] = mapped_column(String(20))

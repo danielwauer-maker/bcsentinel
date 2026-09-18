@@ -142,7 +142,7 @@ table 53128 "DH Deep Scan Run"
         }
         field(34; "Affected Records"; Integer)
         {
-            Caption = 'Affected Records';
+            Caption = 'Check Occurrences';
         }
         field(35; "System Score"; Integer)
         {

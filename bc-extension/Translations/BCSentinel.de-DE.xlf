@@ -144,7 +144,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2181053114 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Affected Records</source><target state="translated">Betroffene Datensätze</target>
+          <source>Check Occurrences</source><target state="translated">Prüftreffer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Run - Field Affected Records - Property Caption</note>
         </trans-unit>
@@ -714,7 +714,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 484476656 - Field 3630678704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Affected Records</source><target state="translated">Betroffene Datensätze</target>
+          <source>Check Occurrences</source><target state="translated">Prüftreffer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table DH Scan Header - Field Affected Records - Property Caption</note>
         </trans-unit>
@@ -7312,6 +7312,21 @@
           <source>Explains whether all requirements for BCSentinel registration have been completed.</source><target state="translated">Erläutert, ob alle Voraussetzungen für die BCSentinel-Registrierung erfüllt sind.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Setup - Control RegistrationPreparationMessage - Property ToolTip</note>
+        </trans-unit>
+      <trans-unit id="Table 1068438358 - NamedType 2982302002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend finding identity does not belong to this run and check.</source><target state="translated">Die Finding-Identität des Backends gehört nicht zu diesem Lauf und dieser Prüfung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - NamedType FindingIdentityErr</note>
+        </trans-unit>
+      <trans-unit id="Table 1068438358 - Field 1570108100 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Key</source><target state="translated">Gruppenschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table DH Deep Scan Finding - Field Group Key - Property Caption</note>
+        </trans-unit>
+      <trans-unit id="Codeunit 4097836441 - NamedType 2982302002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The backend returned an invalid or ambiguous finding identity. Update the backend and retry synchronization.</source><target state="translated">Das Backend hat eine ungültige oder mehrdeutige Finding-Identität geliefert. Aktualisieren Sie das Backend und wiederholen Sie die Synchronisierung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Deep Scan Runner - NamedType FindingIdentityErr</note>
         </trans-unit>
       </group>
         <trans-unit id="Table 2181053114 - Field 1493071731 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">

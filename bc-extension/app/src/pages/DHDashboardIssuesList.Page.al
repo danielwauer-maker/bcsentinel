@@ -55,7 +55,7 @@ page 53161 "DH Dashboard Issues List"
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
-                    Caption = 'Affected Records';
+                    Caption = 'Check Occurrences';
                     ToolTip = 'Specifies how many records are affected by the finding.';
 
                     trigger OnDrillDown()

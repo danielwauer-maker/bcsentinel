@@ -82,7 +82,7 @@ table 53120 "DH Scan Header"
         }
         field(25; "Affected Records"; Integer)
         {
-            Caption = 'Affected Records';
+            Caption = 'Check Occurrences';
         }
         field(26; "System Score"; Integer)
         {
