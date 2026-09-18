@@ -99,6 +99,12 @@ upgrade restores deterministic legacy identities, not prior explicit UUIDs.
 SQLite and real PostgreSQL upgrade/downgrade/upgrade tests retain original row
 IDs and values. Alembic revision tracking governs repeated execution.
 
+Coordinate migration and backend application rollout: the new non-null identity
+has an application-side default, not a database default for old server binaries.
+Older API payloads remain supported by the new backend; this does not promise
+mixed old/new backend writers against the migrated schema. Complete backend
+migration/application rollout before installing the new BC client.
+
 ## 12. BC sync and versioning
 
 Product becomes **1.0.2.22** because table 53129 gains field 13 `Group Key`
@@ -203,7 +209,14 @@ promised. New fields require schema synchronization/upgrade. The known billing
 baseline failure remains visible and unresolved. All installs below are manual
 future QA actions; no deployment occurred during this sprint.
 
+The three AL behavior tests use temporary finding records. CI install/upgrade
+and those tests do not prove a real SaaS HTTP round trip or preservation of an
+existing SaaS company's data during upgrade. These remain distinct from the
+PostgreSQL existing-row migration checks and the manual multi-group evidence.
+
 ## 21. BC27 SaaS runtime test plan
+
+German operator checklist: [Manual runtime retest](EXT_50_12C_3_MANUAL_RUNTIME_RETEST.md).
 
 1. Provision a separate BC27 SaaS Sandbox with company **BCS-FINDING-QA**. Do not
    copy over or modify BCS-PERF-DEV or its completed scan. An operator prepares the
@@ -243,6 +256,57 @@ round trip, generator recovery/cleanup and relevant permission/no-SUPER gates
 all pass. Maximum status is READY_FOR_MANUAL_BC_RUNTIME_RETEST, never LARGE GO.
 
 ## Execution evidence (updated after CI)
+
+### Final verified implementation — 18 September 2026
+
+Tested implementation commit: `44c9a4b8b3b2e003926f579fbde3c5098eb66c81`.
+The following closing documentation commit changes only this report and the
+German manual checklist; product, migration, test and workflow sources are
+unchanged from the tested commit. Later documentation-triggered CI runs must not
+be confused with these completed, source-identical implementation checks.
+
+| Gate | PASS | FAIL | SKIP | XFAIL |
+|---|---:|---:|---:|---:|
+| Complete backend suite | 518 | 1 known baseline | 8 | 2 |
+| SQLite + PostgreSQL migration cycles | 2 | 0 | 0 | 0 |
+| Real PostgreSQL identity/API/concurrency | 23 | 0 | 0 | 0 |
+| BC27 fresh install + AL behavior tests | 3 | 0 | 0 | 0 |
+| BC27 pilot 1.0.2.21 -> 1.0.2.22 + AL behavior tests | 3 | 0 | 0 | 0 |
+
+[BC CI 35313449737](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35313449737)
+completed SUCCESS in both matrix jobs. Each `qa-al-tests.xml` has exactly three
+executed cases and no failure/error/skipped elements. Both deployment result files
+confirm QA 1.0.0.0 installed. The upgrade transcript explicitly records installing
+BCSentinel 1.0.2.21, then synchronizing and upgrading to 1.0.2.22. The corrected
+temporary-record identity and uppercase severity assertions now pass, including
+the original exact per-group impacts, reordered retry and total of 350.
+
+[Backend CI 35313449743](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35313449743)
+completed with the unchanged billing fixed-date failure deliberately visible.
+The migration, PostgreSQL and real Chromium dashboard steps passed. XML files
+are `repair-full.xml`, `repair-migration.xml`, and `repair-postgres.xml` in that
+run's artifact. Eight skips in the default suite are not called passes; the
+database-specific cases run in the separate real PostgreSQL gates.
+
+Downloaded evidence is under `.build/ci-al-44c9a4b/` and
+`.build/ci-backend-44c9a4b/`. AL CI artifacts expire after 14 days; these local copies
+retain the delivered evidence. The two **fresh-job CI-tested packages** for the
+isolated manual QA sandbox are in
+`.build/ci-al-44c9a4b/bc-al-compile-output/`:
+
+- `BCSentinel Analytics - Daniel Wauer_BCSentinel_1.0.2.22.app` — SHA256
+  `8afe7bcbce8bc16bcbc11fb520e19918b82f5810cf84262f3ce18fd5c72ff847`
+- `BCSentinel Analytics - Daniel Wauer_BCSentinel Finding Identity Tests_1.0.0.0.app` — SHA256
+  `aaeb77f5c166a86ad9b5970b40a4e211dde5b57b44a8ee1f7d8fcb287685f23d`
+
+These supersede the earlier local compile-only candidates for manual delivery;
+all earlier artifacts remain untouched. They are not installed in any real BC
+environment by this work. DEF-001/002/003 have automated repair evidence and still
+require the real SaaS multi-group round trip. DEF-004 has DE/EN UI/report evidence.
+The historical DEV JSON hash and its 95/224999/2202021.49/1541415.04/38/165 results
+remain unchanged. Status: **READY_FOR_MANUAL_BC_RUNTIME_RETEST**. LARGE is blocked.
+
+### Earlier runs and supporting local checks
 
 Repair PR: https://github.com/danielwauer-maker/bcsentinel/pull/41 (draft).
 First backend CI: https://github.com/danielwauer-maker/bcsentinel/actions/runs/35234706980
@@ -285,6 +349,7 @@ production deployment or real BC data mutation has been performed.
 - page 53161 `DH Dashboard Issues List` — `bc-extension/app/src/pages/DHDashboardIssuesList.Page.al`
 - page 53131 `DH Deep Scan Findings` — `bc-extension/app/src/pages/DHDeepScanFindings.Page.al`
 - page 53160 `DH Deep Scan Findings List` — `bc-extension/app/src/pages/DHDeepScanFindingsList.Page.al`
+- page 53158 `DH Deep Scan Monitor` — `bc-extension/app/src/pages/DHDeepScanMonitor.Page.al`
 - table 53129 `DH Deep Scan Finding` — `bc-extension/app/src/tables/DHDeepScanFinding.Table.al`
 - table 53128 `DH Deep Scan Run` — `bc-extension/app/src/tables/DHDeepScanRun.Table.al`
 - table 53120 `DH Scan Header` — `bc-extension/app/src/tables/DHScanHeader.Table.al`
