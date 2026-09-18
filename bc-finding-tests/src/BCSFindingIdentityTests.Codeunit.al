@@ -21,10 +21,12 @@ codeunit 53460 "BCS Finding Identity Tests"
         TempFinding.ApplyBackendImpact(10, 'CHECK_A', SecondId, 'high', 250);
         TempFinding.GetBySystemId(FirstId);
         AssertTrue(TempFinding."Estimated Impact (EUR)" = 100);
-        AssertTrue(TempFinding.Severity = 'medium');
+        AssertTrue(TempFinding.Severity = 'MEDIUM');
+        AssertTrue(TempFinding."Severity Sort Order" = 2);
         TempFinding.GetBySystemId(SecondId);
         AssertTrue(TempFinding."Estimated Impact (EUR)" = 250);
-        AssertTrue(TempFinding.Severity = 'high');
+        AssertTrue(TempFinding.Severity = 'HIGH');
+        AssertTrue(TempFinding."Severity Sort Order" = 1);
         TempFinding.Reset();
         AssertTrue(TempFinding.Count() = 2);
         TempFinding.CalcSums("Estimated Impact (EUR)");

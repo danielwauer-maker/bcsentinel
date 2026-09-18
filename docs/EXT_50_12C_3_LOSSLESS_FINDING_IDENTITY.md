@@ -298,7 +298,7 @@ These packages are for the isolated QA sandbox only; CI/runtime gates apply.
 
 - `.build/bc-extension/ReleaseFinal/BCSentinel.1.0.2.22.validated.app` — SHA256 `467d1a2b45f4be636be62048430d0edf7f31dc7f1891f697e66e31ebc94fda30`
 
-- `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.distinct-identities.app` — SHA256 `c86550c2440d1a332a56240ae4b7783a6f1152be76db96a19a5c17b34e617899`
+- `.build/bc-extension/FindingTestsQA/BCSentinel.Finding.QA.normalized-severity.app` — SHA256 `de78858f35941669795126c746f46d57dcc67f782756c01717cd5ef917c7db09`
 
 
 ### Final-product backend run and CI infrastructure correction
@@ -330,3 +330,16 @@ All original impact, retry, count and sum assertions remain. Production persiste
 record creation and per-sync identity are unchanged. The corrected QA package
 compiles with zero warnings/errors; a subsequent real AL execution is required
 to close this reproduced fixture failure.
+
+
+### Fresh and upgrade execution at 973a455
+
+BC run https://github.com/danielwauer-maker/bcsentinel/actions/runs/35265597254
+compiled and installed both apps in fresh and upgrade jobs, including the pilot
+1.0.2.21 -> 1.0.2.22 upgrade. Each job executed three AL tests: two PASS, one FAIL.
+The identity fixture correction advanced the first test beyond its impact
+assertion to the severity assertion (procedure line 18). AL Code fields normalize
+values to uppercase; the test incorrectly expected lowercase strings. The fixture
+now requires exact MEDIUM/HIGH and additionally their severity sort values 2/1.
+No product behavior or impact assertion was changed. Corrected test compilation
+has zero errors/warnings. A passing runtime repetition is still required.
