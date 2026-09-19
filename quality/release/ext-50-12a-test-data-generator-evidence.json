@@ -51,12 +51,12 @@
     "source_uniqueness_and_gl_contracts": "PASS: 109 product objects; GL-01C 7 contracts; GL-01F passed",
     "qa_bc27_compile_codecop_ptecop": "PASS: 1.0.0.1, zero warnings/errors; 8 AL tests compiled",
     "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
-    "al_behavior_tests": "COMPILED: 8; CI execution pending",
-    "ci": "PENDING: 1.0.0.1 fresh install, upgrade and AL behavior execution",
+    "al_behavior_tests": "PASS: 8/8 after fresh install and 8/8 after upgrade; no failures/errors/skips (same eight tests in two deployments)",
+    "ci": "PASS: runtime-fix code 89faeb7; Pilot, Contracts, BC fresh and BC upgrade all green",
     "billing_date_regression": "PASS: reproduced expired fixed-date fixture; all assertions preserved; focused test and 20 billing tests pass",
-    "full_backend_regression": "PENDING for runtime fix; previous 459 passed, 7 skipped",
-    "postgresql_gate": "PENDING for runtime fix; previous 7 passed",
-    "qa_bc27_ci_compile_install": "PENDING for 1.0.0.1",
+    "full_backend_regression": "PASS: 461 passed, 7 skipped (468 collected); runtime-fix Pilot CI 35069195958",
+    "postgresql_gate": "PASS: 7 passed, no skips; separate PostgreSQL gate (overlaps full suite)",
+    "qa_bc27_ci_compile_install": "PASS: QA 1.0.0.1 compiled with CodeCop/PTECop and published/synchronized/installed in fresh BC 27 container",
     "warning_report_parser": "PASS: raw compiler and GitHub annotation fixtures; archived transcript correctly yields 270 baseline warnings",
     "translations": "PASS: 115 EN and DE units match compiler-generated sources"
   },
@@ -134,7 +134,17 @@
     ".build/ext-50-12a/runtime-fix-contracts.xml",
     ".build/bc-extension/PerformanceQA/compile-runtime-fix.log",
     ".build/bc-extension/Ext5012AProduct/compile-runtime-fix-cops.log",
-    ".build/bc-extension/Ext5012AProduct/compile-runtime-fix-appsource.log"
+    ".build/bc-extension/Ext5012AProduct/compile-runtime-fix-appsource.log",
+    ".build/ext-50-12a/runtime-fix-pilot-ci/backend/pilot-e2e-junit.xml",
+    ".build/ext-50-12a/runtime-fix-pilot-ci/backend/pilot-e2e-postgres-junit.xml",
+    ".build/ext-50-12a/runtime-fix-fresh-diagnostics/qa-al-tests.xml",
+    ".build/ext-50-12a/runtime-fix-fresh-diagnostics/qa-deployment-result.txt",
+    ".build/ext-50-12a/runtime-fix-fresh-diagnostics/al-compile-transcript.txt",
+    ".build/ext-50-12a/runtime-fix-fresh-diagnostics/al-warning-summary.md",
+    ".build/ext-50-12a/runtime-fix-upgrade-diagnostics/qa-al-tests.xml",
+    ".build/ext-50-12a/runtime-fix-upgrade-diagnostics/qa-deployment-result.txt",
+    ".build/ext-50-12a/runtime-fix-upgrade-diagnostics/al-compile-transcript.txt",
+    ".build/ext-50-12a/runtime-fix-upgrade-diagnostics/al-warning-summary.md"
   ],
   "product_appsource_baseline": {
     "status": "EXPECTED_BASELINE_FAILURE",
@@ -178,7 +188,18 @@
     "cop_warnings": 0
   },
   "ci_evidence": {
-    "status": "PENDING_RUNTIME_FIX_CI"
+    "status": "PASS",
+    "reviewed_code_commit": "89faeb721ed5488ee97c07a620c5184deba6f2e8",
+    "pilot_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195958",
+    "contracts_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195980",
+    "al_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954",
+    "fresh_status": "PASS",
+    "upgrade_status": "PASS",
+    "helper_version": "6.1.18",
+    "bc_artifact": "27.5.46862.54684/w1",
+    "bc_platform": "27.0.54564.0",
+    "fresh_diagnostics_artifact": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954/artifacts/10436436499",
+    "upgrade_diagnostics_artifact": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954/artifacts/10436595676"
   },
   "static_review": {
     "status": "COMPLETE_WITH_RUNTIME_GATES_OPEN",
@@ -270,9 +291,28 @@
     "from": "1.0.0.0",
     "to": "1.0.0.1",
     "baseline_commit": "78dc59d1266caa2d1175ad79926482e18a2b0eb6",
-    "container_status": "PENDING",
+    "container_status": "PASS",
     "saas_status": "PENDING",
     "app_identity_unchanged": true,
-    "table_schema_unchanged": true
+    "table_schema_unchanged": true,
+    "evidence": "Upgrade transcript installs previous QA 1.0.0.0 then explicitly upgrades QA to 1.0.0.1; installed version verified; all eight AL tests pass",
+    "scope": "Schema/install compatibility in isolated BC 27 container; no generated business-data migration or SaaS UI claim"
+  },
+  "qa_install_package": {
+    "workflow": "BC AL Compile and Cop Gate",
+    "artifact": "bc-al-compile-output",
+    "artifact_url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954/artifacts/10436411621",
+    "filename": "BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.1.app",
+    "local_path": ".build/ext-50-12a/runtime-fix-fresh-apps/BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.1.app",
+    "sha256": "4268fcb76232038ea7de6c9fde5e2d425c01578c0806b10d4af0f9190deb87c4",
+    "extension_name": "BCSentinel Performance QA",
+    "version": "1.0.0.1",
+    "product_dependency": null,
+    "product_for_scan_validation": "BCSentinel 1.0.2.20",
+    "permission_sets": [
+      "BCP GENERATE",
+      "BCP CLEANUP"
+    ],
+    "additional_standard_bc_permissions": "Required; exact non-SUPER SaaS matrix pending DEV validation"
   }
 }

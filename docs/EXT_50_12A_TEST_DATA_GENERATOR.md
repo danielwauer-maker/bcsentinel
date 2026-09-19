@@ -517,7 +517,7 @@ The original warning summary missed GitHub annotation syntax and falsely display
 zero warnings. The corrected parser accepts both raw compiler and annotation lines;
 the archived transcript reproduces exactly 270 warnings. No gate is relaxed.
 
-Install the reviewed QA package from
+Historical 1.0.0.0 package (superseded by the runtime fix in section 14):
 [bc-al-compile-output, artifact 10425301221](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370/artifacts/10425301221).
 The exact filename, local path and SHA256 are in the evidence JSON. Artifacts expire
 after 14 days; retain the verified QA package locally. It contains the final AL
@@ -583,6 +583,40 @@ müssen 1.0.0.1 installiert melden und alle acht AL-Tests ohne Skip ausführen.
 Die AL-Tests prüfen Request-Verhalten, keine Umgehung des SaaS-Guards. Ein BC-
 Container ersetzt weder SaaS-Webclient- noch No-SUPER-Nachweise. Der Upgrade-Pfad
 prüft Schema-/Installationskompatibilität; er erzeugt keine synthetischen SaaS-Daten.
+
+### Verifizierte CI-Nachweise für 1.0.0.1
+
+Geprüfter Code-Commit: `89faeb721ed5488ee97c07a620c5184deba6f2e8`.
+
+| Gate | Ergebnis |
+| --- | --- |
+| Generator-/bestehende Extension-Contracts | **44 PASS** (20 + 24) |
+| [Pilot / vollständiges Backend](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195958) | **461 PASS, 7 SKIP**, 468 gesammelt |
+| PostgreSQL im separaten Pilot-Gate | **7 PASS**, keine Skips; Überschneidung mit Gesamtsuite |
+| [Contracts-Workflow](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195980) | **PASS** |
+| [BC 27 Fresh und Upgrade](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954) | **beide PASS** |
+| AL-Verhaltenstests | **8/8 PASS nach Fresh, 8/8 PASS nach Upgrade**, keine Skips |
+| QA CodeCop / PTECop | **PASS**, keine Warnungen/Fehler |
+| Produkt CodeCop / PTECop | **PASS**, unverändert 270 Baseline-Warnungen |
+| Lokales Produkt AppSourceCop | **EXPECTED BASELINE FAILURE**: 3× AS0051, 1× AS0084, 1× AS0092 |
+| Echter SaaS-Dialog / Berechtigungen / DEV-/LARGE-Lauf | **PENDING**, keine Runtime-Freigabe |
+
+Upgrade-Protokoll: erst Installation von QA 1.0.0.0 aus `78dc59d`, danach
+`Upgrading BCSentinel Performance QA on tenant default` für 1.0.0.1. Die installierte
+Version und alle acht AL-Tests werden anschließend geprüft. Das belegt die
+Schema-/Installationskompatibilität, keine Migration erzeugter Geschäftsdaten.
+
+**Neues Installationspaket:**
+[bc-al-compile-output, Artifact 10436411621](https://github.com/danielwauer-maker/bcsentinel/actions/runs/35069195954/artifacts/10436411621)
+
+Datei: `BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.1.app`.
+SHA256: `4268fcb76232038ea7de6c9fde5e2d425c01578c0806b10d4af0f9190deb87c4`.
+
+Lokale Nachweise liegen unter `.build/ext-50-12a/runtime-fix-fresh-diagnostics/`,
+`.build/ext-50-12a/runtime-fix-upgrade-diagnostics/` und
+`.build/ext-50-12a/runtime-fix-pilot-ci/backend/`. Details und Paketpfad im Evidence-JSON.
+Die CI verwendet BC `27.5.46862.54684/w1`, Plattform `27.0.54564.0` und
+BcContainerHelper `6.1.18`. Kein Guard oder Installations-Gate wurde abgeschwächt.
 
 ### Retest exakt an der bisherigen Stelle
 
