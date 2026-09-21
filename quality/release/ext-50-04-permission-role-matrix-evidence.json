@@ -1,7 +1,7 @@
 {
   "sprint": "EXT-50-04",
   "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
-  "branch": "sprint/ext-50-04-permission-role-matrix",
+  "branch": "sprint/ext-50-integration-pilot-performance",
   "ci": {
     "permission_role_matrix_contract": "PASS",
     "pilot_e2e_automated_readiness": "PASS"
@@ -9,7 +9,7 @@
   "runtime_environment": {
     "sandbox": "",
     "bc_version": "",
-    "extension_version": "1.0.2.20"
+    "extension_version": "1.0.2.22"
   },
   "roles": {
     "viewer": {
@@ -77,5 +77,6 @@
       }
     }
   },
-  "decision": "PENDING"
+  "decision": "PENDING",
+  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 baseline; real no-SUPER role matrix remains required."
 }
