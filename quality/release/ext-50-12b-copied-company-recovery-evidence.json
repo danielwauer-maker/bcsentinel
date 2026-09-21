@@ -1,0 +1,34 @@
+{
+  "sprint": "EXT-50-12B",
+  "title": "Copied Company Registration Recovery",
+  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "security_invariants": {
+    "backend_identity_guard_unchanged": true,
+    "force_rebind_added": false,
+    "backend_tenant_delete_added": false,
+    "source_company_mutated_by_recovery": false,
+    "business_data_in_recovery_scope": false,
+    "api_token_deleted_via_secret_management": true,
+    "confirmation_default": false,
+    "admin_only": true
+  },
+  "runtime_target": {
+    "environment": "BC 27 SaaS Sandbox",
+    "company": "BCS-PERF-DEV",
+    "expected_generated_business_records_before": 20000,
+    "expected_generated_customers_before": 6000,
+    "expected_generated_vendors_before": 2000,
+    "expected_generated_items_before": 12000
+  },
+  "manual_checks": [
+    {"id": "COPY-01", "name": "identity mismatch visible", "status": "PENDING"},
+    {"id": "COPY-02", "name": "cancel with No is non-destructive", "status": "PENDING"},
+    {"id": "COPY-03", "name": "local copied registration reset", "status": "PENDING"},
+    {"id": "COPY-04", "name": "old local BCSentinel history removed", "status": "PENDING"},
+    {"id": "COPY-05", "name": "20000 generated business records preserved", "status": "PENDING"},
+    {"id": "COPY-06", "name": "source CRONUS registration unchanged", "status": "PENDING"},
+    {"id": "COPY-07", "name": "BCS-PERF-DEV re-registers as separate tenant", "status": "PENDING"},
+    {"id": "COPY-08", "name": "product access refresh succeeds", "status": "PENDING"}
+  ],
+  "notes": "Do not mark PASS from CI/container evidence. Record real SaaS runtime evidence before changing status."
+}
