@@ -33,7 +33,7 @@ page 53461 "BCS Finding QA Export"
                 Image = Setup;
                 trigger OnAction()
                 begin
-                    SetRegistrationInvite();
+                    ApplyRegistrationInvite();
                 end;
             }
             action(ClearRegistrationInvite)
@@ -43,7 +43,7 @@ page 53461 "BCS Finding QA Export"
                 Image = Delete;
                 trigger OnAction()
                 begin
-                    ClearRegistrationInvite();
+                    RemoveRegistrationInvite();
                 end;
             }
             action(DownloadEvidence)
@@ -73,7 +73,7 @@ page 53461 "BCS Finding QA Export"
             Error(QAOnlyErr);
     end;
 
-    local procedure SetRegistrationInvite()
+    local procedure ApplyRegistrationInvite()
     var
         Setup: Record "DH Setup";
         InviteDialog: Page "BCS Finding QA Invite";
@@ -96,7 +96,7 @@ page 53461 "BCS Finding QA Export"
         Message(InviteStoredMsg);
     end;
 
-    local procedure ClearRegistrationInvite()
+    local procedure RemoveRegistrationInvite()
     var
         Setup: Record "DH Setup";
     begin
