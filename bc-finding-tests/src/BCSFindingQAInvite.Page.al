@@ -1,5 +1,6 @@
 page 53463 "BCS Finding QA Invite"
 {
+    // QA-only dialog; write operations are guarded by the calling evidence page.
     PageType = StandardDialog;
     ApplicationArea = All;
     Caption = 'BCSentinel Finding QA Invite';
