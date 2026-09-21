@@ -1,5 +1,6 @@
 codeunit 53464 "BCS Finding QA Invite Mgt."
 {
+    // QA-only least-privilege writer; every write independently revalidates the SaaS sandbox/company guard.
     Permissions = tabledata "DH Setup" = RM;
 
     procedure SetRegistrationInvite(InviteCode: Text[100])
