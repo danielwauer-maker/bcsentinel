@@ -26,6 +26,26 @@ page 53461 "BCS Finding QA Export"
     {
         area(Processing)
         {
+            action(SetRegistrationInvite)
+            {
+                Caption = 'Set registration invite';
+                ToolTip = 'Stores the temporary registration invite only for BCS-FINDING-QA in a SaaS sandbox.';
+                Image = Setup;
+                trigger OnAction()
+                begin
+                    ApplyRegistrationInvite();
+                end;
+            }
+            action(ClearRegistrationInvite)
+            {
+                Caption = 'Clear registration invite';
+                ToolTip = 'Clears the temporary registration invite from the BCS-FINDING-QA setup.';
+                Image = Delete;
+                trigger OnAction()
+                begin
+                    RemoveRegistrationInvite();
+                end;
+            }
             action(DownloadEvidence)
             {
                 Caption = 'Download group evidence';
@@ -51,6 +71,34 @@ page 53461 "BCS Finding QA Export"
             Error(QAOnlyErr);
         if CompanyName() <> 'BCS-FINDING-QA' then
             Error(QAOnlyErr);
+    end;
+
+    local procedure ApplyRegistrationInvite()
+    var
+        InviteDialog: Page "BCS Finding QA Invite";
+        InviteMgt: Codeunit "BCS Finding QA Invite Mgt.";
+        InviteCode: Text[100];
+    begin
+        RequireQASandbox();
+        Clear(InviteDialog);
+        if InviteDialog.RunModal() <> Action::OK then
+            exit;
+
+        InviteCode := InviteDialog.GetInviteCode();
+        InviteMgt.SetRegistrationInvite(InviteCode);
+        Message(InviteStoredMsg);
+    end;
+
+    local procedure RemoveRegistrationInvite()
+    var
+        InviteMgt: Codeunit "BCS Finding QA Invite Mgt.";
+    begin
+        RequireQASandbox();
+        if not Confirm(ClearInviteQst, false) then
+            exit;
+
+        InviteMgt.ClearRegistrationInvite();
+        Message(InviteClearedMsg);
     end;
 
     local procedure ExportEvidence()
@@ -100,5 +148,8 @@ page 53461 "BCS Finding QA Export"
     end;
 
     var
-        QAOnlyErr: Label 'This read-only export requires the BCS-FINDING-QA company in a SaaS sandbox.';
+        QAOnlyErr: Label 'This QA helper requires the BCS-FINDING-QA company in a SaaS sandbox.';
+        ClearInviteQst: Label 'Clear the temporary registration invite code from BCS-FINDING-QA?';
+        InviteStoredMsg: Label 'The temporary registration invite code was stored for BCS-FINDING-QA.';
+        InviteClearedMsg: Label 'The temporary registration invite code was cleared from BCS-FINDING-QA.';
 }
