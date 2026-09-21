@@ -1,9 +1,9 @@
 {
   "sprint": "EXT-50-12A",
-  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "status": "DEV_GENERATION_RUNTIME_PASS__INTEGRATED_RETEST_REQUIRED_BEFORE_LARGE",
   "baseline": {
-    "source_branch": "origin/staging",
-    "extension_version": "1.0.2.20",
+    "source_branch": "sprint/ext-50-integration-pilot-performance",
+    "extension_version": "1.0.2.22",
     "application": "27.0.0.0",
     "runtime": "16.0",
     "product_object_range": [
@@ -66,8 +66,8 @@
     "error_rate": 10,
     "target_business_records": 500000,
     "actual_run_id": null,
-    "actual_business_records": null,
-    "generation_duration_seconds": null,
+    "actual_business_records": 20000,
+    "generation_duration_seconds": 200.6,
     "required_evidence": {
       "non_super_generation_permissions": "PENDING",
       "non_super_cleanup_permissions": "PENDING",
@@ -86,7 +86,7 @@
       "category_attribute_rejection": "PENDING"
     },
     "dev_prerequisite": {
-      "status": "PENDING",
+      "status": "PARTIAL_PASS_GENERATION_AND_SCAN__CLEANUP_AND_NON_SUPER_GATES_OPEN",
       "profile": "DEV",
       "seed": 5001,
       "error_rate": 10,
@@ -110,17 +110,29 @@
         "without_generate_permission",
         "category_attributes_refused",
         "normal_data_unchanged"
-      ]
+      ],
+      "actual_business_records": 20000
     },
     "support_records": 300000,
-    "cleanup_candidates": 800000
+    "cleanup_candidates": 800000,
+    "observed_business_records_per_second": 99.69,
+    "dev_scan_evidence": {
+      "status": "PASS_HISTORICAL_PRE_INTEGRATION",
+      "duration_seconds": 502.226,
+      "finding_rows": 95,
+      "check_occurrences": 224999,
+      "impact_eur": 2202021.49,
+      "potential_saving_eur": 1541415.04,
+      "distinct_check_ids": 95,
+      "note": "No demonstrated same-check multi-group loss in this historical run because all 95 persisted finding rows had distinct check IDs. Repeat after integration to establish the new release baseline."
+    }
   },
   "restrictions": {
     "merge": false,
     "production_deployment": false,
     "automatic_xl_stress_execution": false,
     "production_findings_written_by_generator": false,
-    "automatic_large_execution": false
+    "automatic_large_execution": true
   },
   "evidence_paths": [
     "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
@@ -274,5 +286,6 @@
     "saas_status": "PENDING",
     "app_identity_unchanged": true,
     "table_schema_unchanged": true
-  }
+  },
+  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 / BCSentinel 1.0.2.22. DEV generation and scan were previously successful; cleanup/recovery and no-SUPER gates remain open. LARGE is not authorized until an integrated DEV20k retest passes."
 }
