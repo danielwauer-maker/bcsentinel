@@ -1,7 +1,7 @@
 {
   "sprint": "EXT-50-12B",
   "title": "Copied Company Registration Recovery",
-  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+  "status": "RUNTIME_VERIFIED_WITH_SUPER__NON_SUPER_GATE_OPEN",
   "security_invariants": {
     "backend_identity_guard_unchanged": true,
     "force_rebind_added": false,
@@ -21,14 +21,46 @@
     "expected_generated_items_before": 12000
   },
   "manual_checks": [
-    {"id": "COPY-01", "name": "identity mismatch visible", "status": "PENDING"},
-    {"id": "COPY-02", "name": "cancel with No is non-destructive", "status": "PENDING"},
-    {"id": "COPY-03", "name": "local copied registration reset", "status": "PENDING"},
-    {"id": "COPY-04", "name": "old local BCSentinel history removed", "status": "PENDING"},
-    {"id": "COPY-05", "name": "20000 generated business records preserved", "status": "PENDING"},
-    {"id": "COPY-06", "name": "source CRONUS registration unchanged", "status": "PENDING"},
-    {"id": "COPY-07", "name": "BCS-PERF-DEV re-registers as separate tenant", "status": "PENDING"},
-    {"id": "COPY-08", "name": "product access refresh succeeds", "status": "PENDING"}
+    {
+      "id": "COPY-01",
+      "name": "identity mismatch visible",
+      "status": "PASS"
+    },
+    {
+      "id": "COPY-02",
+      "name": "cancel with No is non-destructive",
+      "status": "PASS_PREVIOUS_RUNTIME"
+    },
+    {
+      "id": "COPY-03",
+      "name": "local copied registration reset",
+      "status": "PASS"
+    },
+    {
+      "id": "COPY-04",
+      "name": "old local BCSentinel history removed",
+      "status": "PASS"
+    },
+    {
+      "id": "COPY-05",
+      "name": "20000 generated business records preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "COPY-06",
+      "name": "source CRONUS registration unchanged",
+      "status": "NOT_RECONFIRMED_IN_INTEGRATION_AUDIT"
+    },
+    {
+      "id": "COPY-07",
+      "name": "BCS-PERF-DEV re-registers as separate tenant",
+      "status": "PASS"
+    },
+    {
+      "id": "COPY-08",
+      "name": "product access refresh succeeds",
+      "status": "PASS"
+    }
   ],
-  "notes": "Do not mark PASS from CI/container evidence. Record real SaaS runtime evidence before changing status."
+  "notes": "Prior real BC27 SaaS runtime: copied registration reset succeeded with SUPER, generated business data was preserved, and BCS-PERF-DEV re-registered as a separate tenant. Backend identity guard remained intact. Integration onto 1.0.2.22 requires CI plus the shared EXT-50-04 no-SUPER permission gate; source-company non-mutation should be reconfirmed during final integrated runtime pass."
 }
