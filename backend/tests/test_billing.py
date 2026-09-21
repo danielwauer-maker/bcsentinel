@@ -567,7 +567,8 @@ def test_subscription_created_cannot_downgrade_active_monitoring_annual(
 ):
     annual_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_annual_order")
     monthly_tenant = tenant_factory(plan="free", license_status="trial", tenant_id="ten_monthly_regression")
-    period_end = datetime.now(timezone.utc) + timedelta(days=365)\n    monthly_period_end = datetime.now(timezone.utc) + timedelta(days=30)
+    period_end = datetime.now(timezone.utc) + timedelta(days=365)
+    monthly_period_end = datetime.now(timezone.utc) + timedelta(days=30)
 
     annual_updated = client.post(
         "/billing/webhook",
