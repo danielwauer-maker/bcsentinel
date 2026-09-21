@@ -75,8 +75,8 @@ page 53461 "BCS Finding QA Export"
 
     local procedure ApplyRegistrationInvite()
     var
-        Setup: Record "DH Setup";
         InviteDialog: Page "BCS Finding QA Invite";
+        InviteMgt: Codeunit "BCS Finding QA Invite Mgt.";
         InviteCode: Text[100];
     begin
         RequireQASandbox();
@@ -85,27 +85,19 @@ page 53461 "BCS Finding QA Export"
             exit;
 
         InviteCode := InviteDialog.GetInviteCode();
-        if InviteCode = '' then
-            Error(InviteRequiredErr);
-
-        if not Setup.Get('SETUP') then
-            Error(SetupRequiredErr);
-
-        Setup."Registration Invite Code" := InviteCode;
-        Setup.Modify(true);
+        InviteMgt.SetRegistrationInvite(InviteCode);
         Message(InviteStoredMsg);
     end;
 
     local procedure RemoveRegistrationInvite()
     var
-        Setup: Record "DH Setup";
+        InviteMgt: Codeunit "BCS Finding QA Invite Mgt.";
     begin
         RequireQASandbox();
-        if not Setup.Get('SETUP') then
-            Error(SetupRequiredErr);
+        if not Confirm(ClearInviteQst, false) then
+            exit;
 
-        Clear(Setup."Registration Invite Code");
-        Setup.Modify(true);
+        InviteMgt.ClearRegistrationInvite();
         Message(InviteClearedMsg);
     end;
 
@@ -157,8 +149,7 @@ page 53461 "BCS Finding QA Export"
 
     var
         QAOnlyErr: Label 'This QA helper requires the BCS-FINDING-QA company in a SaaS sandbox.';
-        InviteRequiredErr: Label 'Enter a registration invite code.';
-        SetupRequiredErr: Label 'BCSentinel Setup was not found.';
+        ClearInviteQst: Label 'Clear the temporary registration invite code from BCS-FINDING-QA?';
         InviteStoredMsg: Label 'The temporary registration invite code was stored for BCS-FINDING-QA.';
         InviteClearedMsg: Label 'The temporary registration invite code was cleared from BCS-FINDING-QA.';
 }
