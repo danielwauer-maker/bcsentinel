@@ -408,3 +408,25 @@ values to uppercase; the test incorrectly expected lowercase strings. The fixtur
 now requires exact MEDIUM/HIGH and additionally their severity sort values 2/1.
 No product behavior or impact assertion was changed. Corrected test compilation
 has zero errors/warnings. A passing runtime repetition is still required.
+
+
+## Real BC27 SaaS closure evidence – 22.09.2026
+
+The previously outstanding manual SaaS multi-group gate is now **PASS**.
+
+The isolated candidate was exercised from BC27 SaaS company `BCS-FINDING-QA` with product 1.0.2.22 and Finding Identity QA 1.0.0.1. Registration completed through the guarded QA-only temporary invite path; the invite was immediately cleared afterwards. The candidate intentionally had no SMTP configuration, so the post-registration dashboard invitation reported `SMTP not configured`; tenant registration itself completed successfully.
+
+Post-merge PR #41 CI run #17 is green for backend regression, BC27 fresh and BC27 upgrade. The first fresh attempt was cancelled after a hosted BC container hang at `Mount-NAVTenant`; the targeted rerun succeeded without a product-code change, so that event is recorded as CI infrastructure noise rather than a reproduced product defect.
+
+Real scan `RUN_20260922_000001_E6F8A317D080420FBDAFB03FB4A79` completed and synchronized with score 52, 199 checks, 89 persisted finding rows, 5,733 occurrences and EUR 50,289.68 total impact. Exported row impact reconciles exactly to the run impact.
+
+Most importantly, `CUSTOMERS_DUPLICATE_NAME_POST_CITY` persisted two independent rows for the same check:
+
+- finding `a2608ae6-0fb6-f111-aaa8-7ced8d032edd`, group `76EA...91C7`: count 2, EUR 100.00
+- finding `a3608ae6-0fb6-f111-aaa8-7ced8d032edd`, group `755F...0EC1`: count 3, EUR 150.00
+
+The two distinct `finding_id` values and two distinct persisted `group_key` values survived the real BC → HTTPS → backend/PostgreSQL → BC synchronization round trip. Target-check total is 5 occurrences / EUR 250.00.
+
+Therefore DEF-001, DEF-002 and DEF-003 are runtime-verified and closed. DEF-004 remains closed by the automated DE/EN UI/report evidence. EXT-50-12C.3 is **RUNTIME_VERIFIED / READY_TO_CLOSE**. A synthetic manual retry was not created; reorder/retry behavior remains covered by automated tests.
+
+Detailed operator evidence is recorded in `docs/EXT_50_12C_3_MANUAL_RUNTIME_RETEST.md`. LARGE remains blocked pending integration/closure of copied-company recovery, performance-generator cleanup/recovery, and no-SUPER permission gates.
