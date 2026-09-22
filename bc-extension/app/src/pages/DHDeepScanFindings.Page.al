@@ -49,7 +49,7 @@ page 53131 "DH Deep Scan Findings"
                 field(FreeAffectedCount; Rec."Affected Count")
                 {
                     ApplicationArea = All;
-                    Caption = 'Affected Records';
+                    Caption = 'Check Occurrences';
                     ToolTip = 'Shows the total affected record count aggregated by category and severity.';
                     Visible = ShowFreeSummary;
                 }
@@ -57,7 +57,7 @@ page 53131 "DH Deep Scan Findings"
                 field("Affected Count"; Rec."Affected Count")
                 {
                     ApplicationArea = All;
-                    Caption = 'Affected Records';
+                    Caption = 'Check Occurrences';
                     ToolTip = 'Specifies how many records are affected by the finding.';
                     Visible = ShowPremiumDetails;
 

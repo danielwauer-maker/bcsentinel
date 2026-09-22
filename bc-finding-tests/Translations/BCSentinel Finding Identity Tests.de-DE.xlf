@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="BCSentinel Finding Identity Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1976473312 - NamedType 1407561433" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finding identity assertion failed.</source><target state="translated">Die Prüfung der Finding-Identität ist fehlgeschlagen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCS Finding Identity Tests - NamedType AssertionErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Finding QA Evidence</source><target state="translated">BCSentinel Finding-QA-Nachweis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - NamedType 4218792723" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This read-only export requires the BCS-FINDING-QA company in a SaaS sandbox.</source><target state="translated">Dieser lesende Export erfordert den Mandanten BCS-FINDING-QA in einer SaaS-Sandbox.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - NamedType QAOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Control 1128560290 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the persisted finding row count.</source><target state="translated">Zeigt die Anzahl gespeicherter Finding-Zeilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Control Findings - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Control 1691657080 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the selected scan run.</source><target state="translated">Zeigt den ausgewählten Scanlauf.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Control RunId - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Control 513339096 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the scan status.</source><target state="translated">Zeigt den Scanstatus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Action 285345209 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Downloads finding identities, counts and impacts without changing the scan.</source><target state="translated">Lädt Finding-Identitäten, Trefferzahlen und Auswirkungen herunter, ohne den Scan zu ändern.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Action DownloadEvidence - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1287474917 - Action 285345209 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download group evidence</source><target state="translated">Gruppennachweis herunterladen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCS Finding QA Export - Action DownloadEvidence - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 4214535273 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finding QA evidence</source><target state="translated">Finding-QA-Nachweis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCS FINDING QA - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

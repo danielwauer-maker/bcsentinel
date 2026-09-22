@@ -64,6 +64,8 @@ def _resolve_subscription_status_update(current_status: str | None, incoming_sta
     normalized_current = _normalize_subscription_status(current_status)
     normalized_incoming = _normalize_subscription_status(incoming_status)
 
+    # Subscription webhooks can arrive out of order. A late created/incomplete
+    # event must never downgrade an already active/trialing subscription.
     if normalized_current in ACTIVE_SUBSCRIPTION_STATUSES and normalized_incoming in PENDING_SUBSCRIPTION_STATUSES:
         return normalized_current
 

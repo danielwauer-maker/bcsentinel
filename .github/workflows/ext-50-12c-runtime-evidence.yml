@@ -1,0 +1,41 @@
+name: EXT-50-12C Runtime Evidence Contracts
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'scripts/*ext_50_12c.py'
+      - 'backend/tests/test_ext_50_12c*.py'
+      - 'quality/release/ext-50-12c*.json'
+      - 'bc-extension/app/src/**'
+      - 'backend/app/routers/scans.py'
+      - 'backend/app/routers/analytics.py'
+      - 'backend/app/services/impact_service.py'
+      - 'bc-diagnostics/**'
+      - 'bc-extension/scripts/New-BCBuildWorkspace.ps1'
+      - '.github/workflows/ext-50-12c-runtime-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - name: Static and offline evidence contracts (not BC runtime)
+        working-directory: backend
+        run: >-
+          python -m pytest -c pytest.ini --noconftest -p no:cacheprovider -q
+          tests/test_ext_50_12c_detection_accuracy.py
+          tests/test_ext_50_12c_runtime_reconciliation.py
+          tests/test_ext_50_12c_readonly_export.py
+          tests/test_ext_50_12c_real_evidence.py
+          --junitxml=../.build/ext-50-12c-contracts.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ext-50-12c-offline-contracts
+          path: .build/ext-50-12c-contracts.xml

@@ -1,0 +1,291 @@
+{
+  "sprint": "EXT-50-12A",
+  "status": "DEV_GENERATION_RUNTIME_PASS__INTEGRATED_RETEST_REQUIRED_BEFORE_LARGE",
+  "baseline": {
+    "source_branch": "sprint/ext-50-integration-pilot-performance",
+    "extension_version": "1.0.2.22",
+    "application": "27.0.0.0",
+    "runtime": "16.0",
+    "product_object_range": [
+      53100,
+      53202
+    ],
+    "qa_object_range": [
+      53400,
+      53449
+    ],
+    "protected_pr": 37,
+    "commit": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3"
+  },
+  "generator_version": "1.0.0.1",
+  "schema_version": 1,
+  "profiles": {
+    "DEV": {
+      "customers": 6000,
+      "vendors": 2000,
+      "items": 12000,
+      "business_records": 20000
+    },
+    "LARGE": {
+      "customers": 150000,
+      "vendors": 50000,
+      "items": 300000,
+      "business_records": 500000
+    },
+    "XL": {
+      "customers": 600000,
+      "vendors": 200000,
+      "items": 1200000,
+      "business_records": 2000000
+    },
+    "STRESS": {
+      "customers": 1500000,
+      "vendors": 500000,
+      "items": 3000000,
+      "business_records": 5000000
+    }
+  },
+  "automated": {
+    "source_contracts": "PASS: 20 tests",
+    "extension_regression_contracts": "PASS: 24 existing tests; combined suite 44 tests",
+    "source_uniqueness_and_gl_contracts": "PASS: 109 product objects; GL-01C 7 contracts; GL-01F passed",
+    "qa_bc27_compile_codecop_ptecop": "PASS: 1.0.0.1, zero warnings/errors; 8 AL tests compiled",
+    "product_bc27_compile_codecop_ptecop": "PASS_WITH_EXISTING_WARNINGS: unchanged product sources",
+    "al_behavior_tests": "COMPILED: 8; CI execution pending",
+    "ci": "PENDING: 1.0.0.1 fresh install, upgrade and AL behavior execution",
+    "billing_date_regression": "PASS: reproduced expired fixed-date fixture; all assertions preserved; focused test and 20 billing tests pass",
+    "full_backend_regression": "PENDING for runtime fix; previous 459 passed, 7 skipped",
+    "postgresql_gate": "PENDING for runtime fix; previous 7 passed",
+    "qa_bc27_ci_compile_install": "PENDING for 1.0.0.1",
+    "warning_report_parser": "PASS: raw compiler and GitHub annotation fixtures; archived transcript correctly yields 270 baseline warnings",
+    "translations": "PASS: 115 EN and DE units match compiler-generated sources"
+  },
+  "runtime": {
+    "profile": "LARGE",
+    "seed": 5001,
+    "error_rate": 10,
+    "target_business_records": 500000,
+    "actual_run_id": null,
+    "actual_business_records": 20000,
+    "generation_duration_seconds": 200.6,
+    "required_evidence": {
+      "non_super_generation_permissions": "PENDING",
+      "non_super_cleanup_permissions": "PENDING",
+      "production_and_company_guard": "PENDING",
+      "dev_resume_cancel_failure_rollback": "PENDING",
+      "al_behavior_tests": "PENDING",
+      "large_completed_exact_counts": "PENDING",
+      "bc_remains_responsive": "PENDING",
+      "tracking_identity": "PENDING",
+      "cleanup_preview": "PENDING",
+      "cleanup_only_generated_data": "PENDING",
+      "changed_renamed_replaced_referenced_records_refused": "PENDING",
+      "normal_records_and_setup_unchanged": "PENDING",
+      "normal_deep_scan_and_findings": "PENDING",
+      "dev_completed_and_cleaned_before_large": "PENDING",
+      "category_attribute_rejection": "PENDING"
+    },
+    "dev_prerequisite": {
+      "status": "PARTIAL_PASS_GENERATION_AND_SCAN__CLEANUP_AND_NON_SUPER_GATES_OPEN",
+      "profile": "DEV",
+      "seed": 5001,
+      "error_rate": 10,
+      "customers": 6000,
+      "vendors": 2000,
+      "items": 12000,
+      "business_records": 20000,
+      "support_records": 12000,
+      "cleanup_candidates": 32000,
+      "actual_run_id": null,
+      "required_cases": [
+        "completed_exact_counts",
+        "non_super_generation_and_cleanup",
+        "interruption_resume",
+        "failed_batch_rollback",
+        "partial_cleanup",
+        "changed_record_refused",
+        "foreign_reference_refused",
+        "foreign_uom_refused",
+        "without_cleanup_permission",
+        "without_generate_permission",
+        "category_attributes_refused",
+        "normal_data_unchanged"
+      ],
+      "actual_business_records": 20000
+    },
+    "support_records": 300000,
+    "cleanup_candidates": 800000,
+    "observed_business_records_per_second": 99.69,
+    "dev_scan_evidence": {
+      "status": "PASS_HISTORICAL_PRE_INTEGRATION",
+      "duration_seconds": 502.226,
+      "finding_rows": 95,
+      "check_occurrences": 224999,
+      "impact_eur": 2202021.49,
+      "potential_saving_eur": 1541415.04,
+      "distinct_check_ids": 95,
+      "note": "No demonstrated same-check multi-group loss in this historical run because all 95 persisted finding rows had distinct check IDs. Repeat after integration to establish the new release baseline."
+    }
+  },
+  "restrictions": {
+    "merge": false,
+    "production_deployment": false,
+    "automatic_xl_stress_execution": false,
+    "production_findings_written_by_generator": false,
+    "automatic_large_execution": false
+  },
+  "evidence_paths": [
+    "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
+    ".build/ext-50-12a/contracts.xml",
+    ".build/bc-extension/PerformanceQA/compile-final.log",
+    ".build/bc-extension/Ext5012AProduct/compile-cops-final.log",
+    ".build/ext-50-12a/reviewed-ci-diagnostics/al-compile-transcript.txt",
+    ".build/ext-50-12a/reviewed-ci-diagnostics/bc-container.evtx",
+    ".build/ext-50-12a/final-pilot-ci/backend/pilot-e2e-junit.xml",
+    ".build/ext-50-12a/final-pilot-ci/backend/pilot-e2e-postgres-junit.xml",
+    ".build/ext-50-12a/runtime-fix-contracts.xml",
+    ".build/bc-extension/PerformanceQA/compile-runtime-fix.log",
+    ".build/bc-extension/Ext5012AProduct/compile-runtime-fix-cops.log",
+    ".build/bc-extension/Ext5012AProduct/compile-runtime-fix-appsource.log"
+  ],
+  "product_appsource_baseline": {
+    "status": "EXPECTED_BASELINE_FAILURE",
+    "diagnostics": {
+      "AS0092": 1,
+      "AS0051": 3,
+      "AS0084": 1
+    }
+  },
+  "product_codecop_warning_counts": {
+    "AA0215": 23,
+    "AA0470": 4,
+    "AA0137": 19,
+    "AA0228": 20,
+    "AA0225": 9,
+    "AA0218": 36,
+    "AA0202": 1,
+    "AA0194": 1,
+    "AA0206": 3,
+    "AA0175": 2,
+    "AA0217": 14,
+    "AA0021": 25,
+    "AA0205": 6,
+    "AA0018": 24,
+    "AA0005": 16,
+    "AA0139": 67
+  },
+  "pr": {
+    "number": 38,
+    "url": "https://github.com/danielwauer-maker/bcsentinel/pull/38",
+    "base": "staging",
+    "branch": "sprint/ext-50-12a-test-data-generator",
+    "merged": false
+  },
+  "qa_local_package": {
+    "path": ".build/bc-extension/PerformanceQA/QA.bc27.1.0.0.1.initial.app",
+    "sha256": "642de8251b471403ee80de233bcb88c4705e23a1d5100a28157bae97fd0be77f",
+    "compiler": "17.0.34.45391",
+    "symbol_major": 27,
+    "cop_errors": 0,
+    "cop_warnings": 0
+  },
+  "ci_evidence": {
+    "status": "PENDING_RUNTIME_FIX_CI"
+  },
+  "static_review": {
+    "status": "COMPLETE_WITH_RUNTIME_GATES_OPEN",
+    "code_commit": "573d6fcf37385acf26c876e49295afad47c56453",
+    "category_inheritance": "Rejected for own and ancestor attributes at run creation and before each batch",
+    "cleanup_scope": "Exact ownership plus identity/timestamp/reference guards; isolated QA baseline and single cleanup operator required",
+    "limitations": [
+      "Unknown third-party GUID/text references or subscriber effects require separate audit",
+      "Actual generation/cleanup performance unmeasured",
+      "Changed records have no force-cleanup path",
+      "Standard BC non-SUPER permission dependencies not yet verified in SaaS"
+    ]
+  },
+  "previous_automated_snapshot": {
+    "ci_evidence": {
+      "reviewed_code_commit": "573d6fcf37385acf26c876e49295afad47c56453",
+      "pilot_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164219",
+      "contracts_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164196",
+      "al_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370",
+      "al_status": "PASS",
+      "root_fix_first_success_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35038536708",
+      "failed_before_fix_run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35010288574",
+      "helper_version": "6.1.18",
+      "host_powershell": "7.6.5",
+      "bc_artifact": "27.5.46862.54684/w1",
+      "bc_platform": "27.0.54564.0"
+    },
+    "qa_install_package": {
+      "workflow": "BC AL Compile and Cop Gate",
+      "artifact": "bc-al-compile-output",
+      "artifact_url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35039164370/artifacts/10425301221",
+      "filename": "BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app",
+      "local_path": ".build/ext-50-12a/reviewed-ci-apps/BCSentinel Analytics - Daniel Wauer_BCSentinel Performance QA_1.0.0.0.app",
+      "sha256": "f18afc28f1a33dfd5ccde9245ce2f076785e18e0a688039f07704536959877d1",
+      "extension_name": "BCSentinel Performance QA",
+      "version": "1.0.0.0",
+      "product_dependency": null,
+      "product_for_scan_validation": "BCSentinel 1.0.2.20",
+      "permission_sets": [
+        "BCP GENERATE",
+        "BCP CLEANUP"
+      ],
+      "additional_standard_bc_permissions": "Required; exact non-SUPER SaaS matrix pending DEV validation"
+    }
+  },
+  "runtime_findings": [
+    {
+      "id": "EXT-50-12A-RUNTIME-001",
+      "source": "User-reported actual BC 27 SaaS sandbox test",
+      "environment": "BC 27 SaaS sandbox",
+      "company": "BCS-PERF-DEV",
+      "company_origin": "CRONUS DE copy; retained as foreign-data cleanup baseline",
+      "installed_version": "1.0.0.0",
+      "installation": "PASS_USER_REPORTED",
+      "sandbox_company_guard": "PASS_USER_REPORTED",
+      "expected": "DEV / 5001 / 10 / 1000 / 6000 / 2000 / 12000",
+      "actual": "Seven source-bound profile/default/target controls blank and disabled; three source selectors worked. After safety confirmation CreateRun rejected invalid QA configuration; no valid run created.",
+      "root_cause": "OnOpenPage assigned only the record buffer; temporary SourceTable had no inserted row. Request defaults were discarded/not available to source-bound controls. No initial SetProfile or profile OnValidate existed.",
+      "fix": "Materialize a validated temporary request through Policy.InitializeTemporaryRequest; profile OnValidate calls central SetProfile; only Custom targets editable; preserve guards and CreateRun validation.",
+      "fix_version": "1.0.0.1",
+      "status": "OPEN_RETEST_REQUIRED",
+      "runtime_retest": "PENDING",
+      "sources": {
+        "Customer": "QA-SOURCE-C",
+        "Vendor": "QA-SOURCE-V",
+        "Item": "QA-SOURCE-I",
+        "customer_vendor_setup": {
+          "country": "DE",
+          "gen_bus_posting_group": "INLAND",
+          "vat_bus_posting_group": "INLAND",
+          "posting_group": "INLAND",
+          "payment_terms": "1M(8T)",
+          "payment_method": "BANK"
+        },
+        "item_setup": {
+          "base_uom": "STÜCK",
+          "gen_prod_posting_group": "HANDEL",
+          "vat_prod_posting_group": "VAT19",
+          "inventory_posting_group": "WEITERVERK",
+          "costing_method": "FIFO",
+          "category": "QA-SOURCE",
+          "category_parent": null,
+          "category_attributes": false
+        }
+      }
+    }
+  ],
+  "upgrade_gate": {
+    "from": "1.0.0.0",
+    "to": "1.0.0.1",
+    "baseline_commit": "78dc59d1266caa2d1175ad79926482e18a2b0eb6",
+    "container_status": "PENDING",
+    "saas_status": "PENDING",
+    "app_identity_unchanged": true,
+    "table_schema_unchanged": true
+  },
+  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 / BCSentinel 1.0.2.22. DEV generation and scan were previously successful; cleanup/recovery and no-SUPER gates remain open. LARGE is not authorized until an integrated DEV20k retest passes."
+}

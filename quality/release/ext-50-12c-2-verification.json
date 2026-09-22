@@ -1,0 +1,72 @@
+{
+  "sprint": "EXT-50-12C.2",
+  "gate": "READY_FOR_EXT_50_12C_REPAIR",
+  "large": "BLOCKED",
+  "evidence_sha256": "4914706b1f8d259a0c46e4002a7dda20ac347be08b5bee5c46226504e4ba179f",
+  "runtime": "Real BC SaaS export; no new scan, BC writes, cleanup or deployment",
+  "product_diff_against_origin_staging": "EMPTY",
+  "pipeline_source_diff_against_pr39_head": "EMPTY for runner, check catalog, impact service, sync and analytics",
+  "offline_contracts": {
+    "PASS": 60,
+    "XFAIL": 3,
+    "FAIL": 0,
+    "junit": ".build/ext-50-12c-2-offline.xml"
+  },
+  "api_persistence_dashboard": {
+    "PASS": 3,
+    "FAIL": 0,
+    "junit": ".build/ext-50-12c-2-sync.xml",
+    "scope": "Isolated repository test database; two synthetic group orders plus real95-row fixture replay; not live SaaS backend"
+  },
+  "full_backend": {
+    "PASS": 501,
+    "FAIL": 1,
+    "SKIP": 7,
+    "XFAIL": 3,
+    "junit": ".build/ext-50-12c-2-backend.xml",
+    "log": ".build/ext-50-12c-2-backend.log",
+    "note": "Collected before final two additional tests; those pass in focused runs above."
+  },
+  "baseline_failure": {
+    "test": "tests/test_billing.py::test_subscription_created_cannot_downgrade_active_monitoring_annual",
+    "cause": "Existing fixed monthly period ending 2026-08-15 is past; fixture unchanged from staging",
+    "prior_ci": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35156089021"
+  },
+  "registration_isolation": "Full suite includes registration40PASS/2PG-SKIP, tenant-named48PASS/1PG-SKIP, isolation-named1PASS; overlapping name subsets, not additive",
+  "postgres": "7 local PostgreSQL-specific tests SKIP; not replaced with SQLite; await dedicated Pilot PG CI results",
+  "al_diagnostic_compile": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 0,
+    "info_AA0247": 3,
+    "compiler": "17.0.34.45391",
+    "analyzers": [
+      "CodeCop",
+      "PerTenantExtensionCop"
+    ],
+    "log": ".build/diagnostics-12c2-compile.log"
+  },
+  "al_contracts": {
+    "source_uniqueness": "PASS109 product objects",
+    "GL_exceptions": "PASS7",
+    "GL_first_run_UX": "PASS"
+  },
+  "prior_product_al_ci": {
+    "run": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/35156089028",
+    "compile": "PASS;1.0.2.20 package created with existing warnings",
+    "gate": "FAIL during container installation; generic target-of-invocation exception, underlying cause not established",
+    "not_diagnostic_package": "CI builds unchanged product, not bc-diagnostics"
+  },
+  "ci_current_head": "Pending push/checks; see PR40 check rollup for final status",
+  "known_xfails": "Two intermediate check-counter metadata drifts overridden before persistence; one duplicate marker persistence contract. Assertions unchanged.",
+  "unresolved_gates": [
+    "LARGE",
+    "unrestricted customer pilot",
+    "50-customer readiness",
+    "grouped BC runtime repair regression",
+    "recovery integration",
+    "permission matrix",
+    "cleanup safety",
+    "baseline CI failures"
+  ]
+}

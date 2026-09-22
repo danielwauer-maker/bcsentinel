@@ -6,6 +6,7 @@ on:
       - staging
     paths:
       - "bc-extension/**"
+      - "bc-performance/**"
       - "backend/app/core/product_model.py"
       - "backend/app/core/runtime_product_policy.py"
       - "backend/app/services/access_control_service.py"
@@ -20,19 +21,32 @@ permissions:
 
 jobs:
   compile:
-    name: BC 27 AL compile with CodeCop and PTECop
+    name: BC 27 AL compile with CodeCop and PTECop (${{ matrix.deployment }})
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment: [fresh, upgrade]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare immutable QA 1.0.0.0 upgrade source
+        if: matrix.deployment == 'upgrade'
+        shell: pwsh
+        run: |
+          git fetch --no-tags --depth=1 origin 78dc59d1266caa2d1175ad79926482e18a2b0eb6
+          if ($LASTEXITCODE -ne 0) { throw "Failed to fetch QA upgrade baseline." }
+          ./bc-extension/scripts/New-BCBuildWorkspace.ps1 -Profile PerformanceQABaseline
+
       - name: Install pinned BcContainerHelper
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $moduleVersion = "6.1.14"
+          # 6.1.18 avoids the known BC 27 PowerShell 7 remote-session assembly loader failure.
+          $moduleVersion = "6.1.18"
           $moduleRoot = Join-Path $HOME "Documents\PowerShell\Modules\BcContainerHelper\$moduleVersion"
           $packagePath = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.nupkg"
           $packageZip = Join-Path $env:RUNNER_TEMP "BcContainerHelper.$moduleVersion.zip"
@@ -62,7 +76,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
           $artifactUrl = Get-BCArtifactUrl -type Sandbox -country w1 -version 27 -select Latest
           if ([string]::IsNullOrWhiteSpace($artifactUrl)) {
             throw "No BC 27 sandbox artifact could be resolved."
@@ -74,7 +88,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          Import-Module BcContainerHelper -RequiredVersion 6.1.14 -Force
+          Import-Module BcContainerHelper -RequiredVersion 6.1.18 -Force
 
           $diagnosticsFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-diagnostics"
           $transcriptPath = Join-Path $diagnosticsFolder "al-compile-transcript.txt"
@@ -87,22 +101,84 @@ jobs:
 
           Start-Transcript -Path $transcriptPath -Force | Out-Null
           try {
+            $previousApps = @()
+            if ("${{ matrix.deployment }}" -eq "upgrade") {
+              # Build/install the immutable baseline in its own disposable container.
+              # No dependency on an expiring GitHub artifact or a production environment.
+              $baselineArtifacts = Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\PerformanceQABaseline\artifacts"
+              Run-AlPipeline `
+                -pipelineName "BCSentinel-QA-Baseline" `
+                -containerName "bcsentinel-qa-baseline" `
+                -baseFolder $env:GITHUB_WORKSPACE `
+                -appFolders @((Join-Path $env:GITHUB_WORKSPACE ".build\bc-extension\PerformanceQABaseline\bc-performance")) `
+                -artifact "${{ steps.artifact.outputs.url }}" `
+                -credential $credential `
+                -buildArtifactFolder $baselineArtifacts `
+                -doNotRunTests `
+                -enableCodeCop `
+                -enablePerTenantExtensionCop `
+                -containerEventLogFile (Join-Path $diagnosticsFolder "bc-baseline.evtx") `
+                -failOn error `
+                -keepContainer:$false
+              $previousApps = @(Get-ChildItem (Join-Path $baselineArtifacts "Apps") -Filter '*_BCSentinel Performance QA_1.0.0.0.app' -File | ForEach-Object FullName)
+              if ($previousApps.Count -ne 1) { throw "Expected exactly one QA 1.0.0.0 upgrade baseline package." }
+            }
             Run-AlPipeline `
               -pipelineName "BCSentinel-BC-Gate" `
               -containerName "bcsentinel-bc-gate" `
               -baseFolder $env:GITHUB_WORKSPACE `
-              -appFolders @($appFolder) `
+              -appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE "bc-performance")) `
               -artifact "${{ steps.artifact.outputs.url }}" `
               -credential $credential `
+              -previousApps $previousApps `
               -doNotRunTests `
               -enableCodeCop `
               -enablePerTenantExtensionCop `
               -rulesetFile $rulesetFile `
+              -containerEventLogFile (Join-Path $diagnosticsFolder "bc-container.evtx") `
               -failOn error `
-              -keepContainer:$false
+              -keepContainer:$true
+
+            # Targeted real AL execution after the unchanged publish/install or upgrade gate.
+            Import-TestToolkitToBcContainer -containerName "bcsentinel-bc-gate" -credential $credential -includeTestRunnerOnly
+            $resultsFile = Join-Path $diagnosticsFolder "qa-al-tests.xml"
+            $passed = Run-TestsInBcContainer `
+              -containerName "bcsentinel-bc-gate" `
+              -credential $credential `
+              -extensionId "1bf95437-93b6-4329-bc49-40585f1272a0" `
+              -testCodeunit "53407" `
+              -JUnitResultFileName $resultsFile `
+              -returnTrueIfAllPassed `
+              -detailed
+            if (-not $passed) { throw "QA AL behavior tests failed." }
+            [xml]$results = Get-Content $resultsFile -Raw
+            $cases = @($results.SelectNodes("//testcase"))
+            if ($cases.Count -ne 8 -or $results.SelectNodes("//testcase/failure|//testcase/error|//testcase/skipped").Count -ne 0) {
+              throw "Expected all eight QA AL tests to execute and pass without skips."
+            }
+            $installedQA = @(Get-BcContainerAppInfo -containerName "bcsentinel-bc-gate" -tenant default -tenantSpecificProperties |
+              Where-Object { "$($_.AppId)" -eq "1bf95437-93b6-4329-bc49-40585f1272a0" -and $_.IsInstalled })
+            if ($installedQA.Count -ne 1 -or "$($installedQA[0].Version)" -ne "1.0.0.1") {
+              throw "QA 1.0.0.1 was not installed after the deployment gate."
+            }
+            "${{ matrix.deployment }}: QA 1.0.0.1 installed; eight AL tests passed." |
+              Set-Content (Join-Path $diagnosticsFolder "qa-deployment-result.txt")
           }
           finally {
-            Stop-Transcript | Out-Null
+            try {
+              if (Test-BcContainer -containerName "bcsentinel-bc-gate") {
+                try {
+                  $eventLog = Get-BcContainerEventLog -containerName "bcsentinel-bc-gate" -doNotOpen
+                  Copy-Item $eventLog (Join-Path $diagnosticsFolder "bc-container-after-tests.evtx") -Force
+                }
+                finally {
+                  Remove-BcContainer -containerName "bcsentinel-bc-gate"
+                }
+              }
+            }
+            finally {
+              Stop-Transcript | Out-Null
+            }
           }
 
       - name: Generate AL warning report
@@ -123,8 +199,10 @@ jobs:
             exit 0
           }
 
+          # BcContainerHelper emits GitHub annotations as well as raw compiler lines.
+          $warningPattern = '(?i)(?:\bwarning\s+|::warning[^\r\n]*?::)((?:AA|AL)[0-9]{4})\b'
           $warningLines = Get-Content $transcriptPath |
-            Where-Object { $_ -match '(?i)\bwarning\s+(AA|AL)[0-9]{4}\b' } |
+            Where-Object { $_ -match $warningPattern } |
             ForEach-Object { $_.Trim() } |
             Sort-Object -Unique
 
@@ -136,7 +214,7 @@ jobs:
           }
 
           $codes = foreach ($line in $warningLines) {
-            if ($line -match '(?i)\bwarning\s+((?:AA|AL)[0-9]{4})\b') {
+            if ($line -match $warningPattern) {
               $Matches[1].ToUpperInvariant()
             }
           }
@@ -186,7 +264,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bc-al-compile-output
+          name: ${{ matrix.deployment == 'fresh' && 'bc-al-compile-output' || 'bc-al-upgrade-output' }}
           path: artifacts/bc-app/*.app
           if-no-files-found: error
           retention-days: 14
@@ -195,7 +273,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bc-al-warning-diagnostics
+          name: ${{ matrix.deployment == 'fresh' && 'bc-al-warning-diagnostics' || 'bc-al-upgrade-diagnostics' }}
           path: artifacts/bc-diagnostics/*
           if-no-files-found: error
           retention-days: 14

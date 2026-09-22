@@ -14,12 +14,12 @@ def _json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_target_extension_baseline_is_release_1_0_2_20() -> None:
+def test_target_extension_is_repair_1_0_2_22() -> None:
     app = _json(APP_JSON)
     assert app["id"] == "8c7f0f9c-0c1a-4a4e-9c6f-111111111111"
     assert app["name"] == "BCSentinel"
     assert app["publisher"] == "BCSentinel Analytics - Daniel Wauer"
-    assert app["version"] == "1.0.2.20"
+    assert app["version"] == "1.0.2.22"
     assert app["runtime"] == "16.0"
     assert app["platform"] == "27.0.0.0"
     assert app["application"] == "27.0.0.0"

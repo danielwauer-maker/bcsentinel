@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 from typing import List, Optional
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -19,6 +19,7 @@ from app.security.tenant import (
     load_authenticated_tenant,
     require_tenant_headers,
 )
+from app.services.finding_identity_service import resolve_finding_ids
 from app.services.impact_service import (
     apply_commercials_to_scan,
     calculate_scan_commercials,
@@ -68,6 +69,7 @@ class DataProfilePayload(BaseModel):
 
 
 class ScanIssuePayload(BaseModel):
+    finding_id: Optional[UUID] = None
     code: str
     category: Optional[str] = None
     title: str
@@ -349,11 +351,11 @@ def sync_scan(
         tenant_features = get_tenant_features(db, tenant)
         require_tenant_feature(db, tenant, "scan_sync")
         commercials = _calculate_commercials(payload, db)
-        recalculated_issues = list(
-            {str(issue["code"]): issue for issue in commercials["issues"]}.values()
-        )
+        recalculated_issues = commercials["issues"]
+        for issue, finding_id in zip(recalculated_issues, resolve_finding_ids(payload.issues)):
+            issue["finding_id"] = finding_id
 
-        existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id))
+        existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id).with_for_update())
 
         if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
@@ -378,7 +380,7 @@ def sync_scan(
                 raise HTTPException(status_code=402, detail=str(exc)) from exc
             except (ScanStartConflictError, FreeScanAlreadyUsedError) as exc:
                 raise HTTPException(status_code=409, detail=str(exc)) from exc
-            existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id))
+            existing_scan = db.scalar(select(Scan).where(Scan.scan_id == payload.scan_id).with_for_update())
 
         scan = existing_scan
         scan_created_without_start = False
@@ -423,7 +425,7 @@ def sync_scan(
             scan.summary_rating = payload.rating or ""
             scan.enabled_modules = _normalize_enabled_modules(payload.enabled_modules)
 
-            db.query(ScanIssueRecord).filter(ScanIssueRecord.scan_id == payload.scan_id).delete()
+
 
         apply_commercials_to_scan(scan, commercials)
 
@@ -458,21 +460,31 @@ def sync_scan(
             {str(issue["code"]) for issue in recalculated_issues},
             tenant.preferred_language,
         )
+        existing_issues = {issue.finding_id: issue for issue in db.scalars(
+            select(ScanIssueRecord).where(ScanIssueRecord.scan_id == payload.scan_id)
+        )}
+        incoming_ids = set()
         for issue in recalculated_issues:
+            finding_id = str(issue["finding_id"])
+            incoming_ids.add(finding_id)
+            stored = existing_issues.get(finding_id)
+            if stored is not None and stored.code != str(issue["code"]):
+                raise HTTPException(status_code=409, detail="Finding identity cannot change check within a scan.")
+            if stored is None:
+                stored = ScanIssueRecord(scan_id=payload.scan_id, finding_id=finding_id, code=str(issue["code"]))
+                db.add(stored)
             catalog_text = catalog_texts[str(issue["code"])]
-            db.add(
-                ScanIssueRecord(
-                    scan_id=payload.scan_id,
-                    code=str(issue["code"]),
-                    category=(str(issue.get("category")).strip() or None) if issue.get("category") is not None else None,
-                    title=catalog_text.title,
-                    severity=str(issue["severity"]),
-                    affected_count=_safe_int(issue["affected_count"]),
-                    premium_only=bool(issue["premium_only"]),
-                    recommendation_preview=catalog_text.recommendation,
-                    estimated_impact_eur=_safe_float(issue["estimated_impact_eur"]),
-                )
-            )
+            stored.category = (str(issue.get("category")).strip() or None) if issue.get("category") is not None else None
+            stored.title = catalog_text.title
+            stored.severity = str(issue["severity"])
+            stored.affected_count = _safe_int(issue["affected_count"])
+            stored.premium_only = bool(issue["premium_only"])
+            stored.recommendation_preview = catalog_text.recommendation
+            stored.estimated_impact_eur = _safe_float(issue["estimated_impact_eur"])
+        # Sync is an atomic complete snapshot, as before; other scans are untouched.
+        for finding_id, stored in existing_issues.items():
+            if finding_id not in incoming_ids:
+                db.delete(stored)
 
         db.flush()
         run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == payload.scan_id))

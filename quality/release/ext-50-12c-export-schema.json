@@ -1,0 +1,114 @@
+{
+  "schema_version": "number",
+  "evidence_kind": "string",
+  "context": {
+    "company": "string",
+    "scan_id": "string",
+    "generator_run_id": "number",
+    "exported_at_utc": "string",
+    "bcsentinel_version": "string",
+    "generator_version": "string"
+  },
+  "exports": {
+    "bc": {
+      "company": "string",
+      "scan_id": "string",
+      "complete": "boolean",
+      "exported_row_count": "number",
+      "row_order": "string",
+      "rows": [
+        {
+          "id": "string",
+          "scan_id": "string",
+          "code": "string",
+          "check_name": "string",
+          "category": "string",
+          "module": "string",
+          "severity": "string",
+          "affected_count": "number",
+          "impact_eur": "number",
+          "aggregation_key_available": "boolean",
+          "aggregation_note": "string",
+          "table_id_if_direct_scenario": "number",
+          "field_if_direct_scenario": "string",
+          "field_metadata_note": "string"
+        }
+      ]
+    }
+  },
+  "run_snapshot": {
+    "run_entry_no": "number",
+    "issues_count": "number",
+    "checks_count": "number",
+    "affected_records": "number",
+    "exported_occurrences": "number",
+    "exported_row_impact_eur": "number",
+    "score": "number",
+    "estimated_loss_eur": "number",
+    "potential_saving_eur": "number",
+    "started_at": "string",
+    "finished_at": "string",
+    "status": "string",
+    "synchronization": "string",
+    "module_scores": {
+      "System": "number",
+      "Finance": "number",
+      "Sales": "number",
+      "Purchasing": "number",
+      "Inventory": "number",
+      "CRM": "number",
+      "Manufacturing": "number",
+      "Service": "number",
+      "Jobs": "number",
+      "HR": "number"
+    }
+  },
+  "current_setup_not_scan_time_snapshot": {
+    "System": "boolean",
+    "Finance": "boolean",
+    "Sales": "boolean",
+    "Purchasing": "boolean",
+    "Inventory": "boolean",
+    "CRM": "boolean",
+    "Manufacturing": "boolean",
+    "Service": "boolean",
+    "Jobs": "boolean",
+    "HR": "boolean"
+  },
+  "generator_namespace_hint": "string",
+  "scenario_observations": {
+    "CUSTOMERS_MISSING_EMAIL": {
+      "generated_count": "number",
+      "matching_owned_count": "number",
+      "excluded_matching_owned_count": "number",
+      "non_owned_nonexcluded_matches": "number",
+      "missing_owned_records": "number",
+      "modified_since_generation": "number"
+    },
+    "VENDORS_MISSING_PHONE": {
+      "generated_count": "number",
+      "matching_owned_count": "number",
+      "excluded_matching_owned_count": "number",
+      "non_owned_nonexcluded_matches": "number",
+      "missing_owned_records": "number",
+      "modified_since_generation": "number"
+    },
+    "ITEMS_WITHOUT_UNIT_PRICE": {
+      "generated_count": "number",
+      "matching_owned_count": "number",
+      "excluded_matching_owned_count": "number",
+      "non_owned_nonexcluded_matches": "number",
+      "missing_owned_records": "number",
+      "modified_since_generation": "number"
+    },
+    "ITEMS_WITHOUT_UNIT_COST": {
+      "generated_count": "number",
+      "matching_owned_count": "number",
+      "excluded_matching_owned_count": "number",
+      "non_owned_nonexcluded_matches": "number",
+      "missing_owned_records": "number",
+      "modified_since_generation": "number"
+    }
+  },
+  "attribution_caveat": "string"
+}

@@ -1,0 +1,34 @@
+{
+  "status": "MANUAL_RUNTIME_EXPORT_REQUIRED",
+  "package": {
+    "name": "BCSentinel.Runtime.Evidence.QA.1.0.0.0.app",
+    "version": "1.0.0.0",
+    "sha256": "ff3bc085726c4fd945c74911ccec31f19883539128e922c5c7f3a7e1011b9c46",
+    "bytes": 14213,
+    "path": ".build/bc-extension/DiagnosticsQA/BCSentinel.Runtime.Evidence.QA.1.0.0.0.app"
+  },
+  "compiler": "17.0.34.45391",
+  "target": "BC27 / runtime16",
+  "codecop_ptecop": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 0,
+    "namespace_info": 3
+  },
+  "focused_tests": {
+    "pass": 37,
+    "xfail": 3,
+    "fail": 0,
+    "junit": ".build/ext-50-12c-1-contracts.xml"
+  },
+  "earlier_full_backend": {
+    "pass": 467,
+    "fail": 1,
+    "skip": 7,
+    "xfail": 3,
+    "baseline_failure": "Unchanged staging test_billing monthly fixture expires 2026-08-15; reproduced in isolation"
+  },
+  "saas_install_and_export": "NOT_EXECUTED_MANUAL_GATE",
+  "runtime_findings_received": false,
+  "readiness": "NOT_READY_FOR_LARGE"
+}

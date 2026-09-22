@@ -494,7 +494,7 @@ codeunit 53128 "DH Deep Scan Runner"
                     'CUSTOMER',
                     'CUSTOMERS_DUPLICATE_EMAIL',
                     'high',
-                    DuplicateCount);
+                    DuplicateCount, Email);
 
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
@@ -533,7 +533,7 @@ codeunit 53128 "DH Deep Scan Runner"
                     'VENDOR',
                     'VENDORS_DUPLICATE_EMAIL',
                     'high',
-                    DuplicateCount);
+                    DuplicateCount, Email);
 
                 IssuesCount += 1;
                 ApplyPenalty(Score, 8);
@@ -573,7 +573,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 'CUSTOMER',
                                 'CUSTOMERS_DUPLICATE_VAT',
                                 'high',
-                                DuplicateCount);
+                                DuplicateCount, Customer."VAT Registration No.");
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -613,7 +613,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 'VENDOR',
                                 'VENDORS_DUPLICATE_VAT',
                                 'high',
-                                DuplicateCount);
+                                DuplicateCount, Vendor."VAT Registration No.");
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -630,7 +630,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         LastFindingCount: Integer;
-        Marker: Text[250];
+        Marker: Text;
     begin
         if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_NAME_POST_CITY') then
             exit;
@@ -645,7 +645,7 @@ codeunit 53128 "DH Deep Scan Runner"
         if Customer.FindSet() then
             repeat
                 if not IsCustomerDuplicateExcluded(Customer, 'CUSTOMERS_DUPLICATE_NAME_POST_CITY') then begin
-                    Marker := CopyStr(Customer.Name + '|' + Customer."Post Code" + '|' + Customer.City, 1, MaxStrLen(Marker));
+                    Marker := BuildNameGroupMarker(Customer.Name, Customer."Post Code", Customer.City);
                     if not FindingExists(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_NAME_POST_CITY', Marker) then begin
                         DuplicateCount := CountCustomersByNamePostCity(Customer.Name, Customer."Post Code", Customer.City, 'CUSTOMERS_DUPLICATE_NAME_POST_CITY');
                         if DuplicateCount > LastFindingCount then
@@ -657,7 +657,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 'CUSTOMER',
                                 'CUSTOMERS_DUPLICATE_NAME_POST_CITY',
                                 'high',
-                                DuplicateCount);
+                                DuplicateCount, Marker);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -675,7 +675,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         DuplicateCount: Integer;
         LastFindingCount: Integer;
-        Marker: Text[250];
+        Marker: Text;
     begin
         if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_NAME_POST_CITY') then
             exit;
@@ -690,7 +690,7 @@ codeunit 53128 "DH Deep Scan Runner"
         if Vendor.FindSet() then
             repeat
                 if not IsVendorDuplicateExcluded(Vendor, 'VENDORS_DUPLICATE_NAME_POST_CITY') then begin
-                    Marker := CopyStr(Vendor.Name + '|' + Vendor."Post Code" + '|' + Vendor.City, 1, MaxStrLen(Marker));
+                    Marker := BuildNameGroupMarker(Vendor.Name, Vendor."Post Code", Vendor.City);
                     if not FindingExists(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_NAME_POST_CITY', Marker) then begin
                         DuplicateCount := CountVendorsByNamePostCity(Vendor.Name, Vendor."Post Code", Vendor.City, 'VENDORS_DUPLICATE_NAME_POST_CITY');
                         if DuplicateCount > LastFindingCount then
@@ -702,7 +702,7 @@ codeunit 53128 "DH Deep Scan Runner"
                                 'VENDOR',
                                 'VENDORS_DUPLICATE_NAME_POST_CITY',
                                 'high',
-                                DuplicateCount);
+                                DuplicateCount, Marker);
 
                             IssuesCount += 1;
                             ApplyPenalty(Score, 8);
@@ -2482,6 +2482,10 @@ codeunit 53128 "DH Deep Scan Runner"
         Finding: Record "DH Deep Scan Finding";
         i: Integer;
         CodeTxt: Text;
+        FindingIdText: Text;
+        FindingId: Guid;
+        SeenFindingIds: Dictionary of [Guid, Boolean];
+        FindingIds: List of [Guid];
     begin
         if SyncResponseText = '' then
             exit;
@@ -2493,6 +2497,9 @@ codeunit 53128 "DH Deep Scan Runner"
             exit;
 
         IssuesArray := IssuesToken.AsArray();
+        Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
+        if IssuesArray.Count() <> Finding.Count() then
+            Error(FindingIdentityErr);
 
         for i := 0 to IssuesArray.Count() - 1 do begin
             IssuesArray.Get(i, IssueToken);
@@ -2500,16 +2507,37 @@ codeunit 53128 "DH Deep Scan Runner"
             CodeTxt := GetJsonText(IssueObj, 'code');
 
             Finding.Reset();
-            Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
-            Finding.SetRange("Issue Code", CopyStr(CodeTxt, 1, MaxStrLen(Finding."Issue Code")));
-            if Finding.FindFirst() then begin
-                if GetJsonText(IssueObj, 'severity') <> '' then begin
-                    Finding.Severity := CopyStr(GetJsonText(IssueObj, 'severity'), 1, MaxStrLen(Finding.Severity));
-                    Finding."Severity Sort Order" := GetSeveritySortOrder(Finding.Severity);
-                end;
-                Finding."Estimated Impact (EUR)" := ReadJsonDecimalFromObject(IssueObj, 'estimated_impact_eur');
-                Finding.Modify(true);
+            FindingIdText := GetJsonText(IssueObj, 'finding_id');
+            if FindingIdText <> '' then begin
+                if not Evaluate(FindingId, FindingIdText) then
+                    Error(FindingIdentityErr);
+            end else begin
+                // An old backend is safe only for a unique check row.
+                Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
+                Finding.SetRange("Issue Code", CopyStr(CodeTxt, 1, MaxStrLen(Finding."Issue Code")));
+                if Finding.Count() <> 1 then
+                    Error(FindingIdentityErr);
+                Finding.FindFirst();
+                FindingId := Finding.SystemId;
             end;
+            if SeenFindingIds.ContainsKey(FindingId) or (StrLen(CodeTxt) > 50) then
+                Error(FindingIdentityErr);
+            if not Finding.GetBySystemId(FindingId) then
+                Error(FindingIdentityErr);
+            if (Finding."Deep Scan Entry No." <> DeepScanRun."Entry No.") or (Finding."Issue Code" <> CodeTxt) then
+                Error(FindingIdentityErr);
+            SeenFindingIds.Add(FindingId, true);
+            FindingIds.Add(FindingId);
+        end;
+
+        // TryFunction does not roll back writes: validate every identity first.
+        for i := 0 to IssuesArray.Count() - 1 do begin
+            IssuesArray.Get(i, IssueToken);
+            IssueObj := IssueToken.AsObject();
+            CodeTxt := GetJsonText(IssueObj, 'code');
+            FindingId := FindingIds.Get(i + 1);
+            Finding.ApplyBackendImpact(DeepScanRun."Entry No.", CopyStr(CodeTxt, 1, 50), FindingId,
+                CopyStr(GetJsonText(IssueObj, 'severity'), 1, 20), ReadJsonDecimalFromObject(IssueObj, 'estimated_impact_eur'));
         end;
     end;
 
@@ -2677,6 +2705,7 @@ codeunit 53128 "DH Deep Scan Runner"
         if Finding.FindSet() then
             repeat
                 Clear(IssueObject);
+                IssueObject.Add('finding_id', LowerCase(DelChr(Format(Finding.SystemId), '=', '{}')));
                 IssueObject.Add('code', Format(Finding."Issue Code"));
                 IssueObject.Add('category', Format(Finding.Category));
                 IssueObject.Add('title', Finding.Title);
@@ -2730,7 +2759,33 @@ codeunit 53128 "DH Deep Scan Runner"
             EnabledModules.Add('HR');
     end;
 
+    local procedure BuildNameGroupMarker(Name: Text; PostCode: Text; City: Text): Text
+    var
+        Parts: JsonArray;
+        Marker: Text;
+    begin
+        Parts.Add(UpperCase(Name));
+        Parts.Add(UpperCase(PostCode));
+        Parts.Add(UpperCase(City));
+        Parts.WriteTo(Marker);
+        exit(Marker);
+    end;
+
+    local procedure BuildGroupKey(DeepScanEntryNo: Integer; IssueCode: Code[50]; ValueMarker: Text): Text[64]
+    var
+        DeepScanRun: Record "DH Deep Scan Run";
+        Finding: Record "DH Deep Scan Finding";
+    begin
+        DeepScanRun.Get(DeepScanEntryNo);
+        exit(Finding.BuildGroupKey(DeepScanRun.SystemId, IssueCode, ValueMarker));
+    end;
+
     local procedure InsertFinding(DeepScanEntryNo: Integer; Category: Code[30]; IssueCode: Code[50]; Severity: Code[20]; AffectedCount: Integer)
+    begin
+        InsertFinding(DeepScanEntryNo, Category, IssueCode, Severity, AffectedCount, '');
+    end;
+
+    local procedure InsertFinding(DeepScanEntryNo: Integer; Category: Code[30]; IssueCode: Code[50]; Severity: Code[20]; AffectedCount: Integer; ValueMarker: Text)
     var
         Finding: Record "DH Deep Scan Finding";
     begin
@@ -2739,6 +2794,8 @@ codeunit 53128 "DH Deep Scan Runner"
         Finding."Deep Scan Entry No." := DeepScanEntryNo;
         Finding.Category := Category;
         Finding."Issue Code" := IssueCode;
+        if ValueMarker <> '' then
+            Finding."Group Key" := BuildGroupKey(DeepScanEntryNo, IssueCode, ValueMarker);
         Finding.Title := CopyStr(IssueCode, 1, MaxStrLen(Finding.Title));
         Finding.Severity := Severity;
         Finding."Severity Sort Order" := GetSeveritySortOrder(Finding.Severity);
@@ -2762,7 +2819,8 @@ codeunit 53128 "DH Deep Scan Runner"
     begin
         Finding.SetRange("Deep Scan Entry No.", DeepScanEntryNo);
         Finding.SetRange("Issue Code", IssueCode);
-        Finding.SetFilter(Title, '*%1*', ValueMarker);
+        Finding.SetCurrentKey("Deep Scan Entry No.", "Issue Code", "Group Key");
+        Finding.SetRange("Group Key", BuildGroupKey(DeepScanEntryNo, IssueCode, ValueMarker));
         exit(not Finding.IsEmpty());
     end;
 
@@ -2841,6 +2899,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DuplicateVendorVatNoLbl: Label 'Multiple vendors with the same VAT registration number: %1', Comment = '%1 = VAT registration number';
         LocalCompleteSyncFailedLbl: Label 'Scan completed locally; backend synchronization failed.';
         PostprocessingRefreshFailedLbl: Label 'The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.';
+        FindingIdentityErr: Label 'The backend returned an invalid or ambiguous finding identity. Update the backend and retry synchronization.';
         ScanCompletedCriticalFindingsLbl: Label 'Validation Check completed with critical findings.';
         ScanCompletedImprovementPotentialLbl: Label 'Validation Check completed with relevant improvement potential.';
         ScanCompletedMinorFindingsLbl: Label 'Validation Check completed with minor findings.';

@@ -1,0 +1,2629 @@
+{
+  "evidence_kind": "STATIC_SOURCE_AUDIT_NOT_BC_RUNTIME",
+  "runner_sha256": "cfab7e02f27ef26f8cf8773a3b8a117a035ea61721db3f23b951ef6a565a93dc",
+  "scenario_counts": {
+    "CUSTOMERS_MISSING_EMAIL": 600,
+    "VENDORS_MISSING_PHONE": 200,
+    "ITEMS_WITHOUT_UNIT_PRICE": 600,
+    "ITEMS_WITHOUT_UNIT_COST": 600
+  },
+  "check_count": 199,
+  "category_counts": {
+    "CUSTOMER": 19,
+    "VENDOR": 19,
+    "ITEM": 10,
+    "SALES": 21,
+    "PURCHASE": 20,
+    "LEDGER": 2,
+    "SYSTEM": 13,
+    "FINANCE": 16,
+    "INVENTORY": 19,
+    "CRM": 9,
+    "MANUFACTURING": 17,
+    "SERVICE": 12,
+    "JOB": 10,
+    "HR": 12
+  },
+  "check_counter_discrepancies": [
+    {
+      "procedure": "RunSystemConfigurationChecks",
+      "declared": 14,
+      "actual": 13
+    },
+    {
+      "procedure": "RunInventoryValueChecks",
+      "declared": 21,
+      "actual": 19
+    }
+  ],
+  "checks": [
+    {
+      "code": "CUSTOMERS_MISSING_NAME",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingName",
+      "initial_penalty": 5,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 371,
+      "condition": [
+        "(Customer.Name = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_NAME')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_SEARCH_NAME",
+      "category": "CUSTOMER",
+      "severity": "low",
+      "counter": "MissingSearchName",
+      "initial_penalty": 2,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 372,
+      "condition": [
+        "(Customer.\"Search Name\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_SEARCH_NAME')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_ADDRESS",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingAddress",
+      "initial_penalty": 5,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 373,
+      "condition": [
+        "(Customer.Address = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_ADDRESS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CITY",
+      "category": "CUSTOMER",
+      "severity": "medium",
+      "counter": "MissingCity",
+      "initial_penalty": 3,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 374,
+      "condition": [
+        "(Customer.City = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CITY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_POST_CODE",
+      "category": "CUSTOMER",
+      "severity": "medium",
+      "counter": "MissingPostCode",
+      "initial_penalty": 3,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 375,
+      "condition": [
+        "(Customer.\"Post Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_POST_CODE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_COUNTRY",
+      "category": "CUSTOMER",
+      "severity": "medium",
+      "counter": "MissingCountryCode",
+      "initial_penalty": 3,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 376,
+      "condition": [
+        "(Customer.\"Country/Region Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_COUNTRY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_EMAIL",
+      "category": "CUSTOMER",
+      "severity": "medium",
+      "counter": "MissingEmail",
+      "initial_penalty": 3,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 377,
+      "condition": [
+        "(Customer.\"E-Mail\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_EMAIL')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PHONE",
+      "category": "CUSTOMER",
+      "severity": "low",
+      "counter": "MissingPhone",
+      "initial_penalty": 2,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 378,
+      "condition": [
+        "(Customer.\"Phone No.\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PHONE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PAYMENT_TERMS",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingPaymentTerms",
+      "initial_penalty": 5,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 379,
+      "condition": [
+        "(Customer.\"Payment Terms Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PAYMENT_TERMS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PAYMENT_METHOD",
+      "category": "CUSTOMER",
+      "severity": "medium",
+      "counter": "MissingPaymentMethod",
+      "initial_penalty": 3,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 380,
+      "condition": [
+        "(Customer.\"Payment Method Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PAYMENT_METHOD')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_POSTING_GROUP",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingCustomerPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 381,
+      "condition": [
+        "(Customer.\"Customer Posting Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_POSTING_GROUP')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_GEN_BUS_POSTING",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingGenBusPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 382,
+      "condition": [
+        "(Customer.\"Gen. Bus. Posting Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_GEN_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_VAT_BUS_POSTING",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "MissingVatBusPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 383,
+      "condition": [
+        "(Customer.\"VAT Bus. Posting Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_VAT_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CREDIT_LIMIT",
+      "category": "CUSTOMER",
+      "severity": "low",
+      "counter": "MissingCreditLimit",
+      "initial_penalty": 2,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 384,
+      "condition": [
+        "(Customer.\"Credit Limit (LCY)\" = 0) and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CREDIT_LIMIT')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "BlockedWithOpenSalesDocs",
+      "initial_penalty": 7,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 385,
+      "condition": [
+        "HasOpenSalesDocumentsForCustomer(Customer.\"No.\") and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "BlockedWithOpenLedgerEntries",
+      "initial_penalty": 7,
+      "procedure": "RunCustomerMasterDataChecks",
+      "line": 386,
+      "condition": [
+        "HasOpenCustomerLedgerEntries(Customer.\"No.\") and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_NAME",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingName",
+      "initial_penalty": 5,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 451,
+      "condition": [
+        "(Vendor.Name = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_NAME')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_SEARCH_NAME",
+      "category": "VENDOR",
+      "severity": "low",
+      "counter": "MissingSearchName",
+      "initial_penalty": 2,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 452,
+      "condition": [
+        "(Vendor.\"Search Name\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_SEARCH_NAME')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_ADDRESS",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingAddress",
+      "initial_penalty": 5,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 453,
+      "condition": [
+        "(Vendor.Address = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_ADDRESS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_CITY",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingCity",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 454,
+      "condition": [
+        "(Vendor.City = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_CITY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_POST_CODE",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingPostCode",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 455,
+      "condition": [
+        "(Vendor.\"Post Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_POST_CODE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_COUNTRY",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingCountryCode",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 456,
+      "condition": [
+        "(Vendor.\"Country/Region Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_COUNTRY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_EMAIL",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingEmail",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 457,
+      "condition": [
+        "(Vendor.\"E-Mail\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_EMAIL')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_PHONE",
+      "category": "VENDOR",
+      "severity": "low",
+      "counter": "MissingPhone",
+      "initial_penalty": 2,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 458,
+      "condition": [
+        "(Vendor.\"Phone No.\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PHONE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_PAYMENT_TERMS",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingPaymentTerms",
+      "initial_penalty": 5,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 459,
+      "condition": [
+        "(Vendor.\"Payment Terms Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PAYMENT_TERMS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_PAYMENT_METHOD",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingPaymentMethod",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 460,
+      "condition": [
+        "(Vendor.\"Payment Method Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PAYMENT_METHOD')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_POSTING_GROUP",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingVendorPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 461,
+      "condition": [
+        "(Vendor.\"Vendor Posting Group\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_POSTING_GROUP')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_GEN_BUS_POSTING",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingGenBusPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 462,
+      "condition": [
+        "(Vendor.\"Gen. Bus. Posting Group\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_GEN_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_VAT_BUS_POSTING",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "MissingVatBusPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 463,
+      "condition": [
+        "(Vendor.\"VAT Bus. Posting Group\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_VAT_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_BANK_ACCOUNT",
+      "category": "VENDOR",
+      "severity": "medium",
+      "counter": "MissingBankAccount",
+      "initial_penalty": 3,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 464,
+      "condition": [
+        "(Vendor.\"Preferred Bank Account Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_BANK_ACCOUNT')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "BlockedWithOpenPurchaseDocs",
+      "initial_penalty": 7,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 465,
+      "condition": [
+        "HasOpenPurchaseDocumentsForVendor(Vendor.\"No.\") and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "BLOCKED_VENDORS_WITH_OPEN_LEDGER",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "BlockedWithOpenLedgerEntries",
+      "initial_penalty": 7,
+      "procedure": "RunVendorMasterDataChecks",
+      "line": 466,
+      "condition": [
+        "HasOpenVendorLedgerEntries(Vendor.\"No.\") and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'BLOCKED_VENDORS_WITH_OPEN_LEDGER')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_EMAIL",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunCustomerDuplicateEmailCheck",
+      "line": 469,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_EMAIL",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunVendorDuplicateEmailCheck",
+      "line": 508,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_VAT",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunCustomerDuplicateVatCheck",
+      "line": 547,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_VAT",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunVendorDuplicateVatCheck",
+      "line": 587,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_NAME_POST_CITY",
+      "category": "CUSTOMER",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunCustomerDuplicateNamePostCodeCityCheck",
+      "line": 627,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_NAME_POST_CITY",
+      "category": "VENDOR",
+      "severity": "high",
+      "counter": "DuplicateCount",
+      "initial_penalty": 8,
+      "procedure": "RunVendorDuplicateNamePostCodeCityCheck",
+      "line": 672,
+      "condition": [
+        "DuplicateCount > 1; see full procedure"
+      ],
+      "aggregation": "duplicate_group_or_repeated_group"
+    },
+    {
+      "code": "ITEMS_MISSING_DESCRIPTION",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "MissingDescription",
+      "initial_penalty": 5,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 760,
+      "condition": [
+        "(Item.Description = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_DESCRIPTION')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_BASE_UOM",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "MissingBaseUom",
+      "initial_penalty": 6,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 761,
+      "condition": [
+        "(Item.\"Base Unit of Measure\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_BASE_UOM')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_CATEGORY",
+      "category": "ITEM",
+      "severity": "medium",
+      "counter": "MissingItemCategory",
+      "initial_penalty": 3,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 762,
+      "condition": [
+        "(Item.\"Item Category Code\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_CATEGORY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_GEN_PROD_POSTING",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "MissingGenProdPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 763,
+      "condition": [
+        "(Item.\"Gen. Prod. Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_GEN_PROD_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_INVENTORY_POSTING",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "MissingInventoryPostingGroup",
+      "initial_penalty": 6,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 764,
+      "condition": [
+        "(Item.\"Inventory Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_INVENTORY_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_WITHOUT_VENDOR_NO",
+      "category": "ITEM",
+      "severity": "medium",
+      "counter": "MissingVendorNo",
+      "initial_penalty": 3,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 765,
+      "condition": [
+        "(Item.\"Vendor No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_VENDOR_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_WITHOUT_UNIT_COST",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "MissingUnitCost",
+      "initial_penalty": 6,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 766,
+      "condition": [
+        "(Item.\"Unit Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_UNIT_COST')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_WITHOUT_UNIT_PRICE",
+      "category": "ITEM",
+      "severity": "medium",
+      "counter": "MissingUnitPrice",
+      "initial_penalty": 3,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 767,
+      "condition": [
+        "(Item.\"Unit Price\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_WITHOUT_UNIT_PRICE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_NEGATIVE_INVENTORY",
+      "category": "ITEM",
+      "severity": "high",
+      "counter": "NegativeInventory",
+      "initial_penalty": 8,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 768,
+      "condition": [
+        "(Item.Inventory < 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_NEGATIVE_INVENTORY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "BLOCKED_ITEMS_WITH_INVENTORY",
+      "category": "ITEM",
+      "severity": "medium",
+      "counter": "BlockedWithInventory",
+      "initial_penalty": 4,
+      "procedure": "RunItemMasterDataChecks",
+      "line": 769,
+      "condition": [
+        "Item.Blocked and (Item.Inventory <> 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'BLOCKED_ITEMS_WITH_INVENTORY')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_ORDERS_MISSING_SHIPMENT_DATE",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "MissingShipmentDate",
+      "initial_penalty": 3,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 834,
+      "condition": [
+        "SalesHeader.\"Shipment Date\" = 0D"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_ORDERS_OLD_OPEN",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "OldOrders",
+      "initial_penalty": 4,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 835,
+      "condition": [
+        "SalesHeader.\"Document Date\" <= ThresholdDate"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_MISSING_NO",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "MissingNoOnLine",
+      "initial_penalty": 6,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 836,
+      "condition": [
+        "((SalesLine.Type = SalesLine.Type::Item) or (SalesLine.Type = SalesLine.Type::\"G/L Account\")) and (SalesLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_ZERO_QUANTITY",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "ZeroQuantity",
+      "initial_penalty": 3,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 837,
+      "condition": [
+        "SalesLine.Quantity = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_ZERO_PRICE",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "ZeroPrice",
+      "initial_penalty": 6,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 838,
+      "condition": [
+        "SalesLine.\"Unit Price\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_MISSING_DIMENSIONS",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "MissingDimensions",
+      "initial_penalty": 6,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 839,
+      "condition": [],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_DOCS_WITH_BLOCKED_CUSTOMERS",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "BlockedCustomersOnDocs",
+      "initial_penalty": 7,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 840,
+      "condition": [
+        "Customer.Blocked <> Customer.Blocked::\" \""
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_WITH_BLOCKED_ITEMS",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "BlockedItemsOnDocs",
+      "initial_penalty": 7,
+      "procedure": "RunSalesDocumentQualityChecks",
+      "line": 841,
+      "condition": [
+        "Item.Blocked"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_ORDERS_MISSING_EXPECTED_DATE",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "MissingExpectedReceiptDate",
+      "initial_penalty": 3,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 906,
+      "condition": [
+        "PurchaseHeader.\"Expected Receipt Date\" = 0D"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_ORDERS_OLD_OPEN",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "OldOrders",
+      "initial_penalty": 4,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 907,
+      "condition": [
+        "PurchaseHeader.\"Document Date\" <= ThresholdDate"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_NO",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "MissingNoOnLine",
+      "initial_penalty": 6,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 908,
+      "condition": [
+        "((PurchaseLine.Type = PurchaseLine.Type::Item) or (PurchaseLine.Type = PurchaseLine.Type::\"G/L Account\")) and (PurchaseLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_ZERO_QUANTITY",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "ZeroQuantity",
+      "initial_penalty": 3,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 909,
+      "condition": [
+        "PurchaseLine.Quantity = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_ZERO_COST",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "ZeroCost",
+      "initial_penalty": 6,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 910,
+      "condition": [
+        "PurchaseLine.\"Direct Unit Cost\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_DIMENSIONS",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "MissingDimensions",
+      "initial_penalty": 6,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 911,
+      "condition": [],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_DOCS_WITH_BLOCKED_VENDORS",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "BlockedVendorsOnDocs",
+      "initial_penalty": 7,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 912,
+      "condition": [
+        "Vendor.Blocked <> Vendor.Blocked::\" \""
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_WITH_BLOCKED_ITEMS",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "BlockedItemsOnDocs",
+      "initial_penalty": 7,
+      "procedure": "RunPurchaseDocumentQualityChecks",
+      "line": 913,
+      "condition": [
+        "Item.Blocked"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_30",
+      "category": "LEDGER",
+      "severity": "high",
+      "counter": "OverdueCustomerEntries",
+      "initial_penalty": 6,
+      "procedure": "RunLedgerAgingChecks",
+      "line": 938,
+      "condition": [
+        "CustLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_30",
+      "category": "LEDGER",
+      "severity": "medium",
+      "counter": "OverdueVendorEntries",
+      "initial_penalty": 4,
+      "procedure": "RunLedgerAgingChecks",
+      "line": 939,
+      "condition": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_DIM1",
+      "category": "SYSTEM",
+      "severity": "medium",
+      "counter": "MissingDim1",
+      "initial_penalty": 2,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1022,
+      "condition": [
+        "GLEntry.\"Global Dimension 1 Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_DIM2",
+      "category": "SYSTEM",
+      "severity": "medium",
+      "counter": "MissingDim2",
+      "initial_penalty": 2,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1023,
+      "condition": [
+        "GLEntry.\"Global Dimension 2 Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_BOTH_DIMS",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "MissingBothDims",
+      "initial_penalty": 6,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1024,
+      "condition": [
+        "(GLEntry.\"Global Dimension 1 Code\" = '') and (GLEntry.\"Global Dimension 2 Code\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "GL_ACCOUNTS_BLOCKED_BUT_USED",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "AccountsBlockedButUsed",
+      "initial_penalty": 5,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1025,
+      "condition": [
+        "GLAccount.Blocked and HasGLEntriesForAccount(GLAccount.\"No.\")"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED",
+      "category": "SYSTEM",
+      "severity": "medium",
+      "counter": "AccountsWithoutDirectPostingButUsed",
+      "initial_penalty": 3,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1026,
+      "condition": [
+        "(not GLAccount.\"Direct Posting\") and HasGLEntriesForAccount(GLAccount.\"No.\")"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "CustomersWithoutGenBusPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1027,
+      "condition": [
+        "(Customer.\"Gen. Bus. Posting Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "CustomersWithoutVatBusPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1028,
+      "condition": [
+        "(Customer.\"VAT Bus. Posting Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "VendorsWithoutGenBusPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1029,
+      "condition": [
+        "(Vendor.\"Gen. Bus. Posting Group\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "VendorsWithoutVatBusPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1030,
+      "condition": [
+        "(Vendor.\"VAT Bus. Posting Group\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "ItemsWithoutGenProdPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1031,
+      "condition": [
+        "(Item.\"Gen. Prod. Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SYSTEM_ITEMS_MISSING_INVENTORY_POSTING",
+      "category": "SYSTEM",
+      "severity": "high",
+      "counter": "ItemsWithoutInventoryPosting",
+      "initial_penalty": 4,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1032,
+      "condition": [
+        "(Item.\"Inventory Posting Group\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'SYSTEM_ITEMS_MISSING_INVENTORY_POSTING')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_MISSING_DUE_DATE",
+      "category": "SYSTEM",
+      "severity": "medium",
+      "counter": "CustLedgerWithoutDueDate",
+      "initial_penalty": 3,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1033,
+      "condition": [
+        "CustLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDOR_LEDGER_MISSING_DUE_DATE",
+      "category": "SYSTEM",
+      "severity": "medium",
+      "counter": "VendLedgerWithoutDueDate",
+      "initial_penalty": 3,
+      "procedure": "RunSystemConfigurationChecks",
+      "line": 1034,
+      "condition": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_VAT_REG_NO",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "CustomerMissingVat",
+      "initial_penalty": 2,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1108,
+      "condition": [
+        "(Customer.\"VAT Registration No.\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_VAT_REG_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_SALESPERSON",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "CustomerMissingSalesperson",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1109,
+      "condition": [
+        "(Customer.\"Salesperson Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_SALESPERSON')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PRICE_GROUP",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "CustomerMissingPriceGroup",
+      "initial_penalty": 2,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1110,
+      "condition": [
+        "(Customer.\"Customer Price Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_PRICE_GROUP')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_DISC_GROUP",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "CustomerMissingDiscGroup",
+      "initial_penalty": 2,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1111,
+      "condition": [
+        "(Customer.\"Customer Disc. Group\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_DISC_GROUP')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_REMINDER_TERMS",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "CustomerMissingReminderTerms",
+      "initial_penalty": 2,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1112,
+      "condition": [
+        "(Customer.\"Reminder Terms Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_REMINDER_TERMS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_FIN_CHARGE_TERMS",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "CustomerMissingFinChargeTerms",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1113,
+      "condition": [
+        "(Customer.\"Fin. Charge Terms Code\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_FIN_CHARGE_TERMS')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CONTACT",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "CustomerMissingContact",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1114,
+      "condition": [
+        "(Customer.Contact = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_CONTACT')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_HOME_PAGE",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "CustomerMissingHomePage",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1115,
+      "condition": [
+        "(Customer.\"Home Page\" = '') and not ExceptionMgt.IsCustomerIssueExcluded(Customer, 'CUSTOMERS_MISSING_HOME_PAGE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_VAT_REG_NO",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "VendorMissingVat",
+      "initial_penalty": 2,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1116,
+      "condition": [
+        "(Vendor.\"VAT Registration No.\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_VAT_REG_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_PURCHASER",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "VendorMissingPurchaser",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1117,
+      "condition": [
+        "(Vendor.\"Purchaser Code\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_PURCHASER')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_CONTACT",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "VendorMissingContact",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1118,
+      "condition": [
+        "(Vendor.Contact = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_CONTACT')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDORS_MISSING_HOME_PAGE",
+      "category": "FINANCE",
+      "severity": "low",
+      "counter": "VendorMissingHomePage",
+      "initial_penalty": 1,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1119,
+      "condition": [
+        "(Vendor.\"Home Page\" = '') and not ExceptionMgt.IsVendorIssueExcluded(Vendor, 'VENDORS_MISSING_HOME_PAGE')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_60",
+      "category": "FINANCE",
+      "severity": "high",
+      "counter": "CustomerOverdue60",
+      "initial_penalty": 4,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1120,
+      "condition": [
+        "CustLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_90",
+      "category": "FINANCE",
+      "severity": "high",
+      "counter": "CustomerOverdue90",
+      "initial_penalty": 5,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1121,
+      "condition": [
+        "CustLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_60",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "VendorOverdue60",
+      "initial_penalty": 3,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1122,
+      "condition": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_90",
+      "category": "FINANCE",
+      "severity": "medium",
+      "counter": "VendorOverdue90",
+      "initial_penalty": 4,
+      "procedure": "RunFinanceCommercialChecks",
+      "line": 1123,
+      "condition": [
+        "VendorLedgerEntry.Count()"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_PAYMENT_TERMS",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "MissingPaymentTerms",
+      "initial_penalty": 2,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1186,
+      "condition": [
+        "SalesHeader.\"Payment Terms Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_PAYMENT_METHOD",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "MissingPaymentMethod",
+      "initial_penalty": 2,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1187,
+      "condition": [
+        "SalesHeader.\"Payment Method Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "MissingRequestedDeliveryDate",
+      "initial_penalty": 2,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1188,
+      "condition": [
+        "SalesHeader.\"Requested Delivery Date\" = 0D"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_SHIPMENT_METHOD",
+      "category": "SALES",
+      "severity": "low",
+      "counter": "MissingShipmentMethod",
+      "initial_penalty": 1,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1189,
+      "condition": [
+        "SalesHeader.\"Shipment Method Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_EXTERNAL_DOC_NO",
+      "category": "SALES",
+      "severity": "low",
+      "counter": "MissingExternalDocumentNo",
+      "initial_penalty": 1,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1190,
+      "condition": [
+        "SalesHeader.\"External Document No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "PastDueRequestedDeliveryDate",
+      "initial_penalty": 4,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1191,
+      "condition": [
+        "(SalesHeader.\"Requested Delivery Date\" <> 0D) and (SalesHeader.\"Requested Delivery Date\" < Today())"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_DISCOUNT_OVER_25",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "DiscountAbove25",
+      "initial_penalty": 2,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1192,
+      "condition": [
+        "SalesLine.\"Line Discount %\" > 25"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_DISCOUNT_OVER_50",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "DiscountAbove50",
+      "initial_penalty": 4,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1193,
+      "condition": [
+        "SalesLine.\"Line Discount %\" > 50"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_PRICE_BELOW_UNIT_COST",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "BelowUnitCost",
+      "initial_penalty": 6,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1194,
+      "condition": [
+        "SalesLine.\"Unit Price\" < Item.\"Unit Cost\""
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_SHIPPED_NOT_INVOICED",
+      "category": "SALES",
+      "severity": "high",
+      "counter": "ShippedNotInvoiced",
+      "initial_penalty": 6,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1195,
+      "condition": [
+        "SalesLine.\"Quantity Shipped\" > SalesLine.\"Quantity Invoiced\""
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "OutstandingPastShipmentDate",
+      "initial_penalty": 3,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1196,
+      "condition": [
+        "(SalesLine.\"Outstanding Quantity\" > 0) and (SalesLine.\"Shipment Date\" <> 0D) and (SalesLine.\"Shipment Date\" < Today())"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_MISSING_DESCRIPTION",
+      "category": "SALES",
+      "severity": "low",
+      "counter": "MissingDescription",
+      "initial_penalty": 1,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1197,
+      "condition": [
+        "SalesLine.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SALES_LINES_MISSING_LOCATION",
+      "category": "SALES",
+      "severity": "medium",
+      "counter": "MissingLocationCode",
+      "initial_penalty": 2,
+      "procedure": "RunSalesExecutionChecks",
+      "line": 1198,
+      "condition": [
+        "SalesLine.\"Location Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_TERMS",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "MissingPaymentTerms",
+      "initial_penalty": 2,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1257,
+      "condition": [
+        "PurchaseHeader.\"Payment Terms Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_METHOD",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "MissingPaymentMethod",
+      "initial_penalty": 2,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1258,
+      "condition": [
+        "PurchaseHeader.\"Payment Method Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PURCHASER",
+      "category": "PURCHASE",
+      "severity": "low",
+      "counter": "MissingPurchaserCode",
+      "initial_penalty": 1,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1259,
+      "condition": [
+        "PurchaseHeader.\"Purchaser Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO",
+      "category": "PURCHASE",
+      "severity": "low",
+      "counter": "MissingVendorInvoiceNo",
+      "initial_penalty": 1,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1260,
+      "condition": [
+        "PurchaseHeader.\"Vendor Invoice No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE",
+      "category": "PURCHASE",
+      "severity": "high",
+      "counter": "PastExpectedReceiptDate",
+      "initial_penalty": 4,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1261,
+      "condition": [
+        "(PurchaseHeader.\"Expected Receipt Date\" <> 0D) and (PurchaseHeader.\"Expected Receipt Date\" < Today())"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_DISCOUNT_OVER_25",
+      "category": "PURCHASE",
+      "severity": "low",
+      "counter": "DiscountAbove25",
+      "initial_penalty": 1,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1262,
+      "condition": [
+        "PurchaseLine.\"Line Discount %\" > 25"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_DISCOUNT_OVER_50",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "DiscountAbove50",
+      "initial_penalty": 2,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1263,
+      "condition": [
+        "PurchaseLine.\"Line Discount %\" > 50"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_RECEIVED_NOT_INVOICED",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "ReceivedNotInvoiced",
+      "initial_penalty": 3,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1264,
+      "condition": [
+        "PurchaseLine.\"Quantity Received\" > PurchaseLine.\"Quantity Invoiced\""
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "OutstandingPastReceiptDate",
+      "initial_penalty": 3,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1265,
+      "condition": [
+        "(PurchaseLine.\"Outstanding Quantity\" > 0) and (PurchaseLine.\"Expected Receipt Date\" <> 0D) and (PurchaseLine.\"Expected Receipt Date\" < Today())"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_DESCRIPTION",
+      "category": "PURCHASE",
+      "severity": "low",
+      "counter": "MissingDescription",
+      "initial_penalty": 1,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1266,
+      "condition": [
+        "PurchaseLine.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_LOCATION",
+      "category": "PURCHASE",
+      "severity": "medium",
+      "counter": "MissingLocationCode",
+      "initial_penalty": 2,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1267,
+      "condition": [
+        "PurchaseLine.\"Location Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST",
+      "category": "PURCHASE",
+      "severity": "low",
+      "counter": "CostBelowItemCost",
+      "initial_penalty": 1,
+      "procedure": "RunPurchaseExecutionChecks",
+      "line": 1268,
+      "condition": [
+        "(PurchaseLine.\"Direct Unit Cost\" > 0) and (Item.\"Last Direct Cost\" > 0) and (PurchaseLine.\"Direct Unit Cost\" < Item.\"Last Direct Cost\")"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_PRICE_BELOW_UNIT_COST",
+      "category": "INVENTORY",
+      "severity": "high",
+      "counter": "PriceBelowUnitCost",
+      "initial_penalty": 6,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1342,
+      "condition": [
+        "(Item.\"Unit Price\" > 0) and (Item.\"Unit Cost\" > 0) and (Item.\"Unit Price\" < Item.\"Unit Cost\") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_UNIT_COST')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_PRICE_BELOW_STANDARD_COST",
+      "category": "INVENTORY",
+      "severity": "high",
+      "counter": "PriceBelowStandardCost",
+      "initial_penalty": 5,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1343,
+      "condition": [
+        "(Item.\"Unit Price\" > 0) and (Item.\"Standard Cost\" > 0) and (Item.\"Unit Price\" < Item.\"Standard Cost\") and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_PRICE_BELOW_STANDARD_COST')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_STANDARD_COST_ZERO",
+      "category": "INVENTORY",
+      "severity": "medium",
+      "counter": "StandardCostZero",
+      "initial_penalty": 2,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1344,
+      "condition": [
+        "(Item.\"Standard Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_STANDARD_COST_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_LAST_DIRECT_COST_ZERO",
+      "category": "INVENTORY",
+      "severity": "medium",
+      "counter": "LastDirectCostZero",
+      "initial_penalty": 2,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1345,
+      "condition": [
+        "(Item.\"Last Direct Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_LAST_DIRECT_COST_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_LEAD_TIME",
+      "category": "INVENTORY",
+      "severity": "medium",
+      "counter": "MissingLeadTime",
+      "initial_penalty": 2,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1346,
+      "condition": [
+        "(Format(Item.\"Lead Time Calculation\") = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_LEAD_TIME')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_SAFETY_STOCK_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "SafetyStockZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1347,
+      "condition": [
+        "(Item.\"Safety Stock Quantity\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_SAFETY_STOCK_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_REORDER_POINT_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "ReorderPointZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1348,
+      "condition": [
+        "(Item.\"Reorder Point\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_REORDER_POINT_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MAX_INVENTORY_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "MaxInventoryZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1349,
+      "condition": [
+        "(Item.\"Maximum Inventory\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MAX_INVENTORY_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MIN_ORDER_QTY_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "MinOrderQtyZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1350,
+      "condition": [
+        "(Item.\"Minimum Order Quantity\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MIN_ORDER_QTY_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_ORDER_MULTIPLE_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "OrderMultipleZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1351,
+      "condition": [
+        "(Item.\"Order Multiple\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_ORDER_MULTIPLE_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_SHELF_NO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "MissingShelfNo",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1352,
+      "condition": [
+        "(Item.\"Shelf No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_SHELF_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_MISSING_TARIFF_NO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "MissingTariffNo",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1353,
+      "condition": [
+        "(Item.\"Tariff No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_MISSING_TARIFF_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_GROSS_WEIGHT_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "GrossWeightZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1354,
+      "condition": [
+        "(Item.\"Gross Weight\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_GROSS_WEIGHT_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_NET_WEIGHT_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "NetWeightZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1355,
+      "condition": [
+        "(Item.\"Net Weight\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_NET_WEIGHT_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "ITEMS_UNIT_VOLUME_ZERO",
+      "category": "INVENTORY",
+      "severity": "low",
+      "counter": "UnitVolumeZero",
+      "initial_penalty": 1,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1356,
+      "condition": [
+        "(Item.\"Unit Volume\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'ITEMS_UNIT_VOLUME_ZERO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "DEAD_STOCK_90",
+      "category": "INVENTORY",
+      "severity": "medium",
+      "counter": "DeadStock90",
+      "initial_penalty": 2,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1357,
+      "condition": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-90D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_90')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "DEAD_STOCK_180",
+      "category": "INVENTORY",
+      "severity": "medium",
+      "counter": "DeadStock180",
+      "initial_penalty": 3,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1358,
+      "condition": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-180D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_180')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "DEAD_STOCK_365",
+      "category": "INVENTORY",
+      "severity": "high",
+      "counter": "DeadStock365",
+      "initial_penalty": 5,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1359,
+      "condition": [
+        "(Item.Inventory > 0) and (LastMovementDate <> 0D) and (LastMovementDate <= CalcDate('<-365D>', Today())) and not ExceptionMgt.IsItemIssueExcluded(Item, 'DEAD_STOCK_365')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "INVENTORY_WITHOUT_UNIT_COST",
+      "category": "INVENTORY",
+      "severity": "high",
+      "counter": "InventoryWithoutUnitCost",
+      "initial_penalty": 5,
+      "procedure": "RunInventoryValueChecks",
+      "line": 1360,
+      "condition": [
+        "(Item.Inventory > 0) and (Item.\"Unit Cost\" = 0) and not ExceptionMgt.IsItemIssueExcluded(Item, 'INVENTORY_WITHOUT_UNIT_COST')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_NAME",
+      "category": "CRM",
+      "severity": "medium",
+      "counter": "MissingName",
+      "initial_penalty": 2,
+      "procedure": "RunCRMContactChecks",
+      "line": 1400,
+      "condition": [
+        "Contact.Name = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_EMAIL",
+      "category": "CRM",
+      "severity": "medium",
+      "counter": "MissingEmail",
+      "initial_penalty": 2,
+      "procedure": "RunCRMContactChecks",
+      "line": 1401,
+      "condition": [
+        "Contact.\"E-Mail\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_PHONE",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingPhone",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1402,
+      "condition": [
+        "Contact.\"Phone No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_MOBILE_PHONE",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingMobilePhone",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1403,
+      "condition": [
+        "Contact.\"Mobile Phone No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_PERSONS_MISSING_COMPANY",
+      "category": "CRM",
+      "severity": "medium",
+      "counter": "MissingCompanyNo",
+      "initial_penalty": 2,
+      "procedure": "RunCRMContactChecks",
+      "line": 1404,
+      "condition": [
+        "(Contact.Type = Contact.Type::Person) and (Contact.\"Company No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_ADDRESS",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingAddress",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1405,
+      "condition": [
+        "Contact.Address = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_CITY",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingCity",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1406,
+      "condition": [
+        "Contact.City = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_POST_CODE",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingPostCode",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1407,
+      "condition": [
+        "Contact.\"Post Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "CONTACTS_MISSING_COUNTRY",
+      "category": "CRM",
+      "severity": "low",
+      "counter": "MissingCountryCode",
+      "initial_penalty": 1,
+      "procedure": "RunCRMContactChecks",
+      "line": 1408,
+      "condition": [
+        "Contact.\"Country/Region Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_BOM_MISSING_DESCRIPTION",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "MissingBOMDescription",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1503,
+      "condition": [
+        "ProdBOMHeader.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_BOM_NOT_CERTIFIED",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "BOMNotCertified",
+      "initial_penalty": 5,
+      "procedure": "RunManufacturingChecks",
+      "line": 1504,
+      "condition": [
+        "ProdBOMHeader.Status <> ProdBOMHeader.Status::Certified"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_BOM_LINES_MISSING_NO",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "BOMLinesMissingNo",
+      "initial_penalty": 6,
+      "procedure": "RunManufacturingChecks",
+      "line": 1505,
+      "condition": [
+        "(Format(ProdBOMLine.Type) <> '') and (ProdBOMLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_BOM_LINES_ZERO_QTY",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "BOMLinesZeroQty",
+      "initial_penalty": 6,
+      "procedure": "RunManufacturingChecks",
+      "line": 1506,
+      "condition": [
+        "ProdBOMLine.Quantity = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ROUTING_MISSING_DESCRIPTION",
+      "category": "MANUFACTURING",
+      "severity": "low",
+      "counter": "RoutingMissingDescription",
+      "initial_penalty": 2,
+      "procedure": "RunManufacturingChecks",
+      "line": 1507,
+      "condition": [
+        "RoutingHeader.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ROUTING_NOT_CERTIFIED",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "RoutingNotCertified",
+      "initial_penalty": 5,
+      "procedure": "RunManufacturingChecks",
+      "line": 1508,
+      "condition": [
+        "RoutingHeader.Status <> RoutingHeader.Status::Certified"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_MISSING_NO",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "RoutingLinesMissingNo",
+      "initial_penalty": 6,
+      "procedure": "RunManufacturingChecks",
+      "line": 1509,
+      "condition": [
+        "(Format(RoutingLine.Type) <> '') and (RoutingLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_ZERO_SETUP",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "RoutingLinesZeroSetupTime",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1510,
+      "condition": [
+        "RoutingLine.\"Setup Time\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_ZERO_RUN",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "RoutingLinesZeroRunTime",
+      "initial_penalty": 4,
+      "procedure": "RunManufacturingChecks",
+      "line": 1511,
+      "condition": [
+        "RoutingLine.\"Run Time\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_BLOCKED",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "WorkCentersBlocked",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1512,
+      "condition": [
+        "WorkCenter.Blocked"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_MISSING_NAME",
+      "category": "MANUFACTURING",
+      "severity": "low",
+      "counter": "WorkCentersMissingName",
+      "initial_penalty": 2,
+      "procedure": "RunManufacturingChecks",
+      "line": 1513,
+      "condition": [
+        "WorkCenter.Name = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_ZERO_COST",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "WorkCentersZeroCost",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1514,
+      "condition": [
+        "WorkCenter.\"Unit Cost\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_BLOCKED",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "MachineCentersBlocked",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1515,
+      "condition": [
+        "MachineCenter.Blocked"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_MISSING_NAME",
+      "category": "MANUFACTURING",
+      "severity": "low",
+      "counter": "MachineCentersMissingName",
+      "initial_penalty": 2,
+      "procedure": "RunManufacturingChecks",
+      "line": 1516,
+      "condition": [
+        "MachineCenter.Name = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_ZERO_COST",
+      "category": "MANUFACTURING",
+      "severity": "medium",
+      "counter": "MachineCentersZeroCost",
+      "initial_penalty": 3,
+      "procedure": "RunManufacturingChecks",
+      "line": 1517,
+      "condition": [
+        "MachineCenter.\"Unit Cost\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ITEMS_MISSING_PROD_BOM_NO",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "ItemsMissingProdBomNo",
+      "initial_penalty": 5,
+      "procedure": "RunManufacturingChecks",
+      "line": 1518,
+      "condition": [
+        "(Item.\"Routing No.\" <> '') and (Item.\"Production BOM No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'MFG_ITEMS_MISSING_PROD_BOM_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "MFG_ITEMS_MISSING_ROUTING_NO",
+      "category": "MANUFACTURING",
+      "severity": "high",
+      "counter": "ItemsMissingRoutingNo",
+      "initial_penalty": 5,
+      "procedure": "RunManufacturingChecks",
+      "line": 1519,
+      "condition": [
+        "(Item.\"Production BOM No.\" <> '') and (Item.\"Routing No.\" = '') and not ExceptionMgt.IsItemIssueExcluded(Item, 'MFG_ITEMS_MISSING_ROUTING_NO')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_DESCRIPTION",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "MissingServiceItemDescription",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1578,
+      "condition": [
+        "ServiceItem.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_CUSTOMER",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "MissingServiceItemCustomer",
+      "initial_penalty": 5,
+      "procedure": "RunServiceChecks",
+      "line": 1579,
+      "condition": [
+        "ServiceItem.\"Customer No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_ITEM_NO",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "MissingServiceItemItemNo",
+      "initial_penalty": 5,
+      "procedure": "RunServiceChecks",
+      "line": 1580,
+      "condition": [
+        "ServiceItem.\"Item No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_SERIAL_NO",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "MissingServiceItemSerialNo",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1581,
+      "condition": [
+        "ServiceItem.\"Serial No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_CUSTOMER",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "MissingHeaderCustomer",
+      "initial_penalty": 6,
+      "procedure": "RunServiceChecks",
+      "line": 1582,
+      "condition": [
+        "ServiceHeader.\"Customer No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_BILL_TO",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "MissingHeaderBillToCustomer",
+      "initial_penalty": 6,
+      "procedure": "RunServiceChecks",
+      "line": 1583,
+      "condition": [
+        "ServiceHeader.\"Bill-to Customer No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_DESCRIPTION",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "MissingHeaderDescription",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1584,
+      "condition": [
+        "ServiceHeader.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_ASSIGNED_USER",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "MissingHeaderAssignedUser",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1585,
+      "condition": [
+        "ServiceHeader.\"Assigned User ID\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_LINES_MISSING_NO",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "MissingLineNo",
+      "initial_penalty": 5,
+      "procedure": "RunServiceChecks",
+      "line": 1586,
+      "condition": [
+        "(Format(ServiceLine.Type) <> '') and (ServiceLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_LINES_MISSING_DESCRIPTION",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "MissingLineDescription",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1587,
+      "condition": [
+        "(Format(ServiceLine.Type) <> '') and (ServiceLine.Description = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_LINES_ZERO_QTY",
+      "category": "SERVICE",
+      "severity": "medium",
+      "counter": "ZeroLineQuantity",
+      "initial_penalty": 3,
+      "procedure": "RunServiceChecks",
+      "line": 1588,
+      "condition": [
+        "(Format(ServiceLine.Type) <> '') and (ServiceLine.Quantity = 0)"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "SERVICE_LINES_ZERO_UNIT_PRICE",
+      "category": "SERVICE",
+      "severity": "high",
+      "counter": "ZeroLineUnitPrice",
+      "initial_penalty": 5,
+      "procedure": "RunServiceChecks",
+      "line": 1589,
+      "condition": [
+        "(Format(ServiceLine.Type) <> '') and (ServiceLine.\"Unit Price\" = 0)"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOBS_MISSING_DESCRIPTION",
+      "category": "JOB",
+      "severity": "medium",
+      "counter": "MissingJobDescription",
+      "initial_penalty": 3,
+      "procedure": "RunJobsChecks",
+      "line": 1642,
+      "condition": [
+        "JobRec.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOBS_MISSING_BILL_TO_CUSTOMER",
+      "category": "JOB",
+      "severity": "high",
+      "counter": "MissingBillToCustomer",
+      "initial_penalty": 5,
+      "procedure": "RunJobsChecks",
+      "line": 1643,
+      "condition": [
+        "JobRec.\"Bill-to Customer No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOBS_MISSING_RESPONSIBLE",
+      "category": "JOB",
+      "severity": "medium",
+      "counter": "MissingPersonResponsible",
+      "initial_penalty": 3,
+      "procedure": "RunJobsChecks",
+      "line": 1644,
+      "condition": [
+        "JobRec.\"Person Responsible\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOBS_MISSING_POSTING_GROUP",
+      "category": "JOB",
+      "severity": "high",
+      "counter": "MissingJobPostingGroup",
+      "initial_penalty": 5,
+      "procedure": "RunJobsChecks",
+      "line": 1645,
+      "condition": [
+        "JobRec.\"Job Posting Group\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_TASKS_MISSING_DESCRIPTION",
+      "category": "JOB",
+      "severity": "medium",
+      "counter": "MissingTaskDescription",
+      "initial_penalty": 2,
+      "procedure": "RunJobsChecks",
+      "line": 1646,
+      "condition": [
+        "JobTask.Description = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_MISSING_NO",
+      "category": "JOB",
+      "severity": "high",
+      "counter": "MissingPlanningLineNo",
+      "initial_penalty": 5,
+      "procedure": "RunJobsChecks",
+      "line": 1647,
+      "condition": [
+        "(Format(JobPlanningLine.Type) <> '') and (JobPlanningLine.\"No.\" = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_MISSING_DESCRIPTION",
+      "category": "JOB",
+      "severity": "medium",
+      "counter": "MissingPlanningDescription",
+      "initial_penalty": 2,
+      "procedure": "RunJobsChecks",
+      "line": 1648,
+      "condition": [
+        "(Format(JobPlanningLine.Type) <> '') and (JobPlanningLine.Description = '')"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_QTY",
+      "category": "JOB",
+      "severity": "medium",
+      "counter": "ZeroPlanningQuantity",
+      "initial_penalty": 3,
+      "procedure": "RunJobsChecks",
+      "line": 1649,
+      "condition": [
+        "(Format(JobPlanningLine.Type) <> '') and (JobPlanningLine.Quantity = 0)"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_UNIT_COST",
+      "category": "JOB",
+      "severity": "high",
+      "counter": "ZeroUnitCost",
+      "initial_penalty": 4,
+      "procedure": "RunJobsChecks",
+      "line": 1650,
+      "condition": [
+        "(Format(JobPlanningLine.Type) <> '') and (JobPlanningLine.\"Unit Cost\" = 0)"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_UNIT_PRICE",
+      "category": "JOB",
+      "severity": "high",
+      "counter": "ZeroUnitPrice",
+      "initial_penalty": 4,
+      "procedure": "RunJobsChecks",
+      "line": 1651,
+      "condition": [
+        "(Format(JobPlanningLine.Type) <> '') and (JobPlanningLine.\"Unit Price\" = 0)"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_FIRST_NAME",
+      "category": "HR",
+      "severity": "low",
+      "counter": "MissingFirstName",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1705,
+      "condition": [
+        "Employee.\"First Name\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_LAST_NAME",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "MissingLastName",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1706,
+      "condition": [
+        "Employee.\"Last Name\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_SEARCH_NAME",
+      "category": "HR",
+      "severity": "low",
+      "counter": "MissingSearchName",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1707,
+      "condition": [
+        "Employee.\"Search Name\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_EMAIL",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "MissingEmail",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1708,
+      "condition": [
+        "Employee.\"E-Mail\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_PHONE",
+      "category": "HR",
+      "severity": "low",
+      "counter": "MissingPhone",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1709,
+      "condition": [
+        "Employee.\"Phone No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_COUNTRY",
+      "category": "HR",
+      "severity": "low",
+      "counter": "MissingCountryCode",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1710,
+      "condition": [
+        "Employee.\"Country/Region Code\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_RESOURCE_NO",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "MissingResourceNo",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1711,
+      "condition": [
+        "Employee.\"Resource No.\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_JOB_TITLE",
+      "category": "HR",
+      "severity": "low",
+      "counter": "MissingJobTitle",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1712,
+      "condition": [
+        "Employee.\"Job Title\" = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "RESOURCES_MISSING_NAME",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "ResourcesMissingName",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1713,
+      "condition": [
+        "ResourceRec.Name = ''"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "RESOURCES_ZERO_UNIT_COST",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "ResourcesZeroUnitCost",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1714,
+      "condition": [
+        "ResourceRec.\"Unit Cost\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "RESOURCES_ZERO_UNIT_PRICE",
+      "category": "HR",
+      "severity": "medium",
+      "counter": "ResourcesZeroUnitPrice",
+      "initial_penalty": 3,
+      "procedure": "RunHRChecks",
+      "line": 1715,
+      "condition": [
+        "ResourceRec.\"Unit Price\" = 0"
+      ],
+      "aggregation": "count"
+    },
+    {
+      "code": "RESOURCES_MISSING_BASE_UOM",
+      "category": "HR",
+      "severity": "low",
+      "counter": "ResourcesMissingBaseUOM",
+      "initial_penalty": 2,
+      "procedure": "RunHRChecks",
+      "line": 1716,
+      "condition": [
+        "ResourceRec.\"Base Unit of Measure\" = ''"
+      ],
+      "aggregation": "count"
+    }
+  ],
+  "benchmark": {
+    "user_reported_seconds": 502.226,
+    "business_records_per_second": 39.822709298204394,
+    "seconds_per_1000_business_records": 25.1113
+  }
+}

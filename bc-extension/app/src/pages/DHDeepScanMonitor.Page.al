@@ -162,8 +162,8 @@
                 field("Affected Records Header"; AffectedRecordsValue)
                 {
                     ApplicationArea = All;
-                    Caption = 'Affected Records';
-                    ToolTip = 'Specifies Affected Records.';
+                    Caption = 'Check Occurrences';
+                    ToolTip = 'Specifies check matches. A record can be counted by multiple checks.';
                 }
 
                 field("Estimated Loss"; EstimatedLossValue)

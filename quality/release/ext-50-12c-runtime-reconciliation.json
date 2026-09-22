@@ -1,0 +1,54 @@
+{
+  "status": "BLOCKED",
+  "readiness": "NOT_READY_FOR_LARGE",
+  "evidence_kind": "OFFLINE_EXPORT_RECONCILIATION_NOT_BC_EXECUTION",
+  "reported_score_arithmetic": {
+    "numerator": 3410,
+    "weight": 90,
+    "score": 38
+  },
+  "inventories": {},
+  "checks": [
+    {
+      "name": "reported_score_consistency",
+      "status": "PASS",
+      "detail": "Arithmetic on user-reported values; not a finding-derived runtime score"
+    },
+    {
+      "name": "reported_potential_saving_display",
+      "status": "PASS",
+      "detail": "Conditional on the default 0.7 factor; runtime configuration not supplied"
+    },
+    {
+      "name": "bc_inventory",
+      "status": "BLOCKED",
+      "detail": "No complete sanitized export supplied"
+    },
+    {
+      "name": "backend_inventory",
+      "status": "BLOCKED",
+      "detail": "No complete sanitized export supplied"
+    },
+    {
+      "name": "bc_backend_finding_multiset",
+      "status": "BLOCKED",
+      "detail": "Both complete exports required"
+    },
+    {
+      "name": "generator_runtime_detection",
+      "status": "BLOCKED",
+      "detail": "Owned field counts, exceptions, baseline matches and BC findings required"
+    },
+    {
+      "name": "finding_derived_score",
+      "status": "BLOCKED",
+      "detail": "Pre-sync severity plus scan-time enabled-module evidence required"
+    },
+    {
+      "name": "configured_impact_recalculation",
+      "status": "BLOCKED",
+      "detail": "Scan-time impact definitions and hourly rate required"
+    }
+  ],
+  "input_sha256": "b73930f895744b0a478a290c05656b89b19ea888ae05a5223fedcdadeb618719"
+}

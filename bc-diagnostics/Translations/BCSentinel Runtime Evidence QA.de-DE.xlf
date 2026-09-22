@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="BCSentinel Runtime Evidence QA">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 3775396032 - NamedType 2273211534" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generator Run 1 does not match the expected DEV counters. No data was changed.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCR Evidence Export - NamedType GeneratorMismatchErr</note>
+          <target state="translated">Generatorlauf 1 entspricht nicht den erwarteten DEV-Zählern. Es wurden keine Daten geändert.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3775396032 - NamedType 3800212702" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The preserved scan must be completed. No data was changed.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCR Evidence Export - NamedType RunIncompleteErr</note>
+          <target state="translated">Der erhaltene Scan muss abgeschlossen sein. Es wurden keine Daten geändert.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3775396032 - NamedType 4098578764" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The preserved DEV scan was not found uniquely. No data was changed.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCR Evidence Export - NamedType RunMissingErr</note>
+          <target state="translated">Der erhaltene DEV-Scan wurde nicht eindeutig gefunden. Es wurden keine Daten geändert.</target>
+        </trans-unit>
+        <trans-unit id="Codeunit 3775396032 - NamedType 381116628" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This read-only export is restricted to the BCS-PERF-DEV SaaS sandbox company.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BCR Evidence Export - NamedType SandboxErr</note>
+          <target state="translated">Dieser lesende Export ist auf die Firma BCS-PERF-DEV in einer SaaS-Sandbox beschränkt.</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCSentinel Runtime Evidence</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Property Caption</note>
+          <target state="translated">BCSentinel Laufzeitnachweis</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - NamedType 1618117332" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BCS-PERF-DEV only. Completed scan from 16 September 2026; generator Run 1. Read-only export; no cleanup, rerun or repair.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - NamedType ScopeLbl</note>
+          <target state="translated">Nur BCS-PERF-DEV. Abgeschlossener Scan vom 16. September 2026; Generatorlauf 1. Lesender Export ohne Bereinigung, erneuten Lauf oder Reparatur.</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Control 3360858242 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Read-only DEV evidence</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Control ExportScope - Property Caption</note>
+          <target state="translated">Lesender DEV-Nachweis</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Control 593885934 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exports the completed DEV scan and aggregate ownership evidence without changing business or scan data.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Control Scope - Property ToolTip</note>
+          <target state="translated">Exportiert den abgeschlossenen DEV-Scan und aggregierte Ownership-Nachweise, ohne Geschäfts- oder Scandaten zu ändern.</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Control 593885934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scope</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Control Scope - Property Caption</note>
+          <target state="translated">Umfang</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Action 285345209 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Downloads a JSON file of persisted findings, run totals and current aggregate scenario counts. No scan or generator is started.</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Action DownloadEvidence - Property ToolTip</note>
+          <target state="translated">Lädt persistierte Findings, Laufkennzahlen und aktuelle aggregierte Szenariozähler als JSON herunter. Startet weder Scan noch Generator.</target>
+        </trans-unit>
+        <trans-unit id="Page 27953896 - Action 285345209 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download DEV evidence</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">Page BCR Runtime Evidence - Action DownloadEvidence - Property Caption</note>
+          <target state="translated">DEV-Nachweis herunterladen</target>
+        </trans-unit>
+        <trans-unit id="PermissionSet 3873245588 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BC runtime evidence export</source>
+          <note from="Developer" annotates="general" priority="2" />
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet BCR EVIDENCE - Property Caption</note>
+          <target state="translated">BC-Laufzeitnachweis exportieren</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

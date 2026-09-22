@@ -1,0 +1,2 @@
+# Preserve the original SaaS download byte-for-byte, including BOM/newlines.
+quality/release/ext-50-12c-dev-run1-evidence.json -text
