@@ -1,7 +1,7 @@
 {
   "sprint": "EXT-50-04",
   "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
-  "branch": "sprint/ext-50-integration-pilot-performance",
+  "branch": "sprint/ext-50-04-runtime-no-super",
   "ci": {
     "permission_role_matrix_contract": "PASS",
     "pilot_e2e_automated_readiness": "PASS"
@@ -11,10 +11,52 @@
     "bc_version": "",
     "extension_version": "1.0.2.22"
   },
+  "runtime_method": {
+    "strategy": "single_reusable_non_super_user_sequential_roles",
+    "separate_user_per_role_required": false,
+    "dedicated_licensed_test_user_required": true,
+    "super_admin_anchor": {
+      "required": true,
+      "remains_super": true,
+      "used_for_no_super_evidence": false,
+      "permission_changes_allowed_during_test": false
+    },
+    "test_identity": {
+      "evidence_id": "BCS-NOSUPER-TEST-01",
+      "actual_login_not_stored_in_repo": true,
+      "super": false,
+      "license_status": "REQUIRED_FOR_RUNTIME"
+    },
+    "role_transition_requirements": {
+      "remove_all_bcsentinel_permission_sets_before_each_scenario": true,
+      "preserve_documented_standard_bc_baseline": true,
+      "assign_exactly_one_bcsentinel_role_except_plain_user_case": true,
+      "verify_super_false": true,
+      "capture_effective_permissions": true,
+      "renew_user_session_after_permission_change": true,
+      "record_expected_and_actual_result": true,
+      "classify_unexpected_failure_before_code_change": true
+    },
+    "standard_bc_baseline": {
+      "status": "TO_BE_CAPTURED_FROM_TEST_USER",
+      "permission_sets": [],
+      "rule": "Keep the same documented standard BC baseline across interactive role scenarios; do not silently compensate BCSentinel permission gaps with broad BC roles."
+    },
+    "failure_classifications": [
+      "BCSENTINEL_PERMISSION_GAP",
+      "STANDARD_BC_PERMISSION_REQUIRED",
+      "LICENSE_ENTITLEMENT_LIMIT",
+      "PRODUCT_DEFECT",
+      "EXPECTED_DENIAL"
+    ],
+    "checklist": "docs/EXT_50_04_RUNTIME_NO_SUPER_CHECKLIST.md"
+  },
   "roles": {
     "viewer": {
       "permission_set": "BCSENTINEL VIEWER",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "open_dashboard": "PENDING",
         "read_history_findings": "PENDING",
@@ -28,6 +70,8 @@
     "scan_user": {
       "permission_set": "BCSENTINEL SCAN",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "open_dashboard": "PENDING",
         "read_history_findings": "PENDING",
@@ -40,6 +84,8 @@
     "setup_admin": {
       "permission_set": "BCSENTINEL SETUP",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "registration_and_setup": "PENDING",
         "change_check_selection": "PENDING",
@@ -50,6 +96,8 @@
     "scheduler_user": {
       "permission_set": "BCSENTINEL SCHEDULER",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "scheduled_scan": "PENDING",
         "interactive_pages_not_required": "PENDING",
@@ -59,6 +107,8 @@
     "admin": {
       "permission_set": "BCSENTINEL ADMIN",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "dashboard": "PENDING",
         "manual_scan": "PENDING",
@@ -70,6 +120,8 @@
     "plain_bc_user": {
       "permission_set": "NONE",
       "super": false,
+      "isolation_evidence": "PENDING",
+      "effective_permissions_snapshot": "PENDING",
       "tests": {
         "dashboard_denied": "PENDING",
         "setup_denied": "PENDING",
@@ -78,5 +130,5 @@
     }
   },
   "decision": "PENDING",
-  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 baseline; real no-SUPER role matrix remains required."
+  "integration_note": "Runtime method prepared on integrated 1.0.2.22 baseline. One reusable licensed non-SUPER test user may be used sequentially; the existing SUPER admin remains untouched as recovery anchor."
 }
