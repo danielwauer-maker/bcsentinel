@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-04",
-  "status": "PARTIAL_RUNTIME_PASS__PLAIN_USER_DENIAL_VERIFIED",
+  "status": "PARTIAL_RUNTIME_PASS__PLAIN_USER_AND_VIEWER_CORE_VERIFIED",
   "branch": "sprint/ext-50-04-runtime-evidence",
   "ci": {
     "permission_role_matrix_contract": "PASS",
@@ -68,17 +68,26 @@
     "viewer": {
       "permission_set": "BCSENTINEL VIEWER",
       "super": false,
-      "isolation_evidence": "PENDING",
-      "effective_permissions_snapshot": "PENDING",
+      "isolation_evidence": "PASS_ONLY_BCSENTINEL_VIEWER",
+      "effective_permissions_snapshot": "PASS_ROLE_ASSIGNED_NO_SUPER",
       "tests": {
-        "open_dashboard": "PENDING",
-        "read_history_findings": "PENDING",
+        "open_dashboard": "PASS",
+        "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE__FINDINGS_PENDING_DATA",
         "open_finding_drilldown": "PENDING",
         "create_exception_denied": "PENDING",
         "mark_corrected_denied": "PENDING",
-        "manual_scan_denied": "PENDING",
-        "setup_change_denied": "PENDING"
-      }
+        "manual_scan_denied": "PARTIAL_PASS_SCAN_MODULE_ACCESS_DENIED_TABLEDATA_53194_INSERT__RUN_SCAN_ACTION_PENDING",
+        "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
+      },
+      "notes": [
+        "Tell Me exposes BCSentinel Dashboards, BCSentinel Scan-Module, BCSentinel-Einrichtung and BCSentinel Scan-Historie when BCSENTINEL VIEWER is assigned.",
+        "BCSentinel Dashboards opens successfully.",
+        "BCSentinel Scan-Historie opens successfully.",
+        "BCSentinel-Einrichtung is denied by BC permission enforcement: TableData 53100 DH Setup Modify.",
+        "BCSentinel Scan-Module is denied by BC permission enforcement: TableData 53194 DH Scan Check Selection Insert.",
+        "Finding read/drilldown and remediation-denial tests remain pending until runtime data/findings exist.",
+        "Explicit dashboard Run Scan denial remains pending; scan-module denial alone is not treated as full manual-scan evidence."
+      ]
     },
     "scan_user": {
       "permission_set": "BCSENTINEL SCAN",
@@ -147,6 +156,6 @@
       ]
     }
   },
-  "decision": "PARTIAL_PASS_CONTINUE_WITH_VIEWER",
+  "decision": "PARTIAL_PASS_CONTINUE_VIEWER_NEGATIVE_TESTS_THEN_PREPARE_RUNTIME_DATA",
   "integration_note": "Runtime method prepared on integrated 1.0.2.22 baseline. One reusable licensed non-SUPER test user may be used sequentially; the existing SUPER admin remains untouched as recovery anchor."
 }
