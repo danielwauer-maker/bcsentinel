@@ -132,7 +132,7 @@
     "production_deployment": false,
     "automatic_xl_stress_execution": false,
     "production_findings_written_by_generator": false,
-    "automatic_large_execution": true
+    "automatic_large_execution": false
   },
   "evidence_paths": [
     "docs/EXT_50_12A_TEST_DATA_GENERATOR.md",
