@@ -76,7 +76,7 @@
         "open_finding_drilldown": "PENDING",
         "create_exception_denied": "PENDING",
         "mark_corrected_denied": "PENDING",
-        "manual_scan_denied": "PARTIAL_PASS_SCAN_MODULE_ACCESS_DENIED_TABLEDATA_53194_INSERT__RUN_SCAN_ACTION_PENDING",
+        "manual_scan_denied": "PENDING_AFTER_TENANT_REGISTRATION__PRECONDITION_BLOCKED_FIRST",
         "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
       },
       "notes": [
@@ -86,7 +86,7 @@
         "BCSentinel-Einrichtung is denied by BC permission enforcement: TableData 53100 DH Setup Modify.",
         "BCSentinel Scan-Module is denied by BC permission enforcement: TableData 53194 DH Scan Check Selection Insert.",
         "Finding read/drilldown and remediation-denial tests remain pending until runtime data/findings exist.",
-        "Explicit dashboard Run Scan denial remains pending; scan-module denial alone is not treated as full manual-scan evidence."
+        "Explicit dashboard Run Scan attempt reached DH Scan Dispatcher but stopped on setup precondition 'Register the tenant first.' because the fresh QA company has no Tenant ID yet. This is not counted as permission-denial evidence; repeat after ADMIN registration."
       ]
     },
     "scan_user": {
@@ -156,6 +156,6 @@
       ]
     }
   },
-  "decision": "PARTIAL_PASS_CONTINUE_VIEWER_NEGATIVE_TESTS_THEN_PREPARE_RUNTIME_DATA",
+  "decision": "PARTIAL_PASS_REGISTER_QA_TENANT_AS_ADMIN_THEN_REPEAT_VIEWER_SCAN_DENIAL",
   "integration_note": "Runtime method prepared on integrated 1.0.2.22 baseline. One reusable licensed non-SUPER test user may be used sequentially; the existing SUPER admin remains untouched as recovery anchor."
 }
