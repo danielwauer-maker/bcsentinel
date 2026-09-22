@@ -12,7 +12,16 @@
     "bc_version": "PENDING_CAPTURE",
     "extension_version": "1.0.2.22",
     "tested_at": "2026-09-22",
-    "tenant_alias": "bcsentinelqa.onmicrosoft.com"
+    "tenant_alias": "bcsentinelqa.onmicrosoft.com",
+    "registration": {
+      "status": "PASS",
+      "backend": "https://dev-api.bcsentinel.com",
+      "tenant_registered": true,
+      "dashboard_invite_mail": "FAILED_NON_BLOCKING",
+      "dashboard_invite_error_class": "PRODUCT_DEFECT_OR_ENVIRONMENT_MAIL_CONFIGURATION",
+      "dashboard_invite_error": "SMTP 502 5.7.0 account is not yet activated",
+      "note": "Tenant registration completed successfully. Dashboard invite delivery failure does not block EXT-50-04 permission runtime evidence."
+    }
   },
   "runtime_method": {
     "strategy": "single_reusable_non_super_user_sequential_roles",
@@ -76,7 +85,7 @@
         "open_finding_drilldown": "PENDING",
         "create_exception_denied": "PENDING",
         "mark_corrected_denied": "PENDING",
-        "manual_scan_denied": "PENDING_AFTER_TENANT_REGISTRATION__PRECONDITION_BLOCKED_FIRST",
+        "manual_scan_denied": "PENDING_REPEAT_AFTER_SUCCESSFUL_TENANT_REGISTRATION",
         "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
       },
       "notes": [
@@ -156,6 +165,6 @@
       ]
     }
   },
-  "decision": "PARTIAL_PASS_REGISTER_QA_TENANT_AS_ADMIN_THEN_REPEAT_VIEWER_SCAN_DENIAL",
+  "decision": "PARTIAL_PASS_REPEAT_VIEWER_SCAN_DENIAL_AFTER_REGISTRATION",
   "integration_note": "Runtime method prepared on integrated 1.0.2.22 baseline. One reusable licensed non-SUPER test user may be used sequentially; the existing SUPER admin remains untouched as recovery anchor."
 }
