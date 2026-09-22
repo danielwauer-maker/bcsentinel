@@ -163,7 +163,7 @@ def test_runtime_documentation_and_checklist_encode_safe_single_user_method() ->
         assert expected in doc
 
     for expected in (
-        "SUPER-Admin unverändert",
+        "SUPER-Admin bleibt unverändert",
         "Neutralzustand",
         "BCSENTINEL VIEWER",
         "BCSENTINEL SCAN",
