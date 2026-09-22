@@ -30,7 +30,7 @@ def test_separate_app_and_nonoverlapping_object_inventory():
     assert qa["name"] == "BCSentinel Performance QA"
     assert qa["publisher"] == "BCSentinel Analytics - Daniel Wauer"
     assert qa["idRanges"] == [{"from": 53400, "to": 53449}]
-    assert product["version"] == "1.0.2.20"
+    assert product["version"] == "1.0.2.22"
     assert product["idRanges"] == [{"from": 53100, "to": 53202}]
     objects = set()
     for directory in [SRC, ROOT / "bc-extension/app/src"]:
@@ -179,18 +179,35 @@ def test_de_and_en_translations_have_complete_matching_units():
     assert catalogs[0] == catalogs[1]
 
 
-def test_ci_compiles_separate_qa_and_never_claims_runtime_pass():
+def test_ci_compiles_separate_qa_and_tracks_runtime_lifecycle_without_authorizing_large():
     ci = (ROOT / '.github/workflows/bc-al-compile.yml').read_text()
     assert '-appFolders @($appFolder, (Join-Path $env:GITHUB_WORKSPACE "bc-performance"))' in ci
     assert ci.count('6.1.18') == 4
     assert '-containerEventLogFile' in ci
     assert '-doNotPublishApps' not in ci
+
     evidence = json.loads((ROOT / 'quality/release/ext-50-12a-test-data-generator-evidence.json').read_text())
-    assert evidence['status'] == 'AWAITING_MANUAL_BC_RUNTIME_EVIDENCE'
+    assert evidence['status'] == 'DEV_GENERATION_RUNTIME_PASS__INTEGRATED_RETEST_REQUIRED_BEFORE_LARGE'
+    assert evidence['baseline']['extension_version'] == '1.0.2.22'
     assert evidence['runtime']['profile'] == 'LARGE'
     assert evidence['runtime']['seed'] == 5001
     assert evidence['runtime']['error_rate'] == 10
+    assert evidence['runtime']['target_business_records'] == 500000
+    assert evidence['runtime']['actual_run_id'] is None
     assert all(v == 'PENDING' for v in evidence['runtime']['required_evidence'].values())
+    assert evidence['runtime']['required_evidence']['large_completed_exact_counts'] == 'PENDING'
+
+    dev = evidence['runtime']['dev_prerequisite']
+    assert dev['status'] == 'PARTIAL_PASS_GENERATION_AND_SCAN__CLEANUP_AND_NON_SUPER_GATES_OPEN'
+    assert dev['profile'] == 'DEV'
+    assert dev['business_records'] == 20000
+    assert dev['actual_business_records'] == 20000
+    assert evidence['runtime']['dev_scan_evidence']['status'] == 'PASS_HISTORICAL_PRE_INTEGRATION'
+
+    restrictions = evidence['restrictions']
+    assert restrictions['production_deployment'] is False
+    assert restrictions['automatic_large_execution'] is False
+    assert restrictions['automatic_xl_stress_execution'] is False
 
 
 def test_inherited_category_attributes_refused_before_any_batch_insert():
