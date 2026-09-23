@@ -1,5 +1,7 @@
 codeunit 53145 "DH Run ID Mgt."
 {
+    Permissions = tabledata "DH Setup" = RM;
+
     procedure GetNextRunId(var Setup: Record "DH Setup"): Code[50]
     var
         RunDate: Date;
