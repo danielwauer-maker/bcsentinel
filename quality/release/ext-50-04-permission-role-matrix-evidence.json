@@ -1,17 +1,17 @@
 {
   "sprint": "EXT-50-04",
-  "status": "FIX_ITERATION_3_IMPLEMENTED_AWAITING_1_0_2_25_RUNTIME_RETEST",
+  "status": "PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_VERIFIED_1_0_2_25",
   "branch": "sprint/ext-50-04-runtime-evidence",
   "ci": {
-    "permission_role_matrix_contract": "PENDING_FIX_CI",
-    "pilot_e2e_automated_readiness": "PENDING_FIX_CI"
+    "permission_role_matrix_contract": "PASS",
+    "pilot_e2e_automated_readiness": "PASS"
   },
   "runtime_environment": {
     "sandbox": "Business Central SaaS Trial",
     "company": "CRONUS DE",
     "bc_version": "PENDING_CAPTURE",
-    "extension_version": "1.0.2.22",
-    "tested_at": "2026-09-22",
+    "extension_version": "1.0.2.25",
+    "tested_at": "2026-09-23",
     "tenant_alias": "bcsentinelqa.onmicrosoft.com",
     "registration": {
       "status": "PASS",
@@ -30,6 +30,18 @@
       "root_cause": "BCSENTINEL SCAN had direct read R on DH Setup but no lowercase indirect modify permission m. Codeunit Permissions properties alone cannot satisfy the user's indirect table permission requirement.",
       "implementation": "Change BCSENTINEL SCAN DH Setup permission from R to Rm. Keep direct M absent. Authorized scan codeunits retain tabledata DH Setup = RM object permissions.",
       "security_invariant": "SCAN can read DH Setup directly and modify it only indirectly through explicitly authorized BCSentinel codeunits; direct Setup modification remains denied."
+    },
+    "runtime_result_1_0_2_25": {
+      "manual_scan": "PASS",
+      "scan_status": "COMPLETED",
+      "backend_sync": "SYNCHRONIZED",
+      "modules": "10/10",
+      "checks": "199/199",
+      "findings_or_problems": 92,
+      "data_health_score": 48,
+      "business_impact_eur": 58744.42,
+      "potential_savings_eur": 41121.09,
+      "evidence_summary": "BCSENTINEL SCAN non-SUPER user started and completed the scan successfully. BC scan monitor shows Completed and Synchronized; scan history and dashboard contain the completed run; executive report was generated."
     }
   },
   "runtime_method": {
@@ -114,10 +126,10 @@
       "effective_permissions_snapshot": "PASS_ROLE_ASSIGNED_NO_SUPER",
       "tests": {
         "open_dashboard": "PASS",
-        "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE__FINDINGS_PENDING_DATA",
+        "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE_WITH_COMPLETED_RUN__FINDINGS_DIRECT_VIEW_PENDING",
         "create_exception": "PENDING",
         "mark_corrected": "PENDING",
-        "manual_scan": "FAIL_1_0_2_24_DH_SETUP_INDIRECTMODIFY__FIX_1_0_2_25_AWAITING_RETEST",
+        "manual_scan": "PASS_1_0_2_25_COMPLETED_AND_SYNCHRONIZED",
         "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
       },
       "notes": [
@@ -127,7 +139,10 @@
         "Manual scan start failed on the same DH Setup Modify requirement, revealing EXT-50-04-DEF-001.",
         "1.0.2.23 retest still failed on DH Setup Modify. Root cause narrowed to DH Run ID Mgt. updating Last Run ID Date/Counter without indirect table permission.",
         "1.0.2.24 retest changed the failure to DH Setup IndirectModify, proving the codeunit object permissions are reached but the SCAN role itself lacks lowercase indirect modify permission.",
-        "1.0.2.25 changes SCAN from DH Setup = R to DH Setup = Rm; direct M remains absent."
+        "1.0.2.25 changes SCAN from DH Setup = R to DH Setup = Rm; direct M remains absent.",
+        "1.0.2.25 SaaS retest PASS: non-SUPER BCSENTINEL SCAN user started the scan successfully; run completed at 100% and backend synchronization status is Synchronized.",
+        "Completed runtime evidence: 10/10 modules, 199/199 checks, 92 problems, Data Health Score 48/100, business impact 58,744.42 EUR and potential savings 41,121.09 EUR.",
+        "BC scan history shows the completed free initial scan; the external dashboard reflects the same score/impact values and the Executive Report was generated."
       ]
     },
     "setup_admin": {
@@ -183,6 +198,6 @@
       ]
     }
   },
-  "decision": "FIX_1_0_2_25_IMPLEMENTED__CI_AND_REAL_SAAS_RETEST_REQUIRED",
-  "integration_note": "Runtime evidence progressed from 1.0.2.22 through failed 1.0.2.23 retest. Candidate 1.0.2.24 adds the missing indirect Run ID setup write without widening the SCAN role."
+  "decision": "PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_FIXED_IN_1_0_2_25__REMAINING_ROLE_MATRIX_TESTS_REQUIRED",
+  "integration_note": "1.0.2.25 resolves EXT-50-04-DEF-001 for manual scan execution. Real BC SaaS runtime confirms successful non-SUPER SCAN execution and backend synchronization. Remaining role-matrix scenarios must still be completed before final RUNTIME_PASS and merge."
 }
