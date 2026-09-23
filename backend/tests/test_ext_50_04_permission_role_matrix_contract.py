@@ -53,9 +53,9 @@ def test_no_super_dependency_is_encoded() -> None:
 
 def test_viewer_is_read_only_on_bcsentinel_tables() -> None:
     block = _block("BCSENTINEL VIEWER")
-    table_permissions = re.findall(r'tabledata\s+"[^"]+"\s*=\s*([RIMD]+)', block)
+    table_permissions = re.findall(r'tabledata\s+"[^"]+"\s*=\s*([RIMDrimd]+)', block)
     assert table_permissions, "Viewer must expose BCSentinel data read permissions"
-    assert set(table_permissions) == {"R"}, f"Viewer has write permissions: {table_permissions}"
+    assert set(table_permissions) == {"R"}, f"Viewer has direct or indirect write permissions: {table_permissions}"
 
 
 def test_scan_user_cannot_modify_setup_directly_but_can_modify_indirectly() -> None:
