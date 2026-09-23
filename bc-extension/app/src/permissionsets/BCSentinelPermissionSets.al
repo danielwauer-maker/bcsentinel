@@ -4,7 +4,7 @@ permissionset 53190 "BCSENTINEL VIEWER"
     Caption = 'BCSentinel Viewer';
 
     Permissions =
-        tabledata "DH Setup" = R,
+        tabledata "DH Setup" = Rm,
         tabledata "DH Scan Header" = R,
         tabledata "DH Scan Trend" = R,
         tabledata "DH Deep Scan Run" = R,
