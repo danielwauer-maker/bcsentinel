@@ -30,7 +30,7 @@ def test_separate_app_and_nonoverlapping_object_inventory():
     assert qa["name"] == "BCSentinel Performance QA"
     assert qa["publisher"] == "BCSentinel Analytics - Daniel Wauer"
     assert qa["idRanges"] == [{"from": 53400, "to": 53449}]
-    assert product["version"] == "1.0.2.23"
+    assert product["version"] == "1.0.2.24"
     assert product["idRanges"] == [{"from": 53100, "to": 53202}]
     objects = set()
     for directory in [SRC, ROOT / "bc-extension/app/src"]:
@@ -188,7 +188,7 @@ def test_ci_compiles_separate_qa_and_tracks_runtime_lifecycle_without_authorizin
 
     evidence = json.loads((ROOT / 'quality/release/ext-50-12a-test-data-generator-evidence.json').read_text())
     assert evidence['status'] == 'DEV_GENERATION_RUNTIME_PASS__INTEGRATED_RETEST_REQUIRED_BEFORE_LARGE'
-    assert evidence['baseline']['extension_version'] == '1.0.2.23'
+    assert evidence['baseline']['extension_version'] == '1.0.2.24'
     assert evidence['runtime']['profile'] == 'LARGE'
     assert evidence['runtime']['seed'] == 5001
     assert evidence['runtime']['error_rate'] == 10
