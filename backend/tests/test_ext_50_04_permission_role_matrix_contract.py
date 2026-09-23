@@ -12,6 +12,7 @@ DOC_FILE = ROOT / "docs" / "EXT_50_04_PERMISSION_ROLE_MATRIX.md"
 RUNTIME_CHECKLIST = ROOT / "docs" / "EXT_50_04_RUNTIME_NO_SUPER_CHECKLIST.md"
 SCAN_DISPATCHER_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHScanDispatcher.Codeunit.al"
 API_CLIENT_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHApiClient.Codeunit.al"
+RUN_ID_MGT_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHRunIdMgt.Codeunit.al"
 
 
 def _source() -> str:
@@ -69,9 +70,11 @@ def test_scan_user_cannot_modify_setup_directly() -> None:
 def test_scan_runtime_writes_use_indirect_codeunit_permissions() -> None:
     dispatcher = SCAN_DISPATCHER_FILE.read_text(encoding="utf-8")
     api_client = API_CLIENT_FILE.read_text(encoding="utf-8")
+    run_id_mgt = RUN_ID_MGT_FILE.read_text(encoding="utf-8")
 
     assert 'Permissions = tabledata "DH Setup" = RM;' in dispatcher
     assert 'Permissions = tabledata "DH Setup" = RM;' in api_client
+    assert 'Permissions = tabledata "DH Setup" = RM;' in run_id_mgt
 
 
 def test_setup_role_can_configure_but_not_write_scan_results() -> None:
