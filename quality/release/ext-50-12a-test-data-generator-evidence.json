@@ -3,7 +3,7 @@
   "status": "DEV_GENERATION_RUNTIME_PASS__INTEGRATED_RETEST_REQUIRED_BEFORE_LARGE",
   "baseline": {
     "source_branch": "sprint/ext-50-integration-pilot-performance",
-    "extension_version": "1.0.2.23",
+    "extension_version": "1.0.2.24",
     "application": "27.0.0.0",
     "runtime": "16.0",
     "product_object_range": [
@@ -16,7 +16,7 @@
     ],
     "protected_pr": 37,
     "commit": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3",
-    "note": "Current integrated candidate baseline after EXT-50-04 No-SUPER scan permission fix; historical DEV20k runtime evidence remains pre-integration and must be rerun before LARGE."
+    "note": "Current integrated candidate baseline after EXT-50-04 No-SUPER scan permission fix iteration 2; historical DEV20k runtime evidence remains pre-integration and must be rerun before LARGE."
   },
   "generator_version": "1.0.0.1",
   "schema_version": 1,
