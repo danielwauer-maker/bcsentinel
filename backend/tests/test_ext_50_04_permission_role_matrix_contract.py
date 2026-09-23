@@ -58,11 +58,14 @@ def test_viewer_is_read_only_on_bcsentinel_tables() -> None:
     assert set(table_permissions) == {"R"}, f"Viewer has write permissions: {table_permissions}"
 
 
-def test_scan_user_cannot_modify_setup_directly() -> None:
+def test_scan_user_cannot_modify_setup_directly_but_can_modify_indirectly() -> None:
     block = _block("BCSENTINEL SCAN")
-    match = re.search(r'tabledata\s+"DH Setup"\s*=\s*([RIMD]+)', block)
+    match = re.search(r'tabledata\s+"DH Setup"\s*=\s*([RIMDrimd]+)', block)
     assert match, "SCAN role must declare DH Setup permission"
-    assert match.group(1) == "R", f"SCAN role must keep DH Setup read-only, got {match.group(1)}"
+    permission = match.group(1)
+    assert permission == "Rm", f"SCAN role must use direct read + indirect modify only, got {permission}"
+    assert "M" not in permission, "SCAN role must never have direct Modify on DH Setup"
+    assert "m" in permission, "SCAN role must permit only indirect Modify on DH Setup"
     assert 'codeunit "DH Scan Dispatcher" = X' in block
     assert 'codeunit "DH Deep Scan Runner" = X' in block
 
@@ -158,6 +161,7 @@ def test_runtime_evidence_preserves_no_super_isolation_while_progressing() -> No
         "PARTIAL_RUNTIME_PASS__PLAIN_USER_AND_VIEWER_CORE_VERIFIED",
         "FIX_IMPLEMENTED_AWAITING_1_0_2_23_RUNTIME_RETEST",
         "FIX_ITERATION_2_IMPLEMENTED_AWAITING_1_0_2_24_RUNTIME_RETEST",
+        "FIX_ITERATION_3_IMPLEMENTED_AWAITING_1_0_2_25_RUNTIME_RETEST",
         "RUNTIME_PASS",
     }
 
