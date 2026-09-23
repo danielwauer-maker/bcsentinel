@@ -157,6 +157,7 @@ def test_runtime_evidence_preserves_no_super_isolation_while_progressing() -> No
         "PARTIAL_RUNTIME_PASS__PLAIN_USER_DENIAL_VERIFIED",
         "PARTIAL_RUNTIME_PASS__PLAIN_USER_AND_VIEWER_CORE_VERIFIED",
         "FIX_IMPLEMENTED_AWAITING_1_0_2_23_RUNTIME_RETEST",
+        "FIX_ITERATION_2_IMPLEMENTED_AWAITING_1_0_2_24_RUNTIME_RETEST",
         "RUNTIME_PASS",
     }
 
