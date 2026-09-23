@@ -1,6 +1,6 @@
 {
   "sprint": "EXT-50-04",
-  "status": "FIX_IMPLEMENTED_AWAITING_1_0_2_23_RUNTIME_RETEST",
+  "status": "FIX_ITERATION_2_IMPLEMENTED_AWAITING_1_0_2_24_RUNTIME_RETEST",
   "branch": "sprint/ext-50-04-runtime-evidence",
   "ci": {
     "permission_role_matrix_contract": "PENDING_FIX_CI",
@@ -22,12 +22,13 @@
       "dashboard_invite_error": "SMTP 502 5.7.0 account is not yet activated",
       "note": "Tenant registration completed successfully. Dashboard invite delivery failure does not block EXT-50-04 permission runtime evidence."
     },
-    "candidate_extension_version": "1.0.2.23",
+    "candidate_extension_version": "1.0.2.24",
     "candidate_fix": {
       "defect_id": "EXT-50-04-DEF-001",
       "classification": "BCSENTINEL_PERMISSION_GAP",
-      "symptom": "BCSENTINEL SCAN could open dashboard/history but manual scan failed on TableData 53100 DH Setup Modify.",
-      "implementation": "Keep BCSENTINEL SCAN direct DH Setup permission at R; grant indirect RM to DH Scan Dispatcher and DH API Client.",
+      "symptom": "BCSENTINEL SCAN manual scan failed on TableData 53100 DH Setup Modify in 1.0.2.22 and still in 1.0.2.23.",
+      "root_cause": "DH Run ID Mgt. modifies DH Setup Last Run ID Date/Counter while generating a run id and lacked indirect DH Setup modify permission.",
+      "implementation": "Keep BCSENTINEL SCAN direct DH Setup permission at R; grant indirect RM to DH Scan Dispatcher, DH API Client, and DH Run ID Mgt.",
       "security_invariant": "SCAN user still cannot directly modify DH Setup or administer BCSentinel Setup."
     }
   },
@@ -116,7 +117,7 @@
         "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE__FINDINGS_PENDING_DATA",
         "create_exception": "PENDING",
         "mark_corrected": "PENDING",
-        "manual_scan": "FAIL_BCSENTINEL_PERMISSION_GAP_TABLEDATA_53100_DH_SETUP_MODIFY__FIX_1_0_2_23_AWAITING_RETEST",
+        "manual_scan": "FAIL_1_0_2_23_TABLEDATA_53100_DH_SETUP_MODIFY__FIX_1_0_2_24_AWAITING_RETEST",
         "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
       },
       "notes": [
@@ -124,7 +125,8 @@
         "BCSentinel Scan-Historie opens with only BCSENTINEL SCAN assigned.",
         "BCSentinel Setup remains denied by BC permission enforcement: TableData 53100 DH Setup Modify.",
         "Manual scan start failed on the same DH Setup Modify requirement, revealing EXT-50-04-DEF-001.",
-        "Fix 1.0.2.23 preserves direct DH Setup = R in the SCAN role and moves required runtime writes to indirect codeunit permissions."
+        "1.0.2.23 retest still failed on DH Setup Modify. Root cause narrowed to DH Run ID Mgt. updating Last Run ID Date/Counter without indirect table permission.",
+        "1.0.2.24 adds indirect RM on DH Setup to DH Run ID Mgt.; SCAN direct permission remains read-only."
       ]
     },
     "setup_admin": {
@@ -180,6 +182,6 @@
       ]
     }
   },
-  "decision": "FIX_1_0_2_23_IMPLEMENTED__CI_AND_REAL_SAAS_RETEST_REQUIRED",
-  "integration_note": "Runtime evidence progressed from integrated 1.0.2.22. Candidate 1.0.2.23 fixes EXT-50-04-DEF-001 using indirect codeunit permissions without widening the SCAN role."
+  "decision": "FIX_1_0_2_24_IMPLEMENTED__CI_AND_REAL_SAAS_RETEST_REQUIRED",
+  "integration_note": "Runtime evidence progressed from 1.0.2.22 through failed 1.0.2.23 retest. Candidate 1.0.2.24 adds the missing indirect Run ID setup write without widening the SCAN role."
 }
