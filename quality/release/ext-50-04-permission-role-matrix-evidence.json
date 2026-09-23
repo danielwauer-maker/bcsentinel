@@ -1,15 +1,48 @@
 {
   "sprint": "EXT-50-04",
-  "status": "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
-  "branch": "sprint/ext-50-04-runtime-no-super",
+  "status": "PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_VERIFIED_1_0_2_25",
+  "branch": "sprint/ext-50-04-runtime-evidence",
   "ci": {
     "permission_role_matrix_contract": "PASS",
     "pilot_e2e_automated_readiness": "PASS"
   },
   "runtime_environment": {
-    "sandbox": "",
-    "bc_version": "",
-    "extension_version": "1.0.2.22"
+    "sandbox": "Business Central SaaS Trial",
+    "company": "CRONUS DE",
+    "bc_version": "PENDING_CAPTURE",
+    "extension_version": "1.0.2.25",
+    "tested_at": "2026-09-23",
+    "tenant_alias": "bcsentinelqa.onmicrosoft.com",
+    "registration": {
+      "status": "PASS",
+      "backend": "https://dev-api.bcsentinel.com",
+      "tenant_registered": true,
+      "dashboard_invite_mail": "FAILED_NON_BLOCKING",
+      "dashboard_invite_error_class": "PRODUCT_DEFECT_OR_ENVIRONMENT_MAIL_CONFIGURATION",
+      "dashboard_invite_error": "SMTP 502 5.7.0 account is not yet activated",
+      "note": "Tenant registration completed successfully. Dashboard invite delivery failure does not block EXT-50-04 permission runtime evidence."
+    },
+    "candidate_extension_version": "1.0.2.25",
+    "candidate_fix": {
+      "defect_id": "EXT-50-04-DEF-001",
+      "classification": "BCSENTINEL_PERMISSION_GAP",
+      "symptom": "1.0.2.24 scan retest reaches BC permission enforcement but fails with TableData 53100 DH Setup IndirectModify.",
+      "root_cause": "BCSENTINEL SCAN had direct read R on DH Setup but no lowercase indirect modify permission m. Codeunit Permissions properties alone cannot satisfy the user's indirect table permission requirement.",
+      "implementation": "Change BCSENTINEL SCAN DH Setup permission from R to Rm. Keep direct M absent. Authorized scan codeunits retain tabledata DH Setup = RM object permissions.",
+      "security_invariant": "SCAN can read DH Setup directly and modify it only indirectly through explicitly authorized BCSentinel codeunits; direct Setup modification remains denied."
+    },
+    "runtime_result_1_0_2_25": {
+      "manual_scan": "PASS",
+      "scan_status": "COMPLETED",
+      "backend_sync": "SYNCHRONIZED",
+      "modules": "10/10",
+      "checks": "199/199",
+      "findings_or_problems": 92,
+      "data_health_score": 48,
+      "business_impact_eur": 58744.42,
+      "potential_savings_eur": 41121.09,
+      "evidence_summary": "BCSENTINEL SCAN non-SUPER user started and completed the scan successfully. BC scan monitor shows Completed and Synchronized; scan history and dashboard contain the completed run; executive report was generated."
+    }
   },
   "runtime_method": {
     "strategy": "single_reusable_non_super_user_sequential_roles",
@@ -38,9 +71,19 @@
       "classify_unexpected_failure_before_code_change": true
     },
     "standard_bc_baseline": {
-      "status": "TO_BE_CAPTURED_FROM_TEST_USER",
-      "permission_sets": [],
-      "rule": "Keep the same documented standard BC baseline across interactive role scenarios; do not silently compensate BCSentinel permission gaps with broad BC roles."
+      "status": "CAPTURED_FROM_BCS_TEST",
+      "permission_sets": [
+        "AUTOMATE - EXEC",
+        "EXCEL EXPORT ACTION",
+        "LOGIN",
+        "TROUBLESHOOT TOOLS",
+        "D365 BUS PREMIUM",
+        "LOCAL"
+      ],
+      "super": false,
+      "super_data": false,
+      "security": false,
+      "rule": "Keep this documented standard BC baseline unchanged across interactive role scenarios; only the BCSentinel role changes."
     },
     "failure_classifications": [
       "BCSENTINEL_PERMISSION_GAP",
@@ -55,31 +98,52 @@
     "viewer": {
       "permission_set": "BCSENTINEL VIEWER",
       "super": false,
-      "isolation_evidence": "PENDING",
-      "effective_permissions_snapshot": "PENDING",
+      "isolation_evidence": "PASS_ONLY_BCSENTINEL_VIEWER",
+      "effective_permissions_snapshot": "PASS_ROLE_ASSIGNED_NO_SUPER",
       "tests": {
-        "open_dashboard": "PENDING",
-        "read_history_findings": "PENDING",
+        "open_dashboard": "PASS",
+        "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE__FINDINGS_PENDING_DATA",
         "open_finding_drilldown": "PENDING",
         "create_exception_denied": "PENDING",
         "mark_corrected_denied": "PENDING",
-        "manual_scan_denied": "PENDING",
-        "setup_change_denied": "PENDING"
-      }
+        "manual_scan_denied": "PASS_PERMISSION_DENIED_TABLEDATA_53100_DH_SETUP_MODIFY",
+        "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
+      },
+      "notes": [
+        "Tell Me exposes BCSentinel Dashboards, BCSentinel Scan-Module, BCSentinel-Einrichtung and BCSentinel Scan-Historie when BCSENTINEL VIEWER is assigned.",
+        "BCSentinel Dashboards opens successfully.",
+        "BCSentinel Scan-Historie opens successfully.",
+        "BCSentinel-Einrichtung is denied by BC permission enforcement: TableData 53100 DH Setup Modify.",
+        "BCSentinel Scan-Module is denied by BC permission enforcement: TableData 53194 DH Scan Check Selection Insert.",
+        "Finding read/drilldown and remediation-denial tests remain pending until runtime data/findings exist.",
+        "After successful QA tenant registration, explicit Dashboard > Run Scan was confirmed and then denied by BC permission enforcement: TableData 53100 DH Setup Modify. Viewer cannot start a manual scan."
+      ]
     },
     "scan_user": {
       "permission_set": "BCSENTINEL SCAN",
       "super": false,
-      "isolation_evidence": "PENDING",
-      "effective_permissions_snapshot": "PENDING",
+      "isolation_evidence": "PASS_ONLY_BCSENTINEL_SCAN",
+      "effective_permissions_snapshot": "PASS_ROLE_ASSIGNED_NO_SUPER",
       "tests": {
-        "open_dashboard": "PENDING",
-        "read_history_findings": "PENDING",
+        "open_dashboard": "PASS",
+        "read_history_findings": "PARTIAL_PASS_SCAN_HISTORY_READABLE_WITH_COMPLETED_RUN__FINDINGS_DIRECT_VIEW_PENDING",
         "create_exception": "PENDING",
         "mark_corrected": "PENDING",
-        "manual_scan": "PENDING",
-        "setup_change_denied": "PENDING"
-      }
+        "manual_scan": "PASS_1_0_2_25_COMPLETED_AND_SYNCHRONIZED",
+        "setup_change_denied": "PASS_SETUP_ACCESS_DENIED_TABLEDATA_53100_MODIFY"
+      },
+      "notes": [
+        "BCSentinel Dashboards opens with only BCSENTINEL SCAN assigned.",
+        "BCSentinel Scan-Historie opens with only BCSENTINEL SCAN assigned.",
+        "BCSentinel Setup remains denied by BC permission enforcement: TableData 53100 DH Setup Modify.",
+        "Manual scan start failed on the same DH Setup Modify requirement, revealing EXT-50-04-DEF-001.",
+        "1.0.2.23 retest still failed on DH Setup Modify. Root cause narrowed to DH Run ID Mgt. updating Last Run ID Date/Counter without indirect table permission.",
+        "1.0.2.24 retest changed the failure to DH Setup IndirectModify, proving the codeunit object permissions are reached but the SCAN role itself lacks lowercase indirect modify permission.",
+        "1.0.2.25 changes SCAN from DH Setup = R to DH Setup = Rm; direct M remains absent.",
+        "1.0.2.25 SaaS retest PASS: non-SUPER BCSENTINEL SCAN user started the scan successfully; run completed at 100% and backend synchronization status is Synchronized.",
+        "Completed runtime evidence: 10/10 modules, 199/199 checks, 92 problems, Data Health Score 48/100, business impact 58,744.42 EUR and potential savings 41,121.09 EUR.",
+        "BC scan history shows the completed free initial scan; the external dashboard reflects the same score/impact values and the Executive Report was generated."
+      ]
     },
     "setup_admin": {
       "permission_set": "BCSENTINEL SETUP",
@@ -120,15 +184,20 @@
     "plain_bc_user": {
       "permission_set": "NONE",
       "super": false,
-      "isolation_evidence": "PENDING",
-      "effective_permissions_snapshot": "PENDING",
+      "isolation_evidence": "PASS_NO_BCSENTINEL_PERMISSION_SET",
+      "effective_permissions_snapshot": "PASS_CAPTURED",
       "tests": {
-        "dashboard_denied": "PENDING",
-        "setup_denied": "PENDING",
-        "scan_denied": "PENDING"
-      }
+        "dashboard_denied": "PASS_NOT_DISCOVERABLE_IN_TELL_ME",
+        "setup_denied": "PASS_NOT_DISCOVERABLE_IN_TELL_ME",
+        "scan_denied": "PASS_NO_BCSENTINEL_SCAN_PAGE_DISCOVERABLE"
+      },
+      "notes": [
+        "Tell Me search for BCSentinel, BCSentinel Einrichtung, DH Setup, BCSentinel Scan, Datenqualität and Data Health returned no BCSentinel pages.",
+        "Searches for Deep Scan and Scan returned unrelated pages such as 'Findings des Validation Checks', Miniforms, MDE-Benutzer and a quality inspection report; these captions do not match BCSentinel pages in the current extension.",
+        "BCSentinel page captions verified from staging include 'BCSentinel Dashboards', 'BCSentinel Setup', 'BCSentinel Scan History' and 'Deep Scan Findings'."
+      ]
     }
   },
-  "decision": "PENDING",
-  "integration_note": "Runtime method prepared on integrated 1.0.2.22 baseline. One reusable licensed non-SUPER test user may be used sequentially; the existing SUPER admin remains untouched as recovery anchor."
+  "decision": "PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_FIXED_IN_1_0_2_25__REMAINING_ROLE_MATRIX_TESTS_REQUIRED",
+  "integration_note": "1.0.2.25 resolves EXT-50-04-DEF-001 for manual scan execution. Real BC SaaS runtime confirms successful non-SUPER SCAN execution and backend synchronization. Remaining role-matrix scenarios must still be completed before final RUNTIME_PASS and merge."
 }
