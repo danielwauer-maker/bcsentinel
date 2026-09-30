@@ -1,13 +1,13 @@
 # EXT-50-04-RUNTIME – No-SUPER SaaS Checkliste
 
-Status: **PREPARED – LICENSED TEST USER REQUIRED FOR RUNTIME**
+Status: **IN PROGRESS – 1.0.2.25 SCAN RUNTIME PASS; SETUP / SCHEDULER / ADMIN PENDING**
 
 Diese Checkliste ist die operative Evidence-Vorlage für den realen BC27-SaaS-Test. Sie ändert keine Produktberechtigungen und markiert keinen Runtime-Test als bestanden.
 
 ## 0. Sicherheitsvoraussetzungen
 
 - [ ] Test ausschließlich in einer Business-Central-Sandbox.
-- [ ] BCSentinel 1.0.2.22 ist installiert.
+- [ ] BCSentinel **1.0.2.25** ist installiert.
 - [ ] Bestehender SUPER-Admin bleibt unverändert.
 - [ ] SUPER-Admin wird nicht als No-SUPER-Evidence verwendet.
 - [ ] Dedizierter zweiter Testbenutzer kann sich in BC anmelden.
@@ -45,10 +45,12 @@ Erwartung: lesen ja, BCSentinel-Daten verändern nein.
 - [ ] Exception anlegen wird blockiert.
 - [ ] Finding als korrigiert markieren wird blockiert.
 - [ ] Manueller Scan wird blockiert.
-- [ ] Setup-Änderung wird blockiert.
+- [x] Setup-Änderung wird blockiert — **PASS**, direkte Modify-Berechtigung bleibt verweigert.
 - [ ] Actual Results in Evidence übertragen.
 
 ## 3. Scan User – BCSENTINEL SCAN
+
+Status: **RUNTIME PASS für manuellen Scan mit 1.0.2.25**. Remediation-Einzeltests bleiben als ergänzende Evidence offen.
 
 Erwartung: Scan und Remediation ja, Setup-Hoheit nein.
 
@@ -58,7 +60,7 @@ Erwartung: Scan und Remediation ja, Setup-Hoheit nein.
 - [ ] Dashboard / Findings lesbar.
 - [ ] Exception kann angelegt werden.
 - [ ] Finding kann als korrigiert markiert werden.
-- [ ] Manueller Scan startet und wird vollständig abgeschlossen.
+- [x] Manueller Scan startet und wird vollständig abgeschlossen — **PASS 1.0.2.25**, Completed + Synchronized, 10/10 Module, 199/199 Checks.
 - [ ] Setup-Änderung wird blockiert.
 - [ ] Bei Zugriff auf Customer/Vendor/Item prüfen, ob ein Fehler BCSentinel-intern oder Standard-BC-bedingt ist.
 - [ ] Actual Results in Evidence übertragen.
@@ -141,4 +143,4 @@ EXT-50-04-RUNTIME ist erst PASS, wenn:
 - [ ] Evidence-Datei vollständig aktualisiert ist,
 - [ ] CI nach eventuellen Permission-Patches vollständig grün ist.
 
-Bis dahin bleibt der Status `AWAITING_MANUAL_BC_RUNTIME_EVIDENCE`.
+Bis dahin bleibt der Status `PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_VERIFIED_1_0_2_25`.
