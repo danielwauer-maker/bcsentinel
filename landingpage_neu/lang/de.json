@@ -327,5 +327,9 @@
   "pilot_not_prod_title": "Was der Pilot nicht verspricht",
   "pilot_not_prod_text": "Der Pilot ist keine allgemeine Produktionsfreigabe, keine AppSource-Verfuegbarkeit und kein Enterprise-SLA. Offene Grenzen werden vor Aufnahme transparent dokumentiert.",
   "pilot_final_title": "Interesse an einem betreuten BCSentinel-Pilot?",
-  "pilot_final_text": "Wir pruefen Umgebung, Zielbild und aktuelle Pilotkapazitaet vor der Aufnahme."
+  "pilot_final_text": "Wir pruefen Umgebung, Zielbild und aktuelle Pilotkapazitaet vor der Aufnahme.",
+  "contact_email_title": "Direkter Kontakt",
+  "contact_privacy_note": "Bitte senden Sie keine Zugangsdaten, API-Tokens oder vertraulichen Business-Central-Daten per E-Mail.",
+  "status_pilot": "Pilotbetrieb",
+  "status_on_request": "Status auf Anfrage"
 }
