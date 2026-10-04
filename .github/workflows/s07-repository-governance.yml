@@ -1,0 +1,40 @@
+name: S07 Repository Governance
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "quality/s07/**"
+      - "config/canonical-repository.yaml"
+      - "docs/S07_CANONICAL_REPOSITORY.md"
+      - "scripts/check_s07_repository_governance.py"
+      - ".github/workflows/s07-repository-governance.yml"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install contract dependency
+        run: python -m pip install --quiet PyYAML
+      - name: Validate canonical repository and traceability
+        run: python scripts/check_s07_repository_governance.py
+      - name: Upload S07 governance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: s07-repository-governance
+          path: |
+            quality/s07/
+            config/canonical-repository.yaml
+            docs/S07_CANONICAL_REPOSITORY.md
+          retention-days: 30
