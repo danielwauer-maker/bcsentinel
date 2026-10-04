@@ -100,3 +100,13 @@ The dashboard invite/password-reset SMTP transport now retries bounded transient
 - retry logic is covered by `backend/tests/test_s03_mail_resilience.py`.
 
 Still external/manual: real provider delivery, SPF/DKIM/DMARC, mailbox reception and provider bounce/feedback behavior.
+
+
+## Core closure additions
+
+- transient SMTP transport failures use a bounded retry policy;
+- permanent SMTP failures are classified without leaking provider response content;
+- dashboard invite and password-reset flows are backed by DE/EN templates;
+- successful first dashboard activation triggers a best-effort DE/EN welcome message;
+- activation remains successful even when the external mail provider is temporarily unavailable;
+- real provider delivery, SPF/DKIM/DMARC and bounce/feedback-loop validation remain manual pilot gates.
