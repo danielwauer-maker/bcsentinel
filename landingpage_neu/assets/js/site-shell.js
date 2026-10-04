@@ -18,7 +18,7 @@
   function buildHeader() {
     const config = window.BCSentinelConfig || {};
     const navPages = (config.pages || []).filter(pageVisible);
-    const mainPages = navPages.filter((page) => ["home", "pricing", "executive_reports", "why_bcsentinel", "trust"].includes(page.key));
+    const mainPages = navPages.filter((page) => ["home", "pricing", "executive_reports", "why_bcsentinel", "pilot", "trust"].includes(page.key));
     const supportAction = pageVisible({ key: "support" })
       ? `<a class="btn btn-secondary" href="support.html" data-page-link="support" data-i18n="nav_login">${t("nav_login")}</a>`
       : "";
@@ -86,6 +86,7 @@
             ${footerColumn("footer_company", [
               { href: "about.html", labelKey: "nav_about", pageKey: "about" },
               { href: "why-bcsentinel.html", labelKey: "nav_why", pageKey: "why_bcsentinel" },
+              { href: "pilot.html", labelKey: "nav_pilot", pageKey: "pilot" },
               { href: "contact.html", labelKey: "nav_contact", pageKey: "contact" },
             ])}
             ${footerColumn("footer_trust", [
