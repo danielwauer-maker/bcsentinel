@@ -376,6 +376,18 @@ def accept_scan_start(
                     code="SCAN_ID_TENANT_CONFLICT",
                     message_de="Die Scan-ID gehört bereits einem anderen Mandanten. Starten Sie einen neuen Scan mit einer neuen Scan-ID.",
                 )
+            # Under concurrent identical starts the lifecycle row can become
+            # observable in another session before the durable request binding
+            # is visible. Reconcile the exact idempotency key before treating
+            # a same-tenant run as an orphan/conflict.
+            replay = _wait_for_existing_result(
+                db,
+                tenant_id=tenant_id,
+                client_request_id=request_id,
+                payload_hash=payload_hash,
+            )
+            if replay is not None:
+                return replay
             raise ScanStartConflictError(
                 "The scan ID already has an unbound lifecycle and cannot be adopted safely. Start a new scan.",
                 code="SCAN_ID_CONFLICT",
