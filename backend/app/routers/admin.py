@@ -944,6 +944,25 @@ def admin_contact_inbox(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="contact_inbox")
 
 
+@router.post("/admin/contact-inbox/{message_id}/delete")
+def delete_admin_contact_message(message_id: int, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        row = db.get(PublicContactMessage, message_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="Contact message not found.")
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="contact_message.delete",
+            target_type="public_contact_message",
+            target_id=str(message_id),
+            details={"email": row.email, "intent": row.intent},
+        )
+        db.delete(row)
+        db.commit()
+    return RedirectResponse(url="/admin/contact-inbox", status_code=status.HTTP_303_SEE_OTHER)
+
+
 @router.get("/admin/partners/applications", response_class=HTMLResponse)
 @router.get("/admin/partners/applications/", response_class=HTMLResponse)
 def admin_partner_applications(request: Request, _: str = Depends(require_admin)):
