@@ -188,6 +188,32 @@ def _build_dashboard_invite_url(invite_token: str) -> str:
     return urljoin(f"{base_url}/", f"dashboard/invite?token={invite_token}")
 
 
+SMTP_RETRY_ATTEMPTS = 3
+
+
+def _smtp_error_is_transient(exc: Exception) -> bool:
+    if isinstance(exc, smtplib.SMTPResponseException):
+        return 400 <= int(getattr(exc, "smtp_code", 0) or 0) < 500
+    return isinstance(
+        exc,
+        (
+            smtplib.SMTPServerDisconnected,
+            TimeoutError,
+            ConnectionError,
+            OSError,
+        ),
+    )
+
+
+def _safe_smtp_error(exc: Exception, *, attempts: int) -> str:
+    if isinstance(exc, smtplib.SMTPResponseException):
+        code = int(getattr(exc, "smtp_code", 0) or 0)
+        kind = "transient" if 400 <= code < 500 else "permanent"
+        return f"SMTP {kind} failure ({code}) after {attempts} attempt(s)."
+    kind = "transient" if _smtp_error_is_transient(exc) else "permanent"
+    return f"SMTP {kind} delivery failure after {attempts} attempt(s)."
+
+
 def _send_html_email(*, target_email: str, subject: str, html_body: str) -> tuple[bool, str | None]:
     host = (settings.SMTP_HOST or "").strip()
     from_email = (settings.SMTP_FROM_EMAIL or "").strip()
@@ -199,18 +225,26 @@ def _send_html_email(*, target_email: str, subject: str, html_body: str) -> tupl
     msg["From"] = f"{settings.SMTP_FROM_NAME} <{from_email}>" if settings.SMTP_FROM_NAME else from_email
     msg["To"] = target_email
 
-    try:
-        with smtplib.SMTP(host, settings.SMTP_PORT, timeout=15) as smtp:
-            if settings.SMTP_USE_TLS:
-                smtp.starttls()
-            username = (settings.SMTP_USERNAME or "").strip()
-            password = settings.SMTP_PASSWORD or ""
-            if username and password:
-                smtp.login(username, password)
-            smtp.sendmail(from_email, [target_email], msg.as_string())
-        return True, None
-    except Exception as exc:  # pragma: no cover - exact SMTP exceptions depend on deployment
-        return False, str(exc)
+    last_error: Exception | None = None
+    for attempt in range(1, SMTP_RETRY_ATTEMPTS + 1):
+        try:
+            with smtplib.SMTP(host, settings.SMTP_PORT, timeout=15) as smtp:
+                if settings.SMTP_USE_TLS:
+                    smtp.starttls()
+                username = (settings.SMTP_USERNAME or "").strip()
+                password = settings.SMTP_PASSWORD or ""
+                if username and password:
+                    smtp.login(username, password)
+                smtp.sendmail(from_email, [target_email], msg.as_string())
+            return True, None
+        except Exception as exc:  # pragma: no cover - transport variants depend on provider
+            last_error = exc
+            if not _smtp_error_is_transient(exc) or attempt >= SMTP_RETRY_ATTEMPTS:
+                break
+
+    if last_error is None:
+        return False, "SMTP delivery failed."
+    return False, _safe_smtp_error(last_error, attempts=attempt)
 
 
 
