@@ -1206,6 +1206,7 @@ def update_tenant_dashboard_access(
             changed_users.add(user.id)
 
         if normalized_action == "suspend":
+            db.flush()
             for user_id in changed_users:
                 user = db.get(DashboardUser, user_id)
                 active_count = db.scalar(
