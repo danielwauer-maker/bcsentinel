@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "scope": "BCSentinel Core pilot up to 50 tenants",
+  "extension_version": "1.0.2.25",
+  "rule": "manual acceptance only; no item may be auto-passed",
+  "gates": [
+    {
+      "id": "M01",
+      "title": "BC SaaS role matrix without SUPER",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M02",
+      "title": "Product/checkout runtime smoke",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M03",
+      "title": "Real email/domain acceptance",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M04",
+      "title": "Full pilot journey",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M05",
+      "title": "Customer UX/visual acceptance",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M06",
+      "title": "Recovery/rollback drill",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M07",
+      "title": "Staged operational soak to 50 tenants",
+      "status": "PENDING_MANUAL"
+    },
+    {
+      "id": "M08",
+      "title": "Final release sign-off",
+      "status": "PENDING_MANUAL"
+    }
+  ]
+}
