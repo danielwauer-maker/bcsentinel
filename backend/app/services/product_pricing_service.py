@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.models import ProductPricingConfig, ProductPricingMatrixConfig
+from app.core.product_model import product_contract_for_storage_code
 from app.services.billing_service import utc_now
 from app.services.product_license_service import (
     PRODUCT_DATA_HEALTH_SCORE,
@@ -266,6 +267,7 @@ def product_price_to_public(row: ProductPricingConfig) -> dict[str, Any]:
     price_cents = max(int(row.price_cents or 0), 0)
     return {
         "product_key": row.product_key,
+        "product_contract": product_contract_for_storage_code(row.product_key),
         "display_name": row.display_name,
         "price_cents": price_cents,
         "price_eur": round(price_cents / 100, 2),
@@ -370,6 +372,7 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
 def price_to_dashboard_item(price: MatrixPrice) -> dict[str, Any]:
     payload = {
         "product_key": price.product_key,
+        "product_contract": product_contract_for_storage_code(price.product_key),
         "pricing_tier": price.pricing_tier,
         "label": price.display_name_en,
         "display_name_de": price.display_name_de,
@@ -426,6 +429,7 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
     products = [
         {
             "product_key": PRODUCT_DATA_HEALTH_SCORE,
+            "product_contract": product_contract_for_storage_code(PRODUCT_DATA_HEALTH_SCORE),
             "display_name": "Data Health Score",
             "price_cents": 0,
             "price_eur": 0.0,
@@ -440,6 +444,7 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         products.append(
             {
                 "product_key": PRODUCT_FULL_ANALYSIS,
+                "product_contract": product_contract_for_storage_code(PRODUCT_FULL_ANALYSIS),
                 "display_name": full_analysis.display_name_en,
                 "price_cents": int(full_analysis.amount_cents or 0),
                 "price_eur": full_analysis.amount_eur or 0.0,
@@ -454,6 +459,7 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         products.append(
             {
                 "product_key": PRODUCT_VALIDATION_CHECK,
+                "product_contract": product_contract_for_storage_code(PRODUCT_VALIDATION_CHECK),
                 "display_name": validation.display_name_en,
                 "price_cents": int(validation.amount_cents or 0),
                 "price_eur": validation.amount_eur or 0.0,
@@ -468,6 +474,15 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         products.append(
             {
                 "product_key": "monitoring",
+                "product_contract": {
+                    "storage_code": None,
+                    "commercial_offer_id": "monitoring",
+                    "billing_variant": None,
+                    "experience_mode": "monitoring",
+                    "access_state": "active",
+                    "entitlement_ids": product_contract_for_storage_code(PRODUCT_MONITORING_MONTHLY)["entitlement_ids"],
+                    "compatibility_only": False,
+                },
                 "display_name": "Monitoring",
                 "price_cents": int(monitoring.amount_cents or 0),
                 "price_eur": monitoring.amount_eur or 0.0,
