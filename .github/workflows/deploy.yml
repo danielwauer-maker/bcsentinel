@@ -98,6 +98,25 @@ jobs:
             git reset --hard origin/staging
             git clean -fd
 
+            echo "🌐 Sync DEV landingpage_neu and nginx configuration"
+            sudo -n rm -rf /var/www/bcsentinel/landingpage-dev
+            sudo -n install -d -m 0755 /var/www/bcsentinel/landingpage-dev
+            sudo -n cp -a landingpage_neu/. /var/www/bcsentinel/landingpage-dev/
+            ACTIVE_NGINX_CONFIG="$(sudo -n grep -Rl 'server_name.*dev\.bcsentinel\.com' /etc/nginx/sites-enabled 2>/dev/null | head -n 1)"
+            if [ -z "$ACTIVE_NGINX_CONFIG" ]; then
+              echo "No active nginx config for dev.bcsentinel.com found."
+              exit 1
+            fi
+            sudo -n cp "$ACTIVE_NGINX_CONFIG" /tmp/bcsentinel-nginx-before-deploy.conf
+            sudo -n cp config/nginx/bcsentinel.conf "$ACTIVE_NGINX_CONFIG"
+            if ! sudo -n nginx -t; then
+              echo "nginx validation failed; restoring previous config"
+              sudo -n cp /tmp/bcsentinel-nginx-before-deploy.conf "$ACTIVE_NGINX_CONFIG"
+              sudo -n nginx -t
+              exit 1
+            fi
+            sudo -n systemctl reload nginx
+
             echo "🐳 Start database only (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
 
@@ -133,3 +152,12 @@ jobs:
 
           echo "❌ DEV health check failed"
           exit 1
+
+      - name: Smoke check DEV Core web surface
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
+            echo "Checking https://dev.bcsentinel.com$path"
+            curl -4 -fsS "https://dev.bcsentinel.com$path" > /dev/null
+          done
+          echo "✅ DEV Core web surface passed"
