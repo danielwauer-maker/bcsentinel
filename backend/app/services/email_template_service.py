@@ -186,6 +186,25 @@ def ensure_default_email_templates(db) -> None:
             )
         )
         changed = True
+    # Migrate only known untouched legacy defaults; administrator-customized
+    # templates are never overwritten.
+    migrations = {
+        "dashboard_access_invite_en": (
+            "Until standalone dashboard login is enabled, please open the dashboard from Business Central.",
+            "Use the secure activation link above to choose your password. Afterwards you can sign in directly to the BCSentinel Dashboard.",
+        ),
+        "dashboard_access_invite_de": (
+            "Bis der eigenstaendige Dashboard-Login aktiviert ist, oeffnen Sie das Dashboard bitte aus Business Central.",
+            "Waehlen Sie ueber den sicheren Aktivierungslink oben Ihr Kennwort. Anschliessend koennen Sie sich direkt am BCSentinel Dashboard anmelden.",
+        ),
+    }
+    for key, (legacy_text, replacement) in migrations.items():
+        row = existing.get(key)
+        if row is not None and legacy_text in row.html_template:
+            row.html_template = row.html_template.replace(legacy_text, replacement)
+            row.updated_at_utc = utc_now()
+            changed = True
+
     if changed:
         db.commit()
 
