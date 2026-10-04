@@ -925,3 +925,59 @@ def test_executive_report_requires_active_product_access(
         headers=auth_header_factory(tenant),
     )
     assert unlocked_response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("product_code", "billing_interval", "settings_key", "price_id", "expected_product_code", "expected_offer", "expected_variant"),
+    [
+        ("validation", "monthly", "STRIPE_PRICE_ID_VALIDATION_CHECK", "price_validation_alias", "validation_check", "validation", "one_time"),
+        ("monitoring", "monthly", "STRIPE_PRICE_ID_MONITORING_MONTHLY", "price_monitoring_alias_month", "monitoring_monthly", "monitoring", "monthly"),
+        ("monitoring", "yearly", "STRIPE_PRICE_ID_MONITORING_ANNUAL", "price_monitoring_alias_year", "monitoring_annual", "monitoring", "annual"),
+    ],
+)
+def test_checkout_accepts_canonical_offer_aliases(
+    client,
+    tenant_factory,
+    auth_header_factory,
+    settings_state,
+    monkeypatch,
+    product_code,
+    billing_interval,
+    settings_key,
+    price_id,
+    expected_product_code,
+    expected_offer,
+    expected_variant,
+):
+    tenant = tenant_factory(plan="premium", license_status="active")
+    settings_state(
+        STRIPE_SECRET_KEY="sk_test",
+        **{settings_key: price_id},
+        APP_BASE_URL="https://app.example.com",
+    )
+    captured = {}
+
+    def fake_create(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(id=f"cs_alias_{expected_product_code}", url="https://stripe.example/alias")
+
+    monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
+
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "product_code": product_code,
+            "billing_interval": billing_interval,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["product_code"] == expected_product_code
+    assert payload["commercial_offer_id"] == expected_offer
+    assert payload["canonical_billing_variant"] == expected_variant
+    assert captured["metadata"]["product_code"] == expected_product_code
+    assert captured["metadata"]["commercial_offer_id"] == expected_offer
+    assert captured["metadata"]["canonical_billing_variant"] == expected_variant
