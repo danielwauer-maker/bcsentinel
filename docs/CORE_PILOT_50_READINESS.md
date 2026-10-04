@@ -37,3 +37,19 @@ The Core closure gate verifies:
 The 50-tenant automated test is an isolation/admission preflight. It does not claim that a specific production-sized host has already completed a 24-hour 50-tenant throughput/soak test.
 
 That operational evidence remains a staged pilot gate.
+
+
+## Public pilot platform closure
+
+The automated Core closure additionally verifies or provides:
+
+- API-backed contact intake with privacy acknowledgement, rate limiting and durable storage;
+- operator-visible Contact Inbox independent of SMTP delivery;
+- DE/EN invite, password reset and welcome-mail templates;
+- bounded transient SMTP retry and safe permanent-failure classification;
+- Pilot Page routed through the persistent contact flow;
+- current Legal Notice, Privacy, Pilot Terms and DPA/AVV working-template surfaces;
+- a current documentation page with explicit screenshot/video capture requirements;
+- an explicit deferred high-end design audit roadmap with a >=9.5/10 target after technical closure.
+
+Legal working texts are not considered legally approved by automation. The final operator identity, address, tax/legal wording, support policy and contractual terms remain a manual business/legal sign-off.
