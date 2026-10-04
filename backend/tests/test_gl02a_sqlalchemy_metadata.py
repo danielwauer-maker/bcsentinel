@@ -37,7 +37,10 @@ def _unique_constraint_names(table_name: str) -> set[str]:
 
 
 def test_gl02a_metadata_defaults_and_names_are_valid():
-    assert len(Base.metadata.tables) == 31
+    # Core pilot adds public_contact_messages as the 32nd mapped table.
+    # Keep this count explicit so future schema additions remain reviewed.
+    assert len(Base.metadata.tables) == 32
+    assert "public_contact_messages" in Base.metadata.tables
 
     names: set[tuple[str, str]] = set()
     for table in Base.metadata.sorted_tables:
