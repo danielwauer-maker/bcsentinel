@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scope": "BCSentinel Core pilot up to 50 tenants",
+  "target_extension_version": "1.0.2.25",
+  "decision": "AUTOMATED_CORE_CLOSURE_IN_PROGRESS_MANUAL_GATES_REMAIN",
+  "automated_gates": {
+    "legacy_product_compatibility": "REQUIRED",
+    "mail_transport_resilience": "REQUIRED",
+    "public_claims_and_pilot_surface": "REQUIRED",
+    "tenant_50_admission_isolation": "REQUIRED",
+    "atomic_scan_idempotency": "REQUIRED",
+    "multi_tenant_dashboard_isolation": "REQUIRED",
+    "full_backend_regression": "REQUIRED",
+    "postgres_concurrency": "REQUIRED",
+    "al_compile_codecops_ptecop": "REQUIRED",
+    "release_candidate_manifest": "REQUIRED",
+    "public_contact_persistence_and_rate_limit": "REQUIRED",
+    "invite_reset_welcome_mail_contract": "REQUIRED",
+    "core_legal_working_surfaces": "REQUIRED",
+    "pilot_docs_media_capture_plan": "REQUIRED",
+    "high_end_design_audit_roadmap": "REQUIRED"
+  },
+  "pilot_admission_policy": {
+    "maximum_tenants": 50,
+    "waves": [
+      1,
+      5,
+      10,
+      25,
+      50
+    ],
+    "advance_only_after_previous_wave_review": true,
+    "stop_on_p0_incident": true,
+    "no_unbounded_self_service_admission": true
+  },
+  "manual_gates_open": [
+    "SETUP role real BC SaaS runtime acceptance",
+    "SCHEDULER role real BC SaaS runtime acceptance",
+    "ADMIN role real BC SaaS runtime acceptance",
+    "viewer finding/remediation denial spot checks with real findings",
+    "real invitation email delivery and SPF/DKIM/DMARC verification",
+    "real invite -> activation -> BC connection -> dashboard journey",
+    "real tenant DE/EN dark/light mobile/tablet/desktop visual acceptance",
+    "real BC remediation/correction UX recheck",
+    "real Executive PDF visual acceptance",
+    "real pilot infrastructure restore with measured RPO/RTO",
+    "BC sandbox rollback/roll-forward drill",
+    "24h+ staged operational soak before expanding tenant waves",
+    "pilot release approval",
+    "final legal/tax/business review of imprint privacy terms DPA placeholders",
+    "final high-end visual design selection and >=9.5/10 design acceptance"
+  ],
+  "note": "Automated 50-tenant admission is a structural isolation/readiness preflight, not a throughput SLA. Legal working texts and design roadmap are technical preparation only; final legal/business and visual sign-off remain manual."
+}

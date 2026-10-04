@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     SMTP_USE_TLS: bool = True
     SMTP_FROM_EMAIL: str | None = None
     SMTP_FROM_NAME: str = "BCSentinel"
+    CONTACT_INBOX_EMAIL: str = "support@bcsentinel.com"
 
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in

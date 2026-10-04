@@ -215,3 +215,17 @@ Nicht parallel als unabhängige Wahrheit: Score-/Exception-Implementierung vor D
 ## 12. Nächste konkrete Codex-Etappe
 
 **GL-01B – DH-Ausnahmen Domain Contract & Safety Freeze.** Codex soll im nächsten Sprint keine breite Funktion implementieren, sondern die Founder-Entscheidungen in einen versionierten Domain-/API-/Scorevertrag und ausführbare Golden-Testvektoren übersetzen. Erst die signierte Entscheidung öffnet GL-01C.
+
+
+---
+
+## Core Pilot Closure — Design Gate
+
+The current priority is technical completion of BCSentinel Core for the controlled pilot. High-end visual refinement is intentionally scheduled **after** automated Core closure and before broader commercial launch.
+
+Design scope, target quality (>= 9.5/10), required real-state evidence and the future optional Lovable concept phase are governed by:
+
+- `docs/design/CORE_HIGH_END_DESIGN_AUDIT_ROADMAP.md`
+- `landingpage_neu/docs.html` for screenshot/video capture requirements
+
+This design gate must not be used to mark technical runtime, legal or operational evidence as complete.

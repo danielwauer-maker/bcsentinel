@@ -1,5 +1,7 @@
 codeunit 53100 "DH API Client"
 {
+    Permissions = tabledata "DH Setup" = RM;
+
     procedure TestConnection(var Setup: Record "DH Setup")
     var
         Client: HttpClient;

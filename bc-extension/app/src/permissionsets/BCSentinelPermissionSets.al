@@ -49,7 +49,7 @@ permissionset 53191 "BCSENTINEL SCAN"
     Caption = 'BCSentinel Scan';
 
     Permissions =
-        tabledata "DH Setup" = R,
+        tabledata "DH Setup" = Rm,
         tabledata "DH Scan Header" = RIMD,
         tabledata "DH Scan Issue" = RIMD,
         tabledata "DH Scan Trend" = RIMD,

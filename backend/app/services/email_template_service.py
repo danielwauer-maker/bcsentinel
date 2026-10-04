@@ -72,7 +72,8 @@ DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {
     <p>Your BCSentinel tenant was registered successfully. Dashboard access has been prepared for this email address.</p>
     <p><strong>Dashboard:</strong> <a href="{{ dashboard_url }}">{{ dashboard_url }}</a></p>
     <p><strong>Login email:</strong> {{ login_email }}</p>
-    <p>This access is bound to tenant <strong>{{ tenant_id }}</strong>. Until standalone dashboard login is enabled, please open the dashboard from Business Central.</p>
+    <p>This access is bound to tenant <strong>{{ tenant_id }}</strong>.</p>
+    <p>Use the secure activation link above to choose your password. Afterwards you can sign in directly to the BCSentinel Dashboard.</p>
     <p>For support, contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
   </body>
 </html>
@@ -112,6 +113,42 @@ DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {
 </html>
 """.strip(),
     },
+    "dashboard_welcome_en": {
+        "label": "Dashboard welcome EN",
+        "description": "Sent once after successful dashboard activation.",
+        "placeholders": ["dashboard_url", "support_email"],
+        "subject": "Welcome to BCSentinel",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44; line-height: 1.5;">
+    <p>Hello,</p>
+    <h2>Welcome to BCSentinel.</h2>
+    <p>Your Dashboard access is active. You can now review your Data Health Score, findings and Executive Reports according to your current product access.</p>
+    <p><a href="{{ dashboard_url }}">Open BCSentinel Dashboard</a></p>
+    <p>If you need help during the pilot, contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+    <p>BCSentinel · Data Quality. Measurable Impact.</p>
+  </body>
+</html>
+""".strip(),
+    },
+    "dashboard_welcome_de": {
+        "label": "Dashboard welcome DE",
+        "description": "Wird einmalig nach erfolgreicher Dashboard-Aktivierung versendet.",
+        "placeholders": ["dashboard_url", "support_email"],
+        "subject": "Willkommen bei BCSentinel",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44; line-height: 1.5;">
+    <p>Hallo,</p>
+    <h2>Willkommen bei BCSentinel.</h2>
+    <p>Ihr Dashboard-Zugang ist aktiv. Sie koennen jetzt – entsprechend Ihrem aktuellen Produktzugang – Data Health Score, Findings und Executive Reports einsehen.</p>
+    <p><a href="{{ dashboard_url }}">BCSentinel Dashboard oeffnen</a></p>
+    <p>Wenn Sie waehrend des Piloten Unterstuetzung benoetigen, schreiben Sie an <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+    <p>BCSentinel · Data Quality. Measurable Impact.</p>
+  </body>
+</html>
+""".strip(),
+    },
     "dashboard_access_invite_de": {
         "label": "Dashboard access invite DE",
         "description": "Wird nach der Business-Central-Tenant-Registrierung an den Dashboard-Kontakt versendet.",
@@ -124,7 +161,8 @@ DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {
     <p>Ihr BCSentinel Tenant wurde erfolgreich registriert. Der Dashboard-Zugang wurde fuer diese E-Mail-Adresse vorbereitet.</p>
     <p><strong>Dashboard:</strong> <a href="{{ dashboard_url }}">{{ dashboard_url }}</a></p>
     <p><strong>Login-E-Mail:</strong> {{ login_email }}</p>
-    <p>Dieser Zugriff ist an Tenant <strong>{{ tenant_id }}</strong> gebunden. Bis der eigenstaendige Dashboard-Login aktiviert ist, oeffnen Sie das Dashboard bitte aus Business Central.</p>
+    <p>Dieser Zugriff ist an Tenant <strong>{{ tenant_id }}</strong> gebunden.</p>
+    <p>Waehlen Sie ueber den sicheren Aktivierungslink oben Ihr Kennwort. Anschliessend koennen Sie sich direkt am BCSentinel Dashboard anmelden.</p>
     <p>Support: <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
   </body>
 </html>
@@ -148,6 +186,25 @@ def ensure_default_email_templates(db) -> None:
             )
         )
         changed = True
+    # Migrate only known untouched legacy defaults; administrator-customized
+    # templates are never overwritten.
+    migrations = {
+        "dashboard_access_invite_en": (
+            "Until standalone dashboard login is enabled, please open the dashboard from Business Central.",
+            "Use the secure activation link above to choose your password. Afterwards you can sign in directly to the BCSentinel Dashboard.",
+        ),
+        "dashboard_access_invite_de": (
+            "Bis der eigenstaendige Dashboard-Login aktiviert ist, oeffnen Sie das Dashboard bitte aus Business Central.",
+            "Waehlen Sie ueber den sicheren Aktivierungslink oben Ihr Kennwort. Anschliessend koennen Sie sich direkt am BCSentinel Dashboard anmelden.",
+        ),
+    }
+    for key, (legacy_text, replacement) in migrations.items():
+        row = existing.get(key)
+        if row is not None and legacy_text in row.html_template:
+            row.html_template = row.html_template.replace(legacy_text, replacement)
+            row.updated_at_utc = utc_now()
+            changed = True
+
     if changed:
         db.commit()
 

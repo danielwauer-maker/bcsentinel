@@ -10,6 +10,9 @@ PERMISSION_FILE = ROOT / "bc-extension" / "app" / "src" / "permissionsets" / "BC
 EVIDENCE_FILE = ROOT / "quality" / "release" / "ext-50-04-permission-role-matrix-evidence.json"
 DOC_FILE = ROOT / "docs" / "EXT_50_04_PERMISSION_ROLE_MATRIX.md"
 RUNTIME_CHECKLIST = ROOT / "docs" / "EXT_50_04_RUNTIME_NO_SUPER_CHECKLIST.md"
+SCAN_DISPATCHER_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHScanDispatcher.Codeunit.al"
+API_CLIENT_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHApiClient.Codeunit.al"
+RUN_ID_MGT_FILE = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHRunIdMgt.Codeunit.al"
 
 
 def _source() -> str:
@@ -50,17 +53,31 @@ def test_no_super_dependency_is_encoded() -> None:
 
 def test_viewer_is_read_only_on_bcsentinel_tables() -> None:
     block = _block("BCSENTINEL VIEWER")
-    table_permissions = re.findall(r'tabledata\s+"[^"]+"\s*=\s*([RIMD]+)', block)
+    table_permissions = re.findall(r'tabledata\s+"[^"]+"\s*=\s*([RIMDrimd]+)', block)
     assert table_permissions, "Viewer must expose BCSentinel data read permissions"
-    assert set(table_permissions) == {"R"}, f"Viewer has write permissions: {table_permissions}"
+    assert set(table_permissions) == {"R"}, f"Viewer has direct or indirect write permissions: {table_permissions}"
 
 
-def test_scan_user_cannot_modify_setup() -> None:
+def test_scan_user_cannot_modify_setup_directly_but_can_modify_indirectly() -> None:
     block = _block("BCSENTINEL SCAN")
-    assert 'tabledata "DH Setup" = R' in block
-    assert 'tabledata "DH Setup" = RIMD' not in block
+    match = re.search(r'tabledata\s+"DH Setup"\s*=\s*([RIMDrimd]+)', block)
+    assert match, "SCAN role must declare DH Setup permission"
+    permission = match.group(1)
+    assert permission == "Rm", f"SCAN role must use direct read + indirect modify only, got {permission}"
+    assert "M" not in permission, "SCAN role must never have direct Modify on DH Setup"
+    assert "m" in permission, "SCAN role must permit only indirect Modify on DH Setup"
     assert 'codeunit "DH Scan Dispatcher" = X' in block
     assert 'codeunit "DH Deep Scan Runner" = X' in block
+
+
+def test_scan_runtime_writes_use_indirect_codeunit_permissions() -> None:
+    dispatcher = SCAN_DISPATCHER_FILE.read_text(encoding="utf-8")
+    api_client = API_CLIENT_FILE.read_text(encoding="utf-8")
+    run_id_mgt = RUN_ID_MGT_FILE.read_text(encoding="utf-8")
+
+    assert 'Permissions = tabledata "DH Setup" = RM;' in dispatcher
+    assert 'Permissions = tabledata "DH Setup" = RM;' in api_client
+    assert 'Permissions = tabledata "DH Setup" = RM;' in run_id_mgt
 
 
 def test_setup_role_can_configure_but_not_write_scan_results() -> None:
@@ -135,17 +152,27 @@ def test_runtime_method_allows_one_reusable_non_super_identity_with_strict_role_
     )
 
 
-def test_runtime_evidence_requires_role_isolation_and_effective_permissions() -> None:
+def test_runtime_evidence_preserves_no_super_isolation_while_progressing() -> None:
     evidence = _evidence()
-    assert evidence["status"] == "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE"
-    assert evidence["branch"] == "sprint/ext-50-04-runtime-no-super"
+    assert evidence["branch"].startswith("sprint/ext-50-04-runtime")
+    assert evidence["status"] in {
+        "AWAITING_MANUAL_BC_RUNTIME_EVIDENCE",
+        "PARTIAL_RUNTIME_PASS__PLAIN_USER_DENIAL_VERIFIED",
+        "PARTIAL_RUNTIME_PASS__PLAIN_USER_AND_VIEWER_CORE_VERIFIED",
+        "FIX_IMPLEMENTED_AWAITING_1_0_2_23_RUNTIME_RETEST",
+        "FIX_ITERATION_2_IMPLEMENTED_AWAITING_1_0_2_24_RUNTIME_RETEST",
+        "FIX_ITERATION_3_IMPLEMENTED_AWAITING_1_0_2_25_RUNTIME_RETEST",
+        "PARTIAL_RUNTIME_PASS__SCAN_USER_MANUAL_SCAN_VERIFIED_1_0_2_25",
+        "RUNTIME_PASS",
+    }
 
     for role_name, role in evidence["roles"].items():
         assert role["super"] is False, role_name
-        assert role["isolation_evidence"] == "PENDING", role_name
-        assert role["effective_permissions_snapshot"] == "PENDING", role_name
 
     assert evidence["roles"]["plain_bc_user"]["permission_set"] == "NONE"
+    assert evidence["runtime_method"]["standard_bc_baseline"]["super"] is False
+    assert evidence["runtime_method"]["standard_bc_baseline"]["super_data"] is False
+    assert evidence["runtime_method"]["standard_bc_baseline"]["security"] is False
 
 
 def test_runtime_documentation_and_checklist_encode_safe_single_user_method() -> None:

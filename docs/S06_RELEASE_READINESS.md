@@ -17,7 +17,7 @@ Diese Nachweise werden referenziert und nicht dupliziert.
 
 ## Aktuelle Extension-Baseline
 
-Die aktuelle Source-of-Truth-Version in `bc-extension/app.json` und `bc-extension/app.cloud.json` ist 1.0.2.22. Die ältere EXT-50-01-Release-Baseline für 1.0.2.20 bleibt historische Evidenz und darf nicht als aktueller Release Candidate interpretiert werden.
+Die aktuelle Source-of-Truth-Version in `bc-extension/app.json` und `bc-extension/app.cloud.json` ist 1.0.2.25. Diese Version enthält den real in BC SaaS verifizierten indirekten SCAN-Permission-Fix. Die ältere EXT-50-01-Release-Baseline für 1.0.2.20 bleibt historische Evidenz und darf nicht als aktueller Release Candidate interpretiert werden.
 
 ## Rollback- und Recovery-Policy
 
@@ -44,3 +44,16 @@ Der automatisierbare S06-Anteil ist erfüllt, wenn:
 6. CI eine eigenständige S06-Evidenz erzeugt.
 
 Damit wird S06 technisch bis an die echten manuellen Release-/Recovery-Gates vorgezogen, ohne deren PASS vorzutäuschen.
+
+
+## Core-Pilot RC Build
+
+Der Fresh-AL-CI-Job erzeugt für jeden Kandidaten automatisch `core-pilot-rc-build-manifest.json` mit:
+
+- Extension-Version,
+- exaktem Git-Commit,
+- tatsächlichem kompiliertem APP-Dateinamen,
+- SHA-256 des APP-Artefakts,
+- BC Runtime/Application/Platform.
+
+Das ist Build-Evidence, aber noch keine finale Releasefreigabe. `final_release_approved` bleibt bis zur manuellen Runtime-/Recovery-Abnahme `false`.

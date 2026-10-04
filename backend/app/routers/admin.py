@@ -34,6 +34,7 @@ from app.models import (
     PartnerReferral,
     ProductPricingConfig,
     ProductPricingMatrixConfig,
+    PublicContactMessage,
     Scan,
     ScanRunStatus,
     Subscription,
@@ -155,6 +156,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/partners/applications",
         "subtitle": "oeffentliche Registrierungen mit Review-Workflow",
     },
+    "contact_inbox": {
+        "label": "Contact Inbox",
+        "href": "/admin/contact-inbox",
+        "subtitle": "oeffentliche Pilot-, Demo- und Supportanfragen",
+    },
     "payouts": {
         "label": "Payout Overview",
         "href": "/admin/commissions/payouts",
@@ -199,6 +205,7 @@ ADMIN_NAV_ORDER = [
     "partners",
     "partner_commissions",
     "partner_applications",
+    "contact_inbox",
     "payouts",
     "audit",
     "email_templates",
@@ -733,6 +740,12 @@ def _render_admin_page(
             ).all()
         elif active_section == "partner_applications":
             context.update(_load_partner_application_context(db, request))
+        elif active_section == "contact_inbox":
+            context["contact_messages"] = db.scalars(
+                select(PublicContactMessage)
+                .order_by(PublicContactMessage.created_at_utc.desc(), PublicContactMessage.id.desc())
+                .limit(200)
+            ).all()
         elif active_section == "payouts":
             context["payout_rows"] = _load_partner_payout_rows(db)
         elif active_section == "audit":
@@ -923,6 +936,31 @@ def admin_partners(request: Request, _: str = Depends(require_admin)):
 @router.get("/admin/partners/commissions/", response_class=HTMLResponse)
 def admin_partner_commissions(request: Request, _: str = Depends(require_admin)):
     return _render_admin_page(request, active_section="partner_commissions")
+
+
+@router.get("/admin/contact-inbox", response_class=HTMLResponse)
+@router.get("/admin/contact-inbox/", response_class=HTMLResponse)
+def admin_contact_inbox(request: Request, _: str = Depends(require_admin)):
+    return _render_admin_page(request, active_section="contact_inbox")
+
+
+@router.post("/admin/contact-inbox/{message_id}/delete")
+def delete_admin_contact_message(message_id: int, admin_username: str = Depends(require_admin)):
+    with SessionLocal() as db:
+        row = db.get(PublicContactMessage, message_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="Contact message not found.")
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action="contact_message.delete",
+            target_type="public_contact_message",
+            target_id=str(message_id),
+            details={"email": row.email, "intent": row.intent},
+        )
+        db.delete(row)
+        db.commit()
+    return RedirectResponse(url="/admin/contact-inbox", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/admin/partners/applications", response_class=HTMLResponse)

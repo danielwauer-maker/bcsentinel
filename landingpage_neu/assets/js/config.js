@@ -33,6 +33,7 @@
       { key: "executive_reports", href: "executive-reports.html", labelKey: "nav_executive_reports", footerGroup: "product" },
       { key: "why_bcsentinel", href: "why-bcsentinel.html", labelKey: "nav_why", footerGroup: "company" },
       { key: "trust", href: "trust.html", labelKey: "nav_trust", footerGroup: "trust" },
+      { key: "pilot", href: "pilot.html", labelKey: "nav_pilot", footerGroup: "company" },
       { key: "support", href: "support.html", labelKey: "nav_support", footerGroup: "resources" },
       { key: "about", href: "about.html", labelKey: "nav_about", footerGroup: "company" },
       { key: "contact", href: "contact.html", labelKey: "nav_contact", footerGroup: "company" },

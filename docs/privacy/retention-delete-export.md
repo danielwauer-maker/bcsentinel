@@ -30,3 +30,16 @@ Status: Phase 1 manual process.
 ## Phase 1 limitation
 
 There is no self-service data export or deletion endpoint yet. Pilot contracts must state that export and deletion are handled manually by BCSentinel support within the agreed response time.
+
+
+## Public contact inbox — Core pilot
+
+Contact requests submitted through `/public/contact` are stored so operator handling does not depend on successful SMTP delivery.
+
+Technical controls now available:
+- authenticated Admin Contact Inbox;
+- audited per-message delete action;
+- persisted mail-delivery state/error;
+- no API tokens or BC credentials are requested by the form.
+
+**Policy still to finalize manually:** legal basis, exact retention period, deletion schedule, export/DSAR workflow, operator identity and final privacy wording. No retention duration is hard-coded here because it is a business/legal policy decision.

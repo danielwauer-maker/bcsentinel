@@ -18,7 +18,7 @@
   function buildHeader() {
     const config = window.BCSentinelConfig || {};
     const navPages = (config.pages || []).filter(pageVisible);
-    const mainPages = navPages.filter((page) => ["home", "pricing", "executive_reports", "why_bcsentinel", "trust"].includes(page.key));
+    const mainPages = navPages.filter((page) => ["home", "pricing", "executive_reports", "why_bcsentinel", "pilot", "trust"].includes(page.key));
     const supportAction = pageVisible({ key: "support" })
       ? `<a class="btn btn-secondary" href="support.html" data-page-link="support" data-i18n="nav_login">${t("nav_login")}</a>`
       : "";
@@ -80,12 +80,13 @@
             ])}
             ${footerColumn("footer_resources", [
               { href: "support.html", labelKey: "nav_support", pageKey: "support" },
-              { href: "support.html#knowledge", labelKey: "support_knowledge_title", pageKey: "support" },
+              { href: "docs.html", labelKey: "support_knowledge_title" },
               { href: "executive-reports.html", labelKey: "reports_sample_cta", pageKey: "executive_reports" },
             ])}
             ${footerColumn("footer_company", [
               { href: "about.html", labelKey: "nav_about", pageKey: "about" },
               { href: "why-bcsentinel.html", labelKey: "nav_why", pageKey: "why_bcsentinel" },
+              { href: "pilot.html", labelKey: "nav_pilot", pageKey: "pilot" },
               { href: "contact.html", labelKey: "nav_contact", pageKey: "contact" },
             ])}
             ${footerColumn("footer_trust", [
@@ -95,10 +96,10 @@
               { href: "support.html#status", labelKey: "support_status_title", pageKey: "support" },
             ])}
             ${footerColumn("footer_legal", [
-              { href: "../landingpage/privacy.html", labelKey: "footer_privacy" },
-              { href: "../landingpage/terms.html", labelKey: "footer_dpa" },
-              { href: "../landingpage/impressum.html", labelKey: "footer_imprint" },
-              { href: "../landingpage/terms.html", labelKey: "footer_terms" },
+              { href: "privacy.html", labelKey: "footer_privacy" },
+              { href: "dpa.html", labelKey: "footer_dpa" },
+              { href: "impressum.html", labelKey: "footer_imprint" },
+              { href: "terms.html", labelKey: "footer_terms" },
             ])}
           </div>
           <div class="footer-bottom">

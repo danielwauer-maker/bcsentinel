@@ -87,3 +87,26 @@ These remain explicit S03 runtime/operational gates.
 - password-reset responses do not enumerate accounts;
 - raw invite/reset tokens are never persisted;
 - suspended tenant access invalidates outstanding invite/reset state.
+
+
+## Mail transport hardening for Core pilot
+
+The dashboard invite/password-reset SMTP transport now retries bounded transient failures up to three attempts.
+
+- SMTP 4xx responses are treated as transient.
+- connection/disconnect/timeout failures are treated as transient.
+- SMTP 5xx responses are treated as permanent and are not retried.
+- stored/operator-visible errors are classified without copying arbitrary provider response bodies.
+- retry logic is covered by `backend/tests/test_s03_mail_resilience.py`.
+
+Still external/manual: real provider delivery, SPF/DKIM/DMARC, mailbox reception and provider bounce/feedback behavior.
+
+
+## Core closure additions
+
+- transient SMTP transport failures use a bounded retry policy;
+- permanent SMTP failures are classified without leaking provider response content;
+- dashboard invite and password-reset flows are backed by DE/EN templates;
+- successful first dashboard activation triggers a best-effort DE/EN welcome message;
+- activation remains successful even when the external mail provider is temporarily unavailable;
+- real provider delivery, SPF/DKIM/DMARC and bounce/feedback-loop validation remain manual pilot gates.

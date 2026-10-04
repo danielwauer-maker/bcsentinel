@@ -1,6 +1,44 @@
 <!doctype html><html lang="de" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BCSentinel Contact</title><link rel="stylesheet" href="assets/css/styles.css"><script defer src="assets/js/config.js"></script><script defer src="assets/js/theme.js"></script><script defer src="assets/js/i18n.js"></script><script defer src="assets/js/visibility.js"></script><script defer src="assets/js/pricing.js"></script><script defer src="assets/js/site-shell.js"></script></head><body data-page-key="contact"><main>
-<section class="page-hero"><div class="container page-grid"><div><p class="eyebrow" data-i18n="contact_eyebrow">Kontakt</p><h1 data-i18n="contact_title">Lassen Sie uns sprechen.</h1><p class="lead" data-i18n="contact_sub">Sie haben Fragen zu BCSentinel oder moechten ein Assessment starten? Wir freuen uns auf Ihre Nachricht.</p><div class="cards-grid two"><article class="card"><h3>Produkt & Pilot</h3><p>Demo-, Assessment- und Design-Partner-Anfragen werden ueber den vorbereiteten Kontaktprozess gebuendelt.</p></article><article class="card"><h3>Security & Privacy</h3><p>Security-, Datenschutz- und Vertragsfragen werden vor einer Pilotfreigabe separat geprueft.</p></article></div></div>
-<form class="form-card contact-form" style="padding:24px;" action="#" method="post" data-contact-form><div class="form-grid"><select name="salutation" data-i18n-aria-label="form_salutation"><option data-i18n="form_salutation">Bitte waehlen</option><option data-i18n="form_ms">Frau</option><option data-i18n="form_mr">Herr</option></select><input name="first_name" data-i18n-placeholder="form_first_name" placeholder="Ihr Vorname"><input name="last_name" data-i18n-placeholder="form_last_name" placeholder="Ihr Nachname"><input name="company" class="full" data-i18n-placeholder="form_company" placeholder="Ihr Unternehmen"><input name="email" type="email" data-i18n-placeholder="form_email" placeholder="Ihre E-Mail"><input name="phone" data-i18n-placeholder="form_phone" placeholder="Ihre Telefonnummer"><textarea name="message" class="full" data-i18n-placeholder="form_message" placeholder="Ihre Nachricht"></textarea><label class="full small"><input type="checkbox" required> <span data-i18n="form_privacy">Ich akzeptiere die Datenschutz-Hinweise.</span></label><button class="btn btn-primary full" type="submit" data-i18n="form_submit">Nachricht senden</button></div><p class="small muted" data-i18n="contact_backend_note">Das Formular ist frontendseitig vorbereitet. Ein spezifischer Backend-Endpunkt wurde im bestehenden Code nicht gefunden.</p></form></div></section>
-<section class="section band"><div class="container cards-grid five"><article class="card"><h3 data-i18n="reason_demo">Demo</h3><p data-i18n="reason_demo_text">BCSentinel live sehen.</p></article><article class="card"><h3>Assessment</h3><p data-i18n="reason_assessment_text">Ersten Datenqualitaets-Check planen.</p></article><article class="card"><h3 data-i18n="reason_partner">Partnerschaft</h3><p data-i18n="reason_partner_text">Gemeinsam Kunden unterstuetzen.</p></article><article class="card"><h3>Support</h3><p data-i18n="reason_support_text">Hilfe zu Produkt oder Prozess.</p></article><article class="card"><h3 data-i18n="reason_privacy">Datenschutz</h3><p data-i18n="reason_privacy_text">Fragen zu Sicherheit und DPA.</p></article></div></section>
+<section class="page-hero"><div class="container page-grid"><div><p class="eyebrow" data-i18n="contact_eyebrow">Kontakt</p><h1 data-i18n="contact_title">Lassen Sie uns sprechen.</h1><p class="lead" data-i18n="contact_sub">Sie haben Fragen zu BCSentinel oder moechten einen Pilot starten? Wir freuen uns auf Ihre Nachricht.</p><div class="cards-grid two"><article class="card"><h3>Produkt & Pilot</h3><p>Demo-, Pilot- und Produktanfragen werden zentral aufgenommen und fuer das betreute Onboarding vorbereitet.</p></article><article class="card"><h3>Security & Privacy</h3><p>Security-, Datenschutz- und Vertragsfragen werden vor einer Pilotfreigabe separat geprueft.</p></article></div></div>
+<form class="form-card contact-form" style="padding:24px;" data-contact-form><div class="form-grid"><select name="salutation"><option value="" data-i18n="form_salutation">Bitte waehlen</option><option value="ms" data-i18n="form_ms">Frau</option><option value="mr" data-i18n="form_mr">Herr</option></select><input name="first_name" data-i18n-placeholder="form_first_name" placeholder="Ihr Vorname"><input name="last_name" data-i18n-placeholder="form_last_name" placeholder="Ihr Nachname"><input name="company" class="full" data-i18n-placeholder="form_company" placeholder="Ihr Unternehmen"><input name="email" type="email" required data-i18n-placeholder="form_email" placeholder="Ihre E-Mail"><input name="phone" data-i18n-placeholder="form_phone" placeholder="Ihre Telefonnummer"><textarea name="message" class="full" required minlength="10" maxlength="5000" data-i18n-placeholder="form_message" placeholder="Ihre Nachricht"></textarea><label class="full small"><input type="checkbox" name="privacy_accepted" required> <span data-i18n="form_privacy">Ich habe die Datenschutz-Hinweise zur Kenntnis genommen.</span></label><button class="btn btn-primary full" type="submit" data-i18n="form_submit">Nachricht senden</button></div><p class="small muted" data-contact-status data-i18n="contact_backend_note">Die Anfrage wird sicher an die BCSentinel-API uebertragen und fuer die Bearbeitung gespeichert.</p></form></div></section>
+<section class="section band"><div class="container cards-grid five"><article class="card"><h3 data-i18n="reason_demo">Demo</h3><p data-i18n="reason_demo_text">BCSentinel live sehen.</p></article><article class="card"><h3>Pilot</h3><p>Pilotaufnahme und Umgebung vorab abstimmen.</p></article><article class="card"><h3 data-i18n="reason_partner">Partnerschaft</h3><p data-i18n="reason_partner_text">Gemeinsam Kunden unterstuetzen.</p></article><article class="card"><h3>Support</h3><p data-i18n="reason_support_text">Hilfe zu Produkt oder Prozess.</p></article><article class="card"><h3 data-i18n="reason_privacy">Datenschutz</h3><p data-i18n="reason_privacy_text">Fragen zu Sicherheit und Datenschutz.</p></article></div></section>
 <section class="section tight"><div class="container final-cta"><div><h2 data-i18n="contact_cta_title">Bereit fuer bessere Datenqualitaet?</h2><p data-i18n="contact_cta_text">Wir melden uns mit den naechsten sinnvollen Schritten.</p></div><a class="btn btn-secondary" href="trust.html" data-i18n="nav_trust">Trust Center</a></div></section>
-</main><script>document.addEventListener("submit",function(e){if(e.target.matches("[data-contact-form]")){e.preventDefault();alert((window.BCSentinelI18n&&window.BCSentinelI18n.t("form_alert"))||"Danke fuer Ihre Nachricht.");}});</script></body></html>
+</main><script>
+document.addEventListener("submit", async function (event) {
+  const form = event.target.closest("[data-contact-form]");
+  if (!form) return;
+  event.preventDefault();
+  const button = form.querySelector("button[type=submit]");
+  const status = form.querySelector("[data-contact-status]");
+  const data = new FormData(form);
+  const params = new URLSearchParams(window.location.search);
+  const payload = {
+    salutation: data.get("salutation") || null,
+    first_name: data.get("first_name") || null,
+    last_name: data.get("last_name") || null,
+    company: data.get("company") || null,
+    email: data.get("email") || "",
+    phone: data.get("phone") || null,
+    message: data.get("message") || "",
+    intent: params.get("intent") || "general",
+    language: document.documentElement.lang || "de",
+    privacy_accepted: data.get("privacy_accepted") === "on"
+  };
+  button.disabled = true;
+  try {
+    const base = (window.BCSentinelConfig && window.BCSentinelConfig.apiBase) || "";
+    const response = await fetch(base + "/public/contact", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error("contact request failed");
+    form.reset();
+    status.textContent = (window.BCSentinelI18n && window.BCSentinelI18n.t("form_alert")) || "Vielen Dank. Ihre Anfrage wurde uebermittelt.";
+  } catch (_) {
+    status.textContent = (window.BCSentinelI18n && window.BCSentinelI18n.t("form_error")) || "Die Anfrage konnte nicht gesendet werden. Bitte nutzen Sie support@bcsentinel.com.";
+  } finally {
+    button.disabled = false;
+  }
+});
+</script></body></html>
