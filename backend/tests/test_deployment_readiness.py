@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
@@ -90,3 +91,20 @@ def test_share_link_uses_app_base_url_in_prod(settings_state):
 
     assert url.startswith("https://api.bcsentinel.com/reports/executive/scan%201/html/shared")
     assert "http://internal.local" not in url
+
+
+def test_dev_frontend_isolated_from_production_webroot() -> None:
+    root = Path(__file__).resolve().parents[2]
+    nginx = (root / "config" / "nginx" / "bcsentinel.conf").read_text(encoding="utf-8")
+    deploy = (root / ".github" / "workflows" / "deploy.yml").read_text(encoding="utf-8")
+
+    assert "server_name dev.bcsentinel.com;" in nginx
+    assert "root /var/www/bcsentinel/landingpage-dev;" in nginx
+    assert "proxy_pass http://127.0.0.1:8001;" in nginx
+    assert "root /var/www/bcsentinel/landingpage;" in nginx
+
+    assert "landingpage_neu/." in deploy
+    assert "/var/www/bcsentinel/landingpage-dev" in deploy
+    assert "nginx -t" in deploy
+    assert "restoring previous config" in deploy
+    assert "Smoke check DEV Core web surface" in deploy
