@@ -1,0 +1,91 @@
+name: Core Pilot 50 Readiness
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "backend/app/**"
+      - "backend/tests/**"
+      - "landingpage_neu/**"
+      - "config/**"
+      - "quality/pilot/**"
+      - "docs/CORE_PILOT_50_READINESS.md"
+      - ".github/workflows/core-pilot-50-readiness.yml"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-pilot-50:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: bcsentinel_test_password
+          POSTGRES_DB: bcsentinel_core50
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_core50"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      ENV: test
+      APP_ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/core-pilot-50.sqlite3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install --quiet -r backend/requirements.txt
+
+      - name: Run Core closure contracts
+        working-directory: backend
+        run: |
+          python -m pytest -q --tb=short             tests/test_s02_legacy_compatibility_closure.py             tests/test_s03_mail_resilience.py             tests/test_public_claims_contract.py             tests/test_core_pilot_50_tenant_preflight.py             tests/test_multi_tenant_dashboard.py             tests/test_p0b_atomic_credit.py
+
+      - name: Run 50-tenant preflight on PostgreSQL
+        working-directory: backend
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_core50
+        run: |
+          python -m pytest -q --tb=short             tests/test_core_pilot_50_tenant_preflight.py             tests/test_p0b_atomic_credit.py::test_request_scope_is_tenant_bound             tests/test_p0b_atomic_credit.py::test_parallel_identical_requests_create_one_scan_and_ledger
+
+      - name: Validate readiness manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("quality/pilot/core-pilot-50-readiness.json").read_text())
+          assert p["pilot_admission_policy"]["maximum_tenants"] == 50
+          assert p["pilot_admission_policy"]["waves"] == [1, 5, 10, 25, 50]
+          assert p["pilot_admission_policy"]["stop_on_p0_incident"] is True
+          assert p["manual_gates_open"]
+          print("Core pilot 50 readiness contract: PASS")
+          PY
+
+      - name: Upload Core pilot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-pilot-50-readiness
+          path: |
+            quality/pilot/core-pilot-50-readiness.json
+            docs/CORE_PILOT_50_READINESS.md
+          retention-days: 30
