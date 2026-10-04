@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import or_, select
 
 from app.core.observability import log_event
+from app.core.product_model import product_contract_for_storage_code
 from app.core.settings import resolve_billing_url, settings
 from app.db import SessionLocal
 from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
@@ -93,6 +94,8 @@ class CheckoutSessionResponse(BaseModel):
     plan_code: str
     billing_interval: str = "monthly"
     product_code: str = "monitoring_monthly"
+    commercial_offer_id: str | None = None
+    canonical_billing_variant: str | None = None
 
 
 class BillingPortalRequest(BaseModel):
@@ -620,10 +623,13 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         )
 
     billing_interval = matrix_price.billing_interval
+    product_contract = product_contract_for_storage_code(product_code)
     checkout_metadata = {
         "tenant_id": payload.tenant_id,
         "plan_code": normalized_plan_code,
         "product_code": product_code,
+        "commercial_offer_id": str(product_contract["commercial_offer_id"] or ""),
+        "canonical_billing_variant": str(product_contract["billing_variant"] or ""),
         "billing_interval": billing_interval,
         "tenant_environment": tenant_environment,
         "record_count": str(record_count),
@@ -697,6 +703,8 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         plan_code=normalized_plan_code,
         billing_interval=billing_interval,
         product_code=product_code,
+        commercial_offer_id=product_contract["commercial_offer_id"],
+        canonical_billing_variant=product_contract["billing_variant"],
     )
 
 
