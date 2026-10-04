@@ -21,6 +21,7 @@ LANDINGPAGE_PAGE_DEFINITIONS: tuple[LandingpagePageDefinition, ...] = (
     LandingpagePageDefinition("pricing", "Preise", "/landingpage_neu/pricing.html"),
     LandingpagePageDefinition("about", "Ueber uns", "/landingpage_neu/about.html"),
     LandingpagePageDefinition("trust", "Trust Center", "/landingpage_neu/trust.html"),
+    LandingpagePageDefinition("pilot", "Pilot", "/landingpage_neu/pilot.html"),
     LandingpagePageDefinition("support", "Hilfe & Support", "/landingpage_neu/support.html"),
     LandingpagePageDefinition("contact", "Kontakt", "/landingpage_neu/contact.html"),
     LandingpagePageDefinition("executive_reports", "Executive Reports", "/landingpage_neu/executive-reports.html"),
