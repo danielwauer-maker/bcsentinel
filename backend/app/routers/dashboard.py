@@ -19,7 +19,7 @@ from app.security.token_hash import hash_api_token, verify_api_token
 from app.services.access_control_service import CAPABILITY_DASHBOARD, require_capability
 from app.services.admin_audit_service import log_admin_event
 from app.services.billing_service import utc_now
-from app.services.dashboard_invite_service import normalize_dashboard_email, send_dashboard_password_reset
+from app.services.dashboard_invite_service import normalize_dashboard_email, send_dashboard_password_reset, send_dashboard_welcome
 from app.services.localization_service import tenant_language
 
 
@@ -206,9 +206,11 @@ def activate_dashboard_invite(payload: DashboardInviteActivationRequest):
         user.invite_token_hash = None
         user.invite_expires_at_utc = None
         user.updated_at_utc = now
-        membership = memberships[0][0]
+        membership, tenant = memberships[0]
         membership.last_selected_at_utc = now
         db.commit()
+        # Activation must not fail if external mail delivery is temporarily unavailable.
+        send_dashboard_welcome(db, user=user, tenant=tenant)
         session_token = _session_token(user, membership)
     response = JSONResponse({"status": "activated", "active_tenant_id": membership.tenant_id, "tenant_count": len(memberships), "session_token": session_token})
     _set_session_cookie(response, session_token)
