@@ -20,6 +20,7 @@ router = APIRouter(tags=["public"])
 
 class PublicProductPricingItemResponse(BaseModel):
     product_key: str
+    product_contract: dict[str, Any]
     display_name: str
     price_cents: int
     price_eur: float
