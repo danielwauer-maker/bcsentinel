@@ -39,6 +39,7 @@ def test_public_landingpage_visibility_api_returns_page_flags(client):
     pages = {row["page_key"]: row["is_visible"] for row in payload["pages"]}
     assert pages["home"] is True
     assert pages["pricing"] is True
+    assert pages["pilot"] is True
 
 
 def test_update_landingpage_visibility_keeps_home_visible(db_session):
