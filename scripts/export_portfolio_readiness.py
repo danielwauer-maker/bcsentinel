@@ -136,9 +136,10 @@ def build() -> dict:
         "s05_trust_page_present_and_guarded": {
             "complete": (
                 (ROOT / "landingpage_neu/trust.html").exists()
+                and (ROOT / "backend/tests/test_public_claims_contract.py").exists()
                 and contains(
                     "backend/tests/test_public_claims_contract.py",
-                    r"trust\.html",
+                    r"landingpage_neu.*glob\(\"\*\.html\"\)",
                 )
             ),
             "evidence": "landingpage_neu/trust.html + backend/tests/test_public_claims_contract.py",
