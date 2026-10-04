@@ -8,6 +8,8 @@ on:
       - "backend/tests/**"
       - "backend/alembic/versions/**"
       - "landingpage_neu/**"
+      - "config/nginx/**"
+      - ".github/workflows/deploy.yml"
       - "config/**"
       - "quality/pilot/**"
       - "docs/CORE_PILOT_50_READINESS.md"
@@ -60,7 +62,7 @@ jobs:
       - name: Run Core closure contracts
         working-directory: backend
         run: |
-          python -m pytest -q --tb=short             tests/test_s02_legacy_compatibility_closure.py             tests/test_s03_mail_resilience.py             tests/test_core_public_platform_flows.py             tests/test_public_claims_contract.py             tests/test_core_pilot_50_tenant_preflight.py             tests/test_multi_tenant_dashboard.py             tests/test_p0b_atomic_credit.py
+          python -m pytest -q --tb=short             tests/test_s02_legacy_compatibility_closure.py             tests/test_s03_mail_resilience.py             tests/test_core_public_platform_flows.py             tests/test_deployment_readiness.py             tests/test_public_claims_contract.py             tests/test_core_pilot_50_tenant_preflight.py             tests/test_multi_tenant_dashboard.py             tests/test_p0b_atomic_credit.py
 
       - name: Run 50-tenant preflight on PostgreSQL
         working-directory: backend
