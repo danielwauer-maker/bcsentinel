@@ -32,9 +32,16 @@ The following statements were removed or downgraded from present-tense claims:
 
 `backend/tests/test_public_claims_contract.py` fails if known unsupported claims reappear in the public landing baseline.
 
-## Remaining S05 work
+## Current Core-pilot closure
 
-- dedicated Design Partner / Pilot page;
-- legal/privacy/contact launch polish;
-- final pricing feature truth after S02 product-model closure;
-- release-time re-audit against actual production hosting/AppSource/compliance evidence.
+- dedicated controlled Pilot page exists and explicitly caps the program at up to 50 tenants;
+- fake public contact submission was removed in favor of an explicit support mailbox handoff;
+- unverified uptime percentages were removed from the support surface;
+- S02 compatibility closure protects product/pricing semantics without destructive rights migration;
+- all current `landingpage_neu/*.html` pages are included in the unsupported-claims guard.
+
+## Remaining release-time signoff
+
+- confirm the actual support mailbox is reachable;
+- final legal/privacy/brand read-through;
+- re-audit claims against the exact hosting/AppSource/compliance state at release time.
