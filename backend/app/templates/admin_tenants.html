@@ -386,6 +386,36 @@
         </section>
         {% endif %}
 
+        {% if active_section == "contact_inbox" %}
+        <section class="panel panel-large">
+          <div class="panel-header">
+            <h2>Contact Inbox</h2>
+            <span class="muted">Pilot-, Demo- und Supportanfragen · letzte 200</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>When</th><th>Intent</th><th>Company</th><th>Contact</th><th>Email</th><th>Message</th><th>Mail</th></tr></thead>
+              <tbody>
+                {% for row in contact_messages %}
+                <tr>
+                  <td>{{ fmt_dt(row.created_at_utc) }}</td>
+                  <td>{{ row.intent or "-" }}</td>
+                  <td>{{ row.company or "-" }}</td>
+                  <td>{{ (row.first_name or "") ~ " " ~ (row.last_name or "") }}</td>
+                  <td>{{ row.email }}</td>
+                  <td style="max-width:420px; white-space:normal;">{{ row.message }}</td>
+                  <td>{{ row.mail_status }}{% if row.mail_error %}<div class="muted">{{ row.mail_error }}</div>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                {% if not contact_messages %}
+                <tr><td colspan="7">Noch keine Kontaktanfragen vorhanden.</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        {% endif %}
+
         {% if active_section == "payouts" %}
         <section class="panel panel-large">
           <div class="panel-header">
