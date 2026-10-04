@@ -819,6 +819,25 @@ class PartnerApplication(Base):
     reviewed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
 
+class PublicContactMessage(Base):
+    __tablename__ = "public_contact_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    salutation: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    company: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    email: Mapped[str] = mapped_column(String(255), index=True)
+    phone: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    message: Mapped[str] = mapped_column(Text)
+    intent: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
+    language: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    privacy_accepted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    mail_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class PartnerReferral(Base):
     __tablename__ = "partner_referrals"
     __table_args__ = (
