@@ -15,7 +15,8 @@
       53449
     ],
     "protected_pr": 37,
-    "commit": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3"
+    "commit": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3",
+    "note": "Current candidate baseline after EXT-50-04 indirect permission fix; historical DEV20k runtime evidence remains pre-integration and must be rerun before LARGE."
   },
   "generator_version": "1.0.0.1",
   "schema_version": 1,
@@ -287,5 +288,5 @@
     "app_identity_unchanged": true,
     "table_schema_unchanged": true
   },
-  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 / BCSentinel 1.0.2.25. DEV generation and scan were previously successful; cleanup/recovery and no-SUPER gates remain open. LARGE is not authorized until an integrated DEV20k retest passes."
+  "integration_note": "Ported onto runtime-verified EXT-50-12C.3 / BCSentinel 1.0.2.22. DEV generation and scan were previously successful; cleanup/recovery and no-SUPER gates remain open. LARGE is not authorized until an integrated DEV20k retest passes."
 }
