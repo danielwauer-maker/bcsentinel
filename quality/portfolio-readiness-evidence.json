@@ -63,6 +63,11 @@
         "pilot_release_approval",
         "signing_and_appsource_if_in_scope"
       ]
+    },
+    "s05_trust_page_present_and_guarded": {
+      "complete": true,
+      "evidence": "landingpage_neu/trust.html + backend/tests/test_public_claims_contract.py",
+      "manual_remaining": []
     }
   }
 }
