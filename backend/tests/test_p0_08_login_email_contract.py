@@ -53,7 +53,7 @@ def test_invite_token_is_random_hashed_and_time_limited():
     assert '"sent" if mail_sent else "failed"' in source
 
 
-def test_smtp_delivery_contract_supports_tls_auth_timeout_and_status_errors():
+def test_smtp_delivery_contract_supports_tls_auth_timeout_and_safe_status_errors():
     source = INVITE_SOURCE.read_text(encoding="utf-8")
     assert "smtplib.SMTP(host, settings.SMTP_PORT, timeout=15)" in source
     assert "if settings.SMTP_USE_TLS" in source
@@ -61,7 +61,10 @@ def test_smtp_delivery_contract_supports_tls_auth_timeout_and_status_errors():
     assert "smtp.login(username, password)" in source
     assert "smtp.sendmail(from_email, [target_email], msg.as_string())" in source
     assert 'return False, "SMTP not configured."' in source
-    assert "return False, str(exc)" in source
+    assert "_safe_smtp_error" in source
+    assert "SMTP permanent failure" in source
+    assert "SMTP transient failure" in source
+    assert "return False, str(exc)" not in source
 
 
 def test_invite_email_uses_localized_templates_and_public_dashboard_url():
