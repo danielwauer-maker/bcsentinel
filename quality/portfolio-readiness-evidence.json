@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "source_repository": "danielwauer-maker/bcsentinel",
+  "source_branch": "staging",
+  "principle": "Evidence facts only. Portfolio percentages are calculated downstream.",
+  "facts": {
+    "s02_pricing_checkout_truth_audit": {
+      "complete": true,
+      "evidence": "docs/product/S02_PRICING_CHECKOUT_TRUTH_AUDIT.md",
+      "manual_remaining": [
+        "pricing/checkout runtime smoke",
+        "legacy premium migration closure"
+      ]
+    },
+    "s03_security_lifecycle_automated": {
+      "complete": true,
+      "evidence": "docs/S03_PILOT_ONBOARDING_PRE_RUNTIME.md",
+      "manual_remaining": [
+        "real SMTP delivery and domain validation",
+        "real invitation to BC connection to dashboard journey",
+        "customer/operator acceptance"
+      ]
+    },
+    "s04_customer_ux_automated_qa": {
+      "complete": true,
+      "evidence": "docs/S04_CUSTOMER_UX_AUTOMATED_QA.md",
+      "manual_remaining": [
+        "real tenant DE/EN visual acceptance",
+        "dark/light and responsive visual acceptance",
+        "live API state acceptance",
+        "real BC Executive PDF visual acceptance"
+      ]
+    },
+    "s05_public_claims_audit": {
+      "complete": true,
+      "evidence": "docs/go-live/S05_PUBLIC_CLAIMS_AUDIT.md",
+      "manual_remaining": [
+        "Design Partner/Pilot page",
+        "legal/privacy/contact launch polish",
+        "release-time claims re-audit"
+      ]
+    },
+    "s06_fresh_installation": {
+      "complete": true,
+      "status": "VERIFIED_WITH_KNOWN_DEFECTS",
+      "evidence": "quality/release/ext-50-02-fresh-installation-evidence.json",
+      "manual_remaining": []
+    },
+    "s06_upgrade_data_preservation": {
+      "complete": true,
+      "status": "PASS_WITH_KNOWN_DEFECTS",
+      "evidence": "quality/release/ext-50-03-upgrade-evidence.json",
+      "manual_remaining": []
+    },
+    "s06_release_readiness_prework": {
+      "complete": true,
+      "status": "AUTOMATED_PREWORK_COMPLETE_MANUAL_GATES_OPEN",
+      "evidence": "quality/release/s06-release-readiness.json",
+      "manual_remaining": [
+        "final_release_candidate_sha_and_artifact_hash",
+        "real_pilot_infrastructure_restore_with_rpo_rto",
+        "bc_sandbox_rollback_or_roll_forward_drill",
+        "pilot_release_approval",
+        "signing_and_appsource_if_in_scope"
+      ]
+    }
+  }
+}
