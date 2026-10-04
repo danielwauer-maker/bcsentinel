@@ -209,10 +209,10 @@
   "form_email": "E-mail",
   "form_phone": "Phone number",
   "form_message": "Your message",
-  "form_privacy": "I accept the privacy notes.",
+  "form_privacy": "I have read the privacy notice.",
   "form_submit": "Send message",
-  "form_alert": "Your email application will open for the request.",
-  "contact_backend_note": "Pilot, demo and support requests are currently accepted by email at support@bcsentinel.com.",
+  "form_alert": "Thank you. Your request was submitted securely.",
+  "contact_backend_note": "The request is submitted securely to the BCSentinel API and stored for processing.",
   "reason_demo": "Demo",
   "reason_demo_text": "See BCSentinel live.",
   "reason_assessment_text": "Plan the first data quality check.",
@@ -331,5 +331,6 @@
   "contact_email_title": "Direct contact",
   "contact_privacy_note": "Please do not send credentials, API tokens, or confidential Business Central data by email.",
   "status_pilot": "Pilot operation",
-  "status_on_request": "Status on request"
+  "status_on_request": "Status on request",
+  "form_error": "The request could not be sent. Please use support@bcsentinel.com."
 }
