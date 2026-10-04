@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "sprint": "S07",
+  "repository": "danielwauer-maker/bcsentinel",
+  "mappings": [
+    {
+      "legacy": "landingpage/",
+      "canonical": "landingpage_neu/",
+      "status": "mapped",
+      "action": "Preserve legacy surface until final public launch traceability review."
+    },
+    {
+      "legacy": "go-live-readiness-2026/",
+      "canonical": "quality/release/ + docs/",
+      "status": "mapped",
+      "action": "Keep screenshots as historical evidence; current machine-readable release truth lives under quality/release."
+    },
+    {
+      "legacy": "output/",
+      "canonical": "quality/release/ or CI artifacts",
+      "status": "mapped",
+      "action": "Generated files are not authoritative source; retain only evidence-bearing outputs."
+    },
+    {
+      "legacy": "release/* branches and PRs #17-#20",
+      "canonical": "PR catalog + quality/release/ext-50-01-release-baseline.json",
+      "status": "mapped",
+      "action": "Historical release attempts remain traceable without recreating branches."
+    },
+    {
+      "legacy": "PR #37 permission-role matrix branch",
+      "canonical": "PR #45/#46 runtime evidence + quality/release/ext-50-04-permission-role-matrix-evidence.json",
+      "status": "mapped",
+      "action": "Preserve unmerged design work while runtime evidence remains authoritative."
+    },
+    {
+      "legacy": "PR #38 performance generator branch",
+      "canonical": "quality/release/ext-50-12a-test-data-generator-evidence.json",
+      "status": "mapped",
+      "action": "Evidence retained even though original PR was not merged."
+    },
+    {
+      "legacy": "PR #39 copied-company recovery branch",
+      "canonical": "quality/release/ext-50-12b-copied-company-recovery-evidence.json",
+      "status": "mapped",
+      "action": "Recovery evidence retained independently of PR merge status."
+    },
+    {
+      "legacy": "PR #41 lossless findings branch",
+      "canonical": "merged descendants + current staging regression gates",
+      "status": "mapped",
+      "action": "Unmerged branch remains historical; current behavior is protected by regression workflows."
+    }
+  ],
+  "policy": "A legacy artifact may be removed only after its evidence-bearing role is mapped to a canonical source and repository history preserves the original change."
+}

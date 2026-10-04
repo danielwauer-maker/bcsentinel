@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "sprint": "S07",
+  "source_repository": "danielwauer-maker/bcsentinel",
+  "captured_through_pull_request": 52,
+  "github_releases_observed": 0,
+  "release_evidence_policy": "Historical release evidence is preserved through pull requests, merge commits, quality/release artifacts and documentation until a formal GitHub Release policy is adopted.",
+  "pull_requests": [
+    {
+      "number": 1,
+      "title": "Deploy on staging test",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T10:56:30Z",
+      "merge_commit_sha": "4ef808885362df2fef4d8ff9a72f2ad6e761c571",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 2,
+      "title": "Update index.html",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T11:18:44Z",
+      "merge_commit_sha": "a2efc468ec750fe8f6f0c65578bfc4de72a1821e",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 3,
+      "title": "Update index.html",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T11:27:02Z",
+      "merge_commit_sha": "3d9ac32e27664f3e92e320870dd12c13660b6c11",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 4,
+      "title": "Update deploy.yml",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T11:35:05Z",
+      "merge_commit_sha": "bfa566eb37aa3cfaa6efd50b46a6d651fda58feb",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 5,
+      "title": "Safe",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T13:23:44Z",
+      "merge_commit_sha": "2ad8d6223d2cc85588ce4f8405b464eedd6193da",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 6,
+      "title": "Update main.py",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T13:27:50Z",
+      "merge_commit_sha": "97c00c897e5d854f44c5142e34d0c988b4c9fddb",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 7,
+      "title": "Staging",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-04-07T13:45:39Z",
+      "merge_commit_sha": "c7a80cb4db8b194f94abaefd997fefe6bbcd5b16",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 8,
+      "title": "Staging",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-05-27T20:52:15Z",
+      "merge_commit_sha": "5e94fbd348db836414f56ee37853c7449def7a70",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 9,
+      "title": "Staging",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-06-12T21:14:07Z",
+      "merge_commit_sha": "28640eea36d7ad9a030579a86a903aa79f72e23d",
+      "head": "staging",
+      "base": "main"
+    },
+    {
+      "number": 10,
+      "title": "ARCH-02A: Canonical Product Model im Core einführen",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-07-27T17:37:43Z",
+      "merge_commit_sha": "3729427e6c300f24d0e2aa29b0f29470be0c4641",
+      "head": "arch-02a-product-model-alignment",
+      "base": "staging"
+    },
+    {
+      "number": 11,
+      "title": "POST-MERGE-01: Staging-Verifikation nach jedem Merge",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-07-27T18:24:13Z",
+      "merge_commit_sha": "96f4e516a3127fef12c3dc587e133d1313883f6b",
+      "head": "post-merge-01-staging-verification",
+      "base": "staging"
+    },
+    {
+      "number": 12,
+      "title": "ARCH-02B: Runtime Product Model Adoption",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-07-29T08:32:29Z",
+      "merge_commit_sha": "363774b6cf3f3a17c126adbfe7a6c5312e009ff5",
+      "head": "arch-02b-runtime-product-model-adoption",
+      "base": "staging"
+    },
+    {
+      "number": 13,
+      "title": "ARCH-02C: Runtime Policy Consistency & Drift Detection",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-07-29T10:08:12Z",
+      "merge_commit_sha": "8745ce674d6ed527bc092da9d0a0f197ca2349ce",
+      "head": "arch-02c-runtime-policy-drift-detection",
+      "base": "staging"
+    },
+    {
+      "number": 14,
+      "title": "PILOT-E2E-01A: Automated Pilot Test Foundation",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-07-29T16:29:12Z",
+      "merge_commit_sha": "e1f1ff312f9ee3c8ed8367a5fef170887555f0df",
+      "head": "pilot-e2e-01a-automated-foundation",
+      "base": "staging"
+    },
+    {
+      "number": 15,
+      "title": "PILOT-E2E-01B: Real BC Sandbox Evidence Gate",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "pilot-e2e-01b-real-bc-sandbox",
+      "base": "staging"
+    },
+    {
+      "number": 16,
+      "title": "P1: Prevent manual Monitoring scan dialog from hanging",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "fix/monitoring-dialog-p1",
+      "base": "staging"
+    },
+    {
+      "number": 17,
+      "title": "Release 1.0.2.13",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "release/1.0.2.13",
+      "base": "staging"
+    },
+    {
+      "number": 18,
+      "title": "Release 1.0.2.14",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "release/1.0.2.14",
+      "base": "staging"
+    },
+    {
+      "number": 19,
+      "title": "Release 1.0.2.15: preserve background scan failure diagnostics",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "release/1.0.2.15",
+      "base": "staging"
+    },
+    {
+      "number": 20,
+      "title": "Release 1.0.2.17: reload Monitoring setup inside background session",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "release/1.0.2.16",
+      "base": "staging"
+    },
+    {
+      "number": 22,
+      "title": "Fix manual monitoring scan history in 1.0.2.18",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-03T21:08:15Z",
+      "merge_commit_sha": "04ae387fc6e3aba31ec751e4a2082a8e19ed939b",
+      "head": "fix/manual-monitoring-history-1.0.2.18",
+      "base": "staging"
+    },
+    {
+      "number": 23,
+      "title": "Fix monitoring scan initialization concurrency (1.0.2.19)",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-03T21:53:25Z",
+      "merge_commit_sha": "7bc354bf0dc2e9ffbdf8ff281eef6c37c032915d",
+      "head": "fix/monitoring-init-concurrency-1.0.2.19",
+      "base": "staging"
+    },
+    {
+      "number": 24,
+      "title": "Fix monitoring check selection concurrency (1.0.2.20)",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-04T08:06:50Z",
+      "merge_commit_sha": "685a1881bbac8016659849bed7afc3d150d532a5",
+      "head": "fix/monitoring-check-selection-concurrency-1.0.2.20",
+      "base": "staging"
+    },
+    {
+      "number": 25,
+      "title": "Update go-live audit and implement P0-04 to P0-08 gates",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-04T23:25:02Z",
+      "merge_commit_sha": "2b1c16eece0b0f0eb94993e337e9535a7991258b",
+      "head": "docs/go-live-readiness-1.0.2.20",
+      "base": "staging"
+    },
+    {
+      "number": 26,
+      "title": "Implement P0-09 pilot operator and support package",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-05T08:43:23Z",
+      "merge_commit_sha": "716ae4c4d9925cba7c6a45a159868e338727c379",
+      "head": "pilot/p0-09-operator-package",
+      "base": "staging"
+    },
+    {
+      "number": 27,
+      "title": "EXT-50-01: lock reproducible extension release baseline",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-06T08:31:15Z",
+      "merge_commit_sha": "248096add4d20eaae91c33075b76f7ced117e8b5",
+      "head": "sprint/ext-50-01-release-baseline",
+      "base": "staging"
+    },
+    {
+      "number": 28,
+      "title": "EXT-50-02: verify fresh Business Central installation",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-06T10:51:44Z",
+      "merge_commit_sha": "d4a919a6bdc7569ad99fdafe1fb323537a297ab0",
+      "head": "sprint/ext-50-02-fresh-installation",
+      "base": "staging"
+    },
+    {
+      "number": 29,
+      "title": "EXT-50-03: verify upgrade and data preservation",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-07T15:21:57Z",
+      "merge_commit_sha": "6d7dcbf83b4f7d8e486725da4add69ba3c529385",
+      "head": "sprint/ext-50-03-upgrade",
+      "base": "staging"
+    },
+    {
+      "number": 34,
+      "title": "EXT-50-03A: protect Free findings and keep Full drilldown",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-07T17:19:48Z",
+      "merge_commit_sha": "1c3975b9532f401a2f500abba8e46f0e2d7bed02",
+      "head": "sprint/ext-50-03a-free-findings",
+      "base": "staging"
+    },
+    {
+      "number": 35,
+      "title": "EXT-50-03A: standardize finding remediation and item drilldown",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-07T19:11:22Z",
+      "merge_commit_sha": "002b744cbc88b33468a71ed0c76db2b9a76653e6",
+      "head": "sprint/ext-50-03a-finding-remediation",
+      "base": "staging"
+    },
+    {
+      "number": 36,
+      "title": "EXT-50-03A: cleanup finding remediation, correction lifecycle and Monitoring access date",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-08-12T14:59:51Z",
+      "merge_commit_sha": "867b1f7cef5f20064a5f61655e1e00edf3d24dd3",
+      "head": "cleanup/issues-30-31-32",
+      "base": "staging"
+    },
+    {
+      "number": 37,
+      "title": "EXT-50-04: Permission-Set- und Rollenmatrix",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "sprint/ext-50-04-permission-role-matrix",
+      "base": "staging"
+    },
+    {
+      "number": 38,
+      "title": "EXT-50-12A: Add reproducible BC performance test data generator",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "sprint/ext-50-12a-test-data-generator",
+      "base": "staging"
+    },
+    {
+      "number": 39,
+      "title": "EXT-50-12B: Add safe copied-company registration recovery",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "sprint/ext-50-12b-copied-company-registration-recovery",
+      "base": "staging"
+    },
+    {
+      "number": 40,
+      "title": "EXT-50-12C: Add runtime detection accuracy evidence",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-22T10:00:38Z",
+      "merge_commit_sha": "f312eaf322b7e1083fffbb15b2001e04c32e9523",
+      "head": "sprint/ext-50-12c-runtime-detection-evidence",
+      "base": "staging"
+    },
+    {
+      "number": 41,
+      "title": "EXT-50-12C.3: Make finding synchronization lossless and metrics explicit",
+      "state": "closed",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "sprint/ext-50-12c-3-lossless-findings",
+      "base": "sprint/ext-50-12c-runtime-detection-evidence"
+    },
+    {
+      "number": 42,
+      "title": "EXT-50-12C.3: guarded QA registration invite helper",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-21T20:52:00Z",
+      "merge_commit_sha": "cfab878140010bc34e80c2ebc62fc424d870bca8",
+      "head": "sprint/ext-50-12c-3-qa-invite-helper",
+      "base": "sprint/ext-50-12c-3-lossless-findings"
+    },
+    {
+      "number": 44,
+      "title": "EXT-50-INTEGRATION: Pilot, recovery and performance gates",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-22T10:00:36Z",
+      "merge_commit_sha": "3025854d24db7a4281a70674a408f424584cb455",
+      "head": "sprint/ext-50-integration-pilot-performance",
+      "base": "staging"
+    },
+    {
+      "number": 45,
+      "title": "EXT-50-04-RUNTIME: Prepare safe No-SUPER SaaS evidence",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-22T11:13:49Z",
+      "merge_commit_sha": "7ac18c00b8f5199627b264bdebd93570f8d47423",
+      "head": "sprint/ext-50-04-runtime-no-super",
+      "base": "staging"
+    },
+    {
+      "number": 46,
+      "title": "EXT-50-04-RUNTIME: No-SUPER SaaS evidence and scan permission fix",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": null,
+      "head": "sprint/ext-50-04-runtime-evidence",
+      "base": "staging"
+    },
+    {
+      "number": 47,
+      "title": "S02/S05: pre-runtime product truth and claims hardening",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T13:05:28Z",
+      "merge_commit_sha": "9f1e21f58568bc95c2ab2ef827a6490bf97f8d67",
+      "head": "s02-s05/pre-runtime-hardening",
+      "base": "staging"
+    },
+    {
+      "number": 48,
+      "title": "S03: pilot onboarding auth and lifecycle hardening",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T12:33:20Z",
+      "merge_commit_sha": "4c83ab6d7fa04f18b9f9a28506cb61d00b0cd633",
+      "head": "s03/pilot-onboarding-prework",
+      "base": "staging"
+    },
+    {
+      "number": 49,
+      "title": "S04: dashboard and executive report automated UX hardening",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T11:01:48Z",
+      "merge_commit_sha": "f3907d19757c4d3325a58b512cb62707ca142199",
+      "head": "s04/dashboard-report-prework",
+      "base": "staging"
+    },
+    {
+      "number": 50,
+      "title": "Sync staging into S02/S05 pre-runtime hardening",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T12:35:42Z",
+      "merge_commit_sha": "4c3cd7f4189bce318360c2787c680e7ff1d567c0",
+      "head": "staging",
+      "base": "s02-s05/pre-runtime-hardening"
+    },
+    {
+      "number": 51,
+      "title": "S06: release readiness and rollback evidence hardening",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T12:50:47Z",
+      "merge_commit_sha": "6257d3f97488346c9928086bfa755c061f2d4c91",
+      "head": "s06/release-readiness-prework",
+      "base": "staging"
+    },
+    {
+      "number": 52,
+      "title": "Platform: export machine-readable portfolio readiness evidence",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-04T13:35:20Z",
+      "merge_commit_sha": "2d9381e1b9986e4fd986a0f189289a516d330e4e",
+      "head": "platform/portfolio-evidence-export",
+      "base": "staging"
+    }
+  ],
+  "key_evidence": [
+    {
+      "area": "product_model",
+      "pull_requests": [
+        10,
+        12,
+        13,
+        47
+      ]
+    },
+    {
+      "area": "pilot_automation",
+      "pull_requests": [
+        14,
+        25,
+        26,
+        44,
+        48
+      ]
+    },
+    {
+      "area": "release_baseline",
+      "pull_requests": [
+        27,
+        28,
+        29,
+        51
+      ]
+    },
+    {
+      "area": "findings_and_remediation",
+      "pull_requests": [
+        34,
+        35,
+        36,
+        40,
+        42
+      ]
+    },
+    {
+      "area": "least_privilege_runtime",
+      "pull_requests": [
+        45,
+        46
+      ]
+    },
+    {
+      "area": "customer_ux_and_claims",
+      "pull_requests": [
+        47,
+        49
+      ]
+    },
+    {
+      "area": "portfolio_evidence_export",
+      "pull_requests": [
+        52
+      ]
+    }
+  ],
+  "deliberately_unmerged_or_runtime_only": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    37,
+    38,
+    39,
+    41,
+    46
+  ]
+}
