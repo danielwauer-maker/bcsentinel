@@ -16,3 +16,18 @@ Status: **AUTOMATED PUBLIC-SURFACE CLOSURE COMPLETE / RELEASE-TIME SIGNOFF MANUA
 ## Manual release-time boundary
 
 Before inviting real pilot customers, confirm the actual mailbox is reachable and perform a final legal/privacy/brand read-through. These are release signoffs, not missing product code.
+
+
+## Core launch-surface closure
+
+The current Core pilot surface also includes:
+
+- a persistent API-backed contact form with privacy acknowledgement and rate limiting;
+- stored contact requests even when notification email delivery is unavailable;
+- Pilot Page routed through the same contact workflow;
+- current-shell Legal Notice, Privacy, Pilot Terms and DPA/AVV working templates;
+- visible warnings that legal templates are examples and require manual legal/business review;
+- a Core documentation page with exact screenshot/video capture instructions;
+- removal of invented uptime/support-hour claims from the current surface.
+
+Final legal, tax, operator identity/address, support-policy and visual-design sign-off remain manual.
