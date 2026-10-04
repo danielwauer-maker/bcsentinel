@@ -18,6 +18,10 @@ FORBIDDEN_CLAIMS = [
     "Business-Central-Aktionen",
     "Benjamin Schroyer",
     "100+",
+    "+49 89 123 456 789",
+    "Maximilianstrasse 35",
+    "BCSentinel GmbH",
+    "Mo - Fr: 08:00 - 18:00 Uhr",
 ]
 
 
