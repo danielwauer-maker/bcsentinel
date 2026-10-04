@@ -78,6 +78,40 @@ DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {
 </html>
 """.strip(),
     },
+    "dashboard_password_reset_en": {
+        "label": "Dashboard password reset EN",
+        "description": "Sent after a dashboard password reset request.",
+        "placeholders": ["reset_url", "support_email"],
+        "subject": "Reset your BCSentinel Dashboard password",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44;">
+    <p>Hello,</p>
+    <p>we received a request to reset your BCSentinel Dashboard password.</p>
+    <p><a href="{{ reset_url }}">Reset password</a></p>
+    <p>This link expires automatically and can only be used once.</p>
+    <p>If you did not request this, ignore this message or contact {{ support_email }}.</p>
+  </body>
+</html>
+""".strip(),
+    },
+    "dashboard_password_reset_de": {
+        "label": "Dashboard password reset DE",
+        "description": "Wird nach einer Passwort-Reset-Anfrage fuer das Dashboard versendet.",
+        "placeholders": ["reset_url", "support_email"],
+        "subject": "BCSentinel Dashboard-Kennwort zuruecksetzen",
+        "html": """
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2a44;">
+    <p>Hallo,</p>
+    <p>wir haben eine Anfrage zum Zuruecksetzen Ihres BCSentinel Dashboard-Kennworts erhalten.</p>
+    <p><a href="{{ reset_url }}">Kennwort zuruecksetzen</a></p>
+    <p>Der Link laeuft automatisch ab und kann nur einmal verwendet werden.</p>
+    <p>Falls Sie die Anfrage nicht gestellt haben, ignorieren Sie diese Nachricht oder kontaktieren Sie {{ support_email }}.</p>
+  </body>
+</html>
+""".strip(),
+    },
     "dashboard_access_invite_de": {
         "label": "Dashboard access invite DE",
         "description": "Wird nach der Business-Central-Tenant-Registrierung an den Dashboard-Kontakt versendet.",

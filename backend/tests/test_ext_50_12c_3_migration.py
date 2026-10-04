@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
@@ -20,6 +22,10 @@ def test_upgrade_downgrade_upgrade_preserves_existing_findings(tmp_path, dialect
         assert make_url(url).database.endswith('_test'), 'Dedicated test database required'
     env = dict(os.environ, DATABASE_URL=url)
     root = Path(__file__).resolve().parents[1]
+    alembic_config = Config(str(root / "alembic.ini"))
+    alembic_config.set_main_option("script_location", str(root / "alembic"))
+    current_head = ScriptDirectory.from_config(alembic_config).get_current_head()
+    assert current_head
 
     def migrate(command, revision, success=True):
         result = subprocess.run([sys.executable, '-m', 'alembic', command, revision], cwd=root,
@@ -51,5 +57,6 @@ def test_upgrade_downgrade_upgrade_preserves_existing_findings(tmp_path, dialect
         assert db.execute(text('SELECT COUNT(*) FROM scan_issues')).scalar_one() == 2
         assert db.execute(text('SELECT SUM(affected_count) FROM scan_issues')).scalar_one() == 5
         assert db.execute(text('SELECT SUM(estimated_impact_eur) FROM scan_issues')).scalar_one() == 180
-        assert db.execute(text('SELECT version_num FROM alembic_version')).scalar_one() == '0029_finding_identity'
+        expected_revision = current_head if dialect == "postgresql" else "0029_finding_identity"
+        assert db.execute(text('SELECT version_num FROM alembic_version')).scalar_one() == expected_revision
     engine.dispose()

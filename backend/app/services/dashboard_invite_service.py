@@ -211,3 +211,68 @@ def _send_html_email(*, target_email: str, subject: str, html_body: str) -> tupl
         return True, None
     except Exception as exc:  # pragma: no cover - exact SMTP exceptions depend on deployment
         return False, str(exc)
+
+
+
+@dataclass(frozen=True)
+class DashboardPasswordResetResult:
+    requested: bool
+    mail_sent: bool
+    mail_error: str | None = None
+
+
+def send_dashboard_password_reset(db: Session, *, user: DashboardUser) -> DashboardPasswordResetResult:
+    """Issue a one-time password reset token for an active dashboard user."""
+    if user.status != "active":
+        return DashboardPasswordResetResult(requested=False, mail_sent=False, mail_error=None)
+
+    now = utc_now()
+    reset_token = secrets.token_urlsafe(32)
+    user.password_reset_token_hash = hash_api_token(reset_token)
+    user.password_reset_expires_at_utc = now + timedelta(minutes=settings.DASHBOARD_PASSWORD_RESET_EXPIRE_MINUTES)
+    user.password_reset_requested_at_utc = now
+    user.updated_at_utc = now
+
+    host = (settings.SMTP_HOST or "").strip()
+    from_email = (settings.SMTP_FROM_EMAIL or "").strip()
+    if not host or not from_email:
+        db.flush()
+        return DashboardPasswordResetResult(requested=True, mail_sent=False, mail_error="SMTP not configured.")
+
+    language = "de"
+    membership = db.scalar(
+        select(DashboardUserTenantMembership).where(
+            DashboardUserTenantMembership.dashboard_user_id == user.id,
+            DashboardUserTenantMembership.is_active.is_(True),
+        )
+    )
+    if membership is not None:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == membership.tenant_id))
+        if tenant is not None:
+            language = normalize_language(getattr(tenant, "preferred_language", None))
+
+    template_key = "dashboard_password_reset_de" if language == "de" else "dashboard_password_reset_en"
+    subject, html_body = render_email_template(
+        db,
+        template_key,
+        {
+            "reset_url": _build_dashboard_password_reset_url(reset_token),
+            "support_email": "support@bcsentinel.com",
+        },
+    )
+    mail_sent, mail_error = _send_html_email(
+        target_email=user.email,
+        subject=subject,
+        html_body=html_body,
+    )
+    db.flush()
+    return DashboardPasswordResetResult(
+        requested=True,
+        mail_sent=mail_sent,
+        mail_error=None if mail_sent else mail_error,
+    )
+
+
+def _build_dashboard_password_reset_url(reset_token: str) -> str:
+    base_url = resolve_public_base_url() or "https://app.bcsentinel.com"
+    return urljoin(f"{base_url}/", f"dashboard?reset_token={reset_token}")

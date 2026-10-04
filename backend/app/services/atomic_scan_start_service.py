@@ -135,14 +135,15 @@ def _wait_for_existing_result(
     tenant_id: str,
     client_request_id: str,
     payload_hash: str,
-    attempts: int = 10,
+    attempts: int = 80,
     delay_seconds: float = 0.025,
 ) -> ScanStartResult | None:
     """Wait briefly for a concurrent identical start transaction to become visible.
 
     A scan row can become observable immediately before its durable request binding
-    on SQLite and under tightly scheduled concurrent requests. Treating that tiny
-    visibility window as a permanent scan-ID conflict breaks idempotent retries.
+    on SQLite/PostgreSQL and under tightly scheduled concurrent requests. CI can
+    stretch that visibility window well beyond a few scheduler slices, so keep a
+    bounded two-second reconciliation window before declaring a real conflict.
     Each attempt starts a fresh transaction snapshot and only returns a replay when
     the exact tenant, client request ID and payload hash match.
     """
