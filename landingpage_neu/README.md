@@ -8,6 +8,7 @@ Neue Landingpage-Struktur fuer die Phase-1-Seiten. Die bestehende `landingpage/`
 - `pricing.html`
 - `about.html`
 - `trust.html`
+- `pilot.html`
 - `support.html`
 - `contact.html`
 - `executive-reports.html`
@@ -21,7 +22,7 @@ Neue Landingpage-Struktur fuer die Phase-1-Seiten. Die bestehende `landingpage/`
 - Sichtbarkeit: `assets/js/visibility.js` laedt `/landingpage/pages/visibility`. Ist die API nicht erreichbar, bleiben alle Seiten sichtbar.
 - Deaktivierte Seiten: Direkte Aufrufe werden clientseitig nach `index.html` umgeleitet. Home ist im Admin geschuetzt sichtbar.
 - Checkout-CTAs: Buttons behalten die Produktcodes ueber `data-product-code` und `data-checkout-product`. Der eigentliche Checkout bleibt mandantenautorisiert im bestehenden Business-Central-/Dashboard-Flow.
-- Kontaktformular: Frontendseitig vorbereitet. Im bestehenden Backend wurde kein dedizierter oeffentlicher Kontakt-Endpunkt gefunden.
+- Kontakt: Pilot-, Demo- und Supportanfragen werden explizit an `support@bcsentinel.com` uebergeben; es wird kein erfolgreicher Formularversand simuliert.
 
 ## Smoke Checks
 
