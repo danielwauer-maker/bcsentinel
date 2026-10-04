@@ -327,5 +327,9 @@
   "pilot_not_prod_title": "What the pilot does not promise",
   "pilot_not_prod_text": "The pilot is not a general production release, AppSource availability or an enterprise SLA. Open limitations are documented transparently before admission.",
   "pilot_final_title": "Interested in a guided BCSentinel pilot?",
-  "pilot_final_text": "We review the environment, goals and current pilot capacity before admission."
+  "pilot_final_text": "We review the environment, goals and current pilot capacity before admission.",
+  "contact_email_title": "Direct contact",
+  "contact_privacy_note": "Please do not send credentials, API tokens, or confidential Business Central data by email.",
+  "status_pilot": "Pilot operation",
+  "status_on_request": "Status on request"
 }
