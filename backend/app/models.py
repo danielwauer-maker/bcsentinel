@@ -118,6 +118,11 @@ class DashboardUser(Base):
     last_invited_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     invite_mail_status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
     invite_mail_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    failed_login_count: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    locked_until_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    password_reset_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    password_reset_expires_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    password_reset_requested_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     memberships: Mapped[list["DashboardUserTenantMembership"]] = relationship(
         back_populates="dashboard_user",
