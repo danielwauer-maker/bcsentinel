@@ -209,8 +209,11 @@ def activate_dashboard_invite(payload: DashboardInviteActivationRequest):
         membership, tenant = memberships[0]
         membership.last_selected_at_utc = now
         db.commit()
-        # Activation must not fail if external mail delivery is temporarily unavailable.
-        send_dashboard_welcome(db, user=user, tenant=tenant)
+        # Activation must not fail if external mail/template delivery is temporarily unavailable.
+        try:
+            send_dashboard_welcome(db, user=user, tenant=tenant)
+        except Exception:
+            pass
         session_token = _session_token(user, membership)
     response = JSONResponse({"status": "activated", "active_tenant_id": membership.tenant_id, "tenant_count": len(memberships), "session_token": session_token})
     _set_session_cookie(response, session_token)
