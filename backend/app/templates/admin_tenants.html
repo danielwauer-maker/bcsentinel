@@ -394,7 +394,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>When</th><th>Intent</th><th>Company</th><th>Contact</th><th>Email</th><th>Message</th><th>Mail</th></tr></thead>
+              <thead><tr><th>When</th><th>Intent</th><th>Company</th><th>Contact</th><th>Email</th><th>Message</th><th>Mail</th><th>Action</th></tr></thead>
               <tbody>
                 {% for row in contact_messages %}
                 <tr>
@@ -405,10 +405,16 @@
                   <td>{{ row.email }}</td>
                   <td style="max-width:420px; white-space:normal;">{{ row.message }}</td>
                   <td>{{ row.mail_status }}{% if row.mail_error %}<div class="muted">{{ row.mail_error }}</div>{% endif %}</td>
+                  <td>
+                    <form method="post" action="/admin/contact-inbox/{{ row.id }}/delete" onsubmit="return confirm('Kontaktanfrage wirklich loeschen?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                      <button class="btn btn-secondary" type="submit">Delete</button>
+                    </form>
+                  </td>
                 </tr>
                 {% endfor %}
                 {% if not contact_messages %}
-                <tr><td colspan="7">Noch keine Kontaktanfragen vorhanden.</td></tr>
+                <tr><td colspan="8">Noch keine Kontaktanfragen vorhanden.</td></tr>
                 {% endif %}
               </tbody>
             </table>
