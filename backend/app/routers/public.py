@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from html import escape
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
@@ -175,13 +176,14 @@ def submit_public_contact(payload: PublicContactRequest, request: Request) -> Pu
         error: str | None = None
         if recipient:
             subject = f"[BCSentinel Contact] {row.intent or 'general'} · {row.company or row.email}"
+            safe_message = escape(message).replace(chr(10), "<br>")
             html_body = (
                 "<h2>New BCSentinel contact request</h2>"
-                f"<p><strong>From:</strong> {row.first_name or ''} {row.last_name or ''} &lt;{row.email}&gt;</p>"
-                f"<p><strong>Company:</strong> {row.company or '-'}</p>"
-                f"<p><strong>Phone:</strong> {row.phone or '-'}</p>"
-                f"<p><strong>Intent:</strong> {row.intent or '-'}</p>"
-                f"<p><strong>Message:</strong></p><p>{message.replace(chr(10), '<br>')}</p>"
+                f"<p><strong>From:</strong> {escape(row.first_name or '')} {escape(row.last_name or '')} &lt;{escape(row.email)}&gt;</p>"
+                f"<p><strong>Company:</strong> {escape(row.company or '-')}</p>"
+                f"<p><strong>Phone:</strong> {escape(row.phone or '-')}</p>"
+                f"<p><strong>Intent:</strong> {escape(row.intent or '-')}</p>"
+                f"<p><strong>Message:</strong></p><p>{safe_message}</p>"
             )
             sent, error = _send_html_email(
                 target_email=recipient,
