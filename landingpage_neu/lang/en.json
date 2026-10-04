@@ -82,12 +82,12 @@
   "price_once": "one-time",
   "price_month": "per month",
   "price_year": "per year",
-  "founder_name": "Benjamin Schroyer",
-  "founder_role": "Founder & Managing Director",
+  "founder_name": "BCSentinel Product Team",
+  "founder_role": "Product development",
   "founder_title": "Why BCSentinel exists.",
   "founder_text": "Across many Business Central projects we saw the same pattern: poor data causes costs, risk and frustration, but nobody knows the real impact.",
   "stat_years": "years of ERP experience",
-  "stat_projects": "customer projects supported",
+  "stat_projects": "Evidence-based product development",
   "stat_mission": "mission: make data quality measurable",
   "stat_focus": "focus on business impact",
   "final_cta_title": "Start now and turn your data quality into measurable business value.",
@@ -294,5 +294,11 @@
   "footer_dpa": "DPA",
   "footer_imprint": "Legal notice",
   "footer_terms": "Terms",
-  "footer_copyright": "(c) 2024 BCSentinel - All rights reserved."
+  "footer_copyright": "(c) 2024 BCSentinel - All rights reserved.",
+  "about_stage_foundation": "Foundation",
+  "about_stage_foundation_text": "Data health model, findings, reports and role-based access.",
+  "about_stage_pilot": "Pilot readiness",
+  "about_stage_pilot_text": "Runtime, security and operational gates are closed with evidence.",
+  "about_stage_future": "Roadmap",
+  "about_stage_future_text": "Monitoring, decision intelligence and controlled automation are expanded step by step."
 }
