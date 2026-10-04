@@ -2,7 +2,13 @@
   "schema_version": "pilot-e2e-01a-v1",
   "title": "BCSentinel Pilot E2E Readiness Matrix",
   "policy": {
-    "allowed_statuses": ["PASS", "FAIL", "BLOCKED", "MANUAL", "NOT_RUN"],
+    "allowed_statuses": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "MANUAL",
+      "NOT_RUN"
+    ],
     "go_rule": "All P0 automated tests PASS and all P0 BC sandbox/manual gates are completed with evidence.",
     "no_false_green": true
   },
@@ -13,7 +19,10 @@
       "area": "registration",
       "title": "Idempotent tenant, environment and company registration",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*registration*.py", "backend/tests/test_*tenant*.py"],
+      "source_patterns": [
+        "backend/tests/test_*registration*.py",
+        "backend/tests/test_*tenant*.py"
+      ],
       "expected": "Repeated registration does not create conflicting identities or cross-tenant access.",
       "evidence": "pytest JUnit and backend regression log"
     },
@@ -23,7 +32,11 @@
       "area": "multi_tenant",
       "title": "Tenant and company isolation",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*multi_tenant*.py", "backend/tests/test_*membership*.py", "backend/tests/test_*tenant*.py"],
+      "source_patterns": [
+        "backend/tests/test_*multi_tenant*.py",
+        "backend/tests/test_*membership*.py",
+        "backend/tests/test_*tenant*.py"
+      ],
       "expected": "Foreign tenant and company resources are rejected.",
       "evidence": "pytest JUnit"
     },
@@ -33,7 +46,11 @@
       "area": "free",
       "title": "Free scan and permanent result access",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*free_access*.py", "backend/tests/test_*data_health_score*.py", "backend/tests/test_access_snapshot_product_model.py"],
+      "source_patterns": [
+        "backend/tests/test_*free_access*.py",
+        "backend/tests/test_*data_health_score*.py",
+        "backend/tests/test_access_snapshot_product_model.py"
+      ],
       "expected": "Completed free score keeps dashboard, findings summary and free report access without paid rights.",
       "evidence": "pytest JUnit"
     },
@@ -43,7 +60,11 @@
       "area": "access",
       "title": "Canonical product policy with legacy guard",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_product_model_contract.py", "backend/tests/test_product_license_contract_alignment.py", "backend/tests/test_access_snapshot_product_model.py"],
+      "source_patterns": [
+        "backend/tests/test_product_model_contract.py",
+        "backend/tests/test_product_license_contract_alignment.py",
+        "backend/tests/test_access_snapshot_product_model.py"
+      ],
       "expected": "Paid capability requires canonical entitlement and legacy grant; mismatches fail closed.",
       "evidence": "pytest JUnit"
     },
@@ -53,7 +74,9 @@
       "area": "access",
       "title": "Runtime policy drift diagnostics",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_access_snapshot_product_model.py"],
+      "source_patterns": [
+        "backend/tests/test_access_snapshot_product_model.py"
+      ],
       "expected": "Canonical and legacy mismatches are visible without changing the decision.",
       "evidence": "pytest JUnit and access snapshot assertions"
     },
@@ -63,7 +86,10 @@
       "area": "credits",
       "title": "Atomic one-time credit consumption",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*credit*.py", "backend/tests/test_*atomic*.py"],
+      "source_patterns": [
+        "backend/tests/test_*credit*.py",
+        "backend/tests/test_*atomic*.py"
+      ],
       "expected": "Exactly one credit is consumed and retries cannot double-consume it.",
       "evidence": "pytest JUnit"
     },
@@ -73,7 +99,11 @@
       "area": "scan_lifecycle",
       "title": "Queued to terminal scan lifecycle",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*scan*lifecycle*.py", "backend/tests/test_*run*.py", "backend/tests/test_*execution*.py"],
+      "source_patterns": [
+        "backend/tests/test_*scan*lifecycle*.py",
+        "backend/tests/test_*run*.py",
+        "backend/tests/test_*execution*.py"
+      ],
       "expected": "Runs reach completed, failed or cancelled and do not remain indefinitely running.",
       "evidence": "pytest JUnit"
     },
@@ -83,7 +113,11 @@
       "area": "recovery",
       "title": "Lease, heartbeat and stale-run recovery",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*lease*.py", "backend/tests/test_*heartbeat*.py", "backend/tests/test_*recovery*.py"],
+      "source_patterns": [
+        "backend/tests/test_*lease*.py",
+        "backend/tests/test_*heartbeat*.py",
+        "backend/tests/test_*recovery*.py"
+      ],
       "expected": "Lost workers are detected and stale runs are recovered without duplicate execution.",
       "evidence": "pytest JUnit"
     },
@@ -93,7 +127,10 @@
       "area": "reporting",
       "title": "Executive report data and rendering contracts",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*report*.py", "backend/tests/test_*pdf*.py"],
+      "source_patterns": [
+        "backend/tests/test_*report*.py",
+        "backend/tests/test_*pdf*.py"
+      ],
       "expected": "Report payload, language, access and PDF generation remain valid.",
       "evidence": "pytest JUnit; Chromium/PDF artifact where available"
     },
@@ -103,7 +140,10 @@
       "area": "exceptions",
       "title": "Data-health exceptions lifecycle and score exclusion",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*exception*.py", "backend/tests/test_*exclusion*.py"],
+      "source_patterns": [
+        "backend/tests/test_*exception*.py",
+        "backend/tests/test_*exclusion*.py"
+      ],
       "expected": "Create, duplicate guard, deactivate/reactivate, history and score/report exclusion are correct.",
       "evidence": "pytest JUnit"
     },
@@ -113,7 +153,12 @@
       "area": "monitoring",
       "title": "Monitoring scheduling and authorization",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_gl01f_fix01_background_scan.py", "backend/tests/test_p0b_atomic_credit.py", "backend/tests/test_p0c_scan_lifecycle.py", "backend/tests/test_product_licensing_p0.py"],
+      "source_patterns": [
+        "backend/tests/test_gl01f_fix01_background_scan.py",
+        "backend/tests/test_p0b_atomic_credit.py",
+        "backend/tests/test_p0c_scan_lifecycle.py",
+        "backend/tests/test_product_licensing_p0.py"
+      ],
       "expected": "Only active monitoring tenants can schedule scans and duplicate execution is prevented.",
       "evidence": "pytest JUnit: automatic scheduler path, idempotent scheduler retry, stale queued recovery and monitoring authorization"
     },
@@ -123,9 +168,27 @@
       "area": "commercial",
       "title": "Checkout and webhook idempotency",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_billing.py", "backend/tests/test_product_licensing_p0.py", "backend/tests/test_product_license_contract_alignment.py"],
+      "source_patterns": [
+        "backend/tests/test_billing.py",
+        "backend/tests/test_product_licensing_p0.py",
+        "backend/tests/test_product_license_contract_alignment.py"
+      ],
       "expected": "Duplicate or reordered events do not duplicate licenses, credits or memberships.",
       "evidence": "pytest JUnit using Stripe test doubles and signed webhook fixtures"
+    },
+    {
+      "id": "PILOT-AUTH-001",
+      "priority": "P0",
+      "area": "dashboard_auth",
+      "title": "Dashboard invite login reset throttling and operator access lifecycle",
+      "execution": "automated",
+      "source_patterns": [
+        "backend/tests/test_p0_08_login_email_contract.py",
+        "backend/tests/test_dashboard_security_lifecycle.py",
+        "backend/tests/test_multi_tenant_dashboard.py"
+      ],
+      "expected": "Invite tokens are one-time and expiring; repeated login failures lock persistently; password reset is non-enumerating and one-time; operator suspend/reactivate/revoke is audited.",
+      "evidence": "pytest JUnit and pilot backend regression log"
     },
     {
       "id": "PILOT-EXP-001",
@@ -133,7 +196,11 @@
       "area": "expiry",
       "title": "Expiry and downgrade protection",
       "execution": "automated",
-      "source_patterns": ["backend/tests/test_*expiry*.py", "backend/tests/test_*access*.py", "backend/tests/test_arch_02a_compatibility_regression.py"],
+      "source_patterns": [
+        "backend/tests/test_*expiry*.py",
+        "backend/tests/test_*access*.py",
+        "backend/tests/test_arch_02a_compatibility_regression.py"
+      ],
       "expected": "Expired paid rights are removed while permanent free results remain available.",
       "evidence": "pytest JUnit"
     },
@@ -143,7 +210,11 @@
       "area": "bc_build",
       "title": "BC 27 AL compile with CodeCop and PTECop",
       "execution": "automated_external",
-      "source_patterns": [".github/workflows/bc-al-compile.yml", "bc-extension/app.json", "bc-extension/app/src/**/*.al"],
+      "source_patterns": [
+        ".github/workflows/bc-al-compile.yml",
+        "bc-extension/app.json",
+        "bc-extension/app/src/**/*.al"
+      ],
       "expected": "Extension compiles and build plus warning artifacts are published.",
       "evidence": "BC AL Compile and Cop Gate workflow"
     },
@@ -153,7 +224,10 @@
       "area": "postgresql",
       "title": "Transactional PostgreSQL smoke test",
       "execution": "environment_required",
-      "source_patterns": ["backend/tests/test_*postgres*.py", "backend/tests/test_*transaction*.py"],
+      "source_patterns": [
+        "backend/tests/test_*postgres*.py",
+        "backend/tests/test_*transaction*.py"
+      ],
       "expected": "Real PostgreSQL transaction, constraints and rollback behave as required.",
       "evidence": "Test database URL and captured command output",
       "blocker": "Requires reachable disposable PostgreSQL test database. SQLite is not accepted as evidence."
