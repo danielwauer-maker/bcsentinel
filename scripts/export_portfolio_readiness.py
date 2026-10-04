@@ -89,6 +89,24 @@ def build() -> dict:
                 "provider bounce/feedback validation",
             ],
         },
+        "s03_core_mail_user_flow": {
+            "complete": (
+                (ROOT / "backend/tests/test_core_public_platform_flows.py").exists()
+                and contains(
+                    "backend/app/services/email_template_service.py",
+                    r"dashboard_welcome_de",
+                )
+                and contains(
+                    "backend/app/routers/dashboard.py",
+                    r"send_dashboard_welcome",
+                )
+            ),
+            "evidence": "backend/tests/test_core_public_platform_flows.py + backend/app/services/email_template_service.py",
+            "manual_remaining": [
+                "real provider mailbox delivery",
+                "SPF/DKIM/DMARC validation",
+            ],
+        },
         "s04_customer_ux_automated_qa": {
             "complete": (
                 (ROOT / "backend/tests/test_s04_customer_ux_contract.py").exists()
@@ -131,6 +149,26 @@ def build() -> dict:
             "manual_remaining": [
                 "mailbox reachability check",
                 "final legal/privacy/brand signoff",
+            ],
+        },
+        "s05_contact_legal_docs_surface": {
+            "complete": (
+                (ROOT / "landingpage_neu/contact.html").exists()
+                and (ROOT / "landingpage_neu/impressum.html").exists()
+                and (ROOT / "landingpage_neu/privacy.html").exists()
+                and (ROOT / "landingpage_neu/terms.html").exists()
+                and (ROOT / "landingpage_neu/dpa.html").exists()
+                and (ROOT / "landingpage_neu/docs.html").exists()
+                and (ROOT / "backend/alembic/versions/0031_public_contact_inbox.py").exists()
+                and contains(
+                    "backend/app/routers/public.py",
+                    r"/public/contact",
+                )
+            ),
+            "evidence": "landingpage_neu/contact.html + legal/docs surfaces + backend /public/contact",
+            "manual_remaining": [
+                "final legal/tax/operator identity review",
+                "final brand and visual design signoff",
             ],
         },
         "s05_trust_page_present_and_guarded": {
