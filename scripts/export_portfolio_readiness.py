@@ -96,6 +96,17 @@ def build() -> dict:
                 "release-time claims re-audit",
             ],
         },
+        "s05_trust_page_present_and_guarded": {
+            "complete": (
+                (ROOT / "landingpage_neu/trust.html").exists()
+                and contains(
+                    "backend/tests/test_public_claims_contract.py",
+                    r"trust\.html",
+                )
+            ),
+            "evidence": "landingpage_neu/trust.html + backend/tests/test_public_claims_contract.py",
+            "manual_remaining": [],
+        },
         "s06_fresh_installation": {
             "complete": fresh.get("status") == "VERIFIED_WITH_KNOWN_DEFECTS",
             "status": fresh.get("status"),
