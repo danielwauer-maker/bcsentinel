@@ -57,5 +57,6 @@ def test_upgrade_downgrade_upgrade_preserves_existing_findings(tmp_path, dialect
         assert db.execute(text('SELECT COUNT(*) FROM scan_issues')).scalar_one() == 2
         assert db.execute(text('SELECT SUM(affected_count) FROM scan_issues')).scalar_one() == 5
         assert db.execute(text('SELECT SUM(estimated_impact_eur) FROM scan_issues')).scalar_one() == 180
-        assert db.execute(text('SELECT version_num FROM alembic_version')).scalar_one() == current_head
+        expected_revision = current_head if dialect == "postgresql" else "0029_finding_identity"
+        assert db.execute(text('SELECT version_num FROM alembic_version')).scalar_one() == expected_revision
     engine.dispose()
