@@ -13,7 +13,7 @@ on:
       - "quality/release/s06-release-readiness.json"
       - "quality/portfolio-readiness-evidence.json"
       - "scripts/export_portfolio_readiness.py"
-      - "backend/tests/test_portfolio_readiness_export.py"
+      - "scripts/check_portfolio_readiness_export.py"
       - ".github/workflows/portfolio-evidence-export.yml"
   push:
     branches: [staging]
@@ -31,14 +31,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install test dependency
-        run: python -m pip install --quiet pytest
-
       - name: Verify generated evidence snapshot
         run: python scripts/export_portfolio_readiness.py --check
       - name: Verify no calculated percentages are exported
-        working-directory: backend
-        run: python -m pytest -q tests/test_portfolio_readiness_export.py
+        run: python scripts/check_portfolio_readiness_export.py
       - name: Upload machine-readable portfolio evidence
         uses: actions/upload-artifact@v4
         with:
