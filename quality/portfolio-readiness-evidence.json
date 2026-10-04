@@ -68,6 +68,21 @@
         "pilot_release_approval",
         "signing_and_appsource_if_in_scope"
       ]
+    },
+    "s07_legacy_pr_release_catalog": {
+      "complete": true,
+      "evidence": "quality/s07/legacy-pr-catalog.json",
+      "manual_remaining": []
+    },
+    "s07_canonical_repository_contract": {
+      "complete": true,
+      "evidence": "config/canonical-repository.yaml",
+      "manual_remaining": []
+    },
+    "s07_legacy_canonical_traceability": {
+      "complete": true,
+      "evidence": "quality/s07/legacy-canonical-traceability.json",
+      "manual_remaining": []
     }
   }
 }
