@@ -125,3 +125,42 @@ def entitlements_for_storage_code(value: str | None) -> frozenset[Entitlement]:
     """Return canonical entitlements for a legacy or current product code."""
     offer = canonical_offer_for_storage_code(value)
     return OFFER_ENTITLEMENTS.get(offer, frozenset()) if offer is not None else frozenset()
+
+def product_contract_for_storage_code(value: str | None) -> dict[str, object]:
+    """Describe a compatibility storage code using canonical product semantics."""
+    normalized = (value or "").strip().lower()
+    offer = canonical_offer_for_storage_code(normalized)
+    billing_variant = billing_variant_for_storage_code(normalized)
+    if normalized == STORAGE_DATA_HEALTH_SCORE:
+        experience_mode = ExperienceMode.FREE
+        access_state = AccessState.ACTIVE
+    elif offer is CommercialOffer.ASSESSMENT:
+        experience_mode = ExperienceMode.ASSESSMENT_RESULT
+        access_state = AccessState.ACTIVE
+    elif offer is CommercialOffer.VALIDATION:
+        experience_mode = ExperienceMode.VALIDATION_RESULT
+        access_state = AccessState.ACTIVE
+    elif offer is CommercialOffer.MONITORING:
+        experience_mode = ExperienceMode.MONITORING
+        access_state = AccessState.ACTIVE
+    else:
+        experience_mode = ExperienceMode.LOCKED_PREVIEW
+        access_state = AccessState.LOCKED
+
+    return {
+        "storage_code": normalized or None,
+        "commercial_offer_id": offer.value if offer is not None else None,
+        "billing_variant": billing_variant.value if billing_variant is not None else None,
+        "experience_mode": experience_mode.value,
+        "access_state": access_state.value,
+        "entitlement_ids": sorted(
+            entitlement.value for entitlement in entitlements_for_storage_code(normalized)
+        ),
+        "compatibility_only": normalized in {
+            STORAGE_FULL_ANALYSIS,
+            STORAGE_ASSESSMENT_LEGACY,
+            STORAGE_VALIDATION_CHECK,
+            STORAGE_MONITORING_MONTHLY,
+            STORAGE_MONITORING_ANNUAL,
+        },
+    }
