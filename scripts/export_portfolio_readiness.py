@@ -39,7 +39,16 @@ def build() -> dict:
             "evidence": "docs/product/S02_PRICING_CHECKOUT_TRUTH_AUDIT.md",
             "manual_remaining": [
                 "pricing/checkout runtime smoke",
-                "legacy premium migration closure",
+            ],
+        },
+        "s02_legacy_compatibility_closure": {
+            "complete": (
+                (ROOT / "docs/product/S02_LEGACY_COMPATIBILITY_CLOSURE.md").exists()
+                and (ROOT / "backend/tests/test_s02_legacy_compatibility_closure.py").exists()
+            ),
+            "evidence": "docs/product/S02_LEGACY_COMPATIBILITY_CLOSURE.md + backend/tests/test_s02_legacy_compatibility_closure.py",
+            "manual_remaining": [
+                "real checkout/grant smoke in pilot runtime",
             ],
         },
         "s03_security_lifecycle_automated": {
@@ -63,6 +72,21 @@ def build() -> dict:
                 "real SMTP delivery and domain validation",
                 "real invitation to BC connection to dashboard journey",
                 "customer/operator acceptance",
+            ],
+        },
+        "s03_mail_transport_resilience": {
+            "complete": (
+                (ROOT / "backend/tests/test_s03_mail_resilience.py").exists()
+                and contains(
+                    "docs/S03_PILOT_ONBOARDING_PRE_RUNTIME.md",
+                    r"Mail transport hardening for Core pilot",
+                )
+            ),
+            "evidence": "backend/tests/test_s03_mail_resilience.py + docs/S03_PILOT_ONBOARDING_PRE_RUNTIME.md",
+            "manual_remaining": [
+                "real provider delivery",
+                "SPF/DKIM/DMARC validation",
+                "provider bounce/feedback validation",
             ],
         },
         "s04_customer_ux_automated_qa": {
@@ -91,9 +115,22 @@ def build() -> dict:
             ),
             "evidence": "docs/go-live/S05_PUBLIC_CLAIMS_AUDIT.md",
             "manual_remaining": [
-                "Design Partner/Pilot page",
-                "legal/privacy/contact launch polish",
                 "release-time claims re-audit",
+            ],
+        },
+        "s05_pilot_launch_surface": {
+            "complete": (
+                (ROOT / "landingpage_neu/pilot.html").exists()
+                and (ROOT / "docs/go-live/S05_PILOT_LAUNCH_SURFACE.md").exists()
+                and contains(
+                    "backend/tests/test_public_claims_contract.py",
+                    r"pilot_page_is_explicitly_capped",
+                )
+            ),
+            "evidence": "landingpage_neu/pilot.html + docs/go-live/S05_PILOT_LAUNCH_SURFACE.md",
+            "manual_remaining": [
+                "mailbox reachability check",
+                "final legal/privacy/brand signoff",
             ],
         },
         "s05_trust_page_present_and_guarded": {
@@ -124,6 +161,29 @@ def build() -> dict:
             "status": s06.get("status"),
             "evidence": "quality/release/s06-release-readiness.json",
             "manual_remaining": list(s06.get("manual_gates_open", [])),
+        },
+        "s06_core_50_tenant_preflight": {
+            "complete": (
+                (ROOT / "backend/tests/test_core_pilot_50_tenant_preflight.py").exists()
+                and (ROOT / ".github/workflows/core-pilot-50-readiness.yml").exists()
+                and (ROOT / "quality/pilot/core-pilot-50-readiness.json").exists()
+            ),
+            "evidence": "backend/tests/test_core_pilot_50_tenant_preflight.py + quality/pilot/core-pilot-50-readiness.json",
+            "manual_remaining": [
+                "24h staged operational soak",
+                "wave review before expansion",
+            ],
+        },
+        "s06_rc_build_manifest_automation": {
+            "complete": contains(
+                ".github/workflows/bc-al-compile.yml",
+                r"core-pilot-rc-build-manifest\.json",
+            ),
+            "evidence": ".github/workflows/bc-al-compile.yml",
+            "manual_remaining": [
+                "final runtime acceptance",
+                "final release approval",
+            ],
         },
         "s07_legacy_pr_release_catalog": {
             "complete": (
