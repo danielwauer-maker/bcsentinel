@@ -27,3 +27,19 @@ Ohne installiertes Backend-venv werden nur kanonische JSON plus Landing-Snapshot
 ## Stripe
 
 Nicht in dieser Datei gepflegt: Stripe Price IDs (`STRIPE_PRICE_ID_PREMIUM`, `STRIPE_PRICE_ID_PREMIUM_YEARLY`). Bei geaendertem Listenpreis neue Prices in Stripe anlegen und Env aktualisieren - siehe `backend/README.md` (Abschnitt Billing).
+
+
+## Legacy-Kompatibilitaet
+
+`config/pricing_canonical.json` enthaelt weiterhin die historischen Tenant-Plan-Codes `free` und `premium`.
+
+Diese Datei ist **keine kanonische Product-Model-Authority**. Sie bleibt fuer bestehende Record-Count-/Tenant-Pricing-Kompatibilitaet erhalten.
+
+Die kanonische Produktsemantik liegt in `backend/app/core/product_model.py` und wird in BPS durch `00-core/product-model.yaml` normativ definiert.
+
+Insbesondere gilt:
+
+- `premium` ist kein Commercial Offer;
+- `premium` darf keine kanonischen Entitlements allein freischalten;
+- Assessment, Validation und Monitoring werden ueber explizite Offer-/Storage-Mappings abgebildet;
+- eine spaetere Entfernung der Legacy-Plan-Codes erfordert eine eigene Migration mit Bestandsschutz.
