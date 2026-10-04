@@ -45,3 +45,29 @@ Before DRIFT-003 can be resolved:
 - perform final pricing/checkout runtime verification.
 
 This audit completes the discovery/truth-audit portion of S02 but does not claim product-model migration closure.
+
+
+## Canonical checkout aliases
+
+Checkout now accepts canonical customer-facing concepts without removing existing compatibility codes:
+
+- `assessment` -> stored/processed as `full_analysis`;
+- `validation` -> stored/processed as `validation_check`;
+- `monitoring` + monthly -> `monitoring_monthly`;
+- `monitoring` + yearly -> `monitoring_annual`.
+
+Checkout responses and Stripe metadata additionally carry:
+
+- `commercial_offer_id`;
+- canonical billing variant.
+
+This keeps existing storage/API compatibility intact while making the product meaning explicit for new consumers.
+
+## Remaining manual closure
+
+S02 still requires a focused runtime/checkout smoke before DRIFT-003 can be marked RESOLVED:
+
+1. Assessment checkout/grant preserves existing rights;
+2. Validation checkout/grant creates the expected validation capability;
+3. Monitoring monthly and annual resolve to the same canonical Monitoring offer with distinct billing variants;
+4. no legacy `premium` state grants Monitoring by itself.
