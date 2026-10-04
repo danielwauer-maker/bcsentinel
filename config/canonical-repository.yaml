@@ -1,0 +1,62 @@
+schema_version: 1
+sprint: S07
+repository: danielwauer-maker/bcsentinel
+canonical_branch: staging
+
+principles:
+  - Preserve historical evidence; do not rewrite development history.
+  - Runtime/product code and evidence have separate explicit homes.
+  - Generated or archived output must never be confused with source code.
+  - New top-level directories require an explicit purpose in this contract.
+  - Release readiness is evidence-backed; no manual PASS is inferred.
+
+canonical_zones:
+  application:
+    paths: [backend, bc-extension]
+    purpose: Current product runtime and Business Central extension source.
+  verification:
+    paths: [tests, bc-diagnostics, bc-finding-tests, bc-performance, quality]
+    purpose: Automated, diagnostic, performance and release evidence.
+  configuration:
+    paths: [config]
+    purpose: Product and operational configuration contracts.
+  automation:
+    paths: [scripts, .github]
+    purpose: Repeatable generation, CI/CD and operational automation.
+  documentation:
+    paths: [docs]
+    purpose: Current architecture, operations, product and sprint documentation.
+  public_product_surface:
+    paths: [landingpage_neu]
+    purpose: Current evidence-bound public product presentation.
+
+legacy_or_transition_zones:
+  - path: landingpage
+    treatment: preserve_until_traceability_closure
+    canonical_successor: landingpage_neu
+  - path: go-live-readiness-2026
+    treatment: preserve_as_historical_evidence
+    canonical_successor: quality/release + docs
+  - path: output
+    treatment: generated_or_archived_output
+    canonical_successor: quality/release or CI artifacts as applicable
+
+root_files:
+  required:
+    - README.md
+    - CHANGELOG.md
+    - AGENTS.md
+    - docker-compose.dev.yml
+    - docker-compose.prod.yml
+  allowed_patterns:
+    - ".env.example"
+    - ".dockerignore"
+    - ".gitattributes"
+    - ".gitignore"
+
+change_policy:
+  new_runtime_source: application
+  new_tests_or_evidence: verification
+  new_ci_or_generators: automation
+  new_current_docs: documentation
+  historical_assets: preserve_and_map_do_not_silently_delete
