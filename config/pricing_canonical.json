@@ -22,5 +22,11 @@
     "format_de_chip": "Ab € {base} / Monat",
     "format_en_plan_price": "From € {base}",
     "format_en_chip": "From € {base} / month"
-  }
+  },
+  "contract_role": "legacy_tenant_pricing_compatibility",
+  "canonical_product_authority": "backend/app/core/product_model.py",
+  "notes": [
+    "The free/premium plan codes are retained for legacy tenant pricing compatibility.",
+    "They are not canonical commercial offers and must not grant canonical entitlements by themselves."
+  ]
 }

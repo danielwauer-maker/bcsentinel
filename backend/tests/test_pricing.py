@@ -324,3 +324,42 @@ def test_admin_product_pricing_matrix_update_changes_price_and_audits(client):
     assert row.amount_cents == 10500
     assert row.stripe_price_id == "price_full_analysis_professional"
     assert event.target_id == "full_analysis:professional"
+
+
+def test_public_pricing_exposes_canonical_product_contracts(client):
+    response = client.get("/pricing/public")
+
+    assert response.status_code == 200
+    products = {row["product_key"]: row for row in response.json()["products"]}
+
+    assert products["data_health_score"]["product_contract"]["commercial_offer_id"] is None
+    assert products["data_health_score"]["product_contract"]["experience_mode"] == "free"
+
+    assessment = products["full_analysis"]["product_contract"]
+    assert assessment["commercial_offer_id"] == "assessment"
+    assert assessment["billing_variant"] == "one_time"
+    assert "findings.full" in assessment["entitlement_ids"]
+
+    validation = products["validation_check"]["product_contract"]
+    assert validation["commercial_offer_id"] == "validation"
+    assert "validation.run" in validation["entitlement_ids"]
+
+    monitoring = products["monitoring"]["product_contract"]
+    assert monitoring["commercial_offer_id"] == "monitoring"
+    assert "monitoring.schedule" in monitoring["entitlement_ids"]
+    assert "monitoring.history" in monitoring["entitlement_ids"]
+
+
+def test_pricing_matrix_keeps_storage_code_but_exposes_canonical_offer(client):
+    response = client.get("/pricing/public?include_matrix=true")
+
+    assert response.status_code == 200
+    rows = {(row["product_key"], row["pricing_tier"]): row for row in response.json()["matrix"]}
+
+    monthly = rows[("monitoring_monthly", "starter")]
+    annual = rows[("monitoring_annual", "starter")]
+
+    assert monthly["product_contract"]["commercial_offer_id"] == "monitoring"
+    assert monthly["product_contract"]["billing_variant"] == "monthly"
+    assert annual["product_contract"]["commercial_offer_id"] == "monitoring"
+    assert annual["product_contract"]["billing_variant"] == "annual"

@@ -5,6 +5,7 @@ from app.core.product_model import (
     billing_variant_for_storage_code,
     canonical_offer_for_storage_code,
     entitlements_for_storage_code,
+    product_contract_for_storage_code,
 )
 
 
@@ -41,3 +42,39 @@ def test_unknown_product_code_fails_closed() -> None:
     assert canonical_offer_for_storage_code("unknown") is None
     assert billing_variant_for_storage_code("unknown") is None
     assert entitlements_for_storage_code("unknown") == frozenset()
+
+
+def test_storage_codes_expose_canonical_contract_metadata() -> None:
+    assessment = product_contract_for_storage_code("full_analysis")
+    assessment_legacy = product_contract_for_storage_code("assessment")
+    validation = product_contract_for_storage_code("validation_check")
+    monitoring_monthly = product_contract_for_storage_code("monitoring_monthly")
+    monitoring_annual = product_contract_for_storage_code("monitoring_annual")
+    free = product_contract_for_storage_code("data_health_score")
+
+    assert assessment["commercial_offer_id"] == "assessment"
+    assert assessment_legacy["commercial_offer_id"] == "assessment"
+    assert assessment["experience_mode"] == "assessment"
+    assert "report.executive" in assessment["entitlement_ids"]
+
+    assert validation["commercial_offer_id"] == "validation"
+    assert validation["billing_variant"] == "one_time"
+    assert "validation.run" in validation["entitlement_ids"]
+
+    assert monitoring_monthly["commercial_offer_id"] == "monitoring"
+    assert monitoring_monthly["billing_variant"] == "monthly"
+    assert monitoring_annual["commercial_offer_id"] == "monitoring"
+    assert monitoring_annual["billing_variant"] == "annual"
+    assert monitoring_monthly["entitlement_ids"] == monitoring_annual["entitlement_ids"]
+
+    assert free["commercial_offer_id"] is None
+    assert free["experience_mode"] == "free"
+    assert free["entitlement_ids"] == []
+
+
+def test_premium_is_not_a_canonical_offer() -> None:
+    premium = product_contract_for_storage_code("premium")
+    assert premium["commercial_offer_id"] is None
+    assert premium["entitlement_ids"] == []
+    assert premium["experience_mode"] == "locked"
+    assert premium["access_state"] == "locked"
