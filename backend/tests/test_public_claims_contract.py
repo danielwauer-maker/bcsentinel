@@ -44,7 +44,32 @@ def test_pilot_page_is_explicitly_capped_and_non_production() -> None:
     assert "AppSource" in pilot
 
 
-def test_contact_surface_has_real_email_handoff_not_fake_submit() -> None:
+def test_contact_surface_uses_real_api_submit_and_safe_fallback_copy() -> None:
     contact = (ROOT / "landingpage_neu" / "contact.html").read_text(encoding="utf-8")
-    assert "mailto:support@bcsentinel.com" in contact
-    assert "data-contact-form" not in contact
+    assert "data-contact-form" in contact
+    assert '"/public/contact"' in contact
+    assert "privacy_accepted" in contact
+    assert "support@bcsentinel.com" in contact
+
+
+def test_current_legal_surfaces_are_present_and_explicitly_marked_for_manual_review() -> None:
+    for name in ("impressum.html", "privacy.html", "terms.html", "dpa.html"):
+        content = (ROOT / "landingpage_neu" / name).read_text(encoding="utf-8")
+        assert "keine Rechtsberatung" in content
+        assert "pruef" in content.lower()
+
+
+def test_docs_media_placeholders_explain_what_must_be_captured() -> None:
+    docs = (ROOT / "landingpage_neu" / "docs.html").read_text(encoding="utf-8")
+    for expected in (
+        "Screenshot: BC Setup",
+        "Screenshot: Scan History",
+        "Screenshot: Dashboard Overview",
+        "Screenshot: Finding Detail",
+        "Screenshot: Executive Report",
+        "Screenshot: Monitoring",
+        "Quick Start",
+        "Scan Walkthrough",
+        "Executive Report",
+    ):
+        assert expected in docs
