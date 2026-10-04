@@ -61,9 +61,11 @@ def test_smtp_delivery_contract_supports_tls_auth_timeout_and_safe_status_errors
     assert "smtp.login(username, password)" in source
     assert "smtp.sendmail(from_email, [target_email], msg.as_string())" in source
     assert 'return False, "SMTP not configured."' in source
-    assert "_safe_smtp_error" in source
-    assert "SMTP permanent failure" in source
-    assert "SMTP transient failure" in source
+    assert "def _smtp_error_is_transient" in source
+    assert "def _safe_smtp_error" in source
+    assert 'kind = "transient" if 400 <= code < 500 else "permanent"' in source
+    assert 'kind = "transient" if _smtp_error_is_transient(exc) else "permanent"' in source
+    assert "return False, _safe_smtp_error(last_error, attempts=attempt)" in source
     assert "return False, str(exc)" not in source
 
 
