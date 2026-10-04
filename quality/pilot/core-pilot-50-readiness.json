@@ -13,11 +13,22 @@
     "full_backend_regression": "REQUIRED",
     "postgres_concurrency": "REQUIRED",
     "al_compile_codecops_ptecop": "REQUIRED",
-    "release_candidate_manifest": "REQUIRED"
+    "release_candidate_manifest": "REQUIRED",
+    "public_contact_persistence_and_rate_limit": "REQUIRED",
+    "invite_reset_welcome_mail_contract": "REQUIRED",
+    "core_legal_working_surfaces": "REQUIRED",
+    "pilot_docs_media_capture_plan": "REQUIRED",
+    "high_end_design_audit_roadmap": "REQUIRED"
   },
   "pilot_admission_policy": {
     "maximum_tenants": 50,
-    "waves": [1, 5, 10, 25, 50],
+    "waves": [
+      1,
+      5,
+      10,
+      25,
+      50
+    ],
     "advance_only_after_previous_wave_review": true,
     "stop_on_p0_incident": true,
     "no_unbounded_self_service_admission": true
@@ -35,7 +46,9 @@
     "real pilot infrastructure restore with measured RPO/RTO",
     "BC sandbox rollback/roll-forward drill",
     "24h+ staged operational soak before expanding tenant waves",
-    "pilot release approval"
+    "pilot release approval",
+    "final legal/tax/business review of imprint privacy terms DPA placeholders",
+    "final high-end visual design selection and >=9.5/10 design acceptance"
   ],
-  "note": "Automated 50-tenant admission is a structural isolation/readiness preflight, not a throughput SLA."
+  "note": "Automated 50-tenant admission is a structural isolation/readiness preflight, not a throughput SLA. Legal working texts and design roadmap are technical preparation only; final legal/business and visual sign-off remain manual."
 }
