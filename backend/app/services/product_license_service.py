@@ -31,6 +31,7 @@ PRODUCT_ALIASES = {
     "assessment": PRODUCT_FULL_ANALYSIS,
     "full_analysis": PRODUCT_FULL_ANALYSIS,
     "data_health_score": PRODUCT_DATA_HEALTH_SCORE,
+    "validation": PRODUCT_VALIDATION_CHECK,
     "validation_check": PRODUCT_VALIDATION_CHECK,
     "monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
     "monitoring_annual": PRODUCT_MONITORING_ANNUAL,
@@ -167,6 +168,11 @@ def normalize_product_code(value: str | None, *, billing_interval: str | None = 
     normalized = (value or "").strip().lower()
     if not normalized:
         return ""
+    if normalized == "monitoring":
+        interval = (billing_interval or "monthly").strip().lower()
+        if interval in {"annual", "year", "yearly"}:
+            return PRODUCT_MONITORING_ANNUAL
+        return PRODUCT_MONITORING_MONTHLY
     resolved = PRODUCT_ALIASES.get(normalized)
     if resolved:
         return resolved
