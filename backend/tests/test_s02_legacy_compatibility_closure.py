@@ -41,7 +41,7 @@ def test_legacy_premium_plan_is_not_a_canonical_offer_or_entitlement() -> None:
 def test_legacy_premium_tenant_does_not_gain_monitoring_by_plan_name(tenant_factory) -> None:
     tenant_info = tenant_factory(plan="premium", license_status="active")
     with SessionLocal() as db:
-        tenant = db.get(Tenant, tenant_info["tenant_id"])
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_info["tenant_id"]).one()
         snapshot = build_product_access_snapshot(db, tenant)
 
     assert snapshot["monitoring_active"] is False
