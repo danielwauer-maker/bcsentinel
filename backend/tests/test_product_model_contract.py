@@ -70,3 +70,11 @@ def test_storage_codes_expose_canonical_contract_metadata() -> None:
     assert free["commercial_offer_id"] is None
     assert free["experience_mode"] == "free"
     assert free["entitlement_ids"] == []
+
+
+def test_premium_is_not_a_canonical_offer() -> None:
+    premium = product_contract_for_storage_code("premium")
+    assert premium["commercial_offer_id"] is None
+    assert premium["entitlement_ids"] == []
+    assert premium["experience_mode"] == "locked"
+    assert premium["access_state"] == "locked"
