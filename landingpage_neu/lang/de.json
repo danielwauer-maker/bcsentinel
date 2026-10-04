@@ -82,12 +82,12 @@
   "price_once": "einmalig",
   "price_month": "pro Monat",
   "price_year": "pro Jahr",
-  "founder_name": "Benjamin Schroyer",
-  "founder_role": "Gruender & Geschaeftsfuehrer",
+  "founder_name": "BCSentinel Product Team",
+  "founder_role": "Produktentwicklung",
   "founder_title": "Warum es BCSentinel gibt.",
   "founder_text": "In zahlreichen Business-Central-Projekten haben wir gesehen: Schlechte Daten verursachen hohe Kosten, Risiken und Frust - aber niemand kennt den echten Impact.",
   "stat_years": "Jahre ERP Erfahrung",
-  "stat_projects": "Kundenprojekte begleitet",
+  "stat_projects": "Evidenzbasierte Produktentwicklung",
   "stat_mission": "Mission: Datenqualitaet messbar machen",
   "stat_focus": "Fokus auf Business Impact",
   "final_cta_title": "Starten Sie jetzt und verwandeln Sie Ihre Datenqualitaet in messbaren Business Value.",
@@ -294,5 +294,11 @@
   "footer_dpa": "DPA",
   "footer_imprint": "Impressum",
   "footer_terms": "AGB",
-  "footer_copyright": "(c) 2024 BCSentinel - Alle Rechte vorbehalten."
+  "footer_copyright": "(c) 2024 BCSentinel - Alle Rechte vorbehalten.",
+  "about_stage_foundation": "Foundation",
+  "about_stage_foundation_text": "Data-Health-Modell, Findings, Reports und rollenbasierter Zugriff.",
+  "about_stage_pilot": "Pilot Readiness",
+  "about_stage_pilot_text": "Runtime-, Security- und Betriebs-Gates werden evidenzbasiert geschlossen.",
+  "about_stage_future": "Roadmap",
+  "about_stage_future_text": "Monitoring, Decision Intelligence und kontrollierte Automatisierung werden schrittweise erweitert."
 }
