@@ -22,6 +22,8 @@ from app.models import (
     CheckDefinition,
     CheckTranslation,
     CreditLedgerEntry,
+    DashboardUser,
+    DashboardUserTenantMembership,
     ImpactSettingsConfig,
     Invoice,
     IssueCostConfig,
@@ -1155,6 +1157,80 @@ def update_tenant_license(
         url=f"/admin/tenants/{tenant_id}",
         status_code=status.HTTP_303_SEE_OTHER,
     )
+
+
+@router.post("/admin/tenant/{tenant_id}/dashboard-access/{action}")
+def update_tenant_dashboard_access(
+    tenant_id: str,
+    action: str,
+    admin_username: str = Depends(require_admin),
+):
+    normalized_action = (action or "").strip().lower()
+    if normalized_action not in {"suspend", "reactivate", "revoke-invite"}:
+        raise HTTPException(status_code=400, detail="Invalid dashboard access action.")
+
+    with SessionLocal() as db:
+        tenant = _load_tenant_or_404(db, tenant_id)
+        rows = list(
+            db.execute(
+                select(DashboardUserTenantMembership, DashboardUser)
+                .join(DashboardUser, DashboardUser.id == DashboardUserTenantMembership.dashboard_user_id)
+                .where(DashboardUserTenantMembership.tenant_id == tenant.tenant_id)
+            ).all()
+        )
+        if not rows:
+            raise HTTPException(status_code=404, detail="No dashboard membership found.")
+
+        changed_users: set[int] = set()
+        now = utc_now()
+        for membership, user in rows:
+            if normalized_action == "suspend":
+                membership.is_active = False
+                membership.updated_at_utc = now
+                user.invite_token_hash = None
+                user.invite_expires_at_utc = None
+                user.password_reset_token_hash = None
+                user.password_reset_expires_at_utc = None
+                user.locked_until_utc = None
+                user.failed_login_count = 0
+            elif normalized_action == "reactivate":
+                membership.is_active = True
+                membership.updated_at_utc = now
+                user.status = "active" if user.password_hash else "invited"
+            else:
+                user.invite_token_hash = None
+                user.invite_expires_at_utc = None
+                if user.password_hash is None:
+                    user.status = "invited"
+            user.updated_at_utc = now
+            changed_users.add(user.id)
+
+        if normalized_action == "suspend":
+            for user_id in changed_users:
+                user = db.get(DashboardUser, user_id)
+                active_count = db.scalar(
+                    select(func.count(DashboardUserTenantMembership.id)).where(
+                        DashboardUserTenantMembership.dashboard_user_id == user_id,
+                        DashboardUserTenantMembership.is_active.is_(True),
+                    )
+                ) or 0
+                if user is not None and active_count == 0:
+                    user.status = "disabled"
+
+        log_admin_event(
+            db,
+            admin_username=admin_username,
+            action=f"tenant.dashboard_access.{normalized_action}",
+            target_type="tenant",
+            target_id=tenant.tenant_id,
+            details={
+                "affected_memberships": len(rows),
+                "affected_users": sorted(changed_users),
+            },
+        )
+        db.commit()
+
+    return _admin_tenant_redirect(tenant_id)
 
 
 @router.post("/admin/tenant/{tenant_id}/grant-product")
