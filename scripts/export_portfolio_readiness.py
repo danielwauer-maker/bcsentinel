@@ -125,6 +125,27 @@ def build() -> dict:
             "evidence": "quality/release/s06-release-readiness.json",
             "manual_remaining": list(s06.get("manual_gates_open", [])),
         },
+        "s07_legacy_pr_release_catalog": {
+            "complete": (
+                (ROOT / "quality/s07/legacy-pr-catalog.json").exists()
+                and (ROOT / "docs/S07_CANONICAL_REPOSITORY.md").exists()
+            ),
+            "evidence": "quality/s07/legacy-pr-catalog.json",
+            "manual_remaining": [],
+        },
+        "s07_canonical_repository_contract": {
+            "complete": (
+                (ROOT / "config/canonical-repository.yaml").exists()
+                and (ROOT / "scripts/check_s07_repository_governance.py").exists()
+            ),
+            "evidence": "config/canonical-repository.yaml",
+            "manual_remaining": [],
+        },
+        "s07_legacy_canonical_traceability": {
+            "complete": (ROOT / "quality/s07/legacy-canonical-traceability.json").exists(),
+            "evidence": "quality/s07/legacy-canonical-traceability.json",
+            "manual_remaining": [],
+        },
     }
 
     return {
