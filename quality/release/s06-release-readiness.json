@@ -5,7 +5,7 @@
   "source_branch": "staging",
   "extension": {
     "name": "BCSentinel",
-    "version": "1.0.2.22",
+    "version": "1.0.2.25",
     "app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
     "publisher": "BCSentinel Analytics - Daniel Wauer",
     "runtime": "16.0",
