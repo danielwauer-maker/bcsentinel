@@ -1,0 +1,65 @@
+{
+  "sprint": "S06",
+  "title": "Release readiness and rollback evidence",
+  "status": "AUTOMATED_PREWORK_COMPLETE_MANUAL_GATES_OPEN",
+  "source_branch": "staging",
+  "extension": {
+    "name": "BCSentinel",
+    "version": "1.0.2.22",
+    "app_id": "8c7f0f9c-0c1a-4a4e-9c6f-111111111111",
+    "publisher": "BCSentinel Analytics - Daniel Wauer",
+    "runtime": "16.0",
+    "platform": "27.0.0.0",
+    "application": "27.0.0.0",
+    "id_range": {
+      "from": 53100,
+      "to": 53202
+    }
+  },
+  "verified_existing_evidence": {
+    "fresh_installation": {
+      "status": "VERIFIED_WITH_KNOWN_DEFECTS",
+      "evidence": "quality/release/ext-50-02-fresh-installation-evidence.json"
+    },
+    "upgrade_data_preservation": {
+      "status": "PASS_WITH_KNOWN_DEFECTS",
+      "evidence": "quality/release/ext-50-03-upgrade-evidence.json"
+    },
+    "postgres_backup_restore": {
+      "status": "VERIFIED_IN_CI",
+      "evidence": "docs/P0_05_POSTGRES_BACKUP_RESTORE_AUDIT.md"
+    },
+    "operator_alerting": {
+      "status": "VERIFIED_IN_CI",
+      "evidence": "docs/P0_06_ALERTING_INCIDENT_ROLLBACK_AUDIT.md"
+    }
+  },
+  "rollback_policy": {
+    "strategy": "ROLL_FORWARD_PREFERRED",
+    "database_restore_required_before_destructive_recovery": true,
+    "automatic_tenant_or_extension_data_deletion_forbidden": true,
+    "backend_and_extension_must_be_treated_as_compatible_pair": true,
+    "real_infrastructure_drill_required_before_customer_go": true
+  },
+  "automated_gates": [
+    "manifest_parity",
+    "release_metadata_consistency",
+    "historical_evidence_links",
+    "rollback_policy_non_destructive",
+    "manual_gate_truthfulness"
+  ],
+  "manual_gates_open": [
+    "final_release_candidate_sha_and_artifact_hash",
+    "real_pilot_infrastructure_restore_with_rpo_rto",
+    "bc_sandbox_rollback_or_roll_forward_drill",
+    "pilot_release_approval",
+    "signing_and_appsource_if_in_scope"
+  ],
+  "release_candidate": {
+    "frozen": false,
+    "source_commit": null,
+    "artifact_file": null,
+    "artifact_sha256": null
+  },
+  "readiness_decision": "READY_FOR_RC_FREEZE_AFTER_MANUAL_GATES"
+}
