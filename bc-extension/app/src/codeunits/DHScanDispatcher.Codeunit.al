@@ -1,5 +1,7 @@
 codeunit 53135 "DH Scan Dispatcher"
 {
+    Permissions = tabledata "DH Setup" = RM;
+
     procedure StartScan(var Setup: Record "DH Setup")
     var
         DeepScanRun: Record "DH Deep Scan Run";
