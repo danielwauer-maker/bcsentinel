@@ -19,7 +19,7 @@ from app.security.token_hash import hash_api_token, verify_api_token
 from app.services.access_control_service import CAPABILITY_DASHBOARD, require_capability
 from app.services.admin_audit_service import log_admin_event
 from app.services.billing_service import utc_now
-from app.services.dashboard_invite_service import normalize_dashboard_email
+from app.services.dashboard_invite_service import normalize_dashboard_email, send_dashboard_password_reset
 from app.services.localization_service import tenant_language
 
 
@@ -43,6 +43,16 @@ class DashboardInviteActivationRequest(BaseModel):
 
 class DashboardTenantSwitchRequest(BaseModel):
     tenant_id: str
+
+
+class DashboardPasswordResetRequest(BaseModel):
+    email: str
+
+
+class DashboardPasswordResetConfirmRequest(BaseModel):
+    email: str
+    reset_token: str
+    password: str
 
 
 def _error(status_code: int, code: str, message: str, message_de: str) -> HTTPException:
@@ -210,20 +220,80 @@ def dashboard_login(payload: DashboardLoginRequest):
     normalized_email = normalize_dashboard_email(payload.email)
     with SessionLocal() as db:
         user = db.scalar(select(DashboardUser).where(DashboardUser.normalized_email == normalized_email))
-        if user is None or user.status != "active" or not verify_api_token(payload.password, user.password_hash):
+        now = utc_now()
+        locked_until = user.locked_until_utc if user else None
+        if locked_until is not None and locked_until.tzinfo is None:
+            locked_until = locked_until.replace(tzinfo=timezone.utc)
+        if user is not None and locked_until is not None and locked_until > now:
+            raise _error(429, "DASHBOARD_LOGIN_LOCKED", "Sign-in is temporarily locked.", "Die Anmeldung ist vorübergehend gesperrt.")
+
+        valid = user is not None and user.status == "active" and verify_api_token(payload.password, user.password_hash)
+        if not valid:
+            if user is not None and user.status == "active":
+                user.failed_login_count = int(user.failed_login_count or 0) + 1
+                if user.failed_login_count >= settings.DASHBOARD_LOGIN_MAX_FAILURES:
+                    user.locked_until_utc = now + timedelta(minutes=settings.DASHBOARD_LOGIN_LOCK_MINUTES)
+                    user.failed_login_count = 0
+                user.updated_at_utc = now
+                db.commit()
             raise _error(401, "DASHBOARD_LOGIN_FAILED", "Email or password is invalid.", "E-Mail-Adresse oder Kennwort ist ungültig.")
+
+        user.failed_login_count = 0
+        user.locked_until_utc = None
         memberships = _active_memberships(db, user.id)
         if not memberships:
             raise _error(403, "TENANT_MEMBERSHIP_NOT_ALLOWED", "No active tenant membership is available.", "Es ist keine aktive Mandantenzuordnung vorhanden.")
         membership = memberships[0][0]
-        membership.last_selected_at_utc = utc_now()
-        user.updated_at_utc = utc_now()
+        membership.last_selected_at_utc = now
+        user.updated_at_utc = now
         db.commit()
         session_token = _session_token(user, membership)
         tenant_items = [_membership_payload(item, tenant) for item, tenant in memberships]
     response = JSONResponse({"session_token": session_token, "active_tenant_id": membership.tenant_id, "tenant_count": len(tenant_items), "tenants": tenant_items})
     _set_session_cookie(response, session_token)
     return response
+
+
+@router.post("/dashboard/password-reset/request")
+def request_dashboard_password_reset(payload: DashboardPasswordResetRequest):
+    normalized_email = normalize_dashboard_email(payload.email)
+    with SessionLocal() as db:
+        user = db.scalar(select(DashboardUser).where(DashboardUser.normalized_email == normalized_email))
+        if user is not None and user.status == "active":
+            send_dashboard_password_reset(db, user=user)
+            db.commit()
+    return {"status": "accepted"}
+
+
+@router.post("/dashboard/password-reset/confirm")
+def confirm_dashboard_password_reset(payload: DashboardPasswordResetConfirmRequest):
+    if len(payload.password) < 12:
+        raise _error(422, "INVALID_REGISTRATION_PAYLOAD", "Password must contain at least 12 characters.", "Das Kennwort muss mindestens 12 Zeichen enthalten.")
+    normalized_email = normalize_dashboard_email(payload.email)
+    with SessionLocal() as db:
+        user = db.scalar(select(DashboardUser).where(DashboardUser.normalized_email == normalized_email))
+        now = utc_now()
+        expires_at = user.password_reset_expires_at_utc if user else None
+        if expires_at is not None and expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if (
+            user is None
+            or user.status != "active"
+            or not verify_api_token(payload.reset_token, user.password_reset_token_hash)
+            or expires_at is None
+            or expires_at <= now
+        ):
+            raise _error(401, "DASHBOARD_RESET_INVALID", "Password reset is invalid or expired.", "Das Zuruecksetzen des Kennworts ist ungueltig oder abgelaufen.")
+
+        user.password_hash = hash_api_token(payload.password)
+        user.password_reset_token_hash = None
+        user.password_reset_expires_at_utc = None
+        user.password_reset_requested_at_utc = None
+        user.failed_login_count = 0
+        user.locked_until_utc = None
+        user.updated_at_utc = now
+        db.commit()
+    return {"status": "password_reset"}
 
 
 @router.post("/dashboard/logout")

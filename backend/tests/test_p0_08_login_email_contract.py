@@ -30,7 +30,9 @@ def test_login_failure_is_generic_and_does_not_enumerate_users():
     assert '"DASHBOARD_LOGIN_FAILED"' in source
     assert '"Email or password is invalid."' in source
     assert '"E-Mail-Adresse oder Kennwort ist ungültig."' in source
-    assert "user is None or user.status != \"active\" or not verify_api_token" in source
+    assert 'valid = user is not None and user.status == "active" and verify_api_token' in source
+    assert "if not valid:" in source
+    assert '"DASHBOARD_LOGIN_LOCKED"' in source
 
 
 def test_invite_activation_requires_strong_password_and_invalidates_token():
