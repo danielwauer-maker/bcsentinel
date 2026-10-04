@@ -94,3 +94,15 @@ def test_dashboard_welcome_uses_tenant_language_and_real_dashboard_url(tenant_fa
     assert captured["target_email"] == "welcome@example.test"
     assert "Willkommen" in captured["subject"]
     assert "/dashboard" in captured["html_body"]
+
+
+def test_operator_contact_inbox_is_admin_protected_and_renderable(client) -> None:
+    unauthenticated = client.get("/admin/contact-inbox")
+    assert unauthenticated.status_code == 401
+
+    authenticated = client.get(
+        "/admin/contact-inbox",
+        auth=("admin-test", "admin-password-for-tests-123"),
+    )
+    assert authenticated.status_code == 200
+    assert "Contact Inbox" in authenticated.text
