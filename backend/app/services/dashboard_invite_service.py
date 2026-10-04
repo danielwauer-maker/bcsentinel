@@ -248,6 +248,25 @@ def _send_html_email(*, target_email: str, subject: str, html_body: str) -> tupl
 
 
 
+def send_dashboard_welcome(db: Session, *, user: DashboardUser, tenant: Tenant) -> tuple[bool, str | None]:
+    """Send a best-effort welcome message after first successful activation."""
+    language = normalize_language(getattr(tenant, "preferred_language", None))
+    template_key = "dashboard_welcome_de" if language == "de" else "dashboard_welcome_en"
+    subject, html_body = render_email_template(
+        db,
+        template_key,
+        {
+            "dashboard_url": (resolve_public_base_url() or "https://app.bcsentinel.com").rstrip("/") + "/dashboard",
+            "support_email": "support@bcsentinel.com",
+        },
+    )
+    return _send_html_email(
+        target_email=user.email,
+        subject=subject,
+        html_body=html_body,
+    )
+
+
 @dataclass(frozen=True)
 class DashboardPasswordResetResult:
     requested: bool
