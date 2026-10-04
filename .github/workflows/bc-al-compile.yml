@@ -260,12 +260,50 @@ jobs:
             throw "The AL pipeline completed without leaving a compiled .app package in the workspace."
           }
 
+      - name: Generate Core pilot RC build manifest
+        if: matrix.deployment == 'fresh'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $artifactFolder = Join-Path $env:GITHUB_WORKSPACE "artifacts\bc-app"
+          $appManifest = Get-Content (Join-Path $env:GITHUB_WORKSPACE "bc-extension\app.json") -Raw | ConvertFrom-Json
+          $candidates = @(Get-ChildItem -Path $artifactFolder -Filter *.app -File |
+            Where-Object { $_.Name -match "BCSentinel" -and $_.Name -notmatch "Performance QA" })
+          if ($candidates.Count -ne 1) {
+            throw "Expected exactly one BCSentinel product .app artifact, found $($candidates.Count)."
+          }
+          $candidate = $candidates[0]
+          $hash = (Get-FileHash -LiteralPath $candidate.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          $payload = [ordered]@{
+            schema_version = 1
+            release_track = "core-pilot"
+            extension_version = $appManifest.version
+            source_commit = $env:GITHUB_SHA
+            artifact_file = $candidate.Name
+            artifact_sha256 = $hash
+            runtime = $appManifest.runtime
+            platform = $appManifest.platform
+            application = $appManifest.application
+            signed = $false
+            final_release_approved = $false
+            manual_gates_remaining = $true
+            generated_at_utc = [DateTime]::UtcNow.ToString("o")
+          }
+          $manifestPath = Join-Path $artifactFolder "core-pilot-rc-build-manifest.json"
+          $payload | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
+          "## Core pilot RC build" >> $env:GITHUB_STEP_SUMMARY
+          "- Version: $($appManifest.version)" >> $env:GITHUB_STEP_SUMMARY
+          "- Source: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          "- Artifact: $($candidate.Name)" >> $env:GITHUB_STEP_SUMMARY
+          "- SHA-256: $hash" >> $env:GITHUB_STEP_SUMMARY
+          "- Final release approved: false" >> $env:GITHUB_STEP_SUMMARY
+
       - name: Publish AL build output
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.deployment == 'fresh' && 'bc-al-compile-output' || 'bc-al-upgrade-output' }}
-          path: artifacts/bc-app/*.app
+          path: artifacts/bc-app/*
           if-no-files-found: error
           retention-days: 14
 
