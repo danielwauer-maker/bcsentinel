@@ -209,10 +209,10 @@
   "form_email": "Ihre E-Mail",
   "form_phone": "Ihre Telefonnummer",
   "form_message": "Ihre Nachricht",
-  "form_privacy": "Ich akzeptiere die Datenschutz-Hinweise.",
+  "form_privacy": "Ich habe die Datenschutz-Hinweise zur Kenntnis genommen.",
   "form_submit": "Nachricht senden",
-  "form_alert": "Ihr E-Mail-Programm wird fuer die Anfrage geoeffnet.",
-  "contact_backend_note": "Pilot-, Demo- und Supportanfragen werden derzeit per E-Mail an support@bcsentinel.com entgegengenommen.",
+  "form_alert": "Vielen Dank. Ihre Anfrage wurde sicher uebermittelt.",
+  "contact_backend_note": "Die Anfrage wird sicher an die BCSentinel-API uebertragen und fuer die Bearbeitung gespeichert.",
   "reason_demo": "Demo",
   "reason_demo_text": "BCSentinel live sehen.",
   "reason_assessment_text": "Ersten Datenqualitaets-Check planen.",
@@ -331,5 +331,6 @@
   "contact_email_title": "Direkter Kontakt",
   "contact_privacy_note": "Bitte senden Sie keine Zugangsdaten, API-Tokens oder vertraulichen Business-Central-Daten per E-Mail.",
   "status_pilot": "Pilotbetrieb",
-  "status_on_request": "Status auf Anfrage"
+  "status_on_request": "Status auf Anfrage",
+  "form_error": "Die Anfrage konnte nicht gesendet werden. Bitte nutzen Sie support@bcsentinel.com."
 }
