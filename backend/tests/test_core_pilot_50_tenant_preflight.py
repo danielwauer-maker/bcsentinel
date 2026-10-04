@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from sqlalchemy import func
+
 from app.db import SessionLocal
 from app.models import Scan, ScanStartRequest, Tenant
 
@@ -36,14 +38,14 @@ def test_fifty_tenants_can_be_admitted_without_cross_tenant_scan_state(client, t
 
         scan_counts = {
             tenant_id: count
-            for tenant_id, count in db.query(Scan.tenant_id, __import__("sqlalchemy").func.count(Scan.id))
+            for tenant_id, count in db.query(Scan.tenant_id, func.count(Scan.id))
             .filter(Scan.tenant_id.like("pilot50_%"))
             .group_by(Scan.tenant_id)
             .all()
         }
         request_counts = {
             tenant_id: count
-            for tenant_id, count in db.query(ScanStartRequest.tenant_id, __import__("sqlalchemy").func.count(ScanStartRequest.id))
+            for tenant_id, count in db.query(ScanStartRequest.tenant_id, func.count(ScanStartRequest.id))
             .filter(ScanStartRequest.tenant_id.like("pilot50_%"))
             .group_by(ScanStartRequest.tenant_id)
             .all()
