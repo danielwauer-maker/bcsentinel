@@ -17,7 +17,7 @@ Diese Nachweise werden referenziert und nicht dupliziert.
 
 ## Aktuelle Extension-Baseline
 
-Die aktuelle Source-of-Truth-Version in `bc-extension/app.json` und `bc-extension/app.cloud.json` ist 1.0.2.22. Die ältere EXT-50-01-Release-Baseline für 1.0.2.20 bleibt historische Evidenz und darf nicht als aktueller Release Candidate interpretiert werden.
+Die aktuelle Source-of-Truth-Version in `bc-extension/app.json` und `bc-extension/app.cloud.json` ist 1.0.2.25. Die ältere EXT-50-01-Release-Baseline für 1.0.2.20 bleibt historische Evidenz und darf nicht als aktueller Release Candidate interpretiert werden.
 
 ## Rollback- und Recovery-Policy
 
