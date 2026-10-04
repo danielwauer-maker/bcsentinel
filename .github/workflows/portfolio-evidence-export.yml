@@ -1,0 +1,43 @@
+name: Portfolio Evidence Export
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "docs/product/S02_PRICING_CHECKOUT_TRUTH_AUDIT.md"
+      - "docs/S03_PILOT_ONBOARDING_PRE_RUNTIME.md"
+      - "docs/S04_CUSTOMER_UX_AUTOMATED_QA.md"
+      - "docs/go-live/S05_PUBLIC_CLAIMS_AUDIT.md"
+      - "quality/release/ext-50-02-fresh-installation-evidence.json"
+      - "quality/release/ext-50-03-upgrade-evidence.json"
+      - "quality/release/s06-release-readiness.json"
+      - "quality/portfolio-readiness-evidence.json"
+      - "scripts/export_portfolio_readiness.py"
+      - "scripts/check_portfolio_readiness_export.py"
+      - ".github/workflows/portfolio-evidence-export.yml"
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portfolio-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify generated evidence snapshot
+        run: python scripts/export_portfolio_readiness.py --check
+      - name: Verify no calculated percentages are exported
+        run: python scripts/check_portfolio_readiness_export.py
+      - name: Upload machine-readable portfolio evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-readiness-evidence
+          path: quality/portfolio-readiness-evidence.json
+          retention-days: 30
