@@ -1,41 +1,39 @@
-# BCSentinel Go-Live Design Mockups
+# BCSentinel Go-Live Design Source of Truth
 
-This directory is the design source-of-truth for the BCSentinel Core user experience.
+This directory contains the consolidated visual design reference for BCSentinel public pages and product UI.
+
+## Final design areas
+1. Landingpage
+2. Pilotpage
+3. Overview
+4. Findings
+5. Actions / Measures
+6. Financial Impact
+7. Executive Summary Report
+8. Scans
+9. Monitoring
+10. Settings / Tenant / Security
+11. Subscription / Billing
+12. Auth flows
+13. Documentation / Support
+
+## Executive Summary Report pack
+`07-executive-report/` contains:
+- `concepts/01-...svg` through `concepts/10-...svg`: ten explored report directions.
+- `final/free.svg`: final Free report design, maximum two A4 pages and no paid finding detail.
+- `final/assessment.svg`: final full Assessment executive report.
+- `final/monitoring.svg`: final Monitoring report with trend, re-validation and realised impact.
+- `final/print-variants.svg`: print/PDF design reference for all three subscriptions.
+- `REPORT_DESIGN_SPEC.md`: canonical HTML and print rules.
+
+## Design rules
+- GitHub is the technical source of truth.
+- Same BCSentinel design DNA across Landingpage, Pilotpage, Dashboard and reports.
+- Free shows aggregate value without exposing paid detail.
+- Assessment unlocks complete single-analysis depth and actionable recommendations.
+- Monitoring adds history, automation, deltas, re-validation and outcome tracking.
+- Backend entitlements are authoritative; visual locks are presentation only.
+- Product facts, pricing and entitlements must not be duplicated manually when they can be generated from structured source data.
 
 ## Status
-
-- Public landing page: final target mockup
-- Pilot landing page: final target mockup
-- Dashboard Overview: final Free / Assessment / Monitoring target mockups
-- Findings: final Free / Assessment / Monitoring target mockup
-- Actions: final Free / Assessment / Monitoring target mockup
-- Remaining product surfaces: 10 explored concepts + selected final Free / Assessment / Monitoring target mockup + implementation spec
-
-## Product experience rules
-
-1. GitHub remains the technical source of truth.
-2. Backend entitlements are authoritative; frontend locks are only presentation.
-3. Free shows clear business value without exposing paid detail.
-4. Assessment unlocks full single-analysis depth, recommendations, actions and Executive Report.
-5. Monitoring adds history, automation, deltas, alerts, re-validation and outcome tracking.
-6. No production plan switching via localStorage.
-7. Design language stays consistent across landing page, pilot page, dashboard and reports.
-8. Security/hosting claims must stay evidence-based and legally reviewable.
-
-## Structure
-
-- `01-landingpage/` — final public product landing page
-- `02-pilotpage/` — final controlled-pilot acquisition page
-- `03-overview/` — dashboard overview, Free / Assessment / Monitoring
-- `04-findings/` — findings workspace
-- `05-actions/` — recommendations/actions workspace
-- `06-financial-impact/` — 10 concepts + final
-- `07-executive-report/` — 10 concepts + final
-- `08-scans/` — 10 concepts + final
-- `09-monitoring/` — 10 concepts + final
-- `10-settings-security/` — 10 concepts + final
-- `11-subscription-billing/` — 10 concepts + final
-- `12-auth/` — 10 concepts + final
-- `13-docs-support/` — 10 concepts + final
-
-Final SVGs are self-contained and reviewable directly in GitHub.
+These files are design/reference material. Runtime behaviour changes require separate implementation PRs and the normal quality gates.
