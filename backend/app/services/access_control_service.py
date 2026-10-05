@@ -18,10 +18,11 @@ from app.services.product_license_service import build_product_access_snapshot
 
 logger = logging.getLogger(__name__)
 
-ACCESS_SNAPSHOT_VERSION = "p0d-v4-runtime-policy-drift"
+ACCESS_SNAPSHOT_VERSION = "s04b-v1-authoritative-package-a"
 ACCESS_SNAPSHOT_TTL_SECONDS = 60
 TOKEN_AUDIENCE = "bcsentinel-protected-content"
 
+# Legacy/coarse capabilities kept for backwards compatibility.
 CAPABILITY_PRODUCT = "product_access"
 CAPABILITY_DASHBOARD = "dashboard_access"
 CAPABILITY_ISSUES = "issues_access"
@@ -29,6 +30,20 @@ CAPABILITY_REPORT = "report_access"
 CAPABILITY_MONITORING = "monitoring_access"
 CAPABILITY_SUBSCRIPTION = "subscription_active"
 CAPABILITY_SCAN_START = "scan_start_access"
+
+# Canonical UI/API capabilities. These names are the contract consumed by the
+# Go-Live dashboard. The server is authoritative; client-side locks are only UX.
+CAPABILITY_SCAN_CORE = Entitlement.SCAN_CORE.value
+CAPABILITY_FINDINGS_SUMMARY = Entitlement.FINDINGS_SUMMARY.value
+CAPABILITY_FINDINGS_FULL = Entitlement.FINDINGS_FULL.value
+CAPABILITY_FINDINGS_RECORDS = Entitlement.FINDINGS_RECORDS.value
+CAPABILITY_ACTIONS_MANAGE = Entitlement.ACTIONS_MANAGE.value
+CAPABILITY_FINANCIAL_IMPACT_FULL = Entitlement.FINANCIAL_IMPACT_FULL.value
+CAPABILITY_REPORT_EXECUTIVE = Entitlement.REPORT_EXECUTIVE.value
+CAPABILITY_VALIDATION_RUN = Entitlement.VALIDATION_RUN.value
+CAPABILITY_MONITORING_SCHEDULE = Entitlement.MONITORING_SCHEDULE.value
+CAPABILITY_MONITORING_HISTORY = Entitlement.MONITORING_HISTORY.value
+CAPABILITY_MONITORING_ALERTS = Entitlement.MONITORING_ALERTS.value
 
 
 def utc_now() -> datetime:
@@ -121,21 +136,53 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
         Entitlement.FINDINGS_FULL,
         legacy_granted=bool(access["can_view_issue_details"] and access["can_view_issues"]),
     )
+    paid_record_access = _paid_capability(
+        policy,
+        Entitlement.FINDINGS_RECORDS,
+        legacy_granted=bool(access["can_view_record_details"] and access["can_view_issue_details"]),
+    )
+    paid_actions_access = _paid_capability(
+        policy,
+        Entitlement.ACTIONS_MANAGE,
+        legacy_granted=bool(access["can_view_actions"]),
+    )
+    paid_financial_impact_access = _paid_capability(
+        policy,
+        Entitlement.FINANCIAL_IMPACT_FULL,
+        legacy_granted=bool(access["premium_active"]),
+    )
     paid_report_access = _paid_capability(
         policy,
         Entitlement.REPORT_EXECUTIVE,
         legacy_granted=bool(access["can_view_executive_report"] and access["can_view_reports"]),
     )
-    monitoring_access = _paid_capability(
+    monitoring_schedule_access = _paid_capability(
         policy,
         Entitlement.MONITORING_SCHEDULE,
         legacy_granted=bool(access["can_use_monitoring"]),
     )
+    monitoring_history_access = _paid_capability(
+        policy,
+        Entitlement.MONITORING_HISTORY,
+        legacy_granted=bool(access["can_use_monitoring"]),
+    )
+    monitoring_alerts_access = _paid_capability(
+        policy,
+        Entitlement.MONITORING_ALERTS,
+        legacy_granted=bool(access["can_use_monitoring"]),
+    )
+    validation_access = _paid_capability(
+        policy,
+        Entitlement.VALIDATION_RUN,
+        legacy_granted=bool(access["can_run_deep_scan"]),
+    )
+    monitoring_access = monitoring_schedule_access
     subscription_active = policy.has_offer(CommercialOffer.MONITORING) and bool(access["monitoring_active"])
 
     free_result_access = bool(
         access.get("free_access_permanent") or access.get("has_completed_data_health_score")
     )
+    free_summary_access = free_result_access and bool(access.get("can_view_free_insights", True))
     free_issue_access = free_result_access and bool(access["can_view_issues"])
     free_report_access = free_result_access and bool(access["can_view_reports"])
 
@@ -147,6 +194,7 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
     free_scan_access = bool(access["can_run_data_health_score"])
 
     capabilities = {
+        # Backwards-compatible coarse decisions.
         CAPABILITY_PRODUCT: _capability(
             granted=paid_product_active,
             valid_until=premium_until,
@@ -181,6 +229,62 @@ def build_authoritative_access_snapshot(db, tenant: Tenant, *, now: datetime | N
             granted=bool(deep_scan_access or free_scan_access),
             valid_until=monitoring_until if subscription_active else premium_until,
             reason="scan_start_inactive",
+        ),
+        # Fine-grained canonical decisions for S04B and future dashboard/API use.
+        CAPABILITY_SCAN_CORE: _capability(
+            granted=bool(deep_scan_access or free_scan_access),
+            valid_until=monitoring_until if subscription_active else premium_until,
+            reason="scan_core_inactive",
+        ),
+        CAPABILITY_FINDINGS_SUMMARY: _capability(
+            granted=bool(free_summary_access or paid_issue_access),
+            valid_until=access.get("issue_access_until"),
+            reason="findings_summary_inactive",
+        ),
+        CAPABILITY_FINDINGS_FULL: _capability(
+            granted=paid_issue_access,
+            valid_until=access.get("issue_access_until"),
+            reason="findings_full_inactive",
+        ),
+        CAPABILITY_FINDINGS_RECORDS: _capability(
+            granted=paid_record_access,
+            valid_until=access.get("issue_access_until"),
+            reason="findings_records_inactive",
+        ),
+        CAPABILITY_ACTIONS_MANAGE: _capability(
+            granted=paid_actions_access,
+            valid_until=premium_until,
+            reason="actions_manage_inactive",
+        ),
+        CAPABILITY_FINANCIAL_IMPACT_FULL: _capability(
+            granted=paid_financial_impact_access,
+            valid_until=premium_until,
+            reason="financial_impact_full_inactive",
+        ),
+        CAPABILITY_REPORT_EXECUTIVE: _capability(
+            granted=paid_report_access,
+            valid_until=access.get("report_access_until"),
+            reason="report_executive_inactive",
+        ),
+        CAPABILITY_VALIDATION_RUN: _capability(
+            granted=validation_access,
+            valid_until=premium_until,
+            reason="validation_run_inactive",
+        ),
+        CAPABILITY_MONITORING_SCHEDULE: _capability(
+            granted=monitoring_schedule_access,
+            valid_until=monitoring_until,
+            reason="monitoring_schedule_inactive",
+        ),
+        CAPABILITY_MONITORING_HISTORY: _capability(
+            granted=monitoring_history_access,
+            valid_until=monitoring_until,
+            reason="monitoring_history_inactive",
+        ),
+        CAPABILITY_MONITORING_ALERTS: _capability(
+            granted=monitoring_alerts_access,
+            valid_until=monitoring_until,
+            reason="monitoring_alerts_inactive",
         ),
     }
     snapshot = {
