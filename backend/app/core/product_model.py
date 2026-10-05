@@ -41,10 +41,14 @@ class Entitlement(StrEnum):
     SCAN_CORE = "scan.core"
     FINDINGS_SUMMARY = "findings.summary"
     FINDINGS_FULL = "findings.full"
+    FINDINGS_RECORDS = "findings.records"
+    ACTIONS_MANAGE = "actions.manage"
+    FINANCIAL_IMPACT_FULL = "financial_impact.full"
     REPORT_EXECUTIVE = "report.executive"
     VALIDATION_RUN = "validation.run"
     MONITORING_SCHEDULE = "monitoring.schedule"
     MONITORING_HISTORY = "monitoring.history"
+    MONITORING_ALERTS = "monitoring.alerts"
     EXCEPTIONS_MANAGE = "exceptions.manage"
     ANALYTICS_FULL = "analytics.full"
     TENANT_MULTI_ACCESS = "tenant.multi_access"
@@ -87,12 +91,18 @@ OFFER_ENTITLEMENTS: dict[CommercialOffer, frozenset[Entitlement]] = {
         Entitlement.SCAN_CORE,
         Entitlement.FINDINGS_SUMMARY,
         Entitlement.FINDINGS_FULL,
+        Entitlement.FINDINGS_RECORDS,
+        Entitlement.ACTIONS_MANAGE,
+        Entitlement.FINANCIAL_IMPACT_FULL,
         Entitlement.REPORT_EXECUTIVE,
     }),
     CommercialOffer.VALIDATION: frozenset({
         Entitlement.SCAN_CORE,
         Entitlement.FINDINGS_SUMMARY,
         Entitlement.FINDINGS_FULL,
+        Entitlement.FINDINGS_RECORDS,
+        Entitlement.ACTIONS_MANAGE,
+        Entitlement.FINANCIAL_IMPACT_FULL,
         Entitlement.REPORT_EXECUTIVE,
         Entitlement.VALIDATION_RUN,
     }),
@@ -100,9 +110,13 @@ OFFER_ENTITLEMENTS: dict[CommercialOffer, frozenset[Entitlement]] = {
         Entitlement.SCAN_CORE,
         Entitlement.FINDINGS_SUMMARY,
         Entitlement.FINDINGS_FULL,
+        Entitlement.FINDINGS_RECORDS,
+        Entitlement.ACTIONS_MANAGE,
+        Entitlement.FINANCIAL_IMPACT_FULL,
         Entitlement.REPORT_EXECUTIVE,
         Entitlement.MONITORING_SCHEDULE,
         Entitlement.MONITORING_HISTORY,
+        Entitlement.MONITORING_ALERTS,
         Entitlement.EXCEPTIONS_MANAGE,
         Entitlement.ANALYTICS_FULL,
     }),
@@ -125,6 +139,7 @@ def entitlements_for_storage_code(value: str | None) -> frozenset[Entitlement]:
     """Return canonical entitlements for a legacy or current product code."""
     offer = canonical_offer_for_storage_code(value)
     return OFFER_ENTITLEMENTS.get(offer, frozenset()) if offer is not None else frozenset()
+
 
 def product_contract_for_storage_code(value: str | None) -> dict[str, object]:
     """Describe a compatibility storage code using canonical product semantics."""
