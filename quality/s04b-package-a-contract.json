@@ -1,0 +1,106 @@
+{
+  "contract_version": "s04b-package-a-v1",
+  "source_of_truth": "backend/app/core/product_model.py",
+  "authorization_source": "backend/app/services/access_control_service.py",
+  "frontend_is_authorization_boundary": false,
+  "tiers": {
+    "free": {
+      "experience_mode": "free",
+      "required_capabilities": ["scan.core", "findings.summary"],
+      "overview": {
+        "allowed": [
+          "health_score",
+          "estimated_financial_impact_band",
+          "estimated_potential_band",
+          "affected_record_count_band",
+          "risk_area_aggregates",
+          "severity_aggregates"
+        ],
+        "forbidden": [
+          "finding_title",
+          "record_identifiers",
+          "root_cause",
+          "recommendation",
+          "exact_finding_financial_impact"
+        ]
+      },
+      "findings": {
+        "mode": "aggregate_only",
+        "allowed": ["area", "count", "severity_aggregate", "estimated_impact_band"],
+        "forbidden": ["finding_title", "records", "root_cause", "recommendation"]
+      },
+      "actions": {
+        "mode": "aggregate_only",
+        "allowed": ["action_area", "measure_count", "estimated_potential_band"],
+        "forbidden": ["action_title", "remediation_steps", "owner", "record_links"]
+      }
+    },
+    "assessment": {
+      "experience_mode": "assessment",
+      "required_capabilities": [
+        "scan.core",
+        "findings.summary",
+        "findings.full",
+        "findings.records",
+        "actions.manage",
+        "financial_impact.full",
+        "report.executive"
+      ],
+      "overview": {
+        "mode": "single_analysis_full",
+        "monitoring_locked": true
+      },
+      "findings": {
+        "mode": "master_detail",
+        "fields": [
+          "description",
+          "affected_data",
+          "root_cause",
+          "recommendation",
+          "financial_impact",
+          "effort",
+          "priority"
+        ]
+      },
+      "actions": {
+        "mode": "prioritized_master_detail",
+        "fields": ["priority", "effort", "potential", "owner", "status", "linked_findings"]
+      }
+    },
+    "monitoring": {
+      "experience_mode": "monitoring",
+      "required_capabilities": [
+        "scan.core",
+        "findings.summary",
+        "findings.full",
+        "findings.records",
+        "actions.manage",
+        "financial_impact.full",
+        "report.executive",
+        "monitoring.schedule",
+        "monitoring.history",
+        "monitoring.alerts"
+      ],
+      "overview": {
+        "mode": "continuous_control",
+        "fields": ["score_trend", "alerts", "scan_status", "scan_history", "action_progress", "outcomes"]
+      },
+      "findings": {
+        "mode": "master_detail_with_history",
+        "fields": ["trend", "delta", "owner", "last_change", "validation", "change_state"]
+      },
+      "actions": {
+        "mode": "outcome_control",
+        "fields": ["progress", "deadline", "revalidation", "potential", "realised_impact", "history"]
+      }
+    }
+  },
+  "implementation_boundaries": {
+    "lovable_commit": "bb3ddb65d141879b8f433cf26ee86aa80c9ceb63",
+    "lovable_role": "design_and_ui_accelerator_only",
+    "production_plan_switch": "forbidden",
+    "local_storage_entitlement_authority": "forbidden",
+    "free_paid_data_in_response": "forbidden",
+    "readiness_percentage_change": "not_authorized_by_this_contract"
+  }
+}
