@@ -1,0 +1,19 @@
+{
+  "generated": "2026-10-05",
+  "design_system": "BCSentinel Go-Live",
+  "pages": {
+    "01-landingpage":{"title":"Haupt-Landingpage","score":9.8,"final":"01-landingpage/final/final-01-landingpage.svg"},
+    "02-pilotpage":{"title":"Pilotpage","score":9.8,"final":"02-pilotpage/final/final-02-pilotpage.svg"},
+    "03-overview":{"title":"Dashboard Overview","score":9.9,"final":"03-overview/final/final-free-assessment-monitoring.svg"},
+    "04-findings":{"title":"Findings","score":9.9,"final":"04-findings/final/final-free-assessment-monitoring.svg"},
+    "05-actions":{"title":"Maßnahmen / Actions","score":9.9,"final":"05-actions/final/final-free-assessment-monitoring.svg"},
+    "06-financial-impact":{"title":"Finanzieller Impact","score":9.9,"final":"06-financial-impact/final/final-free-assessment-monitoring.svg","concepts":"06-financial-impact/concepts/10-concepts.svg"},
+    "07-executive-report":{"title":"Executive Report","score":9.9,"final":"07-executive-report/final/final-free-assessment-monitoring.svg","concepts":"07-executive-report/concepts/10-concepts.svg"},
+    "08-scans":{"title":"Scans","score":9.8,"final":"08-scans/final/final-free-assessment-monitoring.svg","concepts":"08-scans/concepts/10-concepts.svg"},
+    "09-monitoring":{"title":"Monitoring","score":9.9,"final":"09-monitoring/final/final-free-assessment-monitoring.svg","concepts":"09-monitoring/concepts/10-concepts.svg"},
+    "10-settings-security":{"title":"Settings / Tenant / Security","score":9.7,"final":"10-settings-security/final/final-free-assessment-monitoring.svg","concepts":"10-settings-security/concepts/10-concepts.svg"},
+    "11-subscription-billing":{"title":"Subscription / Billing","score":9.7,"final":"11-subscription-billing/final/final-free-assessment-monitoring.svg","concepts":"11-subscription-billing/concepts/10-concepts.svg"},
+    "12-auth":{"title":"Auth-Flows","score":9.8,"final":"12-auth/final/final-free-assessment-monitoring.svg","concepts":"12-auth/concepts/10-concepts.svg"},
+    "13-docs-support":{"title":"Documentation / Support","score":9.7,"final":"13-docs-support/final/final-free-assessment-monitoring.svg","concepts":"13-docs-support/concepts/10-concepts.svg"}
+  }
+}
