@@ -7,6 +7,7 @@ from app.services.entitlement_service import resolve_features
 from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
+from app.routers.remediation import router as remediation_router
 
 router = APIRouter(tags=["license"])
 
@@ -69,3 +70,6 @@ def get_license_status(
         )
         db.commit()
         return response
+
+
+router.include_router(remediation_router)
