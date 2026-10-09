@@ -103,8 +103,13 @@
         {% if active_section == "license_pricing" %}
         <section class="content-grid admin-detail-grid">
           <article class="panel">
-            <div class="panel-header"><h2>Product Pricing</h2><span class="muted">Zentrale Anzeige-Preise fuer Checkout-Produkte.</span></div>
-            <p class="muted">Stripe Price IDs bleiben in ENV. Diese Preise steuern Public Pricing, Landingpage und Dashboard-Anzeige.</p>
+            <div class="panel-header"><h2>Product Pricing</h2><span class="muted">Zentrale ARV-Tierpreise fuer BCSentinel.</span></div>
+            <p class="pill" style="display:block; white-space:normal; line-height:1.55; margin-bottom:14px;">
+              <strong>Wichtig bei Preisänderungen:</strong> Eine Änderung hier aktualisiert Stripe-Price-Objekte nicht automatisch.
+              Die passenden Stripe-Preise und Price-ID-Zuordnungen müssen beim Zahlungsdienstleister ebenfalls korrekt geändert und verifiziert werden.
+              BCSentinel blockiert produktiven Checkout, solange Runtime-Preis und Stripe-Preis nicht übereinstimmen.
+            </p>
+            <p class="muted">Diese Runtime-Preise steuern Public Pricing, Landingpage, Dashboard-/Report-Projektion und Checkout. Stripe Price IDs bleiben Provider-Mappings in der Laufzeitkonfiguration.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Product Key</th><th>Name</th><th>Preis (Cent)</th><th>Currency</th><th>Intervall</th><th>Active</th><th>Updated</th><th>Actions</th></tr></thead>

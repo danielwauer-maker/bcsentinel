@@ -1,4 +1,5 @@
 import inspect
+from pathlib import Path
 
 from app.services.impact_service import calculate_scan_commercials
 from app.services.product_license_service import (
@@ -64,3 +65,10 @@ def test_runtime_sku_keys_are_tier_specific():
 def test_scan_commercials_pass_arv_into_monitoring_price_resolution():
     source = inspect.getsource(calculate_scan_commercials)
     assert "build_monitoring_pricing_breakdown(db, record_count=total_records)" in source
+
+
+def test_admin_pricing_screen_warns_about_stripe_sync():
+    template = (Path(__file__).parents[1] / "app" / "templates" / "admin_tenants.html").read_text(encoding="utf-8")
+    assert "Eine Änderung hier aktualisiert Stripe-Price-Objekte nicht automatisch." in template
+    assert "Stripe-Preise und Price-ID-Zuordnungen müssen beim Zahlungsdienstleister ebenfalls korrekt geändert" in template
+    assert "blockiert produktiven Checkout" in template
