@@ -1,0 +1,24 @@
+name: Backend Notification Read Model Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/notification_models.py'
+      - 'backend/app/routers/notifications.py'
+      - 'backend/app/routers/license.py'
+      - 'backend/alembic/versions/0019_notification_settings_read_model.py'
+      - 'scripts/validate_backend_notification_read_model.py'
+      - '.github/workflows/backend-notification-read-model-quality.yml'
+
+jobs:
+  validate-backend-notification-read-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate backend notification read model
+        run: python scripts/validate_backend_notification_read_model.py
+      - name: Compile touched Python modules
+        run: python -m py_compile backend/app/notification_models.py backend/app/routers/notifications.py backend/app/routers/license.py scripts/validate_backend_notification_read_model.py
