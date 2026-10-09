@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "backend/app/services/product_pricing_service.py"
+      - "backend/app/services/impact_service.py"
       - "backend/app/routers/public.py"
       - "backend/app/routers/billing.py"
       - "backend/tests/test_record_based_pricing.py"
@@ -16,6 +17,7 @@ on:
       - main
     paths:
       - "backend/app/services/product_pricing_service.py"
+      - "backend/app/services/impact_service.py"
       - "backend/app/routers/public.py"
       - "backend/app/routers/billing.py"
       - "backend/tests/test_record_based_pricing.py"
@@ -43,7 +45,7 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - run: python -m pip install -r requirements.txt
       - name: Compile changed pricing modules
-        run: python -m py_compile app/services/product_pricing_service.py app/routers/public.py app/routers/billing.py
+        run: python -m py_compile app/services/product_pricing_service.py app/services/impact_service.py app/routers/public.py app/routers/billing.py
       - name: Run record pricing regression
         run: pytest -q tests/test_record_based_pricing.py
       - name: Verify generated landing fallback
