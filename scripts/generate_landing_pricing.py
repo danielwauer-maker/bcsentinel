@@ -82,6 +82,36 @@ PRODUCT_META = {
     "monitoring_annual": ("Monitoring Annual", "year"),
 }
 
+FROM_PRICE_RENDERER = r'''(function () {
+  function prefixForLanguage() {
+    return (document.documentElement.lang || "de").toLowerCase().startsWith("de") ? "Ab " : "From ";
+  }
+
+  function applyFromPriceLabels() {
+    const prefix = prefixForLanguage();
+    document.querySelectorAll("[data-product-price]").forEach((node) => {
+      const current = (node.textContent || "").trim().replace(/^(Ab |From )/, "");
+      if (current) node.textContent = prefix + current;
+    });
+  }
+
+  function startObserver() {
+    applyFromPriceLabels();
+    const observer = new MutationObserver(() => {
+      observer.disconnect();
+      applyFromPriceLabels();
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startObserver, { once: true });
+  } else {
+    startObserver();
+  }
+})();'''
+
 
 def product_payload(product_key: str, price_cents: int) -> dict:
     display_name, interval = PRODUCT_META[product_key]
@@ -115,6 +145,9 @@ def main() -> int:
         "window.__BCS_MARKETING_STRINGS__ = {};",
         "window.__BCS_CANONICAL_BASE_EUR__ = 199;",
         "window.__BCS_PRODUCT_PRICING__ = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";",
+        "",
+        "/* Public ARV prices are minimum/from prices; keep labels explicit even after runtime re-render. */",
+        FROM_PRICE_RENDERER,
         "",
     ]
     body = "\n".join(js_lines)
