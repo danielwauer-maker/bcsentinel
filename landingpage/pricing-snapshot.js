@@ -114,3 +114,34 @@ window.__BCS_PRODUCT_PRICING__ = {
   ],
   "custom_quote_above_records": 20000000
 };
+
+/* Public ARV prices are minimum/from prices; keep labels explicit even after runtime re-render. */
+(function () {
+  function prefixForLanguage() {
+    return (document.documentElement.lang || "de").toLowerCase().startsWith("de") ? "Ab " : "From ";
+  }
+
+  function applyFromPriceLabels() {
+    const prefix = prefixForLanguage();
+    document.querySelectorAll("[data-product-price]").forEach((node) => {
+      const current = (node.textContent || "").trim().replace(/^(Ab |From )/, "");
+      if (current) node.textContent = prefix + current;
+    });
+  }
+
+  function startObserver() {
+    applyFromPriceLabels();
+    const observer = new MutationObserver(() => {
+      observer.disconnect();
+      applyFromPriceLabels();
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startObserver, { once: true });
+  } else {
+    startObserver();
+  }
+})();

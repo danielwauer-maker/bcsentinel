@@ -1,3 +1,6 @@
+import inspect
+
+from app.services.impact_service import calculate_scan_commercials
 from app.services.product_license_service import (
     PRODUCT_ASSESSMENT,
     PRODUCT_MONITORING_ANNUAL,
@@ -56,3 +59,8 @@ def test_enterprise_plus_is_custom_quote_only():
 def test_runtime_sku_keys_are_tier_specific():
     assert pricing_sku_key("small", PRODUCT_ASSESSMENT) == "small__assessment"
     assert pricing_sku_key("enterprise", PRODUCT_MONITORING_ANNUAL) == "enterprise__monitoring_annual"
+
+
+def test_scan_commercials_pass_arv_into_monitoring_price_resolution():
+    source = inspect.getsource(calculate_scan_commercials)
+    assert "build_monitoring_pricing_breakdown(db, record_count=total_records)" in source
