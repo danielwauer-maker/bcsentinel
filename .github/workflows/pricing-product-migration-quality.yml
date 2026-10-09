@@ -1,0 +1,30 @@
+name: Pricing Product Migration Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/services/product_migration_service.py'
+      - 'backend/app/product_migration_models.py'
+      - 'backend/alembic/versions/0020_product_migration_metadata.py'
+      - 'backend/app/services/product_pricing_service.py'
+      - 'scripts/migrate_product_identity.py'
+      - 'scripts/validate_pricing_product_migration.py'
+      - '.github/workflows/pricing-product-migration-quality.yml'
+
+jobs:
+  validate-pricing-product-migration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate D5 migration contract
+        run: python scripts/validate_pricing_product_migration.py
+      - name: Compile touched Python modules
+        run: |
+          python -m py_compile \
+            backend/app/product_migration_models.py \
+            backend/app/services/product_migration_service.py \
+            scripts/migrate_product_identity.py \
+            scripts/validate_pricing_product_migration.py
