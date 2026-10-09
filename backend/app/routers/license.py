@@ -8,6 +8,7 @@ from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
 from app.routers.remediation import router as remediation_router
+from app.routers.notifications import router as notifications_router
 
 router = APIRouter(tags=["license"])
 
@@ -73,3 +74,4 @@ def get_license_status(
 
 
 router.include_router(remediation_router)
+router.include_router(notifications_router)
