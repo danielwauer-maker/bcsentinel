@@ -352,7 +352,7 @@ def calculate_scan_commercials(
             estimated_premium_price_monthly = round(float(pricing.base_price_monthly or 0.0), 2)
         else:
             estimated_premium_price_monthly = round(
-                float(build_monitoring_pricing_breakdown(db)["final_price_monthly"]), 2
+                float(build_monitoring_pricing_breakdown(db, record_count=total_records)["final_price_monthly"]), 2
             )
 
     normalized = normalize_commercial_values(
