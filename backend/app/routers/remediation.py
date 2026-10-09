@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
 from app.db import SessionLocal
-from app.models import RemediationActionRead, RemediationAuditRead
+from app.remediation_models import RemediationActionRead, RemediationAuditRead
 from app.security.tenant import enforce_tenant_match, load_authenticated_tenant, require_tenant_headers
 
 router = APIRouter(prefix="/remediation", tags=["remediation"])
