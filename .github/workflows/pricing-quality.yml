@@ -1,0 +1,53 @@
+name: Record Pricing Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "backend/app/services/product_pricing_service.py"
+      - "backend/app/routers/public.py"
+      - "backend/app/routers/billing.py"
+      - "backend/tests/test_record_based_pricing.py"
+      - "landingpage/pricing-snapshot.js"
+      - "scripts/generate_landing_pricing.py"
+      - "bc-extension/app/src/codeunits/DHPricingMgt.Codeunit.al"
+      - ".github/workflows/pricing-quality.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/app/services/product_pricing_service.py"
+      - "backend/app/routers/public.py"
+      - "backend/app/routers/billing.py"
+      - "backend/tests/test_record_based_pricing.py"
+      - "landingpage/pricing-snapshot.js"
+      - "scripts/generate_landing_pricing.py"
+      - "bc-extension/app/src/codeunits/DHPricingMgt.Codeunit.al"
+      - ".github/workflows/pricing-quality.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pricing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Compile changed pricing modules
+        run: python -m py_compile app/services/product_pricing_service.py app/routers/public.py app/routers/billing.py
+      - name: Run record pricing regression
+        run: pytest -q tests/test_record_based_pricing.py
+      - name: Verify generated landing fallback
+        working-directory: .
+        run: |
+          python scripts/generate_landing_pricing.py
+          git diff --exit-code -- landingpage/pricing-snapshot.js
