@@ -26,6 +26,8 @@ jobs:
         run: python scripts/validate_release_demo_policy.py
       - name: X1 UI convergence regression
         run: python scripts/validate_x1_ui_convergence.py
+      - name: X3 exception transparency regression
+        run: python scripts/validate_x3_exception_transparency.py
       - name: Install backend dependencies for pricing source import
         working-directory: backend
         run: pip install -r requirements.txt
