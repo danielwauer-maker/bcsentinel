@@ -118,6 +118,32 @@ jobs:
             docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
           EOF
+      - name: DEV route diagnostics
+        run: |
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" bash -s << 'EOF'
+            set +e
+            cd /home/daniel/data-health-management-dev
+            echo "=== DEV compose services ==="
+            docker compose -f docker-compose.dev.yml --env-file .env.dev ps
+            echo "=== Local listeners ==="
+            ss -ltn
+            echo "=== Local backend HTTP ==="
+            curl -sS -o /dev/null -w 'backend_root=%{http_code}\n' http://127.0.0.1:8001/
+            curl -sS -o /dev/null -w 'backend_ready=%{http_code}\n' http://127.0.0.1:8001/health/ready
+            echo "=== Landing files ==="
+            test -f landingpage/index.html && echo 'landing_index=present' || echo 'landing_index=missing'
+            test -f landingpage/pilot.html && echo 'landing_pilot=present' || echo 'landing_pilot=missing'
+            echo "=== Web server status ==="
+            systemctl is-active nginx 2>/dev/null || true
+            systemctl is-active caddy 2>/dev/null || true
+            echo "=== Readable nginx routing evidence ==="
+            for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
+              if [ -r "$f" ] && [ -f "$f" ]; then
+                echo "--- $f"
+                grep -E 'server_name|listen|proxy_pass|root|alias' "$f" || true
+              fi
+            done
+          EOF
       - name: DEV acceptance smoke
         run: |
           for i in {1..30}; do
