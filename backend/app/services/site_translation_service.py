@@ -113,7 +113,6 @@ ALLOWED_IDENTICAL_TEXTS = {
 I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z-]+)?=["']([^"']+)["']""")
 JS_T_CALL_RE = re.compile(r"""\bt\(["']([A-Za-z0-9_]+)["']\)""")
 JS_TRANSLATION_MEMBER_RE = re.compile(r"""translations\[[^\]]+\]\.([A-Za-z0-9_]+)""")
-JS_NAV_PAIR_RE = re.compile(r"""\[[^\[\]]+,\s*["']([A-Za-z0-9_]+)["']\]""")
 
 
 @dataclass(frozen=True)
@@ -199,6 +198,12 @@ def load_site_translation_json(path: Path) -> OrderedDict[str, str]:
 
 
 def discover_landingpage_i18n_keys() -> set[str]:
+    """Return only explicit translation references.
+
+    Generic JavaScript array pairs are intentionally not interpreted as i18n
+    keys. The previous heuristic treated ordinary status/config arrays as
+    translations and produced false missing-key failures.
+    """
     keys: set[str] = set()
     for path in _landingpage_dir().glob("*.html"):
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -211,7 +216,6 @@ def discover_landingpage_i18n_keys() -> set[str]:
         keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
         keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
         keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
-        keys.update(match.strip() for match in JS_NAV_PAIR_RE.findall(text) if match.strip())
     return keys
 
 
