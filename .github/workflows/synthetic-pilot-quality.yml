@@ -1,0 +1,31 @@
+name: E6 Synthetic Pilot Journey Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  synthetic-pilot:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: e6_synthetic_ci_secret_not_for_prod
+      ADMIN_USERNAME: e6-ci
+      ADMIN_PASSWORD: e6-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-e6.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate E6 synthetic contract
+        run: python scripts/validate_e6_synthetic_pilot.py
+      - name: Run synthetic multi-tenant pilot journey
+        working-directory: backend
+        run: pytest -q tests/test_e6_synthetic_pilot_journey.py
+      - name: Run security regressions around tenant switching
+        working-directory: backend
+        run: pytest -q tests/test_x0_account_auth_switching.py tests/test_e1_tenant_security.py
