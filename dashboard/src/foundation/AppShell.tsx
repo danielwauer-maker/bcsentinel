@@ -10,6 +10,8 @@ const navItems = [
   { route: 'scans', label: 'Scans' },
   { route: 'monitoring', label: 'Monitoring' },
   { route: 'settings', label: 'Settings' },
+  { route: 'subscription', label: 'Subscription' },
+  { route: 'support', label: 'Support' },
 ];
 
 export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRoute: string }>) {
