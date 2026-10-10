@@ -49,6 +49,29 @@ class TenantMembership(Base):
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class TenantInvitation(Base):
+    __tablename__ = "tenant_invitations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(
+        ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    email_normalized: Mapped[str] = mapped_column(String(320), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="VIEWER", index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending", index=True)
+    expires_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    invited_by_user_identity_id: Mapped[int] = mapped_column(
+        ForeignKey("user_identities.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    accepted_by_user_identity_id: Mapped[int | None] = mapped_column(
+        ForeignKey("user_identities.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    accepted_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class TenantBCEnvironment(Base):
     __tablename__ = "tenant_bc_environments"
     __table_args__ = (
