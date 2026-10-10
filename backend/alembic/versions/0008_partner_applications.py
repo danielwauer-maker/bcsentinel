@@ -58,6 +58,16 @@ def upgrade() -> None:
         unique=False,
     )
 
+    # Alembic creates alembic_version.version_num as VARCHAR(32). Later
+    # BCSentinel revision identifiers intentionally became more descriptive and
+    # exceed 32 characters. PostgreSQL enforces that width while SQLite does
+    # not, so a fresh real PostgreSQL upgrade would otherwise fail before
+    # revision 0009 can even start. Expand the control column while the current
+    # revision id still fits into the original width.
+    bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        op.execute("ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(128)")
+
 
 def downgrade() -> None:
     op.drop_index(op.f("ix_partner_applications_reviewed_at_utc"), table_name="partner_applications")
