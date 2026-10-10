@@ -6,6 +6,7 @@ import {
   loadLatestScanStatus,
   loadRemediationActions,
   loadRemediationMetrics,
+  loadScanExceptions,
 } from '../api/corePages';
 import { useTenant } from '../foundation/contexts';
 import type {
@@ -13,6 +14,7 @@ import type {
   ExecutiveReport,
   RemediationAction,
   RemediationMetrics,
+  ScanExceptionSnapshot,
   ScanRuntimeStatus,
 } from './types';
 
@@ -130,6 +132,36 @@ export function useLatestScanStatus(): AsyncState<ScanRuntimeStatus | null> {
       });
     return () => { active = false; };
   }, [session]);
+
+  return state;
+}
+
+export function useScanExceptions(scanId?: string | null): AsyncState<ScanExceptionSnapshot | null> {
+  const session = useTenant();
+  const [state, setState] = useState<AsyncState<ScanExceptionSnapshot | null>>(
+    session && scanId ? { status: 'loading' } : session ? { status: 'loaded', data: null } : { status: 'session_required' },
+  );
+
+  useEffect(() => {
+    if (!session) {
+      setState({ status: 'session_required' });
+      return;
+    }
+    if (!scanId) {
+      setState({ status: 'loaded', data: null });
+      return;
+    }
+    let active = true;
+    setState({ status: 'loading' });
+    loadScanExceptions(session, scanId)
+      .then((data) => active && setState({ status: 'loaded', data }))
+      .catch((error) => {
+        if (!active) return;
+        const safe = safeError(error);
+        setState({ status: 'error', error: safe.message, code: safe.code });
+      });
+    return () => { active = false; };
+  }, [session, scanId]);
 
   return state;
 }
