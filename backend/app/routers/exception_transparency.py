@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.exception_snapshot_models import ScanExceptionSnapshot
+from app.exception_snapshot_models import ScanExceptionSnapshot, ScanExceptionSnapshotCapture
 from app.models import Scan
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 
@@ -56,26 +56,47 @@ def replace_scan_exception_snapshot(
         if scan is None:
             raise HTTPException(status_code=404, detail="Scan not found.")
 
-        existing = db.scalars(
-            select(ScanExceptionSnapshot).where(ScanExceptionSnapshot.scan_id == scan_id)
+        capture = db.scalar(
+            select(ScanExceptionSnapshotCapture).where(
+                ScanExceptionSnapshotCapture.scan_id == scan_id,
+                ScanExceptionSnapshotCapture.tenant_id == tenant_id,
+            )
+        )
+        legacy_rows = db.scalars(
+            select(ScanExceptionSnapshot).where(
+                ScanExceptionSnapshot.scan_id == scan_id,
+                ScanExceptionSnapshot.tenant_id == tenant_id,
+            )
         ).all()
-        if existing:
+        if capture is not None or legacy_rows:
             raise HTTPException(
                 status_code=409,
                 detail="Exception snapshot is immutable once captured for a scan.",
             )
 
-        captured_at = datetime.now(timezone.utc)
         seen: set[int] = set()
         for item in payload.exceptions:
             if item.source_exception_entry_no in seen:
                 raise HTTPException(status_code=422, detail="Duplicate source_exception_entry_no in snapshot payload.")
             seen.add(item.source_exception_entry_no)
+
+        captured_at = datetime.now(timezone.utc)
+        company_id = (payload.company_id or "").strip() or None
+        db.add(
+            ScanExceptionSnapshotCapture(
+                scan_id=scan_id,
+                tenant_id=tenant_id,
+                company_id=company_id,
+                exception_count=len(payload.exceptions),
+                captured_at_utc=captured_at,
+            )
+        )
+        for item in payload.exceptions:
             db.add(
                 ScanExceptionSnapshot(
                     scan_id=scan_id,
                     tenant_id=tenant_id,
-                    company_id=(payload.company_id or "").strip() or None,
+                    company_id=company_id,
                     source_exception_entry_no=item.source_exception_entry_no,
                     table_id=item.table_id,
                     record_system_id=(item.record_system_id or "").strip() or None,
@@ -109,15 +130,24 @@ def read_scan_exceptions(
         scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id, Scan.tenant_id == tenant_id))
         if scan is None:
             raise HTTPException(status_code=404, detail="Scan not found.")
+        capture = db.scalar(
+            select(ScanExceptionSnapshotCapture).where(
+                ScanExceptionSnapshotCapture.scan_id == scan_id,
+                ScanExceptionSnapshotCapture.tenant_id == tenant_id,
+            )
+        )
         rows = db.scalars(
             select(ScanExceptionSnapshot)
             .where(ScanExceptionSnapshot.scan_id == scan_id, ScanExceptionSnapshot.tenant_id == tenant_id)
             .order_by(ScanExceptionSnapshot.issue_code, ScanExceptionSnapshot.source_exception_entry_no)
         ).all()
+        snapshot_captured = capture is not None or bool(rows)
         return {
             "scan_id": scan_id,
             "tenant_id": tenant_id,
-            "exception_count": len(rows),
+            "snapshot_captured": snapshot_captured,
+            "captured_at_utc": capture.captured_at_utc if capture is not None else (rows[0].captured_at_utc if rows else None),
+            "exception_count": capture.exception_count if capture is not None else len(rows),
             "exceptions_applied": bool(rows),
             "exceptions": [
                 {

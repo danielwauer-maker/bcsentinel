@@ -4,6 +4,7 @@ import type {
   ExecutiveReport,
   RemediationAction,
   RemediationMetrics,
+  ScanExceptionSnapshot,
   ScanRuntimeStatus,
 } from '../core/types';
 
@@ -49,4 +50,8 @@ export async function loadLatestScanStatus(session: TenantSession): Promise<Scan
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+export async function loadScanExceptions(session: TenantSession, scanId: string): Promise<ScanExceptionSnapshot> {
+  return apiRequest<ScanExceptionSnapshot>(`/scans/${encode(scanId)}/exceptions`, session);
 }

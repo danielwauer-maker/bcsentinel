@@ -54,6 +54,58 @@
 .tenant-context-status { color: var(--interaction-primary); }
 .tenant-context-error { color: var(--critical); }
 
+.exception-scope-banner {
+  margin: 12px 24px 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--warning) 45%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warning) 8%, var(--card));
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.exception-scope-banner > div {
+  display: grid;
+  gap: 3px;
+}
+
+.exception-scope-banner span,
+.exception-scope-banner p {
+  color: var(--text-muted);
+}
+
+.exception-scope-banner details {
+  min-width: min(420px, 45vw);
+}
+
+.exception-scope-banner summary {
+  cursor: pointer;
+  color: var(--interaction-primary);
+  font-weight: 700;
+}
+
+.exception-scope-list {
+  max-height: 280px;
+  margin-top: 10px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.exception-scope-list article {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  display: grid;
+  gap: 3px;
+}
+
+.exception-scope-list p { margin: 0; }
+
 @media (max-width: 767px) {
   .topbar {
     padding-inline: 14px;
@@ -77,5 +129,12 @@
   }
   .tenant-select {
     max-width: none;
+  }
+  .exception-scope-banner {
+    margin: 10px 14px 0;
+    display: grid;
+  }
+  .exception-scope-banner details {
+    min-width: 0;
   }
 }

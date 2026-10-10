@@ -1,4 +1,5 @@
 import { PropsWithChildren, useState } from 'react';
+import { useLatestScanStatus, useScanExceptions } from '../core/hooks';
 import { useTenant, useTenantSwitcher } from './contexts';
 
 const navItems = [
@@ -30,6 +31,11 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
   const language = displayLanguage(tenant?.preferredLanguage);
   const tenantSummary = switcher.tenants.find((item) => item.tenant_id === tenant?.tenantId);
   const tenantLabel = tenantSummary?.environment_name || tenant?.tenantLabel || (tenant?.tenantId ? `${tenant.tenantId.slice(0, 8)}…` : 'Session pending');
+  const latestStatus = useLatestScanStatus();
+  const latestScanId = latestStatus.status === 'loaded' && latestStatus.data
+    ? latestStatus.data.scan_id || latestStatus.data.run_id || null
+    : null;
+  const exceptionState = useScanExceptions(latestScanId);
 
   const onTenantChange = async (tenantId: string) => {
     if (!tenantId || tenantId === tenant?.tenantId) return;
@@ -61,7 +67,7 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
         </nav>
         <div className="sidebar-plan">
           <span>{language === 'de' ? 'Produkt-Runtime' : 'Product Runtime'}</span>
-          <strong>{language === 'de' ? 'Read-only Dashboard' : 'Read-only Dashboard'}</strong>
+          <strong>Read-only Dashboard</strong>
           <small>
             {language === 'de'
               ? 'Operative Steuerung bleibt in Business Central.'
@@ -75,7 +81,7 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
           <button className="menu-button" aria-label={language === 'de' ? 'Navigation öffnen' : 'Open navigation'} onClick={() => setOpen(true)}>☰</button>
           <span className="topbar-title">BCSentinel</span>
           <div className="tenant-context" aria-label={language === 'de' ? 'Aktiver Tenant' : 'Active tenant'}>
-            <span className="tenant-context-label">{language === 'de' ? 'Tenant' : 'Tenant'}</span>
+            <span className="tenant-context-label">Tenant</span>
             {switcher.canSwitch ? (
               <select
                 className="tenant-select"
@@ -102,6 +108,36 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
             {switcher.error && <span className="tenant-context-error" role="status">{switcher.error}</span>}
           </div>
         </header>
+        {exceptionState.status === 'loaded' && exceptionState.data?.snapshot_captured && (
+          <section className="exception-scope-banner" aria-label={language === 'de' ? 'Scan-Ausnahmen' : 'Scan exceptions'}>
+            <div>
+              <strong>
+                {exceptionState.data.exception_count > 0
+                  ? language === 'de'
+                    ? `${exceptionState.data.exception_count} Ausnahme(n) wurden in diesem Scan angewendet`
+                    : `${exceptionState.data.exception_count} exception(s) were applied to this scan`
+                  : language === 'de'
+                    ? 'Scan-Scope bestätigt: keine Ausnahmen angewendet'
+                    : 'Scan scope confirmed: no exceptions applied'}
+              </strong>
+              <span>{language === 'de' ? 'Historischer Snapshot · Änderungen erfolgen nur in Business Central.' : 'Historical snapshot · changes remain in Business Central.'}</span>
+            </div>
+            {exceptionState.data.exceptions_applied && (
+              <details>
+                <summary>{language === 'de' ? 'Ausnahmen anzeigen' : 'Show exceptions'}</summary>
+                <div className="exception-scope-list">
+                  {exceptionState.data.exceptions.map((item) => (
+                    <article key={item.source_exception_entry_no}>
+                      <strong>{item.issue_code}</strong>
+                      <span>{item.record_caption || item.record_no || `Table ${item.table_id}`}</span>
+                      <p>{item.reason}</p>
+                    </article>
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
+        )}
         <main className="page-content" key={tenant?.tenantId}>{children}</main>
         <footer className="app-footer">
           <span>BCSentinel</span>

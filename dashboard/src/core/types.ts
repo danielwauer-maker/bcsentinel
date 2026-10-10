@@ -158,6 +158,29 @@ export type ScanRuntimeStatus = {
   updated_at_utc?: string;
 };
 
+export type ScanExceptionItem = {
+  source_exception_entry_no: number;
+  company_id?: string | null;
+  table_id: number;
+  record_no?: string | null;
+  record_caption?: string | null;
+  issue_code: string;
+  reason: string;
+  exception_created_by?: string | null;
+  exception_created_at_utc?: string | null;
+  captured_at_utc: string;
+};
+
+export type ScanExceptionSnapshot = {
+  scan_id: string;
+  tenant_id: string;
+  snapshot_captured: boolean;
+  captured_at_utc?: string | null;
+  exception_count: number;
+  exceptions_applied: boolean;
+  exceptions: ScanExceptionItem[];
+};
+
 export function experienceMode(data: AnalyticsDashboardData): ExperienceMode {
   if (data.product_access?.monitoring_active) return 'monitoring';
   if (

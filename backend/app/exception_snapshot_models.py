@@ -8,6 +8,16 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db import Base
 
 
+class ScanExceptionSnapshotCapture(Base):
+    __tablename__ = "scan_exception_snapshot_captures"
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), index=True)
+    company_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    exception_count: Mapped[int] = mapped_column(Integer, default=0)
+    captured_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class ScanExceptionSnapshot(Base):
     __tablename__ = "scan_exception_snapshots"
     __table_args__ = (
