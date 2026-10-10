@@ -945,6 +945,21 @@ def _hero_copy_for_score_de(score: int) -> dict[str, str]:
     }
 
 
+def _build_locked_preview_findings(top_findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return aggregate-only conversion preview data for tenants without paid detail access.
+
+    Locked previews must never expose finding titles, recommendations, exact per-finding
+    financial impact, record identifiers, or Business Central drill-down URLs.
+    """
+    return [
+        {
+            "group": str(item.get("group") or ""),
+            "count": _safe_int(item.get("count")),
+        }
+        for item in top_findings[:3]
+    ]
+
+
 def _build_dashboard_payload(
     company: str,
     environment: str,
@@ -1044,16 +1059,7 @@ def _build_dashboard_payload(
         for issue in issues
     ]
 
-    premium_preview_findings = [
-        {
-            "title": item["title"],
-            "group": item["group"],
-            "count": item["count"],
-            "impact_eur": item["impact_eur"],
-            "recommendation_preview": item["recommendation_preview"],
-        }
-        for item in top_findings[:3]
-    ]
+    premium_preview_findings = _build_locked_preview_findings(top_findings)
 
     return {
         "title": "BCSentinel Analytics",
