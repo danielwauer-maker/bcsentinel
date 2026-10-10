@@ -30,6 +30,8 @@ def test_free_override_reduces_price_to_zero_and_disables_coupon_stacking_by_def
             actor="pytest",
             reason="Controlled pilot",
         )
+        db.flush()
+        override_id = override.id
         db.commit()
         result = calculate_effective_price(
             db,
@@ -40,7 +42,7 @@ def test_free_override_reduces_price_to_zero_and_disables_coupon_stacking_by_def
 
     assert result["effective_price_cents"] == 0
     assert result["price_source"] == "tenant_commercial_override"
-    assert result["override_id"] == override.id
+    assert result["override_id"] == override_id
     assert result["promotion_code_allowed"] is False
 
 
@@ -155,8 +157,10 @@ def test_override_max_uses_is_enforced(tenant_factory):
             actor="pytest",
             max_uses=1,
         )
+        db.flush()
+        override_id = override.id
         db.commit()
-        consume_override_use(db, override_id=override.id, actor="pytest")
+        consume_override_use(db, override_id=override_id, actor="pytest")
         db.commit()
         assert get_active_commercial_override(
             db,
@@ -178,8 +182,9 @@ def test_pilot_sponsorship_grants_time_limited_entitlement_without_paid_subscrip
             actor="pytest",
             reason="Pilot customer",
         )
+        sponsorship_status = sponsorship.status
         db.commit()
         active_products = active_entitlement_product_codes(db, tenant["tenant_id"])
 
-    assert sponsorship.status == "active"
+    assert sponsorship_status == "active"
     assert PRODUCT_MONITORING_MONTHLY in active_products
