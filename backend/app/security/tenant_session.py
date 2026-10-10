@@ -39,6 +39,8 @@ def parse_tenant_session_token(token: str) -> dict | None:
         return None
     if payload.get("scope") != TENANT_SESSION_SCOPE:
         return None
+    if payload.get("role") != TENANT_SESSION_ROLE:
+        return None
     tenant_id = str(payload.get("tenant_id") or "").strip()
     if not tenant_id:
         return None
