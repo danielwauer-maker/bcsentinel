@@ -13,17 +13,22 @@ if contract["promotion_path"] != ["DEV", "RC", "PROD"]:
     raise SystemExit("X7 promotion path must remain DEV -> RC -> PROD.")
 if release.get("dev_host") != "dev.bcsentinel.com":
     raise SystemExit("Release policy and X7 DEV host are inconsistent.")
+if release.get("dev_branch") != "dev-acceptance":
+    raise SystemExit("Release policy must single-source the DEV acceptance branch.")
+if contract.get("environments", {}).get("dev", {}).get("deployment_branch") != "dev-acceptance":
+    raise SystemExit("X7 DEV deployment branch must be dev-acceptance.")
 
 for forbidden in (
-    "branches:\n      - main\n      - staging",
+    "branches:\n      - main",
+    "branches:\n      - staging",
     "if: github.ref == 'refs/heads/main'",
 ):
     if forbidden in workflow:
-        raise SystemExit("Automatic main->PROD deployment path is forbidden.")
+        raise SystemExit(f"Unsafe deployment branch contract detected: {forbidden!r}")
 
 for required in (
     "workflow_dispatch:",
-    "- staging",
+    "- dev-acceptance",
     "PROMOTE_TO_PROD",
     "environment: development",
     "environment: production",
@@ -41,3 +46,4 @@ if "${{ secrets.SSH_PRIVATE_KEY }}" not in workflow or "${{ secrets.SERVER_HOST 
     raise SystemExit("Deployment secrets must remain GitHub secrets, not repository values.")
 
 print("X7 DEV acceptance deployment contract: PASS")
+print("Dedicated dev-acceptance branch is the only automatic DEV trigger; PROD remains manual-only.")

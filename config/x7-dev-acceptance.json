@@ -1,11 +1,12 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "contract": "bcsentinel-x7-dev-acceptance-v1",
   "environments": {
     "dev": {
       "web_host": "dev.bcsentinel.com",
       "api_host": "dev-api.bcsentinel.com",
-      "deployment_trigger": "staging_push_or_manual",
+      "deployment_branch": "dev-acceptance",
+      "deployment_trigger": "dev_acceptance_push_or_manual",
       "acceptance_surface": true
     },
     "prod": {
@@ -19,6 +20,7 @@
   "promotion_path": ["DEV", "RC", "PROD"],
   "rules": {
     "main_push_auto_prod_forbidden": true,
+    "legacy_staging_auto_deploy_forbidden": true,
     "prod_checkout_before_dev_acceptance_forbidden": true,
     "migration_before_app_start": true,
     "ready_health_required": true,
