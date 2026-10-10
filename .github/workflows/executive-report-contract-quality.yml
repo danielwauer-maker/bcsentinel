@@ -1,0 +1,33 @@
+name: Executive Report Contract Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/schemas/report.py'
+      - 'backend/app/services/executive_report_service.py'
+      - 'backend/app/routers/reports.py'
+      - 'backend/tests/test_executive_report.py'
+      - 'backend/tests/test_report_contract_d10.py'
+      - 'dashboard/src/api/corePages.ts'
+      - 'docs/EXECUTIVE_REPORT_CONTRACT.md'
+      - 'scripts/validate_executive_report_contract.py'
+      - '.github/workflows/executive-report-contract-quality.yml'
+
+jobs:
+  validate-executive-report-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate D10 shared report contract
+        run: python scripts/validate_executive_report_contract.py
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Compile backend
+        run: python -m compileall -q backend/app
+      - name: Run executive report regression
+        working-directory: backend
+        run: pytest -q tests/test_executive_report.py tests/test_report_contract_d10.py
