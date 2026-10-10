@@ -17,7 +17,8 @@ from app.db import SessionLocal
 from app.models import Scan, Tenant
 from app.schemas.report import ExecutiveReport
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
-from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
+from app.services.executive_report_v2_service import build_executive_report
+from app.services.executive_report_pdf_service import render_executive_report_pdf
 from app.services.product_license_service import build_product_access_snapshot
 from app.services.tenant_access_service import enforce_tenant_is_active
 
@@ -44,7 +45,6 @@ def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
         )
     )
     if owned_scan is None:
-        # Same response for a missing scan and a scan owned by another tenant.
         raise HTTPException(status_code=404, detail="Report not found.")
 
 
@@ -129,7 +129,6 @@ def get_monitoring_report(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReport:
-    """Monitoring projection of the same D10 report contract and source builder."""
     report = _load_report(scan_id, tenant_auth)
     return report.model_copy(update={"report_variant": "monitoring"})
 
