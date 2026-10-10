@@ -37,7 +37,7 @@ def test_checkout_session_uses_configured_default_urls(
 
     monkeypatch.setattr(
         "app.routers.billing.stripe.Price.retrieve",
-        lambda price_id: {"unit_amount": 19900, "currency": "eur"},
+        lambda price_id: {"unit_amount": 19900, "currency": "eur", "recurring": {"interval": "month"}},
     )
     monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
 
@@ -208,7 +208,7 @@ def test_monthly_checkout_does_not_require_yearly_price_ids(
     )
     monkeypatch.setattr(
         "app.routers.billing.stripe.Price.retrieve",
-        lambda price_id: {"unit_amount": 19900, "currency": "eur"},
+        lambda price_id: {"unit_amount": 19900, "currency": "eur", "recurring": {"interval": "month"}},
     )
     monkeypatch.setattr(
         "app.routers.billing.stripe.checkout.Session.create",
@@ -273,7 +273,7 @@ def test_monitoring_annual_checkout_handles_inactive_stripe_price(
 
     monkeypatch.setattr(
         "app.routers.billing.stripe.Price.retrieve",
-        lambda price_id: {"unit_amount": 199000, "currency": "eur"},
+        lambda price_id: {"unit_amount": 199000, "currency": "eur", "recurring": {"interval": "year"}},
     )
 
     def fake_create(**kwargs):
