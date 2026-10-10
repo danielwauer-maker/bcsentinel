@@ -26,6 +26,23 @@ def upgrade() -> None:
     op.create_index("ix_scan_exception_snapshot_captures_company_id", "scan_exception_snapshot_captures", ["company_id"])
     op.create_index("ix_scan_exception_snapshot_captures_captured_at_utc", "scan_exception_snapshot_captures", ["captured_at_utc"])
 
+    # Preserve immutability for non-empty snapshots captured before this header
+    # existed. Empty historical snapshots could not be represented previously.
+    op.execute(
+        """
+        INSERT INTO scan_exception_snapshot_captures
+            (scan_id, tenant_id, company_id, exception_count, captured_at_utc)
+        SELECT
+            scan_id,
+            tenant_id,
+            MAX(company_id),
+            COUNT(*),
+            MIN(captured_at_utc)
+        FROM scan_exception_snapshots
+        GROUP BY scan_id, tenant_id
+        """
+    )
+
 
 def downgrade() -> None:
     op.drop_table("scan_exception_snapshot_captures")
