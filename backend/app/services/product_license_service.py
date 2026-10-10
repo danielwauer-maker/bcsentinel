@@ -173,6 +173,13 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     return _max_datetime(access_until_values)
 
 
+def _legacy_monitoring_access(tenant: Tenant) -> bool:
+    """Preserve pre-product-migration premium rights until canonical monitoring state exists."""
+    plan = (tenant.current_plan or "").strip().lower()
+    status = (tenant.license_status or "").strip().lower()
+    return plan == "premium" and status in {"trial", "active"}
+
+
 def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     values: list[datetime | None] = []
     subscriptions = db.scalars(
@@ -236,15 +243,36 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
+    """Resolve monitoring subscriptions while preserving only untouched legacy rights.
+
+    Once canonical monitoring subscription or entitlement rows exist for a tenant,
+    they become authoritative. This prevents a canceled/revoked canonical grant
+    from being resurrected by the legacy premium/active compatibility fallback.
+    """
+    canonical_monitoring_seen = False
     subscriptions = db.scalars(
         select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
     ).all()
     for subscription in subscriptions:
-        if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
+        product_code = normalize_product_code(subscription.plan_code)
+        if product_code not in MONITORING_PRODUCTS:
             continue
-        if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
+        canonical_monitoring_seen = True
+        if (subscription.status or "").strip().lower() in {"trialing", "active"}:
             return True
-    return False
+
+    entitlements = db.scalars(
+        select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant.tenant_id
+        )
+    ).all()
+    for entitlement in entitlements:
+        if normalize_product_code(entitlement.product_code) in MONITORING_PRODUCTS:
+            canonical_monitoring_seen = True
+
+    if canonical_monitoring_seen:
+        return False
+    return _legacy_monitoring_access(tenant)
 
 
 def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str]:

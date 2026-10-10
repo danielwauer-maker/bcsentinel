@@ -118,23 +118,25 @@ def test_public_loss_examples_config_uses_current_hourly_rate_and_issue_factors(
     }
 
 
-def test_product_pricing_seed_creates_four_default_products(db_session):
+def test_product_pricing_seed_creates_tier_specific_default_products(db_session):
     ensure_default_product_pricing(db_session)
 
     rows = db_session.query(ProductPricingConfig).order_by(ProductPricingConfig.product_key.asc()).all()
     by_key = {row.product_key: row for row in rows}
 
     assert set(by_key.keys()) == set(PRODUCT_PRICING_DEFAULTS.keys())
-    assert by_key["assessment"].price_cents == 7900
-    assert by_key["validation_check"].price_cents == 4900
-    assert by_key["monitoring_monthly"].billing_interval == "month"
-    assert by_key["monitoring_annual"].price_cents == 99000
+    assert by_key["small__assessment"].price_cents == 24900
+    assert by_key["small__validation_check"].price_cents == 12900
+    assert by_key["small__monitoring_monthly"].billing_interval == "month"
+    assert by_key["small__monitoring_annual"].price_cents == 199000
+    assert by_key["enterprise__assessment"].price_cents == 119000
 
 
-def test_public_product_pricing_api_returns_active_database_prices(client, db_session):
+def test_public_product_pricing_api_returns_active_database_tier_prices(client, db_session):
     ensure_default_product_pricing(db_session)
-    row = db_session.get(ProductPricingConfig, "assessment")
-    row.price_cents = 8500
+    row = db_session.get(ProductPricingConfig, "small__assessment")
+    assert row is not None
+    row.price_cents = 25000
     db_session.commit()
 
     response = client.get("/pricing/public")
@@ -142,33 +144,38 @@ def test_public_product_pricing_api_returns_active_database_prices(client, db_se
     assert response.status_code == 200
     payload = response.json()
     assert payload["source"] == "database"
+    assert payload["pricing_model"] == "record_volume_tiers"
     products = {row["product_key"]: row for row in payload["products"]}
-    assert products["assessment"]["price_cents"] == 8500
-    assert products["assessment"]["price_eur"] == 85.0
-    assert "stripe" not in response.text.lower()
+    assert products["assessment"]["price_cents"] == 25000
+    assert products["assessment"]["price_eur"] == 250.0
+    tiers = {row["code"]: row for row in payload["tiers"]}
+    assert tiers["small"]["prices"]["assessment"]["price_cents"] == 25000
+    assert "stripe_price_id" not in response.text.lower()
+    assert "sk_" not in response.text.lower()
 
 
-def test_public_product_pricing_payload_filters_inactive_products(db_session):
+def test_public_product_pricing_payload_exposes_record_volume_tiers(db_session):
     ensure_default_product_pricing(db_session)
-    row = db_session.get(ProductPricingConfig, "validation_check")
-    row.is_active = False
-    db_session.commit()
 
     payload = get_public_product_pricing_payload(db_session)
 
-    product_keys = {row["product_key"] for row in payload["products"]}
-    assert "validation_check" not in product_keys
-    assert "assessment" in product_keys
+    tiers = {row["code"]: row for row in payload["tiers"]}
+    assert tiers["small"]["prices"]["validation_check"]["price_cents"] == 12900
+    assert tiers["medium"]["prices"]["monitoring_monthly"]["price_cents"] == 29900
+    assert tiers["enterprise"]["prices"]["monitoring_annual"]["price_cents"] == 799000
+    assert tiers["enterprise_plus"]["custom_quote"] is True
+    assert tiers["enterprise_plus"]["prices"] == {}
 
 
-def test_admin_product_pricing_update_changes_price_and_audits(client):
+def test_admin_product_pricing_update_changes_tier_price_and_audits(client):
+    sku_key = "small__assessment"
     response = client.post(
-        "/admin/config/product-pricing/assessment",
+        f"/admin/config/product-pricing/{sku_key}",
         headers=_admin_auth_header(),
         data={
             **_admin_csrf(client),
-            "display_name": "Assessment",
-            "price_cents": "8800",
+            "display_name": "Assessment · Small",
+            "price_cents": "25000",
             "currency": "EUR",
             "billing_interval": "one_time",
             "is_active": "on",
@@ -178,21 +185,23 @@ def test_admin_product_pricing_update_changes_price_and_audits(client):
 
     assert response.status_code == 303
     with SessionLocal() as db:
-        row = db.get(ProductPricingConfig, "assessment")
+        row = db.get(ProductPricingConfig, sku_key)
         event = db.query(AdminAuditEvent).filter(AdminAuditEvent.action == "config.product_pricing.update").one()
 
-    assert row.price_cents == 8800
-    assert event.target_id == "assessment"
+    assert row is not None
+    assert row.price_cents == 25000
+    assert event.target_id == sku_key
 
 
 def test_admin_product_pricing_rejects_invalid_interval(client):
+    sku_key = "small__assessment"
     response = client.post(
-        "/admin/config/product-pricing/assessment",
+        f"/admin/config/product-pricing/{sku_key}",
         headers=_admin_auth_header(),
         data={
             **_admin_csrf(client),
-            "display_name": "Assessment",
-            "price_cents": "7900",
+            "display_name": "Assessment · Small",
+            "price_cents": "24900",
             "currency": "EUR",
             "billing_interval": "month",
             "is_active": "on",

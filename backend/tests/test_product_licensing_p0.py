@@ -67,26 +67,33 @@ def _deep_scan_payload(tenant_id: str, scan_id: str) -> dict:
 
 
 @pytest.mark.parametrize(
-    ("product_code", "settings_key", "price_id", "expected_mode"),
+    ("product_code", "settings_key", "price_id", "expected_mode", "expected_price_cents"),
     [
-        ("assessment", "STRIPE_PRICE_ID_ASSESSMENT", "price_assessment", "payment"),
-        ("validation_check", "STRIPE_PRICE_ID_VALIDATION_CHECK", "price_validation_check", "payment"),
-        ("monitoring_monthly", "STRIPE_PRICE_ID_MONITORING_MONTHLY", "price_monitoring_monthly", "subscription"),
-        ("monitoring_annual", "STRIPE_PRICE_ID_MONITORING_ANNUAL", "price_monitoring_annual", "subscription"),
+        ("assessment", "STRIPE_PRICE_ID_ASSESSMENT", "price_assessment", "payment", 24900),
+        ("validation_check", "STRIPE_PRICE_ID_VALIDATION_CHECK", "price_validation_check", "payment", 12900),
+        ("monitoring_monthly", "STRIPE_PRICE_ID_MONITORING_MONTHLY", "price_monitoring_monthly", "subscription", 19900),
+        ("monitoring_annual", "STRIPE_PRICE_ID_MONITORING_ANNUAL", "price_monitoring_annual", "subscription", 199000),
     ],
 )
 def test_product_checkout_uses_expected_stripe_mode(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
     monkeypatch,
     product_code,
     settings_key,
     price_id,
     expected_mode,
+    expected_price_cents,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(
+        tenant_id=tenant["tenant_id"],
+        scan_id=f"scan_checkout_{product_code}",
+        total_records=5000,
+    )
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
         **{settings_key: price_id},
@@ -98,6 +105,16 @@ def test_product_checkout_uses_expected_stripe_mode(
         captured.update(kwargs)
         return SimpleNamespace(id=f"cs_{product_code}", url=f"https://stripe.example/{product_code}")
 
+    provider_price = {"unit_amount": expected_price_cents, "currency": "eur"}
+    if product_code == "monitoring_monthly":
+        provider_price["recurring"] = {"interval": "month"}
+    elif product_code == "monitoring_annual":
+        provider_price["recurring"] = {"interval": "year"}
+
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.Price.retrieve",
+        lambda configured_price_id: provider_price,
+    )
     monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
 
     response = client.post(

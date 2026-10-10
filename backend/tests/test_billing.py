@@ -35,6 +35,10 @@ def test_checkout_session_uses_configured_default_urls(
         captured.update(kwargs)
         return SimpleNamespace(id="cs_test_123", url="https://stripe.example/session")
 
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.Price.retrieve",
+        lambda price_id: {"unit_amount": 19900, "currency": "eur", "recurring": {"interval": "month"}},
+    )
     monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
 
     response = client.post(
@@ -59,10 +63,12 @@ def test_checkout_session_fails_without_safe_billing_url_config(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
     monkeypatch,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_checkout_no_urls", total_records=5000)
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
@@ -187,16 +193,22 @@ def test_monthly_checkout_does_not_require_yearly_price_ids(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
     monkeypatch,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_monthly_checkout", total_records=5000)
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
         STRIPE_PRICE_ID_MONITORING_MONTHLY="price_monitoring_monthly",
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.Price.retrieve",
+        lambda price_id: {"unit_amount": 19900, "currency": "eur", "recurring": {"interval": "month"}},
     )
     monkeypatch.setattr(
         "app.routers.billing.stripe.checkout.Session.create",
@@ -217,9 +229,11 @@ def test_monitoring_annual_checkout_fails_cleanly_without_price_id(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_annual_no_price", total_records=5000)
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
@@ -235,24 +249,31 @@ def test_monitoring_annual_checkout_fails_cleanly_without_price_id(
         json={"tenant_id": tenant["tenant_id"], "product_code": "monitoring_annual"},
     )
 
-    assert response.status_code == 400
-    assert "Monitoring annual checkout is not configured." in response.json()["detail"]
+    assert response.status_code == 503
+    assert "Stripe Price mapping missing" in response.json()["detail"]
 
 
 def test_monitoring_annual_checkout_handles_inactive_stripe_price(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
     monkeypatch,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_annual_inactive", total_records=5000)
     settings_state(
         ENV="prod",
         STRIPE_SECRET_KEY="sk_test",
         STRIPE_PRICE_ID_MONITORING_ANNUAL="price_archived_annual",
         BILLING_SUCCESS_URL="https://app.example.com/billing/success?session_id={CHECKOUT_SESSION_ID}",
         BILLING_CANCEL_URL="https://app.example.com/billing/cancel",
+    )
+
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.Price.retrieve",
+        lambda price_id: {"unit_amount": 199000, "currency": "eur", "recurring": {"interval": "year"}},
     )
 
     def fake_create(**kwargs):
@@ -271,17 +292,19 @@ def test_monitoring_annual_checkout_handles_inactive_stripe_price(
     )
 
     assert response.status_code == 400
-    assert response.json()["detail"] == "Configured Stripe Price ID for monitoring_annual is inactive or invalid."
+    assert response.json()["detail"] == "Configured Stripe Price ID for small/monitoring_annual is inactive or invalid."
 
 
 def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
     client,
     tenant_factory,
     auth_header_factory,
+    deep_scan_factory,
     settings_state,
     monkeypatch,
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_analytics_checkout", total_records=5000)
     settings_state(
         STRIPE_SECRET_KEY="sk_test",
         STRIPE_PRICE_ID_ASSESSMENT="price_assessment",
@@ -299,6 +322,10 @@ def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
         db_tenant.api_token = None
         db.commit()
 
+    monkeypatch.setattr(
+        "app.routers.billing.stripe.Price.retrieve",
+        lambda price_id: {"unit_amount": 24900, "currency": "eur"},
+    )
     monkeypatch.setattr(
         "app.routers.billing.stripe.checkout.Session.create",
         lambda **kwargs: SimpleNamespace(id="cs_analytics", url="https://stripe.example/session"),
