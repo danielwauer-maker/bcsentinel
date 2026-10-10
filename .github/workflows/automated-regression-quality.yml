@@ -22,6 +22,8 @@ jobs:
         run: python scripts/validate_bc_notifications.py
       - name: BC compatibility contract regression
         run: python scripts/validate_bc_compatibility.py
+      - name: Release and synthetic demo contract regression
+        run: python scripts/validate_release_demo_policy.py
       - name: Install backend dependencies for pricing source import
         working-directory: backend
         run: pip install -r requirements.txt
