@@ -51,23 +51,77 @@ table 53194 "DH Remediation Action"
         }
         field(10; "Owner Principal ID"; Guid)
         {
-            Caption = 'Owner Principal ID';
+            Caption = 'Owner';
             DataClassification = EndUserPseudonymousIdentifiers;
+            TableRelation = User."User Security ID";
+            trigger OnValidate()
+            var
+                RemediationMgt: Codeunit "DH Remediation Mgt.";
+                UserRecord: Record User;
+                PreviousDisplayName: Text[100];
+            begin
+                PreviousDisplayName := "Owner Display Name";
+                if IsNullGuid("Owner Principal ID") then
+                    Clear("Owner Display Name")
+                else begin
+                    UserRecord.Get("Owner Principal ID");
+                    "Owner Display Name" := CopyStr(UserRecord."Full Name", 1, MaxStrLen("Owner Display Name"));
+                    if "Owner Display Name" = '' then
+                        "Owner Display Name" := CopyStr(UserRecord."User Name", 1, MaxStrLen("Owner Display Name"));
+                end;
+
+                if not IsNullGuid("Action ID") then begin
+                    RemediationMgt.WriteAudit(Rec, 'owner_principal_id', Format(xRec."Owner Principal ID"), Format("Owner Principal ID"));
+                    if PreviousDisplayName <> "Owner Display Name" then
+                        RemediationMgt.WriteAudit(Rec, 'owner_display_name', PreviousDisplayName, "Owner Display Name");
+                end;
+            end;
+        }
+        field(11; "Owner Display Name"; Text[100])
+        {
+            Caption = 'Owner Display Name';
+            DataClassification = EndUserIdentifiableInformation;
+            Editable = false;
+        }
+        field(12; "Due At UTC"; DateTime)
+        {
+            Caption = 'Due At UTC';
+            DataClassification = CustomerContent;
             trigger OnValidate()
             var
                 RemediationMgt: Codeunit "DH Remediation Mgt.";
             begin
                 if not IsNullGuid("Action ID") then
-                    RemediationMgt.WriteAudit(Rec, 'owner_principal_id', Format(xRec."Owner Principal ID"), Format("Owner Principal ID"));
+                    RemediationMgt.WriteAudit(Rec, 'due_at_utc', Format(xRec."Due At UTC"), Format("Due At UTC"));
             end;
         }
-        field(11; "Owner Display Name"; Text[100]) { Caption = 'Owner Display Name'; DataClassification = EndUserIdentifiableInformation; }
-        field(12; "Due At UTC"; DateTime) { Caption = 'Due At UTC'; DataClassification = CustomerContent; }
         field(13; "Started At UTC"; DateTime) { Caption = 'Started At UTC'; DataClassification = SystemMetadata; Editable = false; }
         field(14; "Completed At UTC"; DateTime) { Caption = 'Completed At UTC'; DataClassification = SystemMetadata; Editable = false; }
         field(15; "Cancelled At UTC"; DateTime) { Caption = 'Cancelled At UTC'; DataClassification = SystemMetadata; Editable = false; }
-        field(16; "Blocked Reason"; Text[250]) { Caption = 'Blocked Reason'; DataClassification = CustomerContent; }
-        field(17; "Completion Note"; Text[250]) { Caption = 'Completion Note'; DataClassification = CustomerContent; }
+        field(16; "Blocked Reason"; Text[250])
+        {
+            Caption = 'Blocked Reason';
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            var
+                RemediationMgt: Codeunit "DH Remediation Mgt.";
+            begin
+                if not IsNullGuid("Action ID") then
+                    RemediationMgt.WriteAudit(Rec, 'blocked_reason', xRec."Blocked Reason", "Blocked Reason");
+            end;
+        }
+        field(17; "Completion Note"; Text[250])
+        {
+            Caption = 'Completion Note';
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            var
+                RemediationMgt: Codeunit "DH Remediation Mgt.";
+            begin
+                if not IsNullGuid("Action ID") then
+                    RemediationMgt.WriteAudit(Rec, 'completion_note', xRec."Completion Note", "Completion Note");
+            end;
+        }
         field(18; "Validation Result Ref"; Text[100]) { Caption = 'Validation Result Ref.'; DataClassification = CustomerContent; }
         field(19; Source; Enum "DH Remediation Source") { Caption = 'Source'; DataClassification = CustomerContent; InitValue = Manual; }
         field(20; "Created At UTC"; DateTime) { Caption = 'Created At UTC'; DataClassification = SystemMetadata; Editable = false; }
