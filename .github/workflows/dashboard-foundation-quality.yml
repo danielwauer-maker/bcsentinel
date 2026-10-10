@@ -1,0 +1,33 @@
+name: Dashboard Foundation Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'dashboard/**'
+      - 'scripts/validate_dashboard_foundation.py'
+      - '.github/workflows/dashboard-foundation-quality.yml'
+
+jobs:
+  validate-dashboard-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate dashboard foundation contract
+        run: python scripts/validate_dashboard_foundation.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm install --package-lock-only && npm ci
+      - name: Type-check dashboard
+        working-directory: dashboard
+        run: npm run check
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
