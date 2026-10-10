@@ -84,7 +84,9 @@ jobs:
       - name: Verify backup manifest and checksum evidence
         run: |
           DUMP_PATH="$(find artifacts/recovery -name '*.dump' -type f | head -n 1)"
-          sha256sum --check "${DUMP_PATH}.sha256"
+          DUMP_DIR="$(dirname "$DUMP_PATH")"
+          DUMP_NAME="$(basename "$DUMP_PATH")"
+          (cd "$DUMP_DIR" && sha256sum --check "${DUMP_NAME}.sha256")
           python - "${DUMP_PATH}.manifest.json" <<'PY'
           import json, sys
           data = json.load(open(sys.argv[1], encoding='utf-8'))
