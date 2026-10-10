@@ -10,6 +10,7 @@ import {
 } from './core/CorePages';
 import { AppShell } from './foundation/AppShell';
 import { FoundationProviders, useTenant } from './foundation/contexts';
+import { LockedStatePage } from './service/LockedStatePage';
 import {
   AuthRuntimePage,
   ProductStatePage,
@@ -35,6 +36,7 @@ function RoutedPage({ route }: { route: string }) {
     case 'settings': return <SettingsPage />;
     case 'subscription': return <SubscriptionPage />;
     case 'support': return <SupportPage />;
+    case 'locked': return <LockedStatePage />;
     case '403': return <ProductStatePage code="403" />;
     case '500': return <ProductStatePage code="500" />;
     default: return <ProductStatePage code="404" />;
