@@ -1,0 +1,27 @@
+name: X1 UI Product Convergence Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  x1-convergence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate X1 UI and Product System convergence
+        run: python scripts/validate_x1_ui_convergence.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm install --no-audit --no-fund
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
+      - name: Validate landing/pilot production contracts
+        run: python scripts/validate_landing_pilot_production.py
