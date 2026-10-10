@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-x7-dev-acceptance-v1",
+  "environments": {
+    "dev": {
+      "web_host": "dev.bcsentinel.com",
+      "api_host": "dev-api.bcsentinel.com",
+      "deployment_trigger": "staging_push_or_manual",
+      "acceptance_surface": true
+    },
+    "prod": {
+      "web_hosts": ["bcsentinel.com", "www.bcsentinel.com"],
+      "api_host": "api.bcsentinel.com",
+      "deployment_trigger": "manual_only",
+      "required_confirmation": "PROMOTE_TO_PROD",
+      "requires_approved_release_ref": true
+    }
+  },
+  "promotion_path": ["DEV", "RC", "PROD"],
+  "rules": {
+    "main_push_auto_prod_forbidden": true,
+    "prod_checkout_before_dev_acceptance_forbidden": true,
+    "migration_before_app_start": true,
+    "ready_health_required": true,
+    "public_dev_landing_smoke_required": true,
+    "public_dev_pilot_smoke_required": true,
+    "prod_previous_release_ref_required": true,
+    "deployment_secrets_in_git_forbidden": true
+  },
+  "remaining_external_evidence": [
+    "dev_web_dns_tls_and_reverse_proxy",
+    "dev_api_dns_tls_and_reverse_proxy",
+    "github_development_environment_secrets",
+    "github_production_environment_protection",
+    "first_successful_dev_deploy_and_public_smoke"
+  ]
+}
