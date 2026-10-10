@@ -1,10 +1,20 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "contract": "bcsentinel-x1-ui-convergence-v1",
+  "status": "automation_complete",
+  "official_visual_acceptance_done": false,
   "product_system_source": {
     "repository": "danielwauer-maker/bcsentinel-product-system",
     "tokens_path": "02-design-system/tokens/design-tokens.json",
     "tokens_version": "1.1.0"
+  },
+  "figma_derivative": {
+    "authoritative": false,
+    "builder_repository": "danielwauer-maker/bcsentinel-figma-builder",
+    "builder_contract": "08-figma-builder/design-system-freeze.json",
+    "legacy_make_file_key": "KsF1gagqkKlT6VozbMs62w",
+    "legacy_make_status": "stale_reference_only",
+    "rule": "Legacy Figma Make output must never override Product System or Core runtime truth."
   },
   "tokens": {
     "brand_orange": "#FF921F",
@@ -37,6 +47,15 @@
     "tenant_switch_remounts_page_scope": true,
     "tenant_plan_and_role_visible": true,
     "fake_business_kpis_forbidden": true,
-    "white_normal_text_on_brand_orange_forbidden": true
-  }
+    "white_normal_text_on_brand_orange_forbidden": true,
+    "legacy_make_fonts_forbidden": true,
+    "legacy_make_blue_forbidden": true,
+    "legacy_public_prices_forbidden": true,
+    "unsupported_trust_claims_forbidden": true
+  },
+  "manual_acceptance_required": [
+    "final responsive visual comparison on accepted DEV stack",
+    "final dashboard/landing/pilot visual review against Product System",
+    "final Executive Report HTML/PDF visual review"
+  ]
 }
