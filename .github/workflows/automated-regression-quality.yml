@@ -34,6 +34,8 @@ jobs:
         run: python scripts/validate_x6_legal_review.py
       - name: X7 DEV acceptance deployment regression
         run: python scripts/validate_x7_dev_acceptance.py
+      - name: X8 Pre-Manual Pilot Audit regression
+        run: python scripts/validate_x8_pre_manual_pilot_audit.py
       - name: Install backend dependencies for pricing source import
         working-directory: backend
         run: pip install -r requirements.txt
