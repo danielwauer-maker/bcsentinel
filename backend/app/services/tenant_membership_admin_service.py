@@ -19,6 +19,12 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
 def _token_hash(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
 
@@ -88,7 +94,7 @@ def create_invitation(
         )
     ).all()
     for invitation in pending:
-        if invitation.expires_at_utc > now:
+        if _as_utc(invitation.expires_at_utc) > now:
             raise ValueError("An active invitation already exists for this email and tenant.")
         invitation.status = "expired"
 
@@ -123,7 +129,7 @@ def accept_invitation(db, *, raw_token: str, user: UserIdentity) -> TenantMember
     now = utc_now()
     if invitation is None or invitation.status != "pending":
         raise HTTPException(status_code=404, detail="Invitation is invalid or no longer available.")
-    if invitation.expires_at_utc <= now:
+    if _as_utc(invitation.expires_at_utc) <= now:
         invitation.status = "expired"
         db.flush()
         raise HTTPException(status_code=410, detail="Invitation has expired.")
