@@ -11,7 +11,8 @@ mkdir -p "$OUTPUT_DIR"
 : "${PGPASSWORD:?PGPASSWORD is required}"
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-DUMP_PATH="$OUTPUT_DIR/bcsentinel-${STAMP}.dump"
+DUMP_NAME="bcsentinel-${STAMP}.dump"
+DUMP_PATH="$OUTPUT_DIR/$DUMP_NAME"
 SHA_PATH="${DUMP_PATH}.sha256"
 MANIFEST_PATH="${DUMP_PATH}.manifest.json"
 
@@ -25,7 +26,12 @@ pg_dump \
   --dbname="$PGDATABASE" \
   --file="$DUMP_PATH"
 
-sha256sum "$DUMP_PATH" > "$SHA_PATH"
+# Keep the checksum entry relocatable: an off-host backup directory may be
+# moved to another path before verification/restore.
+(
+  cd "$OUTPUT_DIR"
+  sha256sum "$DUMP_NAME" > "${DUMP_NAME}.sha256"
+)
 ALEMBIC_VERSION="$(psql --host="$PGHOST" --port="$PGPORT" --username="$PGUSER" --dbname="$PGDATABASE" --tuples-only --no-align --command='SELECT version_num FROM alembic_version LIMIT 1;' | tr -d '[:space:]')"
 DUMP_SHA="$(cut -d' ' -f1 "$SHA_PATH")"
 DUMP_SIZE="$(stat -c%s "$DUMP_PATH")"
