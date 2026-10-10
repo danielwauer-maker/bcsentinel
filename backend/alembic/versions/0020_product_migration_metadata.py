@@ -1,14 +1,14 @@
 """add product migration metadata
 
 Revision ID: 0020_product_migration_metadata
-Revises: 0019_notification_read_model
+Revises: 0019_notification_settings_read_model
 """
 
 from alembic import op
 import sqlalchemy as sa
 
 revision = "0020_product_migration_metadata"
-down_revision = "0019_notification_read_model"
+down_revision = "0019_notification_settings_read_model"
 branch_labels = None
 depends_on = None
 
