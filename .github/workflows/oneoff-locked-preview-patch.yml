@@ -1,0 +1,66 @@
+name: One-off Locked Preview Boundary Patch
+
+on:
+  push:
+    branches:
+      - fix/locked-preview-data-boundary
+    paths:
+      - .github/locked-preview-patch.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/locked-preview-data-boundary
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch locked preview boundary and add regression
+        shell: python
+        run: |
+          from pathlib import Path
+
+          analytics = Path('backend/app/routers/analytics.py')
+          text = analytics.read_text(encoding='utf-8')
+          old = '''    premium_preview_findings = [\n        {\n            "title": item["title"],\n            "group": item["group"],\n            "count": item["count"],\n            "impact_eur": item["impact_eur"],\n            "recommendation_preview": item["recommendation_preview"],\n        }\n        for item in top_findings[:3]\n    ]\n'''
+          new = '''    premium_preview_findings = _build_locked_preview_findings(top_findings)\n'''
+          if old not in text:
+              raise SystemExit('Expected premium preview block not found; refusing unsafe patch.')
+          helper_anchor = '''def _build_dashboard_payload(\n'''
+          helper = '''def _build_locked_preview_findings(top_findings: list[dict[str, Any]]) -> list[dict[str, Any]]:\n    """Return aggregate-only conversion preview data for tenants without paid detail access.\n\n    Locked previews must never expose finding titles, recommendations, exact per-finding\n    financial impact, record identifiers, or Business Central drill-down URLs.\n    """\n    return [\n        {\n            "group": str(item.get("group") or ""),\n            "count": _safe_int(item.get("count")),\n        }\n        for item in top_findings[:3]\n    ]\n\n\n'''
+          if helper_anchor not in text:
+              raise SystemExit('Dashboard helper anchor missing; refusing unsafe patch.')
+          text = text.replace(helper_anchor, helper + helper_anchor, 1).replace(old, new, 1)
+          analytics.write_text(text, encoding='utf-8')
+
+          js = Path('backend/app/static/js/analytics-dashboard.js')
+          jstext = js.read_text(encoding='utf-8-sig')
+          old_js = '''  host.innerHTML = items.map((item) => `\n    <article class="preview-card">\n      <div class="preview-card-top">\n        <div>\n          <h4>${escapeHtml(item?.title)}</h4>\n          <div class="muted">${escapeHtml(item?.group)}</div>\n        </div>\n        <div class="preview-impact">${formatCurrency(item?.impact_eur)}</div>\n      </div>\n      <div class="preview-metrics">\n        <span>${formatNumber(item?.count)} ${escapeHtml(t('affected', 'affected'))}</span>\n        <span>${escapeHtml(t('recommendations_available', 'Recommendations available'))}</span>\n      </div>\n      <p class="muted">${escapeHtml(item?.recommendation_preview || '')}</p>\n    </article>\n  `).join('');\n'''
+          new_js = '''  host.innerHTML = items.map((item) => `\n    <article class="preview-card">\n      <div class="preview-card-top">\n        <div>\n          <h4>${escapeHtml(item?.group || t('scan_preview', 'Scan preview'))}</h4>\n          <div class="muted">${formatNumber(item?.count)} ${escapeHtml(t('affected', 'affected'))}</div>\n        </div>\n        <div class="preview-impact">${escapeHtml(t('paid_access', 'Paid Access'))}</div>\n      </div>\n      <div class="preview-metrics">\n        <span>${escapeHtml(t('recommendations_available', 'Recommendations available'))}</span>\n        <span>${escapeHtml(t('paid_access', 'Paid Access'))}</span>\n      </div>\n      <p class="muted">${escapeHtml(t('scan_preview_helper', 'Record details, recommendations, actions'))}</p>\n    </article>\n  `).join('');\n'''
+          if old_js not in jstext:
+              raise SystemExit('Expected preview renderer not found; refusing unsafe patch.')
+          js.write_text(jstext.replace(old_js, new_js, 1), encoding='utf-8')
+
+          test = Path('backend/tests/test_locked_preview_boundary.py')
+          test.write_text('''from __future__ import annotations\n\nfrom app.routers.analytics import _build_locked_preview_findings\n\n\ndef test_locked_preview_exposes_only_aggregate_safe_fields() -> None:\n    source = [\n        {\n            "title": "Customer has missing bank account",\n            "group": "CRM",\n            "count": 17,\n            "impact_eur": 12345.67,\n            "recommendation_preview": "Fix the affected records",\n            "open_in_bc_url": "https://businesscentral.dynamics.com/private",\n            "code": "CUSTOMERS_PRIVATE",\n        }\n    ]\n\n    preview = _build_locked_preview_findings(source)\n\n    assert preview == [{"group": "CRM", "count": 17}]\n    forbidden = {\n        "title",\n        "impact_eur",\n        "recommendation_preview",\n        "open_in_bc_url",\n        "code",\n        "record_identifiers",\n        "root_cause",\n    }\n    assert forbidden.isdisjoint(preview[0])\n\n\ndef test_locked_preview_is_bounded_to_three_aggregate_cards() -> None:\n    preview = _build_locked_preview_findings(\n        [{"group": f"Area {index}", "count": index} for index in range(1, 6)]\n    )\n    assert len(preview) == 3\n    assert all(set(item) == {"group", "count"} for item in preview)\n''', encoding='utf-8')
+
+          Path('.github/locked-preview-patch.trigger').unlink(missing_ok=True)
+          Path('.github/workflows/oneoff-locked-preview-patch.yml').unlink(missing_ok=True)
+      - name: Run focused regression
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pytest -q tests/test_locked_preview_boundary.py tests/test_analytics_embed_security.py tests/test_e1_tenant_security.py
+      - name: Commit patched source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Security: enforce aggregate-only locked preview boundary"
+          git push origin HEAD:fix/locked-preview-data-boundary
