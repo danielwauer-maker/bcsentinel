@@ -1,0 +1,31 @@
+name: E4 External Services Contract Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  stripe-email-contracts:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: e4_contract_ci_secret_not_for_prod
+      ADMIN_USERNAME: e4-ci
+      ADMIN_PASSWORD: e4-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-e4.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate E4 provider contract
+        run: python scripts/validate_e4_provider_contract.py
+      - name: Run Stripe/commercial contract tests
+        working-directory: backend
+        run: pytest -q tests/test_billing.py tests/test_x0_commercial_checkout.py tests/test_e4_provider_contract.py
+      - name: Run email localization/template contract tests
+        working-directory: backend
+        run: pytest -q tests/test_x4_email_i18n.py tests/test_localization.py
