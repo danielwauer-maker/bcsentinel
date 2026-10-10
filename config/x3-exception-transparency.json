@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "contract": "bcsentinel-x3-exception-transparency-v1",
-  "status": "in_progress",
-  "bc_transport_status": "open",
+  "status": "complete",
+  "bc_transport_status": "complete",
   "authority": {
     "exception_management": "business_central",
     "snapshot_write": "business_central_machine_credential_only",
@@ -39,13 +39,19 @@
     "empty_snapshot_immutable": true,
     "bearer_dashboard_write_forbidden": true
   },
+  "bc_transport": {
+    "codeunit": "DH Exception Snapshot Sync",
+    "trigger": "completed_deep_scan_modify_event",
+    "credential_source": "DH Secret Mgt. / Isolated Storage",
+    "active_exceptions_only": true,
+    "http_409_is_idempotent_success": true,
+    "scan_completion_isolated_from_transport_failure": true
+  },
   "dashboard": {
     "latest_scan_scope_indicator": true,
     "exception_drilldown": true,
     "management_location": "Business Central",
     "historical_report_appendix": true
   },
-  "open_evidence": [
-    "BC Extension must transmit the active exception snapshot for the completed scan through the centralized trusted machine-credential transport."
-  ]
+  "open_evidence": []
 }
