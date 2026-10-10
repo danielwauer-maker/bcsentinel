@@ -10,7 +10,13 @@ model = (ROOT / "backend" / "app" / "exception_snapshot_models.py").read_text(en
 router = (ROOT / "backend" / "app" / "routers" / "exception_transparency.py").read_text(encoding="utf-8")
 license_router = (ROOT / "backend" / "app" / "routers" / "license.py").read_text(encoding="utf-8")
 prepilot = (ROOT / "backend" / "app" / "routers" / "prepilot.py").read_text(encoding="utf-8")
-migration = (ROOT / "backend" / "alembic" / "versions" / "0028_scan_exception_snapshots.py").read_text(encoding="utf-8")
+migration_0028 = (ROOT / "backend" / "alembic" / "versions" / "0028_scan_exception_snapshots.py").read_text(encoding="utf-8")
+migration_0029 = (ROOT / "backend" / "alembic" / "versions" / "0029_exception_snapshot_capture_header.py").read_text(encoding="utf-8")
+dashboard_api = (ROOT / "dashboard" / "src" / "api" / "corePages.ts").read_text(encoding="utf-8")
+dashboard_hooks = (ROOT / "dashboard" / "src" / "core" / "hooks.ts").read_text(encoding="utf-8")
+dashboard_types = (ROOT / "dashboard" / "src" / "core" / "types.ts").read_text(encoding="utf-8")
+app_shell = (ROOT / "dashboard" / "src" / "foundation" / "AppShell.tsx").read_text(encoding="utf-8")
+report_v2 = (ROOT / "backend" / "app" / "services" / "executive_report_v2_service.py").read_text(encoding="utf-8")
 
 if contract["authority"]["exception_management"] != "business_central":
     raise SystemExit("Exception management authority must remain Business Central.")
@@ -18,6 +24,8 @@ if contract["write_model"]["immutable_after_first_capture"] is not True:
     raise SystemExit("Per-scan exception snapshots must be immutable after first capture.")
 
 for needle in (
+    'class ScanExceptionSnapshotCapture',
+    '__tablename__ = "scan_exception_snapshot_captures"',
     'class ScanExceptionSnapshot',
     '__tablename__ = "scan_exception_snapshots"',
     'UniqueConstraint(',
@@ -35,8 +43,10 @@ for needle in (
     '@router.get("/scans/{scan_id}/exceptions")',
     'Machine tenant credentials are required.',
     'Exception snapshot is immutable once captured for a scan.',
+    'snapshot_captured',
     'exceptions_applied',
     'captured_exception_count',
+    'ScanExceptionSnapshotCapture(',
 ):
     if needle not in router:
         raise SystemExit(f"X3 API fragment missing: {needle}")
@@ -47,7 +57,36 @@ if 'router.include_router(prepilot_router)' not in license_router:
     raise SystemExit("Pre-pilot account/commercial routers are not mounted in runtime.")
 if 'tenant_auth_router' in prepilot:
     raise SystemExit("Pre-pilot aggregator must not duplicate the already-mounted tenant auth router.")
-if 'revision = "0028_scan_exception_snapshots"' not in migration or 'down_revision = "0027_operations_governance"' not in migration:
-    raise SystemExit("X3 Alembic chain is not anchored to 0027_operations_governance.")
+if 'revision = "0028_scan_exception_snapshots"' not in migration_0028 or 'down_revision = "0027_operations_governance"' not in migration_0028:
+    raise SystemExit("X3 base Alembic chain is not anchored to 0027_operations_governance.")
+if 'revision = "0029_exception_snapshot_capture_header"' not in migration_0029 or 'down_revision = "0028_scan_exception_snapshots"' not in migration_0029:
+    raise SystemExit("X3 capture-header migration is not anchored to 0028_scan_exception_snapshots.")
+if 'INSERT INTO scan_exception_snapshot_captures' not in migration_0029:
+    raise SystemExit("X3 capture-header migration must preserve legacy non-empty snapshot immutability.")
+
+for needle in ('loadScanExceptions', '/scans/${encode(scanId)}/exceptions'):
+    if needle not in dashboard_api:
+        raise SystemExit(f"X3 dashboard API fragment missing: {needle}")
+if 'useScanExceptions' not in dashboard_hooks:
+    raise SystemExit("X3 dashboard hook for exception snapshots is missing.")
+for needle in ('ScanExceptionSnapshot', 'snapshot_captured', 'exceptions_applied'):
+    if needle not in dashboard_types:
+        raise SystemExit(f"X3 dashboard type fragment missing: {needle}")
+for needle in ('exception-scope-banner', 'Ausnahmen anzeigen', 'Historischer Snapshot'):
+    if needle not in app_shell:
+        raise SystemExit(f"X3 dashboard transparency fragment missing: {needle}")
+if 'exception' not in report_v2.lower():
+    raise SystemExit("X3 exception evidence is not connected to the Executive Report layer.")
+
+# BC remains the authority. A separate machine snapshot write path must not be
+# simulated in the browser. Actual BC transport wiring is tracked as a closure
+# evidence item and must be present before X3 can be marked fully complete.
+transport_candidates = [
+    ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHExceptionSnapshotTransport.Codeunit.al",
+]
+bc_transport_ready = any(path.exists() for path in transport_candidates)
+if contract.get("bc_transport_status") == "complete" and not bc_transport_ready:
+    raise SystemExit("X3 claims complete BC transport but no BC snapshot transport exists.")
 
 print("X3 exception transparency contract: PASS")
+print(f"X3 BC snapshot transport: {'READY' if bc_transport_ready else 'OPEN'}")
