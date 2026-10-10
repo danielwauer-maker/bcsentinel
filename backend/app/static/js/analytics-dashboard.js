@@ -404,16 +404,16 @@ function renderPremiumPreview(items) {
     <article class="preview-card">
       <div class="preview-card-top">
         <div>
-          <h4>${escapeHtml(item?.title)}</h4>
-          <div class="muted">${escapeHtml(item?.group)}</div>
+          <h4>${escapeHtml(item?.group || t('scan_preview', 'Scan preview'))}</h4>
+          <div class="muted">${formatNumber(item?.count)} ${escapeHtml(t('affected', 'affected'))}</div>
         </div>
-        <div class="preview-impact">${formatCurrency(item?.impact_eur)}</div>
+        <div class="preview-impact">${escapeHtml(t('paid_access', 'Paid Access'))}</div>
       </div>
       <div class="preview-metrics">
-        <span>${formatNumber(item?.count)} ${escapeHtml(t('affected', 'affected'))}</span>
         <span>${escapeHtml(t('recommendations_available', 'Recommendations available'))}</span>
+        <span>${escapeHtml(t('paid_access', 'Paid Access'))}</span>
       </div>
-      <p class="muted">${escapeHtml(item?.recommendation_preview || '')}</p>
+      <p class="muted">${escapeHtml(t('scan_preview_helper', 'Record details, recommendations, actions'))}</p>
     </article>
   `).join('');
 }
