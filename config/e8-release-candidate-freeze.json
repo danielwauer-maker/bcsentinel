@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-e8-release-candidate-freeze-v1",
+  "status": "automation_prepared",
+  "official_sprint_done": false,
+  "official_go_live_readiness_owned_here": false,
+  "manifest_sources": {
+    "git_sha": "runtime/git",
+    "bc_extension_version": "bc-extension/app.json",
+    "dashboard_version": "dashboard/package.json",
+    "alembic_head": "backend/alembic",
+    "pre_manual_audit": "config/x8-pre-manual-pilot-audit.json"
+  },
+  "required_evidence_contracts": [
+    "config/x8-pre-manual-pilot-audit.json",
+    "config/e4-provider-contract.json",
+    "config/e5-recovery-automation.json",
+    "config/e6-synthetic-pilot-journey.json",
+    "config/e7-scale-soak.json"
+  ],
+  "freeze_rules": {
+    "immutable_git_sha_required": true,
+    "single_alembic_head_required": true,
+    "x8_pre_manual_ready_required": true,
+    "official_e3_e7_manual_evidence_still_required": true,
+    "automatic_prod_promotion_forbidden": true,
+    "release_manifest_artifact_required": true
+  },
+  "manual_evidence_required": [
+    "E3 BC runtime acceptance completed",
+    "E4 real Stripe/SMTP/DNS acceptance completed",
+    "E5 real off-host recovery acceptance completed",
+    "E6 real controlled-pilot journey completed",
+    "E7 real 24-hour soak completed",
+    "Final visual/DEV acceptance completed",
+    "Explicit human authorization to freeze/promote the RC"
+  ]
+}
