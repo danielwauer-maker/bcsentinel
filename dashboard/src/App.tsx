@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { AppShell } from './foundation/AppShell';
-import { FoundationProviders } from './foundation/contexts';
 import {
   ActionsPage,
   FinancialImpactPage,
@@ -9,8 +7,16 @@ import {
   OverviewPage,
   ReportsPage,
   ScansPage,
-  ServiceBoundaryPage,
 } from './core/CorePages';
+import { AppShell } from './foundation/AppShell';
+import { FoundationProviders, useTenant } from './foundation/contexts';
+import {
+  AuthRuntimePage,
+  ProductStatePage,
+  SettingsPage,
+  SubscriptionPage,
+  SupportPage,
+} from './service/ServicePages';
 
 function currentRoute() {
   const raw = window.location.hash.replace(/^#/, '') || 'overview';
@@ -26,14 +32,18 @@ function RoutedPage({ route }: { route: string }) {
     case 'reports': return <ReportsPage />;
     case 'scans': return <ScansPage />;
     case 'monitoring': return <MonitoringPage />;
-    case 'settings': return <ServiceBoundaryPage title="Settings" />;
-    case 'subscription': return <ServiceBoundaryPage title="Subscription / Billing" />;
-    default: return <OverviewPage />;
+    case 'settings': return <SettingsPage />;
+    case 'subscription': return <SubscriptionPage />;
+    case 'support': return <SupportPage />;
+    case '403': return <ProductStatePage code="403" />;
+    case '500': return <ProductStatePage code="500" />;
+    default: return <ProductStatePage code="404" />;
   }
 }
 
-export default function App() {
+function RuntimeApp() {
   const [route, setRoute] = useState(currentRoute);
+  const tenant = useTenant();
 
   useEffect(() => {
     const sync = () => setRoute(currentRoute());
@@ -41,11 +51,19 @@ export default function App() {
     return () => window.removeEventListener('hashchange', sync);
   }, []);
 
+  if (!tenant) return <AuthRuntimePage />;
+
+  return (
+    <AppShell activeRoute={route}>
+      <RoutedPage route={route} />
+    </AppShell>
+  );
+}
+
+export default function App() {
   return (
     <FoundationProviders>
-      <AppShell activeRoute={route}>
-        <RoutedPage route={route} />
-      </AppShell>
+      <RuntimeApp />
     </FoundationProviders>
   );
 }
