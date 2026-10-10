@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.db import SessionLocal
+from app.public_lead_models import PilotInterest
 from app.services.impact_service import (
     EXPLICIT_ISSUE_IMPACTS,
     ensure_default_impact_config,
@@ -84,6 +87,31 @@ class PublicLossExampleConfigResponse(BaseModel):
     issues: dict[str, PublicLossExampleIssueResponse]
 
 
+class PilotInterestRequest(BaseModel):
+    contact_name: str = Field(min_length=2, max_length=120)
+    contact_email: str = Field(min_length=5, max_length=255)
+    company_name: str | None = Field(default=None, max_length=160)
+    bc_context: str | None = Field(default=None, max_length=80)
+    message: str | None = Field(default=None, max_length=3000)
+    preferred_language: str = Field(default="de", max_length=10)
+    source_page: str = Field(default="pilot", max_length=120)
+    privacy_consent: bool
+    website: str | None = Field(default=None, max_length=255)
+
+    @field_validator("contact_email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if "@" not in normalized or normalized.startswith("@") or normalized.endswith("@"):
+            raise ValueError("A valid email address is required.")
+        return normalized
+
+
+class PilotInterestResponse(BaseModel):
+    status: str
+    reference: str | None = None
+
+
 @router.get("/pricing/public", response_model=PublicProductPricingResponse)
 def get_public_product_pricing() -> PublicProductPricingResponse:
     with SessionLocal() as db:
@@ -123,3 +151,35 @@ def get_public_loss_examples_config() -> PublicLossExampleConfigResponse:
             hourly_rate_eur=round(get_hourly_rate_eur(db), 2),
             issues=issues,
         )
+
+
+@router.post("/public/pilot-interest", response_model=PilotInterestResponse, status_code=202)
+def submit_pilot_interest(payload: PilotInterestRequest) -> PilotInterestResponse:
+    if not payload.privacy_consent:
+        raise HTTPException(status_code=400, detail="Privacy consent is required.")
+
+    # Honeypot submissions are accepted without persistence so automated clients
+    # do not learn whether spam protection was triggered.
+    if (payload.website or "").strip():
+        return PilotInterestResponse(status="accepted")
+
+    language = (payload.preferred_language or "de").strip().lower()
+    if language not in {"de", "en"}:
+        language = "de"
+
+    with SessionLocal() as db:
+        row = PilotInterest(
+            contact_name=payload.contact_name.strip(),
+            contact_email=payload.contact_email,
+            company_name=(payload.company_name or "").strip() or None,
+            bc_context=(payload.bc_context or "").strip() or None,
+            message=(payload.message or "").strip() or None,
+            preferred_language=language,
+            source_page=(payload.source_page or "pilot").strip() or "pilot",
+            status="new",
+            created_at_utc=datetime.now(timezone.utc),
+        )
+        db.add(row)
+        db.commit()
+        db.refresh(row)
+        return PilotInterestResponse(status="accepted", reference=f"PILOT-{row.id:06d}")
