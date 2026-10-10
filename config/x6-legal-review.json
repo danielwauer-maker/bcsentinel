@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-x6-legal-review-v1",
+  "status": "review_candidate",
+  "legal_approval_claimed": false,
+  "public_surfaces": [
+    "landingpage/impressum.html",
+    "landingpage/privacy.html",
+    "landingpage/terms.html"
+  ],
+  "supporting_documents": [
+    "docs/legal/DPA_AVV_REVIEW_CANDIDATE.md",
+    "docs/legal/TOMS_REVIEW_CANDIDATE.md",
+    "docs/legal/SUBPROCESSORS_REVIEW_CANDIDATE.md"
+  ],
+  "requirements": {
+    "provider_information_basis": "§ 5 DDG",
+    "legacy_tmg_provider_label_forbidden": true,
+    "legacy_eu_odr_active_link_forbidden": true,
+    "public_placeholder_tokens_forbidden": true,
+    "external_google_fonts_on_legal_pages_forbidden": true,
+    "unverified_register_or_vat_values_forbidden": true,
+    "dpa_toms_subprocessor_review_required": true,
+    "prod_provider_evidence_required": true
+  },
+  "prod_open_evidence": [
+    "final_contracting_entity_and_legal_form",
+    "actual_hosting_provider_and_region",
+    "actual_smtp_provider_and_region",
+    "actual_monitoring_provider_and_region",
+    "stripe_production_account_and_transfer_assessment",
+    "final_retention_and_backup_periods",
+    "international_transfer_assessment",
+    "legal_review_and_signoff"
+  ]
+}

@@ -30,6 +30,8 @@ jobs:
         run: python scripts/validate_x3_exception_transparency.py
       - name: X5 Executive Report Production regression
         run: python scripts/validate_x5_executive_report_production.py
+      - name: X6 Legal Review Candidate regression
+        run: python scripts/validate_x6_legal_review.py
       - name: X7 DEV acceptance deployment regression
         run: python scripts/validate_x7_dev_acceptance.py
       - name: Install backend dependencies for pricing source import
