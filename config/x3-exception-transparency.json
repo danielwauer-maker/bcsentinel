@@ -1,51 +1,19 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "contract": "bcsentinel-x3-exception-transparency-v1",
-  "status": "in_progress",
-  "bc_transport_status": "open",
+  "status": "complete",
+  "bc_transport_status": "complete",
   "authority": {
     "exception_management": "business_central",
     "snapshot_write": "business_central_machine_credential_only",
     "dashboard": "read_only"
   },
   "history_rule": "Reports and dashboards for a historical scan must use the immutable exception snapshot captured for that scan, never the current active-exception list.",
-  "snapshot_fields": [
-    "scan_id",
-    "tenant_id",
-    "company_id",
-    "source_exception_entry_no",
-    "table_id",
-    "record_system_id",
-    "record_no",
-    "record_caption",
-    "issue_code",
-    "reason",
-    "exception_created_by",
-    "exception_created_at_utc",
-    "captured_at_utc"
-  ],
-  "capture_header": {
-    "table": "scan_exception_snapshot_captures",
-    "purpose": "Records that snapshot capture occurred even when zero exceptions were applied, preserving immutability for empty snapshots.",
-    "backfills_existing_non_empty_snapshots": true
-  },
-  "read_model": {
-    "path": "/scans/{scan_id}/exceptions",
-    "properties": ["snapshot_captured", "captured_at_utc", "exception_count", "exceptions_applied", "exceptions"]
-  },
-  "write_model": {
-    "path": "/scans/{scan_id}/exception-snapshot",
-    "immutable_after_first_capture": true,
-    "empty_snapshot_immutable": true,
-    "bearer_dashboard_write_forbidden": true
-  },
-  "dashboard": {
-    "latest_scan_scope_indicator": true,
-    "exception_drilldown": true,
-    "management_location": "Business Central",
-    "historical_report_appendix": true
-  },
-  "open_evidence": [
-    "BC Extension must transmit the active exception snapshot for the completed scan through the centralized trusted machine-credential transport."
-  ]
+  "snapshot_fields": ["scan_id","tenant_id","company_id","source_exception_entry_no","table_id","record_system_id","record_no","record_caption","issue_code","reason","exception_created_by","exception_created_at_utc","captured_at_utc"],
+  "capture_header": {"table":"scan_exception_snapshot_captures","purpose":"Records that snapshot capture occurred even when zero exceptions were applied, preserving immutability for empty snapshots.","backfills_existing_non_empty_snapshots":true},
+  "read_model": {"path":"/scans/{scan_id}/exceptions","properties":["snapshot_captured","captured_at_utc","exception_count","exceptions_applied","exceptions"]},
+  "write_model": {"path":"/scans/{scan_id}/exception-snapshot","immutable_after_first_capture":true,"empty_snapshot_immutable":true,"bearer_dashboard_write_forbidden":true},
+  "bc_transport": {"codeunit":"DH Exception Snapshot Sync","trigger":"completed_deep_scan_modify_event","credential_source":"DH Secret Mgt. / Isolated Storage","active_exceptions_only":true,"http_409_is_idempotent_success":true,"scan_completion_isolated_from_transport_failure":true},
+  "dashboard": {"latest_scan_scope_indicator":true,"exception_drilldown":true,"management_location":"Business Central","historical_report_appendix":true},
+  "open_evidence": []
 }
