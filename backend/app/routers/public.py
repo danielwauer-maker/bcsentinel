@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.db import SessionLocal
 from app.public_lead_models import PilotInterest
+from app.routers.prepilot import router as prepilot_router
 from app.services.impact_service import (
     EXPLICIT_ISSUE_IMPACTS,
     ensure_default_impact_config,
@@ -183,3 +184,8 @@ def submit_pilot_interest(payload: PilotInterestRequest) -> PilotInterestRespons
         db.commit()
         db.refresh(row)
         return PilotInterestResponse(status="accepted", reference=f"PILOT-{row.id:06d}")
+
+
+# Pre-pilot authentication/account APIs must be reachable before tenant selection.
+# The aggregator keeps future X0 modules out of the public-page implementation.
+router.include_router(prepilot_router)

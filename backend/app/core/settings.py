@@ -31,6 +31,19 @@ class Settings(BaseSettings):
     SMTP_FROM_EMAIL: str | None = None
     SMTP_FROM_NAME: str = "BCSentinel"
 
+    # === CUSTOMER IDENTITY (OIDC) ===
+    # Passwords, MFA and credential recovery remain provider-owned. BCSentinel
+    # verifies the provider token and then resolves tenant membership itself.
+    OIDC_ENABLED: bool = False
+    OIDC_ISSUER: str | None = None
+    OIDC_AUDIENCE: str | None = None
+    OIDC_JWKS_URL: str | None = None
+    OIDC_PROVIDER_KEY: str = "oidc"
+    OIDC_EMAIL_CLAIM: str = "email"
+    OIDC_NAME_CLAIM: str = "name"
+    OIDC_HTTP_TIMEOUT_SECONDS: float = 5.0
+    ACCOUNT_SESSION_MINUTES: int = 60
+
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in
     # config/pricing_canonical.json or license_pricing_config change, create matching
@@ -145,6 +158,19 @@ def validate_settings() -> None:
         configured_value = getattr(settings, setting_name)
         if configured_value:
             _normalize_url(configured_value)
+
+    if settings.OIDC_ENABLED:
+        oidc_missing = [
+            name
+            for name in ("OIDC_ISSUER", "OIDC_AUDIENCE", "OIDC_JWKS_URL")
+            if not (getattr(settings, name) or "").strip()
+        ]
+        if oidc_missing:
+            raise RuntimeError(
+                f"OIDC is enabled but configuration is missing: {', '.join(oidc_missing)}"
+            )
+        _normalize_url(settings.OIDC_ISSUER)
+        _normalize_url(settings.OIDC_JWKS_URL)
 
     insecure_secret_values = {"changeme", "change-me", "dev_only_secret_key_change_me"}
     insecure_admin_password_values = {"changeme", "changeme-now", "admin", "password"}
