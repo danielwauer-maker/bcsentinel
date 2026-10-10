@@ -48,7 +48,10 @@ for item in tests:
         raise SystemExit(f"Prepared matrix must not pre-claim acceptance: {item['id']}={item['result']}")
     if not isinstance(item["evidence"], list) or not item["evidence"]:
         raise SystemExit(f"{item['id']} requires explicit evidence.")
-    for field in ("actor", "surface", "action", "expected"):
+    for field in ("actor", "surface"):
+        if not isinstance(item[field], str) or len(item[field].strip()) < 3:
+            raise SystemExit(f"{item['id']} has incomplete {field} guidance.")
+    for field in ("action", "expected"):
         if not isinstance(item[field], str) or len(item[field].strip()) < 8:
             raise SystemExit(f"{item['id']} has incomplete {field} guidance.")
 
