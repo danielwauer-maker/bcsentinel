@@ -42,15 +42,13 @@ for forbidden_price in ["EUR 79", "EUR 49", "EUR 99", "EUR 990", "€ 79", "€ 
     if forbidden_price in index:
         raise SystemExit(f"D9 stale hard-coded price on landing page: {forbidden_price}")
 
-# Public claims stay inside approved product truth.
+# Public claims stay inside approved product truth. Explicit negations/disclaimers are allowed.
 combined = (index + "\n" + pilot).lower()
 for forbidden_claim in [
     "your business central data is costing you money",
-    "guaranteed savings",
     "realized roi",
     "production ready",
     "appsource available",
-    "guaranteed uptime",
 ]:
     if forbidden_claim in combined:
         raise SystemExit(f"D9 unsupported public claim: {forbidden_claim}")
@@ -60,6 +58,10 @@ if "modeled" not in combined and "modelliert" not in combined:
     raise SystemExit("D9 financial claims must disclose modeled outcomes.")
 if "read-only" not in combined:
     raise SystemExit("D9 must disclose the read-only web boundary.")
+if "keine garantierten savings" not in combined and "no guaranteed savings" not in combined:
+    raise SystemExit("D9 pilot page must explicitly disclaim guaranteed savings.")
+if "keine general-availability" not in combined and "not a general-availability" not in combined:
+    raise SystemExit("D9 pilot page must explicitly disclaim general availability.")
 
 # Pilot intake: first-party persistence, privacy consent and spam honeypot.
 for marker in ["/public/pilot-interest", "privacy_consent", "website"]:
