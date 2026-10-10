@@ -1,57 +1,57 @@
 #!/usr/bin/env python3
-"""
-Verify product-pricing fallback alignment without importing the full FastAPI stack:
-- landingpage/pricing-snapshot.js (__BCS_PRODUCT_PRICING__ fallback)
-- optional backend PRODUCT_PRICING_DEFAULTS import when dependencies are available
+"""Verify the generated landing pricing fallback against canonical backend pricing.
+
+No product prices are hard-coded here. The generator imports the backend pricing
+service, and this check proves that the committed fallback is exactly what that
+canonical source generates.
 """
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-EXPECTED_PRODUCTS = {
-    "assessment": 7900,
-    "validation_check": 4900,
-    "monitoring_monthly": 9900,
-    "monitoring_annual": 99000,
-}
+SNAPSHOT = REPO / "landingpage" / "pricing-snapshot.js"
+GENERATOR = REPO / "scripts" / "generate_landing_pricing.py"
 
 
 def main() -> int:
-    snapshot_path = REPO / "landingpage" / "pricing-snapshot.js"
-    if not snapshot_path.is_file():
+    if not SNAPSHOT.is_file():
         print("FAIL: landingpage/pricing-snapshot.js missing.")
         return 1
-
-    snap_text = snapshot_path.read_text(encoding="utf-8")
-    for product_key, price_cents in EXPECTED_PRODUCTS.items():
-        if f'"product_key": "{product_key}"' not in snap_text or f'"price_cents": {price_cents}' not in snap_text:
-            print(f"FAIL: product fallback for {product_key} missing or mismatched in pricing-snapshot.js")
-            return 1
-
-    failures: list[str] = []
-    try:
-        sys.path.insert(0, str(REPO / "backend"))
-        from app.services.product_pricing_service import PRODUCT_PRICING_DEFAULTS  # type: ignore  # noqa: E402
-
-        for product_key, price_cents in EXPECTED_PRODUCTS.items():
-            actual = int(PRODUCT_PRICING_DEFAULTS[product_key]["price_cents"])
-            if actual != price_cents:
-                failures.append(f"PRODUCT_PRICING_DEFAULTS.{product_key}.price_cents mismatch")
-    except Exception as exc:
-        print(f"Optional backend import skipped ({exc.__class__.__name__}). File-level checks passed.")
-        print("pricing consistency OK (product snapshot).")
-        return 0
-
-    if failures:
-        print("Product pricing consistency check FAILED:")
-        for row in failures:
-            print(f"  - {row}")
+    if not GENERATOR.is_file():
+        print("FAIL: scripts/generate_landing_pricing.py missing.")
         return 1
 
-    print("pricing consistency OK: product snapshot and PRODUCT_PRICING_DEFAULTS align.")
-    return 0
+    committed = SNAPSHOT.read_bytes()
+    try:
+        result = subprocess.run(
+            [sys.executable, str(GENERATOR)],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            print("FAIL: canonical pricing snapshot generator failed.")
+            if result.stdout:
+                print(result.stdout.rstrip())
+            if result.stderr:
+                print(result.stderr.rstrip())
+            return result.returncode or 1
+
+        generated = SNAPSHOT.read_bytes()
+        if generated != committed:
+            print("FAIL: pricing-snapshot.js is stale relative to canonical backend pricing.")
+            print("Run: python scripts/generate_landing_pricing.py")
+            return 1
+
+        print("pricing consistency OK: generated landing fallback matches canonical backend pricing.")
+        return 0
+    finally:
+        # A validator must not leave the working tree modified.
+        SNAPSHOT.write_bytes(committed)
 
 
 if __name__ == "__main__":
