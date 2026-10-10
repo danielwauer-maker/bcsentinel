@@ -4,6 +4,10 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
+REPORT_CONTRACT_VERSION = "executive-report-v1"
+FINANCIAL_METHODOLOGY_VERSION = "fin-v1"
+
+
 class ReportKpi(BaseModel):
     label: str
     value: str
@@ -38,6 +42,13 @@ class ReportPriorityItem(BaseModel):
 
 
 class ExecutiveReport(BaseModel):
+    # D10 shared contract metadata. Web JSON, HTML, PDF and Monitoring projections
+    # must all originate from this exact model and the same builder.
+    contract_version: str = REPORT_CONTRACT_VERSION
+    financial_methodology: str = FINANCIAL_METHODOLOGY_VERSION
+    report_variant: str = "executive"
+    dashboard_mode: str = "read_only"
+
     report_id: str
     tenant_id: str
     language: str = "en"
@@ -53,10 +64,14 @@ class ExecutiveReport(BaseModel):
     checks_count: int = Field(ge=0)
     issues_count: int = Field(ge=0)
     affected_records: int = Field(ge=0)
+
+    # Canonical fin-v1 semantics. These are modeled values, not accounting-confirmed
+    # loss, guaranteed savings, realized savings or ROI.
     estimated_loss_eur: float = 0.0
     potential_saving_eur: float = 0.0
-    estimated_premium_price_monthly: float = 0.0
-    roi_eur: float = 0.0
+    validated_improvement_eur: float | None = None
+    realized_saving_eur: float | None = None
+
     headline: str
     rating: str
     kpis: List[ReportKpi] = Field(default_factory=list)

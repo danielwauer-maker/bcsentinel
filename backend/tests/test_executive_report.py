@@ -8,10 +8,18 @@ from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import Scan, ScanIssueRecord
 from app.routers.reports import REPORT_SHARE_ALGORITHM, REPORT_SHARE_TOKEN_TYPE
+from app.services.product_license_service import PRODUCT_ASSESSMENT, grant_product_entitlement
+
+
+def _grant_report_access(tenant_id: str) -> None:
+    with SessionLocal() as db:
+        grant_product_entitlement(db, tenant_id=tenant_id, product_code=PRODUCT_ASSESSMENT, source="test")
+        db.commit()
 
 
 def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_factory, scan_factory):
-    tenant = tenant_factory(plan="premium", license_status="active")
+    tenant = tenant_factory(plan="free", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_1")
     with SessionLocal() as db:
         scan = db.query(Scan).filter(Scan.scan_id == "scan_exec_1").one()
@@ -51,9 +59,10 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
         db.commit()
 
     json_response = client.get("/reports/executive/scan_exec_1", headers=auth_header_factory(tenant))
-
     assert json_response.status_code == 200
     payload = json_response.json()
+    assert payload["contract_version"] == "executive-report-v1"
+    assert payload["financial_methodology"] == "fin-v1"
     assert payload["data_health_score"] == 67
     assert payload["estimated_loss_eur"] == 42000.0
     assert len(payload["top_risks"]) >= 3
@@ -61,14 +70,12 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert payload["critical_findings"][0]["title"] == "Customers missing email"
 
     html_response = client.get("/reports/executive/scan_exec_1/html", headers=auth_header_factory(tenant))
-
     assert html_response.status_code == 200
     assert "BCSentinel Executive Management Report" in html_response.text
     assert "Top 10 Risks" in html_response.text
     assert "EUR 42,000.00" in html_response.text
 
     pdf_response = client.get("/reports/executive/scan_exec_1/pdf", headers=auth_header_factory(tenant))
-
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert pdf_response.content.startswith(b"%PDF-1.4")
@@ -78,18 +85,14 @@ def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth
     owner = tenant_factory()
     other = tenant_factory()
     scan_factory(tenant_id=owner["tenant_id"], scan_id="scan_exec_private")
-
     response = client.get("/reports/executive/scan_exec_private", headers=auth_header_factory(other))
-
     assert response.status_code == 403
 
 
 def test_executive_report_direct_html_requires_tenant_headers(client, tenant_factory, scan_factory):
-    tenant = tenant_factory(plan="premium", license_status="active")
+    tenant = tenant_factory(plan="free", license_status="active")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_headers")
-
     response = client.get("/reports/executive/scan_exec_headers/html")
-
     assert response.status_code == 401
     assert "Missing tenant authentication headers" in response.json()["detail"]
 
@@ -102,7 +105,8 @@ def test_executive_report_share_links_open_without_headers(
     settings_state,
 ):
     settings_state(APP_BASE_URL="https://app.bcsentinel.com")
-    tenant = tenant_factory(plan="premium", license_status="active")
+    tenant = tenant_factory(plan="free", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_shared")
 
     html_link_response = client.post(
@@ -131,7 +135,6 @@ def test_executive_report_share_links_open_without_headers(
 
     html_response = client.get(html_url)
     pdf_response = client.get(pdf_url)
-
     assert html_response.status_code == 200
     assert "BCSentinel Executive Management Report" in html_response.text
     assert pdf_response.status_code == 200
@@ -145,7 +148,8 @@ def test_executive_report_shared_token_is_bound_to_type_and_scan(
     auth_header_factory,
     scan_factory,
 ):
-    tenant = tenant_factory(plan="premium", license_status="active")
+    tenant = tenant_factory(plan="free", license_status="active")
+    _grant_report_access(tenant["tenant_id"])
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_bound_1")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_bound_2")
 
@@ -158,13 +162,12 @@ def test_executive_report_shared_token_is_bound_to_type_and_scan(
 
     wrong_type_response = client.get(f"/reports/executive/scan_exec_bound_1/pdf/shared?token={token}")
     wrong_scan_response = client.get(f"/reports/executive/scan_exec_bound_2/html/shared?token={token}")
-
     assert wrong_type_response.status_code == 403
     assert wrong_scan_response.status_code == 403
 
 
 def test_executive_report_shared_token_expires(client, tenant_factory, scan_factory):
-    tenant = tenant_factory(plan="premium", license_status="active")
+    tenant = tenant_factory(plan="free", license_status="active")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_expired")
     expired_token = jwt.encode(
         {
@@ -177,7 +180,5 @@ def test_executive_report_shared_token_expires(client, tenant_factory, scan_fact
         settings.SECRET_KEY,
         algorithm=REPORT_SHARE_ALGORITHM,
     )
-
     response = client.get(f"/reports/executive/scan_exec_expired/html/shared?token={expired_token}")
-
     assert response.status_code == 403
