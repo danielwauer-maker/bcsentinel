@@ -105,9 +105,15 @@ def test_product_checkout_uses_expected_stripe_mode(
         captured.update(kwargs)
         return SimpleNamespace(id=f"cs_{product_code}", url=f"https://stripe.example/{product_code}")
 
+    provider_price = {"unit_amount": expected_price_cents, "currency": "eur"}
+    if product_code == "monitoring_monthly":
+        provider_price["recurring"] = {"interval": "month"}
+    elif product_code == "monitoring_annual":
+        provider_price["recurring"] = {"interval": "year"}
+
     monkeypatch.setattr(
         "app.routers.billing.stripe.Price.retrieve",
-        lambda configured_price_id: {"unit_amount": expected_price_cents, "currency": "eur"},
+        lambda configured_price_id: provider_price,
     )
     monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", fake_create)
 
