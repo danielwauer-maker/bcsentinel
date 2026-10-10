@@ -173,6 +173,13 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     return _max_datetime(access_until_values)
 
 
+def _legacy_monitoring_access(tenant: Tenant) -> bool:
+    """Preserve pre-product-migration premium rights until a canonical grant replaces them."""
+    plan = (tenant.current_plan or "").strip().lower()
+    status = (tenant.license_status or "").strip().lower()
+    return plan == "premium" and status in {"trial", "active"}
+
+
 def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     values: list[datetime | None] = []
     subscriptions = db.scalars(
@@ -236,6 +243,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
 
 
 def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
+    if _legacy_monitoring_access(tenant):
+        return True
+
     subscriptions = db.scalars(
         select(Subscription).where(Subscription.tenant_id == tenant.tenant_id)
     ).all()
