@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "bcsentinel-release-safety-v1",
+  "promotion_path": ["DEV", "RC", "PROD"],
+  "dev_host": "dev.bcsentinel.com",
+  "production_hosts": ["bcsentinel.com", "www.bcsentinel.com"],
+  "requirements": {
+    "dev_to_rc": [
+      "automated_regression_gate_pass",
+      "migration_graph_single_head",
+      "release_manifest_generated",
+      "no_known_p0_defects"
+    ],
+    "rc_to_prod": [
+      "manual_acceptance_pass",
+      "backup_restore_evidence_pass",
+      "external_billing_email_acceptance_pass",
+      "pilot_e2e_pass",
+      "rollback_plan_reviewed"
+    ]
+  },
+  "rollback": {
+    "application_images_must_be_version_pinned": true,
+    "previous_release_reference_required": true,
+    "database_migration_strategy_required": true,
+    "destructive_down_migration_not_assumed": true,
+    "restore_from_verified_backup_when_schema_rollback_is_unsafe": true
+  },
+  "secrets_in_manifest_forbidden": true
+}
