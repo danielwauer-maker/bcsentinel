@@ -41,6 +41,19 @@ class ReportPriorityItem(BaseModel):
     recommendation: str
 
 
+class ReportAppliedException(BaseModel):
+    source_exception_entry_no: int
+    company_id: str | None = None
+    table_id: int
+    record_no: str | None = None
+    record_caption: str | None = None
+    issue_code: str
+    reason: str
+    exception_created_by: str | None = None
+    exception_created_at_utc: datetime | None = None
+    captured_at_utc: datetime
+
+
 class ExecutiveReport(BaseModel):
     # D10 shared contract metadata. Web JSON, HTML, PDF and Monitoring projections
     # must all originate from this exact model and the same builder.
@@ -71,6 +84,12 @@ class ExecutiveReport(BaseModel):
     potential_saving_eur: float = 0.0
     validated_improvement_eur: float | None = None
     realized_saving_eur: float | None = None
+
+    # Historical reports use the immutable scan-time exception snapshot. They
+    # never read the current active-exception list from Business Central.
+    exceptions_applied: bool = False
+    exception_count: int = Field(default=0, ge=0)
+    applied_exceptions: List[ReportAppliedException] = Field(default_factory=list)
 
     headline: str
     rating: str

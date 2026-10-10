@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-x5-executive-report-production-v1",
+  "base_contract": "executive-report-v1",
+  "financial_methodology": "fin-v1",
+  "surfaces": ["json", "html", "pdf", "monitoring"],
+  "single_builder": "app.services.executive_report_v2_service.build_executive_report",
+  "rules": {
+    "dashboard_mode": "read_only",
+    "exception_source": "immutable_scan_exception_snapshot",
+    "current_bc_exception_state_for_historical_report_forbidden": true,
+    "legacy_roi_public_field_forbidden": true,
+    "legacy_premium_price_public_field_forbidden": true,
+    "pdf_branding": "bcsentinel-ui-system-1",
+    "languages": ["de", "en"]
+  }
+}
