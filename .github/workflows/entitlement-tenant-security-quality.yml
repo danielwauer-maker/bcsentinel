@@ -27,6 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Validate E1 security contract
         run: python scripts/validate_e1_tenant_security.py
       - name: Install backend dependencies
@@ -45,9 +48,12 @@ jobs:
           tests/test_report_contract_d10.py
           tests/test_scans.py
           tests/test_scan_status.py
-      - name: Validate dashboard types and production build
+      - name: Install dashboard dependencies
         working-directory: dashboard
-        run: |
-          npm ci
-          npm run check
-          npm run build
+        run: npm install
+      - name: Type-check dashboard
+        working-directory: dashboard
+        run: npm run check
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
