@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from app.account_models import TenantMembership, UserIdentity
+from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import AdminAuditEvent
 from app.security.account_session import (
@@ -136,7 +137,7 @@ def create_account_session(
     tenant_count = len(memberships)
     return AccountSessionResponse(
         session_token=session_token,
-        expires_in_seconds=3600,
+        expires_in_seconds=max(int(settings.ACCOUNT_SESSION_MINUTES or 60), 5) * 60,
         user_identity_id=user_id,
         email=email,
         display_name=display_name,
