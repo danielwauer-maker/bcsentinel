@@ -49,5 +49,5 @@ jobs:
         working-directory: dashboard
         run: |
           npm ci
-          npm run typecheck
+          npm run check
           npm run build
