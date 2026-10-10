@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controlled Pilot | BCSentinel</title>
+  <meta name="description" content="Request controlled pilot onboarding for BCSentinel and validate installation, scan, dashboard, reporting and monitoring in a real Microsoft Dynamics 365 Business Central environment." />
+  <meta name="theme-color" content="#08111f" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://www.bcsentinel.com/pilot.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="BCSentinel Controlled Pilot" />
+  <meta property="og:description" content="Controlled direct onboarding for real end-to-end validation in Business Central." />
+  <meta property="og:url" content="https://www.bcsentinel.com/pilot.html" />
+  <style>
+    .skip-link{position:absolute;left:-9999px;top:8px;z-index:2000;background:#fff;color:#111;padding:10px 14px;border-radius:8px}.skip-link:focus{left:8px}
+    .pilot-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:22px;align-items:start}
+    .pilot-form{display:grid;gap:14px}.pilot-form label{display:grid;gap:7px;font-weight:700;color:var(--text)}
+    .pilot-form input,.pilot-form textarea,.pilot-form select{width:100%;min-height:48px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:12px;font:inherit}
+    .pilot-form textarea{min-height:140px;resize:vertical}.pilot-form input:focus-visible,.pilot-form textarea:focus-visible,.pilot-form select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+    .consent{display:flex!important;grid-template-columns:auto 1fr!important;align-items:start;gap:10px!important;font-weight:500!important}.consent input{width:20px;height:20px;min-height:20px;margin-top:2px}
+    .honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+    #pilotFormStatus{min-height:24px;color:var(--muted)}#pilotFormStatus[data-state="success"]{color:var(--green)}#pilotFormStatus[data-state="error"]{color:#ff8f8f}
+    .scope-list{display:grid;gap:12px;margin-top:18px}.scope-list article{padding:16px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03)}
+    @media(max-width:900px){.pilot-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Zum Inhalt springen / Skip to content</a>
+<div class="site-bg" aria-hidden="true"></div>
+<header class="site-header"></header>
+<main id="main-content">
+  <section class="hero section">
+    <div class="container card card-highlight">
+      <span class="eyebrow" data-de="Controlled Pilot" data-en="Controlled Pilot">Controlled Pilot</span>
+      <h1 data-de="BCSentinel in einer realen Business-Central-Umgebung validieren." data-en="Validate BCSentinel in a real Business Central environment.">BCSentinel in einer realen Business-Central-Umgebung validieren.</h1>
+      <p class="lead" data-de="Der Pilot ist ein kontrolliertes Direct-Onboarding — keine General-Availability- oder AppSource-Zusage. Ziel ist die reale End-to-End-Validierung von Installation, Scan, Dashboard, Reporting und Monitoring." data-en="The pilot is controlled direct onboarding — not a general-availability or AppSource commitment. Its purpose is real end-to-end validation of installation, scan, dashboard, reporting and monitoring.">Der Pilot ist ein kontrolliertes Direct-Onboarding.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container pilot-grid">
+      <section class="card card-highlight" aria-labelledby="pilot-scope-title">
+        <h2 id="pilot-scope-title" data-de="Was im Pilot validiert wird" data-en="What the pilot validates">Was im Pilot validiert wird</h2>
+        <div class="scope-list">
+          <article><strong data-de="1. Installation & Zugriff" data-en="1. Installation & access">1. Installation & Zugriff</strong><p data-de="Business-Central-Erweiterung, Tenant-Zuordnung und sichere Runtime-Grenzen." data-en="Business Central extension, tenant association and secure runtime boundaries.">Business-Central-Erweiterung, Tenant-Zuordnung und sichere Runtime-Grenzen.</p></article>
+          <article><strong data-de="2. Assessment" data-en="2. Assessment">2. Assessment</strong><p data-de="Deep Scan, Data Health Score, Findings und modellierter Financial Impact." data-en="Deep scan, Data Health Score, findings and modeled financial impact.">Deep Scan, Data Health Score, Findings und modellierter Financial Impact.</p></article>
+          <article><strong data-de="3. Dashboard & Report" data-en="3. Dashboard & report">3. Dashboard & Report</strong><p data-de="Read-only Management-Sicht, Executive Report und Business-Central-Deep-Links." data-en="Read-only management view, executive report and Business Central deep links.">Read-only Management-Sicht, Executive Report und Business-Central-Deep-Links.</p></article>
+          <article><strong data-de="4. Validation & Monitoring" data-en="4. Validation & monitoring">4. Validation & Monitoring</strong><p data-de="Verbesserungen erneut messen und Datenqualität über Zeit beobachten." data-en="Measure improvement again and observe data health over time.">Verbesserungen erneut messen und Datenqualität über Zeit beobachten.</p></article>
+        </div>
+        <p class="production-note" data-de="Es werden keine garantierten Savings, SLA-, Uptime- oder AppSource-Verfügbarkeitsaussagen gemacht. Operative Änderungen bleiben in Business Central." data-en="No guaranteed savings, SLA, uptime or AppSource-availability claims are made. Operational changes remain in Business Central.">Es werden keine garantierten Savings, SLA-, Uptime- oder AppSource-Verfügbarkeitsaussagen gemacht.</p>
+      </section>
+
+      <section class="card card-highlight" aria-labelledby="pilot-form-title">
+        <h2 id="pilot-form-title" data-de="Pilot-Anfrage" data-en="Pilot request">Pilot-Anfrage</h2>
+        <p data-de="Die Anfrage wird in BCSentinel gespeichert und dient ausschließlich der Bearbeitung des Pilot-Onboardings. Eine automatische E-Mail-Zustellung ist nicht Voraussetzung für die Annahme." data-en="The request is stored in BCSentinel solely for handling pilot onboarding. Automatic email delivery is not required for acceptance.">Die Anfrage wird in BCSentinel gespeichert.</p>
+        <form id="pilotInterestForm" class="pilot-form" novalidate>
+          <label><span data-de="Name *" data-en="Name *">Name *</span><input name="contact_name" required minlength="2" maxlength="120" autocomplete="name" /></label>
+          <label><span data-de="E-Mail *" data-en="Email *">E-Mail *</span><input name="contact_email" type="email" required maxlength="255" autocomplete="email" /></label>
+          <label><span data-de="Unternehmen" data-en="Company">Unternehmen</span><input name="company_name" maxlength="160" autocomplete="organization" /></label>
+          <label><span data-de="Business-Central-Kontext" data-en="Business Central context">Business-Central-Kontext</span><select name="bc_context"><option value="" data-de="Bitte auswählen" data-en="Select">Bitte auswählen</option><option value="cloud">Business Central Cloud</option><option value="partner" data-de="BC-Partner / Beratung" data-en="BC partner / consultancy">BC-Partner / Beratung</option><option value="other" data-de="Sonstiger Kontext" data-en="Other context">Sonstiger Kontext</option></select></label>
+          <label><span data-de="Was möchtest du im Pilot validieren?" data-en="What would you like to validate in the pilot?">Was möchtest du im Pilot validieren?</span><textarea name="message" maxlength="3000"></textarea></label>
+          <label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off" /></label>
+          <label class="consent"><input name="privacy_consent" type="checkbox" required /><span data-de="Ich stimme zu, dass meine Angaben zur Bearbeitung der Pilot-Anfrage verarbeitet werden. Weitere Informationen stehen in der Datenschutzerklärung." data-en="I agree that my information may be processed to handle the pilot request. More information is available in the privacy policy.">Ich stimme der Verarbeitung zur Bearbeitung der Pilot-Anfrage zu.</span></label>
+          <a class="text-link" href="privacy.html" data-de="Datenschutzerklärung öffnen" data-en="Open privacy policy">Datenschutzerklärung öffnen</a>
+          <button class="btn btn-primary" type="submit" data-de="Pilot-Anfrage senden" data-en="Submit pilot request">Pilot-Anfrage senden</button>
+          <div id="pilotFormStatus" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="site-footer"></footer>
+<script src="js/site-shell.js"></script>
+<script src="js/landing-production.js"></script>
+</body>
+</html>
