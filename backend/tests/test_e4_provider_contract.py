@@ -83,7 +83,7 @@ def test_list_price_commercial_checkout_allows_stripe_promotion_codes(
     body = response.json()
     assert body["list_price_cents"] == 24_900
     assert body["effective_price_cents"] == 24_900
-    assert body["price_source"] == "canonical"
+    assert body["price_source"] == "list_price"
     assert body["promotion_code_allowed"] is True
     assert body["checkout_required"] is True
     assert captured["allow_promotion_codes"] is True
