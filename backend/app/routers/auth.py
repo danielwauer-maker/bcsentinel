@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.db import SessionLocal
@@ -9,8 +9,8 @@ from app.security.tenant_session import (
     TENANT_SESSION_MINUTES,
     TENANT_SESSION_ROLE,
     TENANT_SESSION_SCOPE,
-    TENANT_SESSION_TOKEN_TYPE,
     create_tenant_session_token,
+    is_session_credential,
 )
 from app.services.tenant_access_service import get_tenant_status
 
@@ -32,6 +32,12 @@ def create_dashboard_session(
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> TenantSessionResponse:
     tenant_id, credential = tenant_auth
+    if is_session_credential(credential):
+        raise HTTPException(
+            status_code=403,
+            detail="Dashboard sessions cannot mint replacement sessions.",
+        )
+
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, tenant_id, credential)
         token = create_tenant_session_token(tenant)
