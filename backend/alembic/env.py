@@ -10,6 +10,7 @@ from app.db import Base
 from app import account_models  # noqa: F401
 from app import commercial_override_models  # noqa: F401
 from app import customer_runtime_models  # noqa: F401
+from app import exception_snapshot_models  # noqa: F401
 from app import operations_governance_models  # noqa: F401
 from app import models  # noqa: F401
 
