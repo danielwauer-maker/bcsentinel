@@ -77,8 +77,10 @@ if x3.get("bc_transport_status") != "complete":
     if audit.get("status") == "ready":
         raise SystemExit("X8 cannot be ready while X3 BC transport remains open.")
 
-if x7.get("acceptance_environment") != "dev.bcsentinel.com":
+if x7.get("environments", {}).get("dev", {}).get("web_host") != "dev.bcsentinel.com":
     raise SystemExit("X8 P0: authoritative DEV acceptance environment drifted.")
+if x7.get("environments", {}).get("dev", {}).get("api_host") != "dev-api.bcsentinel.com":
+    raise SystemExit("X8 P0: authoritative DEV API environment drifted.")
 
 print("X8 Pre-Manual Pilot Audit contract: PASS")
 print(f"X8 status: {audit.get('status')}")
