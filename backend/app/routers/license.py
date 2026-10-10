@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header
 from pydantic import BaseModel
 from app.db import SessionLocal
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.billing_service import resolve_effective_license
-from app.services.entitlement_service import resolve_features
 from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
+from app.services.tenant_access_service import get_tenant_status
+from app.routers.auth import router as auth_router
 from app.routers.remediation import router as remediation_router
 from app.routers.notifications import router as notifications_router
 
@@ -15,6 +16,7 @@ router = APIRouter(tags=["license"])
 
 class LicenseStatusResponse(BaseModel):
     tenant_id: str
+    tenant_status: str = "active"
     plan: str
     license_status: str
     legacy_plan: str | None = None
@@ -51,6 +53,7 @@ def get_license_status(
 
         response = LicenseStatusResponse(
             tenant_id=tenant.tenant_id,
+            tenant_status=get_tenant_status(db, tenant.tenant_id),
             plan=normalized_plan,
             license_status=normalized_license_status,
             legacy_plan=normalized_plan,
@@ -73,5 +76,6 @@ def get_license_status(
         return response
 
 
+router.include_router(auth_router)
 router.include_router(remediation_router)
 router.include_router(notifications_router)

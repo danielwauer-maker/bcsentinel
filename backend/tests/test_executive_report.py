@@ -86,7 +86,8 @@ def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth
     other = tenant_factory()
     scan_factory(tenant_id=owner["tenant_id"], scan_id="scan_exec_private")
     response = client.get("/reports/executive/scan_exec_private", headers=auth_header_factory(other))
-    assert response.status_code == 403
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Report not found."
 
 
 def test_executive_report_direct_html_requires_tenant_headers(client, tenant_factory, scan_factory):
@@ -94,7 +95,7 @@ def test_executive_report_direct_html_requires_tenant_headers(client, tenant_fac
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_exec_headers")
     response = client.get("/reports/executive/scan_exec_headers/html")
     assert response.status_code == 401
-    assert "Missing tenant authentication headers" in response.json()["detail"]
+    assert "Missing tenant authentication credentials" in response.json()["detail"]
 
 
 def test_executive_report_share_links_open_without_headers(

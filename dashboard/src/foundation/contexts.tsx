@@ -5,6 +5,7 @@ export type AuthState = {
   authenticated: boolean;
   identity?: string;
   provider?: string;
+  credentialMode?: 'session-token' | 'legacy-api-token';
 };
 
 export type EntitlementState = {
@@ -21,20 +22,24 @@ type RuntimeWindow = Window & { __BCSENTINEL_SESSION__?: TenantSession };
 function runtimeSession(): TenantSession | null {
   if (typeof window === 'undefined') return null;
   const candidate = (window as RuntimeWindow).__BCSENTINEL_SESSION__;
-  if (!candidate?.tenantId || !candidate?.apiToken) return null;
+  if (!candidate?.tenantId) return null;
+  if (!candidate.sessionToken && !candidate.apiToken) return null;
   return candidate;
 }
 
 export function FoundationProviders({ children }: PropsWithChildren) {
-  // D7 consumes an already-established runtime session if the host provides one.
-  // D8/E1 own the real identity-provider binding and hardened session lifecycle.
   const tenant = useMemo<TenantSession | null>(() => runtimeSession(), []);
   const auth = useMemo<AuthState>(
-    () => ({ authenticated: Boolean(tenant), provider: tenant ? 'runtime-session' : undefined }),
+    () => ({
+      authenticated: Boolean(tenant),
+      provider: tenant ? 'runtime-session' : undefined,
+      identity: tenant?.tenantId,
+      credentialMode: tenant?.sessionToken ? 'session-token' : tenant?.apiToken ? 'legacy-api-token' : undefined,
+    }),
     [tenant],
   );
-  // Entitlements remain server-authoritative and are resolved by page read models.
-  // Authentication alone never promotes this context to granted access.
+  // Authentication, tenant lifecycle and entitlements remain separate. The
+  // presence of a runtime session never grants a product feature by itself.
   const entitlements = useMemo<EntitlementState>(() => ({ features: new Set<string>(), access: 'pending' }), []);
 
   return (

@@ -14,11 +14,12 @@ from sqlalchemy import select
 
 from app.core.settings import resolve_public_base_url, settings
 from app.db import SessionLocal
-from app.models import Tenant
+from app.models import Scan, Tenant
 from app.schemas.report import ExecutiveReport
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.executive_report_service import build_executive_report, render_executive_report_pdf
 from app.services.product_license_service import build_product_access_snapshot
+from app.services.tenant_access_service import enforce_tenant_is_active
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
@@ -35,10 +36,23 @@ class ExecutiveReportShareLinkResponse(BaseModel):
     url: str
 
 
+def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
+    owned_scan = db.scalar(
+        select(Scan.id).where(
+            Scan.scan_id == scan_id,
+            Scan.tenant_id == tenant_id,
+        )
+    )
+    if owned_scan is None:
+        # Same response for a missing scan and a scan owned by another tenant.
+        raise HTTPException(status_code=404, detail="Report not found.")
+
+
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         report = build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not access["can_view_executive_report"]:
@@ -88,6 +102,8 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
             raise HTTPException(status_code=403, detail="Invalid report share token.")
+        enforce_tenant_is_active(db, tenant.tenant_id)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         report = build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not access["can_view_executive_report"]:
@@ -133,6 +149,7 @@ def create_executive_report_share_link(
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not access["can_view_executive_report"]:

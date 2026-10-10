@@ -1,6 +1,7 @@
 export type TenantSession = {
   tenantId: string;
-  apiToken: string;
+  sessionToken?: string;
+  apiToken?: string;
   preferredLanguage?: string;
 };
 
@@ -15,8 +16,18 @@ const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 export async function apiRequest<T>(path: string, session: TenantSession, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
-  headers.set('X-Tenant-Id', session.tenantId);
-  headers.set('X-Api-Token', session.apiToken);
+
+  if (session.sessionToken) {
+    headers.set('Authorization', `Bearer ${session.sessionToken}`);
+  } else if (session.apiToken) {
+    // Legacy/machine-runtime compatibility. Production dashboard hosts should
+    // exchange the machine credential for a short-lived session token first.
+    headers.set('X-Tenant-Id', session.tenantId);
+    headers.set('X-Api-Token', session.apiToken);
+  } else {
+    throw new ApiError(401, 'No tenant session credential is available.');
+  }
+
   if (session.preferredLanguage) headers.set('X-Preferred-Language', session.preferredLanguage);
   if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
 
