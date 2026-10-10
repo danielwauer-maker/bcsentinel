@@ -1,0 +1,53 @@
+name: Entitlement & Tenant Security Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/security/**'
+      - 'backend/app/services/tenant_access_service.py'
+      - 'backend/app/tenant_access_models.py'
+      - 'backend/app/routers/auth.py'
+      - 'backend/app/routers/license.py'
+      - 'backend/app/routers/reports.py'
+      - 'backend/alembic/versions/0022_tenant_access_states.py'
+      - 'backend/tests/test_e1_tenant_security.py'
+      - 'backend/tests/test_executive_report.py'
+      - 'dashboard/src/api/client.ts'
+      - 'dashboard/src/foundation/contexts.tsx'
+      - 'scripts/validate_e1_tenant_security.py'
+      - 'docs/security/E1_TENANT_SECURITY_CONTRACT.md'
+      - '.github/workflows/entitlement-tenant-security-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-entitlement-tenant-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate E1 security contract
+        run: python scripts/validate_e1_tenant_security.py
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Compile backend
+        run: python -m compileall -q backend/app
+      - name: Run E1 attack matrix and security regressions
+        working-directory: backend
+        run: >-
+          pytest -q
+          tests/test_e1_tenant_security.py
+          tests/test_entitlements.py
+          tests/test_analytics_embed_security.py
+          tests/test_executive_report.py
+          tests/test_report_contract_d10.py
+          tests/test_scans.py
+          tests/test_scan_status.py
+      - name: Validate dashboard types and production build
+        working-directory: dashboard
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
