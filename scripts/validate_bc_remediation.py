@@ -6,7 +6,7 @@ BASE = ROOT / "bc-extension" / "app" / "src"
 
 def text(relative: str) -> str:
     path = BASE / relative
-    assert path.exists(), f"Missing D1 artifact: {relative}"
+    assert path.exists(), f"Missing remediation artifact: {relative}"
     return path.read_text(encoding="utf-8-sig")
 
 
@@ -32,13 +32,19 @@ def main() -> None:
     for field in [
         '"Action ID"', '"Tenant ID"', '"Company ID"', '"Finding Key"', 'Title',
         'Status', 'Priority', '"Created At UTC"', '"Updated At UTC"',
-        '"Owner Principal ID"', '"Due At UTC"', '"Completion Note"',
-        '"Validation Result Ref"', 'Source'
+        '"Owner Principal ID"', '"Owner Display Name"', '"Due At UTC"', '"Blocked Reason"',
+        '"Completion Note"', '"Validation Result Ref"', 'Source'
     ]:
         assert field in action, f"Missing action field: {field}"
 
     require(action,
             'Setup."Tenant ID"', 'CompanyName()', 'CreateGuid()',
+            'TableRelation = User."User Security ID"',
+            'UserRecord.Get("Owner Principal ID")',
+            'UserRecord."Full Name"', 'UserRecord."User Name"',
+            "WriteAudit(Rec, 'owner_principal_id'", "WriteAudit(Rec, 'owner_display_name'",
+            "WriteAudit(Rec, 'due_at_utc'", "WriteAudit(Rec, 'blocked_reason'",
+            "WriteAudit(Rec, 'completion_note'",
             'Cancel the action instead of deleting it', 'The Action ID is immutable')
 
     require(audit,
@@ -58,7 +64,11 @@ def main() -> None:
     assert 'Status :=' not in mgt.split('procedure LinkValidationResult', 1)[1]
 
     require(list_page, 'PageType = List', 'CardPageId = "DH Remediation Action Card"', 'DeleteAllowed = false')
-    require(card_page, 'PageType = Card', '"Validation Result Ref"', 'Audit Trail')
+    require(card_page,
+            'PageType = Card', 'field(Owner; Rec."Owner Principal ID")',
+            'Select the Business Central user responsible for this remediation action',
+            'field("Owner Display Name"; Rec."Owner Display Name")', 'Editable = false',
+            '"Validation Result Ref"', 'Audit Trail')
     require(audit_page, 'Editable = false', 'InsertAllowed = false', 'ModifyAllowed = false', 'DeleteAllowed = false')
 
     require(permissions,
