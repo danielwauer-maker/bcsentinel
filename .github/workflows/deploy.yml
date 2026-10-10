@@ -1,135 +1,171 @@
-name: Deploy to Hetzner
+name: Deploy BCSentinel
 
 on:
   push:
     branches:
-      - main
       - staging
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+      release_ref:
+        description: Git ref/SHA to deploy. PROD requires an immutable reviewed ref.
+        required: true
+        type: string
+      confirm_prod:
+        description: Type PROMOTE_TO_PROD for a PROD deployment
+        required: false
+        type: string
+
+concurrency:
+  group: bcsentinel-deploy-${{ github.event_name == 'push' && 'dev' || inputs.target }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  deployment-contract:
     runs-on: ubuntu-latest
-
+    outputs:
+      target: ${{ steps.resolve.outputs.target }}
+      release_ref: ${{ steps.resolve.outputs.release_ref }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create deployment ZIP
+      - name: Resolve deployment intent
+        id: resolve
+        shell: bash
         run: |
-          zip -r bcsentinel-deployment.zip . \
-            -x ".git/*" \
-            -x ".github/*" \
-            -x "**/__pycache__/*" \
-            -x "**/.venv/*" \
-            -x "**/node_modules/*"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "target=dev" >> "$GITHUB_OUTPUT"
+            echo "release_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
+            echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Upload deployment ZIP
-        uses: actions/upload-artifact@v4
+      - name: Enforce PROD promotion acknowledgement
+        if: steps.resolve.outputs.target == 'prod'
+        shell: bash
+        run: |
+          test "${{ github.event_name }}" = "workflow_dispatch"
+          test "${{ inputs.confirm_prod }}" = "PROMOTE_TO_PROD"
+          test -n "${{ inputs.release_ref }}"
+          echo "Manual PROD promotion intent accepted."
+
+  regression-gate:
+    needs: deployment-contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
         with:
-          name: bcsentinel-deployment-${{ github.ref_name }}-${{ github.run_number }}
-          path: bcsentinel-deployment.zip
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate release and deployment contracts
+        run: |
+          python scripts/validate_release_demo_policy.py
+          python scripts/validate_e2_automated_regression.py
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Backend regression
+        working-directory: backend
+        run: |
+          alembic heads
+          pytest -q
+      - name: Dashboard production build
+        working-directory: dashboard
+        run: |
+          npm install
+          npm run check
+          npm run build
 
+  deploy-dev:
+    if: needs.deployment-contract.outputs.target == 'dev'
+    needs: [deployment-contract, regression-gate]
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to PROD
-        if: github.ref == 'refs/heads/main'
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+      - name: Deploy immutable ref to DEV
+        env:
+          RELEASE_REF: ${{ needs.deployment-contract.outputs.release_ref }}
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
-
-            cd /home/daniel/data-health-management
-
-            echo "📥 Clean sync PROD"
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
-
-            echo "🐳 Start database only (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d postgres
-
-            echo "🧱 Run migrations (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm backend alembic upgrade head
-
-            echo "🚀 Start full stack (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
-          EOF
-
-      - name: Health check PROD
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "🔎 Waiting for PROD backend (local on server)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -fsS http://127.0.0.1:8000/health"; then
-              echo "✅ PROD backend is running locally"
-              break
-            fi
-            echo "⏳ PROD local backend not ready yet... attempt $i/20"
-            sleep 3
-          done
-
-          echo "🌍 Waiting for PROD public endpoint (from server via IPv4 GET)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -4 -fsS https://api.bcsentinel.com/health"; then
-              echo "✅ PROD public health check passed"
-              exit 0
-            fi
-            echo "⏳ PROD public endpoint not ready yet... attempt $i/20"
-            sleep 5
-          done
-
-          echo "❌ PROD health check failed"
-          exit 1
-
-      - name: Deploy to DEV
-        if: github.ref == 'refs/heads/staging'
-        run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
-
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" "RELEASE_REF='$RELEASE_REF' bash -s" << 'EOF'
+            set -euo pipefail
             cd /home/daniel/data-health-management-dev
-
-            echo "📥 Clean sync DEV"
-            git fetch origin
-            git reset --hard origin/staging
+            git fetch --all --tags --prune
+            git checkout --detach "$RELEASE_REF"
             git clean -fd
-
-            echo "🐳 Start database only (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
-
-            echo "🧱 Run migrations (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
-
-            echo "🚀 Start full stack (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
           EOF
-
-      - name: Health check DEV
-        if: github.ref == 'refs/heads/staging'
+      - name: DEV acceptance smoke
         run: |
-          echo "🔎 Waiting for DEV backend (local on server)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -fsS http://127.0.0.1:8001/health"; then
-              echo "✅ DEV backend is running locally"
-              break
-            fi
-            echo "⏳ DEV local backend not ready yet... attempt $i/20"
-            sleep 3
-          done
-
-          echo "🌍 Waiting for DEV public endpoint (from server via IPv4 GET)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -4 -fsS https://dev-api.bcsentinel.com/health"; then
-              echo "✅ DEV public health check passed"
-              exit 0
-            fi
-            echo "⏳ DEV public endpoint not ready yet... attempt $i/20"
+          for i in {1..30}; do
+            if curl -4 -fsS https://dev-api.bcsentinel.com/health/ready >/dev/null; then break; fi
             sleep 5
           done
+          curl -4 -fsS https://dev-api.bcsentinel.com/health/ready
+          curl -4 -fsS https://dev.bcsentinel.com/ >/dev/null
+          curl -4 -fsS https://dev.bcsentinel.com/pilot.html >/dev/null
+          echo "DEV acceptance endpoints reachable."
 
-          echo "❌ DEV health check failed"
-          exit 1
+  deploy-prod:
+    if: needs.deployment-contract.outputs.target == 'prod'
+    needs: [deployment-contract, regression-gate]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout approved release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+      - name: Capture current PROD ref and deploy approved ref
+        env:
+          RELEASE_REF: ${{ needs.deployment-contract.outputs.release_ref }}
+        run: |
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" "RELEASE_REF='$RELEASE_REF' bash -s" << 'EOF'
+            set -euo pipefail
+            cd /home/daniel/data-health-management
+            git rev-parse HEAD > .previous-release-ref
+            git fetch --all --tags --prune
+            git checkout --detach "$RELEASE_REF"
+            git clean -fd -e .previous-release-ref
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d postgres
+            docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm backend alembic upgrade head
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+          EOF
+      - name: PROD smoke
+        run: |
+          for i in {1..30}; do
+            if curl -4 -fsS https://api.bcsentinel.com/health/ready >/dev/null; then break; fi
+            sleep 5
+          done
+          curl -4 -fsS https://api.bcsentinel.com/health/ready
+          curl -4 -fsS https://www.bcsentinel.com/ >/dev/null
+          echo "PROD smoke passed for approved release ref."
