@@ -16,12 +16,27 @@ const AuthContext = createContext<AuthState>({ authenticated: false });
 const TenantContext = createContext<TenantSession | null>(null);
 const EntitlementContext = createContext<EntitlementState>({ features: new Set(), access: 'pending' });
 
+type RuntimeWindow = Window & { __BCSENTINEL_SESSION__?: TenantSession };
+
+function runtimeSession(): TenantSession | null {
+  if (typeof window === 'undefined') return null;
+  const candidate = (window as RuntimeWindow).__BCSENTINEL_SESSION__;
+  if (!candidate?.tenantId || !candidate?.apiToken) return null;
+  return candidate;
+}
+
 export function FoundationProviders({ children }: PropsWithChildren) {
-  // Runtime identity-provider/session binding is injected here in D8/E1.
-  // D6 intentionally does not invent credentials or treat authentication as product access.
-  const auth = useMemo<AuthState>(() => ({ authenticated: false }), []);
-  const tenant = useMemo<TenantSession | null>(() => null, []);
+  // D7 consumes an already-established runtime session if the host provides one.
+  // D8/E1 own the real identity-provider binding and hardened session lifecycle.
+  const tenant = useMemo<TenantSession | null>(() => runtimeSession(), []);
+  const auth = useMemo<AuthState>(
+    () => ({ authenticated: Boolean(tenant), provider: tenant ? 'runtime-session' : undefined }),
+    [tenant],
+  );
+  // Entitlements remain server-authoritative and are resolved by page read models.
+  // Authentication alone never promotes this context to granted access.
   const entitlements = useMemo<EntitlementState>(() => ({ features: new Set<string>(), access: 'pending' }), []);
+
   return (
     <AuthContext.Provider value={auth}>
       <TenantContext.Provider value={tenant}>
