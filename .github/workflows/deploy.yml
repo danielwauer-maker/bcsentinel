@@ -3,7 +3,7 @@ name: Deploy BCSentinel
 on:
   push:
     branches:
-      - staging
+      - dev-acceptance
   workflow_dispatch:
     inputs:
       target:
