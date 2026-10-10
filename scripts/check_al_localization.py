@@ -34,6 +34,13 @@ LOCALIZED_TEXT_LINE = re.compile(
 
 ML_PATTERN = re.compile(r"\b(CaptionML|ToolTipML|OptionCaptionML|AboutTextML)\b")
 
+# This file intentionally contains persisted de-DE notification template data.
+# It is not Business Central UI text. Caption/ToolTip/Label/etc. hygiene is still
+# enforced inside the file; only the blanket raw-umlaut check is waived here.
+LOCALIZATION_DATA_SEED_FILES = {
+    Path("bc-extension/app/src/codeunits/DHNotificationI18nMgt.Codeunit.al"),
+}
+
 
 def main() -> int:
     violations: list[str] = []
@@ -48,14 +55,17 @@ def main() -> int:
 
     for path in sorted(AL_ROOT.rglob("*.al")):
         rel = path.relative_to(REPO_ROOT)
+        localization_data_seed = rel in LOCALIZATION_DATA_SEED_FILES
         for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             if ML_PATTERN.search(line):
                 violations.append(f"{rel}:{lineno}: ML localization property is not allowed")
 
+            # UI/localizable AL constructs may never contain hard-coded German,
+            # including inside the dedicated localized template seed file.
             if LOCALIZED_TEXT_LINE.search(line) and GERMAN_PATTERN.search(line):
                 violations.append(f"{rel}:{lineno}: German text found in localized AL source")
 
-            if re.search(r"[äöüÄÖÜß]", line):
+            if not localization_data_seed and re.search(r"[äöüÄÖÜß]", line):
                 violations.append(f"{rel}:{lineno}: German umlaut found in AL source")
 
     if violations:

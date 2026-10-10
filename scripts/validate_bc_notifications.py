@@ -6,7 +6,7 @@ BASE = ROOT / "bc-extension" / "app" / "src"
 
 def text(relative: str) -> str:
     path = BASE / relative
-    assert path.exists(), f"Missing D2 artifact: {relative}"
+    assert path.exists(), f"Missing notification artifact: {relative}"
     return path.read_text(encoding="utf-8-sig")
 
 
@@ -24,13 +24,16 @@ def main() -> None:
     delivery = text("tables/DHNotificationDelivery.Table.al")
     audit = text("tables/DHNotificationConfigAudit.Table.al")
     mgt = text("codeunits/DHNotificationMgt.Codeunit.al")
+    i18n = text("codeunits/DHNotificationI18nMgt.Codeunit.al")
+    i18n_install = text("codeunits/DHNotificationI18nInstall.Codeunit.al")
+    i18n_upgrade = text("codeunits/DHNotificationI18nUpgrade.Codeunit.al")
     setup_page = text("pages/DHNotificationSetup.Page.al")
     delivery_page = text("pages/DHNotificationDeliveries.Page.al")
     events_page = text("pages/DHNotificationEvents.Page.al")
     permissions = text("permissionsets/BCSentinelPermissionSets.al")
 
     require(setup, '"Tenant ID"', '"Company ID"', 'Enabled', '"Preferred Language"',
-            '"Delivery Evidence Retention Days"', 'Setup."Tenant ID"' if False else 'CoreSetup."Tenant ID"', 'CompanyName()')
+            '"Delivery Evidence Retention Days"', 'CoreSetup."Tenant ID"', 'CompanyName()')
 
     for field in [
         '"Event ID"', '"Tenant ID"', '"Company ID"', '"Event Type"', '"Occurred At UTC"',
@@ -54,16 +57,18 @@ def main() -> None:
         '"Suppression Reason"'
     ]:
         assert field in delivery, f"Missing delivery field: {field}"
-    require(delivery, 'Delivery evidence is retained' if False else 'delivery evidence is retained', 'cannot be deleted')
+    require(delivery, 'delivery evidence is retained', 'cannot be deleted')
 
     require(audit, '"Object Type"', '"Object Ref"', '"Changed At UTC"', '"Changed By"',
             '"Tenant ID"', '"Company ID"', 'immutable')
 
-    for event_type in [
+    canonical_events = [
         'scan.completed', 'scan.failed', 'finding.new_critical', 'finding.regressed',
         'monitoring.score_deteriorated', 'validation.completed', 'remediation.blocked', 'remediation.overdue'
-    ]:
+    ]
+    for event_type in canonical_events:
         assert event_type in mgt, f"Missing canonical event type: {event_type}"
+        assert event_type in i18n, f"Missing German default for event type: {event_type}"
 
     require(mgt,
             'EnsureSetupAndDefaults', 'RaiseEvent', 'QueueEventDeliveries', 'ProcessQueuedDeliveries',
@@ -72,21 +77,24 @@ def main() -> None:
             "'queued'", "'sending'", "'sent'", "'failed'", "'suppressed'",
             'Recipient."Language Code"', 'Setup."Preferred Language"', "Template.Get(Rule.\"Template Key\", 'en')")
 
-    # Event generation and delivery success are separate; raising an event queues delivery but never marks it sent.
+    require(i18n,
+            'EnsureGermanDefaults', "Template.Get(TemplateKey, 'de')", "Template.\"Language Code\" := 'de'",
+            'Never overwrite customer-edited templates',
+            'BCSentinel-Scan abgeschlossen', 'BCSentinel-Maßnahme überfällig')
+    require(i18n_install, 'Subtype = Install', 'OnInstallAppPerCompany', 'EnsureGermanDefaults')
+    require(i18n_upgrade, 'Subtype = Upgrade', 'OnUpgradePerCompany', 'EnsureGermanDefaults')
+
     raise_section = mgt.split('procedure RaiseEvent', 1)[1].split('procedure ProcessQueuedDeliveries', 1)[0]
     assert "Status := 'sent'" not in raise_section
     assert 'QueueEventDeliveries(Event)' in raise_section
 
-    # Retry reuses the same event/delivery evidence and increments the attempt number.
     require(mgt, "Delivery.Status := 'queued'", 'Delivery."Attempt No." += 1')
     assert 'retry_creates_new_event' not in mgt.lower()
 
-    # Core automatic hooks and explicit integration methods.
     require(mgt,
             'OnDeepScanRunModified', 'OnDeepScanFindingInserted', 'OnRemediationActionModified',
             'NotifyFindingRegressed', 'NotifyMonitoringScoreDeteriorated', 'NotifyValidationCompleted')
 
-    # No product-notification payload may embed secrets/raw records.
     lowered = mgt.lower()
     for forbidden in ['api token', 'password reset', 'stripe secret', 'client secret']:
         assert forbidden not in lowered, f"Forbidden sensitive/service-email concept in notification engine: {forbidden}"
