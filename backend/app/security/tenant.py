@@ -4,7 +4,12 @@ from fastapi import Header, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.account_models import TenantMembership
 from app.models import Tenant
+from app.security.account_session import (
+    parse_user_tenant_session_token,
+    verify_user_tenant_session_payload,
+)
 from app.security.tenant_session import (
     is_session_credential,
     parse_tenant_session_token,
@@ -18,6 +23,10 @@ from app.services.tenant_access_service import enforce_tenant_is_active
 INVALID_TENANT_CREDENTIALS = "Invalid tenant credentials."
 
 
+def _parse_any_tenant_session(token: str) -> dict | None:
+    return parse_tenant_session_token(token) or parse_user_tenant_session_token(token)
+
+
 def require_tenant_headers(
     x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
     x_api_token: str | None = Header(default=None, alias="X-Api-Token"),
@@ -28,7 +37,7 @@ def require_tenant_headers(
         scheme, separator, token = auth_value.partition(" ")
         if scheme.lower() != "bearer" or not separator or not token.strip():
             raise HTTPException(status_code=401, detail="Invalid tenant authorization header.")
-        payload = parse_tenant_session_token(token.strip())
+        payload = _parse_any_tenant_session(token.strip())
         if payload is None:
             raise HTTPException(status_code=403, detail=INVALID_TENANT_CREDENTIALS)
         token_tenant_id = str(payload.get("tenant_id") or "").strip()
@@ -61,7 +70,14 @@ def load_authenticated_tenant(
     migrate_legacy_token = False
     if is_session_credential(header_api_token):
         session_token = unwrap_session_credential(header_api_token)
-        if not verify_tenant_session_token(session_token, tenant):
+        user_payload = parse_user_tenant_session_token(session_token)
+        if user_payload is not None:
+            membership = db.get(TenantMembership, int(user_payload.get("membership_id") or 0))
+            if membership is None or not verify_user_tenant_session_payload(user_payload, membership):
+                raise HTTPException(status_code=403, detail=INVALID_TENANT_CREDENTIALS)
+            if membership.tenant_id != tenant.tenant_id:
+                raise HTTPException(status_code=403, detail=INVALID_TENANT_CREDENTIALS)
+        elif not verify_tenant_session_token(session_token, tenant):
             raise HTTPException(status_code=403, detail=INVALID_TENANT_CREDENTIALS)
     elif tenant.api_token_hash:
         if not verify_api_token(header_api_token, tenant.api_token_hash):
