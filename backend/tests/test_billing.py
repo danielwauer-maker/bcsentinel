@@ -292,7 +292,7 @@ def test_monitoring_annual_checkout_handles_inactive_stripe_price(
     )
 
     assert response.status_code == 400
-    assert response.json()["detail"] == "Configured Stripe Price ID for monitoring_annual is inactive or invalid."
+    assert response.json()["detail"] == "Configured Stripe Price ID for small/monitoring_annual is inactive or invalid."
 
 
 def test_analytics_checkout_does_not_require_stored_plaintext_api_token(
