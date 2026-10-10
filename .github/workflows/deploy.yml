@@ -114,6 +114,7 @@ jobs:
             git fetch --all --tags --prune
             git checkout --detach "$RELEASE_REF"
             git clean -fd
+            ln -sfn landingpage landingpage_neu
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
             docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
@@ -133,6 +134,7 @@ jobs:
             echo "=== Landing files ==="
             test -f landingpage/index.html && echo 'landing_index=present' || echo 'landing_index=missing'
             test -f landingpage/pilot.html && echo 'landing_pilot=present' || echo 'landing_pilot=missing'
+            test -L landingpage_neu && echo "landing_compat=$(readlink landingpage_neu)" || echo 'landing_compat=missing'
             echo "=== Web server status ==="
             systemctl is-active nginx 2>/dev/null || true
             systemctl is-active caddy 2>/dev/null || true
