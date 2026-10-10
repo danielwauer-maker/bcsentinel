@@ -24,11 +24,34 @@ page 53195 "DH Remediation Action Card"
             }
             group(Ownership)
             {
-                field("Owner Principal ID"; Rec."Owner Principal ID") { ApplicationArea = All; }
-                field("Owner Display Name"; Rec."Owner Display Name") { ApplicationArea = All; ToolTip = 'Display text only. The principal ID remains the identity reference.'; }
-                field("Due At UTC"; Rec."Due At UTC") { ApplicationArea = All; }
-                field("Blocked Reason"; Rec."Blocked Reason") { ApplicationArea = All; MultiLine = true; }
-                field("Completion Note"; Rec."Completion Note") { ApplicationArea = All; MultiLine = true; }
+                field(Owner; Rec."Owner Principal ID")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Select the Business Central user responsible for this remediation action. The user security ID remains the stable identity reference.';
+                }
+                field("Owner Display Name"; Rec."Owner Display Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Display name resolved automatically from the selected Business Central user.';
+                }
+                field("Due At UTC"; Rec."Due At UTC")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Due date for this action. Changes are written to the remediation audit trail.';
+                }
+                field("Blocked Reason"; Rec."Blocked Reason")
+                {
+                    ApplicationArea = All;
+                    MultiLine = true;
+                    ToolTip = 'Explain why the action is blocked. Changes are written to the remediation audit trail.';
+                }
+                field("Completion Note"; Rec."Completion Note")
+                {
+                    ApplicationArea = All;
+                    MultiLine = true;
+                    ToolTip = 'Record completion context or evidence. Changes are written to the remediation audit trail.';
+                }
             }
             group(Validation)
             {
