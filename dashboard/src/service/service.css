@@ -1,0 +1,116 @@
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+.detail-grid > div {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--raised);
+}
+.detail-grid dt {
+  margin: 0 0 6px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.detail-grid dd {
+  margin: 0;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.inline-note {
+  margin-top: 16px;
+  border-left: 3px solid var(--interaction-primary);
+  padding: 10px 12px;
+  background: #F7FAFF;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.service-grid .section-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+.service-grid .section-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  font-size: 13px;
+}
+.button-secondary {
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: #111827;
+}
+.button-secondary:hover {
+  border-color: var(--interaction-primary);
+  color: var(--interaction-primary);
+}
+.button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.standalone-state {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--page);
+}
+.standalone-state-card {
+  width: min(680px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  background: var(--card);
+  box-shadow: var(--shadow-2);
+}
+.standalone-state-card h1 {
+  margin: 6px 0 12px;
+  color: var(--navigation);
+  font-size: 30px;
+  letter-spacing: -.03em;
+}
+.standalone-state-card > p:not(.eyebrow) {
+  margin: 0 0 20px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.status-badge[data-status='enabled'],
+.status-badge[data-status='active'],
+.status-badge[data-status='granted'] {
+  background: rgba(17,163,106,.10);
+  color: #08794D;
+}
+.status-badge[data-status='disabled'],
+.status-badge[data-status='expired'],
+.status-badge[data-status='suspended'] {
+  background: rgba(207,58,58,.10);
+  color: #A32F2F;
+}
+
+@media (max-width: 1023px) {
+  .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .service-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .standalone-state { padding: 16px; }
+  .standalone-state-card { padding: 22px 18px; }
+  .standalone-state-card h1 { font-size: 24px; }
+}
