@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.db import SessionLocal
 from app.public_lead_models import PilotInterest
+from app.routers.account_auth import router as account_auth_router
 from app.services.impact_service import (
     EXPLICIT_ISSUE_IMPACTS,
     ensure_default_impact_config,
@@ -183,3 +184,9 @@ def submit_pilot_interest(payload: PilotInterestRequest) -> PilotInterestRespons
         db.commit()
         db.refresh(row)
         return PilotInterestResponse(status="accepted", reference=f"PILOT-{row.id:06d}")
+
+
+# Account authentication is public only in the sense that it is the unauthenticated
+# entry boundary. Credentials/MFA stay at the configured OIDC provider; all tenant
+# membership and switching decisions remain server-authoritative in BCSentinel.
+router.include_router(account_auth_router)
