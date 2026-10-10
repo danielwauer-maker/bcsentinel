@@ -108,6 +108,16 @@ def get_executive_report(
     return _load_report(scan_id, tenant_auth)
 
 
+@router.get("/monitoring/{scan_id}", response_model=ExecutiveReport)
+def get_monitoring_report(
+    scan_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReport:
+    """Monitoring projection of the same D10 report contract and source builder."""
+    report = _load_report(scan_id, tenant_auth)
+    return report.model_copy(update={"report_variant": "monitoring"})
+
+
 @router.post("/executive/{scan_id}/share-link", response_model=ExecutiveReportShareLinkResponse)
 def create_executive_report_share_link(
     request: Request,
