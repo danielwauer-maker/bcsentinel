@@ -1,0 +1,36 @@
+name: X8 Pre-Manual Pilot Audit Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pre-manual-audit:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: x8_ci_secret_not_for_prod
+      ADMIN_USERNAME: x8-ci
+      ADMIN_PASSWORD: x8-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-x8.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate X8 pre-manual audit
+        run: python scripts/validate_x8_pre_manual_pilot_audit.py
+      - name: Assert no known P0 code blockers remain
+        run: python scripts/assert_x8_ready.py
+      - name: Re-run X3 exception transparency regressions
+        working-directory: backend
+        run: pytest -q tests/test_x3_exception_transparency.py
+      - name: Re-run X4 SaaS email regressions
+        working-directory: backend
+        run: pytest -q tests/test_x4_email_i18n.py
+      - name: Re-run tenant isolation security contracts
+        working-directory: backend
+        run: pytest -q tests/test_x0_account_auth_switching.py tests/test_e1_tenant_security.py
