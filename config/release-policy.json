@@ -1,8 +1,9 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "policy": "bcsentinel-release-safety-v1",
   "promotion_path": ["DEV", "RC", "PROD"],
   "dev_host": "dev.bcsentinel.com",
+  "dev_branch": "dev-acceptance",
   "production_hosts": ["bcsentinel.com", "www.bcsentinel.com"],
   "requirements": {
     "dev_to_rc": [
