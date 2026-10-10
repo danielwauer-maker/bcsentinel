@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-x8-pre-manual-pilot-audit-v1",
+  "status": "blocked",
+  "official_go_live_readiness_owned_here": false,
+  "purpose": "Machine-readable pre-manual audit. It must expose unresolved code blockers instead of converting preparation work into official go-live readiness.",
+  "required_contracts": [
+    "config/x1-ui-convergence.json",
+    "config/x3-exception-transparency.json",
+    "config/x5-executive-report-production.json",
+    "config/x6-legal-review.json",
+    "config/x7-dev-acceptance.json"
+  ],
+  "code_blockers": [
+    {
+      "id": "X3-BC-EXCEPTION-TRANSPORT",
+      "severity": "P0",
+      "owner": "automation",
+      "description": "Business Central must transmit the immutable active-exception snapshot for a completed scan through the centralized trusted machine-credential transport.",
+      "closure_evidence": "X3 contract bc_transport_status=complete plus BC implementation and regression evidence"
+    }
+  ],
+  "external_evidence": [
+    {
+      "id": "X6-LEGAL-SIGNOFF",
+      "description": "Final contracting entity, providers, retention/transfer facts and legal review/signoff remain required before PROD."
+    },
+    {
+      "id": "X7-DEV-LIVE-SMOKE",
+      "description": "dev.bcsentinel.com and dev-api.bcsentinel.com must be verified against the merged acceptance stack."
+    }
+  ],
+  "manual_acceptance": [
+    "E3 Business Central role/runtime acceptance",
+    "E4 real Stripe and SMTP/DNS provider acceptance",
+    "E5 real off-host backup/restore and RTO/RPO evidence",
+    "E6 real pilot end-to-end journey",
+    "E7 real soak/scale evidence",
+    "Final visual/PDF/responsive acceptance and F1 authorization"
+  ],
+  "hard_rules": {
+    "no_automatic_main_to_prod": true,
+    "dashboard_bc_writes_forbidden": true,
+    "official_readiness_not_recomputed": true,
+    "legal_review_must_not_claim_approval": true,
+    "legacy_public_roi_forbidden": true,
+    "legacy_pricing_literals_forbidden": true,
+    "stale_placeholder_legal_content_forbidden": true
+  }
+}
