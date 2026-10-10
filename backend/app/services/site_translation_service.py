@@ -111,7 +111,6 @@ ALLOWED_IDENTICAL_TEXTS = {
 }
 
 I18N_ATTR_RE = re.compile(r"""data-i18n(?:-[a-z-]+)?=["']([^"']+)["']""")
-JS_T_CALL_RE = re.compile(r"""\bt\(["']([A-Za-z0-9_]+)["']\)""")
 JS_TRANSLATION_MEMBER_RE = re.compile(r"""translations\[[^\]]+\]\.([A-Za-z0-9_]+)""")
 
 
@@ -141,7 +140,6 @@ def _translations_dir() -> Path:
 
 
 def _translation_paths() -> tuple[Path, Path]:
-    # Test suites may monkeypatch the historical path constants directly.
     if DE_TRANSLATIONS_PATH != DEFAULT_LANDINGPAGE_DIR / "lang" / "de.json":
         return DE_TRANSLATIONS_PATH, EN_TRANSLATIONS_PATH
     translations_dir = _translations_dir()
@@ -197,24 +195,33 @@ def load_site_translation_json(path: Path) -> OrderedDict[str, str]:
     return result
 
 
-def discover_landingpage_i18n_keys() -> set[str]:
-    """Return only explicit translation references.
+def _static_i18n_attribute_keys(text: str) -> set[str]:
+    return {
+        match.strip()
+        for match in I18N_ATTR_RE.findall(text)
+        if match.strip() and "${" not in match and "{{" not in match
+    }
 
-    Generic JavaScript array pairs are intentionally not interpreted as i18n
-    keys. The previous heuristic treated ordinary status/config arrays as
-    translations and produced false missing-key failures.
+
+def discover_landingpage_i18n_keys() -> set[str]:
+    """Return only explicit, statically verifiable global translation references.
+
+    Generic JavaScript helper calls such as ``t('active')`` are intentionally
+    ignored because several production pages use local helper functions with
+    page-local dictionaries. Treating every function named ``t`` as the global
+    translation catalog creates false missing-key findings. Global catalog
+    coverage is proven through static data-i18n attributes and explicit member
+    access on the shared ``translations`` object.
     """
     keys: set[str] = set()
     for path in _landingpage_dir().glob("*.html"):
         text = path.read_text(encoding="utf-8", errors="ignore")
-        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
-        keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
+        keys.update(_static_i18n_attribute_keys(text))
         keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
 
     for path in (_landingpage_dir() / "js").glob("*.js"):
         text = path.read_text(encoding="utf-8", errors="ignore")
-        keys.update(match.strip() for match in I18N_ATTR_RE.findall(text) if match.strip())
-        keys.update(match.strip() for match in JS_T_CALL_RE.findall(text) if match.strip())
+        keys.update(_static_i18n_attribute_keys(text))
         keys.update(match.strip() for match in JS_TRANSLATION_MEMBER_RE.findall(text) if match.strip())
     return keys
 
@@ -367,7 +374,6 @@ def update_site_translations(
     _write_translation_json(de_path, next_de)
     _write_translation_json(en_path, next_en)
 
-    # Parse again after writing so failed writes or invalid encoding cannot pass silently.
     load_site_translation_json(de_path)
     load_site_translation_json(en_path)
 
