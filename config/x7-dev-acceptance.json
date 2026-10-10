@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "contract": "bcsentinel-x7-dev-acceptance-v1",
   "environments": {
     "dev": {
@@ -29,11 +29,21 @@
     "prod_previous_release_ref_required": true,
     "deployment_secrets_in_git_forbidden": true
   },
+  "dev_acceptance_evidence": {
+    "status": "passed",
+    "accepted_at_utc": "2026-10-10T20:49:00Z",
+    "release_ref": "f5c5ab2c6bf9cf102d8fe0f05af04496900c40c4",
+    "workflow_run_id": 38085095443,
+    "deployment_branch": "dev-acceptance",
+    "regression_gate": "passed",
+    "migration_and_container_deploy": "passed",
+    "api_ready_https_smoke": "passed",
+    "landing_https_smoke": "passed",
+    "pilot_https_smoke": "passed",
+    "prod_job": "skipped",
+    "legacy_dev_webroot_bridge": "landingpage_neu -> landingpage"
+  },
   "remaining_external_evidence": [
-    "dev_web_dns_tls_and_reverse_proxy",
-    "dev_api_dns_tls_and_reverse_proxy",
-    "github_development_environment_secrets",
-    "github_production_environment_protection",
-    "first_successful_dev_deploy_and_public_smoke"
+    "github_production_environment_protection"
   ]
 }
