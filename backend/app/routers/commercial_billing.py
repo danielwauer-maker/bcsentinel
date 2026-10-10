@@ -7,9 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import PartnerReferral, Tenant
+from app.models import PartnerReferral
 from app.routers.billing import (
     _billing_interval_for_product,
     _load_latest_pricing_scan,
@@ -23,10 +22,11 @@ from app.routers.billing import (
     CheckoutSessionRequest,
 )
 from app.security.tenant import enforce_tenant_match, load_authenticated_tenant, require_tenant_headers
-from app.services.commercial_checkout_service import checkout_discount_configuration
+from app.services.commercial_checkout_service import commercial_quote, create_stripe_override_coupon
 from app.services.entitlement_guard_service import require_tenant_feature
 from app.services.product_license_service import is_one_time_product
 from app.services.product_pricing_service import get_price_quote
+from app.services.tenant_commercial_service import get_active_commercial_override
 
 router = APIRouter(tags=["commercial-billing"])
 
@@ -73,14 +73,14 @@ def create_commercial_checkout_session(
         if quote.get("custom_quote"):
             raise HTTPException(status_code=409, detail="Enterprise+ volume requires an individual quote.")
 
-        commercial = checkout_discount_configuration(
+        commercial = commercial_quote(
             db,
             tenant_id=tenant.tenant_id,
             product_code=product_code,
             list_price_cents=int(quote["price_cents"]),
         )
         sponsorship_valid_until = commercial.get("pilot_sponsorship_valid_until_utc")
-        if not commercial["checkout_required"]:
+        if commercial["pilot_sponsorship_active"]:
             return CommercialCheckoutResponse(
                 tenant_id=tenant.tenant_id,
                 product_code=product_code,
@@ -95,14 +95,32 @@ def create_commercial_checkout_session(
                 checkout_required=False,
             )
 
-        coupon_id = commercial.get("coupon_id")
-        override_id = commercial.get("override_id")
+        override = get_active_commercial_override(db, tenant_id=tenant.tenant_id, product_code=product_code)
+        override_id = override.id if override is not None else None
         effective_price_cents = int(commercial["effective_price_cents"])
-        allow_promotion_codes = bool(commercial["allow_promotion_codes"])
+        list_price_cents = int(commercial["list_price_cents"])
+        price_source = str(commercial["price_source"])
+        referral_code = str(referral.referral_code or "").strip().lower() if referral is not None else ""
+        attribution_source = str(referral.attribution_source or "").strip().lower() if referral is not None else ""
 
     stripe.api_key = _require_stripe_secret_key()
     price_id = _resolve_product_price_id(product_code, str(quote["tier_code"]))
     _verify_stripe_price_matches_quote(price_id, quote, product_code)
+
+    coupon_id = None
+    allow_promotion_codes = override is None
+    if override is not None:
+        if override.allow_promotion_code_stack:
+            raise HTTPException(
+                status_code=409,
+                detail="Promotion-code stacking with a tenant-specific commercial override is not enabled for this checkout contract.",
+            )
+        coupon_id = create_stripe_override_coupon(
+            override=override,
+            list_price_cents=list_price_cents,
+            effective_price_cents=effective_price_cents,
+            product_code=product_code,
+        )
 
     billing_interval = _billing_interval_for_product(product_code, payload.billing_interval)
     metadata = {
@@ -112,17 +130,17 @@ def create_commercial_checkout_session(
         "billing_interval": billing_interval,
         "pricing_tier": str(quote["tier_code"]),
         "pricing_model": "record_volume_tiers",
-        "bcsentinel_list_price_cents": str(quote["price_cents"]),
+        "bcsentinel_list_price_cents": str(list_price_cents),
         "bcsentinel_effective_price_cents": str(effective_price_cents),
-        "bcsentinel_price_source": str(commercial["price_source"]),
+        "bcsentinel_price_source": price_source,
     }
     if override_id is not None:
         metadata["bcsentinel_override_id"] = str(override_id)
     if coupon_id:
         metadata["bcsentinel_coupon_id"] = str(coupon_id)
-    if referral is not None:
-        metadata["referral_code"] = str(referral.referral_code or "").strip().lower()
-        metadata["attribution_source"] = str(referral.attribution_source or "").strip().lower()
+    if referral_code:
+        metadata["referral_code"] = referral_code
+        metadata["attribution_source"] = attribution_source
 
     try:
         success_url = _resolve_checkout_success_url()
@@ -157,9 +175,9 @@ def create_commercial_checkout_session(
         product_code=product_code,
         billing_interval=billing_interval,
         pricing_tier=str(quote["tier_code"]),
-        list_price_cents=int(commercial["list_price_cents"]),
+        list_price_cents=list_price_cents,
         effective_price_cents=effective_price_cents,
-        price_source=str(commercial["price_source"]),
+        price_source=price_source,
         promotion_code_allowed=allow_promotion_codes,
         checkout_required=True,
         checkout_session_id=str(getattr(session, "id", "") or ""),
