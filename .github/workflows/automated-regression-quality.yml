@@ -1,0 +1,98 @@
+name: E2 Automated Regression Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  contract-and-al-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate E2 regression matrix
+        run: python scripts/validate_e2_automated_regression.py
+      - name: AL localization regression
+        run: python scripts/check_al_localization.py
+      - name: BC remediation contract regression
+        run: python scripts/validate_bc_remediation.py
+      - name: BC notification contract regression
+        run: python scripts/validate_bc_notifications.py
+      - name: Pricing consistency regression
+        run: python scripts/check_pricing_consistency.py
+      - name: Backend remediation API contract regression
+        run: python scripts/validate_backend_remediation_api.py
+      - name: Backend notification read model regression
+        run: python scripts/validate_backend_notification_read_model.py
+      - name: Dashboard foundation and responsive regression
+        run: python scripts/validate_dashboard_foundation.py
+      - name: Dashboard core page regression
+        run: python scripts/validate_dashboard_core_pages.py
+      - name: Dashboard service page regression
+        run: python scripts/validate_dashboard_service_pages.py
+      - name: Landing, SEO and accessibility regression
+        run: python scripts/validate_landing_pilot_production.py
+      - name: Executive report contract regression
+        run: python scripts/validate_executive_report_contract.py
+      - name: Tenant security regression contract
+        run: python scripts/validate_e1_tenant_security.py
+
+  backend-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Compile backend
+        run: python -m compileall -q backend/app
+      - name: Validate Alembic revision graph
+        working-directory: backend
+        run: alembic heads
+      - name: Run complete backend test suite
+        working-directory: backend
+        run: pytest -q
+
+  dashboard-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm install
+      - name: Type-check dashboard
+        working-directory: dashboard
+        run: npm run check
+      - name: Build dashboard production bundle
+        working-directory: dashboard
+        run: npm run build
+
+  release-gate:
+    if: ${{ always() }}
+    needs:
+      - contract-and-al-regression
+      - backend-regression
+      - dashboard-regression
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce aggregate regression result
+        env:
+          CONTRACT_RESULT: ${{ needs.contract-and-al-regression.result }}
+          BACKEND_RESULT: ${{ needs.backend-regression.result }}
+          DASHBOARD_RESULT: ${{ needs.dashboard-regression.result }}
+        run: |
+          echo "contract-and-al=$CONTRACT_RESULT"
+          echo "backend=$BACKEND_RESULT"
+          echo "dashboard=$DASHBOARD_RESULT"
+          test "$CONTRACT_RESULT" = "success"
+          test "$BACKEND_RESULT" = "success"
+          test "$DASHBOARD_RESULT" = "success"
+          echo "E2 Automated Regression Quality Gate: PASS"
