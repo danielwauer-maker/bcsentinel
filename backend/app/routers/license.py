@@ -10,6 +10,8 @@ from app.services.tenant_access_service import get_tenant_status
 from app.routers.auth import router as auth_router
 from app.routers.remediation import router as remediation_router
 from app.routers.notifications import router as notifications_router
+from app.routers.prepilot import router as prepilot_router
+from app.routers.exception_transparency import router as exception_transparency_router
 
 router = APIRouter(tags=["license"])
 
@@ -79,3 +81,5 @@ def get_license_status(
 router.include_router(auth_router)
 router.include_router(remediation_router)
 router.include_router(notifications_router)
+router.include_router(prepilot_router)
+router.include_router(exception_transparency_router)
