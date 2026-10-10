@@ -17,40 +17,19 @@ dashboard_hooks = (ROOT / "dashboard" / "src" / "core" / "hooks.ts").read_text(e
 dashboard_types = (ROOT / "dashboard" / "src" / "core" / "types.ts").read_text(encoding="utf-8")
 app_shell = (ROOT / "dashboard" / "src" / "foundation" / "AppShell.tsx").read_text(encoding="utf-8")
 report_v2 = (ROOT / "backend" / "app" / "services" / "executive_report_v2_service.py").read_text(encoding="utf-8")
+transport_path = ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHExceptionSnapshotTransport.Codeunit.al"
 
 if contract["authority"]["exception_management"] != "business_central":
     raise SystemExit("Exception management authority must remain Business Central.")
 if contract["write_model"]["immutable_after_first_capture"] is not True:
     raise SystemExit("Per-scan exception snapshots must be immutable after first capture.")
 
-for needle in (
-    'class ScanExceptionSnapshotCapture',
-    '__tablename__ = "scan_exception_snapshot_captures"',
-    'class ScanExceptionSnapshot',
-    '__tablename__ = "scan_exception_snapshots"',
-    'UniqueConstraint(',
-    '"scan_id"',
-    '"source_exception_entry_no"',
-    'issue_code',
-    'reason',
-    'captured_at_utc',
-):
+for needle in ('class ScanExceptionSnapshotCapture','__tablename__ = "scan_exception_snapshot_captures"','class ScanExceptionSnapshot','__tablename__ = "scan_exception_snapshots"','UniqueConstraint(','"scan_id"','"source_exception_entry_no"','issue_code','reason','captured_at_utc'):
     if needle not in model:
         raise SystemExit(f"X3 snapshot model fragment missing: {needle}")
-
-for needle in (
-    '@router.post("/scans/{scan_id}/exception-snapshot")',
-    '@router.get("/scans/{scan_id}/exceptions")',
-    'Machine tenant credentials are required.',
-    'Exception snapshot is immutable once captured for a scan.',
-    'snapshot_captured',
-    'exceptions_applied',
-    'captured_exception_count',
-    'ScanExceptionSnapshotCapture(',
-):
+for needle in ('@router.post("/scans/{scan_id}/exception-snapshot")','@router.get("/scans/{scan_id}/exceptions")','Machine tenant credentials are required.','Exception snapshot is immutable once captured for a scan.','snapshot_captured','exceptions_applied','captured_exception_count','ScanExceptionSnapshotCapture('):
     if needle not in router:
         raise SystemExit(f"X3 API fragment missing: {needle}")
-
 if 'router.include_router(exception_transparency_router)' not in license_router:
     raise SystemExit("X3 exception transparency router is not mounted in runtime.")
 if 'router.include_router(prepilot_router)' not in license_router:
@@ -63,7 +42,6 @@ if 'revision = "0029_exception_snapshot_capture_header"' not in migration_0029 o
     raise SystemExit("X3 capture-header migration is not anchored to 0028_scan_exception_snapshots.")
 if 'INSERT INTO scan_exception_snapshot_captures' not in migration_0029:
     raise SystemExit("X3 capture-header migration must preserve legacy non-empty snapshot immutability.")
-
 for needle in ('loadScanExceptions', '/scans/${encode(scanId)}/exceptions'):
     if needle not in dashboard_api:
         raise SystemExit(f"X3 dashboard API fragment missing: {needle}")
@@ -78,15 +56,26 @@ for needle in ('exception-scope-banner', 'Ausnahmen anzeigen', 'Historischer Sna
 if 'exception' not in report_v2.lower():
     raise SystemExit("X3 exception evidence is not connected to the Executive Report layer.")
 
-# BC remains the authority. A separate machine snapshot write path must not be
-# simulated in the browser. Actual BC transport wiring is tracked as a closure
-# evidence item and must be present before X3 can be marked fully complete.
-transport_candidates = [
-    ROOT / "bc-extension" / "app" / "src" / "codeunits" / "DHExceptionSnapshotTransport.Codeunit.al",
-]
-bc_transport_ready = any(path.exists() for path in transport_candidates)
-if contract.get("bc_transport_status") == "complete" and not bc_transport_ready:
-    raise SystemExit("X3 claims complete BC transport but no BC snapshot transport exists.")
+if contract.get("bc_transport_status") == "complete":
+    if not transport_path.exists():
+        raise SystemExit("X3 claims complete BC transport but the transport codeunit is missing.")
+    transport = transport_path.read_text(encoding="utf-8")
+    for needle in (
+        'EventSubscriber(ObjectType::Table, Database::"DH Deep Scan Run", \'OnAfterModifyEvent\'',
+        'Rec.Status <> Rec.Status::Completed',
+        '[TryFunction]',
+        'SecretMgt.GetApiToken(Setup)',
+        'IssueException.SetRange(Active, true)',
+        "'/scans/' + Format(ScanId) + '/exception-snapshot'",
+        "RequestHeaders.Add('X-Tenant-Id', Setup.\"Tenant ID\")",
+        "RequestHeaders.Add('X-Api-Token', ApiToken)",
+        'Response.HttpStatusCode() = 409',
+        "Payload.Add('exceptions', Exceptions)",
+    ):
+        if needle not in transport:
+            raise SystemExit(f"X3 BC transport fragment missing: {needle}")
+    if contract.get("open_evidence"):
+        raise SystemExit("X3 transport is complete but open_evidence is not empty.")
 
 print("X3 exception transparency contract: PASS")
-print(f"X3 BC snapshot transport: {'READY' if bc_transport_ready else 'OPEN'}")
+print(f"X3 BC snapshot transport: {'READY' if transport_path.exists() else 'OPEN'}")
