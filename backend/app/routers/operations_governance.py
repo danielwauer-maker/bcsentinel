@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, text
 
-from app.db import SessionLocal
+from app.core.settings import settings
+from app.db import SessionLocal, engine
 from app.operations_governance_models import TenantFeatureFlag, TenantSupportAccessGrant
 from app.routers.membership_admin import _tenant_user_principal
 from app.services.operations_governance_service import (
@@ -28,6 +29,26 @@ class SupportGrantRequest(BaseModel):
 class DataLifecycleRequestBody(BaseModel):
     request_type: str
     reason: str | None = Field(default=None, max_length=255)
+
+
+@router.get("/ops/health/ready")
+def operations_health_ready() -> dict:
+    checks: dict[str, str] = {}
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    checks["database"] = "ok"
+    policy = retention_policy()
+    checks["retention_policy"] = "ok" if policy.get("schema_version") else "error"
+    checks["identity_provider"] = "configured" if settings.OIDC_ENABLED else "optional_not_configured"
+    checks["stripe"] = "configured" if (settings.STRIPE_SECRET_KEY or "").strip() else "optional_not_configured"
+    checks["smtp"] = "configured" if (settings.SMTP_HOST or "").strip() else "optional_not_configured"
+    hard_failures = [key for key, value in checks.items() if value == "error"]
+    return {
+        "status": "ok" if not hard_failures else "degraded",
+        "environment": settings.ENV,
+        "checks": checks,
+        "hard_failures": hard_failures,
+    }
 
 
 @router.get("/account/tenant/support-access")
