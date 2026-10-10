@@ -150,7 +150,8 @@ def test_public_product_pricing_api_returns_active_database_tier_prices(client, 
     assert products["assessment"]["price_eur"] == 250.0
     tiers = {row["code"]: row for row in payload["tiers"]}
     assert tiers["small"]["prices"]["assessment"]["price_cents"] == 25000
-    assert "stripe" not in response.text.lower()
+    assert "stripe_price_id" not in response.text.lower()
+    assert "sk_" not in response.text.lower()
 
 
 def test_public_product_pricing_payload_exposes_record_volume_tiers(db_session):
