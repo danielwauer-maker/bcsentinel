@@ -173,12 +173,58 @@
       .site-footer .footer-links a:hover{color:var(--text,#eff4ff)!important;text-decoration:none!important}
       @media(max-width:1160px){.site-header .nav{grid-template-columns:auto 1fr auto !important}.site-header .desktop-nav{display:none!important}.site-header .nav-toggle{display:inline-block!important}.site-header .nav-actions{margin-left:auto!important}}
       @media(max-width:680px){.site-header .nav{min-height:62px!important}.site-header .brand-copy span{display:none!important}.site-header .lang-switch{gap:9px!important}.site-header .lang-btn{font-size:.8rem!important}.site-header .theme-toggle,.site-header .nav-toggle{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.site-footer .footer-inner{align-items:flex-start!important;flex-direction:column!important}}
+      body.hero-page .site-header{position:absolute!important;inset:0 0 auto!important;height:68px!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+      body.hero-page .site-header .nav{width:min(calc(100% - 128px),1312px)!important;min-height:68px!important;grid-template-columns:195px minmax(0,1fr) auto!important;gap:24px!important}
+      body.hero-page .site-header .hero-brand{width:195px!important;height:65px!important;margin:0!important;padding:0!important;display:block!important}
+      body.hero-page .site-header .hero-brand img{display:block!important;width:195px!important;height:65px!important;object-fit:contain!important;filter:none!important}
+      body.hero-page .site-header .desktop-nav{justify-content:space-between!important;gap:clamp(8px,1.1vw,16px)!important}
+      body.hero-page .site-header .desktop-nav a{color:#e4e8ec!important;font-size:15px!important;font-weight:500!important}
+      body.hero-page .site-header .desktop-nav a:hover{color:#fff!important}
+      body.hero-page .site-header .nav-actions{gap:0!important}
+      body.hero-page .site-header .hero-login{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;width:98px!important;height:30px!important;border:1px solid #ce852f!important;border-radius:7px!important;background:#fc932c!important;color:#2a1a1c!important;font-size:14px!important;font-weight:700!important;text-decoration:none!important;white-space:nowrap!important}
+      body.hero-page .site-header .hero-login:hover{background:#ffab4f!important;color:#211719!important}
+      body.hero-page .site-header .nav-toggle{display:none!important}
+      body.hero-page .site-header .mobile-menu{background:rgba(3,20,35,.96)!important;border-top:1px solid rgba(255,255,255,.1)!important}
+      body.hero-page .site-header .mobile-menu-inner{width:min(calc(100% - 40px),600px)!important}
+      body.hero-page .site-header .mobile-menu a{color:#e4e8ec!important}
+      @media(max-width:1199px){body.hero-page .site-header .nav{width:calc(100% - 64px)!important;grid-template-columns:195px 1fr auto!important;gap:16px!important}body.hero-page .site-header .desktop-nav{display:none!important}body.hero-page .site-header .nav-toggle{display:inline-block!important;margin-left:14px!important}body.hero-page .site-header .nav-actions{margin-left:auto!important}}
+      @media(max-width:600px){body.hero-page .site-header{height:62px!important}body.hero-page .site-header .nav{width:calc(100% - 36px)!important;min-height:62px!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important}body.hero-page .site-header .hero-brand{width:156px!important;height:52px!important}body.hero-page .site-header .hero-brand img{width:156px!important;height:52px!important}body.hero-page .site-header .hero-login{width:78px!important;height:32px!important;font-size:13px!important}body.hero-page .site-header .nav-toggle{margin-left:8px!important;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important}}
     `;
     document.head.appendChild(style);
   }
 
   function buildHeader() {
     const key = pageKey();
+    if (key === "index") {
+      const landingLinks = [
+        ["#problem", "Produkt"],
+        ["#how-it-works", "So funktioniert's"],
+        ["/loss-examples.html", "Loss Examples"],
+        ["/docs.html", "Executive Report"],
+        ["/security.html", "Sicherheit"],
+        ["/pilot.html", "Pilot"],
+        ["#pricing", "Preise"],
+        ["/help.html", "FAQ"],
+        ["/contact.html", "Kontakt"],
+      ];
+      const links = landingLinks.map(([href, label]) => `<a href="${href}">${label}</a>`).join("");
+      return `
+        <header class="site-header hero-site-header">
+          <div class="nav">
+            <a class="brand hero-brand" href="/index.html#top" aria-label="BCSentinel home">
+              <img src="/assets/hero-logo.png" alt="BCSentinel — Clean Data. Higher Impact." width="195" height="65" />
+            </a>
+            <nav class="nav-links desktop-nav" aria-label="Hauptnavigation">${links}</nav>
+            <div class="nav-actions">
+              <a class="hero-login" href="/partner-login.html">Login <span aria-hidden="true">→</span></a>
+              <button aria-controls="mobileMenu" aria-expanded="false" aria-label="Menü öffnen" class="nav-toggle" id="navToggle" type="button">
+                <span></span><span></span><span></span>
+              </button>
+            </div>
+          </div>
+          <div class="mobile-menu" id="mobileMenu"><nav class="mobile-menu-inner" aria-label="Mobile Navigation">${links}</nav></div>
+        </header>`;
+    }
     const nav = pageNav[key] || pageNav.index;
     const links = nav.map(([href, label]) => `<a href="${href}" data-i18n="${label}">${t(label)}</a>`).join("");
     const mobileLinks = nav.map(([href, label]) => `<a href="${href}" data-i18n="${label}">${t(label)}</a>`).join("");

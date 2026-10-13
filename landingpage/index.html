@@ -8,7 +8,11 @@
   <meta name="theme-color" content="#08111f" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="https://www.bcsentinel.com/" />
-<link rel="stylesheet" href="styles.css" />
+  <link rel="preload" as="image" href="assets/hero-office.png" fetchpriority="high" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Spectral:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="BCSentinel" />
   <meta property="og:title" content="BCSentinel — Executive Data Health for Business Central" />
@@ -36,24 +40,28 @@
     .claim-note{font-size:.9rem;color:var(--muted-2);margin-top:8px}
   </style>
 </head>
-<body>
+<body class="hero-page">
 <a class="skip-link" href="#main-content">Zum Inhalt springen / Skip to content</a>
 <div class="site-bg" aria-hidden="true"></div>
 <header class="site-header"></header>
 <main id="main-content">
-  <section class="hero section" id="top">
-    <div class="container card card-highlight hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow" data-de="Executive Data Health für Business Central" data-en="Executive Data Health for Business Central">Executive Data Health für Business Central</span>
-        <h1 data-de="Datenqualitätsrisiken erkennen und ihren wirtschaftlichen Impact transparent machen." data-en="Identify data-quality risks and make their economic impact transparent.">Datenqualitätsrisiken erkennen und ihren wirtschaftlichen Impact transparent machen.</h1>
-        <p class="hero-sub lead" data-de="BCSentinel analysiert Microsoft Dynamics 365 Business Central, zeigt Findings und Data Health Score, modelliert Estimated Loss und Potential Saving und macht Verbesserungen über Validation und Monitoring nachvollziehbar." data-en="BCSentinel analyzes Microsoft Dynamics 365 Business Central, surfaces findings and Data Health Score, models Estimated Loss and Potential Saving, and makes improvement traceable through validation and monitoring.">BCSentinel analysiert Microsoft Dynamics 365 Business Central, zeigt Findings und Data Health Score, modelliert Estimated Loss und Potential Saving und macht Verbesserungen über Validation und Monitoring nachvollziehbar.</p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="#pricing" data-de="Produkte ansehen" data-en="View products">Produkte ansehen</a>
-          <a class="btn btn-secondary" href="pilot.html" data-de="Controlled Pilot anfragen" data-en="Request controlled pilot">Controlled Pilot anfragen</a>
-        </div>
-        <p class="claim-note" data-de="Financial Outcomes sind modellierte Schätzwerte auf Basis transparenter Annahmen — keine garantierten oder buchhalterisch bestätigten Einsparungen." data-en="Financial outcomes are modeled estimates based on transparent assumptions — not guaranteed or accounting-confirmed savings.">Financial Outcomes sind modellierte Schätzwerte auf Basis transparenter Annahmen — keine garantierten oder buchhalterisch bestätigten Einsparungen.</p>
+  <section class="hero section" id="top" aria-labelledby="hero-title">
+    <div class="hero-backdrop" aria-hidden="true"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow"><span>DATENQUALITÄT.</span> TRANSPARENZ. FINANZIELLER IMPACT.</p>
+      <h1 id="hero-title">Schlechte Daten<br />kosten Geld.<br />BCSentinel <span>zeigt</span><br /><span>den Impact.</span></h1>
+      <p class="hero-description">BCSentinel analysiert Ihre Microsoft Dynamics 365 Business Central Daten, erkennt Datenqualitätsprobleme und macht deren finanziellen Einfluss sichtbar – priorisiert, verständlich und direkt umsetzbar.</p>
+      <div class="hero-actions">
+        <a class="hero-button hero-button-primary" href="pilot.html">Pilot anfragen <span aria-hidden="true">→</span></a>
+        <a class="hero-button hero-button-secondary" href="#how-it-works"><span class="hero-play" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><circle cx="10" cy="10" r="8.4"/><path d="m8 6.7 5.2 3.3L8 13.3z"/></svg></span>So funktioniert BCSentinel</a>
       </div>
+      <ul class="hero-benefits" aria-label="Vorteile">
+        <li><span class="benefit-check" aria-hidden="true">✓</span><span>Schnell einsatzbereit</span></li>
+        <li><span class="benefit-check" aria-hidden="true">✓</span><span>Sicher und mandantengetrennt</span></li>
+        <li><span class="benefit-check" aria-hidden="true">✓</span><span>Finanzieller Impact statt<br />technischer Fehlermeldungen</span></li>
+      </ul>
     </div>
+    <img class="hero-dashboard" src="assets/hero-dashboard.png" alt="BCSentinel Dashboard mit Data Health Score, Findings und finanziellem Impact" width="1056" height="1022" fetchpriority="high" />
   </section>
 
   <section class="section" id="problem">

@@ -966,6 +966,174 @@ p {
 }
 .faq-item { width: 100%; }
 
+/* Final Figma header and hero — scoped to the homepage only. */
+body.hero-page {
+  --hero-orange: #f69331;
+  min-width: 320px;
+  overflow-x: hidden;
+  background: #001426;
+  color: #f7f8fa;
+  font-family: Inter, Arial, sans-serif;
+}
+body.hero-page .site-bg { display: none; }
+body.hero-page main { position: relative; }
+body.hero-page .hero.section {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  min-height: max(700px, 100svh);
+  padding: 0;
+  overflow: hidden;
+  background: #001426;
+}
+.hero-backdrop {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: url("assets/hero-office.png") center / cover no-repeat;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(620px, 47vw);
+  margin-left: max(64px, calc((100vw - 1312px) / 2));
+  padding-top: clamp(140px, 19vh, 165px);
+}
+.hero-eyebrow {
+  margin: 0 0 17px;
+  color: #f1f4f5;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: .005em;
+  white-space: nowrap;
+}
+.hero-eyebrow span { color: #ec8520; font-weight: 700; }
+.hero-content h1 {
+  margin: 0;
+  color: #fbfcfd;
+  font-family: Spectral, Georgia, serif;
+  font-size: clamp(50px, 4.5vw, 65px);
+  font-weight: 700;
+  line-height: 1.01;
+  letter-spacing: -.028em;
+}
+.hero-content h1 span { color: var(--hero-orange); }
+.hero-description {
+  max-width: 620px;
+  margin: 27px 0 0;
+  color: #e9f0f2;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 26px;
+}
+.hero-button {
+  display: inline-flex;
+  min-height: 65px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0 22px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.hero-button:hover { transform: translateY(-1px); }
+.hero-button:focus-visible,
+body.hero-page .site-header a:focus-visible,
+body.hero-page .site-header button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+.hero-button-primary {
+  width: 236px;
+  background: #fd922d;
+  border-color: #d1842e;
+  color: #25221f;
+}
+.hero-button-primary:hover { background: #ffab4f; }
+.hero-button-primary > span { font-size: 22px; font-weight: 500; }
+.hero-button-secondary {
+  width: 332px;
+  border: 2px solid #456;
+  border-radius: 4px;
+  background: rgba(0, 21, 40, .72);
+}
+.hero-button-secondary:hover { background: rgba(15, 45, 68, .92); border-color: #8194a6; }
+.hero-play { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; }
+.hero-play svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.hero-play svg path { fill: currentColor; stroke: none; }
+.hero-benefits {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #e8e8eb;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.hero-benefits li { display: flex; flex: 0 0 auto; align-items: flex-start; gap: 9px; }
+.benefit-check { color: #ff981e; font-size: 21px; font-weight: 700; line-height: 1; }
+.hero-dashboard {
+  position: absolute;
+  z-index: 1;
+  top: 21.43%;
+  right: 5.625%;
+  display: block;
+  width: 37.64%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+@media (max-width: 1199px) {
+  .hero-content { width: 52vw; margin-left: 32px; padding-top: 132px; }
+  .hero-content h1 { font-size: clamp(44px, 6.1vw, 58px); }
+  .hero-description { font-size: 16px; }
+  .hero-actions { gap: 12px; }
+  .hero-button { padding-right: 15px; padding-left: 15px; font-size: 14px; }
+  .hero-button-primary { width: 205px; }
+  .hero-button-secondary { width: 280px; }
+  .hero-benefits { gap: 14px; font-size: 12px; }
+}
+@media (max-width: 767px) {
+  body.hero-page .hero.section {
+    display: block;
+    min-height: 0;
+    padding: 0 20px calc(60.28vw + 24px);
+  }
+  .hero-backdrop {
+    inset: auto 0 0;
+    aspect-ratio: 1440 / 868;
+    background-size: 100% 100%;
+  }
+  .hero-content { width: 100%; margin: 0; padding-top: 96px; }
+  .hero-eyebrow { margin-bottom: 14px; font-size: clamp(10px, 3.25vw, 13px); white-space: normal; }
+  .hero-content h1 { font-size: clamp(38px, 10.2vw, 48px); line-height: 1.04; letter-spacing: -.03em; }
+  .hero-description { max-width: 540px; margin-top: 16px; font-size: 15px; line-height: 1.5; }
+  .hero-actions { align-items: stretch; flex-direction: column; gap: 11px; margin-top: 21px; }
+  .hero-button { width: min(100%, 360px); min-height: 54px; font-size: 15px; }
+  .hero-benefits { flex-direction: column; gap: 11px; margin-top: 22px; font-size: 13px; }
+  .hero-dashboard { top: auto; right: 5.625%; bottom: 11.9vw; width: 37.64%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.hero-page *, body.hero-page *::before, body.hero-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
 /* --- Theme toggle --- */
 .theme-toggle {
   display: inline-flex;
