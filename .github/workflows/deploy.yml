@@ -115,9 +115,25 @@ jobs:
             git checkout --detach "$RELEASE_REF"
             git clean -fd
             ln -sfn landingpage landingpage_neu
-            docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
-            docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
-            docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
+
+            COMPOSE="docker compose -f docker-compose.dev.yml --env-file .env.dev"
+
+            # Database must be available before migrations run.
+            $COMPOSE up -d postgres
+
+            # Build the release images first. Migration commands must never run
+            # from a stale backend image that predates the checked-out ref.
+            $COMPOSE build
+
+            # Run migrations with the freshly built backend image.
+            $COMPOSE run --rm backend alembic upgrade head
+
+            # Recreate running services so the checked-out release is actually
+            # what serves traffic, even when an older container is still healthy.
+            $COMPOSE up -d --force-recreate
+
+            echo "=== Deployed backend container ==="
+            $COMPOSE ps backend
           EOF
       - name: DEV route diagnostics
         run: |
@@ -152,10 +168,21 @@ jobs:
             if curl -4 -fsS https://dev-api.bcsentinel.com/health/ready >/dev/null; then break; fi
             sleep 5
           done
+
           curl -4 -fsS https://dev-api.bcsentinel.com/health/ready
           curl -4 -fsS https://dev.bcsentinel.com/ >/dev/null
           curl -4 -fsS https://dev.bcsentinel.com/pilot.html >/dev/null
-          echo "DEV acceptance endpoints reachable."
+
+          # Exercise the real waitlist route without persistence or email.
+          # The non-empty honeypot field intentionally returns 202 immediately.
+          WAITLIST_SMOKE_RESPONSE="$(curl -4 -fsS -X POST \
+            https://dev-api.bcsentinel.com/public/pilot-interest \
+            -H 'Origin: https://dev.bcsentinel.com' \
+            -H 'Content-Type: application/json' \
+            --data '{"contact_name":"Deploy Smoke","contact_email":"smoke@example.invalid","privacy_consent":true,"preferred_language":"en","source_page":"deploy-smoke","website":"route-smoke"}')"
+          echo "$WAITLIST_SMOKE_RESPONSE" | grep -q '"status":"accepted"'
+
+          echo "DEV acceptance endpoints and waitlist route reachable."
 
   deploy-prod:
     if: needs.deployment-contract.outputs.target == 'prod'
@@ -184,9 +211,13 @@ jobs:
             git fetch --all --tags --prune
             git checkout --detach "$RELEASE_REF"
             git clean -fd -e .previous-release-ref
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d postgres
-            docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm backend alembic upgrade head
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+
+            COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
+
+            $COMPOSE up -d postgres
+            $COMPOSE build
+            $COMPOSE run --rm backend alembic upgrade head
+            $COMPOSE up -d --force-recreate
           EOF
       - name: PROD smoke
         run: |
