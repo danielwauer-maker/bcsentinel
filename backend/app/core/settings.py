@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     SMTP_USE_TLS: bool = True
     SMTP_FROM_EMAIL: str | None = None
     SMTP_FROM_NAME: str = "BCSentinel"
+    WAITLIST_ADMIN_EMAIL: str = "admin@bcsentinel.com"
 
     # === CUSTOMER IDENTITY (OIDC) ===
     # Passwords, MFA and credential recovery remain provider-owned. BCSentinel
