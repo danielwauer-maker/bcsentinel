@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import smtplib
 from email.mime.text import MIMEText
+from html import escape
 
 from app.core.settings import settings
 
@@ -45,3 +46,28 @@ def send_html_email(*, to_email: str, subject: str, html_body: str) -> tuple[boo
     except Exception as exc:
         logger.exception("Failed to send email to %s", target)
         return False, str(exc)
+
+
+def send_waitlist_admin_notification(
+    *,
+    reference: str,
+    contact_name: str,
+    contact_email: str,
+    source_page: str,
+    created_at_utc: str,
+) -> tuple[bool, str | None]:
+    recipient = (settings.WAITLIST_ADMIN_EMAIL or "admin@bcsentinel.com").strip()
+    subject = f"Neue BCSentinel-Wartelisten-Anmeldung – {reference}"
+    html_body = f"""
+<html>
+  <body style="font-family:Arial,sans-serif;color:#14213D;line-height:1.5">
+    <h2>Neue BCSentinel-Wartelisten-Anmeldung</h2>
+    <p><strong>Referenz:</strong> {escape(reference)}</p>
+    <p><strong>Name:</strong> {escape(contact_name)}</p>
+    <p><strong>E-Mail:</strong> <a href="mailto:{escape(contact_email)}">{escape(contact_email)}</a></p>
+    <p><strong>Quelle:</strong> {escape(source_page)}</p>
+    <p><strong>Zeitpunkt (UTC):</strong> {escape(created_at_utc)}</p>
+  </body>
+</html>
+""".strip()
+    return send_html_email(to_email=recipient, subject=subject, html_body=html_body)
