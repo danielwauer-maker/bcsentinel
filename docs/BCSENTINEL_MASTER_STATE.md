@@ -37,10 +37,12 @@ For the Core repository, the canonical technical baseline is recorded as the com
 ### Frontend
 
 - Repository: `danielwauer-maker/bcsentinel-frontend`
-- Current `main`: `e84deb14afe90ae3326cd9622d78aa5363d6fc63`
-- Lovable `BCSentinel Frontend` is synchronized to the same SHA.
-- Real routes currently implemented: `/`, `/overview`, `/findings`.
-- Additional SaaS routes still need runtime implementation/integration.
+- Current `main`: `742e3257c8db6af6d732fcca02da0047a48b69b5`.
+- S2 technical closure commit: `20464e4c8e15f139a21b6226f974cfc951ae180d`.
+- Real routes implemented: `/`, `/overview`, `/findings`, `/actions`, `/financial-impact`, `/reports`, `/scans`, `/validation`, `/monitoring`, `/settings`, `/subscription`, `/support`, `/datenschutz`, `/impressum`.
+- Runtime Lovable asset dependency removed; sidebar placeholder navigation removed; Free Entry route-level aggregate-only boundary preserved.
+- DEV deployment run `40747919204`: PASS including verify, immutable image deployment, routing diagnostics and public DEV smoke.
+- Manual responsive/visual acceptance and final legal/provider review remain later gates.
 
 ### Business Central Extension
 
@@ -78,12 +80,12 @@ For the Core repository, the canonical technical baseline is recorded as the com
 - BCSentinel Frontend
   - Project ID: `6c392bec-8b44-40e1-a79d-d41962e7eb09`
   - Commit: `e84deb14afe90ae3326cd9622d78aa5363d6fc63`
-  - Status: synchronized with `bcsentinel-frontend/main`.
+  - Status: historical Lovable authoring reference; canonical `bcsentinel-frontend/main` has advanced through S2.
 
 - Business Central Risk Radar / Landing Master
   - Project ID: `267ee2cd-c9a4-4d98-9835-e35659839a03`
   - Commit: `768c1049715aba547075b738e3d1d9bf54750a91`
-  - Status: current landing visual reference.
+  - Status: visual reference only; S2 removed the runtime dependency on its hosted landing assets.
 
 - BCSentinel Report Assessment
   - Project ID: `a4c54214-d67a-47eb-99ca-dda8de9340fd`
@@ -141,9 +143,9 @@ Approved frontend workflow:
 The following are not hidden by readiness percentages and must stay visible until evidence closes them:
 
 - VIEWER, SETUP, SCHEDULER and ADMIN still require final real runtime role acceptance.
-- Landing hero/dashboard/logo assets currently depend on Lovable-hosted assets and must be localized before PROD.
-- New frontend currently implements only `/`, `/overview` and `/findings` as real routes.
-- Remaining sidebar destinations require real routes and backend integration.
+- Frontend S2 technical closure is complete; manual responsive/visual acceptance remains open.
+- Legal routes are reachable, but final provider facts and legal review remain required before public launch.
+- Current report-family integration/polish and visual acceptance remain later release gates.
 - Multi-tenant switching needs a final real two-tenant isolation acceptance.
 - Stripe needs full real-provider E2E acceptance.
 - Transactional mail needs full DE/EN and DNS/provider acceptance.
@@ -159,8 +161,6 @@ Required before calling the controlled pilot release complete:
 
 - SETUP, SCHEDULER and ADMIN runtime acceptance complete; existing real VIEWER and SCAN evidence remains valid unless the environment changes materially.
 - Real two-tenant switching and negative isolation tests pass.
-- Lovable-hosted production assets localized.
-- Impressum and Datenschutz reachable from the current frontend.
 - Current report designs integrated with real backend data and visually accepted.
 - Real backup/restore drill completed.
 - One frozen RC deployed to PROD and full E2E smoke passes.
@@ -175,7 +175,6 @@ Additionally:
 - Final legal/provider review.
 - PROD recovery evidence.
 - Staged scale/soak evidence.
-- No placeholder navigation in the SaaS frontend.
 
 ### Fully polished High-End SaaS + AppSource
 
@@ -217,6 +216,8 @@ This Definition of Done is satisfied.
 
 Tracking: GitHub issue `#121`.
 
+The remaining S1 manual acceptance gates are intentionally deferred by the owner while autonomous technical sprints proceed. This does not close S1.
+
 Already verified with real evidence:
 
 - VIEWER without SUPER: PASS – dashboard/history readable; setup and manual scan denied (PR #46).
@@ -233,6 +234,25 @@ Remaining S1 gates:
 Definition of Done:
 
 > SETUP, SCHEDULER and ADMIN pass real BC SaaS runtime without SUPER, and the real two-tenant DEV switching/isolation test passes. Existing VIEWER and SCAN evidence is reused unless the environment changes materially.
+
+## Sprint 2 closure
+
+**Sprint 2 – Frontend Production Closure: AUTONOMOUS TECHNICAL SCOPE COMPLETE**
+
+Evidence:
+
+- Frontend closure commit: `20464e4c8e15f139a21b6226f974cfc951ae180d`.
+- Current frontend `main`: `742e3257c8db6af6d732fcca02da0047a48b69b5`.
+- Tests: PASS.
+- Production build: PASS.
+- Lint: PASS after full frontend formatting.
+- Hygiene checks: PASS – no Lovable runtime asset URL, no sidebar `href="#"`, no relative Executive Report `/api/reports/executive/...` link.
+- Free Entry direct service routes preserve aggregate-only boundaries; concrete financial values and action/finding details are not rendered there in Free mode.
+- Validation/Monitoring navigation remains entitlement-aware.
+- DEV deploy run `40747919204`: PASS through public DEV smoke.
+- One-shot S2 finalizer/helper files were removed after successful closure.
+
+Manual responsive/visual acceptance and final legal/provider review remain deferred acceptance gates; they are not claimed as complete.
 
 ## Using this file in future ChatGPT/Codex sprint chats
 

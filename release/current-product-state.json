@@ -79,14 +79,12 @@
     },
     "frontend": {
       "repository": "danielwauer-maker/bcsentinel-frontend",
-      "main_sha": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
-      "state": "lovable_and_github_synchronized_at_current_head",
+      "main_sha": "742e3257c8db6af6d732fcca02da0047a48b69b5",
+      "state": "s2_autonomous_technical_closure_complete_and_dev_deployed",
       "implemented_routes": [
         "/",
         "/overview",
-        "/findings"
-      ],
-      "planned_routes": [
+        "/findings",
         "/actions",
         "/financial-impact",
         "/reports",
@@ -95,9 +93,15 @@
         "/monitoring",
         "/settings",
         "/subscription",
-        "/support"
+        "/support",
+        "/datenschutz",
+        "/impressum"
       ],
-      "known_prod_blocker": "landing hero, dashboard and logo assets currently reference the Lovable-hosted Business Central Risk Radar project and must be localized before PROD"
+      "planned_routes": [],
+      "known_prod_blocker": "manual visual QA and final legal/provider review remain; report-family polish/integration remains a later release gate",
+      "s2_closure_sha": "20464e4c8e15f139a21b6226f974cfc951ae180d",
+      "s2_dev_deploy_run_id": 40747919204,
+      "s2_dev_deploy_conclusion": "success"
     },
     "product_system": {
       "repository": "danielwauer-maker/bcsentinel-product-system",
@@ -149,13 +153,13 @@
       "project_id": "6c392bec-8b44-40e1-a79d-d41962e7eb09",
       "name": "BCSentinel Frontend",
       "commit_sha": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
-      "status": "published_and_synchronized_with_frontend_main"
+      "status": "historical_authoring_reference; canonical frontend main advanced through S2"
     },
     "landing_master": {
       "project_id": "267ee2cd-c9a4-4d98-9835-e35659839a03",
       "name": "Business Central Risk Radar",
       "commit_sha": "768c1049715aba547075b738e3d1d9bf54750a91",
-      "status": "visual_reference_and_asset_source_to_be_internalized"
+      "status": "visual_reference_only; runtime Lovable asset dependency removed in S2"
     },
     "assessment_report": {
       "project_id": "a4c54214-d67a-47eb-99ca-dda8de9340fd",
@@ -193,8 +197,11 @@
       "automatic_deployment_branch": "dev-acceptance",
       "staging_role": "DEV integration and evidence history",
       "core_deployed_ref": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
-      "frontend_deployed_ref": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
-      "status": "latest_known_deploys_successful"
+      "frontend_deployed_ref": "742e3257c8db6af6d732fcca02da0047a48b69b5",
+      "status": "latest_known_core_and_frontend_dev_deploys_successful",
+      "frontend_automatic_deployment_branch": "main",
+      "frontend_deploy_run_id": 40747919204,
+      "frontend_deploy_conclusion": "success"
     },
     "prod": {
       "web": "https://bcsentinel.com",
@@ -208,15 +215,15 @@
     "scan_engine": "verified_core_flow",
     "permissions": "architecture_complete_VIEWER_and_SCAN_real_runtime_verified_SETUP_SCHEDULER_ADMIN_pending",
     "scheduler": "implemented_runtime_acceptance_required",
-    "monitoring": "implemented_runtime_and_frontend_completion_required",
+    "monitoring": "implemented_frontend_route_complete_runtime_acceptance_required",
     "backend_apis": "advanced",
     "auth_and_memberships": "implemented_real_multitenant_acceptance_required",
     "tenant_switching": "implemented_automated_security_matrix_pass_real_two_tenant_negative_acceptance_required",
-    "landing": "high_visual_readiness_local_asset_and_legal_route_cleanup_required",
+    "landing": "technical_closure_complete_local_assets_and_legal_routes_reachable_manual_visual_legal_signoff_pending",
     "dashboard_overview": "implemented_for_free_assessment_monitoring",
     "findings": "implemented",
-    "remaining_dashboard_pages": "design_contracts_exist_runtime_frontend_routes_incomplete",
-    "reports": "backend_and_design_advanced_runtime_design_integration_incomplete",
+    "remaining_dashboard_pages": "s2_core_routes_implemented_backend_bound_manual_visual_acceptance_and_report_family_polish_pending",
+    "reports": "service_route_implemented_backend_and_design_advanced_report_family_integration_and_visual_acceptance_pending",
     "waitlist": "real_end_to_end_flow_verified",
     "mail": "base_delivery_verified_full_transactional_matrix_and_dns_acceptance_required",
     "stripe": "code_advanced_real_provider_e2e_incomplete",
@@ -230,8 +237,6 @@
     "controlled_pilot": [
       "complete SETUP SCHEDULER ADMIN runtime role acceptance; VIEWER and SCAN already have real non-SUPER evidence",
       "real two-tenant switching and isolation test",
-      "localize frontend Lovable-hosted assets",
-      "ensure Impressum and Datenschutz are reachable in the current frontend",
       "integrate current report designs with real backend data and perform visual QA",
       "perform real backup restore drill",
       "freeze and deploy one release candidate to PROD and run full E2E smoke"
@@ -243,8 +248,7 @@
       "verify SPF DKIM DMARC bounce and spam placement",
       "final legal review and provider facts",
       "complete PROD recovery evidence",
-      "complete staged scale/soak evidence",
-      "remove placeholder dashboard navigation or implement all routes"
+      "complete staged scale/soak evidence"
     ],
     "high_end_saas_and_appsource": [
       "complete all SaaS pages and global states",
@@ -276,6 +280,23 @@
       "admin_real_runtime": "open",
       "real_two_tenant_isolation": "open"
     },
-    "definition_of_done": "SETUP SCHEDULER ADMIN pass real BC SaaS runtime without SUPER and real two-tenant DEV switching plus negative isolation evidence passes; prior VIEWER and SCAN real evidence remains valid unless the environment changes materially"
+    "definition_of_done": "SETUP SCHEDULER ADMIN pass real BC SaaS runtime without SUPER and real two-tenant DEV switching plus negative isolation evidence passes; prior VIEWER and SCAN real evidence remains valid unless the environment changes materially",
+    "manual_acceptance_deferred_by_owner": true,
+    "autonomous_next_sprint": "S3"
+  },
+  "autonomous_sprints": {
+    "S2": {
+      "name": "Frontend Production Closure",
+      "technical_status": "complete",
+      "frontend_closure_sha": "20464e4c8e15f139a21b6226f974cfc951ae180d",
+      "frontend_main_sha": "742e3257c8db6af6d732fcca02da0047a48b69b5",
+      "dev_deploy_run_id": 40747919204,
+      "dev_deploy_conclusion": "success",
+      "manual_gates_remaining": [
+        "responsive/visual acceptance",
+        "final legal/provider review"
+      ],
+      "note": "Manual gates are deferred and do not negate autonomous technical closure."
+    }
   }
 }
