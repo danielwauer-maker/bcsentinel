@@ -1,0 +1,54 @@
+name: S1 State Consistency Fix
+
+on:
+  push:
+    branches:
+      - s1/runtime-acceptance-start
+
+permissions:
+  contents: write
+
+jobs:
+  fix-state:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: s1/runtime-acceptance-start
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fix open role wording
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = Path('release/current-product-state.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          gates = data['release_gates']['controlled_pilot']
+          old = 'complete VIEWER SETUP SCHEDULER ADMIN runtime role acceptance'
+          new = 'complete SETUP SCHEDULER ADMIN runtime role acceptance; VIEWER and SCAN already have real non-SUPER evidence'
+          if old not in gates:
+              raise SystemExit('Expected controlled-pilot role gate not found')
+          gates[gates.index(old)] = new
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          m = Path('docs/BCSENTINEL_MASTER_STATE.md')
+          text = m.read_text(encoding='utf-8')
+          text = text.replace(
+              '- VIEWER, SETUP, SCHEDULER and ADMIN runtime acceptance complete.\n',
+              '- SETUP, SCHEDULER and ADMIN runtime acceptance complete; existing real VIEWER and SCAN evidence remains valid unless the environment changes materially.\n'
+          )
+          m.write_text(text, encoding='utf-8')
+          PY
+      - name: Remove helper and commit
+        run: |
+          rm .github/workflows/s1-state-consistency.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/BCSENTINEL_MASTER_STATE.md release/current-product-state.json .github/workflows/s1-state-consistency.yml
+          git commit -m 'S1: align open runtime gates with verified VIEWER evidence'
+          git push origin HEAD:s1/runtime-acceptance-start
