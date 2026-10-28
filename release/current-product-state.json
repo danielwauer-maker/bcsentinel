@@ -7,9 +7,15 @@
     "technical_runtime_truth": "danielwauer-maker/bcsentinel main after consolidation",
     "frontend_runtime_truth": "danielwauer-maker/bcsentinel-frontend main",
     "product_and_ux_truth": "danielwauer-maker/bcsentinel-product-system main",
-    "portfolio_status": "danielwauer-maker/enterprise-data-ai-portfolio main, derived from evidence",
+    "portfolio_status": "danielwauer-maker/enterprise-data-ai-portfolio main, derived from canonical product state plus evidence",
     "rule": "Long-lived feature, sprint or acceptance branches are evidence or work branches only; they must not become parallel product truth.",
     "core_sha_semantics": "repositories.core.main_sha records the last commit that changed reconciled technical/runtime truth. Later metadata-only Master State or release-state commits may follow it on main without superseding the technical baseline."
+  },
+  "branch_roles": {
+    "main": "canonical_release_and_product_state; reviewed source for immutable PROD promotion",
+    "staging": "DEV integration and historical DEV evidence branch; valid evidence source but not product authority",
+    "dev_acceptance": "current automatic DEV deployment and acceptance branch; evidence/work history after reconciliation",
+    "prod": "manual promotion of an immutable reviewed release_ref; PROD is not automatically defined by the latest main HEAD"
   },
   "product_model": {
     "scope": "Microsoft Dynamics 365 Business Central Online only",
@@ -26,20 +32,25 @@
   "repositories": {
     "core": {
       "repository": "danielwauer-maker/bcsentinel",
-      "main_sha": "8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b",
+      "main_sha": "cc1017fd5ba2b90ceb7be609c79e564fdad58bcf",
       "main_date": "2026-10-28",
       "main_sha_role": "reconciled_technical_baseline",
       "dev_acceptance_sha": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
       "dev_acceptance_date": "2026-10-27",
       "reconciliation_pr": 119,
-      "state": "main_reconciled_with_current_valid_dev_acceptance_work",
+      "extension_reconciliation_pr": 120,
+      "state": "canonical_main_reconciled_and_extension_source_aligned",
       "evidence": {
         "dev_deploy_run_id": 40569350853,
         "dev_deploy_conclusion": "success",
         "post_merge_pricing_quality_run_id": 40711567073,
-        "post_merge_pricing_quality_conclusion": "success"
+        "post_merge_pricing_quality_conclusion": "success",
+        "extension_remediation_quality_run_id": 40717607682,
+        "extension_remediation_quality_conclusion": "success",
+        "extension_notification_quality_run_id": 40717607483,
+        "extension_notification_quality_conclusion": "success"
       },
-      "required_action": "finish remaining Sprint 0 source-of-truth work: reconcile the Extension manifest with the verified 1.0.2.25 artifact and make portfolio readiness derive from canonical cross-repository evidence"
+      "required_action": "none_for_sprint_0; future technical changes must update the canonical technical baseline only when product/runtime truth changes"
     },
     "frontend": {
       "repository": "danielwauer-maker/bcsentinel-frontend",
@@ -56,10 +67,15 @@
     },
     "portfolio": {
       "repository": "danielwauer-maker/enterprise-data-ai-portfolio",
-      "main_sha": "c623074646aacb2ff7b04ddb4d1106656458e75f",
-      "state": "status_data_stale_for_current_bcsentinel_runtime",
-      "known_issue": "readiness synchronization currently pulls selected evidence from bcsentinel/staging and does not yet aggregate this canonical master state, frontend, Lovable or extension 1.0.2.25 truth",
-      "required_action": "extend readiness synchronization to consume this master state and cross-repository evidence"
+      "main_sha": "db99adb8938477b706e1eddb12e30312c094fe37",
+      "state": "readiness_sync_uses_canonical_main_authority_plus_dev_evidence",
+      "authority_source": "danielwauer-maker/bcsentinel/main/release/current-product-state.json",
+      "dev_evidence_source": "danielwauer-maker/bcsentinel/staging/quality/portfolio-readiness-evidence.json",
+      "sync_pr": 85,
+      "sync_run_id": 40718463973,
+      "sync_conclusion": "success",
+      "generated_readiness_commit": "db99adb8938477b706e1eddb12e30312c094fe37",
+      "required_action": "maintain the authority/evidence separation; staging may provide DEV evidence but must not replace canonical main product truth"
     }
   },
   "extension": {
@@ -67,9 +83,13 @@
     "target": "Cloud",
     "business_central": "27.x",
     "runtime": "16.0",
-    "artifact_state": "verified_from_built_app_newer_than_reconciled_core_manifest",
-    "repo_manifest_version_on_reconciled_main": "1.0.2.6",
-    "repo_manifest_state": "stale",
+    "artifact_state": "verified_artifact_and_canonical_core_source_aligned",
+    "repo_manifest_version_on_reconciled_main": "1.0.2.25",
+    "repo_cloud_manifest_version_on_reconciled_main": "1.0.2.25",
+    "repo_manifest_state": "aligned_with_verified_artifact",
+    "source_reconciliation_pr": 120,
+    "source_reconciliation_sha": "cc1017fd5ba2b90ceb7be609c79e564fdad58bcf",
+    "runtime_contract": "SCAN retains no direct DH Setup Modify grant; required writes are authorized indirectly by the verified codeunits",
     "roles": ["VIEWER", "SCAN", "SETUP", "SCHEDULER", "ADMIN"],
     "runtime_evidence": {
       "SCAN": "PASS_without_SUPER_10_of_10_modules_199_of_199_checks",
@@ -77,21 +97,7 @@
       "SETUP": "final_runtime_acceptance_required",
       "SCHEDULER": "final_runtime_acceptance_required",
       "ADMIN": "final_runtime_acceptance_required"
-    },
-    "known_newer_components_vs_old_main": [
-      "Access Guard",
-      "Scan Scheduler",
-      "Scheduled Scan Runner",
-      "Scheduled Scan Failure",
-      "Manual Monitoring Background",
-      "Monitor Refresh Task",
-      "Tenant Identity Management",
-      "Corrections",
-      "Scan Checks",
-      "Scan Modules",
-      "Effective Access",
-      "Copied Company Recovery"
-    ]
+    }
   },
   "lovable": {
     "frontend": {
@@ -139,6 +145,8 @@
     "dev": {
       "web": "https://dev.bcsentinel.com",
       "api": "https://dev-api.bcsentinel.com",
+      "automatic_deployment_branch": "dev-acceptance",
+      "staging_role": "DEV integration and evidence history",
       "core_deployed_ref": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
       "frontend_deployed_ref": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
       "status": "latest_known_deploys_successful"
@@ -146,12 +154,12 @@
     "prod": {
       "web": "https://bcsentinel.com",
       "api": "https://api.bcsentinel.com",
-      "promotion_policy": "manual_release_candidate_only",
+      "promotion_policy": "manual_immutable_reviewed_release_ref_only",
       "status": "final_rc_and_full_e2e_acceptance_required"
     }
   },
   "capability_state": {
-    "bc_extension": "near_complete_runtime_closure_required",
+    "bc_extension": "source_and_manifest_aligned_runtime_role_closure_required",
     "scan_engine": "verified_core_flow",
     "permissions": "architecture_complete_runtime_matrix_incomplete",
     "scheduler": "implemented_runtime_acceptance_required",
@@ -201,7 +209,7 @@
     ]
   },
   "planning_estimates": {
-    "note": "These are planning estimates only and must never override evidence. Future dashboards should derive readiness from verifiable gates instead of manually maintained percentages.",
+    "note": "These are planning estimates only and must never override evidence. Readiness synchronization derives status from verifiable gates and canonical state instead of importing these percentages as evidence.",
     "controlled_pilot_pct": 90,
     "public_paid_launch_pct": 78,
     "fully_polished_high_end_saas_pct_range": [73, 75]
@@ -210,13 +218,14 @@
     "id": "S0",
     "name": "Source of Truth & Repository Consolidation",
     "priority": "P0",
-    "status": "in_progress",
+    "status": "complete",
     "progress": {
       "core_main_reconciliation": "complete",
       "canonical_core_baseline_semantics": "complete",
-      "extension_manifest_reconciliation": "open",
-      "portfolio_evidence_synchronization": "open"
+      "extension_manifest_reconciliation": "complete",
+      "portfolio_evidence_synchronization": "complete"
     },
-    "definition_of_done": "main and release metadata identify one unambiguous current technical product state; portfolio synchronization consumes evidence instead of stale manual percentages"
+    "definition_of_done": "main and release metadata identify one unambiguous current technical product state; portfolio synchronization consumes canonical state plus evidence instead of stale manual percentages",
+    "closure_note": "Sprint 0 definition of done is satisfied. A subsequent sprint is intentionally not invented here and must be selected from the remaining evidence-backed release gates."
   }
 }
