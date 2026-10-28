@@ -8,7 +8,8 @@
     "frontend_runtime_truth": "danielwauer-maker/bcsentinel-frontend main",
     "product_and_ux_truth": "danielwauer-maker/bcsentinel-product-system main",
     "portfolio_status": "danielwauer-maker/enterprise-data-ai-portfolio main, derived from evidence",
-    "rule": "Long-lived feature, sprint or acceptance branches are evidence or work branches only; they must not become parallel product truth."
+    "rule": "Long-lived feature, sprint or acceptance branches are evidence or work branches only; they must not become parallel product truth.",
+    "core_sha_semantics": "repositories.core.main_sha records the last commit that changed reconciled technical/runtime truth. Later metadata-only Master State or release-state commits may follow it on main without superseding the technical baseline."
   },
   "product_model": {
     "scope": "Microsoft Dynamics 365 Business Central Online only",
@@ -25,12 +26,20 @@
   "repositories": {
     "core": {
       "repository": "danielwauer-maker/bcsentinel",
-      "main_sha": "625192deb09608c0c242979fd001041b621c8c91",
-      "main_date": "2026-10-10",
+      "main_sha": "8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b",
+      "main_date": "2026-10-28",
+      "main_sha_role": "reconciled_technical_baseline",
       "dev_acceptance_sha": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
       "dev_acceptance_date": "2026-10-27",
-      "state": "main_is_stale_vs_dev_acceptance",
-      "required_action": "reconcile dev-acceptance and relevant release/sprint branches into main before RC freeze"
+      "reconciliation_pr": 119,
+      "state": "main_reconciled_with_current_valid_dev_acceptance_work",
+      "evidence": {
+        "dev_deploy_run_id": 40569350853,
+        "dev_deploy_conclusion": "success",
+        "post_merge_pricing_quality_run_id": 40711567073,
+        "post_merge_pricing_quality_conclusion": "success"
+      },
+      "required_action": "finish remaining Sprint 0 source-of-truth work: reconcile the Extension manifest with the verified 1.0.2.25 artifact and make portfolio readiness derive from canonical cross-repository evidence"
     },
     "frontend": {
       "repository": "danielwauer-maker/bcsentinel-frontend",
@@ -49,8 +58,8 @@
       "repository": "danielwauer-maker/enterprise-data-ai-portfolio",
       "main_sha": "c623074646aacb2ff7b04ddb4d1106656458e75f",
       "state": "status_data_stale_for_current_bcsentinel_runtime",
-      "known_issue": "readiness synchronization currently pulls selected evidence from bcsentinel/staging and does not yet aggregate frontend, Lovable or extension 1.0.2.25 truth",
-      "required_action": "extend readiness synchronization to consume this master state and cross-repo evidence"
+      "known_issue": "readiness synchronization currently pulls selected evidence from bcsentinel/staging and does not yet aggregate this canonical master state, frontend, Lovable or extension 1.0.2.25 truth",
+      "required_action": "extend readiness synchronization to consume this master state and cross-repository evidence"
     }
   },
   "extension": {
@@ -58,8 +67,8 @@
     "target": "Cloud",
     "business_central": "27.x",
     "runtime": "16.0",
-    "artifact_state": "verified_from_built_app_outside_current_core_main_manifest",
-    "repo_manifest_version_on_dev_acceptance": "1.0.2.6",
+    "artifact_state": "verified_from_built_app_newer_than_reconciled_core_manifest",
+    "repo_manifest_version_on_reconciled_main": "1.0.2.6",
     "repo_manifest_state": "stale",
     "roles": ["VIEWER", "SCAN", "SETUP", "SCHEDULER", "ADMIN"],
     "runtime_evidence": {
@@ -166,7 +175,6 @@
   },
   "release_gates": {
     "controlled_pilot": [
-      "reconcile core main with current deployed/dev work",
       "complete VIEWER SETUP SCHEDULER ADMIN runtime role acceptance",
       "real two-tenant switching and isolation test",
       "localize frontend Lovable-hosted assets",
@@ -202,6 +210,13 @@
     "id": "S0",
     "name": "Source of Truth & Repository Consolidation",
     "priority": "P0",
+    "status": "in_progress",
+    "progress": {
+      "core_main_reconciliation": "complete",
+      "canonical_core_baseline_semantics": "complete",
+      "extension_manifest_reconciliation": "open",
+      "portfolio_evidence_synchronization": "open"
+    },
     "definition_of_done": "main and release metadata identify one unambiguous current technical product state; portfolio synchronization consumes evidence instead of stale manual percentages"
   }
 }
