@@ -19,12 +19,37 @@
   },
   "product_model": {
     "scope": "Microsoft Dynamics 365 Business Central Online only",
-    "stages": ["free_entry", "assessment", "validation", "monitoring"],
+    "stages": [
+      "free_entry",
+      "assessment",
+      "validation",
+      "monitoring"
+    ],
     "pricing_eur": {
-      "lte_250k": {"assessment": 249, "validation": 129, "monitoring_monthly": 199, "monitoring_annual": 1990},
-      "lte_1m": {"assessment": 399, "validation": 199, "monitoring_monthly": 299, "monitoring_annual": 2990},
-      "lte_5m": {"assessment": 699, "validation": 349, "monitoring_monthly": 499, "monitoring_annual": 4990},
-      "lte_20m": {"assessment": 1190, "validation": 590, "monitoring_monthly": 799, "monitoring_annual": 7990},
+      "lte_250k": {
+        "assessment": 249,
+        "validation": 129,
+        "monitoring_monthly": 199,
+        "monitoring_annual": 1990
+      },
+      "lte_1m": {
+        "assessment": 399,
+        "validation": 199,
+        "monitoring_monthly": 299,
+        "monitoring_annual": 2990
+      },
+      "lte_5m": {
+        "assessment": 699,
+        "validation": 349,
+        "monitoring_monthly": 499,
+        "monitoring_annual": 4990
+      },
+      "lte_20m": {
+        "assessment": 1190,
+        "validation": 590,
+        "monitoring_monthly": 799,
+        "monitoring_annual": 7990
+      },
       "above_20m": "custom"
     },
     "free_preview_boundary": "aggregate_only_no_titles_no_financial_values_no_root_causes"
@@ -56,8 +81,22 @@
       "repository": "danielwauer-maker/bcsentinel-frontend",
       "main_sha": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
       "state": "lovable_and_github_synchronized_at_current_head",
-      "implemented_routes": ["/", "/overview", "/findings"],
-      "planned_routes": ["/actions", "/financial-impact", "/reports", "/scans", "/validation", "/monitoring", "/settings", "/subscription", "/support"],
+      "implemented_routes": [
+        "/",
+        "/overview",
+        "/findings"
+      ],
+      "planned_routes": [
+        "/actions",
+        "/financial-impact",
+        "/reports",
+        "/scans",
+        "/validation",
+        "/monitoring",
+        "/settings",
+        "/subscription",
+        "/support"
+      ],
       "known_prod_blocker": "landing hero, dashboard and logo assets currently reference the Lovable-hosted Business Central Risk Radar project and must be localized before PROD"
     },
     "product_system": {
@@ -90,10 +129,16 @@
     "source_reconciliation_pr": 120,
     "source_reconciliation_sha": "cc1017fd5ba2b90ceb7be609c79e564fdad58bcf",
     "runtime_contract": "SCAN retains no direct DH Setup Modify grant; required writes are authorized indirectly by the verified codeunits",
-    "roles": ["VIEWER", "SCAN", "SETUP", "SCHEDULER", "ADMIN"],
+    "roles": [
+      "VIEWER",
+      "SCAN",
+      "SETUP",
+      "SCHEDULER",
+      "ADMIN"
+    ],
     "runtime_evidence": {
       "SCAN": "PASS_without_SUPER_10_of_10_modules_199_of_199_checks",
-      "VIEWER": "final_runtime_acceptance_required",
+      "VIEWER": "PASS_without_SUPER_real_BC_SaaS_dashboard_history_readable_setup_and_manual_scan_denied_PR_46",
       "SETUP": "final_runtime_acceptance_required",
       "SCHEDULER": "final_runtime_acceptance_required",
       "ADMIN": "final_runtime_acceptance_required"
@@ -161,12 +206,12 @@
   "capability_state": {
     "bc_extension": "source_and_manifest_aligned_runtime_role_closure_required",
     "scan_engine": "verified_core_flow",
-    "permissions": "architecture_complete_runtime_matrix_incomplete",
+    "permissions": "architecture_complete_VIEWER_and_SCAN_real_runtime_verified_SETUP_SCHEDULER_ADMIN_pending",
     "scheduler": "implemented_runtime_acceptance_required",
     "monitoring": "implemented_runtime_and_frontend_completion_required",
     "backend_apis": "advanced",
     "auth_and_memberships": "implemented_real_multitenant_acceptance_required",
-    "tenant_switching": "implemented_real_cross_tenant_negative_tests_required",
+    "tenant_switching": "implemented_automated_security_matrix_pass_real_two_tenant_negative_acceptance_required",
     "landing": "high_visual_readiness_local_asset_and_legal_route_cleanup_required",
     "dashboard_overview": "implemented_for_free_assessment_monitoring",
     "findings": "implemented",
@@ -183,7 +228,7 @@
   },
   "release_gates": {
     "controlled_pilot": [
-      "complete VIEWER SETUP SCHEDULER ADMIN runtime role acceptance",
+      "complete SETUP SCHEDULER ADMIN runtime role acceptance; VIEWER and SCAN already have real non-SUPER evidence",
       "real two-tenant switching and isolation test",
       "localize frontend Lovable-hosted assets",
       "ensure Impressum and Datenschutz are reachable in the current frontend",
@@ -212,20 +257,25 @@
     "note": "These are planning estimates only and must never override evidence. Readiness synchronization derives status from verifiable gates and canonical state instead of importing these percentages as evidence.",
     "controlled_pilot_pct": 90,
     "public_paid_launch_pct": 78,
-    "fully_polished_high_end_saas_pct_range": [73, 75]
+    "fully_polished_high_end_saas_pct_range": [
+      73,
+      75
+    ]
   },
   "next_sprint": {
-    "id": "S0",
-    "name": "Source of Truth & Repository Consolidation",
+    "id": "S1",
+    "name": "Runtime Acceptance & Real Tenant Isolation",
     "priority": "P0",
-    "status": "complete",
+    "status": "in_progress",
+    "tracking_issue": 121,
     "progress": {
-      "core_main_reconciliation": "complete",
-      "canonical_core_baseline_semantics": "complete",
-      "extension_manifest_reconciliation": "complete",
-      "portfolio_evidence_synchronization": "complete"
+      "viewer_real_runtime": "complete",
+      "scan_real_runtime": "complete",
+      "setup_real_runtime": "open",
+      "scheduler_real_runtime": "open",
+      "admin_real_runtime": "open",
+      "real_two_tenant_isolation": "open"
     },
-    "definition_of_done": "main and release metadata identify one unambiguous current technical product state; portfolio synchronization consumes canonical state plus evidence instead of stale manual percentages",
-    "closure_note": "Sprint 0 definition of done is satisfied. A subsequent sprint is intentionally not invented here and must be selected from the remaining evidence-backed release gates."
+    "definition_of_done": "SETUP SCHEDULER ADMIN pass real BC SaaS runtime without SUPER and real two-tenant DEV switching plus negative isolation evidence passes; prior VIEWER and SCAN real evidence remains valid unless the environment changes materially"
   }
 }
