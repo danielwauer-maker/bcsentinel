@@ -228,7 +228,7 @@
   },
   "release_gates": {
     "controlled_pilot": [
-      "complete VIEWER SETUP SCHEDULER ADMIN runtime role acceptance",
+      "complete SETUP SCHEDULER ADMIN runtime role acceptance; VIEWER and SCAN already have real non-SUPER evidence",
       "real two-tenant switching and isolation test",
       "localize frontend Lovable-hosted assets",
       "ensure Impressum and Datenschutz are reachable in the current frontend",

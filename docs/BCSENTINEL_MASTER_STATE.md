@@ -157,7 +157,7 @@ The following are not hidden by readiness percentages and must stay visible unti
 
 Required before calling the controlled pilot release complete:
 
-- VIEWER, SETUP, SCHEDULER and ADMIN runtime acceptance complete.
+- SETUP, SCHEDULER and ADMIN runtime acceptance complete; existing real VIEWER and SCAN evidence remains valid unless the environment changes materially.
 - Real two-tenant switching and negative isolation tests pass.
 - Lovable-hosted production assets localized.
 - Impressum and Datenschutz reachable from the current frontend.
