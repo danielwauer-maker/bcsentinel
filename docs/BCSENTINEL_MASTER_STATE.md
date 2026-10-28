@@ -10,10 +10,13 @@ BCSentinel has evolved across several repositories, Lovable projects, runtime ar
 
 The rule from now on is:
 
-- `danielwauer-maker/bcsentinel/main` = canonical technical Core/Backend truth after reconciliation.
+- `danielwauer-maker/bcsentinel/main` = canonical technical Core/Backend and release/product truth after reconciliation.
 - `danielwauer-maker/bcsentinel-frontend/main` = canonical deployed customer-facing frontend truth.
 - `danielwauer-maker/bcsentinel-product-system/main` = canonical normative product/UX truth.
 - `danielwauer-maker/enterprise-data-ai-portfolio/main` = derived portfolio/readiness view, never the primary technical truth.
+- `staging` remains a valid DEV integration/evidence branch; it is not the canonical product authority.
+- `dev-acceptance` is the current automatic DEV deployment/acceptance branch and remains evidence/work history after reconciliation.
+- PROD is promoted manually from an immutable reviewed `release_ref`; the newest `main` HEAD is not automatically equivalent to the currently deployed PROD release.
 - Lovable = design and frontend authoring workspace; approved work must flow back to GitHub before it becomes release truth.
 
 For the Core repository, the canonical technical baseline is recorded as the commit that changed technical/runtime truth. Later commits that only update this Master State or release metadata do not supersede that technical baseline unless they also change product/runtime behavior.
@@ -23,12 +26,13 @@ For the Core repository, the canonical technical baseline is recorded as the com
 ### Core / Backend
 
 - Repository: `danielwauer-maker/bcsentinel`
-- Reconciled technical baseline: `8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b`
+- Reconciled technical baseline: `cc1017fd5ba2b90ceb7be609c79e564fdad58bcf`
 - Baseline date: 2026-10-28
-- `dev-acceptance` evidence head merged into baseline: `3bd50178d1a47c552ff6212e3e374aead9b4bc5a`
-- Reconciliation PR: `#119` – `S0: reconcile dev-acceptance into canonical main`
-- Evidence: DEV deploy for `3bd50178d1a47c552ff6212e3e374aead9b4bc5a` passed; post-merge `Record Pricing Quality Gate` run `40711567073` for baseline `8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b` completed successfully.
-- Status: current valid DEV acceptance work is reconciled into canonical `main`. `dev-acceptance` remains evidence/work history, not a parallel product truth.
+- `dev-acceptance` evidence head previously reconciled: `3bd50178d1a47c552ff6212e3e374aead9b4bc5a`
+- Core reconciliation PR: `#119` – `S0: reconcile dev-acceptance into canonical main`
+- Extension source reconciliation PR: `#120` – `S0: reconcile BC extension source with verified 1.0.2.25`
+- Evidence: DEV deploy for `3bd50178d1a47c552ff6212e3e374aead9b4bc5a` passed; post-core-reconciliation `Record Pricing Quality Gate` run `40711567073` passed; after Extension reconciliation, `Remediation Quality Gate` run `40717607682` and `Notification Quality Gate` run `40717607483` both passed.
+- Status: current valid DEV acceptance work and the verified 1.0.2.25 Extension source contract are reconciled into canonical `main`.
 
 ### Frontend
 
@@ -41,13 +45,14 @@ For the Core repository, the canonical technical baseline is recorded as the com
 ### Business Central Extension
 
 - Current verified built artifact: `BCSentinel 1.0.2.25`
+- Canonical Core manifests: `app.json = 1.0.2.25`, `app.cloud.json = 1.0.2.25`.
 - Target: Business Central Online / Cloud
 - Runtime: 16.0
 - Real SCAN runtime without SUPER: PASS, 10/10 modules, 199/199 checks.
+- Verified permission contract preserved: SCAN has no direct `DH Setup` Modify grant; required writes use the relevant codeunits' indirect `RM` permission.
 - Roles: VIEWER, SCAN, SETUP, SCHEDULER, ADMIN.
 - Remaining runtime acceptance: VIEWER, SETUP, SCHEDULER, ADMIN.
-
-Important discrepancy: the reconciled Core repository still carries the older Extension manifest version `1.0.2.6`, while the verified built artifact is `1.0.2.25`. The built 1.0.2.25 artifact therefore represents newer Extension work than the manifest currently stored in canonical Core. Sprint 0 must reconcile that gap rather than silently treating either source as complete truth.
+- Status: the previous manifest/source discrepancy is closed. Canonical source and manifests now align with the verified 1.0.2.25 line.
 
 ### Product System
 
@@ -58,9 +63,14 @@ Important discrepancy: the reconciled Core repository still carries the older Ex
 ### Portfolio / Control Center
 
 - Repository: `danielwauer-maker/enterprise-data-ai-portfolio`
-- `main`: `c623074646aacb2ff7b04ddb4d1106656458e75f`
-- Current BCSentinel status data is stale relative to the runtime and frontend work completed after 2026-10-10.
-- Existing readiness synchronization currently reads selected evidence from `bcsentinel/staging`; it must be extended to consume this Master State and relevant cross-repository evidence.
+- Current generated `main`: `db99adb8938477b706e1eddb12e30312c094fe37`
+- Reconciliation PR: `#85` – `S0: make BCSentinel main the canonical readiness authority`.
+- Canonical authority source: `bcsentinel/main/release/current-product-state.json`.
+- DEV evidence source remains: `bcsentinel/staging/quality/portfolio-readiness-evidence.json`.
+- The sync validates canonical `main` first, then applies mapped DEV evidence; manually maintained planning percentages are explicitly not imported as readiness evidence.
+- PR validation passed for Readiness Sync, Control Center Validation and Portfolio Website.
+- Post-merge main sync run `40718463973` completed successfully and wrote generated readiness commit `db99adb8938477b706e1eddb12e30312c094fe37`.
+- Status: portfolio readiness is now derived from canonical product state plus evidence instead of treating `staging` as the sole product truth.
 
 ## Current Lovable references
 
@@ -129,7 +139,7 @@ Approved frontend workflow:
 
 The following are not hidden by readiness percentages and must stay visible until evidence closes them:
 
-- Extension repo manifest is stale against the verified 1.0.2.25 artifact.
+- VIEWER, SETUP, SCHEDULER and ADMIN still require final real runtime role acceptance.
 - Landing hero/dashboard/logo assets currently depend on Lovable-hosted assets and must be localized before PROD.
 - New frontend currently implements only `/`, `/overview` and `/findings` as real routes.
 - Remaining sidebar destinations require real routes and backend integration.
@@ -139,7 +149,6 @@ The following are not hidden by readiness percentages and must stay visible unti
 - Real off-host restore/RTO/RPO evidence is still required.
 - PROD release candidate and complete PROD E2E acceptance remain open.
 - AppSource submission package is not complete.
-- Portfolio readiness data is stale and must be derived from current evidence.
 
 ## Release gates
 
@@ -184,20 +193,22 @@ The final program is executed in parallel tracks:
 - Track B – Core & Platform: Backend, Extension, Stripe, mail, security and infrastructure.
 - Track C – Acceptance & Release: runtime acceptance, PROD, recovery, scale and AppSource.
 
-Current next sprint:
+## Sprint 0 closure
 
-**Sprint 0 – Source of Truth & Repository Consolidation**
+**Sprint 0 – Source of Truth & Repository Consolidation: COMPLETE**
 
-Current S0 progress:
+Final S0 status:
 
 - Core `main` reconciliation with current valid `dev-acceptance` work: COMPLETE.
 - Canonical technical baseline semantics: COMPLETE.
-- Extension manifest vs. verified 1.0.2.25 artifact reconciliation: OPEN.
-- Portfolio readiness synchronization from this Master State and cross-repository evidence: OPEN.
+- Extension source/manifests vs. verified 1.0.2.25 artifact reconciliation: COMPLETE.
+- Portfolio readiness synchronization from canonical `main` plus DEV evidence: COMPLETE.
 
 Definition of Done:
 
 > `main` and release metadata identify one unambiguous current technical product state, and the portfolio derives status from evidence instead of stale manually maintained readiness values.
+
+This Definition of Done is satisfied. The next sprint is intentionally not invented in this file; it should be selected from the remaining evidence-backed release gates.
 
 ## Using this file in future ChatGPT/Codex sprint chats
 
