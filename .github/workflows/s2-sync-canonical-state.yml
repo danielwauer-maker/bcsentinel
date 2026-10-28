@@ -1,0 +1,25 @@
+name: S2 Canonical State Sync
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/s2-sync-canonical-state.yml]
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update canonical S2 state
+        run: python scripts/s2_sync_canonical_state.py
+      - name: Validate JSON
+        run: python -m json.tool release/current-product-state.json >/dev/null
+      - name: Commit canonical state and remove one-shot helpers
+        run: |
+          rm .github/workflows/s2-sync-canonical-state.yml scripts/s2_sync_canonical_state.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "S2: record canonical frontend technical closure"
+          git push
