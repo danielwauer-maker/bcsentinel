@@ -16,14 +16,19 @@ The rule from now on is:
 - `danielwauer-maker/enterprise-data-ai-portfolio/main` = derived portfolio/readiness view, never the primary technical truth.
 - Lovable = design and frontend authoring workspace; approved work must flow back to GitHub before it becomes release truth.
 
+For the Core repository, the canonical technical baseline is recorded as the commit that changed technical/runtime truth. Later commits that only update this Master State or release metadata do not supersede that technical baseline unless they also change product/runtime behavior.
+
 ## Current verified references
 
 ### Core / Backend
 
 - Repository: `danielwauer-maker/bcsentinel`
-- `main`: `625192deb09608c0c242979fd001041b621c8c91`
-- `dev-acceptance`: `3bd50178d1a47c552ff6212e3e374aead9b4bc5a`
-- Status: `main` is currently stale relative to the latest DEV acceptance work and must be reconciled in Sprint 0.
+- Reconciled technical baseline: `8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b`
+- Baseline date: 2026-10-28
+- `dev-acceptance` evidence head merged into baseline: `3bd50178d1a47c552ff6212e3e374aead9b4bc5a`
+- Reconciliation PR: `#119` – `S0: reconcile dev-acceptance into canonical main`
+- Evidence: DEV deploy for `3bd50178d1a47c552ff6212e3e374aead9b4bc5a` passed; post-merge `Record Pricing Quality Gate` run `40711567073` for baseline `8cc1f560d49a48a7ffbb8d4adbab1fc70f19a74b` completed successfully.
+- Status: current valid DEV acceptance work is reconciled into canonical `main`. `dev-acceptance` remains evidence/work history, not a parallel product truth.
 
 ### Frontend
 
@@ -42,7 +47,7 @@ The rule from now on is:
 - Roles: VIEWER, SCAN, SETUP, SCHEDULER, ADMIN.
 - Remaining runtime acceptance: VIEWER, SETUP, SCHEDULER, ADMIN.
 
-Important discrepancy: the Core repository manifest on `dev-acceptance` still reports `1.0.2.6`. The built 1.0.2.25 artifact therefore represents newer Extension work than the current Core branch manifest. Sprint 0 must reconcile that gap rather than silently treating either source as complete truth.
+Important discrepancy: the reconciled Core repository still carries the older Extension manifest version `1.0.2.6`, while the verified built artifact is `1.0.2.25`. The built 1.0.2.25 artifact therefore represents newer Extension work than the manifest currently stored in canonical Core. Sprint 0 must reconcile that gap rather than silently treating either source as complete truth.
 
 ### Product System
 
@@ -124,7 +129,6 @@ Approved frontend workflow:
 
 The following are not hidden by readiness percentages and must stay visible until evidence closes them:
 
-- Core `main` is stale against `dev-acceptance`.
 - Extension repo manifest is stale against the verified 1.0.2.25 artifact.
 - Landing hero/dashboard/logo assets currently depend on Lovable-hosted assets and must be localized before PROD.
 - New frontend currently implements only `/`, `/overview` and `/findings` as real routes.
@@ -143,7 +147,6 @@ The following are not hidden by readiness percentages and must stay visible unti
 
 Required before calling the controlled pilot release complete:
 
-- Core `main` reconciled with current valid work.
 - VIEWER, SETUP, SCHEDULER and ADMIN runtime acceptance complete.
 - Real two-tenant switching and negative isolation tests pass.
 - Lovable-hosted production assets localized.
@@ -184,6 +187,13 @@ The final program is executed in parallel tracks:
 Current next sprint:
 
 **Sprint 0 – Source of Truth & Repository Consolidation**
+
+Current S0 progress:
+
+- Core `main` reconciliation with current valid `dev-acceptance` work: COMPLETE.
+- Canonical technical baseline semantics: COMPLETE.
+- Extension manifest vs. verified 1.0.2.25 artifact reconciliation: OPEN.
+- Portfolio readiness synchronization from this Master State and cross-repository evidence: OPEN.
 
 Definition of Done:
 
