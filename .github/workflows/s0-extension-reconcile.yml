@@ -1,0 +1,113 @@
+name: S0 Extension Reconcile One Shot
+
+on:
+  push:
+    branches:
+      - s0/extension-1.0.2.25-reconcile
+    paths:
+      - .github/workflows/s0-extension-reconcile.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: s0/extension-1.0.2.25-reconcile
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply verified 1.0.2.25 deltas only
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+
+          # Align both Cloud manifests with the already verified BC SaaS 1.0.2.25 line.
+          for rel in ['bc-extension/app.json', 'bc-extension/app.cloud.json']:
+              path = root / rel
+              data = json.loads(path.read_text(encoding='utf-8'))
+              data['version'] = '1.0.2.25'
+              data['description'] = ('BCSentinel evaluates your Business Central data, generates a Data Health Score, '
+                                     'and detects critical data quality issues - helping you ensure reliable data, '
+                                     'optimize processes, and make better decisions with continuous monitoring.')
+              data['idRanges'] = [{'from': 53100, 'to': 53202}]
+              path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          # Runtime-verified SCAN indirect modify permission from PR #46 / PR #54.
+          ps = root / 'bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al'
+          text = ps.read_text(encoding='utf-8')
+          marker = 'permissionset 53191 "BCSENTINEL SCAN"'
+          start = text.index(marker)
+          end = text.find('\npermissionset ', start + len(marker))
+          if end < 0:
+              end = len(text)
+          block = text[start:end]
+          old = 'tabledata "DH Setup" = R,'
+          new = 'tabledata "DH Setup" = Rm,'
+          if old not in block:
+              raise SystemExit('Expected SCAN DH Setup=R contract not found')
+          block = block.replace(old, new, 1)
+          text = text[:start] + block + text[end:]
+          ps.write_text(text, encoding='utf-8')
+
+          # Object-level RM is required for indirect writes while direct user Modify remains absent.
+          for rel in [
+              'bc-extension/app/src/codeunits/DHApiClient.Codeunit.al',
+              'bc-extension/app/src/codeunits/DHRunIdMgt.Codeunit.al',
+              'bc-extension/app/src/codeunits/DHScanDispatcher.Codeunit.al',
+          ]:
+              path = root / rel
+              text = path.read_text(encoding='utf-8')
+              permission = '    Permissions = tabledata "DH Setup" = RM;\n'
+              if permission not in text:
+                  brace = text.find('{\n')
+                  if brace < 0:
+                      raise SystemExit(f'Opening object brace not found: {rel}')
+                  text = text[:brace + 2] + permission + '\n' + text[brace + 2:]
+                  path.write_text(text, encoding='utf-8')
+
+          # Fail closed on the exact S0 invariants.
+          for rel in ['bc-extension/app.json', 'bc-extension/app.cloud.json']:
+              data = json.loads((root / rel).read_text(encoding='utf-8'))
+              assert data['version'] == '1.0.2.25'
+              assert data['idRanges'] == [{'from': 53100, 'to': 53202}]
+
+          text = ps.read_text(encoding='utf-8')
+          start = text.index(marker)
+          end = text.find('\npermissionset ', start + len(marker))
+          if end < 0:
+              end = len(text)
+          scan_block = text[start:end]
+          assert 'tabledata "DH Setup" = Rm,' in scan_block
+
+          for rel in [
+              'bc-extension/app/src/codeunits/DHApiClient.Codeunit.al',
+              'bc-extension/app/src/codeunits/DHRunIdMgt.Codeunit.al',
+              'bc-extension/app/src/codeunits/DHScanDispatcher.Codeunit.al',
+          ]:
+              assert 'Permissions = tabledata "DH Setup" = RM;' in (root / rel).read_text(encoding='utf-8')
+          PY
+
+      - name: Commit reconciled source and remove helper
+        shell: bash
+        run: |
+          git rm .github/workflows/s0-extension-reconcile.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bc-extension/app.json bc-extension/app.cloud.json \
+            bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al \
+            bc-extension/app/src/codeunits/DHApiClient.Codeunit.al \
+            bc-extension/app/src/codeunits/DHRunIdMgt.Codeunit.al \
+            bc-extension/app/src/codeunits/DHScanDispatcher.Codeunit.al
+          git commit -m "S0: reconcile extension source with verified 1.0.2.25"
+          git push origin HEAD:s0/extension-1.0.2.25-reconcile
