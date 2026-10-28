@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query
@@ -14,6 +15,7 @@ from app.services.impact_service import (
     get_hourly_rate_eur,
     get_impact_definition,
 )
+from app.services.mail_service import send_waitlist_admin_notification
 from app.services.product_pricing_service import (
     PRODUCT_DEFINITIONS,
     ProductPricingValidationError,
@@ -22,6 +24,7 @@ from app.services.product_pricing_service import (
 )
 
 router = APIRouter(tags=["public"])
+logger = logging.getLogger(__name__)
 
 
 class PublicProductPricingItemResponse(BaseModel):
@@ -168,6 +171,7 @@ def submit_pilot_interest(payload: PilotInterestRequest) -> PilotInterestRespons
     if language not in {"de", "en"}:
         language = "de"
 
+    created_at = datetime.now(timezone.utc)
     with SessionLocal() as db:
         row = PilotInterest(
             contact_name=payload.contact_name.strip(),
@@ -178,12 +182,28 @@ def submit_pilot_interest(payload: PilotInterestRequest) -> PilotInterestRespons
             preferred_language=language,
             source_page=(payload.source_page or "pilot").strip() or "pilot",
             status="new",
-            created_at_utc=datetime.now(timezone.utc),
+            created_at_utc=created_at,
         )
         db.add(row)
         db.commit()
         db.refresh(row)
-        return PilotInterestResponse(status="accepted", reference=f"PILOT-{row.id:06d}")
+
+        reference = f"PILOT-{row.id:06d}"
+        sent, error = send_waitlist_admin_notification(
+            reference=reference,
+            contact_name=row.contact_name,
+            contact_email=row.contact_email,
+            source_page=row.source_page,
+            created_at_utc=created_at.isoformat(),
+        )
+        if not sent:
+            logger.warning(
+                "Waitlist lead %s persisted, but admin notification failed: %s",
+                reference,
+                error or "unknown error",
+            )
+
+        return PilotInterestResponse(status="accepted", reference=reference)
 
 
 # Pre-pilot authentication/account APIs must be reachable before tenant selection.
