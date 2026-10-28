@@ -51,7 +51,8 @@ For the Core repository, the canonical technical baseline is recorded as the com
 - Real SCAN runtime without SUPER: PASS, 10/10 modules, 199/199 checks.
 - Verified permission contract preserved: SCAN has no direct `DH Setup` Modify grant; required writes use the relevant codeunits' indirect `RM` permission.
 - Roles: VIEWER, SCAN, SETUP, SCHEDULER, ADMIN.
-- Remaining runtime acceptance: VIEWER, SETUP, SCHEDULER, ADMIN.
+- Real runtime evidence: VIEWER PASS without SUPER (dashboard/history readable; setup and manual scan denied, PR #46); SCAN PASS without SUPER on 1.0.2.25 (10/10 modules, 199/199 checks).
+- Remaining runtime acceptance: SETUP, SCHEDULER, ADMIN.
 - Status: the previous manifest/source discrepancy is closed. Canonical source and manifests now align with the verified 1.0.2.25 line.
 
 ### Product System
@@ -208,7 +209,30 @@ Definition of Done:
 
 > `main` and release metadata identify one unambiguous current technical product state, and the portfolio derives status from evidence instead of stale manually maintained readiness values.
 
-This Definition of Done is satisfied. The next sprint is intentionally not invented in this file; it should be selected from the remaining evidence-backed release gates.
+This Definition of Done is satisfied.
+
+## Current Sprint 1
+
+**Sprint 1 – Runtime Acceptance & Real Tenant Isolation: IN PROGRESS**
+
+Tracking: GitHub issue `#121`.
+
+Already verified with real evidence:
+
+- VIEWER without SUPER: PASS – dashboard/history readable; setup and manual scan denied (PR #46).
+- SCAN without SUPER: PASS on 1.0.2.25 – synchronized, 10/10 modules, 199/199 checks, Executive Report generated (PR #46).
+- Automated tenant-security attack matrix exists and remains supporting evidence only; it does not replace the real two-tenant test.
+
+Remaining S1 gates:
+
+- SETUP real BC SaaS runtime acceptance without SUPER.
+- SCHEDULER real BC SaaS runtime acceptance without SUPER.
+- ADMIN real BC SaaS runtime acceptance without SUPER.
+- Real DEV switch between two tenants with different roles/entitlements plus negative cross-tenant access evidence.
+
+Definition of Done:
+
+> SETUP, SCHEDULER and ADMIN pass real BC SaaS runtime without SUPER, and the real two-tenant DEV switching/isolation test passes. Existing VIEWER and SCAN evidence is reused unless the environment changes materially.
 
 ## Using this file in future ChatGPT/Codex sprint chats
 
