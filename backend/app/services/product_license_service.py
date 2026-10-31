@@ -140,22 +140,30 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         )
     ).all()
     for credit in credits:
-        anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
-        anchor = _as_utc(anchor)
+        if credit.status == "consumed":
+            anchor = _as_utc(credit.consumed_at_utc)
+        elif (credit.source or "").strip().lower() == "admin_manual":
+            # Backward compatibility for the legacy internal Admin product-grant
+            # tool only. Canonical operator/Fiverr/direct Validation credits do
+            # NOT unlock paid detail access until the new scan consumes them.
+            anchor = _as_utc(credit.created_at_utc)
+        else:
+            continue
         if anchor is not None:
             access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
 
-    purchases = db.scalars(
-        select(TenantProductPurchase).where(
-            TenantProductPurchase.tenant_id == tenant_id,
-            TenantProductPurchase.product_code == normalized_product,
-            TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
-        )
-    ).all()
-    for purchase in purchases:
-        anchor = _as_utc(purchase.created_at_utc)
-        if anchor is not None:
-            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+    if normalized_product != PRODUCT_VALIDATION_CHECK:
+        purchases = db.scalars(
+            select(TenantProductPurchase).where(
+                TenantProductPurchase.tenant_id == tenant_id,
+                TenantProductPurchase.product_code == normalized_product,
+                TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+            )
+        ).all()
+        for purchase in purchases:
+            anchor = _as_utc(purchase.created_at_utc)
+            if anchor is not None:
+                access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
 
     entitlements = db.scalars(
         select(TenantProductEntitlement).where(

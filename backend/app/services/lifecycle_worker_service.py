@@ -9,6 +9,7 @@ from sqlalchemy import select, update
 from app.lifecycle_models import LifecycleEmailOutbox
 from app.services.lifecycle_email_service import (
     EVENT_SCAN_STARTED,
+    EVENT_VALIDATION_AVAILABLE,
     MAX_ATTEMPTS,
     RETRY_MINUTES,
     _event_copy,
@@ -48,18 +49,29 @@ def recover_stale_sending(db) -> int:
 
 
 def _worker_event_copy(event_type: str, language: str, payload: dict) -> tuple[str, str]:
-    if event_type != EVENT_SCAN_STARTED:
-        return _event_copy(event_type, language, payload)
-    scan_id = html.escape(str(payload.get("scan_id") or ""))
-    if language == "de":
+    if event_type == EVENT_SCAN_STARTED:
+        scan_id = html.escape(str(payload.get("scan_id") or ""))
+        if language == "de":
+            return (
+                "BCSentinel Scan gestartet",
+                f"<p>Ihr Data Health Scan <strong>{scan_id}</strong> wurde gestartet. Sie erhalten eine weitere Nachricht, sobald das Ergebnis verfügbar ist.</p>",
+            )
         return (
-            "BCSentinel Scan gestartet",
-            f"<p>Ihr Data Health Scan <strong>{scan_id}</strong> wurde gestartet. Sie erhalten eine weitere Nachricht, sobald das Ergebnis verfügbar ist.</p>",
+            "BCSentinel scan started",
+            f"<p>Your Data Health Scan <strong>{scan_id}</strong> has started. You will receive another message when the result is available.</p>",
         )
-    return (
-        "BCSentinel scan started",
-        f"<p>Your Data Health Scan <strong>{scan_id}</strong> has started. You will receive another message when the result is available.</p>",
-    )
+    if event_type == EVENT_VALIDATION_AVAILABLE and not payload.get("valid_until_utc"):
+        baseline_scan_id = html.escape(str(payload.get("baseline_scan_id") or ""))
+        if language == "de":
+            return (
+                "BCSentinel Validation verfügbar",
+                f"<p>Ihre Validation ist freigeschaltet. Starten Sie jetzt einen neuen Data Health Scan. Das 7-Tage-Fenster für vollständige Validation-Ergebnisse beginnt mit diesem neuen Scan.</p><p>Baseline: <strong>{baseline_scan_id}</strong></p>",
+            )
+        return (
+            "BCSentinel Validation available",
+            f"<p>Your Validation is available. Start a new Data Health Scan now. The 7-day full Validation result window begins with that new scan.</p><p>Baseline: <strong>{baseline_scan_id}</strong></p>",
+        )
+    return _event_copy(event_type, language, payload)
 
 
 def process_due_outbox_safely(db, *, limit: int = 25) -> dict[str, int]:
