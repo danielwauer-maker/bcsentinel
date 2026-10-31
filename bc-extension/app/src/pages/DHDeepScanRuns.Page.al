@@ -29,11 +29,6 @@
                     end;
                 }
 
-                /*field("Scan Type"; Rec."Scan Type")
-                {
-                    ApplicationArea = All;
-                }*/
-
                 field("Scan DateTime"; Rec."Scan DateTime")
                 {
                     ApplicationArea = All;
@@ -66,6 +61,7 @@
                     ApplicationArea = All;
                     Caption = 'Loss EUR';
                     ToolTip = 'Specifies Loss EUR.';
+                    Visible = ShowPremiumDetails;
                 }
 
                 field("Rating"; Rec."Rating")
@@ -78,13 +74,8 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Headline.';
+                    Visible = ShowPremiumDetails;
                 }
-
-                /*field("Premium"; GetIsPremiumRun())
-                {
-                    ApplicationArea = All;
-                    Caption = 'Paid Access';
-                }*/
             }
         }
     }
@@ -112,12 +103,14 @@
                 ToolTip = 'Runs Open Issues.';
                 ApplicationArea = All;
                 Image = List;
+                Visible = ShowPremiumDetails;
 
                 trigger OnAction()
                 var
                     DashboardIssue: Record "DH Dashboard Issue";
                     DashboardMgt: Codeunit "DH Dashboard Mgt.";
                 begin
+                    EnsureDetailedAccess();
                     DashboardMgt.RefreshDashboardIssueCache(Rec);
                     DashboardIssue.SetRange("Dashboard Scan Entry No.", Rec."Entry No.");
                     Page.Run(Page::"DH Dashboard Issues List", DashboardIssue);
@@ -218,6 +211,7 @@
 
                 trigger OnAction()
                 begin
+                    RefreshAccessState();
                     CurrPage.Update(false);
                 end;
             }
@@ -226,6 +220,7 @@
 
     trigger OnOpenPage()
     begin
+        RefreshAccessState();
         Rec.SetCurrentKey("Scan DateTime");
         Rec.Ascending(false);
     end;
@@ -239,6 +234,28 @@
     var
         ScoreStyle: Text[30];
         RunIdStyle: Text[30];
+        ShowPremiumDetails: Boolean;
+
+    local procedure RefreshAccessState()
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ShowPremiumDetails := false;
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if Setup.Registered then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        ShowPremiumDetails := Setup."Can View Issue Details";
+    end;
+
+    local procedure EnsureDetailedAccess()
+    begin
+        if not ShowPremiumDetails then
+            Error('Detailed findings are available with an active Assessment, Validation, or Monitoring access period.');
+    end;
 
     local procedure OpenMonitorForCurrentScan()
     var
@@ -350,4 +367,3 @@
         exit(SecretMgt.HasApiToken(Setup));
     end;
 }
-
