@@ -1,6 +1,6 @@
 # BCSentinel Master State
 
-Last updated: 2026-10-31
+Last updated: 2026-11-01
 
 This document is the human-readable authority entry point for the current BCSentinel product state. The machine-readable companion is [`release/current-product-state.json`](../release/current-product-state.json).
 
@@ -123,9 +123,41 @@ Automated evidence does not replace the required real two-tenant BC SaaS test or
 
 `docs/FIVERR_PILOT_RELEASE_CANDIDATE.md` is the release-candidate checklist.
 
-The F5 lifecycle regression must prove in one contract:
+The F5 lifecycle regression proves the intended contract:
 
 registration → one Free Entry scan → Free report/paid block → Assessment unlock without rescan/credit → Assessment expiry/fallback → Validation grant → new scan credit consumption → Validation full access/comparison report.
+
+## Fiverr launch assets / F6 – automatic implementation complete
+
+`docs/FIVERR_GIG_LAUNCH_KIT.md` is the controlled-pilot Fiverr launch package and contains:
+
+- Gig title, positioning and search tags,
+- Basic / Standard / Premium pilot package proposal,
+- follow-up Validation Custom Offer,
+- Gig description and package summaries,
+- buyer requirements and FAQ,
+- three gallery-image specifications,
+- 45–55 second no-face video storyboard,
+- recommended sample-report PDFs,
+- Basic / Assessment / Validation delivery templates,
+- revision policy, compliance guardrails and publish checklist.
+
+Actual asset export/upload and Fiverr publication remain manual because they depend on the live Fiverr form and final release approval.
+
+## Landing + LinkedIn / F7 – automatic implementation complete
+
+The customer frontend supports an optional `VITE_FIVERR_GIG_URL` acquisition target.
+
+- If a real approved Gig URL is configured, the landing hero presents a **Controlled Pilot** CTA to start the Data Health Check on Fiverr.
+- If the variable is empty, the existing waitlist remains active; no fake or unpublished Fiverr URL is exposed.
+- SEO/OG copy is prepared for the controlled pilot.
+- `bcsentinel-frontend/docs/FIVERR_PILOT_LINKEDIN_LAUNCH.md` contains the primary LinkedIn launch post, short version, visual brief and post-pilot follow-up framework.
+
+Setting the real Fiverr URL, deploying the reviewed frontend ref and publishing the LinkedIn post remain manual final activation steps after the release gates close.
+
+## Automatic sprint status
+
+F0 through F7 are implemented to the extent they can be completed automatically in repository/code/content workflows. No additional automatic sprint is a controlled-pilot blocker at this stage. Remaining P0 work requires real BC Online, infrastructure/provider, visual or marketplace interaction.
 
 ## Brand freeze
 
@@ -144,6 +176,9 @@ Before the first paid Fiverr pilot customer:
 7. Freeze immutable reviewed RC and manually promote exactly that ref to PROD.
 8. Run fresh external-like PROD E2E through registration, initial scan, Free boundary, Fiverr Assessment grant, expiry/fallback, Validation grant, new scan and comparison report.
 9. Complete privacy/DPA/legal/provider-facts signoff.
-10. Publish/activate Fiverr Gig and execute one real Fiverr order dry-run.
+10. Create/export the final Fiverr gallery/video/report assets from the approved launch specifications, configure the live Gig fields and publish/activate the Gig.
+11. Execute one real Fiverr order dry-run through the selected pilot workflow.
+12. Set the real published Fiverr Gig URL as `VITE_FIVERR_GIG_URL`, deploy the reviewed frontend ref and verify the landing CTA.
+13. Publish the prepared LinkedIn launch post only after all prior launch gates are closed.
 
 AppSource, full public Stripe E2E, public self-service, Monitoring polish, mobile polish and partner program are not controlled-pilot blockers unless scope changes.
