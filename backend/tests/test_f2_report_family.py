@@ -43,8 +43,11 @@ def test_assessment_route_is_canonical_alias_without_breaking_executive(
     html = client.get("/reports/assessment/f2-assessment-1/html", headers=headers)
     pdf = client.get("/reports/assessment/f2-assessment-1/pdf", headers=headers)
     assert html.status_code == 200
+    assert "Assessment Report" in html.text
+    assert "Executive Management Report" not in html.text
     assert pdf.status_code == 200
     assert pdf.headers["content-type"] == "application/pdf"
+    assert b"Assessment Report" in pdf.content
     assert "bcsentinel-assessment-report-f2-assessment-1.pdf" in pdf.headers["content-disposition"]
 
 
