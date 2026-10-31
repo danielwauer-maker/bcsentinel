@@ -27,7 +27,7 @@ codeunit 53139 "DH Tenant Registration Client"
             Error('Please enable Data Processing Consent before registering the tenant.');
 
         JsonRequest.Add('environment_name', 'BC Cloud');
-        JsonRequest.Add('app_version', '1.0.2.26');
+        JsonRequest.Add('app_version', '1.0.2.27');
         JsonRequest.Add('preferred_language', GetPreferredLanguage());
         JsonRequest.Add('invite_code', Setup."Registration Invite Code");
         JsonRequest.WriteTo(RequestText);
