@@ -75,7 +75,10 @@ def test_assessment_unlocks_existing_scan_for_seven_days_without_scan_credit(
         assert result["scan_id"] == "f4-free-baseline"
         assert result["report_url"] and "/reports/assessment/f4-free-baseline/" in result["report_url"]
 
-        entitlement = db.get(TenantProductEntitlement, result["action_id"] and db.query(TenantOperatorAction).filter(TenantOperatorAction.id == result["action_id"]).one().entitlement_id)
+        action = db.query(TenantOperatorAction).filter(
+            TenantOperatorAction.id == result["action_id"]
+        ).one()
+        entitlement = db.get(TenantProductEntitlement, action.entitlement_id)
         assert entitlement is not None
         remaining = _as_utc(entitlement.valid_until_utc) - datetime.now(timezone.utc)
         assert timedelta(days=6, hours=23) < remaining <= timedelta(days=7, minutes=1)
@@ -90,12 +93,45 @@ def test_assessment_unlocks_existing_scan_for_seven_days_without_scan_credit(
         assert EVENT_ASSESSMENT_EXPIRED in lifecycle_events
 
 
+def test_validation_rejects_free_only_scan_without_paid_assessment_baseline(
+    client, tenant_factory, auth_header_factory, scan_factory
+):
+    tenant = tenant_factory(plan="free", license_status="active")
+    _enable_lifecycle(client, tenant, auth_header_factory, "free-only@example.com")
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="f4-free-only")
+
+    with SessionLocal() as db:
+        with pytest.raises(ValueError, match="prior paid Assessment baseline"):
+            grant_validation(
+                db,
+                tenant_id=tenant["tenant_id"],
+                sales_channel="fiverr",
+                external_order_reference="FIV-VAL-FREE-ONLY",
+                actor="tester",
+            )
+        assert db.query(TenantScanCredit).filter(
+            TenantScanCredit.tenant_id == tenant["tenant_id"],
+            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+        ).count() == 0
+
+
 def test_validation_grant_creates_exactly_one_credit_without_premature_access(
     client, tenant_factory, auth_header_factory, scan_factory
 ):
     tenant = tenant_factory(plan="free", license_status="active")
     _enable_lifecycle(client, tenant, auth_header_factory, "validation-operator@example.com")
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="f4-assessment-baseline")
+
+    with SessionLocal() as db:
+        assessment = grant_assessment(
+            db,
+            tenant_id=tenant["tenant_id"],
+            sales_channel="fiverr",
+            external_order_reference="FIV-ASS-BEFORE-VAL-001",
+            actor="tester",
+        )
+        db.commit()
+        assert assessment["scan_id"] == "f4-assessment-baseline"
 
     with SessionLocal() as db:
         result = grant_validation(
@@ -113,6 +149,7 @@ def test_validation_grant_creates_exactly_one_credit_without_premature_access(
         ).all()
         assert len(credits) == 1
         assert credits[0].status == "available"
+        assert result["baseline_scan_id"] == "f4-assessment-baseline"
         assert result["scan_credit_granted"] is True
         assert result["access_starts_after_validation_scan"] is True
 
