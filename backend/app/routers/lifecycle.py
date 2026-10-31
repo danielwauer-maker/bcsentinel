@@ -10,7 +10,8 @@ from pydantic import BaseModel
 from app.db import SessionLocal
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
 from app.services.lifecycle_discovery_service import discover_scan_lifecycle_events
-from app.services.lifecycle_email_service import process_due_outbox, upsert_lifecycle_profile
+from app.services.lifecycle_email_service import upsert_lifecycle_profile
+from app.services.lifecycle_worker_service import process_due_outbox_safely
 
 router = APIRouter(tags=["lifecycle"])
 _worker_task: asyncio.Task | None = None
@@ -59,7 +60,7 @@ async def _worker_loop() -> None:
         try:
             with SessionLocal() as db:
                 discover_scan_lifecycle_events(db)
-                process_due_outbox(db, limit=50)
+                process_due_outbox_safely(db, limit=50)
                 db.commit()
         except asyncio.CancelledError:
             raise
