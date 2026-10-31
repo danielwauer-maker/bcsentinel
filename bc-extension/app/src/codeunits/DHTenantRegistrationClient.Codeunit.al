@@ -17,6 +17,7 @@ codeunit 53139 "DH Tenant Registration Client"
         ApiToken: Text;
         SecretMgt: Codeunit "DH Secret Mgt.";
         ApiClient: Codeunit "DH API Client";
+        LifecycleClient: Codeunit "DH Lifecycle Client";
     begin
         EnsureSetupLoaded(Setup);
 
@@ -26,9 +27,15 @@ codeunit 53139 "DH Tenant Registration Client"
         if not Setup."Data Processing Consent" then
             Error('Please enable Data Processing Consent before registering the tenant.');
 
+        if Setup."Report Notification Email" = '' then
+            Error('Please enter the Report & Notification Email before registering the tenant.');
+
+        if Setup."Preferred Report Language" = '' then
+            Setup.Validate("Preferred Report Language", UpperCase(GetPreferredLanguage()));
+
         JsonRequest.Add('environment_name', 'BC Cloud');
-        JsonRequest.Add('app_version', '1.0.2.27');
-        JsonRequest.Add('preferred_language', GetPreferredLanguage());
+        JsonRequest.Add('app_version', '1.0.2.28');
+        JsonRequest.Add('preferred_language', LowerCase(Setup."Preferred Report Language"));
         JsonRequest.Add('invite_code', Setup."Registration Invite Code");
         JsonRequest.WriteTo(RequestText);
 
@@ -62,6 +69,8 @@ codeunit 53139 "DH Tenant Registration Client"
         Setup.Registered := true;
         Setup."Registration Date" := CurrentDateTime();
         Setup.Modify(true);
+
+        LifecycleClient.SyncProfile(Setup);
     end;
 
     local procedure EnsureSetupLoaded(var Setup: Record "DH Setup")
