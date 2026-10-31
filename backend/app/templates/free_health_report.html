@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="{{ report.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BCSentinel Free Health Report</title>
+  <style>
+    :root{--navy:#14213D;--blue:#246BFD;--orange:#FF921F;--bg:#F7F9FC;--card:#fff;--ink:#172033;--muted:#667085;--line:#D9DEE8;--success:#11A36A;--warning:#D98E04;--critical:#CF3A3A}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+    .shell{max-width:1080px;margin:0 auto;padding:32px}.hero{background:var(--navy);color:#fff;border-radius:18px;padding:34px 38px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,146,31,.12)}
+    .brand{font-size:27px;font-weight:800;letter-spacing:-.5px}.claim{color:#d8dfeb;margin-top:5px}.eyebrow{display:inline-block;margin-top:26px;background:rgba(255,255,255,.1);padding:7px 11px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.title{font-size:34px;line-height:1.08;font-weight:800;margin:12px 0 9px}.sub{color:#d8dfeb;max-width:760px;line-height:1.55}
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}.value{font-size:27px;font-weight:800;margin-top:7px}.score{color:var(--blue)}
+    h2{font-size:20px;margin:28px 0 12px;color:var(--navy)}.summary{font-size:15px;line-height:1.65}.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.severity{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.sev{border-radius:12px;padding:15px;background:var(--bg)}.sev strong{font-size:24px;display:block}.high strong{color:var(--critical)}.medium strong{color:var(--warning)}.low strong{color:var(--success)}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);font-size:13px}th{background:#f0f3f8;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}tr:last-child td{border-bottom:0}.badge{font-size:11px;font-weight:700;padding:5px 8px;border-radius:999px;background:#eef3ff;color:var(--blue)}
+    .cta{margin-top:24px;background:linear-gradient(135deg,#fff4e7,#fff);border:1px solid #ffd7aa;border-radius:16px;padding:24px}.cta h3{margin:0 0 8px;color:var(--navy);font-size:20px}.cta p{margin:0;line-height:1.6;color:#4b5565}.foot{margin:24px 2px 0;color:var(--muted);font-size:11px;line-height:1.5}
+    @media(max-width:760px){.shell{padding:16px}.meta,.grid{grid-template-columns:1fr}.title{font-size:28px}}
+    @media print{body{background:#fff}.shell{max-width:none;padding:0}.hero,.card,table,.cta{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <section class="hero">
+    <div class="brand">BCSentinel</div><div class="claim">Clean Data – Higher Impact</div>
+    <div class="eyebrow">{{ 'Kostenloser Data Health Check' if report.language == 'de' else 'Free Data Health Check' }}</div>
+    <div class="title">{{ 'Free Health Report' }}</div>
+    <div class="sub">{{ 'Aggregierte Management-Sicht auf die Datenqualität Ihres Business Central Systems.' if report.language == 'de' else 'An aggregate management view of data quality in your Business Central environment.' }}</div>
+  </section>
+
+  <div class="meta">
+    <div class="card"><div class="label">Data Health Score</div><div class="value score">{{ report.data_health_score }}/100</div><div>{{ report.score_status }}</div></div>
+    <div class="card"><div class="label">{{ 'Auffälligkeiten' if report.language == 'de' else 'Issues detected' }}</div><div class="value">{{ report.issues_count }}</div><div>{{ report.checks_count }} {{ 'Checks ausgeführt' if report.language == 'de' else 'checks executed' }}</div></div>
+    <div class="card"><div class="label">{{ 'Business Impact Band' if report.language == 'de' else 'Business impact band' }}</div><div class="value">{{ report.impact_band }}</div><div>{{ 'Keine konkreten EUR-Werte im Free Report' if report.language == 'de' else 'No concrete EUR values in Free Report' }}</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h2 style="margin-top:0">{{ 'Management Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2><div class="summary">{{ report.summary }}</div></div>
+    <div class="card"><div class="label">Severity</div><div class="severity"><div class="sev high"><strong>{{ report.severity.high }}</strong>High</div><div class="sev medium"><strong>{{ report.severity.medium }}</strong>Medium</div><div class="sev low"><strong>{{ report.severity.low }}</strong>Low</div></div></div>
+  </div>
+
+  <h2>{{ 'Risikobereiche' if report.language == 'de' else 'Risk areas' }}</h2>
+  <table><thead><tr><th>{{ 'Bereich' if report.language == 'de' else 'Area' }}</th><th>Score</th><th>Status</th><th>{{ 'Anzahl' if report.language == 'de' else 'Issues' }}</th><th>{{ 'Betroffene Datensätze' if report.language == 'de' else 'Affected records' }}</th><th>Severity</th></tr></thead><tbody>
+  {% for area in report.risk_areas %}<tr><td><strong>{{ area.name }}</strong></td><td>{{ area.score }}/100</td><td><span class="badge">{{ area.status }}</span></td><td>{{ area.issue_count }}</td><td>{{ area.affected_records }}</td><td>{{ area.highest_severity|upper }}</td></tr>{% endfor %}
+  </tbody></table>
+
+  <section class="cta"><h3>{{ 'Was das Assessment zusätzlich freischaltet' if report.language == 'de' else 'What Assessment unlocks' }}</h3><p>{{ report.upgrade_message }}</p></section>
+  <div class="foot">Scan ID: {{ report.scan_id }} · {{ report.scan_generated_at_utc }} · BCSentinel Free Health Report · {{ report.contract_version }}</div>
+</div>
+</body></html>
