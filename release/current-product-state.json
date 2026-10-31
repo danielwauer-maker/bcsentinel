@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T00:00:00Z",
+  "generated_at_utc": "2026-11-01T00:40:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -11,10 +11,15 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "3ae72b199c49ed4b79a9ebad5e2bfde768476b9b",
-      "status": "F1-F5 merged; F6 launch assets complete pending merge"
+      "technical_baseline_sha": "451338acd0b20c95f6c2e33f53f623f415dd4c98",
+      "status": "F1-F6 merged; automatic controlled-pilot implementation complete"
     },
-    "frontend": {"repo": "danielwauer-maker/bcsentinel-frontend", "branch": "main", "status": "customer frontend authority"},
+    "frontend": {
+      "repo": "danielwauer-maker/bcsentinel-frontend",
+      "branch": "main",
+      "technical_baseline_sha": "96486135999a288eac1ce99202c896fa88917973",
+      "status": "F7 Fiverr pilot CTA and LinkedIn launch preparation merged"
+    },
     "product_system": {"repo": "danielwauer-maker/bcsentinel-product-system", "branch": "main", "status": "normative UX/product reference"}
   },
   "product_identity": {
@@ -48,7 +53,9 @@
     "scraping": false,
     "operator_console": "/admin/operator",
     "operator_features": ["tenant/email/order search", "grant Assessment", "extend Assessment", "grant Validation", "revoke", "resend lifecycle mail", "channel/order/action audit"],
-    "launch_kit": "docs/FIVERR_GIG_LAUNCH_KIT.md"
+    "launch_kit": "docs/FIVERR_GIG_LAUNCH_KIT.md",
+    "landing_activation": "frontend supports VITE_FIVERR_GIG_URL; empty value preserves waitlist until real Gig URL is approved",
+    "linkedin_launch_kit": "bcsentinel-frontend/docs/FIVERR_PILOT_LINKEDIN_LAUNCH.md"
   },
   "extension": {
     "source_version": "1.0.2.28",
@@ -89,12 +96,12 @@
     "F3_lifecycle_email": "merged",
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
-    "F6_fiverr_launch_assets": "complete pending merge",
-    "F7_landing_linkedin": "pending"
+    "F6_fiverr_launch_assets": "merged",
+    "F7_landing_linkedin": "merged; final Fiverr URL activation and actual posting remain manual"
   },
   "readiness": {
-    "technical_fiverr_controlled_pilot_after_automatic_F5": 98,
-    "real_launch_readiness_before_manual_prod_gates": 92,
+    "technical_fiverr_controlled_pilot_after_automatic_F7": 99,
+    "real_launch_readiness_before_manual_prod_gates": 93,
     "confidence_note": "planning estimate only; real BC Online, PROD, SMTP/DNS, visual report and Fiverr order acceptance remain release gates"
   },
   "manual_p0_before_first_paid_fiverr_customer": [
@@ -107,7 +114,9 @@
     "immutable RC freeze and manual PROD promotion",
     "fresh external-like PROD E2E",
     "privacy/DPA/legal/provider-facts signoff",
-    "Fiverr Gig publish and one real order dry-run"
+    "Fiverr Gig publish and one real order dry-run",
+    "set the real published Fiverr Gig URL as VITE_FIVERR_GIG_URL and deploy the reviewed frontend ref",
+    "publish the prepared LinkedIn launch post only after all release gates are closed"
   ],
   "explicit_controlled_pilot_non_blockers": ["AppSource", "public self-service signup", "full Stripe provider E2E for Fiverr-origin purchases", "Monitoring polish", "mobile dashboard polish", "partner program"]
 }
