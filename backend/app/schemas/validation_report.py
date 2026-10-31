@@ -57,9 +57,9 @@ class ValidationReport(BaseModel):
     new_count: int = Field(ge=0)
 
     executive_summary: str
-    resolved: List[ValidationFindingDelta] = []
-    improved: List[ValidationFindingDelta] = []
-    remaining: List[ValidationFindingDelta] = []
-    regressed: List[ValidationFindingDelta] = []
-    new_findings: List[ValidationFindingDelta] = []
-    next_steps: List[str] = []
+    resolved: List[ValidationFindingDelta] = Field(default_factory=list)
+    improved: List[ValidationFindingDelta] = Field(default_factory=list)
+    remaining: List[ValidationFindingDelta] = Field(default_factory=list)
+    regressed: List[ValidationFindingDelta] = Field(default_factory=list)
+    new_findings: List[ValidationFindingDelta] = Field(default_factory=list)
+    next_steps: List[str] = Field(default_factory=list)
