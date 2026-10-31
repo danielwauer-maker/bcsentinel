@@ -136,26 +136,26 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         select(TenantScanCredit).where(
             TenantScanCredit.tenant_id == tenant_id,
             TenantScanCredit.product_code == normalized_product,
-            TenantScanCredit.status.in_(["available", "consumed"]),
+            TenantScanCredit.status == "consumed",
         )
     ).all()
     for credit in credits:
-        anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
-        anchor = _as_utc(anchor)
+        anchor = _as_utc(credit.consumed_at_utc)
         if anchor is not None:
             access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
 
-    purchases = db.scalars(
-        select(TenantProductPurchase).where(
-            TenantProductPurchase.tenant_id == tenant_id,
-            TenantProductPurchase.product_code == normalized_product,
-            TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
-        )
-    ).all()
-    for purchase in purchases:
-        anchor = _as_utc(purchase.created_at_utc)
-        if anchor is not None:
-            access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
+    if normalized_product != PRODUCT_VALIDATION_CHECK:
+        purchases = db.scalars(
+            select(TenantProductPurchase).where(
+                TenantProductPurchase.tenant_id == tenant_id,
+                TenantProductPurchase.product_code == normalized_product,
+                TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+            )
+        ).all()
+        for purchase in purchases:
+            anchor = _as_utc(purchase.created_at_utc)
+            if anchor is not None:
+                access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
 
     entitlements = db.scalars(
         select(TenantProductEntitlement).where(
