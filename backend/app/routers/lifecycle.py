@@ -5,10 +5,11 @@ import contextlib
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from app.db import SessionLocal
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
+from app.services.lifecycle_discovery_service import discover_scan_lifecycle_events
 from app.services.lifecycle_email_service import process_due_outbox, upsert_lifecycle_profile
 
 router = APIRouter(tags=["lifecycle"])
@@ -16,7 +17,7 @@ _worker_task: asyncio.Task | None = None
 
 
 class LifecycleProfileRequest(BaseModel):
-    primary_notification_email: EmailStr
+    primary_notification_email: str
     preferred_language: Literal["de", "en"] = "en"
 
 
@@ -39,7 +40,7 @@ def update_lifecycle_profile(
             profile = upsert_lifecycle_profile(
                 db,
                 tenant=tenant,
-                email=str(payload.primary_notification_email),
+                email=payload.primary_notification_email,
                 language=payload.preferred_language,
             )
         except ValueError as exc:
@@ -57,11 +58,11 @@ def update_lifecycle_profile(
 def process_lifecycle_outbox(
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> dict[str, int]:
-    # Authenticated diagnostic hook. It intentionally processes the global queue;
-    # the background worker is the normal production path.
+    # Authenticated diagnostic hook; the background worker is the normal path.
     tenant_id, api_token = tenant_auth
     with SessionLocal() as db:
         load_authenticated_tenant(db, tenant_id, api_token)
+        discover_scan_lifecycle_events(db)
         result = process_due_outbox(db, limit=25)
         db.commit()
         return result
@@ -71,13 +72,14 @@ async def _worker_loop() -> None:
     while True:
         try:
             with SessionLocal() as db:
+                discover_scan_lifecycle_events(db)
                 process_due_outbox(db, limit=50)
                 db.commit()
         except asyncio.CancelledError:
             raise
         except Exception:
-            # Delivery errors are recorded per outbox row. A database-level failure
-            # must not terminate the API process; the next cycle retries.
+            # A database/provider failure must not terminate the API process.
+            # Individual delivery errors are persisted on the outbox row.
             pass
         await asyncio.sleep(60)
 
