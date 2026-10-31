@@ -1,263 +1,149 @@
 # BCSentinel Master State
 
-Last updated: 2026-10-28
+Last updated: 2026-10-31
 
-This document is the human-readable entry point for the current BCSentinel product state. The machine-readable source is [`release/current-product-state.json`](../release/current-product-state.json).
+This document is the human-readable authority entry point for the current BCSentinel product state. The machine-readable companion is [`release/current-product-state.json`](../release/current-product-state.json).
 
-## Purpose
+## Authority
 
-BCSentinel has evolved across several repositories, Lovable projects, runtime artifacts and acceptance branches. This document exists to prevent a feature branch, old roadmap, old percentage or stale manifest from becoming an accidental parallel truth.
+- `danielwauer-maker/bcsentinel/main` is canonical Core/Backend/Extension and release/product truth after reviewed merges.
+- `danielwauer-maker/bcsentinel-frontend/main` is canonical deployed customer-frontend truth.
+- `danielwauer-maker/bcsentinel-product-system/main` is normative product/UX truth.
+- Feature, staging, acceptance and release-candidate branches are work/evidence only until reviewed and merged.
+- PROD is promoted manually from an immutable reviewed release ref; newest `main` is not automatically the deployed PROD release.
 
-The rule from now on is:
+## Frozen product model
 
-- `danielwauer-maker/bcsentinel/main` = canonical technical Core/Backend and release/product truth after reconciliation.
-- `danielwauer-maker/bcsentinel-frontend/main` = canonical deployed customer-facing frontend truth.
-- `danielwauer-maker/bcsentinel-product-system/main` = canonical normative product/UX truth.
-- `danielwauer-maker/enterprise-data-ai-portfolio/main` = derived portfolio/readiness view, never the primary technical truth.
-- `staging` remains a valid DEV integration/evidence branch; it is not the canonical product authority.
-- `dev-acceptance` is the current automatic DEV deployment/acceptance branch and remains evidence/work history after reconciliation.
-- PROD is promoted manually from an immutable reviewed `release_ref`; the newest `main` HEAD is not automatically equivalent to the currently deployed PROD release.
-- Lovable = design and frontend authoring workspace; approved work must flow back to GitHub before it becomes release truth.
+BCSentinel targets Microsoft Dynamics 365 Business Central Online and is positioned as **Data Health + Business Impact** with the claim **“Clean Data – Higher Impact”**.
 
-For the Core repository, the canonical technical baseline is recorded as the commit that changed technical/runtime truth. Later commits that only update this Master State or release metadata do not supersede that technical baseline unless they also change product/runtime behavior.
+Customer stages: Free Entry → Assessment → Validation → Monitoring.
 
-## Current verified references
+There is only one customer-facing scan engine/depth: the full BCSentinel Data Health / Deep Scan. Free vs paid products differ by result access, not scan depth.
 
-### Core / Backend
+### Free Entry
 
-- Repository: `danielwauer-maker/bcsentinel`
-- Reconciled technical baseline: `cc1017fd5ba2b90ceb7be609c79e564fdad58bcf`
-- Baseline date: 2026-10-28
-- `dev-acceptance` evidence head previously reconciled: `3bd50178d1a47c552ff6212e3e374aead9b4bc5a`
-- Core reconciliation PR: `#119` – `S0: reconcile dev-acceptance into canonical main`
-- Extension source reconciliation PR: `#120` – `S0: reconcile BC extension source with verified 1.0.2.25`
-- Evidence: DEV deploy for `3bd50178d1a47c552ff6212e3e374aead9b4bc5a` passed; post-core-reconciliation `Record Pricing Quality Gate` run `40711567073` passed; after Extension reconciliation, `Remediation Quality Gate` run `40717607682` and `Notification Quality Gate` run `40717607483` both passed.
-- Status: current valid DEV acceptance work and the verified 1.0.2.25 Extension source contract are reconciled into canonical `main`.
+- A newly registered tenant receives exactly one initial `free_entry` scan credit.
+- The first scan executes the full enabled Deep Scan.
+- The full result is stored server-side.
+- Free surfaces expose aggregate-only information: score/counts/severity/risk areas/impact band.
+- Free must not expose finding titles, issue codes, root-cause detail, full recommendations, record-level detail or concrete financial EUR values.
+- After the initial Free Entry credit is consumed, a second unpaid scan is blocked.
 
-### Frontend
+### Assessment
 
-- Repository: `danielwauer-maker/bcsentinel-frontend`
-- Current `main`: `742e3257c8db6af6d732fcca02da0047a48b69b5`.
-- S2 technical closure commit: `20464e4c8e15f139a21b6226f974cfc951ae180d`.
-- Real routes implemented: `/`, `/overview`, `/findings`, `/actions`, `/financial-impact`, `/reports`, `/scans`, `/validation`, `/monitoring`, `/settings`, `/subscription`, `/support`, `/datenschutz`, `/impressum`.
-- Runtime Lovable asset dependency removed; sidebar placeholder navigation removed; Free Entry route-level aggregate-only boundary preserved.
-- DEV deployment run `40747919204`: PASS including verify, immutable image deployment, routing diagnostics and public DEV smoke.
-- Manual responsive/visual acceptance and final legal/provider review remain later gates.
+- Assessment unlocks the qualifying existing scan; canonical Fiverr/operator Assessment does **not** create a new scan credit.
+- Full detail/report access is fixed to 7 days after activation.
+- The stored scan remains after expiry and can be used as Validation baseline/history.
+- After expiry, live paid detail access falls back to Free aggregate access.
+- One +7-day Assessment extension is allowed for the same entitlement; it does not create a new scan.
 
-### Business Central Extension
+### Validation
 
-- Current verified built artifact: `BCSentinel 1.0.2.25`
-- Canonical Core manifests: `app.json = 1.0.2.25`, `app.cloud.json = 1.0.2.25`.
-- Target: Business Central Online / Cloud
-- Runtime: 16.0
-- Real SCAN runtime without SUPER: PASS, 10/10 modules, 199/199 checks.
-- Verified permission contract preserved: SCAN has no direct `DH Setup` Modify grant; required writes use the relevant codeunits' indirect `RM` permission.
-- Roles: VIEWER, SCAN, SETUP, SCHEDULER, ADMIN.
-- Real runtime evidence: VIEWER PASS without SUPER (dashboard/history readable; setup and manual scan denied, PR #46); SCAN PASS without SUPER on 1.0.2.25 (10/10 modules, 199/199 checks).
-- Remaining runtime acceptance: SETUP, SCHEDULER, ADMIN.
-- Status: the previous manifest/source discrepancy is closed. Canonical source and manifests now align with the verified 1.0.2.25 line.
+- Validation requires evidence of a prior paid Assessment baseline.
+- Validation grants exactly one new `validation_check` scan credit.
+- Grant/purchase alone does not unlock Validation detail access.
+- The customer runs a new full Data Health Scan after remediation.
+- Consuming the Validation credit anchors the 7-day Validation result/comparison window at `consumed_at`.
+- Validation Report accepts only a scan that actually consumed a Validation credit and compares it with the recorded paid Assessment baseline.
 
-### Product System
+### Monitoring
 
-- Repository: `danielwauer-maker/bcsentinel-product-system`
-- `main`: `b61c08d58dc095cd277961eebd3d53acfc8fda67`
-- Role: normative product model, UX contracts, design/system rules and access semantics.
+- Monitoring permits recurring full scans and continuing paid-detail access while the subscription is active.
+- Monitoring polish is not a Fiverr controlled-pilot blocker unless selected pilot scope requires it.
 
-### Portfolio / Control Center
+## Pricing truth for direct BCSentinel
 
-- Repository: `danielwauer-maker/enterprise-data-ai-portfolio`
-- Current generated `main`: `db99adb8938477b706e1eddb12e30312c094fe37`
-- Reconciliation PR: `#85` – `S0: make BCSentinel main the canonical readiness authority`.
-- Canonical authority source: `bcsentinel/main/release/current-product-state.json`.
-- DEV evidence source remains: `bcsentinel/staging/quality/portfolio-readiness-evidence.json`.
-- The sync validates canonical `main` first, then applies mapped DEV evidence; manually maintained planning percentages are explicitly not imported as readiness evidence.
-- PR validation passed for Readiness Sync, Control Center Validation and Portfolio Website.
-- Post-merge main sync run `40718463973` completed successfully and wrote generated readiness commit `db99adb8938477b706e1eddb12e30312c094fe37`.
-- Status: portfolio readiness is now derived from canonical product state plus evidence instead of treating `staging` as the sole product truth.
-
-## Current Lovable references
-
-- BCSentinel Frontend
-  - Project ID: `6c392bec-8b44-40e1-a79d-d41962e7eb09`
-  - Commit: `e84deb14afe90ae3326cd9622d78aa5363d6fc63`
-  - Status: historical Lovable authoring reference; canonical `bcsentinel-frontend/main` has advanced through S2.
-
-- Business Central Risk Radar / Landing Master
-  - Project ID: `267ee2cd-c9a4-4d98-9835-e35659839a03`
-  - Commit: `768c1049715aba547075b738e3d1d9bf54750a91`
-  - Status: visual reference only; S2 removed the runtime dependency on its hosted landing assets.
-
-- BCSentinel Report Assessment
-  - Project ID: `a4c54214-d67a-47eb-99ca-dda8de9340fd`
-  - Commit: `366b81ddeca7a542b921d09cb73f8ec45247cee2`
-  - Status: design is advanced; static report data still needs complete runtime backend integration.
-
-- BCSentinel Report Free
-  - Project ID: `bed92b82-67f5-442b-aef4-c38d84fdb823`
-  - Commit: `7397effa73bd4d584c88b17c981988f48dd79e08`
-  - Status: design is advanced; runtime integration remains.
-
-## Product model
-
-BCSentinel is currently Business Central Online only.
-
-Canonical progression:
-
-1. Free Entry
-2. Assessment
-3. Validation
-4. Monitoring
-
-Canonical pricing:
-
-| Data class | Assessment | Validation | Monitoring monthly | Monitoring annual |
+| Record class | Assessment | Validation | Monitoring monthly | Monitoring annual |
 |---|---:|---:|---:|---:|
-| <=250k | EUR 249 | EUR 129 | EUR 199 | EUR 1,990 |
-| <=1m | EUR 399 | EUR 199 | EUR 299 | EUR 2,990 |
-| <=5m | EUR 699 | EUR 349 | EUR 499 | EUR 4,990 |
-| <=20m | EUR 1,190 | EUR 590 | EUR 799 | EUR 7,990 |
+| ≤250k | €249 | €129 | €199 | €1,990 |
+| ≤1m | €399 | €199 | €299 | €2,990 |
+| ≤5m | €699 | €349 | €499 | €4,990 |
+| ≤20m | €1,190 | €590 | €799 | €7,990 |
 | >20m | Custom | Custom | Custom | Custom |
 
-Free Entry must remain aggregate-only: no detailed finding titles, no concrete financial values and no root causes.
+Fiverr pricing/order truth remains on Fiverr. Fiverr is a sales channel and must not create Fiverr-specific product codes, scan engines or Extension forks.
 
-## Design system
+## Fiverr channel architecture
 
-- Font: Inter
-- Claim: `Clean Data – Higher Impact`
-- Navigation: `#14213D`
-- Interaction: `#246BFD`
-- Success: `#11A36A`
-- Warning: `#D98E04`
-- Critical: `#CF3A3A`
-- Background: `#F7F9FC`
-- Cards: `#FFFFFF`
-- Brand Orange: `#FF921F`
-- Foreground on Orange: `#082138`
+- One standard BCSentinel Extension/backend serves Fiverr, direct, partner and future marketplace channels.
+- Generic product codes remain `assessment`, `validation_check`, `monitoring_monthly`, `monitoring_annual`.
+- Sales origin is separate metadata such as `fiverr`, `direct`, `malt`, `contra`, `appsource`, `partner` or `support`.
+- External order references are audit metadata, not entitlements.
+- Fiverr payment/contract remains on Fiverr; do not redirect Fiverr purchases to Stripe and do not scrape Fiverr order/chat state.
+- Controlled pilot permits one manual operator action after payment confirmation. Everything after entitlement/credit grant is automated.
 
-Approved frontend workflow:
+## Extension state
 
-`Lovable -> feature branch -> backend/API integration -> DEV -> responsive/functional QA -> PR -> main`
+Current source target: **1.0.2.28**, BC Online / BC 27.x, runtime 16.0.
 
-## Known current gaps
+1.0.2.28 includes initial Free Entry, Free/Assessment/Validation report actions, `Report & Notification Email`, preferred DE/EN report language and lifecycle-profile synchronization after registration.
 
-The following are not hidden by readiness percentages and must stay visible until evidence closes them:
+Last previously verified real BC artifact/runtime evidence predates 1.0.2.28. Therefore 1.0.2.28 is **source-complete but still requires real BC SaaS artifact/runtime acceptance before paid pilot launch**.
 
-- VIEWER, SETUP, SCHEDULER and ADMIN still require final real runtime role acceptance.
-- Frontend S2 technical closure is complete; manual responsive/visual acceptance remains open.
-- Legal routes are reachable, but final provider facts and legal review remain required before public launch.
-- Current report-family integration/polish and visual acceptance remain later release gates.
-- Multi-tenant switching needs a final real two-tenant isolation acceptance.
-- Stripe needs full real-provider E2E acceptance.
-- Transactional mail needs full DE/EN and DNS/provider acceptance.
-- Real off-host restore/RTO/RPO evidence is still required.
-- PROD release candidate and complete PROD E2E acceptance remain open.
-- AppSource submission package is not complete.
+Known prior real non-SUPER evidence: SCAN PASS (10/10 modules, 199/199 checks) and VIEWER PASS. SETUP still needs final real runtime acceptance. SCHEDULER/ADMIN can be deferred for a one-off Free/Assessment/Validation Fiverr pilot unless used by the selected workflow.
 
-## Release gates
+## Report family – automatic implementation complete
 
-### Controlled pilot
+F2 established separate product report contracts:
 
-Required before calling the controlled pilot release complete:
+- **Free Health Report**: aggregate-safe JSON/HTML/PDF + secure share links.
+- **Assessment Report**: full-detail Assessment JSON/HTML/PDF + secure share links; legacy Executive route retained for compatibility.
+- **Validation Report**: true before/after model with resolved, improved, remaining, regressed and new findings plus score/issue/exposure deltas.
+- Monitoring report remains existing/later polish and is not required for the first one-off Fiverr pilot.
 
-- SETUP, SCHEDULER and ADMIN runtime acceptance complete; existing real VIEWER and SCAN evidence remains valid unless the environment changes materially.
-- Real two-tenant switching and negative isolation tests pass.
-- Current report designs integrated with real backend data and visually accepted.
-- Real backup/restore drill completed.
-- One frozen RC deployed to PROD and full E2E smoke passes.
+Free redaction is enforced by a separate aggregate-safe data contract rather than CSS hiding.
 
-### Public paid launch
+## Lifecycle email – automatic implementation complete
 
-Additionally:
+F3 introduced backend-owned transactional lifecycle email infrastructure: tenant lifecycle profile, DE/EN language, idempotent retryable outbox, internal worker, concurrency-safe claims, stale-claim recovery, signed report links without API tokens and no historical retroactive mail flood.
 
-- Complete Stripe product/lifecycle/provider matrix.
-- Complete transactional email DE/EN matrix.
-- SPF/DKIM/DMARC/bounce/spam acceptance.
-- Final legal/provider review.
-- PROD recovery evidence.
-- Staged scale/soak evidence.
+Lifecycle events include registration, scan start/completion/failure, Assessment activation/expiry warning/expiry/extension and Validation availability/completion/expiry warning.
 
-### Fully polished High-End SaaS + AppSource
+Real sender DNS/provider acceptance (SPF/DKIM/DMARC, bounce and spam placement) remains manual.
 
-Additionally:
+## Operator/Admin – automatic implementation complete
 
-- All SaaS pages and global states complete.
-- Validation and Monitoring report families complete.
-- Desktop/tablet/mobile polish complete.
-- AppSource metadata, analyzers, screenshots, listing, support/help/privacy/terms, onboarding and certification package complete.
+F4 provides a channel-neutral operator flow and console at `/admin/operator`: tenant/environment/email/order search, Grant Assessment, Extend Assessment, Grant Validation, Revoke and Resend lifecycle mail. Writes are CSRF-protected and the console requires admin Basic auth.
 
-## Sprint model
+Canonical operator semantics:
 
-The final program is executed in parallel tracks:
+- Assessment: existing scan + fixed 7 days, no credit.
+- Validation: paid Assessment prerequisite + exactly one scan credit, no premature detail access.
+- Extension: maximum once, +7 days, old scheduled expiry mails suppressed/replaced.
 
-- Track A – Design & Frontend: Lovable -> GitHub -> backend integration -> DEV -> main.
-- Track B – Core & Platform: Backend, Extension, Stripe, mail, security and infrastructure.
-- Track C – Acceptance & Release: runtime acceptance, PROD, recovery, scale and AppSource.
+The old internal `admin_manual` credit grant retains a narrowly scoped compatibility behavior for legacy internal tests/tools. It is **not** the canonical Fiverr/direct commercial grant path.
 
-## Sprint 0 closure
+## Security and recovery evidence
 
-**Sprint 0 – Source of Truth & Repository Consolidation: COMPLETE**
+Automated gates repeatedly verify tenant ownership/isolation contracts, entitlement/report boundaries, operator auth/CSRF, backend compile/Alembic graph, dashboard build, report/lifecycle contracts and PostgreSQL backup/checksum/isolated restore/data-probe automation.
 
-Final S0 status:
+Automated evidence does not replace the required real two-tenant BC SaaS test or real off-host PROD restore drill.
 
-- Core `main` reconciliation with current valid `dev-acceptance` work: COMPLETE.
-- Canonical technical baseline semantics: COMPLETE.
-- Extension source/manifests vs. verified 1.0.2.25 artifact reconciliation: COMPLETE.
-- Portfolio readiness synchronization from canonical `main` plus DEV evidence: COMPLETE.
+## Fiverr RC / F5 automatic gate
 
-Definition of Done:
+`docs/FIVERR_PILOT_RELEASE_CANDIDATE.md` is the release-candidate checklist.
 
-> `main` and release metadata identify one unambiguous current technical product state, and the portfolio derives status from evidence instead of stale manually maintained readiness values.
+The F5 lifecycle regression must prove in one contract:
 
-This Definition of Done is satisfied.
+registration → one Free Entry scan → Free report/paid block → Assessment unlock without rescan/credit → Assessment expiry/fallback → Validation grant → new scan credit consumption → Validation full access/comparison report.
 
-## Current Sprint 1
+## Brand freeze
 
-**Sprint 1 – Runtime Acceptance & Real Tenant Isolation: IN PROGRESS**
+Navigation `#14213D`; Interaction `#246BFD`; Success `#11A36A`; Warning `#D98E04`; Critical `#CF3A3A`; Background `#F7F9FC`; Cards `#FFFFFF`; Brand Orange `#FF921F`; Foreground on Orange `#082138`; typography Inter; claim “Clean Data – Higher Impact”.
 
-Tracking: GitHub issue `#121`.
+## Manual release gates still authoritative
 
-The remaining S1 manual acceptance gates are intentionally deferred by the owner while autonomous technical sprints proceed. This does not close S1.
+Before the first paid Fiverr pilot customer:
 
-Already verified with real evidence:
+1. Build/install/upgrade final 1.0.2.28 artifact in real BC Online.
+2. Complete required non-SUPER runtime role acceptance, at minimum SETUP for the selected one-off pilot flow.
+3. Perform real tenant A/B switching and negative cross-tenant isolation.
+4. Manually visually inspect real Free, Assessment and Validation HTML/PDF with representative data.
+5. Configure/test real lifecycle SMTP sender including SPF/DKIM/DMARC, bounce behavior and inbox/spam placement.
+6. Perform real off-host/operational PROD backup and restore procedure.
+7. Freeze immutable reviewed RC and manually promote exactly that ref to PROD.
+8. Run fresh external-like PROD E2E through registration, initial scan, Free boundary, Fiverr Assessment grant, expiry/fallback, Validation grant, new scan and comparison report.
+9. Complete privacy/DPA/legal/provider-facts signoff.
+10. Publish/activate Fiverr Gig and execute one real Fiverr order dry-run.
 
-- VIEWER without SUPER: PASS – dashboard/history readable; setup and manual scan denied (PR #46).
-- SCAN without SUPER: PASS on 1.0.2.25 – synchronized, 10/10 modules, 199/199 checks, Executive Report generated (PR #46).
-- Automated tenant-security attack matrix exists and remains supporting evidence only; it does not replace the real two-tenant test.
-
-Remaining S1 gates:
-
-- SETUP real BC SaaS runtime acceptance without SUPER.
-- SCHEDULER real BC SaaS runtime acceptance without SUPER.
-- ADMIN real BC SaaS runtime acceptance without SUPER.
-- Real DEV switch between two tenants with different roles/entitlements plus negative cross-tenant access evidence.
-
-Definition of Done:
-
-> SETUP, SCHEDULER and ADMIN pass real BC SaaS runtime without SUPER, and the real two-tenant DEV switching/isolation test passes. Existing VIEWER and SCAN evidence is reused unless the environment changes materially.
-
-## Sprint 2 closure
-
-**Sprint 2 – Frontend Production Closure: AUTONOMOUS TECHNICAL SCOPE COMPLETE**
-
-Evidence:
-
-- Frontend closure commit: `20464e4c8e15f139a21b6226f974cfc951ae180d`.
-- Current frontend `main`: `742e3257c8db6af6d732fcca02da0047a48b69b5`.
-- Tests: PASS.
-- Production build: PASS.
-- Lint: PASS after full frontend formatting.
-- Hygiene checks: PASS – no Lovable runtime asset URL, no sidebar `href="#"`, no relative Executive Report `/api/reports/executive/...` link.
-- Free Entry direct service routes preserve aggregate-only boundaries; concrete financial values and action/finding details are not rendered there in Free mode.
-- Validation/Monitoring navigation remains entitlement-aware.
-- DEV deploy run `40747919204`: PASS through public DEV smoke.
-- One-shot S2 finalizer/helper files were removed after successful closure.
-
-Manual responsive/visual acceptance and final legal/provider review remain deferred acceptance gates; they are not claimed as complete.
-
-## Using this file in future ChatGPT/Codex sprint chats
-
-A new sprint chat can start with:
-
-> Use `docs/BCSENTINEL_MASTER_STATE.md` and `release/current-product-state.json` from `danielwauer-maker/bcsentinel` as the initial BCSentinel project context. Revalidate relevant SHAs and evidence before making changes. Work only on Sprint X and update the Master State when the sprint changes product truth.
-
-This avoids copying the complete historical project context into every new chat.
+AppSource, full public Stripe E2E, public self-service, Monitoring polish, mobile polish and partner program are not controlled-pilot blockers unless scope changes.
