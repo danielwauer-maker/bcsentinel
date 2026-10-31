@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-31T23:15:00Z",
+  "generated_at_utc": "2026-10-31T23:45:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -12,7 +12,7 @@
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
       "technical_baseline_sha": "ee11c27198a6a50896f03b1d4e38b5c25014b873",
-      "status": "F1-F4 merged; F5 RC reconciliation in progress"
+      "status": "F1-F4 merged; F5 automatic RC complete pending merge"
     },
     "frontend": {"repo": "danielwauer-maker/bcsentinel-frontend", "branch": "main", "status": "customer frontend authority"},
     "product_system": {"repo": "danielwauer-maker/bcsentinel-product-system", "branch": "main", "status": "normative UX/product reference"}
@@ -73,7 +73,7 @@
     "real_sender_manual_gate": ["SMTP provider", "SPF", "DKIM", "DMARC", "bounce handling", "inbox/spam placement"]
   },
   "security_and_recovery": {
-    "tenant_security_automated": "PASS on F4 RC head",
+    "tenant_security_automated": "PASS on F5 RC head",
     "operator_basic_auth": "PASS",
     "operator_csrf": "PASS",
     "report_token_contains_api_token": false,
@@ -87,8 +87,8 @@
     "F2_report_family": "merged",
     "F3_lifecycle_email": "merged",
     "F4_operator_admin": "merged",
-    "F5_security_prod_rc_automatic": "pilot lifecycle contract + state reconciliation in progress",
-    "F6_fiverr_launch_assets": "pending",
+    "F5_security_prod_rc_automatic": "complete; manual production gates open",
+    "F6_fiverr_launch_assets": "in progress",
     "F7_landing_linkedin": "pending"
   },
   "readiness": {
