@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-31T23:45:00Z",
+  "generated_at_utc": "2026-11-01T00:00:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -11,8 +11,8 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "ee11c27198a6a50896f03b1d4e38b5c25014b873",
-      "status": "F1-F4 merged; F5 automatic RC complete pending merge"
+      "technical_baseline_sha": "3ae72b199c49ed4b79a9ebad5e2bfde768476b9b",
+      "status": "F1-F5 merged; F6 launch assets complete pending merge"
     },
     "frontend": {"repo": "danielwauer-maker/bcsentinel-frontend", "branch": "main", "status": "customer frontend authority"},
     "product_system": {"repo": "danielwauer-maker/bcsentinel-product-system", "branch": "main", "status": "normative UX/product reference"}
@@ -47,7 +47,8 @@
     "automation_after_grant": true,
     "scraping": false,
     "operator_console": "/admin/operator",
-    "operator_features": ["tenant/email/order search", "grant Assessment", "extend Assessment", "grant Validation", "revoke", "resend lifecycle mail", "channel/order/action audit"]
+    "operator_features": ["tenant/email/order search", "grant Assessment", "extend Assessment", "grant Validation", "revoke", "resend lifecycle mail", "channel/order/action audit"],
+    "launch_kit": "docs/FIVERR_GIG_LAUNCH_KIT.md"
   },
   "extension": {
     "source_version": "1.0.2.28",
@@ -88,7 +89,7 @@
     "F3_lifecycle_email": "merged",
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
-    "F6_fiverr_launch_assets": "in progress",
+    "F6_fiverr_launch_assets": "complete pending merge",
     "F7_landing_linkedin": "pending"
   },
   "readiness": {
