@@ -136,11 +136,19 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         select(TenantScanCredit).where(
             TenantScanCredit.tenant_id == tenant_id,
             TenantScanCredit.product_code == normalized_product,
-            TenantScanCredit.status == "consumed",
+            TenantScanCredit.status.in_(["available", "consumed"]),
         )
     ).all()
     for credit in credits:
-        anchor = _as_utc(credit.consumed_at_utc)
+        if credit.status == "consumed":
+            anchor = _as_utc(credit.consumed_at_utc)
+        elif (credit.source or "").strip().lower() == "admin_manual":
+            # Backward compatibility for the legacy internal Admin product-grant
+            # tool only. Canonical operator/Fiverr/direct Validation credits do
+            # NOT unlock paid detail access until the new scan consumes them.
+            anchor = _as_utc(credit.created_at_utc)
+        else:
+            continue
         if anchor is not None:
             access_until_values.append(anchor + timedelta(days=ONE_TIME_ACCESS_DAYS))
 
