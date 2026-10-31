@@ -1,302 +1,112 @@
 {
   "schema_version": 1,
-  "product": "BCSentinel",
-  "updated_at": "2026-10-28",
-  "purpose": "Single machine-readable master state for the current BCSentinel product across core, frontend, extension, product system, Lovable design references and release evidence.",
-  "authority": {
-    "technical_runtime_truth": "danielwauer-maker/bcsentinel main after consolidation",
-    "frontend_runtime_truth": "danielwauer-maker/bcsentinel-frontend main",
-    "product_and_ux_truth": "danielwauer-maker/bcsentinel-product-system main",
-    "portfolio_status": "danielwauer-maker/enterprise-data-ai-portfolio main, derived from canonical product state plus evidence",
-    "rule": "Long-lived feature, sprint or acceptance branches are evidence or work branches only; they must not become parallel product truth.",
-    "core_sha_semantics": "repositories.core.main_sha records the last commit that changed reconciled technical/runtime truth. Later metadata-only Master State or release-state commits may follow it on main without superseding the technical baseline."
-  },
-  "branch_roles": {
-    "main": "canonical_release_and_product_state; reviewed source for immutable PROD promotion",
-    "staging": "DEV integration and historical DEV evidence branch; valid evidence source but not product authority",
-    "dev_acceptance": "current automatic DEV deployment and acceptance branch; evidence/work history after reconciliation",
-    "prod": "manual promotion of an immutable reviewed release_ref; PROD is not automatically defined by the latest main HEAD"
-  },
-  "product_model": {
-    "scope": "Microsoft Dynamics 365 Business Central Online only",
-    "stages": [
-      "free_entry",
-      "assessment",
-      "validation",
-      "monitoring"
-    ],
-    "pricing_eur": {
-      "lte_250k": {
-        "assessment": 249,
-        "validation": 129,
-        "monitoring_monthly": 199,
-        "monitoring_annual": 1990
-      },
-      "lte_1m": {
-        "assessment": 399,
-        "validation": 199,
-        "monitoring_monthly": 299,
-        "monitoring_annual": 2990
-      },
-      "lte_5m": {
-        "assessment": 699,
-        "validation": 349,
-        "monitoring_monthly": 499,
-        "monitoring_annual": 4990
-      },
-      "lte_20m": {
-        "assessment": 1190,
-        "validation": 590,
-        "monitoring_monthly": 799,
-        "monitoring_annual": 7990
-      },
-      "above_20m": "custom"
-    },
-    "free_preview_boundary": "aggregate_only_no_titles_no_financial_values_no_root_causes"
+  "generated_at_utc": "2026-10-31T23:15:00Z",
+  "source_of_truth": {
+    "core_repo": "danielwauer-maker/bcsentinel",
+    "core_branch": "main",
+    "master_state": "docs/BCSENTINEL_MASTER_STATE.md",
+    "fiverr_pilot_rc": "docs/FIVERR_PILOT_RELEASE_CANDIDATE.md",
+    "rule": "Reviewed main is canonical technical truth; PROD remains a manually promoted immutable release ref."
   },
   "repositories": {
     "core": {
-      "repository": "danielwauer-maker/bcsentinel",
-      "main_sha": "cc1017fd5ba2b90ceb7be609c79e564fdad58bcf",
-      "main_date": "2026-10-28",
-      "main_sha_role": "reconciled_technical_baseline",
-      "dev_acceptance_sha": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
-      "dev_acceptance_date": "2026-10-27",
-      "reconciliation_pr": 119,
-      "extension_reconciliation_pr": 120,
-      "state": "canonical_main_reconciled_and_extension_source_aligned",
-      "evidence": {
-        "dev_deploy_run_id": 40569350853,
-        "dev_deploy_conclusion": "success",
-        "post_merge_pricing_quality_run_id": 40711567073,
-        "post_merge_pricing_quality_conclusion": "success",
-        "extension_remediation_quality_run_id": 40717607682,
-        "extension_remediation_quality_conclusion": "success",
-        "extension_notification_quality_run_id": 40717607483,
-        "extension_notification_quality_conclusion": "success"
-      },
-      "required_action": "none_for_sprint_0; future technical changes must update the canonical technical baseline only when product/runtime truth changes"
+      "repo": "danielwauer-maker/bcsentinel",
+      "technical_baseline_sha": "ee11c27198a6a50896f03b1d4e38b5c25014b873",
+      "status": "F1-F4 merged; F5 RC reconciliation in progress"
     },
-    "frontend": {
-      "repository": "danielwauer-maker/bcsentinel-frontend",
-      "main_sha": "742e3257c8db6af6d732fcca02da0047a48b69b5",
-      "state": "s2_autonomous_technical_closure_complete_and_dev_deployed",
-      "implemented_routes": [
-        "/",
-        "/overview",
-        "/findings",
-        "/actions",
-        "/financial-impact",
-        "/reports",
-        "/scans",
-        "/validation",
-        "/monitoring",
-        "/settings",
-        "/subscription",
-        "/support",
-        "/datenschutz",
-        "/impressum"
-      ],
-      "planned_routes": [],
-      "known_prod_blocker": "manual visual QA and final legal/provider review remain; report-family polish/integration remains a later release gate",
-      "s2_closure_sha": "20464e4c8e15f139a21b6226f974cfc951ae180d",
-      "s2_dev_deploy_run_id": 40747919204,
-      "s2_dev_deploy_conclusion": "success"
-    },
-    "product_system": {
-      "repository": "danielwauer-maker/bcsentinel-product-system",
-      "main_sha": "b61c08d58dc095cd277961eebd3d53acfc8fda67",
-      "state": "normative_product_and_ux_contract_source"
-    },
-    "portfolio": {
-      "repository": "danielwauer-maker/enterprise-data-ai-portfolio",
-      "main_sha": "db99adb8938477b706e1eddb12e30312c094fe37",
-      "state": "readiness_sync_uses_canonical_main_authority_plus_dev_evidence",
-      "authority_source": "danielwauer-maker/bcsentinel/main/release/current-product-state.json",
-      "dev_evidence_source": "danielwauer-maker/bcsentinel/staging/quality/portfolio-readiness-evidence.json",
-      "sync_pr": 85,
-      "sync_run_id": 40718463973,
-      "sync_conclusion": "success",
-      "generated_readiness_commit": "db99adb8938477b706e1eddb12e30312c094fe37",
-      "required_action": "maintain the authority/evidence separation; staging may provide DEV evidence but must not replace canonical main product truth"
-    }
+    "frontend": {"repo": "danielwauer-maker/bcsentinel-frontend", "branch": "main", "status": "customer frontend authority"},
+    "product_system": {"repo": "danielwauer-maker/bcsentinel-product-system", "branch": "main", "status": "normative UX/product reference"}
+  },
+  "product_identity": {
+    "name": "BCSentinel",
+    "claim": "Clean Data – Higher Impact",
+    "target": "Microsoft Dynamics 365 Business Central Online",
+    "positioning": "Data Health + Business Impact",
+    "scan_model": "one full Data Health / Deep Scan engine; access differs by entitlement, not scan depth",
+    "modules": 10,
+    "checks": 199
+  },
+  "product_ladder": {
+    "free_entry": {"status": "implemented", "scan_credit": "exactly one initial free_entry credit per newly registered tenant", "result_access": "aggregate-only", "report": "Free Health Report"},
+    "assessment": {"status": "implemented", "activation": "unlocks existing qualifying scan", "scan_credit_on_canonical_grant": 0, "full_access_days": 7, "extension": "maximum one additional 7-day extension", "report": "Assessment Report"},
+    "validation": {"status": "implemented", "prerequisite": "prior paid Assessment baseline", "scan_credit_on_grant": 1, "access_anchor": "validation credit consumed_at", "full_access_days": 7, "report": "Validation Report with baseline comparison"},
+    "monitoring": {"status": "existing / later pilot polish", "pilot_blocker": false}
+  },
+  "direct_pricing_eur": {
+    "up_to_250k": {"assessment": 249, "validation": 129, "monitoring_monthly": 199, "monitoring_annual": 1990},
+    "up_to_1m": {"assessment": 399, "validation": 199, "monitoring_monthly": 299, "monitoring_annual": 2990},
+    "up_to_5m": {"assessment": 699, "validation": 349, "monitoring_monthly": 499, "monitoring_annual": 4990},
+    "up_to_20m": {"assessment": 1190, "validation": 590, "monitoring_monthly": 799, "monitoring_annual": 7990},
+    "above_20m": "custom"
+  },
+  "fiverr_channel": {
+    "architecture": "sales channel only; no product or Extension fork",
+    "payment_truth": "Fiverr",
+    "canonical_products": ["assessment", "validation_check"],
+    "manual_pilot_action": "one operator grant after payment confirmation",
+    "automation_after_grant": true,
+    "scraping": false,
+    "operator_console": "/admin/operator",
+    "operator_features": ["tenant/email/order search", "grant Assessment", "extend Assessment", "grant Validation", "revoke", "resend lifecycle mail", "channel/order/action audit"]
   },
   "extension": {
-    "verified_artifact_version": "1.0.2.25",
-    "target": "Cloud",
-    "business_central": "27.x",
+    "source_version": "1.0.2.28",
     "runtime": "16.0",
-    "artifact_state": "verified_artifact_and_canonical_core_source_aligned",
-    "repo_manifest_version_on_reconciled_main": "1.0.2.25",
-    "repo_cloud_manifest_version_on_reconciled_main": "1.0.2.25",
-    "repo_manifest_state": "aligned_with_verified_artifact",
-    "source_reconciliation_pr": 120,
-    "source_reconciliation_sha": "cc1017fd5ba2b90ceb7be609c79e564fdad58bcf",
-    "runtime_contract": "SCAN retains no direct DH Setup Modify grant; required writes are authorized indirectly by the verified codeunits",
-    "roles": [
-      "VIEWER",
-      "SCAN",
-      "SETUP",
-      "SCHEDULER",
-      "ADMIN"
-    ],
-    "runtime_evidence": {
-      "SCAN": "PASS_without_SUPER_10_of_10_modules_199_of_199_checks",
-      "VIEWER": "PASS_without_SUPER_real_BC_SaaS_dashboard_history_readable_setup_and_manual_scan_denied_PR_46",
-      "SETUP": "final_runtime_acceptance_required",
-      "SCHEDULER": "final_runtime_acceptance_required",
-      "ADMIN": "final_runtime_acceptance_required"
-    }
+    "platform": "27.0.0.0",
+    "application": "27.0.0.0",
+    "source_status": "complete for controlled-pilot customer workflow",
+    "last_real_runtime_evidence": {"version": "pre-1.0.2.28", "scan_role": "PASS without SUPER, 10/10 modules, 199/199 checks", "viewer_role": "PASS without SUPER"},
+    "manual_acceptance_required": ["real BC Online final artifact", "SETUP role without SUPER", "real tenant A/B isolation", "fresh PROD E2E"]
   },
-  "lovable": {
-    "frontend": {
-      "project_id": "6c392bec-8b44-40e1-a79d-d41962e7eb09",
-      "name": "BCSentinel Frontend",
-      "commit_sha": "e84deb14afe90ae3326cd9622d78aa5363d6fc63",
-      "status": "historical_authoring_reference; canonical frontend main advanced through S2"
-    },
-    "landing_master": {
-      "project_id": "267ee2cd-c9a4-4d98-9835-e35659839a03",
-      "name": "Business Central Risk Radar",
-      "commit_sha": "768c1049715aba547075b738e3d1d9bf54750a91",
-      "status": "visual_reference_only; runtime Lovable asset dependency removed in S2"
-    },
-    "assessment_report": {
-      "project_id": "a4c54214-d67a-47eb-99ca-dda8de9340fd",
-      "name": "BCSentinel Report Assessment",
-      "commit_sha": "366b81ddeca7a542b921d09cb73f8ec45247cee2",
-      "status": "design_complete_static_data_needs_backend_integration"
-    },
-    "free_report": {
-      "project_id": "bed92b82-67f5-442b-aef4-c38d84fdb823",
-      "name": "BCSentinel Report Free",
-      "commit_sha": "7397effa73bd4d584c88b17c981988f48dd79e08",
-      "status": "design_complete_needs_runtime_integration"
-    }
+  "reports": {
+    "free_health": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "contract": "aggregate-safe separate data contract"},
+    "assessment": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true},
+    "validation": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "comparison_classes": ["resolved", "improved", "remaining", "regressed", "new"]},
+    "monitoring": {"status": "existing; redesign deferred", "pilot_blocker": false}
   },
-  "design_system": {
-    "font": "Inter",
-    "claim": "Clean Data – Higher Impact",
-    "tokens": {
-      "navigation": "#14213D",
-      "interaction": "#246BFD",
-      "success": "#11A36A",
-      "warning": "#D98E04",
-      "critical": "#CF3A3A",
-      "background": "#F7F9FC",
-      "cards": "#FFFFFF",
-      "brand_orange": "#FF921F",
-      "foreground_on_orange": "#082138"
-    },
-    "frontend_workflow": "Lovable -> feature branch -> backend/API integration -> DEV -> responsive/functional QA -> PR -> main"
+  "lifecycle_email": {
+    "status": "implemented in backend",
+    "tenant_profile": true,
+    "languages": ["de", "en"],
+    "outbox": {"idempotent": true, "retryable": true, "auditable": true, "multi_worker_claim": "FOR UPDATE SKIP LOCKED", "stale_claim_recovery": true, "delivery_semantics": "at-least-once"},
+    "events": ["registration.completed", "scan.started", "scan.completed", "scan.failed", "assessment.activated", "assessment.expiring", "assessment.expired", "assessment.extended", "validation.available", "validation.completed", "validation.expiring"],
+    "real_sender_manual_gate": ["SMTP provider", "SPF", "DKIM", "DMARC", "bounce handling", "inbox/spam placement"]
   },
-  "deployment": {
-    "dev": {
-      "web": "https://dev.bcsentinel.com",
-      "api": "https://dev-api.bcsentinel.com",
-      "automatic_deployment_branch": "dev-acceptance",
-      "staging_role": "DEV integration and evidence history",
-      "core_deployed_ref": "3bd50178d1a47c552ff6212e3e374aead9b4bc5a",
-      "frontend_deployed_ref": "742e3257c8db6af6d732fcca02da0047a48b69b5",
-      "status": "latest_known_core_and_frontend_dev_deploys_successful",
-      "frontend_automatic_deployment_branch": "main",
-      "frontend_deploy_run_id": 40747919204,
-      "frontend_deploy_conclusion": "success"
-    },
-    "prod": {
-      "web": "https://bcsentinel.com",
-      "api": "https://api.bcsentinel.com",
-      "promotion_policy": "manual_immutable_reviewed_release_ref_only",
-      "status": "final_rc_and_full_e2e_acceptance_required"
-    }
+  "security_and_recovery": {
+    "tenant_security_automated": "PASS on F4 RC head",
+    "operator_basic_auth": "PASS",
+    "operator_csrf": "PASS",
+    "report_token_contains_api_token": false,
+    "paid_report_live_entitlement_recheck": true,
+    "postgres_backup_restore_automation": "PASS including migration head, checksum, isolated restore and data probe",
+    "manual_remaining": ["real two-tenant BC SaaS isolation", "real off-host/PROD restore procedure"]
   },
-  "capability_state": {
-    "bc_extension": "source_and_manifest_aligned_runtime_role_closure_required",
-    "scan_engine": "verified_core_flow",
-    "permissions": "architecture_complete_VIEWER_and_SCAN_real_runtime_verified_SETUP_SCHEDULER_ADMIN_pending",
-    "scheduler": "implemented_runtime_acceptance_required",
-    "monitoring": "implemented_frontend_route_complete_runtime_acceptance_required",
-    "backend_apis": "advanced",
-    "auth_and_memberships": "implemented_real_multitenant_acceptance_required",
-    "tenant_switching": "implemented_automated_security_matrix_pass_real_two_tenant_negative_acceptance_required",
-    "landing": "technical_closure_complete_local_assets_and_legal_routes_reachable_manual_visual_legal_signoff_pending",
-    "dashboard_overview": "implemented_for_free_assessment_monitoring",
-    "findings": "implemented",
-    "remaining_dashboard_pages": "s2_core_routes_implemented_backend_bound_manual_visual_acceptance_and_report_family_polish_pending",
-    "reports": "service_route_implemented_backend_and_design_advanced_report_family_integration_and_visual_acceptance_pending",
-    "waitlist": "real_end_to_end_flow_verified",
-    "mail": "base_delivery_verified_full_transactional_matrix_and_dns_acceptance_required",
-    "stripe": "code_advanced_real_provider_e2e_incomplete",
-    "admin": "advanced",
-    "automated_qa": "advanced",
-    "backup_recovery": "automation_exists_real_off_host_restore_required",
-    "security": "advanced",
-    "appsource": "submission_package_incomplete"
+  "automatic_sprint_status": {
+    "F0_product_contract": "complete",
+    "F1_initial_free_scan_extension_core": "merged",
+    "F2_report_family": "merged",
+    "F3_lifecycle_email": "merged",
+    "F4_operator_admin": "merged",
+    "F5_security_prod_rc_automatic": "pilot lifecycle contract + state reconciliation in progress",
+    "F6_fiverr_launch_assets": "pending",
+    "F7_landing_linkedin": "pending"
   },
-  "release_gates": {
-    "controlled_pilot": [
-      "complete SETUP SCHEDULER ADMIN runtime role acceptance; VIEWER and SCAN already have real non-SUPER evidence",
-      "real two-tenant switching and isolation test",
-      "integrate current report designs with real backend data and perform visual QA",
-      "perform real backup restore drill",
-      "freeze and deploy one release candidate to PROD and run full E2E smoke"
-    ],
-    "public_paid_launch": [
-      "complete controlled pilot gates",
-      "complete Stripe provider E2E matrix",
-      "complete transactional email DE/EN matrix",
-      "verify SPF DKIM DMARC bounce and spam placement",
-      "final legal review and provider facts",
-      "complete PROD recovery evidence",
-      "complete staged scale/soak evidence"
-    ],
-    "high_end_saas_and_appsource": [
-      "complete all SaaS pages and global states",
-      "complete Validation and Monitoring report families",
-      "polish responsive desktop/tablet/mobile experience",
-      "complete AppSource metadata, analyzers, screenshots, listing, support/help/privacy/terms, onboarding and certification package"
-    ]
+  "readiness": {
+    "technical_fiverr_controlled_pilot_after_automatic_F5": 98,
+    "real_launch_readiness_before_manual_prod_gates": 92,
+    "confidence_note": "planning estimate only; real BC Online, PROD, SMTP/DNS, visual report and Fiverr order acceptance remain release gates"
   },
-  "planning_estimates": {
-    "note": "These are planning estimates only and must never override evidence. Readiness synchronization derives status from verifiable gates and canonical state instead of importing these percentages as evidence.",
-    "controlled_pilot_pct": 90,
-    "public_paid_launch_pct": 78,
-    "fully_polished_high_end_saas_pct_range": [
-      73,
-      75
-    ]
-  },
-  "next_sprint": {
-    "id": "S1",
-    "name": "Runtime Acceptance & Real Tenant Isolation",
-    "priority": "P0",
-    "status": "in_progress",
-    "tracking_issue": 121,
-    "progress": {
-      "viewer_real_runtime": "complete",
-      "scan_real_runtime": "complete",
-      "setup_real_runtime": "open",
-      "scheduler_real_runtime": "open",
-      "admin_real_runtime": "open",
-      "real_two_tenant_isolation": "open"
-    },
-    "definition_of_done": "SETUP SCHEDULER ADMIN pass real BC SaaS runtime without SUPER and real two-tenant DEV switching plus negative isolation evidence passes; prior VIEWER and SCAN real evidence remains valid unless the environment changes materially",
-    "manual_acceptance_deferred_by_owner": true,
-    "autonomous_next_sprint": "S3"
-  },
-  "autonomous_sprints": {
-    "S2": {
-      "name": "Frontend Production Closure",
-      "technical_status": "complete",
-      "frontend_closure_sha": "20464e4c8e15f139a21b6226f974cfc951ae180d",
-      "frontend_main_sha": "742e3257c8db6af6d732fcca02da0047a48b69b5",
-      "dev_deploy_run_id": 40747919204,
-      "dev_deploy_conclusion": "success",
-      "manual_gates_remaining": [
-        "responsive/visual acceptance",
-        "final legal/provider review"
-      ],
-      "note": "Manual gates are deferred and do not negate autonomous technical closure."
-    }
-  }
+  "manual_p0_before_first_paid_fiverr_customer": [
+    "real BC Online final Extension artifact acceptance",
+    "SETUP role without SUPER",
+    "real tenant A/B negative isolation",
+    "manual visual QA of Free/Assessment/Validation reports",
+    "real SMTP/DNS deliverability acceptance",
+    "real off-host/operational backup restore drill",
+    "immutable RC freeze and manual PROD promotion",
+    "fresh external-like PROD E2E",
+    "privacy/DPA/legal/provider-facts signoff",
+    "Fiverr Gig publish and one real order dry-run"
+  ],
+  "explicit_controlled_pilot_non_blockers": ["AppSource", "public self-service signup", "full Stripe provider E2E for Fiverr-origin purchases", "Monitoring polish", "mobile dashboard polish", "partner program"]
 }
