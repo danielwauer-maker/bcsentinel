@@ -63,13 +63,20 @@ def _rect(x: float, y: float, w: float, h: float, fill: tuple[float, float, floa
     return result
 
 
+def _report_title(report: ExecutiveReport) -> str:
+    if report.report_variant == "assessment":
+        return "Assessment Report"
+    if report.report_variant == "monitoring":
+        return "Monitoring Report"
+    return "Executive Management Report"
+
+
 def _page_header(report: ExecutiveReport, page_number: int) -> list[str]:
-    language = report.language
     commands = _rect(0, PAGE_H - 116, PAGE_W, 116, NAVY)
     commands += _rect(0, PAGE_H - 122, PAGE_W, 6, ORANGE)
     commands += _text_commands("BCSentinel", x=42, y=PAGE_H - 51, size=20, bold=True, color=(1, 1, 1))
     commands += _text_commands(
-        "Executive Management Report" if language == "en" else "Executive Management Report",
+        _report_title(report),
         x=42, y=PAGE_H - 76, size=11, color=(0.88, 0.91, 0.96),
     )
     commands += _text_commands(f"Scan {report.scan_id}", x=42, y=PAGE_H - 98, size=8.5, color=(0.75, 0.81, 0.90))
@@ -99,8 +106,8 @@ def _build_pages(report: ExecutiveReport) -> list[list[str]]:
         y -= 14
     y -= 10
     first += _kpi_card("Data Health Score", f"{report.data_health_score}/100", 42, y - 72)
-    first += _kpi_card("Estimated Loss" if language == "en" else "Estimated Loss", _money(report.estimated_loss_eur, language), 216, y - 72)
-    first += _kpi_card("Potential Saving" if language == "en" else "Potential Saving", _money(report.potential_saving_eur, language), 390, y - 72)
+    first += _kpi_card("Estimated Loss", _money(report.estimated_loss_eur, language), 216, y - 72)
+    first += _kpi_card("Potential Saving", _money(report.potential_saving_eur, language), 390, y - 72)
     y -= 105
     if report.exceptions_applied:
         first += _rect(42, y - 48, 512, 48, (1.0, 0.97, 0.90), LINE)
