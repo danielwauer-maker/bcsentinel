@@ -54,20 +54,6 @@ def update_lifecycle_profile(
         )
 
 
-@router.post("/internal/lifecycle/process")
-def process_lifecycle_outbox(
-    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
-) -> dict[str, int]:
-    # Authenticated diagnostic hook; the background worker is the normal path.
-    tenant_id, api_token = tenant_auth
-    with SessionLocal() as db:
-        load_authenticated_tenant(db, tenant_id, api_token)
-        discover_scan_lifecycle_events(db)
-        result = process_due_outbox(db, limit=25)
-        db.commit()
-        return result
-
-
 async def _worker_loop() -> None:
     while True:
         try:
