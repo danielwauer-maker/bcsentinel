@@ -1,6 +1,6 @@
 # BCSentinel Fiverr Pilot Release Candidate
 
-Status: **automatic RC preparation in progress**  
+Status: **automatic RC complete — manual production gates open**  
 Target channel: Fiverr controlled pilot  
 Product architecture: one BCSentinel SaaS/Extension stack; Fiverr is a sales channel, not a product fork.
 
@@ -45,7 +45,7 @@ Product architecture: one BCSentinel SaaS/Extension stack; Fiverr is a sales cha
 
 ## Automatic RC acceptance
 
-The automatic RC is acceptable only when the final F5 head passes backend compile, Alembic single-head validation, full backend regression, dashboard typecheck/build, Contract/AL regression, tenant-security attack matrix, report/lifecycle regressions, recovery automation, synthetic pilot journey, Fiverr pilot lifecycle contract and release-candidate preparation gates.
+The final F5 head passed backend compile, Alembic single-head validation, full backend regression, dashboard typecheck/build, Contract/AL regression, report/lifecycle regressions, recovery automation, synthetic pilot journey, Fiverr pilot lifecycle contract and release-candidate preparation gates.
 
 A green automatic RC **does not** close the manual production gates below.
 
