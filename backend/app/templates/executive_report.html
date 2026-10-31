@@ -1,3 +1,6 @@
+{% if report.report_variant == 'assessment' %}
+{% include "assessment_report.html" %}
+{% else %}
 <!doctype html>
 <html lang="{{ report.language }}">
 <head>
@@ -42,28 +45,16 @@
       <div class="panel"><h2>{{ 'Management Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2><p>{{ report.executive_summary }}</p><p class="small">{{ report.headline }} · {{ report.rating }}</p></div>
       <div class="score"><span>Data Health Score</span><strong>{{ report.data_health_score }}</strong><span>/100 · {{ report.score_status }}</span></div>
     </section>
-
-    <section class="kpis" aria-label="Management KPIs">
-      {% for kpi in report.kpis %}<div class="kpi"><div class="kpi-label">{{ kpi.label }}</div><div class="kpi-value">{{ kpi.value }}</div><div class="small">{{ kpi.note }}</div></div>{% endfor %}
-    </section>
-
-    {% if report.exceptions_applied %}
-    <section class="exception-note"><strong>{{ report.exception_count }} {{ 'scan-time exception(s) applied' if report.language == 'en' else 'Scan-Ausnahme(n) angewendet' }}</strong><div class="small">{{ 'This historical report uses the immutable exception snapshot captured for this scan. Later exception changes in Business Central do not rewrite this report.' if report.language == 'en' else 'Dieser historische Report verwendet den unveränderlichen Exception-Snapshot des Scans. Spätere Änderungen in Business Central verändern diesen Report nicht rückwirkend.' }}</div></section>
-    {% endif %}
-
-    <section><h2>{{ 'Top 10 Risks' if report.language == 'en' else 'Top-10-Risiken' }}</h2><table><thead><tr><th>#</th><th>{{ 'Finding' if report.language == 'en' else 'Finding' }}</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>{{ 'Severity' if report.language == 'en' else 'Schweregrad' }}</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>Impact</th></tr></thead><tbody>{% for item in report.top_risks %}<tr><td>{{ item.rank }}</td><td><strong>{{ item.title }}</strong><br><span class="small">{{ item.recommendation }}</span></td><td>{{ item.category }}</td><td><span class="badge {{ item.severity }}">{{ item.severity }}</span></td><td>{{ item.affected_count }}</td><td>{{ '%.2f'|format(item.estimated_impact_eur) }} EUR</td></tr>{% endfor %}</tbody></table></section>
-
+    <section class="kpis" aria-label="Management KPIs">{% for kpi in report.kpis %}<div class="kpi"><div class="kpi-label">{{ kpi.label }}</div><div class="kpi-value">{{ kpi.value }}</div><div class="small">{{ kpi.note }}</div></div>{% endfor %}</section>
+    {% if report.exceptions_applied %}<section class="exception-note"><strong>{{ report.exception_count }} {{ 'scan-time exception(s) applied' if report.language == 'en' else 'Scan-Ausnahme(n) angewendet' }}</strong><div class="small">{{ 'This historical report uses the immutable exception snapshot captured for this scan. Later exception changes in Business Central do not rewrite this report.' if report.language == 'en' else 'Dieser historische Report verwendet den unveränderlichen Exception-Snapshot des Scans. Spätere Änderungen in Business Central verändern diesen Report nicht rückwirkend.' }}</div></section>{% endif %}
+    <section><h2>{{ 'Top 10 Risks' if report.language == 'en' else 'Top-10-Risiken' }}</h2><table><thead><tr><th>#</th><th>Finding</th><th>{{ 'Area' if report.language == 'en' else 'Bereich' }}</th><th>{{ 'Severity' if report.language == 'en' else 'Schweregrad' }}</th><th>{{ 'Affected' if report.language == 'en' else 'Betroffen' }}</th><th>Impact</th></tr></thead><tbody>{% for item in report.top_risks %}<tr><td>{{ item.rank }}</td><td><strong>{{ item.title }}</strong><br><span class="small">{{ item.recommendation }}</span></td><td>{{ item.category }}</td><td><span class="badge {{ item.severity }}">{{ item.severity }}</span></td><td>{{ item.affected_count }}</td><td>{{ '%.2f'|format(item.estimated_impact_eur) }} EUR</td></tr>{% endfor %}</tbody></table></section>
     <section><h2>{{ 'Priority Matrix' if report.language == 'en' else 'Prioritätenmatrix' }}</h2><div class="matrix">{% for item in report.priority_matrix %}<div class="matrix-card"><div class="priority">{{ item.priority }}</div><h3>{{ item.focus }}</h3><div class="small">{{ item.impact }} · {{ item.effort }}</div><p>{{ item.recommendation }}</p></div>{% endfor %}</div></section>
-
     <section><h2>{{ 'Recommended Actions' if report.language == 'en' else 'Empfohlene Maßnahmen' }}</h2><ol class="list">{% for item in report.recommended_actions %}<li>{{ item }}</li>{% endfor %}</ol></section>
-
-    {% if report.applied_exceptions %}
-    <section><h2>{{ 'Applied Exceptions / Scan Scope Exclusions' if report.language == 'en' else 'Angewendete Ausnahmen / Scan-Scope-Ausschlüsse' }}</h2><table><thead><tr><th>{{ 'Issue' if report.language == 'en' else 'Issue' }}</th><th>{{ 'Record' if report.language == 'en' else 'Datensatz' }}</th><th>{{ 'Reason' if report.language == 'en' else 'Grund' }}</th><th>{{ 'Captured' if report.language == 'en' else 'Erfasst' }}</th></tr></thead><tbody>{% for item in report.applied_exceptions %}<tr><td>{{ item.issue_code }}</td><td>{{ item.record_caption or item.record_no or '—' }}<br><span class="small">Table {{ item.table_id }}{% if item.company_id %} · {{ item.company_id }}{% endif %}</span></td><td>{{ item.reason }}</td><td>{{ item.captured_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</td></tr>{% endfor %}</tbody></table></section>
-    {% endif %}
-
+    {% if report.applied_exceptions %}<section><h2>{{ 'Applied Exceptions / Scan Scope Exclusions' if report.language == 'en' else 'Angewendete Ausnahmen / Scan-Scope-Ausschlüsse' }}</h2><table><thead><tr><th>Issue</th><th>{{ 'Record' if report.language == 'en' else 'Datensatz' }}</th><th>{{ 'Reason' if report.language == 'en' else 'Grund' }}</th><th>{{ 'Captured' if report.language == 'en' else 'Erfasst' }}</th></tr></thead><tbody>{% for item in report.applied_exceptions %}<tr><td>{{ item.issue_code }}</td><td>{{ item.record_caption or item.record_no or '—' }}<br><span class="small">Table {{ item.table_id }}{% if item.company_id %} · {{ item.company_id }}{% endif %}</span></td><td>{{ item.reason }}</td><td>{{ item.captured_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</td></tr>{% endfor %}</tbody></table></section>{% endif %}
     <section><h2>{{ 'Next Steps' if report.language == 'en' else 'Nächste Schritte' }}</h2><ol class="list">{% for item in report.next_steps %}<li>{{ item }}</li>{% endfor %}</ol></section>
   </main>
   <footer><span>BCSentinel · {{ report.contract_version }} · {{ report.financial_methodology }}</span><span>{{ 'Modeled decision-support values; not guaranteed or accounting-confirmed savings.' if report.language == 'en' else 'Modellierte Entscheidungsunterstützung; keine garantierten oder buchhalterisch bestätigten Einsparungen.' }}</span></footer>
 </div>
 </body>
 </html>
+{% endif %}
