@@ -164,7 +164,7 @@
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    ApiClient: Codeunit "DH API Client";
+                    MaintenanceClient: Codeunit "DH Scan Maintenance Client";
                 begin
                     if Rec."Entry No." = 0 then
                         Error('Please select a scan first.');
@@ -172,7 +172,7 @@
                     if not Confirm('Do you want to delete scan %1?', false, Rec.GetDisplayRunId()) then
                         exit;
 
-                    DeleteSingleScan(Rec, Setup, ApiClient);
+                    DeleteSingleScan(Rec, Setup, MaintenanceClient);
                     CurrPage.Update(false);
                     Message('Scan deleted.');
                 end;
@@ -188,7 +188,7 @@
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    ApiClient: Codeunit "DH API Client";
+                    MaintenanceClient: Codeunit "DH Scan Maintenance Client";
                 begin
                     if not Setup.Get('SETUP') then
                         Error('Setup not found.');
@@ -196,7 +196,7 @@
                     if not Confirm('This will align the backend scan history with the current BC scan list and remove orphan backend scans. Continue?', false) then
                         exit;
 
-                    ApiClient.ReconcileScansWithBackend(Setup);
+                    MaintenanceClient.ReconcileScansWithBackend(Setup);
                     Message('Scan history successfully synchronized with the backend.');
                     CurrPage.Update(false);
                 end;
@@ -271,7 +271,7 @@
         Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
     end;
 
-    local procedure DeleteSingleScan(var ScanHeader: Record "DH Scan Header"; var Setup: Record "DH Setup"; var ApiClient: Codeunit "DH API Client")
+    local procedure DeleteSingleScan(var ScanHeader: Record "DH Scan Header"; var Setup: Record "DH Setup"; var MaintenanceClient: Codeunit "DH Scan Maintenance Client")
     var
         BackendDeleteId: Code[50];
     begin
@@ -279,7 +279,7 @@
 
         if Setup.Get('SETUP') then
             if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
-                ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
+                MaintenanceClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
         DeleteLinkedDeepRunIfNeededFor(ScanHeader);
         ScanHeader.Delete(true);
@@ -288,7 +288,7 @@
     local procedure DeleteSelectedScans()
     var
         Setup: Record "DH Setup";
-        ApiClient: Codeunit "DH API Client";
+        MaintenanceClient: Codeunit "DH Scan Maintenance Client";
         SelectedScans: Record "DH Scan Header";
         TotalToDelete: Integer;
         DeletedCount: Integer;
@@ -310,7 +310,7 @@
 
         if SelectedScans.FindSet() then
             repeat
-                DeleteSingleScan(SelectedScans, Setup, ApiClient);
+                DeleteSingleScan(SelectedScans, Setup, MaintenanceClient);
                 DeletedCount += 1;
             until SelectedScans.Next() = 0;
 
