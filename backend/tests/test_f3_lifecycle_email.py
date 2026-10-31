@@ -251,7 +251,7 @@ def test_consumed_validation_credit_schedules_48h_warning(
         headers=auth_header_factory(tenant),
         json={"primary_notification_email": "validation@example.com", "preferred_language": "de"},
     )
-    consumed_at = datetime.now(timezone.utc) - timedelta(days=1)
+    consumed_at = datetime.now(timezone.utc)
     with SessionLocal() as db:
         db.add(
             TenantScanCredit(
@@ -276,3 +276,41 @@ def test_consumed_validation_credit_schedules_48h_warning(
         ).all()
         assert len(rows) == 1
         assert "f3-validation-scan" in rows[0].payload_json
+
+
+def test_historical_scan_before_profile_activation_does_not_queue_completion(
+    client, tenant_factory, auth_header_factory, scan_factory
+):
+    tenant = tenant_factory(plan="free", license_status="active")
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="f3-historical-scan")
+    historical_at = datetime.now(timezone.utc) - timedelta(days=10)
+    with SessionLocal() as db:
+        db.add(
+            ScanRunStatus(
+                run_id="f3-historical-scan",
+                tenant_id=tenant["tenant_id"],
+                scan_mode="deep",
+                status="completed",
+                progress_percent=100,
+                updated_at_utc=historical_at,
+                completed_at_utc=historical_at,
+                total_modules=10,
+                completed_modules=10,
+                failed_modules=0,
+            )
+        )
+        db.commit()
+
+    client.put(
+        "/tenant/lifecycle-profile",
+        headers=auth_header_factory(tenant),
+        json={"primary_notification_email": "upgrade@example.com", "preferred_language": "en"},
+    )
+    with SessionLocal() as db:
+        discover_scan_lifecycle_events(db)
+        db.commit()
+        rows = db.query(LifecycleEmailOutbox).filter(
+            LifecycleEmailOutbox.tenant_id == tenant["tenant_id"],
+            LifecycleEmailOutbox.event_type == EVENT_SCAN_COMPLETED,
+        ).all()
+        assert rows == []
