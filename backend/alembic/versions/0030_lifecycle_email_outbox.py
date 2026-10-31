@@ -1,4 +1,4 @@
-"""add lifecycle email outbox and tenant notification email
+"""add tenant lifecycle profile and email outbox
 
 Revision ID: 0030_lifecycle_email_outbox
 Revises: 0029_exception_snapshot_capture_header
@@ -14,8 +14,16 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("tenants", sa.Column("primary_notification_email", sa.String(length=255), nullable=True))
-    op.create_index("ix_tenants_primary_notification_email", "tenants", ["primary_notification_email"])
+    op.create_table(
+        "tenant_lifecycle_profiles",
+        sa.Column("tenant_id", sa.String(length=50), sa.ForeignKey("tenants.tenant_id", ondelete="CASCADE"), primary_key=True),
+        sa.Column("primary_notification_email", sa.String(length=255), nullable=False),
+        sa.Column("preferred_language", sa.String(length=2), nullable=False, server_default="en"),
+        sa.Column("transactional_email_enabled", sa.Boolean(), nullable=False, server_default=sa.true()),
+        sa.Column("created_at_utc", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at_utc", sa.DateTime(timezone=True), nullable=False),
+    )
+    op.create_index("ix_tenant_lifecycle_profiles_email", "tenant_lifecycle_profiles", ["primary_notification_email"])
 
     op.create_table(
         "lifecycle_email_outbox",
@@ -43,5 +51,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("lifecycle_email_outbox")
-    op.drop_index("ix_tenants_primary_notification_email", table_name="tenants")
-    op.drop_column("tenants", "primary_notification_email")
+    op.drop_table("tenant_lifecycle_profiles")
