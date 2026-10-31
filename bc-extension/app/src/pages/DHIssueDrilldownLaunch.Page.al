@@ -33,6 +33,7 @@
         SetupRef: RecordRef;
         IssueCodeField: FieldRef;
         IssueDrilldownDispatcher: Codeunit "DH Issue Drilldown Dispatcher";
+        AccessGuard: Codeunit "DH Product Access Guard";
     begin
         SetupRef.GetTable(Rec);
         IssueCodeField := SetupRef.Field(26);
@@ -40,14 +41,7 @@
         if IssueCode = '' then
             Error('Missing issue code for drilldown launch.');
 
-        if not Rec.Get('SETUP') then
-            Error('Setup not found.');
-
-        if not Rec."Premium Enabled" then begin
-            Message('Paid scan access is required.');
-            CurrPage.Close();
-            exit;
-        end;
+        AccessGuard.RequireIssueDetails();
 
         CurrPage.Close();
         IssueDrilldownDispatcher.OpenByIssueCode(IssueCode);
@@ -67,4 +61,3 @@
     var
         StatusTxt: Text[100];
 }
-
