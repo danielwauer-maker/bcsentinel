@@ -5,7 +5,7 @@ from datetime import timedelta, timezone
 from sqlalchemy import select
 
 from app.lifecycle_models import LifecycleEmailOutbox
-from app.models import Scan, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import Scan, Tenant, TenantProductEntitlement, TenantProductPurchase, TenantScanCredit
 from app.operator_models import TenantOperatorAction
 from app.services.admin_audit_service import log_admin_event
 from app.services.lifecycle_email_service import (
@@ -77,6 +77,59 @@ def latest_scan(db, tenant_id: str) -> Scan | None:
         .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
         .limit(1)
     )
+
+
+def _assessment_baseline_scan(db, tenant_id: str) -> Scan | None:
+    """Resolve a Validation baseline only after a real paid Assessment exists.
+
+    Operator-granted Assessments retain the exact scan they unlocked. For direct
+    checkout / legacy paid flows without an operator action, an Assessment
+    entitlement or completed Assessment purchase is accepted as paid proof and
+    the latest tenant scan becomes the baseline.
+    """
+    action = db.scalar(
+        select(TenantOperatorAction)
+        .where(
+            TenantOperatorAction.tenant_id == tenant_id,
+            TenantOperatorAction.action_type == "assessment_grant",
+            TenantOperatorAction.status == "completed",
+            TenantOperatorAction.related_scan_id.is_not(None),
+        )
+        .order_by(TenantOperatorAction.created_at_utc.desc(), TenantOperatorAction.id.desc())
+        .limit(1)
+    )
+    if action is not None and action.related_scan_id:
+        scan = db.scalar(
+            select(Scan).where(
+                Scan.tenant_id == tenant_id,
+                Scan.scan_id == action.related_scan_id,
+            )
+        )
+        if scan is not None:
+            return scan
+
+    entitlement = db.scalar(
+        select(TenantProductEntitlement)
+        .where(
+            TenantProductEntitlement.tenant_id == tenant_id,
+            TenantProductEntitlement.product_code == PRODUCT_ASSESSMENT,
+        )
+        .order_by(TenantProductEntitlement.created_at_utc.desc(), TenantProductEntitlement.id.desc())
+        .limit(1)
+    )
+    purchase = db.scalar(
+        select(TenantProductPurchase)
+        .where(
+            TenantProductPurchase.tenant_id == tenant_id,
+            TenantProductPurchase.product_code == PRODUCT_ASSESSMENT,
+            TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+        )
+        .order_by(TenantProductPurchase.created_at_utc.desc(), TenantProductPurchase.id.desc())
+        .limit(1)
+    )
+    if entitlement is None and purchase is None:
+        return None
+    return latest_scan(db, tenant_id)
 
 
 def _assert_order_unused(db, *, channel: str, order_reference: str | None, action_type: str) -> None:
@@ -226,9 +279,9 @@ def grant_validation(
     order_ref = normalize_order_reference(external_order_reference, channel=channel)
     _assert_order_unused(db, channel=channel, order_reference=order_ref, action_type="validation_grant")
 
-    baseline = latest_scan(db, tenant_id)
+    baseline = _assessment_baseline_scan(db, tenant_id)
     if baseline is None:
-        raise ValueError("Validation requires a prior Assessment/baseline scan.")
+        raise ValueError("Validation requires a prior paid Assessment baseline.")
 
     existing_credit = db.scalar(
         select(TenantScanCredit).where(
