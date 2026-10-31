@@ -33,11 +33,13 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Title.';
+                    Visible = ShowPremiumDetails;
 
                     trigger OnDrillDown()
                     var
                         IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
                     begin
+                        EnsureIssueDetailsAllowed();
                         IssueDrilldownMgt.OpenDeepScanFinding(Rec);
                     end;
                 }
@@ -53,13 +55,6 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Affected Count.';
-
-                    trigger OnDrillDown()
-                    var
-                        IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
-                    begin
-                        IssueDrilldownMgt.OpenDeepScanFinding(Rec);
-                    end;
                 }
 
                 field("Estimated Impact (EUR)"; Rec."Estimated Impact (EUR)")
@@ -67,6 +62,7 @@
                     ApplicationArea = All;
                     Caption = 'Impact EUR';
                     ToolTip = 'Specifies Impact EUR.';
+                    Visible = ShowPremiumDetails;
                 }
 
                 field("Recommendation Preview"; Rec."Recommendation Preview")
@@ -88,14 +84,14 @@
 
     trigger OnAfterGetRecord()
     begin
-        UpdateAccessState();
+        UpdateAccessState(false);
         SeverityStyle := GetSeverityStyle();
     end;
 
     trigger OnOpenPage()
     begin
         EnsureSortFields();
-        UpdateAccessState();
+        UpdateAccessState(true);
         Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
     end;
@@ -158,20 +154,39 @@
         exit('Standard');
     end;
 
-    local procedure UpdateAccessState()
+    local procedure UpdateAccessState(RefreshFromBackend: Boolean)
     var
         Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
     begin
         ShowPremiumDetails := false;
-        AccessText := 'Buy Assessment';
+        AccessText := 'Assessment required for detailed findings';
 
-        if Setup.Get('SETUP') then
-            if Setup."Premium Enabled" then begin
-                ShowPremiumDetails := true;
-                AccessText := 'Unlocked';
-            end;
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if RefreshFromBackend and (Setup."Tenant ID" <> '') then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        ShowPremiumDetails := Setup."Can View Issue Details";
+        if ShowPremiumDetails then
+            AccessText := 'Unlocked';
     end;
 
+    local procedure EnsureIssueDetailsAllowed()
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        if not Setup.Get('SETUP') then
+            Error('BCSentinel setup was not found.');
+
+        if Setup."Tenant ID" <> '' then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        if not Setup."Can View Issue Details" then
+            Error('Detailed findings require an active Assessment, Validation Check, or Monitoring access.');
+    end;
 
     procedure SetDeepScanEntryNo(DeepScanEntryNo: Integer)
     begin
@@ -183,4 +198,3 @@
         CurrPage.Update(false);
     end;
 }
-

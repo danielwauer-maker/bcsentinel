@@ -2,44 +2,39 @@ codeunit 53142 "DH Issue Drilldown Mgt."
 {
     procedure OpenDashboardIssue(var DashboardIssue: Record "DH Dashboard Issue")
     begin
-        if not EnsurePremiumAccess() then
-            exit;
-        OpenByIssueCode(DashboardIssue."Issue Code");
+        RequirePremiumAccess();
+        OpenByIssueCodeInternal(DashboardIssue."Issue Code");
     end;
 
     procedure OpenScanIssue(var ScanIssue: Record "DH Scan Issue")
     begin
-        if not EnsurePremiumAccess() then
-            exit;
-        OpenByIssueCode(ScanIssue."Issue Code");
+        RequirePremiumAccess();
+        OpenByIssueCodeInternal(ScanIssue."Issue Code");
     end;
 
     procedure OpenDeepScanFinding(var DeepFinding: Record "DH Deep Scan Finding")
     begin
-        if not EnsurePremiumAccess() then
-            exit;
-        OpenByIssueCode(DeepFinding."Issue Code");
+        RequirePremiumAccess();
+        OpenByIssueCodeInternal(DeepFinding."Issue Code");
     end;
 
     procedure OpenByIssueCode(IssueCode: Code[50])
+    begin
+        RequirePremiumAccess();
+        OpenByIssueCodeInternal(IssueCode);
+    end;
+
+    local procedure OpenByIssueCodeInternal(IssueCode: Code[50])
     var
         IssueDrilldownDispatcher: Codeunit "DH Issue Drilldown Dispatcher";
     begin
         IssueDrilldownDispatcher.OpenByIssueCode(IssueCode);
     end;
 
-    local procedure EnsurePremiumAccess(): Boolean
+    local procedure RequirePremiumAccess()
     var
-        Setup: Record "DH Setup";
+        AccessGuard: Codeunit "DH Product Access Guard";
     begin
-        if not Setup.Get('SETUP') then
-            Error('Setup not found.');
-
-        if not Setup."Premium Enabled" then begin
-            Message('Paid scan access is required.');
-            exit(false);
-        end;
-
-        exit(true);
+        AccessGuard.RequireIssueDetails();
     end;
 }

@@ -20,6 +20,7 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Title.';
+                    Visible = ShowPremiumDetails;
                 }
                 field("Severity"; Rec."Severity")
                 {
@@ -37,21 +38,31 @@
                     ApplicationArea = All;
                     Caption = 'Impact EUR';
                     ToolTip = 'Specifies Impact EUR.';
+                    Visible = ShowPremiumDetails;
                 }
                 field("Recommendation Preview"; Rec."Recommendation Preview")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Recommendation Preview.';
+                    Visible = ShowPremiumDetails;
                 }
                 field("Premium"; Rec."Premium Only")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Premium.';
+                    Visible = false;
                 }
                 field("Issue Code"; Rec."Issue Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Issue Code.';
+                    Visible = ShowPremiumDetails;
+                }
+                field(Access; AccessText)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Access';
+                    ToolTip = 'Specifies Access.';
                 }
             }
         }
@@ -60,17 +71,21 @@
     trigger OnAfterGetRecord()
     begin
         SeverityStyle := GetSeverityStyle();
+        UpdateAccessState(false);
     end;
 
     trigger OnOpenPage()
     begin
         EnsureSortFields();
+        UpdateAccessState(true);
         Rec.SetCurrentKey("Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
     end;
 
     var
         SeverityStyle: Text[30];
+        ShowPremiumDetails: Boolean;
+        AccessText: Text[80];
 
     local procedure EnsureSortFields()
     var
@@ -124,5 +139,23 @@
 
         exit('Standard');
     end;
-}
 
+    local procedure UpdateAccessState(RefreshFromBackend: Boolean)
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ShowPremiumDetails := false;
+        AccessText := 'Assessment required for detailed findings';
+
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if RefreshFromBackend and (Setup."Tenant ID" <> '') then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        ShowPremiumDetails := Setup."Can View Issue Details";
+        if ShowPremiumDetails then
+            AccessText := 'Unlocked';
+    end;
+}

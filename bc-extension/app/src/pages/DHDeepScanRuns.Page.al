@@ -29,11 +29,6 @@
                     end;
                 }
 
-                /*field("Scan Type"; Rec."Scan Type")
-                {
-                    ApplicationArea = All;
-                }*/
-
                 field("Scan DateTime"; Rec."Scan DateTime")
                 {
                     ApplicationArea = All;
@@ -66,6 +61,7 @@
                     ApplicationArea = All;
                     Caption = 'Loss EUR';
                     ToolTip = 'Specifies Loss EUR.';
+                    Visible = ShowPremiumDetails;
                 }
 
                 field("Rating"; Rec."Rating")
@@ -78,13 +74,8 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Headline.';
+                    Visible = ShowPremiumDetails;
                 }
-
-                /*field("Premium"; GetIsPremiumRun())
-                {
-                    ApplicationArea = All;
-                    Caption = 'Paid Access';
-                }*/
             }
         }
     }
@@ -112,12 +103,14 @@
                 ToolTip = 'Runs Open Issues.';
                 ApplicationArea = All;
                 Image = List;
+                Visible = ShowPremiumDetails;
 
                 trigger OnAction()
                 var
                     DashboardIssue: Record "DH Dashboard Issue";
                     DashboardMgt: Codeunit "DH Dashboard Mgt.";
                 begin
+                    EnsureDetailedAccess();
                     DashboardMgt.RefreshDashboardIssueCache(Rec);
                     DashboardIssue.SetRange("Dashboard Scan Entry No.", Rec."Entry No.");
                     Page.Run(Page::"DH Dashboard Issues List", DashboardIssue);
@@ -171,7 +164,7 @@
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    ApiClient: Codeunit "DH API Client";
+                    MaintenanceClient: Codeunit "DH Scan Maintenance Client";
                 begin
                     if Rec."Entry No." = 0 then
                         Error('Please select a scan first.');
@@ -179,7 +172,7 @@
                     if not Confirm('Do you want to delete scan %1?', false, Rec.GetDisplayRunId()) then
                         exit;
 
-                    DeleteSingleScan(Rec, Setup, ApiClient);
+                    DeleteSingleScan(Rec, Setup, MaintenanceClient);
                     CurrPage.Update(false);
                     Message('Scan deleted.');
                 end;
@@ -195,7 +188,7 @@
                 trigger OnAction()
                 var
                     Setup: Record "DH Setup";
-                    ApiClient: Codeunit "DH API Client";
+                    MaintenanceClient: Codeunit "DH Scan Maintenance Client";
                 begin
                     if not Setup.Get('SETUP') then
                         Error('Setup not found.');
@@ -203,7 +196,7 @@
                     if not Confirm('This will align the backend scan history with the current BC scan list and remove orphan backend scans. Continue?', false) then
                         exit;
 
-                    ApiClient.ReconcileScansWithBackend(Setup);
+                    MaintenanceClient.ReconcileScansWithBackend(Setup);
                     Message('Scan history successfully synchronized with the backend.');
                     CurrPage.Update(false);
                 end;
@@ -218,6 +211,7 @@
 
                 trigger OnAction()
                 begin
+                    RefreshAccessState();
                     CurrPage.Update(false);
                 end;
             }
@@ -226,6 +220,7 @@
 
     trigger OnOpenPage()
     begin
+        RefreshAccessState();
         Rec.SetCurrentKey("Scan DateTime");
         Rec.Ascending(false);
     end;
@@ -239,6 +234,28 @@
     var
         ScoreStyle: Text[30];
         RunIdStyle: Text[30];
+        ShowPremiumDetails: Boolean;
+
+    local procedure RefreshAccessState()
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ShowPremiumDetails := false;
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if Setup.Registered then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        ShowPremiumDetails := Setup."Can View Issue Details";
+    end;
+
+    local procedure EnsureDetailedAccess()
+    begin
+        if not ShowPremiumDetails then
+            Error('Detailed findings are available with an active Assessment, Validation, or Monitoring access period.');
+    end;
 
     local procedure OpenMonitorForCurrentScan()
     var
@@ -254,7 +271,7 @@
         Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
     end;
 
-    local procedure DeleteSingleScan(var ScanHeader: Record "DH Scan Header"; var Setup: Record "DH Setup"; var ApiClient: Codeunit "DH API Client")
+    local procedure DeleteSingleScan(var ScanHeader: Record "DH Scan Header"; var Setup: Record "DH Setup"; var MaintenanceClient: Codeunit "DH Scan Maintenance Client")
     var
         BackendDeleteId: Code[50];
     begin
@@ -262,7 +279,7 @@
 
         if Setup.Get('SETUP') then
             if (Setup."Tenant ID" <> '') and HasApiToken(Setup) and (BackendDeleteId <> '') then
-                ApiClient.DeleteScanFromBackend(Setup, BackendDeleteId);
+                MaintenanceClient.DeleteScanFromBackend(Setup, BackendDeleteId);
 
         DeleteLinkedDeepRunIfNeededFor(ScanHeader);
         ScanHeader.Delete(true);
@@ -271,7 +288,7 @@
     local procedure DeleteSelectedScans()
     var
         Setup: Record "DH Setup";
-        ApiClient: Codeunit "DH API Client";
+        MaintenanceClient: Codeunit "DH Scan Maintenance Client";
         SelectedScans: Record "DH Scan Header";
         TotalToDelete: Integer;
         DeletedCount: Integer;
@@ -293,7 +310,7 @@
 
         if SelectedScans.FindSet() then
             repeat
-                DeleteSingleScan(SelectedScans, Setup, ApiClient);
+                DeleteSingleScan(SelectedScans, Setup, MaintenanceClient);
                 DeletedCount += 1;
             until SelectedScans.Next() = 0;
 
@@ -350,4 +367,3 @@
         exit(SecretMgt.HasApiToken(Setup));
     end;
 }
-
