@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from app.db import SessionLocal
 from app.lifecycle_models import LifecycleEmailOutbox, TenantLifecycleProfile
-from app.models import ScanRunStatus, TenantProductEntitlement
+from app.models import ScanRunStatus, TenantProductEntitlement, TenantScanCredit
 from app.services.lifecycle_discovery_service import discover_scan_lifecycle_events
 from app.services.lifecycle_email_service import (
     EVENT_ASSESSMENT_ACTIVATED,
@@ -12,10 +12,12 @@ from app.services.lifecycle_email_service import (
     EVENT_ASSESSMENT_EXPIRED,
     EVENT_REGISTRATION_COMPLETED,
     EVENT_SCAN_COMPLETED,
-    process_due_outbox,
+    EVENT_SCAN_STARTED,
+    EVENT_VALIDATION_EXPIRING,
     schedule_entitlement_lifecycle,
 )
-from app.services.product_license_service import PRODUCT_ASSESSMENT
+from app.services.lifecycle_worker_service import process_due_outbox_safely
+from app.services.product_license_service import PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK
 
 
 def test_lifecycle_profile_requires_tenant_auth_and_queues_registration_once(
@@ -95,7 +97,44 @@ def test_completed_scan_is_discovered_idempotently(
         assert "f3-scan-complete" in rows[0].payload_json
 
 
-def test_outbox_delivery_marks_sent(monkeypatch, client, tenant_factory, auth_header_factory):
+def test_running_scan_queues_started_once(client, tenant_factory, auth_header_factory):
+    tenant = tenant_factory(plan="free", license_status="active")
+    client.put(
+        "/tenant/lifecycle-profile",
+        headers=auth_header_factory(tenant),
+        json={"primary_notification_email": "started@example.com", "preferred_language": "de"},
+    )
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(
+            ScanRunStatus(
+                run_id="f3-scan-running",
+                tenant_id=tenant["tenant_id"],
+                scan_mode="deep",
+                status="running",
+                progress_percent=10,
+                updated_at_utc=now,
+                started_at_utc=now,
+                total_modules=10,
+                completed_modules=1,
+                failed_modules=0,
+            )
+        )
+        db.commit()
+    with SessionLocal() as db:
+        discover_scan_lifecycle_events(db)
+        discover_scan_lifecycle_events(db)
+        db.commit()
+        rows = db.query(LifecycleEmailOutbox).filter(
+            LifecycleEmailOutbox.tenant_id == tenant["tenant_id"],
+            LifecycleEmailOutbox.event_type == EVENT_SCAN_STARTED,
+        ).all()
+        assert len(rows) == 1
+
+
+def test_outbox_delivery_marks_sent_with_production_worker(
+    monkeypatch, client, tenant_factory, auth_header_factory
+):
     tenant = tenant_factory(plan="free", license_status="active")
     client.put(
         "/tenant/lifecycle-profile",
@@ -107,9 +146,9 @@ def test_outbox_delivery_marks_sent(monkeypatch, client, tenant_factory, auth_he
     def fake_send(**kwargs):
         sent.append(kwargs)
 
-    monkeypatch.setattr("app.services.lifecycle_email_service._send_html_email", fake_send)
+    monkeypatch.setattr("app.services.lifecycle_worker_service._send_html_email", fake_send)
     with SessionLocal() as db:
-        result = process_due_outbox(db)
+        result = process_due_outbox_safely(db)
         db.commit()
         assert result["sent"] >= 1
         row = db.query(LifecycleEmailOutbox).filter(
@@ -121,6 +160,38 @@ def test_outbox_delivery_marks_sent(monkeypatch, client, tenant_factory, auth_he
         assert row.sent_at_utc is not None
     assert sent
     assert sent[0]["target_email"] == "mail@example.com"
+
+
+def test_stale_sending_claim_is_recovered_and_delivered(
+    monkeypatch, client, tenant_factory, auth_header_factory
+):
+    tenant = tenant_factory(plan="free", license_status="active")
+    client.put(
+        "/tenant/lifecycle-profile",
+        headers=auth_header_factory(tenant),
+        json={"primary_notification_email": "recover@example.com", "preferred_language": "en"},
+    )
+    with SessionLocal() as db:
+        row = db.query(LifecycleEmailOutbox).filter(
+            LifecycleEmailOutbox.tenant_id == tenant["tenant_id"],
+            LifecycleEmailOutbox.event_type == EVENT_REGISTRATION_COMPLETED,
+        ).one()
+        row.status = "sending"
+        row.attempts = 1
+        row.updated_at_utc = datetime.now(timezone.utc) - timedelta(minutes=30)
+        db.commit()
+
+    monkeypatch.setattr("app.services.lifecycle_worker_service._send_html_email", lambda **kwargs: None)
+    with SessionLocal() as db:
+        result = process_due_outbox_safely(db)
+        db.commit()
+        row = db.query(LifecycleEmailOutbox).filter(
+            LifecycleEmailOutbox.tenant_id == tenant["tenant_id"],
+            LifecycleEmailOutbox.event_type == EVENT_REGISTRATION_COMPLETED,
+        ).one()
+        assert result["recovered"] == 1
+        assert row.status == "sent"
+        assert row.attempts == 2
 
 
 def test_assessment_lifecycle_schedules_activation_warning_and_expiry(
@@ -169,3 +240,39 @@ def test_assessment_lifecycle_schedules_activation_warning_and_expiry(
         warning = next(row for row in rows if row.event_type == EVENT_ASSESSMENT_EXPIRING)
         expiry = next(row for row in rows if row.event_type == EVENT_ASSESSMENT_EXPIRED)
         assert warning.scheduled_at_utc < expiry.scheduled_at_utc
+
+
+def test_consumed_validation_credit_schedules_48h_warning(
+    client, tenant_factory, auth_header_factory
+):
+    tenant = tenant_factory(plan="free", license_status="active")
+    client.put(
+        "/tenant/lifecycle-profile",
+        headers=auth_header_factory(tenant),
+        json={"primary_notification_email": "validation@example.com", "preferred_language": "de"},
+    )
+    consumed_at = datetime.now(timezone.utc) - timedelta(days=1)
+    with SessionLocal() as db:
+        db.add(
+            TenantScanCredit(
+                tenant_id=tenant["tenant_id"],
+                product_code=PRODUCT_VALIDATION_CHECK,
+                status="consumed",
+                source="f3-test",
+                source_purchase_id=None,
+                consumed_scan_id="f3-validation-scan",
+                created_at_utc=consumed_at,
+                consumed_at_utc=consumed_at,
+            )
+        )
+        db.commit()
+    with SessionLocal() as db:
+        discover_scan_lifecycle_events(db)
+        discover_scan_lifecycle_events(db)
+        db.commit()
+        rows = db.query(LifecycleEmailOutbox).filter(
+            LifecycleEmailOutbox.tenant_id == tenant["tenant_id"],
+            LifecycleEmailOutbox.event_type == EVENT_VALIDATION_EXPIRING,
+        ).all()
+        assert len(rows) == 1
+        assert "f3-validation-scan" in rows[0].payload_json
