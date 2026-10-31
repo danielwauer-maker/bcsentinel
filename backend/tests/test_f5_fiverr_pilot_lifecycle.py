@@ -5,18 +5,37 @@ from datetime import datetime, timedelta, timezone
 from app.db import SessionLocal
 from app.models import Scan, TenantProductEntitlement, TenantScanCredit
 from app.services.operator_commercial_service import grant_assessment, grant_validation
-from app.services.product_license_service import (
-    PRODUCT_ASSESSMENT,
-    PRODUCT_VALIDATION_CHECK,
-    consume_scan_credit_for_scan,
-)
+from app.services.product_license_service import PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK
 
 
 def _headers(tenant: dict[str, str]) -> dict[str, str]:
     return {"X-Tenant-Id": tenant["tenant_id"], "X-Api-Token": tenant["api_token"]}
 
 
-def test_fiverr_pilot_lifecycle_free_assessment_expiry_validation(client, scan_factory):
+def _complete_existing_scan(scan_id: str, *, score: int, generated_at: datetime) -> None:
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter(Scan.scan_id == scan_id).one()
+        scan.generated_at_utc = generated_at
+        scan.data_score = score
+        scan.checks_count = 199
+        scan.issues_count = 0
+        scan.total_records = 1000
+        scan.summary_headline = "BCSentinel Data Health Scan completed"
+        scan.summary_rating = "Good"
+        scan.system_score = score
+        scan.finance_score = score
+        scan.sales_score = score
+        scan.purchasing_score = score
+        scan.inventory_score = score
+        scan.crm_score = score
+        scan.manufacturing_score = score
+        scan.service_score = score
+        scan.jobs_score = score
+        scan.hr_score = score
+        db.commit()
+
+
+def test_fiverr_pilot_lifecycle_free_assessment_expiry_validation(client):
     registered = client.post(
         "/tenant/register",
         json={"environment_name": "BC Cloud", "app_version": "1.0.2.28-f5", "preferred_language": "de"},
@@ -53,13 +72,11 @@ def test_fiverr_pilot_lifecycle_free_assessment_expiry_validation(client, scan_f
     )
     assert started.status_code == 200, started.text
     assert started.json()["credit_consumed"] is True
-
-    scan_factory(tenant_id=tenant["tenant_id"], scan_id=free_scan_id)
-    with SessionLocal() as db:
-        free_scan = db.query(Scan).filter(Scan.scan_id == free_scan_id).one()
-        free_scan.generated_at_utc = datetime.now(timezone.utc) - timedelta(hours=2)
-        free_scan.checks_count = 199
-        db.commit()
+    _complete_existing_scan(
+        free_scan_id,
+        score=68,
+        generated_at=datetime.now(timezone.utc) - timedelta(hours=2),
+    )
 
     after_free = client.get("/license/status", headers=headers)
     assert after_free.status_code == 200
@@ -132,18 +149,26 @@ def test_fiverr_pilot_lifecycle_free_assessment_expiry_validation(client, scan_f
     assert validation_available.json()["can_view_issue_details"] is False
 
     validation_scan_id = "F5-VALIDATION-0002"
-    with SessionLocal() as db:
-        credit = consume_scan_credit_for_scan(db, tenant_id=tenant["tenant_id"], scan_id=validation_scan_id)
-        assert credit is not None
-        assert credit.product_code == PRODUCT_VALIDATION_CHECK
-        db.commit()
+    validation_started = client.post(
+        "/scan/start",
+        headers=headers,
+        json={
+            "tenant_id": tenant["tenant_id"],
+            "run_id": validation_scan_id,
+            "scan_mode": "deep",
+            "total_modules": 10,
+            "company_name": "F5 Pilot GmbH",
+            "environment_name": "BC Cloud",
+        },
+    )
+    assert validation_started.status_code == 200, validation_started.text
+    assert validation_started.json()["credit_consumed"] is True
 
-    scan_factory(tenant_id=tenant["tenant_id"], scan_id=validation_scan_id)
-    with SessionLocal() as db:
-        validation_scan = db.query(Scan).filter(Scan.scan_id == validation_scan_id).one()
-        validation_scan.generated_at_utc = datetime.now(timezone.utc)
-        validation_scan.checks_count = 199
-        db.commit()
+    _complete_existing_scan(
+        validation_scan_id,
+        score=82,
+        generated_at=datetime.now(timezone.utc),
+    )
 
     validation_active = client.get("/license/status", headers=headers)
     assert validation_active.status_code == 200
