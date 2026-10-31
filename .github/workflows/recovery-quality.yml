@@ -6,7 +6,7 @@ on:
 
 jobs:
   recovery-drill:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16
@@ -35,13 +35,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install PostgreSQL 16 client
+      - name: Install PostgreSQL client
         run: |
           sudo apt-get update
-          sudo apt-get install -y postgresql-client-16
-          echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
-          /usr/lib/postgresql/16/bin/pg_dump --version
-          /usr/lib/postgresql/16/bin/pg_restore --version
+          sudo apt-get install -y postgresql-client
+          pg_dump --version
+          pg_restore --version
       - name: Install backend dependencies
         working-directory: backend
         run: pip install -r requirements.txt
