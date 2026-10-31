@@ -19,6 +19,7 @@ def test_free_health_report_json_html_pdf_are_available_without_paid_access(
         scan.potential_saving_eur = 21000.0
         scan.finance_score = 58
         scan.crm_score = 66
+        db.query(ScanIssueRecord).filter(ScanIssueRecord.scan_id == "scan_free_report_1").delete(synchronize_session=False)
         db.add(
             ScanIssueRecord(
                 scan_id="scan_free_report_1",
