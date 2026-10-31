@@ -33,11 +33,13 @@
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies Title.';
+                    Visible = ShowPremiumDetails;
 
                     trigger OnDrillDown()
                     var
                         IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
                     begin
+                        EnsureDetailedAccess();
                         IssueDrilldownMgt.OpenDeepScanFinding(Rec);
                     end;
                 }
@@ -58,6 +60,7 @@
                     var
                         IssueDrilldownMgt: Codeunit "DH Issue Drilldown Mgt.";
                     begin
+                        EnsureDetailedAccess();
                         IssueDrilldownMgt.OpenDeepScanFinding(Rec);
                     end;
                 }
@@ -67,6 +70,7 @@
                     ApplicationArea = All;
                     Caption = 'Impact EUR';
                     ToolTip = 'Specifies Impact EUR.';
+                    Visible = ShowPremiumDetails;
                 }
 
                 field("Recommendation Preview"; Rec."Recommendation Preview")
@@ -88,14 +92,13 @@
 
     trigger OnAfterGetRecord()
     begin
-        UpdateAccessState();
         SeverityStyle := GetSeverityStyle();
     end;
 
     trigger OnOpenPage()
     begin
+        RefreshAccessState();
         EnsureSortFields();
-        UpdateAccessState();
         Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
     end;
@@ -104,6 +107,31 @@
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
         AccessText: Text[80];
+
+    local procedure RefreshAccessState()
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ShowPremiumDetails := false;
+        AccessText := 'Assessment required for detailed findings';
+
+        if not Setup.Get('SETUP') then
+            exit;
+
+        if Setup.Registered then
+            ApiClient.RefreshLicenseStatus(Setup);
+
+        ShowPremiumDetails := Setup."Can View Issue Details";
+        if ShowPremiumDetails then
+            AccessText := 'Unlocked';
+    end;
+
+    local procedure EnsureDetailedAccess()
+    begin
+        if not ShowPremiumDetails then
+            Error('Detailed findings are available with an active Assessment, Validation, or Monitoring access period.');
+    end;
 
     local procedure EnsureSortFields()
     var
@@ -157,19 +185,4 @@
 
         exit('Standard');
     end;
-
-    local procedure UpdateAccessState()
-    var
-        Setup: Record "DH Setup";
-    begin
-        ShowPremiumDetails := false;
-        AccessText := 'Buy Assessment';
-
-        if Setup.Get('SETUP') then
-            if Setup."Premium Enabled" then begin
-                ShowPremiumDetails := true;
-                AccessText := 'Unlocked';
-            end;
-    end;
 }
-
