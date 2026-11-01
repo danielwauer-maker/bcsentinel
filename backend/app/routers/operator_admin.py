@@ -182,7 +182,8 @@ def operator_grant_quick_assessment(
                 note=note,
             )
             db.commit()
-            return _redirect(f"Quick Assessment activated through {result['valid_until_utc']} for {tenant_id}.")
+            scan_note = f" Existing scan {result['scan_id']} is available at Quick level." if result["scan_id"] else " The first completed Data Health Scan will automatically be available at Quick level."
+            return _redirect(f"Permanent Quick Assessment activated for {tenant_id}.{scan_note}")
         except (ValueError, RuntimeError) as exc:
             db.rollback()
             return _redirect(str(exc), error=True)
