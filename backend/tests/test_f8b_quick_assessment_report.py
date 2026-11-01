@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-
 from app.db import SessionLocal
 from app.models import TenantProductEntitlement
 from app.services.product_license_service import grant_product_entitlement
 from app.services.quick_assessment_access_service import PRODUCT_QUICK_ASSESSMENT
 
 
-def _grant_quick(tenant_id: str, *, days: int = 7) -> None:
+def _grant_quick(tenant_id: str) -> None:
     with SessionLocal() as db:
         grant_product_entitlement(
             db,
             tenant_id=tenant_id,
             product_code=PRODUCT_QUICK_ASSESSMENT,
             source="f8b-test",
-            valid_until_utc=datetime.now(timezone.utc) + timedelta(days=days),
+            valid_until_utc=None,
         )
         db.commit()
 
@@ -53,9 +51,13 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
     assert payload["contract_version"] == "quick-assessment-report-v1"
     assert payload["report_variant"] == "quick_assessment"
     assert payload["scan_id"] == "f8b-quick-report"
+    assert payload["modules_analyzed"] >= 0
+    assert set(payload["severity"]) == {"critical", "high", "medium", "low", "info"}
     assert len(payload["findings"]) == 1
     assert payload["findings"][0]["title"] == "Issue"
     assert payload["findings"][0]["rank"] == 1
+    assert payload["findings"][0]["impact_band"] in {"Low", "Moderate", "High", "Very high", "Niedrig", "Moderat", "Hoch", "Sehr hoch"}
+    assert payload["recommended_next_actions"] == []
     assert "impact_band" in payload
 
     serialized = response.text.lower()
@@ -127,7 +129,7 @@ def test_quick_share_link_rechecks_live_entitlement(client, tenant_factory, auth
             TenantProductEntitlement.tenant_id == tenant_id,
             TenantProductEntitlement.product_code == PRODUCT_QUICK_ASSESSMENT,
         ).one()
-        entitlement.valid_until_utc = datetime.now(timezone.utc) - timedelta(minutes=1)
+        entitlement.status = "revoked"
         db.commit()
 
     shared = client.get(url)
