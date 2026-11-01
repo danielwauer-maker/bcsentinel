@@ -36,7 +36,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
                 code="CUSTOMERS_MISSING_EMAIL",
                 category="CRM",
                 title="Customers missing email",
-                severity="high",
+                severity="critical",
                 affected_count=120,
                 premium_only=False,
                 recommendation_preview="Complete customer communication data.",
@@ -49,7 +49,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
                 code="GL_LEDGER_SETUP_GAP",
                 category="Finance",
                 title="Ledger setup gap",
-                severity="medium",
+                severity="warning",
                 affected_count=15,
                 premium_only=False,
                 recommendation_preview="Review posting setup before month-end.",
@@ -61,13 +61,24 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     json_response = client.get("/reports/executive/scan_exec_1", headers=auth_header_factory(tenant))
     assert json_response.status_code == 200
     payload = json_response.json()
-    assert payload["contract_version"] == "executive-report-v1"
+    assert payload["contract_version"] == "executive-report-v2"
     assert payload["financial_methodology"] == "fin-v1"
     assert payload["data_health_score"] == 67
     assert payload["estimated_loss_eur"] == 42000.0
     assert len(payload["top_risks"]) >= 3
     assert payload["top_risks"][0]["title"] == "Ledger setup gap"
+    assert payload["top_risks"][0]["severity"] == "medium"
     assert payload["critical_findings"][0]["title"] == "Customers missing email"
+    assert payload["critical_findings"][0]["severity"] == "critical"
+    assert payload["validation_baseline_eligible"] is True
+    assert payload["validation_baseline_scan_id"] == "scan_exec_1"
+    assert payload["all_findings"]
+    assert payload["business_area_impact"]
+    finance = next(row for row in payload["business_area_impact"] if row["name"] == "Finance")
+    crm = next(row for row in payload["business_area_impact"] if row["name"] == "CRM")
+    assert finance["estimated_impact_eur"] == 24000.0
+    assert crm["estimated_impact_eur"] == 18000.0
+    assert all(item["effort"] is None for item in payload["priority_matrix"])
 
     html_response = client.get("/reports/executive/scan_exec_1/html", headers=auth_header_factory(tenant))
     assert html_response.status_code == 200
