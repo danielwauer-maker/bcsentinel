@@ -15,13 +15,15 @@ class FreeRiskArea(BaseModel):
     status: str
     issue_count: int = Field(default=0, ge=0)
     affected_records: int = Field(default=0, ge=0)
-    highest_severity: str = "low"
+    highest_severity: str = "info"
 
 
 class FreeSeveritySummary(BaseModel):
+    critical: int = Field(default=0, ge=0)
     high: int = Field(default=0, ge=0)
     medium: int = Field(default=0, ge=0)
     low: int = Field(default=0, ge=0)
+    info: int = Field(default=0, ge=0)
 
 
 class FreeHealthReport(BaseModel):
@@ -45,6 +47,7 @@ class FreeHealthReport(BaseModel):
     data_health_score: int = Field(ge=0, le=100)
     score_status: str
     checks_count: int = Field(default=0, ge=0)
+    modules_analyzed: int = Field(default=0, ge=0)
     issues_count: int = Field(default=0, ge=0)
     affected_records: int = Field(default=0, ge=0)
     total_records: int = Field(default=0, ge=0)
