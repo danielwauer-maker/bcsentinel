@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-REPORT_CONTRACT_VERSION = "executive-report-v1"
+REPORT_CONTRACT_VERSION = "executive-report-v2"
 FINANCIAL_METHODOLOGY_VERSION = "fin-v1"
 
 
@@ -33,12 +33,25 @@ class ReportCategoryScore(BaseModel):
     affected_count: int = 0
 
 
+class ReportCategoryImpact(BaseModel):
+    name: str
+    score: int = Field(ge=0, le=100)
+    issue_count: int = Field(default=0, ge=0)
+    affected_count: int = Field(default=0, ge=0)
+    estimated_impact_eur: float = Field(default=0.0, ge=0.0)
+    impact_share_percent: float = Field(default=0.0, ge=0.0, le=100.0)
+    highest_severity: str = "info"
+
+
 class ReportPriorityItem(BaseModel):
     priority: str
     focus: str
     impact: str
-    effort: str
     recommendation: str
+    finding_codes: List[str] = Field(default_factory=list)
+    # Deprecated compatibility field. Full Assessment must not infer effort until
+    # a deterministic scan-level effort model exists.
+    effort: str | None = None
 
 
 class ReportAppliedException(BaseModel):
@@ -55,11 +68,11 @@ class ReportAppliedException(BaseModel):
 
 
 class ExecutiveReport(BaseModel):
-    # D10 shared contract metadata. Web JSON, HTML, PDF and Monitoring projections
-    # must all originate from this exact model and the same builder.
+    # Shared Full Assessment contract. JSON, HTML, PDF and monitoring projections
+    # must originate from this exact model and the same builder.
     contract_version: str = REPORT_CONTRACT_VERSION
     financial_methodology: str = FINANCIAL_METHODOLOGY_VERSION
-    report_variant: str = "executive"
+    report_variant: str = "assessment"
     dashboard_mode: str = "read_only"
 
     report_id: str
@@ -85,6 +98,11 @@ class ExecutiveReport(BaseModel):
     validated_improvement_eur: float | None = None
     realized_saving_eur: float | None = None
 
+    # A paid Full Assessment establishes the comparison point for a later
+    # Validation. Quick alone never establishes this baseline.
+    validation_baseline_eligible: bool = True
+    validation_baseline_scan_id: str
+
     # Historical reports use the immutable scan-time exception snapshot. They
     # never read the current active-exception list from Business Central.
     exceptions_applied: bool = False
@@ -94,10 +112,11 @@ class ExecutiveReport(BaseModel):
     headline: str
     rating: str
     kpis: List[ReportKpi] = Field(default_factory=list)
+    all_findings: List[ReportFinding] = Field(default_factory=list)
     top_risks: List[ReportFinding] = Field(default_factory=list)
-    quick_wins: List[ReportFinding] = Field(default_factory=list)
     critical_findings: List[ReportFinding] = Field(default_factory=list)
     data_quality: List[ReportCategoryScore] = Field(default_factory=list)
+    business_area_impact: List[ReportCategoryImpact] = Field(default_factory=list)
     master_data_quality: List[ReportCategoryScore] = Field(default_factory=list)
     financial_risks: List[ReportFinding] = Field(default_factory=list)
     recommended_actions: List[str] = Field(default_factory=list)
