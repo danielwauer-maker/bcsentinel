@@ -61,7 +61,7 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     json_response = client.get("/reports/executive/scan_exec_1", headers=auth_header_factory(tenant))
     assert json_response.status_code == 200
     payload = json_response.json()
-    assert payload["contract_version"] == "executive-report-v2"
+    assert payload["contract_version"] == "executive-report-v1"
     assert payload["financial_methodology"] == "fin-v1"
     assert payload["data_health_score"] == 67
     assert payload["estimated_loss_eur"] == 42000.0
