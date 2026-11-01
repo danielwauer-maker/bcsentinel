@@ -382,7 +382,7 @@ def process_due_outbox(db, *, limit: int = 25) -> dict[str, int]:
             LifecycleEmailOutbox.attempts < MAX_ATTEMPTS,
         )
         .order_by(LifecycleEmailOutbox.scheduled_at_utc.asc(), LifecycleEmailOutbox.id.asc())
-        .limit(max(1, min(limit, 100))
+        .limit(max(1, min(limit, 100)))
     ).all()
     sent = failed = 0
     for row in rows:
