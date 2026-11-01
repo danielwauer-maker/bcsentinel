@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T21:15:00Z",
+  "generated_at_utc": "2026-11-01T21:20:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -11,8 +11,8 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "1a09607c1b8d8abcd986fa24edd0c11af2304aa6",
-      "status": "F0-F8 automatic implementation complete including permanent Quick semantics and automatic report resolution; manual controlled-pilot gates remain"
+      "technical_baseline_sha": "270b712b07544dcf60d64e14bea06a77566fcb9c",
+      "status": "F0-F8 automatic implementation complete including permanent Quick semantics, automatic report resolution and final two-page Quick Assessment report; manual controlled-pilot gates remain"
     },
     "frontend": {
       "repo": "danielwauer-maker/bcsentinel-frontend",
@@ -23,7 +23,7 @@
     "product_system": {
       "repo": "danielwauer-maker/bcsentinel-product-system",
       "branch": "main",
-      "status": "normative UX/product reference"
+      "status": "normative product/UX reference"
     }
   },
   "product_identity": {
@@ -50,7 +50,7 @@
       "access_days": null,
       "access_semantics": "open-ended until explicit revoke; no automatic expiry",
       "finding_limit": 5,
-      "result_access": "top prioritized findings with title, severity, affected count, risk area and concise next step; no exact EUR, issue codes, full root cause, record drilldown or full remediation",
+      "result_access": "top prioritized findings with title, five-level normalized severity, affected count, canonical/localized risk area, non-monetary impact band and concise next review step; no exact EUR, issue codes, full root cause, record drilldown or full remediation",
       "validation_baseline_eligible": false,
       "report": "Quick Assessment Report"
     },
@@ -159,7 +159,25 @@
   },
   "reports": {
     "free_health": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "contract": "aggregate-safe separate data contract"},
-    "quick_assessment": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "max_findings": 5, "exact_eur": false, "issue_codes": false, "full_root_cause": false, "record_drilldown": false},
+    "quick_assessment": {
+      "status": "implemented_and_frozen",
+      "formats": ["json", "html", "pdf"],
+      "share_links": true,
+      "pages": 2,
+      "golden_master": "docs/QUICK_REPORT_GOLDEN_MASTER.md",
+      "page_1": "Executive Priorities: standalone scan context, Top 5 findings, Management Interpretation",
+      "page_2": "Decision & Next Steps: Severity x Impact matrix, recommended sequence, Quick vs Full, one CTA",
+      "max_findings": 5,
+      "severity_levels": ["critical", "high", "medium", "low", "info"],
+      "per_finding_impact_band": true,
+      "localized_risk_area_label": true,
+      "finding_specific_next_action": true,
+      "exact_eur": false,
+      "issue_codes": false,
+      "full_root_cause": false,
+      "record_drilldown": false,
+      "generic_recommended_next_actions_rendered": false
+    },
     "assessment": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true},
     "validation": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "comparison_classes": ["resolved", "improved", "remaining", "regressed", "new"]},
     "monitoring": {"status": "existing; redesign deferred", "pilot_blocker": false}
@@ -222,7 +240,7 @@
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
     "F6_fiverr_launch_assets": "merged",
     "F7_landing_linkedin": "merged",
-    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics and automatic report resolver"
+    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics, automatic report resolver and final Quick report Golden Master"
   },
   "readiness": {
     "technical_fiverr_controlled_pilot_after_automatic_F8": 99,
