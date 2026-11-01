@@ -7,28 +7,30 @@ from app.schemas.quick_assessment_report import (
     QuickSeveritySummary,
 )
 from app.services.free_health_report_service import build_free_health_report
+from app.services.quick_finding_selection_service import select_quick_findings
 
 
 def build_quick_assessment_report(db, tenant: Tenant, scan_id: str) -> QuickAssessmentReport:
-    """Build the F8.2 Quick Assessment report shell from the existing scan.
+    """Build the Quick Assessment report from the existing initial full scan.
 
-    F8.2 intentionally does not select or expose findings. F8.3 owns the
-    server-side Top-Finding boundary and will populate ``findings`` using the
-    restricted QuickFinding contract. Until then, the report remains aggregate
-    safe while JSON/HTML/PDF/share-link infrastructure can be accepted.
+    F8C populates a hard server-side Top-5 finding boundary. The returned schema
+    remains structurally incapable of carrying Full Assessment-only data such as
+    issue codes, exact EUR values, root causes or record-level drilldowns.
     """
     free = build_free_health_report(db, tenant, scan_id)
     de = free.language == "de"
+    findings = select_quick_findings(db, scan_id=scan_id, language=free.language)
 
     if de:
         interpretation = (
             f"Der Quick Assessment ordnet den bestehenden Data-Health-Scan mit {free.data_health_score}/100 ein. "
             f"{free.issues_count} Auffälligkeiten verteilen sich auf {len(free.risk_areas)} relevante Risikobereiche. "
-            f"Das modellierte geschäftliche Auswirkungsniveau liegt im Band „{free.impact_band}“."
+            f"Das modellierte geschäftliche Auswirkungsniveau liegt im Band „{free.impact_band}“. "
+            f"Die {len(findings)} wichtigsten Findings werden priorisiert dargestellt."
         )
         actions = [
-            "Die priorisierten Risikobereiche nach Score und Schweregrad zuerst prüfen.",
-            "Betroffene Geschäftsprozesse und Verantwortlichkeiten für die wichtigsten Datenprobleme festlegen.",
+            "Die priorisierten Findings in der angegebenen Reihenfolge fachlich prüfen.",
+            "Für jedes priorisierte Finding einen verantwortlichen Daten- oder Prozess-Owner festlegen.",
             "Für vollständige Ursachenanalyse, finanzielle Modellwerte und Bereinigungsplanung auf das Full Assessment erweitern.",
         ]
         upgrade = (
@@ -39,11 +41,12 @@ def build_quick_assessment_report(db, tenant: Tenant, scan_id: str) -> QuickAsse
         interpretation = (
             f"The Quick Assessment interprets the existing Data Health Scan at {free.data_health_score}/100. "
             f"{free.issues_count} issues are distributed across {len(free.risk_areas)} relevant risk areas. "
-            f"The modeled business-impact level is in the “{free.impact_band}” band."
+            f"The modeled business-impact level is in the “{free.impact_band}” band. "
+            f"The {len(findings)} highest-priority findings are shown below."
         )
         actions = [
-            "Review the lowest-scoring and highest-severity risk areas first.",
-            "Assign process ownership for the most material data-quality risks.",
+            "Review the prioritized findings in the order shown.",
+            "Assign an accountable data or process owner for each prioritized finding.",
             "Upgrade to Full Assessment for complete root-cause analysis, financial modeling and remediation planning.",
         ]
         upgrade = (
@@ -70,7 +73,7 @@ def build_quick_assessment_report(db, tenant: Tenant, scan_id: str) -> QuickAsse
         risk_areas=[QuickRiskArea(**row.model_dump()) for row in free.risk_areas],
         impact_band=free.impact_band,
         management_interpretation=interpretation,
-        findings=[],
+        findings=findings,
         recommended_next_actions=actions,
         upgrade_message=upgrade,
     )
