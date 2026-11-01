@@ -21,7 +21,7 @@
       <div class="head">
         <div><div class="title">{{ row.environment_name or 'Business Central Tenant' }}</div><div class="meta">{{ row.tenant_id }} · {{ row.notification_email }} · {{ row.preferred_language }} · Latest scan: {{ row.latest_scan_id }}</div></div>
         <div class="badges">
-          <span class="badge {{ 'ok' if row.quick_active else 'off' }}">Quick {{ 'active' if row.quick_active else 'off' }}</span>
+          <span class="badge {{ 'ok' if row.quick_active else 'off' }}">Quick {{ 'permanent' if row.quick_active else 'off' }}</span>
           <span class="badge {{ 'ok' if row.assessment_active else 'off' }}">Assessment {{ 'active' if row.assessment_active else 'off' }}</span>
           <span class="badge {{ 'ok' if row.validation_active else 'off' }}">Validation {{ 'active' if row.validation_active else 'off' }}</span>
           <span class="badge">Validation credits {{ row.validation_credits }}</span>
@@ -39,12 +39,12 @@
         <div class="price"><strong>Fiverr · Validation</strong><span>{% if validation_price.price is not none %}${{ '%.0f'|format(validation_price.price) }}{% elif validation_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
       </div>
       {% else %}
-      <div class="small" style="margin-top:12px">No analyzed record-volume pricing yet. Complete the initial Data Health Scan first.</div>
+      <div class="small" style="margin-top:12px">No analyzed record-volume pricing yet. Quick can already be granted; the first completed Data Health Scan will then reveal the Quick layer automatically. Final Fiverr volume pricing is confirmed after analysis.</div>
       {% endif %}
 
       <div class="grid">
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-quick-assessment">
-          <h3>Grant Quick Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant 7-day Quick Assessment</button><div class="small">Unlocks limited Top-Finding detail on the existing scan. No scan credit and no Full Assessment access.</div>
+          <h3>Grant Quick Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant permanent Quick Assessment</button><div class="small">Permanently unlocks the Quick layer without creating a scan credit. If no scan exists yet, the first completed Data Health Scan is revealed automatically. No Full Assessment access is granted.</div>
         </form>
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-assessment">
           <h3>Grant Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant 7-day Assessment</button><div class="small">Unlocks full detail on the existing scan. No new scan credit is created.</div>
@@ -61,7 +61,7 @@
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/resend-latest">
           <h3>Resend Latest Lifecycle Mail</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="muted" type="submit">Queue resend</button><div class="small">Uses the tenant's current Report & Notification Email.</div>
         </form>
-        <div class="action"><h3>Current context</h3><div class="small">Quick until: {{ row.quick_until or '—' }}</div><div class="small">Assessment until: {{ row.assessment_until or '—' }}</div>{% if row.latest_action %}<div class="small">Last operator action: {{ row.latest_action.action_type }} · {{ row.latest_action.sales_channel }} · {{ row.latest_action.external_order_reference or '—' }}</div>{% else %}<div class="small">No operator action recorded yet.</div>{% endif %}</div>
+        <div class="action"><h3>Current context</h3><div class="small">Quick access: {{ 'Permanent' if row.quick_active else ('Included via higher tier' if row.quick_effective_access else 'Off') }}</div><div class="small">Assessment until: {{ row.assessment_until or '—' }}</div>{% if row.latest_action %}<div class="small">Last operator action: {{ row.latest_action.action_type }} · {{ row.latest_action.sales_channel }} · {{ row.latest_action.external_order_reference or '—' }}</div>{% else %}<div class="small">No operator action recorded yet.</div>{% endif %}</div>
       </div>
     </section>
     {% else %}<div class="toolbar">No tenants matched your search.</div>{% endfor %}
