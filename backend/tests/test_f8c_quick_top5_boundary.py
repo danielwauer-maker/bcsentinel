@@ -82,11 +82,12 @@ def test_quick_report_returns_exactly_top_five_in_deterministic_business_priorit
         "Fourth finding",
         "Fifth finding",
     ]
-    # Equal modeled impact is resolved by normalized severity; critical precedes high.
     assert findings[0]["severity"] == "critical"
     assert findings[1]["severity"] == "high"
     assert findings[0]["impact_band"] == "Moderate"
     assert findings[2]["impact_band"] == "Low"
+    assert findings[0]["risk_area"] == "Finance"
+    assert findings[0]["risk_area_label"] == "Finance"
     assert all(row["next_action"] for row in findings)
     assert "Top critical" in findings[0]["next_action"]
 
@@ -138,6 +139,7 @@ def test_quick_report_schema_rejects_more_than_five_findings():
             severity="medium",
             affected_count=index,
             risk_area="System",
+            risk_area_label="System",
             impact_band="Moderate",
             next_action="Review affected setup.",
         )
