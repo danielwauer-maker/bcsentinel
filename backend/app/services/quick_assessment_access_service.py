@@ -58,12 +58,17 @@ def build_quick_assessment_access_snapshot(db, tenant: Tenant) -> dict[str, Any]
     quick_entitlements = _active_quick_entitlements(db, tenant.tenant_id)
     quick_entitlement_active = bool(quick_entitlements)
 
+    has_open_ended_entitlement = any(row.valid_until_utc is None for row in quick_entitlements)
     finite_until_values = [
         _as_utc(row.valid_until_utc)
         for row in quick_entitlements
         if row.valid_until_utc is not None
     ]
-    quick_access_until = max(finite_until_values) if finite_until_values else None
+    quick_access_until = (
+        None
+        if has_open_ended_entitlement
+        else (max(finite_until_values) if finite_until_values else None)
+    )
 
     full_access = build_product_access_snapshot(db, tenant)
     higher_tier_active = bool(
