@@ -9,6 +9,19 @@ from app.schemas.quick_assessment_report import QuickFinding
 MAX_QUICK_FINDINGS = 5
 SEVERITY_WEIGHT = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
 
+_DE_AREA_LABELS = {
+    "Finance": "Finanzen",
+    "Sales": "Verkauf",
+    "Purchasing": "Einkauf",
+    "Inventory": "Artikel & Lager",
+    "CRM": "CRM / Kunden",
+    "Manufacturing": "Fertigung",
+    "Service": "Service",
+    "Jobs": "Projekte / Jobs",
+    "HR": "Personal",
+    "System": "System & Setup",
+}
+
 
 def _safe_int(value: object, default: int = 0) -> int:
     try:
@@ -87,6 +100,10 @@ def _risk_area(issue: ScanIssueRecord) -> str:
     return "System"
 
 
+def _area_label(area: str, language: str) -> str:
+    return _DE_AREA_LABELS.get(area, area) if language == "de" else area
+
+
 def _next_action(issue: ScanIssueRecord, area: str, language: str) -> str:
     """Create a deterministic Quick-safe action tied to this finding.
 
@@ -160,6 +177,7 @@ def select_quick_findings(db: Session, *, scan_id: str, language: str) -> list[Q
                 severity=normalize_severity(issue.severity),
                 affected_count=max(0, _safe_int(issue.affected_count)),
                 risk_area=area,
+                risk_area_label=_area_label(area, language),
                 impact_band=quick_impact_band(issue.estimated_impact_eur, language),
                 next_action=_next_action(issue, area, language),
             )
