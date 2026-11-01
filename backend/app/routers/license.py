@@ -6,6 +6,7 @@ from app.services.billing_service import resolve_effective_license
 from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
+from app.services.quick_assessment_access_service import build_quick_assessment_access_snapshot
 from app.services.tenant_access_service import get_tenant_status
 from app.routers.auth import router as auth_router
 from app.routers.remediation import router as remediation_router
@@ -30,6 +31,11 @@ class LicenseStatusResponse(BaseModel):
     scan_credits_available: int = 0
     monitoring_active: bool = False
     product_access: dict = {}
+    quick_assessment_entitlement_active: bool = False
+    quick_assessment_access_active: bool = False
+    quick_assessment_access_until: str | None = None
+    can_view_quick_assessment: bool = False
+    can_view_quick_findings: bool = False
     assessment_access_active: bool = False
     validation_access_active: bool = False
     dashboard_access_until: str | None = None
@@ -54,6 +60,7 @@ def get_license_status(
         normalized_plan, normalized_license_status = resolve_effective_license(db, tenant)
         features = sorted(get_tenant_features(db, tenant))
         snapshot = build_license_snapshot(db, tenant)
+        quick_access = build_quick_assessment_access_snapshot(db, tenant)
 
         response = LicenseStatusResponse(
             tenant_id=tenant.tenant_id,
@@ -67,6 +74,11 @@ def get_license_status(
             scan_credits_available=snapshot["scan_credits_available"],
             monitoring_active=snapshot["monitoring_active"],
             product_access=snapshot["product_access"],
+            quick_assessment_entitlement_active=quick_access["quick_assessment_entitlement_active"],
+            quick_assessment_access_active=quick_access["quick_assessment_access_active"],
+            quick_assessment_access_until=quick_access["quick_assessment_access_until"],
+            can_view_quick_assessment=quick_access["can_view_quick_assessment"],
+            can_view_quick_findings=quick_access["can_view_quick_findings"],
             assessment_access_active=snapshot["assessment_access_active"],
             validation_access_active=snapshot["validation_access_active"],
             dashboard_access_until=snapshot["dashboard_access_until"],
