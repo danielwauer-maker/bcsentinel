@@ -27,12 +27,12 @@ class QuickRiskArea(BaseModel):
 class QuickFinding(BaseModel):
     """Quick-safe finding shape.
 
-    Point F8.3 owns server-side finding selection/population. This contract is
-    deliberately incapable of carrying issue codes, record-level detail,
-    root-cause catalogues or exact financial values.
+    Deliberately incapable of carrying issue codes, record-level detail,
+    root-cause catalogues, recommendation previews or exact financial values.
+    Rank is structurally limited to the Quick Assessment Top-5 boundary.
     """
 
-    rank: int = Field(ge=1)
+    rank: int = Field(ge=1, le=5)
     title: str
     severity: str
     affected_count: int = Field(default=0, ge=0)
@@ -46,6 +46,7 @@ class QuickAssessmentReport(BaseModel):
     The report is intentionally narrower than Executive/Assessment. Exact EUR
     values, issue codes, root causes, record drilldowns and full remediation
     worklists are absent from the schema, not merely hidden in presentation.
+    The schema itself rejects more than five findings.
     """
 
     contract_version: str = QUICK_ASSESSMENT_REPORT_CONTRACT_VERSION
@@ -70,6 +71,6 @@ class QuickAssessmentReport(BaseModel):
     risk_areas: List[QuickRiskArea] = Field(default_factory=list)
     impact_band: str
     management_interpretation: str
-    findings: List[QuickFinding] = Field(default_factory=list)
+    findings: List[QuickFinding] = Field(default_factory=list, max_length=5)
     recommended_next_actions: List[str] = Field(default_factory=list)
     upgrade_message: str
