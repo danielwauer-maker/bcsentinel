@@ -1,5 +1,14 @@
 codeunit 53200 "DH Report Link Mgt."
 {
+    procedure OpenBestAvailableReport(ScanId: Code[50]; ReportType: Text)
+    var
+        AccessClient: Codeunit "DH Report Access Client";
+        ReportVariant: Text;
+    begin
+        ReportVariant := AccessClient.GetPreferredReportVariant(ScanId);
+        OpenReport(ScanId, ReportVariant, ReportType);
+    end;
+
     procedure OpenReport(ScanId: Code[50]; ReportVariant: Text; ReportType: Text)
     var
         Setup: Record "DH Setup";
@@ -83,7 +92,7 @@ codeunit 53200 "DH Report Link Mgt."
 
     local procedure ValidateReportVariant(ReportVariant: Text)
     begin
-        if not (ReportVariant in ['free-health', 'assessment', 'validation']) then
+        if not (ReportVariant in ['free-health', 'quick-assessment', 'assessment', 'validation']) then
             Error('Unsupported BCSentinel report variant.');
     end;
 
