@@ -140,5 +140,6 @@ def test_executive_report_uses_tenant_language():
         report = build_executive_report(db, tenant, "scan_report_de")
 
     assert report.language == "de"
-    assert "geschaetzten Jahresimpact" in report.executive_summary
+    assert "modellierte jährliche Business Impact" in report.executive_summary
+    assert "vollständigen Finding-Bestand" in report.executive_summary
     assert report.score_status == "Kritisch"
