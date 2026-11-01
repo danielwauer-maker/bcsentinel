@@ -18,7 +18,7 @@
   </style>
 </head>
 <body><div class="report">
-<header><div class="brand">BCSentinel Executive Management Report</div><div class="eyebrow">Full Assessment · {{ report.financial_methodology }}</div><h1>{{ 'Data Health, Business Impact & Remediation Priorities' if report.language == 'en' else 'Data Health, Business Impact & Bereinigungsprioritäten' }}</h1><div class="meta"><span>{{ report.company_label }}</span><span>{{ report.environment_label }}</span><span>Scan {{ report.scan_id }}</span><span>{{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span></div></header>
+<header><div class="brand">BCSentinel</div><div class="eyebrow">Full Assessment Report · {{ report.financial_methodology }}</div><h1>{{ 'Data Health, Business Impact & Remediation Priorities' if report.language == 'en' else 'Data Health, Business Impact & Bereinigungsprioritäten' }}</h1><div class="meta"><span>{{ report.company_label }}</span><span>{{ report.environment_label }}</span><span>Scan {{ report.scan_id }}</span><span>{{ report.generated_at_utc.strftime('%d.%m.%Y %H:%M UTC') }}</span></div></header>
 <main>
 <section class="hero"><div class="panel"><h2>{{ 'Executive Summary' if report.language == 'en' else 'Management-Zusammenfassung' }}</h2><p>{{ report.executive_summary }}</p><div class="small">{{ report.headline }} · {{ report.rating }}</div></div><div class="score-card"><span>Data Health Score</span><strong>{{ report.data_health_score }}</strong><span>/100 · {{ report.score_status }}</span></div></section>
 <section class="kpis">{% for kpi in report.kpis %}<div class="kpi"><div class="kpi-label">{{ kpi.label }}</div><div class="kpi-value">{{ kpi.value }}</div><div class="small">{{ kpi.note }}</div></div>{% endfor %}</section>
