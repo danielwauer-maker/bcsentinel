@@ -11,7 +11,7 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "6fbc46b788591dcb5878a7a4502246c4143f9b3e",
+      "technical_baseline_sha": "9919f9597e21f8e89ace1d2c28c094f3112fa7b4",
       "status": "F0-F8 automatic implementation complete; manual controlled-pilot gates remain"
     },
     "frontend": {
