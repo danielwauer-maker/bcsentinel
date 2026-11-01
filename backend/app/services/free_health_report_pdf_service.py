@@ -50,18 +50,26 @@ def _build_page(report: FreeHealthReport) -> list[str]:
     c += _text("Clean Data - Higher Impact", 42, 774, 9, False, (0.84, 0.88, 0.94))
     c += _text("FREE HEALTH REPORT", 42, 735, 10, True, ORANGE)
     c += _text("Business Central Data Health Check", 42, 705, 23, True, (1, 1, 1))
-    c += _text(f"Scan {report.scan_id}", 42, 682, 8.5, False, (0.78, 0.83, 0.91))
+    c += _text(f"{report.company_label} · {report.environment_label} · Scan {report.scan_id}", 42, 682, 8.5, False, (0.78, 0.83, 0.91))
 
+    scope_value = f"{report.total_records} records · {report.checks_count} checks · {report.modules_analyzed} modules · {report.issues_count} findings"
     cards = [
         ("Data Health Score", f"{report.data_health_score}/100"),
-        ("Auffaelligkeiten" if de else "Issues detected", str(report.issues_count)),
+        ("Scan Scope", scope_value),
         ("Impact Band", report.impact_band),
     ]
     x = 42
     for label, value in cards:
         c += _rect(x, 570, 164, 78, LIGHT, LINE)
         c += _text(label.upper(), x + 12, 628, 7.2, True, MUTED)
-        c += _text(value, x + 12, 594, 16, True, BLUE if label == "Data Health Score" else INK)
+        if label == "Scan Scope":
+            lines = _wrap(value, 27)
+            sy = 609
+            for line in lines[:3]:
+                c += _text(line, x + 12, sy, 7.3, False, INK)
+                sy -= 11
+        else:
+            c += _text(value, x + 12, 594, 16, True, BLUE if label == "Data Health Score" else INK)
         x += 174
 
     c += _text("Management-Zusammenfassung" if de else "Management Summary", 42, 536, 16, True, NAVY)
