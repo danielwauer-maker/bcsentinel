@@ -20,6 +20,7 @@ from app.services.product_license_service import (
     PRODUCT_VALIDATION_CHECK,
     normalize_product_code,
 )
+from app.services.quick_assessment_access_service import PRODUCT_QUICK_ASSESSMENT
 
 EMAIL_SHARE_ALGORITHM = "HS256"
 EMAIL_SHARE_HOURS = 72
@@ -30,6 +31,9 @@ EVENT_REGISTRATION_COMPLETED = "registration.completed"
 EVENT_SCAN_STARTED = "scan.started"
 EVENT_SCAN_COMPLETED = "scan.completed"
 EVENT_SCAN_FAILED = "scan.failed"
+EVENT_QUICK_ASSESSMENT_ACTIVATED = "quick_assessment.activated"
+EVENT_QUICK_ASSESSMENT_EXPIRING = "quick_assessment.expiring"
+EVENT_QUICK_ASSESSMENT_EXPIRED = "quick_assessment.expired"
 EVENT_ASSESSMENT_ACTIVATED = "assessment.activated"
 EVENT_ASSESSMENT_EXPIRING = "assessment.expiring"
 EVENT_ASSESSMENT_EXPIRED = "assessment.expired"
@@ -158,7 +162,9 @@ def schedule_entitlement_lifecycle(
         payload=base_payload,
         dedupe_key=f"{activation_event}:entitlement:{entitlement.id}",
     )
-    if product == PRODUCT_ASSESSMENT:
+    if product == PRODUCT_QUICK_ASSESSMENT:
+        expiring_event, expired_event = EVENT_QUICK_ASSESSMENT_EXPIRING, EVENT_QUICK_ASSESSMENT_EXPIRED
+    elif product == PRODUCT_ASSESSMENT:
         expiring_event, expired_event = EVENT_ASSESSMENT_EXPIRING, EVENT_ASSESSMENT_EXPIRED
     elif product == PRODUCT_VALIDATION_CHECK:
         expiring_event, expired_event = EVENT_VALIDATION_EXPIRING, None
@@ -194,6 +200,19 @@ def _report_token(*, tenant_id: str, scan_id: str, report_type: str, token_type:
         "exp": utc_now() + timedelta(hours=EMAIL_SHARE_HOURS),
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=EMAIL_SHARE_ALGORITHM)
+
+
+def quick_assessment_report_link(*, tenant_id: str, scan_id: str) -> str | None:
+    base_url = resolve_public_base_url()
+    if not base_url:
+        return None
+    token = _report_token(
+        tenant_id=tenant_id,
+        scan_id=scan_id,
+        report_type="html",
+        token_type="quick_assessment_report_share",
+    )
+    return f"{base_url}/reports/quick-assessment/{quote(scan_id)}/html/shared?token={quote(token)}"
 
 
 def report_link(db, *, tenant_id: str, scan_id: str) -> str | None:
@@ -283,6 +302,21 @@ def _event_copy(event_type: str, language: str, payload: dict[str, Any]) -> tupl
         return (
             ("BCSentinel Scan fehlgeschlagen" if de else "BCSentinel scan failed"),
             (f"<p>Der Scan <strong>{scan_id}</strong> konnte nicht abgeschlossen werden. {error_message}</p>" if de else f"<p>Scan <strong>{scan_id}</strong> could not be completed. {error_message}</p>"),
+        )
+    if event_type == EVENT_QUICK_ASSESSMENT_ACTIVATED:
+        return (
+            ("BCSentinel Quick Assessment aktiviert" if de else "BCSentinel Quick Assessment activated"),
+            (f"<p>Ihr Quick Assessment ist bis <strong>{valid_until}</strong> aktiv. Sie können jetzt die priorisierten Quick-Assessment-Ergebnisse des vorhandenen Data Health Scans einsehen.</p>" if de else f"<p>Your Quick Assessment is active until <strong>{valid_until}</strong>. You can now review the prioritized Quick Assessment results from your existing Data Health Scan.</p>") + link_html,
+        )
+    if event_type == EVENT_QUICK_ASSESSMENT_EXPIRING:
+        return (
+            ("BCSentinel Quick Assessment: Zugang läuft bald ab" if de else "BCSentinel Quick Assessment: access expires soon"),
+            (f"<p>Ihr Quick-Assessment-Zugang läuft am <strong>{valid_until}</strong> ab. Öffnen oder speichern Sie Ihren Quick Assessment Report, bevor der Live-Zugriff endet.</p>" if de else f"<p>Your Quick Assessment access expires at <strong>{valid_until}</strong>. Open or save your Quick Assessment Report before live access ends.</p>") + link_html,
+        )
+    if event_type == EVENT_QUICK_ASSESSMENT_EXPIRED:
+        return (
+            ("BCSentinel Quick-Assessment-Zugang abgelaufen" if de else "BCSentinel Quick Assessment access expired"),
+            ("<p>Der Live-Zugriff auf das Quick Assessment ist abgelaufen. Der gespeicherte Data Health Scan bleibt erhalten und kann weiterhin für ein Full Assessment freigeschaltet werden.</p>" if de else "<p>Live access to the Quick Assessment has expired. The stored Data Health Scan remains available and can still be unlocked with a Full Assessment.</p>"),
         )
     if event_type in {EVENT_ASSESSMENT_ACTIVATED, EVENT_ASSESSMENT_EXTENDED}:
         extended = event_type == EVENT_ASSESSMENT_EXTENDED
