@@ -15,7 +15,7 @@ WARNING = (217 / 255, 142 / 255, 4 / 255)
 CRITICAL = (207 / 255, 58 / 255, 58 / 255)
 INK = (23 / 255, 32 / 255, 51 / 255)
 MUTED = (102 / 255, 112 / 255, 133 / 255)
-LIGHT = (247 / 255, 249 / 255, 252 / 255)
+LIGHT = (247 / 255, 249 / 252)
 SOFT_BLUE = (238 / 255, 243 / 255, 1.0)
 LINE = (217 / 255, 222 / 255, 232 / 255)
 WHITE = (1, 1, 1)
@@ -103,7 +103,6 @@ def _page_one(report: QuickAssessmentReport) -> list[str]:
     )
     c += _text(subtitle, 42, 648, 8.2, False, (0.84, 0.88, 0.94))
 
-    # Identity strip
     c += _rect(42, 586, 511, 52, WHITE, LINE)
     identity = [
         ("Unternehmen" if de else "Company", report.company_label),
@@ -115,9 +114,8 @@ def _page_one(report: QuickAssessmentReport) -> list[str]:
     widths = [20, 18, 16, 14]
     for (label, value), x, width in zip(identity, x_positions, widths):
         c += _text(label.upper(), x, 621, 6.2, True, MUTED)
-        c += _text((_wrap(value, width)[0]), x, 602, 8.0, True, NAVY)
+        c += _text(_wrap(value, width)[0], x, 602, 8.0, True, NAVY)
 
-    # Context cards
     cards = [
         (42, 504, 155, "DATA HEALTH SCORE", f"{report.data_health_score}/100", report.score_status, BLUE),
         (207, 504, 155, "BUSINESS IMPACT BAND", report.impact_band, ("Keine exakten EUR-Werte" if de else "No exact EUR values"), NAVY),
@@ -165,7 +163,6 @@ def _page_one(report: QuickAssessmentReport) -> list[str]:
         c += _text("Keine priorisierbaren Findings erkannt." if de else "No findings eligible for prioritization were detected.", 54, 397, 8.2, True, NAVY)
         y = 360
 
-    # Management interpretation uses remaining space but never competes with Top 5.
     box_y = 76
     box_h = max(58, min(94, y - 88))
     c += _rect(42, box_y, 511, box_h, NAVY)
@@ -240,10 +237,10 @@ def _page_two(report: QuickAssessmentReport) -> list[str]:
     ]
     qy = fy = 222
     for line in quick_lines:
-        c += _text("• " + line, 54, qy, 6.8, False, INK)
+        c += _text("- " + line, 54, qy, 6.8, False, INK)
         qy -= 18
     for line in full_lines:
-        c += _text("• " + line, 318, fy, 6.8, False, INK)
+        c += _text("- " + line, 318, fy, 6.8, False, INK)
         fy -= 18
 
     c += _rect(42, 74, 511, 62, (1.0, 0.96, 0.90), (1.0, 0.82, 0.60))
@@ -303,6 +300,6 @@ def render_quick_assessment_report_pdf(report: QuickAssessmentReport) -> bytes:
     buffer.write(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
     buffer.write(b"0000000000 65535 f \n")
     for offset in offsets[1:]:
-        buffer.write(f"{offset:010d} 00000 n \n")
+        buffer.write(f"{offset:010d} 00000 n \n".encode("ascii"))
     buffer.write(f"trailer\n<< /Size {len(objects) + 1} /Root {catalog_obj} 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode("ascii"))
     return buffer.getvalue()
