@@ -13,7 +13,7 @@ from sqlalchemy import select
 from app.core.settings import settings
 from app.db import SessionLocal
 from app.lifecycle_models import LifecycleEmailOutbox, TenantLifecycleProfile
-from app.models import Scan, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import Scan, Tenant, TenantScanCredit
 from app.operator_models import TenantOperatorAction
 from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token, verify_csrf_token
 from app.services.operator_commercial_service import (
@@ -22,11 +22,16 @@ from app.services.operator_commercial_service import (
     grant_validation,
     revoke_product,
 )
+from app.services.operator_quick_assessment_service import (
+    grant_quick_assessment,
+    operator_commercial_context,
+    revoke_quick_assessment,
+)
 from app.services.product_license_service import (
-    PRODUCT_ASSESSMENT,
     PRODUCT_VALIDATION_CHECK,
     build_license_snapshot,
 )
+from app.services.quick_assessment_access_service import PRODUCT_QUICK_ASSESSMENT
 
 router = APIRouter(tags=["operator-admin"])
 security = HTTPBasic()
@@ -91,6 +96,7 @@ def _operator_rows(db, query: str) -> list[dict]:
             .limit(1)
         )
         snapshot = build_license_snapshot(db, tenant)
+        commercial = operator_commercial_context(db, tenant, scan)
         rows.append(
             {
                 "tenant_id": tenant.tenant_id,
@@ -99,6 +105,12 @@ def _operator_rows(db, query: str) -> list[dict]:
                 "preferred_language": profile.preferred_language.upper() if profile else "—",
                 "latest_scan_id": scan.scan_id if scan else "—",
                 "latest_scan_at": scan.generated_at_utc if scan else None,
+                "total_records": commercial["total_records"],
+                "record_class": commercial["record_class"],
+                "fiverr_pricing": commercial["fiverr_pricing"],
+                "quick_active": commercial["quick_active"],
+                "quick_effective_access": commercial["quick_effective_access"],
+                "quick_until": commercial["quick_until"],
                 "assessment_active": snapshot["assessment_access_active"],
                 "assessment_until": snapshot["product_access"].get("assessment_access_until"),
                 "validation_active": snapshot["validation_access_active"],
@@ -146,6 +158,34 @@ def operator_console(
         samesite="lax",
     )
     return response
+
+
+@router.post("/admin/operator/{tenant_id}/grant-quick-assessment")
+def operator_grant_quick_assessment(
+    request: Request,
+    tenant_id: str,
+    csrf_token: str = Form(...),
+    sales_channel: str = Form("fiverr"),
+    external_order_reference: str = Form(""),
+    note: str = Form(""),
+    admin_username: str = Depends(require_operator),
+):
+    _check_csrf(request, csrf_token)
+    with SessionLocal() as db:
+        try:
+            result = grant_quick_assessment(
+                db,
+                tenant_id=tenant_id,
+                sales_channel=sales_channel,
+                external_order_reference=external_order_reference,
+                actor=admin_username,
+                note=note,
+            )
+            db.commit()
+            return _redirect(f"Quick Assessment activated through {result['valid_until_utc']} for {tenant_id}.")
+        except (ValueError, RuntimeError) as exc:
+            db.rollback()
+            return _redirect(str(exc), error=True)
 
 
 @router.post("/admin/operator/{tenant_id}/grant-assessment")
@@ -244,13 +284,21 @@ def operator_revoke(
     _check_csrf(request, csrf_token)
     with SessionLocal() as db:
         try:
-            result = revoke_product(
-                db,
-                tenant_id=tenant_id,
-                product_code=product_code,
-                actor=admin_username,
-                reason=reason,
-            )
+            if (product_code or "").strip().lower() == PRODUCT_QUICK_ASSESSMENT:
+                result = revoke_quick_assessment(
+                    db,
+                    tenant_id=tenant_id,
+                    actor=admin_username,
+                    reason=reason,
+                )
+            else:
+                result = revoke_product(
+                    db,
+                    tenant_id=tenant_id,
+                    product_code=product_code,
+                    actor=admin_username,
+                    reason=reason,
+                )
             db.commit()
             return _redirect(f"{result['product_code']} revoked for {tenant_id}.")
         except ValueError as exc:
