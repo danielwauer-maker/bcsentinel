@@ -43,6 +43,7 @@ class QuickFinding(BaseModel):
     severity: str
     affected_count: int = Field(default=0, ge=0)
     risk_area: str
+    risk_area_label: str
     impact_band: str
     next_action: str
 
