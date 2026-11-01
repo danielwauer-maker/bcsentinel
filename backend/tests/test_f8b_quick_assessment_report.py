@@ -53,7 +53,9 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
     assert payload["contract_version"] == "quick-assessment-report-v1"
     assert payload["report_variant"] == "quick_assessment"
     assert payload["scan_id"] == "f8b-quick-report"
-    assert payload["findings"] == []
+    assert len(payload["findings"]) == 1
+    assert payload["findings"][0]["title"] == "Issue"
+    assert payload["findings"][0]["rank"] == 1
     assert "impact_band" in payload
 
     serialized = response.text.lower()
@@ -63,6 +65,7 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
         "estimated_impact_eur",
         "issue_1",
         "recommendation_preview",
+        "fix it",
         "root_cause",
         "record_no",
     ]:
@@ -71,6 +74,7 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
     html = client.get("/reports/quick-assessment/f8b-quick-report/html", headers=headers)
     assert html.status_code == 200
     assert "Quick Assessment" in html.text
+    assert "Issue" in html.text
     assert "ISSUE_1" not in html.text
     assert "Fix it" not in html.text
     assert "10.00 EUR" not in html.text
@@ -81,6 +85,7 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
     assert pdf.content.startswith(b"%PDF-1.4")
     assert b"QUICK ASSESSMENT" in pdf.content
     assert b"ISSUE_1" not in pdf.content
+    assert b"Fix it" not in pdf.content
     assert "bcsentinel-quick-assessment-f8b-quick-report.pdf" in pdf.headers["content-disposition"]
 
     link = client.post(
@@ -97,6 +102,7 @@ def test_quick_report_json_html_pdf_and_share_link_are_limited_and_secure(
     shared = client.get(url)
     assert shared.status_code == 200
     assert "Quick Assessment" in shared.text
+    assert "Issue" in shared.text
     assert "ISSUE_1" not in shared.text
 
 
