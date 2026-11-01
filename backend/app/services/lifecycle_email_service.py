@@ -21,6 +21,13 @@ from app.services.product_license_service import (
     normalize_product_code,
 )
 from app.services.quick_assessment_access_service import PRODUCT_QUICK_ASSESSMENT
+from app.services.report_access_service import (
+    REPORT_ASSESSMENT,
+    REPORT_FREE,
+    REPORT_QUICK,
+    REPORT_VALIDATION,
+    resolve_preferred_report_variant,
+)
 
 EMAIL_SHARE_ALGORITHM = "HS256"
 EMAIL_SHARE_HOURS = 72
@@ -32,6 +39,7 @@ EVENT_SCAN_STARTED = "scan.started"
 EVENT_SCAN_COMPLETED = "scan.completed"
 EVENT_SCAN_FAILED = "scan.failed"
 EVENT_QUICK_ASSESSMENT_ACTIVATED = "quick_assessment.activated"
+# Kept for historical finite Quick entitlements only. New Quick grants are permanent.
 EVENT_QUICK_ASSESSMENT_EXPIRING = "quick_assessment.expiring"
 EVENT_QUICK_ASSESSMENT_EXPIRED = "quick_assessment.expired"
 EVENT_ASSESSMENT_ACTIVATED = "assessment.activated"
@@ -216,35 +224,22 @@ def quick_assessment_report_link(*, tenant_id: str, scan_id: str) -> str | None:
 
 
 def report_link(db, *, tenant_id: str, scan_id: str) -> str | None:
+    """Create a secure short-lived link to the highest report valid for this scan."""
     base_url = resolve_public_base_url()
     if not base_url:
         return None
-    validation_credit = db.scalar(
-        select(TenantScanCredit).where(
-            TenantScanCredit.tenant_id == tenant_id,
-            TenantScanCredit.consumed_scan_id == scan_id,
-            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
-            TenantScanCredit.status == "consumed",
-        )
-    )
-    if validation_credit is not None:
-        path = "validation"
-        token_type = "validation_report_share"
-    else:
-        assessment_active = db.scalar(
-            select(TenantProductEntitlement).where(
-                TenantProductEntitlement.tenant_id == tenant_id,
-                TenantProductEntitlement.product_code == PRODUCT_ASSESSMENT,
-                TenantProductEntitlement.status == "active",
-                TenantProductEntitlement.valid_until_utc >= utc_now(),
-            ).order_by(TenantProductEntitlement.valid_until_utc.desc())
-        )
-        if assessment_active is not None:
-            path = "assessment"
-            token_type = "executive_report_share"
-        else:
-            path = "free-health"
-            token_type = "free_health_report_share"
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+    if tenant is None:
+        return None
+
+    path = resolve_preferred_report_variant(db, tenant, scan_id=scan_id)
+    token_type_by_path = {
+        REPORT_VALIDATION: "validation_report_share",
+        REPORT_ASSESSMENT: "executive_report_share",
+        REPORT_QUICK: "quick_assessment_report_share",
+        REPORT_FREE: "free_health_report_share",
+    }
+    token_type = token_type_by_path[path]
     token = _report_token(tenant_id=tenant_id, scan_id=scan_id, report_type="html", token_type=token_type)
     return f"{base_url}/reports/{path}/{quote(scan_id)}/html/shared?token={quote(token)}"
 
@@ -286,6 +281,7 @@ def _event_copy(event_type: str, language: str, payload: dict[str, Any]) -> tupl
     valid_until = html.escape(str(payload.get("valid_until_utc") or ""))
     data_score = html.escape(str(payload.get("data_score") or ""))
     error_message = html.escape(str(payload.get("error_message") or ""))
+    permanent = bool(payload.get("permanent"))
     link_html = f'<p><a href="{report_url}">BCSentinel Report öffnen</a></p>' if report_url and de else (f'<p><a href="{report_url}">Open BCSentinel report</a></p>' if report_url else "")
 
     if event_type == EVENT_REGISTRATION_COMPLETED:
@@ -304,6 +300,20 @@ def _event_copy(event_type: str, language: str, payload: dict[str, Any]) -> tupl
             (f"<p>Der Scan <strong>{scan_id}</strong> konnte nicht abgeschlossen werden. {error_message}</p>" if de else f"<p>Scan <strong>{scan_id}</strong> could not be completed. {error_message}</p>"),
         )
     if event_type == EVENT_QUICK_ASSESSMENT_ACTIVATED:
+        if permanent:
+            if scan_id:
+                body = (
+                    "<p>Ihr Quick Assessment ist dauerhaft für den vorhandenen Data Health Scan freigeschaltet. Sie können die priorisierten Quick-Assessment-Ergebnisse jederzeit erneut über BCSentinel öffnen.</p>"
+                    if de
+                    else "<p>Your Quick Assessment is permanently unlocked for the existing Data Health Scan. You can reopen the prioritized Quick Assessment results through BCSentinel at any time.</p>"
+                )
+            else:
+                body = (
+                    "<p>Ihr Quick Assessment ist dauerhaft freigeschaltet. Starten Sie jetzt den enthaltenen ersten Data Health Scan; nach Abschluss wird automatisch der Quick Assessment Report für diesen Scan verfügbar.</p>"
+                    if de
+                    else "<p>Your Quick Assessment is permanently unlocked. Start the included first Data Health Scan; once it completes, the Quick Assessment Report for that scan will become available automatically.</p>"
+                )
+            return ("BCSentinel Quick Assessment aktiviert" if de else "BCSentinel Quick Assessment activated"), body + link_html
         return (
             ("BCSentinel Quick Assessment aktiviert" if de else "BCSentinel Quick Assessment activated"),
             (f"<p>Ihr Quick Assessment ist bis <strong>{valid_until}</strong> aktiv. Sie können jetzt die priorisierten Quick-Assessment-Ergebnisse des vorhandenen Data Health Scans einsehen.</p>" if de else f"<p>Your Quick Assessment is active until <strong>{valid_until}</strong>. You can now review the prioritized Quick Assessment results from your existing Data Health Scan.</p>") + link_html,
@@ -311,12 +321,12 @@ def _event_copy(event_type: str, language: str, payload: dict[str, Any]) -> tupl
     if event_type == EVENT_QUICK_ASSESSMENT_EXPIRING:
         return (
             ("BCSentinel Quick Assessment: Zugang läuft bald ab" if de else "BCSentinel Quick Assessment: access expires soon"),
-            (f"<p>Ihr Quick-Assessment-Zugang läuft am <strong>{valid_until}</strong> ab. Öffnen oder speichern Sie Ihren Quick Assessment Report, bevor der Live-Zugriff endet.</p>" if de else f"<p>Your Quick Assessment access expires at <strong>{valid_until}</strong>. Open or save your Quick Assessment Report before live access ends.</p>") + link_html,
+            (f"<p>Ihr historischer zeitlich begrenzter Quick-Assessment-Zugang läuft am <strong>{valid_until}</strong> ab.</p>" if de else f"<p>Your historical time-limited Quick Assessment access expires at <strong>{valid_until}</strong>.</p>") + link_html,
         )
     if event_type == EVENT_QUICK_ASSESSMENT_EXPIRED:
         return (
             ("BCSentinel Quick-Assessment-Zugang abgelaufen" if de else "BCSentinel Quick Assessment access expired"),
-            ("<p>Der Live-Zugriff auf das Quick Assessment ist abgelaufen. Der gespeicherte Data Health Scan bleibt erhalten und kann weiterhin für ein Full Assessment freigeschaltet werden.</p>" if de else "<p>Live access to the Quick Assessment has expired. The stored Data Health Scan remains available and can still be unlocked with a Full Assessment.</p>"),
+            ("<p>Der historische zeitlich begrenzte Quick-Assessment-Zugang ist abgelaufen. Neue Quick Assessments werden dauerhaft freigeschaltet.</p>" if de else "<p>The historical time-limited Quick Assessment access has expired. New Quick Assessments are granted permanently.</p>"),
         )
     if event_type in {EVENT_ASSESSMENT_ACTIVATED, EVENT_ASSESSMENT_EXTENDED}:
         extended = event_type == EVENT_ASSESSMENT_EXTENDED
@@ -337,7 +347,7 @@ def _event_copy(event_type: str, language: str, payload: dict[str, Any]) -> tupl
     if event_type == EVENT_ASSESSMENT_EXPIRED:
         return (
             ("BCSentinel Assessment-Zugang abgelaufen" if de else "BCSentinel Assessment access expired"),
-            ("<p>Der Live-Zugriff auf die vollständigen Assessment-Details ist abgelaufen. Der gespeicherte Scan bleibt für Validation und Historie erhalten.</p>" if de else "<p>Live access to full Assessment details has expired. The stored scan remains available for Validation and history.</p>"),
+            ("<p>Der Live-Zugriff auf die vollständigen Assessment-Details ist abgelaufen. Ein dauerhaft erworbenes Quick Assessment bleibt davon unberührt.</p>" if de else "<p>Live access to full Assessment details has expired. Any permanently purchased Quick Assessment remains available.</p>"),
         )
     return ("BCSentinel update", "<p>BCSentinel lifecycle update.</p>")
 

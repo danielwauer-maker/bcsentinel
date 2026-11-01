@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T02:35:00Z",
+  "generated_at_utc": "2026-11-01T21:15:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -11,8 +11,8 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "9919f9597e21f8e89ace1d2c28c094f3112fa7b4",
-      "status": "F0-F8 automatic implementation complete; manual controlled-pilot gates remain"
+      "technical_baseline_sha": "1a09607c1b8d8abcd986fa24edd0c11af2304aa6",
+      "status": "F0-F8 automatic implementation complete including permanent Quick semantics and automatic report resolution; manual controlled-pilot gates remain"
     },
     "frontend": {
       "repo": "danielwauer-maker/bcsentinel-frontend",
@@ -45,9 +45,10 @@
     "quick_assessment": {
       "status": "implemented",
       "product_code": "quick_assessment",
-      "activation": "unlocks existing qualifying initial scan",
+      "activation": "may be granted after tenant registration and before or after the first scan; permanently reveals the Quick layer once a qualifying scan exists",
       "scan_credit_on_grant": 0,
-      "access_days": 7,
+      "access_days": null,
+      "access_semantics": "open-ended until explicit revoke; no automatic expiry",
       "finding_limit": 5,
       "result_access": "top prioritized findings with title, severity, affected count, risk area and concise next step; no exact EUR, issue codes, full root cause, record drilldown or full remediation",
       "validation_baseline_eligible": false,
@@ -60,6 +61,7 @@
       "scan_credit_on_canonical_grant": 0,
       "full_access_days": 7,
       "extension": "maximum one additional 7-day extension",
+      "fallback_after_expiry": "Quick if a permanent Quick entitlement exists; otherwise Free",
       "validation_baseline_eligible": true,
       "report": "Assessment Report"
     },
@@ -75,6 +77,13 @@
       "status": "existing / later pilot polish",
       "pilot_blocker": false
     }
+  },
+  "report_resolution": {
+    "authority": "backend",
+    "scan_aware": true,
+    "hierarchy": ["validation", "assessment", "quick-assessment", "free-health"],
+    "endpoint": "/reports/{scan_id}/preferred-variant",
+    "rule": "channels and the BC Extension must not duplicate entitlement hierarchy locally"
   },
   "record_volume_classes": {
     "micro": {"min": 0, "max": 100000},
@@ -107,14 +116,14 @@
     "architecture": "sales channel only; no product or Extension fork",
     "payment_truth": "Fiverr",
     "canonical_products": ["quick_assessment", "assessment", "validation_check"],
-    "manual_pilot_action": "one operator grant after payment confirmation",
+    "manual_pilot_action": "after payment confirmation and tenant registration, one operator grant; Quick grant may occur before the first scan and also safely upgrades an already completed first scan",
     "automation_after_grant": true,
     "scraping": false,
     "free_health_check_is_paid_fiverr_package": false,
     "operator_console": "/admin/operator",
     "operator_features": [
       "tenant/email/order search",
-      "grant Quick Assessment",
+      "grant permanent Quick Assessment before or after first scan",
       "grant Full Assessment",
       "extend Full Assessment",
       "grant Validation",
@@ -134,17 +143,19 @@
     "linkedin_launch_kit": "bcsentinel-frontend/docs/FIVERR_PILOT_LINKEDIN_LAUNCH.md"
   },
   "extension": {
-    "source_version": "1.0.2.28",
+    "source_version": "1.0.2.29",
     "runtime": "16.0",
     "platform": "27.0.0.0",
     "application": "27.0.0.0",
-    "source_status": "complete for controlled-pilot customer workflow; Quick delivery can use secure report lifecycle/Fiverr delivery without a dedicated BC client action",
+    "source_status": "primary report action resolves the highest valid report for the selected scan from the backend; Quick is a native supported report variant",
+    "report_action": "Open BCSentinel Report / PDF -> backend preferred variant -> share link",
+    "manual_report_actions": ["Free HTML/PDF", "Quick HTML/PDF", "Assessment HTML/PDF", "Validation HTML/PDF"],
     "last_real_runtime_evidence": {
-      "version": "pre-1.0.2.28",
+      "version": "pre-1.0.2.29",
       "scan_role": "PASS without SUPER, 10/10 modules, 199/199 checks",
       "viewer_role": "PASS without SUPER"
     },
-    "manual_acceptance_required": ["real BC Online final artifact", "SETUP role without SUPER", "real tenant A/B isolation", "fresh PROD E2E"]
+    "manual_acceptance_required": ["real BC Online 1.0.2.29 artifact", "SETUP role without SUPER", "real tenant A/B isolation", "fresh PROD E2E"]
   },
   "reports": {
     "free_health": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "contract": "aggregate-safe separate data contract"},
@@ -154,7 +165,7 @@
     "monitoring": {"status": "existing; redesign deferred", "pilot_blocker": false}
   },
   "lifecycle_email": {
-    "status": "implemented in backend",
+    "status": "implemented and aligned with permanent Quick/report resolution",
     "tenant_profile": true,
     "languages": ["de", "en"],
     "outbox": {"idempotent": true, "retryable": true, "auditable": true, "multi_worker_claim": "FOR UPDATE SKIP LOCKED", "stale_claim_recovery": true, "delivery_semantics": "at-least-once"},
@@ -164,8 +175,6 @@
       "scan.completed",
       "scan.failed",
       "quick_assessment.activated",
-      "quick_assessment.expiring",
-      "quick_assessment.expired",
       "assessment.activated",
       "assessment.expiring",
       "assessment.expired",
@@ -174,7 +183,9 @@
       "validation.completed",
       "validation.expiring"
     ],
-    "quick_link_rule": "secure Quick report link cannot outlive Quick entitlement and remains revocable through live entitlement recheck",
+    "quick_expiry_events": "legacy-compatible event constants may remain, but new permanent Quick grants do not schedule expiring/expired lifecycle messages",
+    "quick_link_rule": "secure email/share tokens may expire for security, but the Quick entitlement/report access itself is permanent and can be reopened from BC",
+    "scan_completed_link_rule": "same scan-aware backend report resolver as the BC Extension",
     "real_sender_manual_gate": ["SMTP provider", "SPF", "DKIM", "DMARC", "bounce handling", "inbox/spam placement"]
   },
   "security_and_recovery": {
@@ -187,28 +198,31 @@
     "manual_remaining": ["real two-tenant BC SaaS isolation", "real off-host/PROD restore procedure"]
   },
   "f8_funnel_regression": {
-    "status": "implemented as canonical automatic product-funnel proof",
-    "path": "registration -> initial Free scan -> Free boundary -> Quick same-scan unlock -> Quick expiry -> Full same-scan unlock -> Full expiry -> Validation credit -> second scan -> comparison",
+    "status": "implemented for permanent Quick and scan-aware report resolution",
+    "path": "registration -> pre-scan Quick grant -> initial included scan -> Quick reveal -> Full same-scan unlock -> Full expiry back to Quick -> Validation credit -> second scan -> Validation report",
     "assertions": [
+      "Quick may be granted after registration and before the first scan",
       "Quick grant creates zero scan credits",
+      "Quick entitlement is open-ended until explicit revoke",
       "Quick alone cannot create Validation baseline",
       "Full Assessment grant creates zero scan credits",
+      "Full expiry falls back to purchased Quick rather than Free",
       "one scan exists before Validation",
       "Validation grants exactly one new scan credit",
-      "exactly two scans exist after Validation",
-      "expiry falls back to Free aggregate access"
+      "Validation scan resolves to Validation report while the baseline scan resolves by its own highest valid layer",
+      "exactly two scans exist after Validation"
     ]
   },
   "automatic_sprint_status": {
     "F0_product_contract": "complete",
     "F1_initial_free_scan_extension_core": "merged",
     "F2_report_family": "merged",
-    "F3_lifecycle_email": "merged",
+    "F3_lifecycle_email": "complete including permanent-Quick alignment",
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
     "F6_fiverr_launch_assets": "merged",
     "F7_landing_linkedin": "merged",
-    "F8_free_quick_full_validation_funnel": "complete automatically; canonical funnel frozen"
+    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics and automatic report resolver"
   },
   "readiness": {
     "technical_fiverr_controlled_pilot_after_automatic_F8": 99,
@@ -223,7 +237,7 @@
     "real SMTP/DNS deliverability acceptance",
     "real off-host/operational backup restore drill",
     "immutable RC freeze and manual PROD promotion",
-    "fresh external-like PROD E2E: Free -> Quick -> Full -> Validation",
+    "fresh external-like PROD E2E: Fiverr Quick purchase -> install/register -> operator Quick grant -> initial scan -> automatic Quick report -> Full -> Validation",
     "privacy/DPA/legal/provider-facts signoff",
     "Fiverr Gig asset export/publish and one real order dry-run",
     "set the real published Fiverr Gig URL as VITE_FIVERR_GIG_URL and deploy the reviewed frontend ref",

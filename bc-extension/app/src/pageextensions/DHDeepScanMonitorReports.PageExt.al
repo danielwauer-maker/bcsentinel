@@ -17,6 +17,39 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
             {
                 Caption = 'BCSentinel Reports';
 
+                action(OpenBestAvailableReport)
+                {
+                    Caption = 'Open BCSentinel Report';
+                    ApplicationArea = All;
+                    Image = Report;
+                    ToolTip = 'Open the highest BCSentinel report level available for this scan. The backend automatically selects Validation, Assessment, Quick Assessment, or Free Health.';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenBestAvailableReport(Rec."Run ID", 'html');
+                    end;
+                }
+
+                action(OpenBestAvailablePdf)
+                {
+                    Caption = 'Open BCSentinel PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the highest BCSentinel report level available for this scan as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenBestAvailableReport(Rec."Run ID", 'pdf');
+                    end;
+                }
+
                 action(OpenFreeHealthReport)
                 {
                     Caption = 'Free Health Report';
@@ -44,6 +77,36 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
                         ReportMgt: Codeunit "DH Report Link Mgt.";
                     begin
                         ReportMgt.OpenReport(Rec."Run ID", 'free-health', 'pdf');
+                    end;
+                }
+
+                action(OpenQuickAssessmentReport)
+                {
+                    Caption = 'Quick Assessment Report';
+                    ApplicationArea = All;
+                    Image = Report;
+                    ToolTip = 'Open the prioritized Top 5 BCSentinel Quick Assessment report when Quick or a higher product level is available.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'quick-assessment', 'html');
+                    end;
+                }
+
+                action(OpenQuickAssessmentPdf)
+                {
+                    Caption = 'Quick Assessment PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the prioritized Top 5 BCSentinel Quick Assessment report as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'quick-assessment', 'pdf');
                     end;
                 }
 

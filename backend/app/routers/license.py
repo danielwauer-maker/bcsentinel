@@ -7,6 +7,7 @@ from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.product_license_service import build_license_snapshot
 from app.services.quick_assessment_access_service import build_quick_assessment_access_snapshot
+from app.services.report_access_service import resolve_preferred_report_variant
 from app.services.tenant_access_service import get_tenant_status
 from app.routers.auth import router as auth_router
 from app.routers.remediation import router as remediation_router
@@ -16,6 +17,7 @@ from app.routers.exception_transparency import router as exception_transparency_
 from app.routers.lifecycle import router as lifecycle_router
 from app.routers.operator_admin import router as operator_admin_router
 from app.routers.quick_assessment_reports import router as quick_assessment_reports_router
+from app.routers.report_access import router as report_access_router
 
 router = APIRouter(tags=["license"])
 
@@ -37,6 +39,7 @@ class LicenseStatusResponse(BaseModel):
     quick_assessment_access_until: str | None = None
     can_view_quick_assessment: bool = False
     can_view_quick_findings: bool = False
+    preferred_report_variant: str = "free-health"
     assessment_access_active: bool = False
     validation_access_active: bool = False
     dashboard_access_until: str | None = None
@@ -80,6 +83,7 @@ def get_license_status(
             quick_assessment_access_until=quick_access["quick_assessment_access_until"],
             can_view_quick_assessment=quick_access["can_view_quick_assessment"],
             can_view_quick_findings=quick_access["can_view_quick_findings"],
+            preferred_report_variant=resolve_preferred_report_variant(db, tenant),
             assessment_access_active=snapshot["assessment_access_active"],
             validation_access_active=snapshot["validation_access_active"],
             dashboard_access_until=snapshot["dashboard_access_until"],
@@ -101,3 +105,4 @@ router.include_router(exception_transparency_router)
 router.include_router(lifecycle_router)
 router.include_router(operator_admin_router)
 router.include_router(quick_assessment_reports_router)
+router.include_router(report_access_router)

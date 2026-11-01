@@ -34,15 +34,17 @@ There is only one customer-facing initial scan engine/depth: the full BCSentinel
 ### Quick Assessment
 
 - Product code: `quick_assessment`.
-- Quick Assessment unlocks the qualifying existing initial scan and never creates a new scan credit.
-- Canonical access window: 7 days.
+- Quick Assessment is an open-ended disclosure entitlement and never creates a new scan credit.
+- It may be granted **before or after** the customer's first scan. This supports the Fiverr flow `purchase → install/register → initial included scan → Quick reveal` without a separate paid scan.
+- Canonical Quick access has **no automatic expiry**. New Quick grants use `valid_until_utc = null` and remain active until explicit revoke.
+- If a qualifying scan already exists at grant time, Quick reveals that scan immediately. If no scan exists yet, the entitlement is staged and the first completed qualifying scan becomes viewable at Quick level automatically.
 - It exposes at most the five highest-priority findings.
-- Quick findings may expose title, severity, affected-record count, risk area and a concise next step.
+- Quick findings may expose title, severity, affected-record count, risk area, impact band and a concise next step.
 - Exact modeled EUR values, issue codes, full root-cause analysis, record-level drilldown, complete recommendation/remediation detail and the full Assessment report remain blocked.
 - Ranking is deterministic and may use modeled impact internally; hidden financial values do not enter the Quick report contract.
 - The Quick JSON/HTML/PDF/report-share contract is separate and enforces a hard maximum of five findings.
 - Quick Assessment does **not** qualify as a Validation baseline.
-- After expiry, live access falls back to Free aggregate access.
+- Secure share/email tokens may have their own short security TTL, but token expiry does not expire the underlying Quick entitlement. The customer can reopen/regenerate the report through BCSentinel while the Quick entitlement remains active.
 
 ### Full Assessment
 
@@ -52,7 +54,7 @@ There is only one customer-facing initial scan engine/depth: the full BCSentinel
 - Full detail/report access is fixed to 7 days after activation.
 - It exposes all qualifying findings, exact modeled financial impact, root-cause context, prioritized remediation and the full Assessment Report.
 - The stored scan remains after expiry and can be used as Validation baseline/history because a paid Full Assessment existed.
-- After expiry, live paid detail access falls back to Free aggregate access.
+- After Full expiry, live detail access falls back to a still-active purchased Quick layer when one exists; otherwise it falls back to Free aggregate access.
 - One +7-day Assessment extension is allowed for the same entitlement; it does not create a new scan.
 
 ### Validation
@@ -69,6 +71,18 @@ There is only one customer-facing initial scan engine/depth: the full BCSentinel
 
 - Monitoring permits recurring full scans and continuing paid-detail access while the subscription is active.
 - Monitoring remains a later product stage and is not a Fiverr controlled-pilot blocker unless selected pilot scope requires it.
+
+## Canonical report resolution
+
+Report selection is backend authority and scan-aware. Channels and the BC Extension must not maintain their own competing entitlement hierarchy.
+
+For a concrete scan, the canonical resolver returns the highest valid report in this order:
+
+**Validation (only for the Validation-consumed scan) → Assessment → Quick Assessment → Free Health**
+
+The authenticated endpoint is `GET /reports/{scan_id}/preferred-variant`. `/license/status` additionally exposes the tenant-level `preferred_report_variant` for observability, while the scan-aware endpoint remains authoritative for the selected scan.
+
+This guarantees that the same Business Central Extension supports Fiverr, direct and future channels without product forks. A Quick buyer can therefore install the standard app, run the included initial scan, and use the primary **Open BCSentinel Report** action without choosing Free versus Quick manually.
 
 ## Canonical analyzed-record classes
 
@@ -121,18 +135,21 @@ Fiverr Premium / Assessment Plus is a commercial wrapper around Full Assessment 
 - Sales origin is separate metadata such as `fiverr`, `direct`, `malt`, `contra`, `appsource`, `partner` or `support`.
 - External order references are audit metadata, not entitlements.
 - Fiverr payment/contract remains on Fiverr; do not redirect Fiverr-origin purchases to off-platform payment and do not scrape Fiverr order/chat state.
-- Controlled pilot permits one manual operator action after payment confirmation. Everything after entitlement/credit grant is automated.
+- Controlled pilot permits one manual operator action after payment confirmation. For Quick, that grant may occur before the first scan; everything after entitlement/credit grant is automated.
 - Free Health Check is the BCSentinel aggregate entry layer; Fiverr Basic is Quick Assessment, not a paid Free report.
 
 ## Extension state
 
-Current source target: **1.0.2.28**, BC Online / BC 27.x, runtime 16.0.
+Current source target: **1.0.2.29**, BC Online / BC 27.x, runtime 16.0.
 
-1.0.2.28 includes initial Free Entry, Free/Assessment/Validation report actions, `Report & Notification Email`, preferred DE/EN report language and lifecycle-profile synchronization after registration.
+1.0.2.29 retains initial Free Entry and the existing report family, adds native `quick-assessment` report-link support and introduces a server-backed scan-aware primary action:
 
-F8 Quick Assessment is backend/report/operator/lifecycle capable. A dedicated BC client action for the Quick report is not required for the Fiverr pilot because the Quick report is delivered through the secure report lifecycle/Fiverr delivery path; if a BC-native Quick action is later desired, treat that as UX polish rather than a new scan/product architecture.
+- **Open BCSentinel Report** resolves the highest valid report for the selected scan via the backend.
+- **Open BCSentinel PDF** uses the same resolver for PDF.
+- Explicit Free / Quick / Assessment / Validation actions remain available for support/manual use.
+- The Extension does not duplicate product hierarchy or decide entitlement precedence locally.
 
-Last previously verified real BC artifact/runtime evidence predates 1.0.2.28. Therefore 1.0.2.28 is **source-complete but still requires real BC SaaS artifact/runtime acceptance before paid pilot launch**.
+Last previously verified real BC artifact/runtime evidence predates 1.0.2.29. Therefore 1.0.2.29 is **source-complete but still requires real BC SaaS artifact/runtime acceptance before paid pilot launch**.
 
 Known prior real non-SUPER evidence: SCAN PASS (10/10 modules, 199/199 checks) and VIEWER PASS. SETUP still needs final real runtime acceptance. SCHEDULER/ADMIN can be deferred for a one-off Free/Quick/Assessment/Validation Fiverr pilot unless used by the selected workflow.
 
@@ -148,13 +165,17 @@ Separate product report contracts now exist for:
 
 Free and Quick redaction are enforced by server-side contracts rather than CSS hiding.
 
-## Lifecycle email – automatic implementation complete
+## Lifecycle email – automatic implementation with permanent-Quick alignment
 
 Backend-owned transactional lifecycle email infrastructure includes tenant lifecycle profile, DE/EN language, idempotent retryable outbox, internal worker, concurrency-safe claims, stale-claim recovery and signed report links without API tokens.
 
-Lifecycle events include registration, scan start/completion/failure, Quick activation/48-hour expiry warning/expiry, Assessment activation/expiry warning/expiry/extension and Validation availability/completion/expiry warning.
+Canonical new-product lifecycle behavior is:
 
-Quick report lifecycle links are entitlement-bound and cannot outlive the Quick access window. Expired Quick mail intentionally contains no live report CTA.
+- registration and scan start/completion/failure messages remain transactional;
+- permanent Quick grants schedule activation only and do **not** schedule Quick expiry-warning/expiry mail;
+- legacy Quick expiry event constants may remain for backward compatibility with historical finite grants, but they are not part of new Quick commercial semantics;
+- Assessment activation/expiry warning/expiry/extension and Validation availability/completion/expiry warning remain time-bound;
+- secure report links may expire independently for security while the underlying Quick entitlement remains permanent.
 
 Real sender DNS/provider acceptance (SPF/DKIM/DMARC, bounce and spam placement) remains manual.
 
@@ -162,11 +183,11 @@ Real sender DNS/provider acceptance (SPF/DKIM/DMARC, bounce and spam placement) 
 
 The channel-neutral operator console at `/admin/operator` supports tenant/environment/email/order search, Grant Quick Assessment, Grant Assessment, Extend Assessment, Grant Validation, targeted revoke and lifecycle-mail resend. Writes are CSRF-protected and the console requires admin Basic auth.
 
-The operator displays authoritative analyzed records, F8 record class and Fiverr price recommendations for Quick / Full / Validation when a qualifying scan exists. It does not guess a price when no scan exists.
+The operator displays authoritative analyzed records, F8 record class and Fiverr price recommendations for Quick / Full / Validation when a qualifying scan exists. It does not guess analyzed-volume pricing when no scan exists.
 
 Canonical operator semantics:
 
-- Quick: existing scan + fixed 7 days, no credit, no Full rights.
+- Quick: may be granted before or after the first scan; permanent/open-ended until explicit revoke; no scan credit; no Full rights.
 - Full Assessment: existing scan + fixed 7 days, no credit.
 - Validation: prior paid Full Assessment prerequisite + exactly one scan credit, no premature detail access.
 - Assessment extension: maximum once, +7 days, old scheduled expiry mails suppressed/replaced.
@@ -181,11 +202,11 @@ Automated evidence does not replace the required real two-tenant BC SaaS test or
 
 ## F8 frozen funnel regression
 
-The F8 end-to-end regression is the canonical automatic product-funnel proof:
+The canonical automatic product-funnel proof is now:
 
-registration → one initial Free scan → Free aggregate/report and Quick/Full blocked → Quick unlock on the same scan with no credit → Quick cannot create Validation baseline → Quick expiry/fallback → Full Assessment unlock on the same scan with no credit → Full expiry/fallback → Validation grant from paid Full baseline → exactly one new scan credit → second full scan → Validation comparison report.
+registration → optional/prepaid Quick entitlement before scan → one initial included scan → Quick report on the same scan with no additional credit → Quick cannot create Validation baseline → Full Assessment unlock on the same scan with no credit → Full expiry falls back to purchased Quick when present → Validation grant from paid Full baseline → exactly one new scan credit → second full scan → scan-aware Validation comparison report.
 
-The regression explicitly asserts that there is only **one scan before Validation** and exactly **two scans after Validation**.
+The regression explicitly asserts that Quick is open-ended until explicit revoke, there is only **one scan before Validation**, exactly **two scans after Validation**, and report resolution remains server-side and scan-aware.
 
 ## Fiverr launch assets – F8 aligned
 
@@ -210,9 +231,9 @@ The customer frontend supports optional `VITE_FIVERR_GIG_URL` acquisition.
 
 ## Automatic sprint status
 
-F0 through F8 are implemented to the extent they can be completed automatically in repository/code/content workflows. F8 establishes the current Free → Quick → Full → Validation funnel, report/access boundaries, pricing classes, operator flow, lifecycle mail, Fiverr launch alignment and end-to-end regression.
+F0 through F8 are implemented to the extent they can be completed automatically in repository/code/content workflows. The permanent-Quick/report-resolution follow-up freezes the current Fiverr/direct semantics without creating a product or Extension fork.
 
-No further automatic product-funnel sprint is required before manual controlled-pilot acceptance. Remaining P0 work requires real BC Online, infrastructure/provider, visual/legal or marketplace interaction.
+No further automatic product-funnel sprint is required before manual controlled-pilot acceptance after the permanent-Quick/report-resolution change is reviewed and merged. Remaining P0 work requires real BC Online, infrastructure/provider, visual/legal or marketplace interaction.
 
 ## Brand freeze
 
@@ -222,14 +243,14 @@ Navigation `#14213D`; Interaction `#246BFD`; Success `#11A36A`; Warning `#D98E04
 
 Before the first paid Fiverr pilot customer:
 
-1. Build/install/upgrade final 1.0.2.28 artifact in real BC Online.
+1. Build/install/upgrade final 1.0.2.29 artifact in real BC Online.
 2. Complete required non-SUPER runtime role acceptance, at minimum SETUP for the selected one-off pilot flow.
 3. Perform real tenant A/B switching and negative cross-tenant isolation.
 4. Manually visually inspect real Free, **Quick**, Full Assessment and Validation HTML/PDF outputs with representative data.
 5. Configure/test real lifecycle SMTP sender including SPF/DKIM/DMARC, bounce behavior and inbox/spam placement.
 6. Perform real off-host/operational PROD backup and restore procedure.
 7. Freeze immutable reviewed RC and manually promote exactly that ref to PROD.
-8. Run fresh external-like PROD E2E through registration, initial scan, Free boundary, Fiverr Quick grant, Quick report/expiry, Full Assessment grant on the same scan, Full expiry/fallback, Validation grant, new scan and comparison report.
+8. Run fresh external-like PROD E2E through Fiverr Quick grant before/after registration as applicable, initial included scan, automatic Quick report resolution, Full Assessment on the same scan, Full expiry back to Quick, Validation grant, new scan and scan-aware comparison report.
 9. Complete privacy/DPA/legal/provider-facts signoff.
 10. Create/export the final Fiverr gallery/video/report assets from the approved launch specifications, configure the live Gig fields and publish/activate the Gig.
 11. Execute one real Fiverr order dry-run through the selected pilot workflow.

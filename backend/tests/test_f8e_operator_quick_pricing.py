@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import base64
-from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -25,15 +24,7 @@ def _admin_auth_header() -> dict[str, str]:
     return {"Authorization": f"Basic {token}"}
 
 
-def _as_utc(value):
-    if value is None:
-        return None
-    if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
-
-
-def test_quick_grant_reuses_existing_scan_for_seven_days_without_scan_credit(
+def test_quick_grant_reuses_existing_scan_permanently_without_scan_credit(
     tenant_factory, deep_scan_factory
 ):
     tenant = tenant_factory(plan="free", license_status="active")
@@ -60,13 +51,15 @@ def test_quick_grant_reuses_existing_scan_for_seven_days_without_scan_credit(
         assert after_credits == before_credits
         assert result["scan_credit_granted"] is False
         assert result["scan_id"] == "f8e-quick-baseline"
+        assert result["valid_until_utc"] is None
+        assert result["permanent"] is True
 
         entitlement = db.query(TenantProductEntitlement).filter(
             TenantProductEntitlement.tenant_id == tenant["tenant_id"],
             TenantProductEntitlement.product_code == PRODUCT_QUICK_ASSESSMENT,
         ).one()
-        remaining = _as_utc(entitlement.valid_until_utc) - datetime.now(timezone.utc)
-        assert timedelta(days=6, hours=23) < remaining <= timedelta(days=7, minutes=1)
+        assert entitlement.valid_until_utc is None
+        assert entitlement.status == "active"
 
         action = db.query(TenantOperatorAction).filter(
             TenantOperatorAction.id == result["action_id"]
@@ -80,6 +73,7 @@ def test_quick_grant_reuses_existing_scan_for_seven_days_without_scan_credit(
         quick = build_quick_assessment_access_snapshot(db, tenant_row)
         full = build_product_access_snapshot(db, tenant_row)
         assert quick["quick_assessment_entitlement_active"] is True
+        assert quick["quick_assessment_access_until"] is None
         assert quick["can_view_quick_findings"] is True
         assert full["assessment_access_active"] is False
         assert full["validation_access_active"] is False
@@ -87,35 +81,34 @@ def test_quick_grant_reuses_existing_scan_for_seven_days_without_scan_credit(
         assert full["can_view_executive_report"] is False
 
 
-def test_quick_requires_existing_scan_and_unique_fiverr_order(tenant_factory, deep_scan_factory):
+def test_quick_can_be_granted_before_first_scan_and_order_remains_unique(
+    tenant_factory, deep_scan_factory
+):
     tenant = tenant_factory(plan="free", license_status="active")
-    with SessionLocal() as db:
-        with pytest.raises(ValueError, match="existing completed Data Health Scan"):
-            grant_quick_assessment(
-                db,
-                tenant_id=tenant["tenant_id"],
-                sales_channel="fiverr",
-                external_order_reference="FIV-QUICK-NO-SCAN",
-                actor="tester",
-            )
 
-    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="f8e-order-scan", total_records=120_000)
     with SessionLocal() as db:
-        grant_quick_assessment(
+        result = grant_quick_assessment(
             db,
             tenant_id=tenant["tenant_id"],
             sales_channel="fiverr",
-            external_order_reference="FIV-QUICK-DUP",
+            external_order_reference="FIV-QUICK-PRESCAN",
             actor="tester",
         )
         db.commit()
+        assert result["scan_id"] is None
+        assert result["report_url"] is None
+        assert result["valid_until_utc"] is None
+        action = db.query(TenantOperatorAction).filter(TenantOperatorAction.id == result["action_id"]).one()
+        assert action.related_scan_id is None
+
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="f8e-order-scan", total_records=120_000)
     with SessionLocal() as db:
         with pytest.raises(ValueError, match="already used"):
             grant_quick_assessment(
                 db,
                 tenant_id=tenant["tenant_id"],
                 sales_channel="fiverr",
-                external_order_reference="FIV-QUICK-DUP",
+                external_order_reference="FIV-QUICK-PRESCAN",
                 actor="tester",
             )
 

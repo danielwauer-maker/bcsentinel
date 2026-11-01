@@ -48,10 +48,10 @@ def _expire_entitlement(tenant_id: str, product_code: str) -> None:
         db.commit()
 
 
-def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
+def test_f8_frozen_funnel_prescan_quick_full_validation_same_initial_scan(client):
     registered = client.post(
         "/tenant/register",
-        json={"environment_name": "BC Cloud", "app_version": "1.0.2.28-f8", "preferred_language": "de"},
+        json={"environment_name": "BC Cloud", "app_version": "1.0.2.29-f8", "preferred_language": "de"},
     )
     assert registered.status_code == 200, registered.text
     tenant = registered.json()
@@ -70,6 +70,33 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
     assert initial.json()["can_run_deep_scan"] is True
     assert initial.json()["can_view_issue_details"] is False
     assert initial.json()["can_view_quick_assessment"] is False
+    assert initial.json()["preferred_report_variant"] == "free-health"
+
+    # Fiverr can sell/grant Quick before the first included scan exists.
+    with SessionLocal() as db:
+        quick = grant_quick_assessment(
+            db,
+            tenant_id=tenant["tenant_id"],
+            sales_channel="fiverr",
+            external_order_reference="F8-FIV-QUICK-001",
+            actor="f8-funnel-test",
+        )
+        db.commit()
+        assert quick["scan_id"] is None
+        assert quick["valid_until_utc"] is None
+        assert quick["scan_credit_granted"] is False
+
+        entitlement = db.query(TenantProductEntitlement).filter(
+            TenantProductEntitlement.tenant_id == tenant["tenant_id"],
+            TenantProductEntitlement.product_code == PRODUCT_QUICK_ASSESSMENT,
+        ).one()
+        assert entitlement.valid_until_utc is None
+
+    quick_before_scan = client.get("/license/status", headers=headers)
+    assert quick_before_scan.status_code == 200
+    assert quick_before_scan.json()["can_view_quick_assessment"] is True
+    assert quick_before_scan.json()["scan_credits_available"] == 1
+    assert quick_before_scan.json()["preferred_report_variant"] == "quick-assessment"
 
     initial_scan_id = "F8-FUNNEL-INITIAL-0001"
     started = client.post(
@@ -88,35 +115,19 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
     assert started.json()["credit_consumed"] is True
     _complete_scan(initial_scan_id, score=66, total_records=90_000, generated_at=datetime.now(timezone.utc) - timedelta(hours=2))
 
-    free_status = client.get("/license/status", headers=headers)
-    assert free_status.status_code == 200
-    assert free_status.json()["scan_credits_available"] == 0
-    assert free_status.json()["can_run_deep_scan"] is False
-    assert free_status.json()["can_view_issue_details"] is False
-    assert client.get(f"/reports/free-health/{initial_scan_id}", headers=headers).status_code == 200
-    assert client.get(f"/reports/quick-assessment/{initial_scan_id}", headers=headers).status_code == 402
-    assert client.get(f"/reports/assessment/{initial_scan_id}", headers=headers).status_code == 402
-
-    with SessionLocal() as db:
-        quick = grant_quick_assessment(
-            db,
-            tenant_id=tenant["tenant_id"],
-            sales_channel="fiverr",
-            external_order_reference="F8-FIV-QUICK-001",
-            actor="f8-funnel-test",
-        )
-        db.commit()
-        assert quick["scan_id"] == initial_scan_id
-        assert quick["scan_credit_granted"] is False
-
     quick_status = client.get("/license/status", headers=headers)
     assert quick_status.status_code == 200
     assert quick_status.json()["scan_credits_available"] == 0
     assert quick_status.json()["can_run_deep_scan"] is False
     assert quick_status.json()["can_view_quick_assessment"] is True
     assert quick_status.json()["can_view_issue_details"] is False
+    assert quick_status.json()["quick_assessment_access_until"] is None
+    assert quick_status.json()["preferred_report_variant"] == "quick-assessment"
     assert client.get(f"/reports/quick-assessment/{initial_scan_id}", headers=headers).status_code == 200
     assert client.get(f"/reports/assessment/{initial_scan_id}", headers=headers).status_code == 402
+    resolved = client.get(f"/reports/{initial_scan_id}/preferred-variant", headers=headers)
+    assert resolved.status_code == 200
+    assert resolved.json()["report_variant"] == "quick-assessment"
 
     with SessionLocal() as db:
         with pytest.raises(ValueError):
@@ -127,13 +138,6 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
                 external_order_reference="F8-FIV-VAL-TOO-EARLY",
                 actor="f8-funnel-test",
             )
-
-    _expire_entitlement(tenant["tenant_id"], PRODUCT_QUICK_ASSESSMENT)
-    expired_quick = client.get("/license/status", headers=headers)
-    assert expired_quick.json()["can_view_quick_assessment"] is False
-    assert expired_quick.json()["can_view_issue_details"] is False
-    assert client.get(f"/reports/quick-assessment/{initial_scan_id}", headers=headers).status_code == 402
-    assert client.get(f"/reports/free-health/{initial_scan_id}", headers=headers).status_code == 200
 
     with SessionLocal() as db:
         assessment = grant_assessment(
@@ -150,23 +154,25 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
     full_status = client.get("/license/status", headers=headers)
     assert full_status.status_code == 200
     assert full_status.json()["assessment_access_active"] is True
-    assert full_status.json()["scan_credits_available"] == 0
-    assert full_status.json()["can_run_deep_scan"] is False
     assert full_status.json()["can_view_quick_assessment"] is True
     assert full_status.json()["can_view_issue_details"] is True
-    assert client.get(f"/reports/quick-assessment/{initial_scan_id}", headers=headers).status_code == 200
+    assert full_status.json()["preferred_report_variant"] == "assessment"
     assert client.get(f"/reports/assessment/{initial_scan_id}", headers=headers).status_code == 200
+    resolved = client.get(f"/reports/{initial_scan_id}/preferred-variant", headers=headers)
+    assert resolved.json()["report_variant"] == "assessment"
 
     with SessionLocal() as db:
         assert db.query(Scan).filter(Scan.tenant_id == tenant["tenant_id"]).count() == 1
 
+    # Full expires back to the permanently purchased Quick layer, never back to Free.
     _expire_entitlement(tenant["tenant_id"], PRODUCT_ASSESSMENT)
     expired_full = client.get("/license/status", headers=headers)
     assert expired_full.json()["assessment_access_active"] is False
     assert expired_full.json()["can_view_issue_details"] is False
-    assert expired_full.json()["can_view_quick_assessment"] is False
+    assert expired_full.json()["can_view_quick_assessment"] is True
+    assert expired_full.json()["preferred_report_variant"] == "quick-assessment"
     assert client.get(f"/reports/assessment/{initial_scan_id}", headers=headers).status_code == 402
-    assert client.get(f"/reports/free-health/{initial_scan_id}", headers=headers).status_code == 200
+    assert client.get(f"/reports/quick-assessment/{initial_scan_id}", headers=headers).status_code == 200
 
     with SessionLocal() as db:
         validation = grant_validation(
@@ -185,7 +191,7 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
     assert validation_available.json()["validation_access_active"] is False
     assert validation_available.json()["scan_credits_available"] == 1
     assert validation_available.json()["can_run_deep_scan"] is True
-    assert validation_available.json()["can_view_issue_details"] is False
+    assert validation_available.json()["can_view_quick_assessment"] is True
 
     validation_scan_id = "F8-FUNNEL-VALIDATION-0002"
     validation_started = client.post(
@@ -206,8 +212,15 @@ def test_f8_frozen_funnel_free_quick_full_validation_same_initial_scan(client):
 
     validation_active = client.get("/license/status", headers=headers)
     assert validation_active.json()["validation_access_active"] is True
-    assert validation_active.json()["scan_credits_available"] == 0
     assert validation_active.json()["can_view_issue_details"] is True
+
+    validation_resolved = client.get(f"/reports/{validation_scan_id}/preferred-variant", headers=headers)
+    assert validation_resolved.status_code == 200
+    assert validation_resolved.json()["report_variant"] == "validation"
+
+    initial_resolved = client.get(f"/reports/{initial_scan_id}/preferred-variant", headers=headers)
+    assert initial_resolved.status_code == 200
+    assert initial_resolved.json()["report_variant"] == "assessment"
 
     validation_report = client.get(f"/reports/validation/{validation_scan_id}", headers=headers)
     assert validation_report.status_code == 200, validation_report.text
