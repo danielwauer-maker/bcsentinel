@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T21:10:00Z",
+  "generated_at_utc": "2026-11-01T21:15:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -12,7 +12,7 @@
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
       "technical_baseline_sha": "1a09607c1b8d8abcd986fa24edd0c11af2304aa6",
-      "status": "F0-F8 automatic implementation complete; permanent Quick / automatic report resolution prepared in PR #141; manual controlled-pilot gates remain"
+      "status": "F0-F8 automatic implementation complete including permanent Quick semantics and automatic report resolution; manual controlled-pilot gates remain"
     },
     "frontend": {
       "repo": "danielwauer-maker/bcsentinel-frontend",
@@ -45,7 +45,7 @@
     "quick_assessment": {
       "status": "implemented",
       "product_code": "quick_assessment",
-      "activation": "may be granted before the first scan; permanently reveals the Quick layer of the tenant scan once a qualifying scan exists",
+      "activation": "may be granted after tenant registration and before or after the first scan; permanently reveals the Quick layer once a qualifying scan exists",
       "scan_credit_on_grant": 0,
       "access_days": null,
       "access_semantics": "open-ended until explicit revoke; no automatic expiry",
@@ -116,7 +116,7 @@
     "architecture": "sales channel only; no product or Extension fork",
     "payment_truth": "Fiverr",
     "canonical_products": ["quick_assessment", "assessment", "validation_check"],
-    "manual_pilot_action": "one operator grant after payment confirmation; Quick grant may occur before first scan",
+    "manual_pilot_action": "after payment confirmation and tenant registration, one operator grant; Quick grant may occur before the first scan and also safely upgrades an already completed first scan",
     "automation_after_grant": true,
     "scraping": false,
     "free_health_check_is_paid_fiverr_package": false,
@@ -149,6 +149,7 @@
     "application": "27.0.0.0",
     "source_status": "primary report action resolves the highest valid report for the selected scan from the backend; Quick is a native supported report variant",
     "report_action": "Open BCSentinel Report / PDF -> backend preferred variant -> share link",
+    "manual_report_actions": ["Free HTML/PDF", "Quick HTML/PDF", "Assessment HTML/PDF", "Validation HTML/PDF"],
     "last_real_runtime_evidence": {
       "version": "pre-1.0.2.29",
       "scan_role": "PASS without SUPER, 10/10 modules, 199/199 checks",
@@ -164,7 +165,7 @@
     "monitoring": {"status": "existing; redesign deferred", "pilot_blocker": false}
   },
   "lifecycle_email": {
-    "status": "implemented in backend; permanent-Quick wording/link alignment remains part of PR #141 completion",
+    "status": "implemented and aligned with permanent Quick/report resolution",
     "tenant_profile": true,
     "languages": ["de", "en"],
     "outbox": {"idempotent": true, "retryable": true, "auditable": true, "multi_worker_claim": "FOR UPDATE SKIP LOCKED", "stale_claim_recovery": true, "delivery_semantics": "at-least-once"},
@@ -182,8 +183,9 @@
       "validation.completed",
       "validation.expiring"
     ],
-    "quick_expiry_events": "legacy-compatible event constants may remain, but new permanent Quick grants must not schedule expiring/expired lifecycle messages",
+    "quick_expiry_events": "legacy-compatible event constants may remain, but new permanent Quick grants do not schedule expiring/expired lifecycle messages",
     "quick_link_rule": "secure email/share tokens may expire for security, but the Quick entitlement/report access itself is permanent and can be reopened from BC",
+    "scan_completed_link_rule": "same scan-aware backend report resolver as the BC Extension",
     "real_sender_manual_gate": ["SMTP provider", "SPF", "DKIM", "DMARC", "bounce handling", "inbox/spam placement"]
   },
   "security_and_recovery": {
@@ -196,10 +198,10 @@
     "manual_remaining": ["real two-tenant BC SaaS isolation", "real off-host/PROD restore procedure"]
   },
   "f8_funnel_regression": {
-    "status": "updated in PR #141 for permanent Quick and scan-aware report resolution",
+    "status": "implemented for permanent Quick and scan-aware report resolution",
     "path": "registration -> pre-scan Quick grant -> initial included scan -> Quick reveal -> Full same-scan unlock -> Full expiry back to Quick -> Validation credit -> second scan -> Validation report",
     "assertions": [
-      "Quick may be granted before the first scan",
+      "Quick may be granted after registration and before the first scan",
       "Quick grant creates zero scan credits",
       "Quick entitlement is open-ended until explicit revoke",
       "Quick alone cannot create Validation baseline",
@@ -215,12 +217,12 @@
     "F0_product_contract": "complete",
     "F1_initial_free_scan_extension_core": "merged",
     "F2_report_family": "merged",
-    "F3_lifecycle_email": "merged; permanent-Quick alignment in PR #141",
+    "F3_lifecycle_email": "complete including permanent-Quick alignment",
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
     "F6_fiverr_launch_assets": "merged",
     "F7_landing_linkedin": "merged",
-    "F8_free_quick_full_validation_funnel": "permanent-Quick semantics and automatic report resolver in PR #141"
+    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics and automatic report resolver"
   },
   "readiness": {
     "technical_fiverr_controlled_pilot_after_automatic_F8": 99,
@@ -235,7 +237,7 @@
     "real SMTP/DNS deliverability acceptance",
     "real off-host/operational backup restore drill",
     "immutable RC freeze and manual PROD promotion",
-    "fresh external-like PROD E2E: Fiverr Quick purchase/grant -> install/register -> initial scan -> Quick -> Full -> Validation",
+    "fresh external-like PROD E2E: Fiverr Quick purchase -> install/register -> operator Quick grant -> initial scan -> automatic Quick report -> Full -> Validation",
     "privacy/DPA/legal/provider-facts signoff",
     "Fiverr Gig asset export/publish and one real order dry-run",
     "set the real published Fiverr Gig URL as VITE_FIVERR_GIG_URL and deploy the reviewed frontend ref",
