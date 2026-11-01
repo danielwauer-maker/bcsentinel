@@ -15,6 +15,7 @@ from app.routers.prepilot import router as prepilot_router
 from app.routers.exception_transparency import router as exception_transparency_router
 from app.routers.lifecycle import router as lifecycle_router
 from app.routers.operator_admin import router as operator_admin_router
+from app.routers.quick_assessment_reports import router as quick_assessment_reports_router
 
 router = APIRouter(tags=["license"])
 
@@ -99,3 +100,4 @@ router.include_router(prepilot_router)
 router.include_router(exception_transparency_router)
 router.include_router(lifecycle_router)
 router.include_router(operator_admin_router)
+router.include_router(quick_assessment_reports_router)
