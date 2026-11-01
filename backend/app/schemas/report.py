@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-REPORT_CONTRACT_VERSION = "executive-report-v2"
+REPORT_CONTRACT_VERSION = "executive-report-v1"
 FINANCIAL_METHODOLOGY_VERSION = "fin-v1"
 
 
