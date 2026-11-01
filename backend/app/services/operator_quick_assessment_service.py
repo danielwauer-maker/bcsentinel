@@ -9,7 +9,6 @@ from app.operator_models import TenantOperatorAction
 from app.services.admin_audit_service import log_admin_event
 from app.services.lifecycle_email_service import (
     EVENT_QUICK_ASSESSMENT_ACTIVATED,
-    quick_assessment_report_link,
     schedule_entitlement_lifecycle,
 )
 from app.services.operator_commercial_service import latest_scan, normalize_order_reference, normalize_sales_channel
@@ -18,6 +17,7 @@ from app.services.quick_assessment_access_service import (
     PRODUCT_QUICK_ASSESSMENT,
     build_quick_assessment_access_snapshot,
 )
+from app.services.quick_assessment_lifecycle_link_service import quick_assessment_lifecycle_report_link
 from app.services.record_volume_pricing_service import fiverr_price_recommendations
 
 QUICK_ASSESSMENT_DAYS = 7
@@ -83,7 +83,11 @@ def grant_quick_assessment(
         source=f"operator:{channel}",
         valid_until_utc=now + timedelta(days=QUICK_ASSESSMENT_DAYS),
     )
-    link = quick_assessment_report_link(tenant_id=tenant_id, scan_id=scan.scan_id)
+    link = quick_assessment_lifecycle_report_link(
+        tenant_id=tenant_id,
+        scan_id=scan.scan_id,
+        valid_until_utc=entitlement.valid_until_utc,
+    )
     schedule_entitlement_lifecycle(
         db,
         tenant_id=tenant_id,
