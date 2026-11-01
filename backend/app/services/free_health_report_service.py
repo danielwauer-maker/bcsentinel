@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Scan, ScanIssueRecord, Tenant
+from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.schemas.free_health_report import FreeHealthReport, FreeRiskArea, FreeSeveritySummary
 from app.services.localization_service import tenant_language
 
@@ -23,6 +23,15 @@ MODULES = [
     ("HR", "hr_score"),
     ("System", "system_score"),
 ]
+
+
+SEVERITY_ORDER = {
+    "info": 0,
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+}
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -86,6 +95,31 @@ def _category(category: str | None, code: str | None) -> str:
     return "System"
 
 
+def _severity(value: object) -> str:
+    raw = str(value or "").strip().lower()
+    aliases = {
+        "critical": "critical",
+        "crit": "critical",
+        "high": "high",
+        "medium": "medium",
+        "moderate": "medium",
+        "warning": "medium",
+        "low": "low",
+        "info": "info",
+        "informational": "info",
+    }
+    return aliases.get(raw, "info")
+
+
+def _enabled_module_count(value: str | None) -> int:
+    modules = {
+        item.strip().lower()
+        for item in str(value or "").split(",")
+        if item.strip()
+    }
+    return len(modules)
+
+
 def _impact_band(estimated_loss_eur: float, language: str) -> str:
     value = max(0.0, estimated_loss_eur)
     if value < 5_000:
@@ -109,27 +143,41 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
     if scan.tenant_id != tenant.tenant_id:
         raise HTTPException(status_code=403, detail="Scan does not belong to authenticated tenant.")
 
+    run = db.scalar(
+        select(ScanRunStatus).where(
+            ScanRunStatus.run_id == scan.scan_id,
+            ScanRunStatus.tenant_id == tenant.tenant_id,
+        )
+    )
+    company_label = str(run.company_name or "").strip() if run is not None else ""
+    if not company_label:
+        company_label = tenant.tenant_id
+
+    modules_analyzed = _enabled_module_count(scan.enabled_modules)
+    if modules_analyzed == 0 and run is not None:
+        modules_analyzed = max(
+            0,
+            _safe_int(run.completed_modules) or _safe_int(run.total_modules),
+        )
+
     issues = list(db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all())
     by_category: dict[str, dict[str, int | str]] = {}
-    severity_counts = {"high": 0, "medium": 0, "low": 0}
-    severity_rank = {"low": 0, "medium": 1, "high": 2}
+    severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 
     for issue in issues:
-        severity = str(issue.severity or "low").lower()
-        if severity not in severity_counts:
-            severity = "low"
+        severity = _severity(issue.severity)
         severity_counts[severity] += 1
         category = _category(issue.category, issue.code)
-        bucket = by_category.setdefault(category, {"issues": 0, "affected": 0, "severity": "low"})
+        bucket = by_category.setdefault(category, {"issues": 0, "affected": 0, "severity": "info"})
         bucket["issues"] = int(bucket["issues"]) + 1
         bucket["affected"] = int(bucket["affected"]) + max(0, _safe_int(issue.affected_count))
-        if severity_rank[severity] > severity_rank[str(bucket["severity"])]:
+        if SEVERITY_ORDER[severity] > SEVERITY_ORDER[str(bucket["severity"])]:
             bucket["severity"] = severity
 
     risk_areas: list[FreeRiskArea] = []
     for name, score_attr in MODULES:
         score = max(0, min(100, _safe_int(getattr(scan, score_attr, 100), 100)))
-        bucket = by_category.get(name, {"issues": 0, "affected": 0, "severity": "low"})
+        bucket = by_category.get(name, {"issues": 0, "affected": 0, "severity": "info"})
         if score < 100 or int(bucket["issues"]) > 0:
             risk_areas.append(
                 FreeRiskArea(
@@ -175,11 +223,12 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
         scan_id=scan.scan_id,
         generated_at_utc=datetime.now(timezone.utc),
         scan_generated_at_utc=scan.generated_at_utc,
-        company_label=tenant.tenant_id,
+        company_label=company_label,
         environment_label=tenant.environment_name,
         data_health_score=score,
         score_status=_status(score, language),
         checks_count=max(0, _safe_int(scan.checks_count)),
+        modules_analyzed=modules_analyzed,
         issues_count=max(0, _safe_int(scan.issues_count)),
         affected_records=affected_records,
         total_records=max(0, _safe_int(scan.total_records)),
