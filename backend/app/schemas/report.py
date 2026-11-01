@@ -114,6 +114,8 @@ class ExecutiveReport(BaseModel):
     kpis: List[ReportKpi] = Field(default_factory=list)
     all_findings: List[ReportFinding] = Field(default_factory=list)
     top_risks: List[ReportFinding] = Field(default_factory=list)
+    # Kept for API compatibility; no report priority may infer effort from it.
+    quick_wins: List[ReportFinding] = Field(default_factory=list)
     critical_findings: List[ReportFinding] = Field(default_factory=list)
     data_quality: List[ReportCategoryScore] = Field(default_factory=list)
     business_area_impact: List[ReportCategoryImpact] = Field(default_factory=list)
