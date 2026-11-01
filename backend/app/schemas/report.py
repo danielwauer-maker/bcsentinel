@@ -72,7 +72,7 @@ class ExecutiveReport(BaseModel):
     # must originate from this exact model and the same builder.
     contract_version: str = REPORT_CONTRACT_VERSION
     financial_methodology: str = FINANCIAL_METHODOLOGY_VERSION
-    report_variant: str = "assessment"
+    report_variant: str = "executive"
     dashboard_mode: str = "read_only"
 
     report_id: str
