@@ -6,7 +6,7 @@
   <title>BCSentinel Operator Console</title>
   <style>
     :root{--nav:#14213D;--blue:#246BFD;--orange:#FF921F;--bg:#F7F9FC;--card:#fff;--ink:#172033;--muted:#667085;--line:#D9DEE8;--ok:#11A36A;--warn:#D98E04;--bad:#CF3A3A}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.top{background:var(--nav);border-bottom:5px solid var(--orange);color:#fff;padding:24px 32px}.top h1{margin:0;font-size:24px}.top p{margin:6px 0 0;color:#D7DEEB}.wrap{max-width:1440px;margin:0 auto;padding:24px}.toolbar,.tenant{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 25px rgba(20,33,61,.05)}.toolbar{padding:16px;margin-bottom:16px}.search{display:flex;gap:10px}.search input{flex:1}.tenant{padding:18px;margin:14px 0}.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.title{font-size:17px;font-weight:800;color:var(--nav)}.meta{font-size:12px;color:var(--muted);margin-top:4px}.badges{display:flex;gap:7px;flex-wrap:wrap}.badge{font-size:11px;font-weight:800;border-radius:999px;padding:4px 8px;background:#EEF3FF;color:var(--blue)}.badge.ok{background:#ECFBF4;color:var(--ok)}.badge.off{background:#F2F4F7;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.action{border:1px solid var(--line);border-radius:10px;padding:14px;background:#FBFCFE}.action h3{margin:0 0 10px;font-size:13px;color:var(--nav)}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:8px 9px;border:1px solid #C8D0DD;border-radius:7px;background:#fff;margin:4px 0 8px}textarea{min-height:54px;resize:vertical}button{border:0;border-radius:7px;padding:9px 11px;font-weight:800;cursor:pointer;background:var(--blue);color:white}.secondary{background:var(--nav)}.danger{background:var(--bad)}.muted{background:#667085}.flash{padding:11px 14px;border-radius:8px;margin-bottom:14px}.flash.ok{background:#ECFBF4;color:#087A4B}.flash.bad{background:#FFF1F1;color:#A52727}.small{font-size:11px;color:var(--muted)}@media(max-width:1000px){.grid{grid-template-columns:1fr}.head{display:block}.badges{margin-top:10px}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.top{background:var(--nav);border-bottom:5px solid var(--orange);color:#fff;padding:24px 32px}.top h1{margin:0;font-size:24px}.top p{margin:6px 0 0;color:#D7DEEB}.wrap{max-width:1440px;margin:0 auto;padding:24px}.toolbar,.tenant{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 25px rgba(20,33,61,.05)}.toolbar{padding:16px;margin-bottom:16px}.search{display:flex;gap:10px}.search input{flex:1}.tenant{padding:18px;margin:14px 0}.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.title{font-size:17px;font-weight:800;color:var(--nav)}.meta{font-size:12px;color:var(--muted);margin-top:4px}.badges{display:flex;gap:7px;flex-wrap:wrap}.badge{font-size:11px;font-weight:800;border-radius:999px;padding:4px 8px;background:#EEF3FF;color:var(--blue)}.badge.ok{background:#ECFBF4;color:var(--ok)}.badge.off{background:#F2F4F7;color:var(--muted)}.pricing{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.price{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px}.price strong{display:block;color:var(--nav);font-size:12px}.price span{display:block;margin-top:4px;font-size:14px;font-weight:800}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.action{border:1px solid var(--line);border-radius:10px;padding:14px;background:#FBFCFE}.action h3{margin:0 0 10px;font-size:13px;color:var(--nav)}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:8px 9px;border:1px solid #C8D0DD;border-radius:7px;background:#fff;margin:4px 0 8px}textarea{min-height:54px;resize:vertical}button{border:0;border-radius:7px;padding:9px 11px;font-weight:800;cursor:pointer;background:var(--blue);color:white}.secondary{background:var(--nav)}.danger{background:var(--bad)}.muted{background:#667085}.flash{padding:11px 14px;border-radius:8px;margin-bottom:14px}.flash.ok{background:#ECFBF4;color:#087A4B}.flash.bad{background:#FFF1F1;color:#A52727}.small{font-size:11px;color:var(--muted)}@media(max-width:1000px){.grid,.pricing{grid-template-columns:1fr}.head{display:block}.badges{margin-top:10px}}
   </style>
 </head>
 <body>
@@ -14,19 +14,40 @@
   <div class="wrap">
     {% if message %}<div class="flash ok">{{ message }}</div>{% endif %}
     {% if error %}<div class="flash bad">{{ error }}</div>{% endif %}
-    <div class="toolbar">
-      <form class="search" method="get" action="/admin/operator"><input name="q" value="{{ query }}" placeholder="Search tenant ID, environment, notification email or order reference"><button type="submit">Search</button></form>
-    </div>
+    <div class="toolbar"><form class="search" method="get" action="/admin/operator"><input name="q" value="{{ query }}" placeholder="Search tenant ID, environment, notification email or order reference"><button type="submit">Search</button></form></div>
 
     {% for row in rows %}
     <section class="tenant">
       <div class="head">
         <div><div class="title">{{ row.environment_name or 'Business Central Tenant' }}</div><div class="meta">{{ row.tenant_id }} · {{ row.notification_email }} · {{ row.preferred_language }} · Latest scan: {{ row.latest_scan_id }}</div></div>
-        <div class="badges"><span class="badge {{ 'ok' if row.assessment_active else 'off' }}">Assessment {{ 'active' if row.assessment_active else 'off' }}</span><span class="badge {{ 'ok' if row.validation_active else 'off' }}">Validation {{ 'active' if row.validation_active else 'off' }}</span><span class="badge">Validation credits {{ row.validation_credits }}</span></div>
+        <div class="badges">
+          <span class="badge {{ 'ok' if row.quick_active else 'off' }}">Quick {{ 'active' if row.quick_active else 'off' }}</span>
+          <span class="badge {{ 'ok' if row.assessment_active else 'off' }}">Assessment {{ 'active' if row.assessment_active else 'off' }}</span>
+          <span class="badge {{ 'ok' if row.validation_active else 'off' }}">Validation {{ 'active' if row.validation_active else 'off' }}</span>
+          <span class="badge">Validation credits {{ row.validation_credits }}</span>
+        </div>
       </div>
+
+      {% if row.fiverr_pricing %}
+      <div class="pricing">
+        <div class="price"><strong>Analyzed records</strong><span>{{ '{:,}'.format(row.total_records).replace(',', '.') }}</span><div class="small">{{ row.record_class.display_name }} class</div></div>
+        {% set quick_price = row.fiverr_pricing['quick_assessment'] %}
+        {% set assessment_price = row.fiverr_pricing['assessment'] %}
+        {% set validation_price = row.fiverr_pricing['validation_check'] %}
+        <div class="price"><strong>Fiverr · Quick Assessment</strong><span>{% if quick_price.price is not none %}${{ '%.0f'|format(quick_price.price) }}{% elif quick_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
+        <div class="price"><strong>Fiverr · Full Assessment</strong><span>{% if assessment_price.price is not none %}${{ '%.0f'|format(assessment_price.price) }}{% elif assessment_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
+        <div class="price"><strong>Fiverr · Validation</strong><span>{% if validation_price.price is not none %}${{ '%.0f'|format(validation_price.price) }}{% elif validation_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
+      </div>
+      {% else %}
+      <div class="small" style="margin-top:12px">No analyzed record-volume pricing yet. Complete the initial Data Health Scan first.</div>
+      {% endif %}
+
       <div class="grid">
+        <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-quick-assessment">
+          <h3>Grant Quick Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant 7-day Quick Assessment</button><div class="small">Unlocks limited Top-Finding detail on the existing scan. No scan credit and no Full Assessment access.</div>
+        </form>
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-assessment">
-          <h3>Grant Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant 7-day Assessment</button><div class="small">Unlocks the existing scan. No new scan credit is created.</div>
+          <h3>Grant Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant 7-day Assessment</button><div class="small">Unlocks full detail on the existing scan. No new scan credit is created.</div>
         </form>
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-validation">
           <h3>Grant Validation</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant Validation Scan</button><div class="small">Creates one Validation scan credit. The 7-day result window starts when that scan is consumed.</div>
@@ -35,17 +56,15 @@
           <h3>Extend Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button class="secondary" type="submit">Extend +7 days</button><div class="small">Maximum one extension per Assessment entitlement.</div>
         </form>
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/revoke">
-          <h3>Revoke Access</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="product_code"><option value="assessment">Assessment</option><option value="validation_check">Validation</option></select><input name="reason" required placeholder="Reason"><button class="danger" type="submit">Revoke</button>
+          <h3>Revoke Access</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="product_code"><option value="quick_assessment">Quick Assessment</option><option value="assessment">Assessment</option><option value="validation_check">Validation</option></select><input name="reason" required placeholder="Reason"><button class="danger" type="submit">Revoke</button>
         </form>
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/resend-latest">
           <h3>Resend Latest Lifecycle Mail</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="muted" type="submit">Queue resend</button><div class="small">Uses the tenant's current Report & Notification Email.</div>
         </form>
-        <div class="action"><h3>Current context</h3><div class="small">Assessment until: {{ row.assessment_until or '—' }}</div>{% if row.latest_action %}<div class="small">Last operator action: {{ row.latest_action.action_type }} · {{ row.latest_action.sales_channel }} · {{ row.latest_action.external_order_reference or '—' }}</div>{% else %}<div class="small">No operator action recorded yet.</div>{% endif %}</div>
+        <div class="action"><h3>Current context</h3><div class="small">Quick until: {{ row.quick_until or '—' }}</div><div class="small">Assessment until: {{ row.assessment_until or '—' }}</div>{% if row.latest_action %}<div class="small">Last operator action: {{ row.latest_action.action_type }} · {{ row.latest_action.sales_channel }} · {{ row.latest_action.external_order_reference or '—' }}</div>{% else %}<div class="small">No operator action recorded yet.</div>{% endif %}</div>
       </div>
     </section>
-    {% else %}
-      <div class="toolbar">No tenants matched your search.</div>
-    {% endfor %}
+    {% else %}<div class="toolbar">No tenants matched your search.</div>{% endfor %}
   </div>
 </body>
 </html>
