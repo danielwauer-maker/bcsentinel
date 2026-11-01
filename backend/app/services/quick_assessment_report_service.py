@@ -29,7 +29,7 @@ def build_quick_assessment_report(db, tenant: Tenant, scan_id: str) -> QuickAsse
             f"Die {len(findings)} wichtigsten Findings werden priorisiert dargestellt."
         )
         actions = [
-            "Die fünf priorisierten Findings in der angegebenen Reihenfolge fachlich prüfen.",
+            "Die priorisierten Findings in der angegebenen Reihenfolge fachlich prüfen.",
             "Für jedes priorisierte Finding einen verantwortlichen Daten- oder Prozess-Owner festlegen.",
             "Für vollständige Ursachenanalyse, finanzielle Modellwerte und Bereinigungsplanung auf das Full Assessment erweitern.",
         ]
@@ -45,7 +45,7 @@ def build_quick_assessment_report(db, tenant: Tenant, scan_id: str) -> QuickAsse
             f"The {len(findings)} highest-priority findings are shown below."
         )
         actions = [
-            "Review the five prioritized findings in the order shown.",
+            "Review the prioritized findings in the order shown.",
             "Assign an accountable data or process owner for each prioritized finding.",
             "Upgrade to Full Assessment for complete root-cause analysis, financial modeling and remediation planning.",
         ]
