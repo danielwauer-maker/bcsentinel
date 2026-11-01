@@ -10,9 +10,13 @@ QUICK_ASSESSMENT_REPORT_CONTRACT_VERSION = "quick-assessment-report-v1"
 
 
 class QuickSeveritySummary(BaseModel):
+    """Same normalized five-level severity vocabulary used by the Data Health scan."""
+
+    critical: int = Field(default=0, ge=0)
     high: int = Field(default=0, ge=0)
     medium: int = Field(default=0, ge=0)
     low: int = Field(default=0, ge=0)
+    info: int = Field(default=0, ge=0)
 
 
 class QuickRiskArea(BaseModel):
@@ -21,7 +25,7 @@ class QuickRiskArea(BaseModel):
     status: str
     issue_count: int = Field(default=0, ge=0)
     affected_records: int = Field(default=0, ge=0)
-    highest_severity: str = "low"
+    highest_severity: str = "info"
 
 
 class QuickFinding(BaseModel):
@@ -29,7 +33,9 @@ class QuickFinding(BaseModel):
 
     Deliberately incapable of carrying issue codes, record-level detail,
     root-cause catalogues, recommendation previews or exact financial values.
-    Rank is structurally limited to the Quick Assessment Top-5 boundary.
+    Rank is structurally limited to the Quick Assessment Top-5 boundary. The
+    impact band is a non-monetary disclosure derived server-side from the same
+    internal modeled signal that helps prioritize Full Assessment findings.
     """
 
     rank: int = Field(ge=1, le=5)
@@ -37,6 +43,8 @@ class QuickFinding(BaseModel):
     severity: str
     affected_count: int = Field(default=0, ge=0)
     risk_area: str
+    risk_area_label: str
+    impact_band: str
     next_action: str
 
 
@@ -63,6 +71,7 @@ class QuickAssessmentReport(BaseModel):
     data_health_score: int = Field(ge=0, le=100)
     score_status: str
     checks_count: int = Field(default=0, ge=0)
+    modules_analyzed: int = Field(default=0, ge=0)
     issues_count: int = Field(default=0, ge=0)
     affected_records: int = Field(default=0, ge=0)
     total_records: int = Field(default=0, ge=0)
@@ -72,5 +81,7 @@ class QuickAssessmentReport(BaseModel):
     impact_band: str
     management_interpretation: str
     findings: List[QuickFinding] = Field(default_factory=list, max_length=5)
+    # Retained for API compatibility. The final two-page report does not render
+    # this generic list because each Top-5 finding already owns its Next Action.
     recommended_next_actions: List[str] = Field(default_factory=list)
     upgrade_message: str
