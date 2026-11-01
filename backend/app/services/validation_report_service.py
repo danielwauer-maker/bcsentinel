@@ -10,8 +10,9 @@ from app.models import Scan, ScanIssueRecord, Tenant, TenantScanCredit
 from app.schemas.validation_report import ValidationFindingDelta, ValidationReport
 from app.services.localization_service import tenant_language
 from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
+from app.services.quick_finding_selection_service import normalize_severity
 
-SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3}
+SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 
 
 def _safe_int(value: object) -> int:
@@ -55,8 +56,24 @@ def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) 
     return scan
 
 
+def _is_validation_scan(db: Session, tenant_id: str, scan_id: str) -> bool:
+    return db.scalar(
+        select(TenantScanCredit.id).where(
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+            TenantScanCredit.status == "consumed",
+            TenantScanCredit.consumed_scan_id == scan_id,
+        )
+    ) is not None
+
+
 def _load_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> Scan:
-    baseline = db.scalar(
+    # A Validation must compare against a prior non-Validation scan. In the
+    # canonical funnel this is the scan unlocked as Full Assessment and exposed
+    # by the Full contract as validation_baseline_scan_id. Quick alone cannot
+    # grant Validation, and a previous Validation scan must never silently
+    # replace the original Full baseline.
+    candidates = db.scalars(
         select(Scan)
         .where(
             Scan.tenant_id == tenant.tenant_id,
@@ -70,10 +87,13 @@ def _load_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> S
             ),
         )
         .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
-        .limit(1)
+    ).all()
+    baseline = next(
+        (scan for scan in candidates if not _is_validation_scan(db, tenant.tenant_id, scan.scan_id)),
+        None,
     )
     if baseline is None:
-        raise HTTPException(status_code=409, detail="Validation requires an earlier Assessment/baseline scan.")
+        raise HTTPException(status_code=409, detail="Validation requires an earlier Full Assessment baseline scan.")
     return baseline
 
 
@@ -92,8 +112,8 @@ def _status(before: ScanIssueRecord | None, after: ScanIssueRecord | None) -> st
     if after is None:
         return "resolved"
 
-    before_severity = SEVERITY_RANK.get(str(before.severity or "").lower(), 0)
-    after_severity = SEVERITY_RANK.get(str(after.severity or "").lower(), 0)
+    before_severity = SEVERITY_RANK[normalize_severity(before.severity)]
+    after_severity = SEVERITY_RANK[normalize_severity(after.severity)]
     before_affected = _safe_int(before.affected_count)
     after_affected = _safe_int(after.affected_count)
     before_impact = _safe_float(before.estimated_impact_eur)
@@ -113,12 +133,12 @@ def _delta(before: ScanIssueRecord | None, after: ScanIssueRecord | None, status
         code=source.code,
         title=source.title,
         category=_normalize_category(source.category),
-        severity_before=str(before.severity or "").lower() if before else None,
-        severity_after=str(after.severity or "").lower() if after else None,
+        severity_before=normalize_severity(before.severity) if before else None,
+        severity_after=normalize_severity(after.severity) if after else None,
         affected_before=max(0, _safe_int(before.affected_count)) if before else 0,
         affected_after=max(0, _safe_int(after.affected_count)) if after else 0,
-        impact_before_eur=round(_safe_float(before.estimated_impact_eur), 2) if before else 0.0,
-        impact_after_eur=round(_safe_float(after.estimated_impact_eur), 2) if after else 0.0,
+        impact_before_eur=round(max(0.0, _safe_float(before.estimated_impact_eur)), 2) if before else 0.0,
+        impact_after_eur=round(max(0.0, _safe_float(after.estimated_impact_eur)), 2) if after else 0.0,
         status=status,
     )
 
@@ -147,34 +167,34 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
 
     baseline_score = max(0, min(100, _safe_int(baseline_scan.data_score)))
     validation_score = max(0, min(100, _safe_int(validation_scan.data_score)))
-    baseline_loss = round(_safe_float(baseline_scan.estimated_loss_eur), 2)
-    validation_loss = round(_safe_float(validation_scan.estimated_loss_eur), 2)
+    baseline_loss = round(max(0.0, _safe_float(baseline_scan.estimated_loss_eur)), 2)
+    validation_loss = round(max(0.0, _safe_float(validation_scan.estimated_loss_eur)), 2)
     score_delta = validation_score - baseline_score
     loss_delta = round(validation_loss - baseline_loss, 2)
     exposure_reduction = round(max(0.0, baseline_loss - validation_loss), 2)
 
     if language == "de":
         executive_summary = (
-            f"Die Validierung vergleicht den neuen Deep Scan {validation_scan.scan_id} mit der vorherigen Baseline "
+            f"Die Validierung vergleicht den neuen Deep Scan {validation_scan.scan_id} mit der Full-Assessment-Baseline "
             f"{baseline_scan.scan_id}. Der Data Health Score verändert sich um {score_delta:+d} Punkte auf "
             f"{validation_score}/100. {len(buckets['resolved'])} Findings wurden behoben, "
             f"{len(buckets['improved'])} verbessert und {len(buckets['new'])} neu erkannt."
         )
         next_steps = [
-            "Prüfe zuerst neue oder verschlechterte Findings und weise klare Owner zu.",
-            "Schließe verbleibende High-Impact-Findings in der nächsten Bereinigungswelle.",
-            "Nutze Monitoring, wenn die Datenqualität nach der Validierung kontinuierlich überwacht werden soll.",
+            "Neue oder verschlechterte Findings zuerst prüfen und priorisieren.",
+            "Verbleibende High-Impact-Findings in der nächsten Bereinigungswelle schließen.",
+            "Monitoring nutzen, wenn die Datenqualität nach der Validierung kontinuierlich überwacht werden soll.",
         ]
     else:
         executive_summary = (
-            f"This Validation compares the new Deep Scan {validation_scan.scan_id} with baseline "
+            f"This Validation compares the new Deep Scan {validation_scan.scan_id} with Full Assessment baseline "
             f"{baseline_scan.scan_id}. The Data Health Score changed by {score_delta:+d} points to "
             f"{validation_score}/100. {len(buckets['resolved'])} findings were resolved, "
             f"{len(buckets['improved'])} improved, and {len(buckets['new'])} new findings were detected."
         )
         next_steps = [
-            "Review new or regressed findings first and assign clear remediation owners.",
-            "Close the remaining high-impact findings in the next remediation wave.",
+            "Review and prioritize new or regressed findings first.",
+            "Close remaining high-impact findings in the next remediation wave.",
             "Use Monitoring if data quality should be controlled continuously after Validation.",
         ]
 
