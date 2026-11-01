@@ -65,6 +65,21 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
                     end;
                 }
 
+                action(OpenFreeHealthPdf)
+                {
+                    Caption = 'Free Health PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the aggregate-only BCSentinel Free Health Report as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'free-health', 'pdf');
+                    end;
+                }
+
                 action(OpenQuickAssessmentReport)
                 {
                     Caption = 'Quick Assessment Report';
@@ -77,6 +92,21 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
                         ReportMgt: Codeunit "DH Report Link Mgt.";
                     begin
                         ReportMgt.OpenReport(Rec."Run ID", 'quick-assessment', 'html');
+                    end;
+                }
+
+                action(OpenQuickAssessmentPdf)
+                {
+                    Caption = 'Quick Assessment PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the prioritized Top 5 BCSentinel Quick Assessment report as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'quick-assessment', 'pdf');
                     end;
                 }
 
@@ -95,6 +125,21 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
                     end;
                 }
 
+                action(OpenAssessmentPdf)
+                {
+                    Caption = 'Assessment PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the detailed BCSentinel Assessment Report as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'assessment', 'pdf');
+                    end;
+                }
+
                 action(OpenValidationReport)
                 {
                     Caption = 'Validation Report';
@@ -107,6 +152,21 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
                         ReportMgt: Codeunit "DH Report Link Mgt.";
                     begin
                         ReportMgt.OpenReport(Rec."Run ID", 'validation', 'html');
+                    end;
+                }
+
+                action(OpenValidationPdf)
+                {
+                    Caption = 'Validation PDF';
+                    ApplicationArea = All;
+                    Image = Print;
+                    ToolTip = 'Open the before/after BCSentinel Validation Report as PDF.';
+
+                    trigger OnAction()
+                    var
+                        ReportMgt: Codeunit "DH Report Link Mgt.";
+                    begin
+                        ReportMgt.OpenReport(Rec."Run ID", 'validation', 'pdf');
                     end;
                 }
             }
