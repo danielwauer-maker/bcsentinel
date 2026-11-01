@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T00:40:00Z",
+  "generated_at_utc": "2026-11-01T02:35:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
@@ -11,50 +11,126 @@
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "451338acd0b20c95f6c2e33f53f623f415dd4c98",
-      "status": "F1-F6 merged; automatic controlled-pilot implementation complete"
+      "technical_baseline_sha": "6fbc46b788591dcb5878a7a4502246c4143f9b3e",
+      "status": "F0-F8 automatic implementation complete; manual controlled-pilot gates remain"
     },
     "frontend": {
       "repo": "danielwauer-maker/bcsentinel-frontend",
       "branch": "main",
-      "technical_baseline_sha": "96486135999a288eac1ce99202c896fa88917973",
-      "status": "F7 Fiverr pilot CTA and LinkedIn launch preparation merged"
+      "technical_baseline_sha": "1bdaed26a8ae5f3e6ccb5f88c7fe808ca090aca1",
+      "status": "F8-aligned Quick Assessment Fiverr CTA merged"
     },
-    "product_system": {"repo": "danielwauer-maker/bcsentinel-product-system", "branch": "main", "status": "normative UX/product reference"}
+    "product_system": {
+      "repo": "danielwauer-maker/bcsentinel-product-system",
+      "branch": "main",
+      "status": "normative UX/product reference"
+    }
   },
   "product_identity": {
     "name": "BCSentinel",
     "claim": "Clean Data – Higher Impact",
     "target": "Microsoft Dynamics 365 Business Central Online",
     "positioning": "Data Health + Business Impact",
-    "scan_model": "one full Data Health / Deep Scan engine; access differs by entitlement, not scan depth",
+    "scan_model": "one full initial Data Health / Deep Scan engine; Free, Quick and Full differ by entitlement, not scan depth; Validation creates the next scan",
     "modules": 10,
     "checks": 199
   },
   "product_ladder": {
-    "free_entry": {"status": "implemented", "scan_credit": "exactly one initial free_entry credit per newly registered tenant", "result_access": "aggregate-only", "report": "Free Health Report"},
-    "assessment": {"status": "implemented", "activation": "unlocks existing qualifying scan", "scan_credit_on_canonical_grant": 0, "full_access_days": 7, "extension": "maximum one additional 7-day extension", "report": "Assessment Report"},
-    "validation": {"status": "implemented", "prerequisite": "prior paid Assessment baseline", "scan_credit_on_grant": 1, "access_anchor": "validation credit consumed_at", "full_access_days": 7, "report": "Validation Report with baseline comparison"},
-    "monitoring": {"status": "existing / later pilot polish", "pilot_blocker": false}
+    "free_health_check": {
+      "status": "implemented",
+      "scan_credit": "exactly one initial free_entry credit per newly registered tenant",
+      "result_access": "aggregate-only",
+      "report": "Free Health Report"
+    },
+    "quick_assessment": {
+      "status": "implemented",
+      "product_code": "quick_assessment",
+      "activation": "unlocks existing qualifying initial scan",
+      "scan_credit_on_grant": 0,
+      "access_days": 7,
+      "finding_limit": 5,
+      "result_access": "top prioritized findings with title, severity, affected count, risk area and concise next step; no exact EUR, issue codes, full root cause, record drilldown or full remediation",
+      "validation_baseline_eligible": false,
+      "report": "Quick Assessment Report"
+    },
+    "assessment": {
+      "status": "implemented",
+      "display_name": "Full Assessment",
+      "activation": "unlocks same existing qualifying initial scan",
+      "scan_credit_on_canonical_grant": 0,
+      "full_access_days": 7,
+      "extension": "maximum one additional 7-day extension",
+      "validation_baseline_eligible": true,
+      "report": "Assessment Report"
+    },
+    "validation": {
+      "status": "implemented",
+      "prerequisite": "prior paid Full Assessment baseline; Quick alone is insufficient",
+      "scan_credit_on_grant": 1,
+      "access_anchor": "validation credit consumed_at",
+      "full_access_days": 7,
+      "report": "Validation Report with baseline comparison"
+    },
+    "monitoring": {
+      "status": "existing / later pilot polish",
+      "pilot_blocker": false
+    }
+  },
+  "record_volume_classes": {
+    "micro": {"min": 0, "max": 100000},
+    "small": {"min": 100001, "max": 250000},
+    "medium": {"min": 250001, "max": 1000000},
+    "large": {"min": 1000001, "max": 5000000},
+    "enterprise": {"min": 5000001, "max": 20000000},
+    "custom": {"min": 20000001, "max": null},
+    "authoritative_metric": "persisted Scan.total_records from completed analysis"
   },
   "direct_pricing_eur": {
+    "status": "unchanged by F8; six record classes map through compatibility layer",
     "up_to_250k": {"assessment": 249, "validation": 129, "monitoring_monthly": 199, "monitoring_annual": 1990},
     "up_to_1m": {"assessment": 399, "validation": 199, "monitoring_monthly": 299, "monitoring_annual": 2990},
     "up_to_5m": {"assessment": 699, "validation": 349, "monitoring_monthly": 499, "monitoring_annual": 4990},
     "up_to_20m": {"assessment": 1190, "validation": 590, "monitoring_monthly": 799, "monitoring_annual": 7990},
     "above_20m": "custom"
   },
+  "fiverr_pricing_usd": {
+    "micro": {"quick_assessment": 129, "assessment": 299, "validation_check": 149},
+    "small": {"quick_assessment": 169, "assessment": 349, "validation_check": 179},
+    "medium": {"quick_assessment": 229, "assessment": 449, "validation_check": 229},
+    "large": {"quick_assessment": 349, "assessment": 649, "validation_check": 329},
+    "enterprise": "custom_offer",
+    "custom": "individual_review",
+    "premium_assessment_plus_micro": 399,
+    "premium_semantics": "Full Assessment plus the one allowed additional 7-day extension; no new scan and no separate core entitlement"
+  },
   "fiverr_channel": {
     "architecture": "sales channel only; no product or Extension fork",
     "payment_truth": "Fiverr",
-    "canonical_products": ["assessment", "validation_check"],
+    "canonical_products": ["quick_assessment", "assessment", "validation_check"],
     "manual_pilot_action": "one operator grant after payment confirmation",
     "automation_after_grant": true,
     "scraping": false,
+    "free_health_check_is_paid_fiverr_package": false,
     "operator_console": "/admin/operator",
-    "operator_features": ["tenant/email/order search", "grant Assessment", "extend Assessment", "grant Validation", "revoke", "resend lifecycle mail", "channel/order/action audit"],
+    "operator_features": [
+      "tenant/email/order search",
+      "grant Quick Assessment",
+      "grant Full Assessment",
+      "extend Full Assessment",
+      "grant Validation",
+      "targeted revoke",
+      "resend lifecycle mail",
+      "authoritative total_records / record class / Fiverr price recommendations",
+      "channel/order/action audit"
+    ],
     "launch_kit": "docs/FIVERR_GIG_LAUNCH_KIT.md",
-    "landing_activation": "frontend supports VITE_FIVERR_GIG_URL; empty value preserves waitlist until real Gig URL is approved",
+    "packages_micro": {
+      "basic": "Quick Assessment $129",
+      "standard": "Full Assessment $299",
+      "premium": "Assessment Plus $399"
+    },
+    "validation_followup_micro": "$149",
+    "landing_activation": "frontend supports VITE_FIVERR_GIG_URL; populated CTA advertises Quick Assessment, empty value preserves waitlist",
     "linkedin_launch_kit": "bcsentinel-frontend/docs/FIVERR_PILOT_LINKEDIN_LAUNCH.md"
   },
   "extension": {
@@ -62,12 +138,17 @@
     "runtime": "16.0",
     "platform": "27.0.0.0",
     "application": "27.0.0.0",
-    "source_status": "complete for controlled-pilot customer workflow",
-    "last_real_runtime_evidence": {"version": "pre-1.0.2.28", "scan_role": "PASS without SUPER, 10/10 modules, 199/199 checks", "viewer_role": "PASS without SUPER"},
+    "source_status": "complete for controlled-pilot customer workflow; Quick delivery can use secure report lifecycle/Fiverr delivery without a dedicated BC client action",
+    "last_real_runtime_evidence": {
+      "version": "pre-1.0.2.28",
+      "scan_role": "PASS without SUPER, 10/10 modules, 199/199 checks",
+      "viewer_role": "PASS without SUPER"
+    },
     "manual_acceptance_required": ["real BC Online final artifact", "SETUP role without SUPER", "real tenant A/B isolation", "fresh PROD E2E"]
   },
   "reports": {
     "free_health": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "contract": "aggregate-safe separate data contract"},
+    "quick_assessment": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "max_findings": 5, "exact_eur": false, "issue_codes": false, "full_root_cause": false, "record_drilldown": false},
     "assessment": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true},
     "validation": {"status": "implemented", "formats": ["json", "html", "pdf"], "share_links": true, "comparison_classes": ["resolved", "improved", "remaining", "regressed", "new"]},
     "monitoring": {"status": "existing; redesign deferred", "pilot_blocker": false}
@@ -77,17 +158,46 @@
     "tenant_profile": true,
     "languages": ["de", "en"],
     "outbox": {"idempotent": true, "retryable": true, "auditable": true, "multi_worker_claim": "FOR UPDATE SKIP LOCKED", "stale_claim_recovery": true, "delivery_semantics": "at-least-once"},
-    "events": ["registration.completed", "scan.started", "scan.completed", "scan.failed", "assessment.activated", "assessment.expiring", "assessment.expired", "assessment.extended", "validation.available", "validation.completed", "validation.expiring"],
+    "events": [
+      "registration.completed",
+      "scan.started",
+      "scan.completed",
+      "scan.failed",
+      "quick_assessment.activated",
+      "quick_assessment.expiring",
+      "quick_assessment.expired",
+      "assessment.activated",
+      "assessment.expiring",
+      "assessment.expired",
+      "assessment.extended",
+      "validation.available",
+      "validation.completed",
+      "validation.expiring"
+    ],
+    "quick_link_rule": "secure Quick report link cannot outlive Quick entitlement and remains revocable through live entitlement recheck",
     "real_sender_manual_gate": ["SMTP provider", "SPF", "DKIM", "DMARC", "bounce handling", "inbox/spam placement"]
   },
   "security_and_recovery": {
-    "tenant_security_automated": "PASS on F5 RC head",
+    "tenant_security_automated": "PASS on current automatic gate chain",
     "operator_basic_auth": "PASS",
     "operator_csrf": "PASS",
     "report_token_contains_api_token": false,
     "paid_report_live_entitlement_recheck": true,
     "postgres_backup_restore_automation": "PASS including migration head, checksum, isolated restore and data probe",
     "manual_remaining": ["real two-tenant BC SaaS isolation", "real off-host/PROD restore procedure"]
+  },
+  "f8_funnel_regression": {
+    "status": "implemented as canonical automatic product-funnel proof",
+    "path": "registration -> initial Free scan -> Free boundary -> Quick same-scan unlock -> Quick expiry -> Full same-scan unlock -> Full expiry -> Validation credit -> second scan -> comparison",
+    "assertions": [
+      "Quick grant creates zero scan credits",
+      "Quick alone cannot create Validation baseline",
+      "Full Assessment grant creates zero scan credits",
+      "one scan exists before Validation",
+      "Validation grants exactly one new scan credit",
+      "exactly two scans exist after Validation",
+      "expiry falls back to Free aggregate access"
+    ]
   },
   "automatic_sprint_status": {
     "F0_product_contract": "complete",
@@ -97,10 +207,11 @@
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
     "F6_fiverr_launch_assets": "merged",
-    "F7_landing_linkedin": "merged; final Fiverr URL activation and actual posting remain manual"
+    "F7_landing_linkedin": "merged",
+    "F8_free_quick_full_validation_funnel": "complete automatically; canonical funnel frozen"
   },
   "readiness": {
-    "technical_fiverr_controlled_pilot_after_automatic_F7": 99,
+    "technical_fiverr_controlled_pilot_after_automatic_F8": 99,
     "real_launch_readiness_before_manual_prod_gates": 93,
     "confidence_note": "planning estimate only; real BC Online, PROD, SMTP/DNS, visual report and Fiverr order acceptance remain release gates"
   },
@@ -108,13 +219,13 @@
     "real BC Online final Extension artifact acceptance",
     "SETUP role without SUPER",
     "real tenant A/B negative isolation",
-    "manual visual QA of Free/Assessment/Validation reports",
+    "manual visual QA of Free/Quick/Full Assessment/Validation reports",
     "real SMTP/DNS deliverability acceptance",
     "real off-host/operational backup restore drill",
     "immutable RC freeze and manual PROD promotion",
-    "fresh external-like PROD E2E",
+    "fresh external-like PROD E2E: Free -> Quick -> Full -> Validation",
     "privacy/DPA/legal/provider-facts signoff",
-    "Fiverr Gig publish and one real order dry-run",
+    "Fiverr Gig asset export/publish and one real order dry-run",
     "set the real published Fiverr Gig URL as VITE_FIVERR_GIG_URL and deploy the reviewed frontend ref",
     "publish the prepared LinkedIn launch post only after all release gates are closed"
   ],
