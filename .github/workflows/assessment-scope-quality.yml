@@ -29,5 +29,11 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Compile scope modules
         run: python -m compileall app/assessment_scope_models.py app/routers/assessment_scope.py app/services/assessment_scope_service.py app/services/free_health_report_service.py app/services/quick_finding_selection_service.py
-      - name: Targeted regression tests
-        run: python -m pytest tests/test_assessment_scope_v1.py tests/test_free_health_report.py tests/test_f8b_quick_assessment_report.py tests/test_f8c_quick_top5_boundary.py -q
+      - name: Assessment scope unit tests
+        run: python -m pytest tests/test_assessment_scope_v1.py -q
+      - name: Free report regression
+        run: python -m pytest tests/test_free_health_report.py -q
+      - name: Quick assessment report regression
+        run: python -m pytest tests/test_f8b_quick_assessment_report.py -q
+      - name: Quick Top-5 boundary regression
+        run: python -m pytest tests/test_f8c_quick_top5_boundary.py -q
