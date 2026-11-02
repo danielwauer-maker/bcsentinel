@@ -1,5 +1,8 @@
+from types import SimpleNamespace
+
 from app.services.validation_report_service import (
     BUSINESS_AREAS,
+    _business_area_deltas,
     _business_area_label,
     _normalize_category,
 )
@@ -30,3 +33,59 @@ def test_vr1_validation_localizes_business_area_labels_without_changing_keys():
     assert _business_area_label("Inventory", "de") == "Lager & Artikel"
     assert _business_area_label("CRM", "de") == "CRM & Stammdaten"
     assert _business_area_label("Purchasing", "en") == "Purchasing"
+
+
+def _scan(**overrides):
+    values = {
+        "finance_score": 100,
+        "sales_score": 100,
+        "purchasing_score": 100,
+        "inventory_score": 100,
+        "crm_score": 100,
+        "manufacturing_score": 100,
+        "service_score": 100,
+        "jobs_score": 100,
+        "hr_score": 100,
+        "system_score": 100,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def _issue(code, category, affected, impact):
+    return SimpleNamespace(
+        code=code,
+        category=category,
+        affected_count=affected,
+        estimated_impact_eur=impact,
+    )
+
+
+def test_vr2_business_area_deltas_cover_all_ten_areas_and_signed_changes():
+    baseline = _scan(inventory_score=61)
+    validation = _scan(inventory_score=78)
+    before = {
+        "ITEM_A": _issue("ITEM_A", "inventory", 50, 12000),
+        "ITEM_B": _issue("ITEM_B", "inventory", 10, 3000),
+    }
+    after = {
+        "ITEM_A": _issue("ITEM_A", "inventory", 20, 5000),
+    }
+
+    rows = _business_area_deltas(baseline, validation, before, after, "de")
+
+    assert len(rows) == 10
+    inventory = next(row for row in rows if row.name == "Inventory")
+    assert inventory.label == "Lager & Artikel"
+    assert inventory.baseline_score == 61
+    assert inventory.validation_score == 78
+    assert inventory.score_delta == 17
+    assert inventory.baseline_findings_count == 2
+    assert inventory.validation_findings_count == 1
+    assert inventory.findings_delta == -1
+    assert inventory.baseline_affected_records == 60
+    assert inventory.validation_affected_records == 20
+    assert inventory.affected_records_delta == -40
+    assert inventory.baseline_estimated_impact_eur == 15000
+    assert inventory.validation_estimated_impact_eur == 5000
+    assert inventory.estimated_impact_delta_eur == -10000
