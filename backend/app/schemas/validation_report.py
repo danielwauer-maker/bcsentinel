@@ -23,6 +23,23 @@ class ValidationFindingDelta(BaseModel):
     status: str
 
 
+class ValidationBusinessAreaDelta(BaseModel):
+    name: str
+    label: str
+    baseline_score: int = Field(ge=0, le=100)
+    validation_score: int = Field(ge=0, le=100)
+    score_delta: int
+    baseline_findings_count: int = Field(default=0, ge=0)
+    validation_findings_count: int = Field(default=0, ge=0)
+    findings_delta: int
+    baseline_affected_records: int = Field(default=0, ge=0)
+    validation_affected_records: int = Field(default=0, ge=0)
+    affected_records_delta: int
+    baseline_estimated_impact_eur: float = 0.0
+    validation_estimated_impact_eur: float = 0.0
+    estimated_impact_delta_eur: float = 0.0
+
+
 class ValidationReport(BaseModel):
     contract_version: str = VALIDATION_REPORT_CONTRACT_VERSION
     financial_methodology: str = "fin-v1"
@@ -58,6 +75,7 @@ class ValidationReport(BaseModel):
     new_count: int = Field(ge=0)
 
     executive_summary: str
+    business_areas: List[ValidationBusinessAreaDelta] = Field(default_factory=list)
     resolved: List[ValidationFindingDelta] = Field(default_factory=list)
     improved: List[ValidationFindingDelta] = Field(default_factory=list)
     remaining: List[ValidationFindingDelta] = Field(default_factory=list)
