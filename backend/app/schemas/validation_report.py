@@ -62,10 +62,14 @@ class ValidationReport(BaseModel):
     baseline_issues_count: int = Field(ge=0)
     validation_issues_count: int = Field(ge=0)
     issues_delta: int
+    baseline_affected_records: int = Field(default=0, ge=0)
+    validation_affected_records: int = Field(default=0, ge=0)
+    affected_records_delta: int = 0
 
     baseline_estimated_loss_eur: float = 0.0
     validation_estimated_loss_eur: float = 0.0
     estimated_loss_delta_eur: float = 0.0
+    business_impact_delta_eur: float = 0.0
     estimated_exposure_reduction_eur: float = 0.0
 
     resolved_count: int = Field(ge=0)
