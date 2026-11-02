@@ -8,6 +8,7 @@ import {
   ReportsPage,
   ScansPage,
 } from './core/CorePages';
+import { AssessmentScopePage } from './core/AssessmentScopePage';
 import { AppShell } from './foundation/AppShell';
 import { FoundationProviders, useTenant } from './foundation/contexts';
 import { LockedStatePage } from './service/LockedStatePage';
@@ -32,6 +33,7 @@ function RoutedPage({ route }: { route: string }) {
     case 'financial': return <FinancialImpactPage />;
     case 'reports': return <ReportsPage />;
     case 'scans': return <ScansPage />;
+    case 'scope': return <AssessmentScopePage />;
     case 'monitoring': return <MonitoringPage />;
     case 'settings': return <SettingsPage />;
     case 'subscription': return <SubscriptionPage />;
