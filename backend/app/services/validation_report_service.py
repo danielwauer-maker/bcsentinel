@@ -13,6 +13,30 @@ from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
 from app.services.quick_finding_selection_service import normalize_severity
 
 SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+BUSINESS_AREAS = (
+    "Finance",
+    "Sales",
+    "Purchasing",
+    "Inventory",
+    "CRM",
+    "Manufacturing",
+    "Service",
+    "Jobs",
+    "HR",
+    "System",
+)
+BUSINESS_AREA_LABELS_DE = {
+    "Finance": "Finanzen",
+    "Sales": "Verkauf",
+    "Purchasing": "Einkauf",
+    "Inventory": "Lager & Artikel",
+    "CRM": "CRM & Stammdaten",
+    "Manufacturing": "Produktion",
+    "Service": "Service",
+    "Jobs": "Projekte",
+    "HR": "Personal",
+    "System": "System",
+}
 
 
 def _safe_int(value: object) -> int:
@@ -29,8 +53,46 @@ def _safe_float(value: object) -> float:
         return 0.0
 
 
-def _normalize_category(value: str | None) -> str:
-    return str(value or "System").strip() or "System"
+def _normalize_category(value: str | None, code: str | None = None) -> str:
+    raw = str(value or "").strip().lower()
+    code_upper = str(code or "").upper()
+    mapping = {
+        "finance": "Finance",
+        "sales": "Sales",
+        "sale": "Sales",
+        "purchase": "Purchasing",
+        "purchasing": "Purchasing",
+        "inventory": "Inventory",
+        "item": "Inventory",
+        "crm": "CRM",
+        "customer": "CRM",
+        "vendor": "Purchasing",
+        "manufacturing": "Manufacturing",
+        "service": "Service",
+        "jobs": "Jobs",
+        "job": "Jobs",
+        "hr": "HR",
+        "system": "System",
+    }
+    if raw in mapping:
+        return mapping[raw]
+    if code_upper.startswith(("CUSTOMER", "CUSTOMERS")):
+        return "CRM"
+    if code_upper.startswith(("VENDOR", "VENDORS", "PURCHASE", "PURCH")):
+        return "Purchasing"
+    if code_upper.startswith(("ITEM", "ITEMS", "INVENTORY", "WAREHOUSE", "VALUE")):
+        return "Inventory"
+    if code_upper.startswith(("SALE", "SALES")):
+        return "Sales"
+    if "LEDGER" in code_upper or code_upper.startswith(("GL_", "G_L_")):
+        return "Finance"
+    return "System"
+
+
+def _business_area_label(category: str, language: str) -> str:
+    if language == "de":
+        return BUSINESS_AREA_LABELS_DE.get(category, BUSINESS_AREA_LABELS_DE["System"])
+    return category if category in BUSINESS_AREAS else "System"
 
 
 def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) -> Scan:
@@ -126,13 +188,20 @@ def _status(before: ScanIssueRecord | None, after: ScanIssueRecord | None) -> st
     return "remaining"
 
 
-def _delta(before: ScanIssueRecord | None, after: ScanIssueRecord | None, status: str) -> ValidationFindingDelta:
+def _delta(
+    before: ScanIssueRecord | None,
+    after: ScanIssueRecord | None,
+    status: str,
+    language: str,
+) -> ValidationFindingDelta:
     source = after or before
     assert source is not None
+    category = _normalize_category(source.category, source.code)
     return ValidationFindingDelta(
         code=source.code,
         title=source.title,
-        category=_normalize_category(source.category),
+        category=category,
+        category_label=_business_area_label(category, language),
         severity_before=normalize_severity(before.severity) if before else None,
         severity_after=normalize_severity(after.severity) if after else None,
         affected_before=max(0, _safe_int(before.affected_count)) if before else 0,
@@ -163,7 +232,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         before = before_map.get(code)
         after = after_map.get(code)
         status = _status(before, after)
-        buckets[status].append(_delta(before, after, status))
+        buckets[status].append(_delta(before, after, status, language))
 
     baseline_score = max(0, min(100, _safe_int(baseline_scan.data_score)))
     validation_score = max(0, min(100, _safe_int(validation_scan.data_score)))
