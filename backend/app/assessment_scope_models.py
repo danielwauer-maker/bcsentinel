@@ -54,3 +54,20 @@ class AssessmentScopeModule(Base):
     module_score: Mapped[int] = mapped_column(Integer, default=100)
 
     snapshot: Mapped["AssessmentScopeSnapshot"] = relationship(back_populates="modules")
+
+
+class ValidationScopeBinding(Base):
+    """Immutable link between a Validation scan and the confirmed Full scope used as baseline."""
+
+    __tablename__ = "validation_scope_bindings"
+    __table_args__ = (
+        UniqueConstraint("validation_scan_id", name="uq_validation_scope_validation_scan"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), index=True)
+    validation_scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id"), index=True)
+    baseline_scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id"), index=True)
+    scope_snapshot_id: Mapped[int] = mapped_column(ForeignKey("assessment_scope_snapshots.id"), index=True)
+    scope_version: Mapped[int] = mapped_column(Integer)
+    bound_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
