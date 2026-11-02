@@ -7,6 +7,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, Tenant, TenantScanCredit
+from app.operator_models import TenantOperatorAction
 from app.schemas.validation_report import (
     ValidationBusinessAreaDelta,
     ValidationFindingDelta,
@@ -115,16 +116,7 @@ def _business_area_label(category: str, language: str) -> str:
     return category if category in BUSINESS_AREAS else "System"
 
 
-def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) -> Scan:
-    scan = db.scalar(
-        select(Scan).where(
-            Scan.scan_id == validation_scan_id,
-            Scan.tenant_id == tenant.tenant_id,
-        )
-    )
-    if scan is None:
-        raise HTTPException(status_code=404, detail="Validation report not found.")
-
+def _load_validation_credit(db: Session, tenant: Tenant, validation_scan_id: str) -> TenantScanCredit:
     credit = db.scalar(
         select(TenantScanCredit).where(
             TenantScanCredit.tenant_id == tenant.tenant_id,
@@ -135,7 +127,19 @@ def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) 
     )
     if credit is None:
         raise HTTPException(status_code=404, detail="Scan is not a completed BCSentinel Validation scan.")
-    return scan
+    return credit
+
+
+def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) -> tuple[Scan, TenantScanCredit]:
+    scan = db.scalar(
+        select(Scan).where(
+            Scan.scan_id == validation_scan_id,
+            Scan.tenant_id == tenant.tenant_id,
+        )
+    )
+    if scan is None:
+        raise HTTPException(status_code=404, detail="Validation report not found.")
+    return scan, _load_validation_credit(db, tenant, validation_scan_id)
 
 
 def _is_validation_scan(db: Session, tenant_id: str, scan_id: str) -> bool:
@@ -149,7 +153,30 @@ def _is_validation_scan(db: Session, tenant_id: str, scan_id: str) -> bool:
     ) is not None
 
 
-def _load_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> Scan:
+def _validate_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan, baseline_scan_id: str) -> Scan:
+    baseline = db.scalar(
+        select(Scan).where(
+            Scan.tenant_id == tenant.tenant_id,
+            Scan.scan_id == baseline_scan_id,
+        )
+    )
+    if baseline is None:
+        raise HTTPException(status_code=409, detail="The Validation baseline scan no longer exists.")
+    is_prior = (
+        baseline.generated_at_utc < validation_scan.generated_at_utc
+        or (
+            baseline.generated_at_utc == validation_scan.generated_at_utc
+            and baseline.id < validation_scan.id
+        )
+    )
+    if not is_prior:
+        raise HTTPException(status_code=409, detail="Validation baseline must predate the Validation scan.")
+    if _is_validation_scan(db, tenant.tenant_id, baseline.scan_id):
+        raise HTTPException(status_code=409, detail="A Validation scan cannot be used as the Full Assessment baseline.")
+    return baseline
+
+
+def _legacy_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> Scan:
     candidates = db.scalars(
         select(Scan)
         .where(
@@ -172,6 +199,43 @@ def _load_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> S
     if baseline is None:
         raise HTTPException(status_code=409, detail="Validation requires an earlier Full Assessment baseline scan.")
     return baseline
+
+
+def _load_baseline_scan(
+    db: Session,
+    tenant: Tenant,
+    validation_scan: Scan,
+    validation_credit: TenantScanCredit,
+) -> tuple[Scan, str]:
+    # VR4 baseline precedence:
+    # 1) explicit immutable baseline stored on the Validation scan credit,
+    # 2) operator grant audit that already stores the exact Assessment scan,
+    # 3) legacy compatibility fallback for older/direct records only.
+    if validation_credit.baseline_scan_id:
+        return (
+            _validate_baseline_scan(db, tenant, validation_scan, validation_credit.baseline_scan_id),
+            "validation_credit",
+        )
+
+    action = db.scalar(
+        select(TenantOperatorAction)
+        .where(
+            TenantOperatorAction.tenant_id == tenant.tenant_id,
+            TenantOperatorAction.action_type == "validation_grant",
+            TenantOperatorAction.status == "completed",
+            TenantOperatorAction.credit_id == validation_credit.id,
+            TenantOperatorAction.related_scan_id.is_not(None),
+        )
+        .order_by(TenantOperatorAction.created_at_utc.desc(), TenantOperatorAction.id.desc())
+        .limit(1)
+    )
+    if action is not None and action.related_scan_id:
+        return (
+            _validate_baseline_scan(db, tenant, validation_scan, action.related_scan_id),
+            "operator_validation_grant",
+        )
+
+    return _legacy_baseline_scan(db, tenant, validation_scan), "legacy_prior_assessment"
 
 
 def _issue_map(db: Session, scan_id: str) -> dict[str, ScanIssueRecord]:
@@ -289,8 +353,13 @@ def _affected_records(rows: dict[str, ScanIssueRecord]) -> int:
 
 def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str) -> ValidationReport:
     language = tenant_language(tenant)
-    validation_scan = _load_validation_scan(db, tenant, validation_scan_id)
-    baseline_scan = _load_baseline_scan(db, tenant, validation_scan)
+    validation_scan, validation_credit = _load_validation_scan(db, tenant, validation_scan_id)
+    baseline_scan, baseline_reference_source = _load_baseline_scan(
+        db,
+        tenant,
+        validation_scan,
+        validation_credit,
+    )
 
     before_map = _issue_map(db, baseline_scan.scan_id)
     after_map = _issue_map(db, validation_scan.scan_id)
@@ -352,6 +421,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         tenant_id=tenant.tenant_id,
         language=language,
         baseline_scan_id=baseline_scan.scan_id,
+        baseline_reference_source=baseline_reference_source,
         validation_scan_id=validation_scan.scan_id,
         generated_at_utc=datetime.now(timezone.utc),
         baseline_generated_at_utc=baseline_scan.generated_at_utc,
@@ -378,6 +448,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         regressed_count=len(buckets["regressed"]),
         new_count=len(buckets["new"]),
         executive_summary=executive_summary,
+        management_interpretation=[],
         business_areas=business_areas,
         resolved=buckets["resolved"],
         improved=buckets["improved"],
