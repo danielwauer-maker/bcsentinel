@@ -13,6 +13,7 @@ class ValidationFindingDelta(BaseModel):
     code: str
     title: str
     category: str
+    category_label: str
     severity_before: str | None = None
     severity_after: str | None = None
     affected_before: int = Field(default=0, ge=0)
