@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, Tenant
@@ -130,28 +130,40 @@ def _impact(issues: list[ScanIssueRecord]) -> float:
 
 
 def _load_scans(db: Session, tenant: Tenant, current_scan_id: str | None) -> list[Scan]:
-    rows = db.scalars(
-        select(Scan)
-        .where(Scan.tenant_id == tenant.tenant_id)
-        .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
-        .limit(MAX_MONITORING_SCANS)
-    ).all()
-    if not rows:
-        raise HTTPException(status_code=404, detail="Monitoring report requires at least one completed scan.")
-    rows = list(reversed(rows))
+    base_filters = [Scan.tenant_id == tenant.tenant_id, Scan.scan_type != "quick"]
     if current_scan_id:
-        matching = [index for index, row in enumerate(rows) if row.scan_id == current_scan_id]
-        if not matching:
-            owned = db.scalar(
-                select(Scan).where(Scan.tenant_id == tenant.tenant_id, Scan.scan_id == current_scan_id)
+        current = db.scalar(
+            select(Scan).where(
+                Scan.tenant_id == tenant.tenant_id,
+                Scan.scan_id == current_scan_id,
             )
-            if owned is None:
-                raise HTTPException(status_code=404, detail="Monitoring report scan not found.")
-            rows.append(owned)
-            rows = sorted(rows, key=lambda row: (row.generated_at_utc, row.id))[-MAX_MONITORING_SCANS:]
-        else:
-            rows = rows[: matching[0] + 1]
-    return rows
+        )
+        if current is None:
+            raise HTTPException(status_code=404, detail="Monitoring report scan not found.")
+        if (current.scan_type or "").strip().lower() == "quick":
+            raise HTTPException(status_code=409, detail="Monitoring reports use deep-scan history; Quick scans are excluded.")
+        rows = db.scalars(
+            select(Scan)
+            .where(
+                *base_filters,
+                or_(
+                    Scan.generated_at_utc < current.generated_at_utc,
+                    and_(Scan.generated_at_utc == current.generated_at_utc, Scan.id <= current.id),
+                ),
+            )
+            .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
+            .limit(MAX_MONITORING_SCANS)
+        ).all()
+    else:
+        rows = db.scalars(
+            select(Scan)
+            .where(*base_filters)
+            .order_by(Scan.generated_at_utc.desc(), Scan.id.desc())
+            .limit(MAX_MONITORING_SCANS)
+        ).all()
+    if not rows:
+        raise HTTPException(status_code=404, detail="Monitoring report requires at least one completed deep scan.")
+    return list(reversed(rows))
 
 
 def _issue_maps(db: Session, scan_ids: list[str]) -> dict[str, dict[str, ScanIssueRecord]]:
@@ -282,8 +294,8 @@ def _finding_lifecycle(
     previous_index = max(0, current_index - 1)
     rows: list[MonitoringFindingLifecycle] = []
     for code, history in histories.items():
-        first_index, first_scan, first_issue = history[0]
-        last_index, last_scan, last_issue = history[-1]
+        first_index, first_scan, _ = history[0]
+        _, last_scan, last_issue = history[-1]
         by_index = {index: issue for index, _, issue in history}
         current = by_index.get(current_index)
         previous = by_index.get(previous_index) if current_index > 0 else current
@@ -370,7 +382,7 @@ def _management_interpretation(
     areas: list[MonitoringBusinessAreaTrend],
     lifecycle: list[MonitoringFindingLifecycle],
 ) -> list[str]:
-    regressing = [row for row in lifecycle if row.status in {"regressing", "reopened", "new"}]
+    attention = [row for row in lifecycle if row.status in {"regressing", "reopened", "new"}]
     improving_areas = sorted(
         [row for row in areas if row.trend == "improving"],
         key=lambda row: (row.score_delta_previous, -row.impact_delta_previous_eur),
@@ -389,15 +401,15 @@ def _management_interpretation(
             result.append(
                 f"Aktuell stärkste Bereichsentwicklung: {row.label} mit {row.score_delta_previous:+d} Score-Punkten gegenüber dem vorherigen Scan."
             )
-        if deteriorating_areas or regressing:
+        if deteriorating_areas or attention:
             area_text = deteriorating_areas[0].label if deteriorating_areas else None
             if area_text:
                 result.append(
-                    f"Weiterer Fokus erforderlich: {area_text} entwickelt sich negativ; zusätzlich bestehen {len(regressing)} neue, wieder aufgetretene oder sich verschlechternde Findings."
+                    f"Weiterer Fokus erforderlich: {area_text} entwickelt sich negativ; zusätzlich bestehen {len(attention)} neue, wieder aufgetretene oder sich verschlechternde Findings."
                 )
             else:
                 result.append(
-                    f"Weiterer Fokus erforderlich: {len(regressing)} Findings sind neu, wieder aufgetreten oder haben sich verschlechtert."
+                    f"Weiterer Fokus erforderlich: {len(attention)} Findings sind neu, wieder aufgetreten oder haben sich verschlechtert."
                 )
         else:
             result.append("Im letzten Scan wurden keine neuen, wieder aufgetretenen oder sich verschlechternden Findings erkannt.")
@@ -411,14 +423,14 @@ def _management_interpretation(
         result.append(
             f"Strongest current area development: {row.label}, {row.score_delta_previous:+d} score points versus the previous scan."
         )
-    if deteriorating_areas or regressing:
+    if deteriorating_areas or attention:
         area_text = deteriorating_areas[0].label if deteriorating_areas else None
         if area_text:
             result.append(
-                f"Further attention is required: {area_text} is deteriorating and {len(regressing)} findings are new, reopened or regressing."
+                f"Further attention is required: {area_text} is deteriorating and {len(attention)} findings are new, reopened or regressing."
             )
         else:
-            result.append(f"Further attention is required: {len(regressing)} findings are new, reopened or regressing.")
+            result.append(f"Further attention is required: {len(attention)} findings are new, reopened or regressing.")
     else:
         result.append("No new, reopened or regressing findings were detected in the latest scan.")
     return result[:3]
