@@ -207,10 +207,6 @@ def _load_baseline_scan(
     validation_scan: Scan,
     validation_credit: TenantScanCredit,
 ) -> tuple[Scan, str]:
-    # VR4 baseline precedence:
-    # 1) explicit immutable baseline stored on the Validation scan credit,
-    # 2) operator grant audit that already stores the exact Assessment scan,
-    # 3) legacy compatibility fallback for older/direct records only.
     if validation_credit.baseline_scan_id:
         return (
             _validate_baseline_scan(db, tenant, validation_scan, validation_credit.baseline_scan_id),
@@ -351,6 +347,136 @@ def _affected_records(rows: dict[str, ScanIssueRecord]) -> int:
     return sum(max(0, _safe_int(issue.affected_count)) for issue in rows.values())
 
 
+def _format_eur(value: float, language: str) -> str:
+    rounded = int(round(abs(value)))
+    formatted = f"{rounded:,}".replace(",", "." if language == "de" else ",")
+    return f"{formatted} EUR"
+
+
+def _management_interpretation(
+    *,
+    language: str,
+    score_delta: int,
+    issues_delta: int,
+    affected_records_delta: int,
+    business_impact_delta_eur: float,
+    business_areas: list[ValidationBusinessAreaDelta],
+    buckets: dict[str, list[ValidationFindingDelta]],
+) -> list[str]:
+    insights: list[str] = []
+
+    if language == "de":
+        if score_delta > 0 and business_impact_delta_eur < 0:
+            insights.append(
+                f"Die Gesamtentwicklung ist positiv: Der Data Health Score steigt um {score_delta} Punkte, "
+                f"während der modellierte Business Impact um {_format_eur(business_impact_delta_eur, language)} sinkt."
+            )
+        elif score_delta < 0 or business_impact_delta_eur > 0:
+            insights.append(
+                f"Die Validierung zeigt zusätzlichen Handlungsbedarf: Score-Delta {score_delta:+d} Punkte und "
+                f"Business-Impact-Delta {business_impact_delta_eur:+.0f} EUR."
+            )
+        else:
+            insights.append(
+                f"Die Gesamtentwicklung ist stabil: Score-Delta {score_delta:+d}, Finding-Delta {issues_delta:+d} "
+                f"und Affected-Records-Delta {affected_records_delta:+d}."
+            )
+    else:
+        if score_delta > 0 and business_impact_delta_eur < 0:
+            insights.append(
+                f"Overall development is positive: Data Health Score increased by {score_delta} points while "
+                f"modeled Business Impact decreased by {_format_eur(business_impact_delta_eur, language)}."
+            )
+        elif score_delta < 0 or business_impact_delta_eur > 0:
+            insights.append(
+                f"Validation shows additional attention is required: score delta {score_delta:+d} points and "
+                f"Business Impact delta {business_impact_delta_eur:+.0f} EUR."
+            )
+        else:
+            insights.append(
+                f"Overall development is stable: score delta {score_delta:+d}, finding delta {issues_delta:+d}, "
+                f"and affected-record delta {affected_records_delta:+d}."
+            )
+
+    improvement_candidates = [
+        area
+        for area in business_areas
+        if area.score_delta > 0 or area.estimated_impact_delta_eur < 0 or area.affected_records_delta < 0
+    ]
+    if improvement_candidates:
+        strongest = sorted(
+            improvement_candidates,
+            key=lambda area: (
+                -area.score_delta,
+                area.estimated_impact_delta_eur,
+                area.affected_records_delta,
+                area.name,
+            ),
+        )[0]
+        if language == "de":
+            detail = f"Score {strongest.score_delta:+d}"
+            if strongest.estimated_impact_delta_eur != 0:
+                detail += f", modellierter Impact {strongest.estimated_impact_delta_eur:+.0f} EUR"
+            insights.append(f"Die stärkste belegbare Bereichsverbesserung liegt in {strongest.label}: {detail}.")
+        else:
+            detail = f"score {strongest.score_delta:+d}"
+            if strongest.estimated_impact_delta_eur != 0:
+                detail += f", modeled impact {strongest.estimated_impact_delta_eur:+.0f} EUR"
+            insights.append(f"The strongest evidenced business-area improvement is {strongest.label}: {detail}.")
+
+    attention = list(buckets["regressed"]) + list(buckets["new"])
+    if attention:
+        area_rollup: dict[str, dict[str, float | int | str]] = {}
+        for finding in attention:
+            bucket = area_rollup.setdefault(
+                finding.category,
+                {"label": finding.category_label, "count": 0, "impact": 0.0},
+            )
+            bucket["count"] = int(bucket["count"]) + 1
+            bucket["impact"] = float(bucket["impact"]) + max(0.0, finding.impact_after_eur)
+        area_name, area_data = sorted(
+            area_rollup.items(),
+            key=lambda item: (-float(item[1]["impact"]), -int(item[1]["count"]), item[0]),
+        )[0]
+        count = len(attention)
+        if language == "de":
+            insights.append(
+                f"Priorität bleibt bei neuen bzw. verschlechterten Findings: {count} insgesamt; "
+                f"der höchste aktuelle modellierte Impact dieser Gruppe liegt in {area_data['label']} "
+                f"({_format_eur(float(area_data['impact']), language)})."
+            )
+        else:
+            insights.append(
+                f"Priority remains on new or regressed findings: {count} in total; the highest current modeled "
+                f"impact in this group is in {area_data['label']} ({_format_eur(float(area_data['impact']), language)})."
+            )
+    else:
+        high_remaining = [
+            finding
+            for finding in buckets["remaining"]
+            if (finding.severity_after or "").lower() in {"critical", "high"}
+        ]
+        if high_remaining:
+            if language == "de":
+                insights.append(
+                    f"Es wurden keine neuen oder verschlechterten Findings erkannt; {len(high_remaining)} "
+                    "unveränderte Critical/High-Findings benötigen jedoch weiterhin Aufmerksamkeit."
+                )
+            else:
+                insights.append(
+                    f"No new or regressed findings were detected; {len(high_remaining)} unchanged Critical/High "
+                    "findings still require attention."
+                )
+        else:
+            insights.append(
+                "Keine neuen oder verschlechterten Findings wurden erkannt."
+                if language == "de"
+                else "No new or regressed findings were detected."
+            )
+
+    return insights[:3]
+
+
 def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str) -> ValidationReport:
     language = tenant_language(tenant)
     validation_scan, validation_credit = _load_validation_scan(db, tenant, validation_scan_id)
@@ -388,8 +514,19 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
     baseline_loss = round(max(0.0, _safe_float(baseline_scan.estimated_loss_eur)), 2)
     validation_loss = round(max(0.0, _safe_float(validation_scan.estimated_loss_eur)), 2)
     score_delta = validation_score - baseline_score
+    issues_delta = validation_issues - baseline_issues
+    affected_delta = validation_affected - baseline_affected
     loss_delta = round(validation_loss - baseline_loss, 2)
     exposure_reduction = round(max(0.0, baseline_loss - validation_loss), 2)
+    management_interpretation = _management_interpretation(
+        language=language,
+        score_delta=score_delta,
+        issues_delta=issues_delta,
+        affected_records_delta=affected_delta,
+        business_impact_delta_eur=loss_delta,
+        business_areas=business_areas,
+        buckets=buckets,
+    )
 
     if language == "de":
         executive_summary = (
@@ -433,10 +570,10 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         score_delta=score_delta,
         baseline_issues_count=baseline_issues,
         validation_issues_count=validation_issues,
-        issues_delta=validation_issues - baseline_issues,
+        issues_delta=issues_delta,
         baseline_affected_records=baseline_affected,
         validation_affected_records=validation_affected,
-        affected_records_delta=validation_affected - baseline_affected,
+        affected_records_delta=affected_delta,
         baseline_estimated_loss_eur=baseline_loss,
         validation_estimated_loss_eur=validation_loss,
         estimated_loss_delta_eur=loss_delta,
@@ -448,7 +585,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         regressed_count=len(buckets["regressed"]),
         new_count=len(buckets["new"]),
         executive_summary=executive_summary,
-        management_interpretation=[],
+        management_interpretation=management_interpretation,
         business_areas=business_areas,
         resolved=buckets["resolved"],
         improved=buckets["improved"],
