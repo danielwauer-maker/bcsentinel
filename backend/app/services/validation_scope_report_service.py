@@ -31,7 +31,9 @@ AREA_TO_MODULE = {
 
 def _module_for_category(value: str | None) -> str:
     normalized = str(value or "").strip().lower()
-    return AREA_TO_MODULE.get(normalized, "system")
+    # Unknown/custom categories must stay outside the confirmed BC standard
+    # scope. Never fall back to System because System is always included.
+    return AREA_TO_MODULE.get(normalized, "unsupported")
 
 
 def _binding_scope(db: Session, report: ValidationReport) -> AssessmentScopeSnapshot | None:
