@@ -192,6 +192,6 @@ def render_monitoring_report_pdf(report: MonitoringReport) -> bytes:
     buffer.write(f"xref\n0 {len(fixed) + 1}\n".encode())
     buffer.write(b"0000000000 65535 f \n")
     for offset in offsets[1:]:
-        buffer.write(f"{offset:010d} 00000 n \n")
+        buffer.write(f"{offset:010d} 00000 n \n".encode())
     buffer.write(f"trailer\n<< /Size {len(fixed) + 1} /Root {catalog_obj} 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode())
     return buffer.getvalue()
