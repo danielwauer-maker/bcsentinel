@@ -310,6 +310,7 @@ class TenantScanCredit(Base):
     source: Mapped[str] = mapped_column(String(40), default="manual")
     source_purchase_id: Mapped[int | None] = mapped_column(ForeignKey("tenant_product_purchases.id"), nullable=True, index=True)
     consumed_scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    baseline_scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     consumed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
