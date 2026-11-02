@@ -34,6 +34,8 @@ ISSUE_AREA_ALIASES = {
     "crm": "crm",
     "job": "jobs",
     "jobs": "jobs",
+    "project": "jobs",
+    "projects": "jobs",
     "finance": "finance",
     "sales": "sales",
     "manufacturing": "manufacturing",
@@ -59,6 +61,44 @@ def _positive(*values: object) -> bool:
     return any(int(value or 0) > 0 for value in values)
 
 
+def _profile_has_usage_evidence(scan: Scan) -> bool:
+    return _positive(
+        scan.customers_count,
+        scan.vendors_count,
+        scan.items_count,
+        scan.customer_ledger_entries_count,
+        scan.vendor_ledger_entries_count,
+        scan.item_ledger_entries_count,
+        scan.sales_headers_count,
+        scan.sales_lines_count,
+        scan.purchase_headers_count,
+        scan.purchase_lines_count,
+        scan.gl_entries_count,
+        scan.value_entries_count,
+        scan.warehouse_entries_count,
+    )
+
+
+def _legacy_enabled_modules(scan: Scan) -> set[str]:
+    aliases = {
+        "purchase": "purchasing",
+        "purchasing": "purchasing",
+        "job": "jobs",
+        "jobs": "jobs",
+        "project": "jobs",
+        "projects": "jobs",
+    }
+    result: set[str] = set()
+    for raw in str(scan.enabled_modules or "").split(","):
+        normalized = raw.strip().lower()
+        if not normalized:
+            continue
+        normalized = aliases.get(normalized, normalized)
+        if normalized in SUPPORTED_STANDARD_MODULES:
+            result.add(normalized)
+    return result
+
+
 def _usage_detection(scan: Scan, module_code: str) -> tuple[str, float, str]:
     if module_code == "system":
         return "active", 1.0, "Core Business Central system/setup area."
@@ -78,11 +118,6 @@ def _usage_detection(scan: Scan, module_code: str) -> tuple[str, float, str]:
         if _positive(scan.items_count, scan.item_ledger_entries_count, scan.value_entries_count, scan.warehouse_entries_count):
             return "active", 0.98, "Item, inventory, value or warehouse activity detected."
         return "not_detected", 0.92, "No item, inventory, value or warehouse activity detected."
-
-    # The current scan contract does not yet carry reliable usage counters for
-    # CRM, Manufacturing, Service, Jobs or HR. Treating absence of evidence as
-    # 'not used' would create false scope exclusions, so v1 deliberately marks
-    # these areas unknown until Full Assessment confirmation.
     return "unknown", 0.0, "Current scan profile has no reliable usage signal for this standard area."
 
 
@@ -116,12 +151,16 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
         return existing
 
     fallback_score = _bounded_int(scan.data_score, 100)
+    has_usage_evidence = _profile_has_usage_evidence(scan)
+    legacy_enabled = _legacy_enabled_modules(scan)
+    legacy_mode = not has_usage_evidence
+
     snapshot = AssessmentScopeSnapshot(
         scan_id=scan.scan_id,
         tenant_id=scan.tenant_id,
         version=_next_version(db, scan.scan_id),
         state="auto",
-        source="usage_detection",
+        source="legacy_scan_contract" if legacy_mode else "usage_detection",
         score_type="preliminary",
         score_value=fallback_score,
         supported_modules_count=len(SUPPORTED_STANDARD_MODULES),
@@ -136,8 +175,17 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
 
     module_rows: list[AssessmentScopeModule] = []
     for module_code, (display_name, score_attr) in SUPPORTED_STANDARD_MODULES.items():
-        detection_status, confidence, reason = _usage_detection(scan, module_code)
-        included = detection_status == "active"
+        if legacy_mode:
+            # Historical scans predate reliable usage counters. Preserve their
+            # stored score and, when present, their legacy enabled-module list.
+            included = module_code in legacy_enabled if legacy_enabled else True
+            detection_status = "active" if included else "not_detected"
+            confidence = 0.5
+            reason = "Legacy scan compatibility: usage profile was not available."
+        else:
+            detection_status, confidence, reason = _usage_detection(scan, module_code)
+            included = detection_status == "active"
+
         row = AssessmentScopeModule(
             snapshot_id=snapshot.id,
             module_code=module_code,
@@ -155,7 +203,7 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
 
     snapshot.included_modules_count = sum(bool(row.included_in_score) for row in module_rows)
     snapshot.unknown_modules_count = sum(row.detection_status == "unknown" for row in module_rows)
-    snapshot.score_value = _weighted_score(module_rows, fallback_score)
+    snapshot.score_value = fallback_score if legacy_mode else _weighted_score(module_rows, fallback_score)
     db.commit()
     db.refresh(snapshot)
     return snapshot
@@ -204,7 +252,7 @@ def confirm_scope(db: Session, scan: Scan, decisions: dict[str, str]) -> Assessm
         elif decision == "exclude":
             included = False
         else:
-            included = auto_row.detection_status == "active"
+            included = bool(auto_row.included_in_score)
         row = AssessmentScopeModule(
             snapshot_id=snapshot.id,
             module_code=module_code,
