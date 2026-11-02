@@ -3,8 +3,9 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import ScanIssueRecord
+from app.models import Scan, ScanIssueRecord
 from app.schemas.quick_assessment_report import QuickFinding
+from app.services.assessment_scope_service import get_or_create_auto_scope, included_module_codes, supported_issue_area
 
 MAX_QUICK_FINDINGS = 5
 SEVERITY_WEIGHT = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
@@ -54,7 +55,6 @@ def normalize_severity(value: object) -> str:
 
 
 def quick_impact_band(value: object, language: str) -> str:
-    """Return the safe non-monetary band used by Quick, never the exact amount."""
     impact = max(0.0, _safe_float(value))
     if impact < 5_000:
         return "Niedrig" if language == "de" else "Low"
@@ -66,38 +66,19 @@ def quick_impact_band(value: object, language: str) -> str:
 
 
 def _risk_area(issue: ScanIssueRecord) -> str:
-    raw = str(issue.category or "").strip().lower()
-    code = str(issue.code or "").upper()
-    mapping = {
+    module_code = supported_issue_area(issue)
+    return {
         "finance": "Finance",
         "sales": "Sales",
-        "purchase": "Purchasing",
         "purchasing": "Purchasing",
         "inventory": "Inventory",
-        "item": "Inventory",
         "crm": "CRM",
-        "customer": "CRM",
-        "vendor": "Purchasing",
         "manufacturing": "Manufacturing",
         "service": "Service",
         "jobs": "Jobs",
-        "job": "Jobs",
         "hr": "HR",
         "system": "System",
-    }
-    if raw in mapping:
-        return mapping[raw]
-    if code.startswith(("CUSTOMER", "CUSTOMERS")):
-        return "CRM"
-    if code.startswith(("VENDOR", "VENDORS", "PURCHASE", "PURCH")):
-        return "Purchasing"
-    if code.startswith(("ITEM", "ITEMS", "INVENTORY", "WAREHOUSE", "VALUE")):
-        return "Inventory"
-    if code.startswith(("SALE", "SALES")):
-        return "Sales"
-    if "LEDGER" in code or code.startswith(("GL_", "G_L_")):
-        return "Finance"
-    return "System"
+    }.get(module_code, "System")
 
 
 def _area_label(area: str, language: str) -> str:
@@ -105,11 +86,6 @@ def _area_label(area: str, language: str) -> str:
 
 
 def _next_action(issue: ScanIssueRecord, area: str, language: str) -> str:
-    """Create a deterministic Quick-safe action tied to this finding.
-
-    The allowed finding title is used only as context. No recommendation preview,
-    root-cause detail, issue code or record-level detail is copied from Full.
-    """
     title = str(issue.title or "Data quality finding").strip() or "Data quality finding"
     if language == "de":
         area_action = {
@@ -142,7 +118,6 @@ def _next_action(issue: ScanIssueRecord, area: str, language: str) -> str:
 
 
 def _priority_key(issue: ScanIssueRecord) -> tuple[float, int, int, str]:
-    """Match Full Assessment business priority without exposing its sensitive inputs."""
     severity = normalize_severity(issue.severity)
     return (
         -_safe_float(issue.estimated_impact_eur),
@@ -153,19 +128,20 @@ def _priority_key(issue: ScanIssueRecord) -> tuple[float, int, int, str]:
 
 
 def select_quick_findings(db: Session, *, scan_id: str, language: str) -> list[QuickFinding]:
-    """Return at most five Quick-safe findings for a scan.
+    """Return at most five Quick-safe findings inside the automatic standard scope."""
+    scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id))
+    if scan is None:
+        return []
+    scope = get_or_create_auto_scope(db, scan)
+    active_scope = included_module_codes(scope)
 
-    Exact modeled impact, issue codes, recommendation previews, root-cause data
-    and record detail are used neither as output fields nor copied into the
-    Quick contract. Modeled impact is used only as an internal ranking signal
-    and converted to a safe non-monetary impact band for disclosure.
-    """
     issues = list(
         db.scalars(
             select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan_id)
         ).all()
     )
-    prioritized = sorted(issues, key=_priority_key)[:MAX_QUICK_FINDINGS]
+    scoped_issues = [issue for issue in issues if supported_issue_area(issue) in active_scope]
+    prioritized = sorted(scoped_issues, key=_priority_key)[:MAX_QUICK_FINDINGS]
 
     findings: list[QuickFinding] = []
     for rank, issue in enumerate(prioritized, start=1):
