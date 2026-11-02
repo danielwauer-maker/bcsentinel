@@ -1,7 +1,9 @@
 from types import SimpleNamespace
 
+from app.schemas.validation_report import ValidationReport
 from app.services.validation_report_service import (
     BUSINESS_AREAS,
+    _affected_records,
     _business_area_deltas,
     _business_area_label,
     _normalize_category,
@@ -89,3 +91,21 @@ def test_vr2_business_area_deltas_cover_all_ten_areas_and_signed_changes():
     assert inventory.baseline_estimated_impact_eur == 15000
     assert inventory.validation_estimated_impact_eur == 5000
     assert inventory.estimated_impact_delta_eur == -10000
+
+
+def test_vr3_affected_records_are_derived_consistently_from_finding_projection():
+    rows = {
+        "A": _issue("A", "finance", 25, 1000),
+        "B": _issue("B", "sales", 15, 500),
+        "C": _issue("C", "system", -5, 0),
+    }
+    assert _affected_records(rows) == 40
+
+
+def test_vr3_contract_preserves_signed_business_impact_delta():
+    fields = ValidationReport.model_fields
+    assert "baseline_affected_records" in fields
+    assert "validation_affected_records" in fields
+    assert "affected_records_delta" in fields
+    assert "business_impact_delta_eur" in fields
+    assert fields["business_impact_delta_eur"].default == 0.0
