@@ -1,7 +1,21 @@
 from datetime import datetime, timezone
 
-from app.models import Scan
+from app.models import Scan, Tenant
 from app.services.assessment_scope_service import confirm_scope, get_or_create_auto_scope, included_module_codes
+
+
+def _tenant() -> Tenant:
+    now = datetime.now(timezone.utc)
+    return Tenant(
+        tenant_id="tenant-scope",
+        api_token="tok_scope_test",
+        environment_name="test",
+        app_version="1.0.0",
+        created_at_utc=now,
+        last_seen_at_utc=now,
+        current_plan="free",
+        license_status="active",
+    )
 
 
 def _scan() -> Scan:
@@ -36,10 +50,17 @@ def _scan() -> Scan:
     )
 
 
-def test_auto_scope_scores_only_detected_active_standard_modules(db_session):
+def _persist_scan(db_session, scan_id: str) -> Scan:
+    db_session.add(_tenant())
     scan = _scan()
+    scan.scan_id = scan_id
     db_session.add(scan)
     db_session.commit()
+    return scan
+
+
+def test_auto_scope_scores_only_detected_active_standard_modules(db_session):
+    scan = _persist_scan(db_session, "scope-test-1")
 
     scope = get_or_create_auto_scope(db_session, scan)
     included = included_module_codes(scope)
@@ -51,10 +72,7 @@ def test_auto_scope_scores_only_detected_active_standard_modules(db_session):
 
 
 def test_full_scope_confirmation_recalculates_without_new_scan(db_session):
-    scan = _scan()
-    scan.scan_id = "scope-test-2"
-    db_session.add(scan)
-    db_session.commit()
+    scan = _persist_scan(db_session, "scope-test-2")
 
     auto = get_or_create_auto_scope(db_session, scan)
     confirmed = confirm_scope(
@@ -79,10 +97,7 @@ def test_full_scope_confirmation_recalculates_without_new_scan(db_session):
 
 
 def test_custom_extensions_are_not_part_of_score(db_session):
-    scan = _scan()
-    scan.scan_id = "scope-test-3"
-    db_session.add(scan)
-    db_session.commit()
+    scan = _persist_scan(db_session, "scope-test-3")
 
     scope = get_or_create_auto_scope(db_session, scan)
     assert scope.unsupported_extensions_json == "[]"
