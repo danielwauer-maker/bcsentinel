@@ -1,12 +1,13 @@
 from types import SimpleNamespace
 
 from app.models import TenantScanCredit
-from app.schemas.validation_report import ValidationReport
+from app.schemas.validation_report import ValidationBusinessAreaDelta, ValidationFindingDelta, ValidationReport
 from app.services.validation_report_service import (
     BUSINESS_AREAS,
     _affected_records,
     _business_area_deltas,
     _business_area_label,
+    _management_interpretation,
     _normalize_category,
 )
 
@@ -121,3 +122,93 @@ def test_vr4_report_exposes_baseline_reference_provenance():
     fields = ValidationReport.model_fields
     assert "baseline_reference_source" in fields
     assert fields["baseline_reference_source"].default == "legacy_prior_assessment"
+
+
+def _area(name, label, score_delta, impact_delta, affected_delta):
+    return ValidationBusinessAreaDelta(
+        name=name,
+        label=label,
+        baseline_score=60,
+        validation_score=60 + score_delta,
+        score_delta=score_delta,
+        baseline_findings_count=2,
+        validation_findings_count=1,
+        findings_delta=-1,
+        baseline_affected_records=100,
+        validation_affected_records=max(0, 100 + affected_delta),
+        affected_records_delta=affected_delta,
+        baseline_estimated_impact_eur=20000,
+        validation_estimated_impact_eur=max(0, 20000 + impact_delta),
+        estimated_impact_delta_eur=impact_delta,
+    )
+
+
+def _finding(code, category, category_label, status, impact_after, severity="high"):
+    return ValidationFindingDelta(
+        code=code,
+        title=code,
+        category=category,
+        category_label=category_label,
+        severity_before=severity if status != "new" else None,
+        severity_after=severity,
+        affected_before=10 if status != "new" else 0,
+        affected_after=12,
+        impact_before_eur=1000 if status != "new" else 0,
+        impact_after_eur=impact_after,
+        status=status,
+    )
+
+
+def test_vr5_management_interpretation_is_deterministic_and_evidence_based():
+    areas = [
+        _area("Inventory", "Lager & Artikel", 17, -10000, -40),
+        _area("Sales", "Verkauf", 4, -2000, -5),
+    ]
+    buckets = {
+        "resolved": [],
+        "improved": [],
+        "remaining": [],
+        "regressed": [_finding("PURCH_A", "Purchasing", "Einkauf", "regressed", 9000)],
+        "new": [_finding("PURCH_B", "Purchasing", "Einkauf", "new", 6000)],
+    }
+
+    first = _management_interpretation(
+        language="de",
+        score_delta=11,
+        issues_delta=-9,
+        affected_records_delta=-80,
+        business_impact_delta_eur=-81630,
+        business_areas=areas,
+        buckets=buckets,
+    )
+    second = _management_interpretation(
+        language="de",
+        score_delta=11,
+        issues_delta=-9,
+        affected_records_delta=-80,
+        business_impact_delta_eur=-81630,
+        business_areas=areas,
+        buckets=buckets,
+    )
+
+    assert first == second
+    assert len(first) == 3
+    assert "positiv" in first[0]
+    assert "Lager & Artikel" in first[1]
+    assert "Einkauf" in first[2]
+    assert "15.000 EUR" in first[2]
+
+
+def test_vr5_management_interpretation_does_not_invent_risk_when_none_exists():
+    areas = [_area("Finance", "Finanzen", 2, -1000, -2)]
+    buckets = {"resolved": [], "improved": [], "remaining": [], "regressed": [], "new": []}
+    insights = _management_interpretation(
+        language="de",
+        score_delta=2,
+        issues_delta=-1,
+        affected_records_delta=-2,
+        business_impact_delta_eur=-1000,
+        business_areas=areas,
+        buckets=buckets,
+    )
+    assert insights[-1] == "Keine neuen oder verschlechterten Findings wurden erkannt."
