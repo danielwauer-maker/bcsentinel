@@ -51,13 +51,17 @@ The resulting score is the **Confirmed Baseline Score**. A score change caused s
 
 The core `System` area cannot be excluded.
 
+Full Assessment JSON/HTML/PDF and dashboard projections must use the confirmed scope once it exists: score, findings, affected records and modeled impact must not silently include excluded standard areas.
+
 ### Check-level exceptions
 
 v1 does not expose a global list of all checks as a score-optimization control. Existing finding/exception workflows remain the mechanism for individual exceptions. `Not applicable` and `Accepted risk` must remain auditable and must not be confused with a corrected issue.
 
 ## Validation
 
-Validation creates the next real full scan after remediation and binds comparison to the confirmed Full Assessment baseline/scope. Only the delta between the confirmed baseline and Validation is a remediation improvement.
+Validation creates the next real full scan after remediation and compares it with the confirmed Full Assessment baseline using the same supported standard scope. Only the delta between the confirmed baseline and Validation is a remediation improvement.
+
+When a scope-aware Validation report is created, BCSentinel persists an immutable binding between the Validation scan, the baseline scan and the exact confirmed scope snapshot/version. Subsequent report rendering must reuse that binding rather than silently switching to a newer scope version. Historical Validation runs that predate Assessment Scope v1 retain legacy whole-scan semantics.
 
 Example:
 
@@ -73,4 +77,4 @@ Recommended wording:
 
 > BCSentinel assesses supported Microsoft Dynamics 365 Business Central standard data and process areas. Third-party extensions and custom business logic are outside the scoring scope unless explicitly supported.
 
-Full Assessment should expose an Assessment Coverage section with supported/included/unknown module counts and, when available, detected unsupported extension metadata.
+Full Assessment exposes an Assessment Coverage section with supported/included/unknown module counts and, when available, detected unsupported extension metadata.
