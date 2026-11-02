@@ -150,11 +150,6 @@ def _is_validation_scan(db: Session, tenant_id: str, scan_id: str) -> bool:
 
 
 def _load_baseline_scan(db: Session, tenant: Tenant, validation_scan: Scan) -> Scan:
-    # A Validation must compare against a prior non-Validation scan. In the
-    # canonical funnel this is the scan unlocked as Full Assessment and exposed
-    # by the Full contract as validation_baseline_scan_id. Quick alone cannot
-    # grant Validation, and a previous Validation scan must never silently
-    # replace the original Full baseline.
     candidates = db.scalars(
         select(Scan)
         .where(
@@ -288,6 +283,10 @@ def _business_area_deltas(
     return rows
 
 
+def _affected_records(rows: dict[str, ScanIssueRecord]) -> int:
+    return sum(max(0, _safe_int(issue.affected_count)) for issue in rows.values())
+
+
 def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str) -> ValidationReport:
     language = tenant_language(tenant)
     validation_scan = _load_validation_scan(db, tenant, validation_scan_id)
@@ -313,6 +312,10 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
     business_areas = _business_area_deltas(baseline_scan, validation_scan, before_map, after_map, language)
     baseline_score = _bounded_score(baseline_scan.data_score)
     validation_score = _bounded_score(validation_scan.data_score)
+    baseline_issues = max(0, _safe_int(baseline_scan.issues_count))
+    validation_issues = max(0, _safe_int(validation_scan.issues_count))
+    baseline_affected = _affected_records(before_map)
+    validation_affected = _affected_records(after_map)
     baseline_loss = round(max(0.0, _safe_float(baseline_scan.estimated_loss_eur)), 2)
     validation_loss = round(max(0.0, _safe_float(validation_scan.estimated_loss_eur)), 2)
     score_delta = validation_score - baseline_score
@@ -358,12 +361,16 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         baseline_score=baseline_score,
         validation_score=validation_score,
         score_delta=score_delta,
-        baseline_issues_count=max(0, _safe_int(baseline_scan.issues_count)),
-        validation_issues_count=max(0, _safe_int(validation_scan.issues_count)),
-        issues_delta=_safe_int(validation_scan.issues_count) - _safe_int(baseline_scan.issues_count),
+        baseline_issues_count=baseline_issues,
+        validation_issues_count=validation_issues,
+        issues_delta=validation_issues - baseline_issues,
+        baseline_affected_records=baseline_affected,
+        validation_affected_records=validation_affected,
+        affected_records_delta=validation_affected - baseline_affected,
         baseline_estimated_loss_eur=baseline_loss,
         validation_estimated_loss_eur=validation_loss,
         estimated_loss_delta_eur=loss_delta,
+        business_impact_delta_eur=loss_delta,
         estimated_exposure_reduction_eur=exposure_reduction,
         resolved_count=len(buckets["resolved"]),
         improved_count=len(buckets["improved"]),
