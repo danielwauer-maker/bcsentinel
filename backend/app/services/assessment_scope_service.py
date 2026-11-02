@@ -43,8 +43,16 @@ ISSUE_AREA_ALIASES = {
 }
 
 
+def _bounded_int(value: object, default: int = 100) -> int:
+    try:
+        parsed = default if value is None else int(value)
+    except (TypeError, ValueError):
+        parsed = default
+    return max(0, min(100, parsed))
+
+
 def _score(scan: Scan, attr: str) -> int:
-    return max(0, min(100, int(getattr(scan, attr, 100) or 100)))
+    return _bounded_int(getattr(scan, attr, None), 100)
 
 
 def _positive(*values: object) -> bool:
@@ -81,7 +89,7 @@ def _usage_detection(scan: Scan, module_code: str) -> tuple[str, float, str]:
 def _weighted_score(modules: Iterable[AssessmentScopeModule], fallback: int) -> int:
     included = [module.module_score for module in modules if bool(module.included_in_score)]
     if not included:
-        return max(0, min(100, int(fallback or 100)))
+        return _bounded_int(fallback, 100)
     return int(round(sum(included) / len(included)))
 
 
@@ -107,6 +115,7 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
     if existing is not None:
         return existing
 
+    fallback_score = _bounded_int(scan.data_score, 100)
     snapshot = AssessmentScopeSnapshot(
         scan_id=scan.scan_id,
         tenant_id=scan.tenant_id,
@@ -114,7 +123,7 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
         state="auto",
         source="usage_detection",
         score_type="preliminary",
-        score_value=int(scan.data_score or 100),
+        score_value=fallback_score,
         supported_modules_count=len(SUPPORTED_STANDARD_MODULES),
         included_modules_count=0,
         unknown_modules_count=0,
@@ -146,7 +155,7 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
 
     snapshot.included_modules_count = sum(bool(row.included_in_score) for row in module_rows)
     snapshot.unknown_modules_count = sum(row.detection_status == "unknown" for row in module_rows)
-    snapshot.score_value = _weighted_score(module_rows, int(scan.data_score or 100))
+    snapshot.score_value = _weighted_score(module_rows, fallback_score)
     db.commit()
     db.refresh(snapshot)
     return snapshot
