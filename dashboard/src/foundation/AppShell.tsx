@@ -9,6 +9,7 @@ const navItems = [
   { route: 'financial', de: 'Finanzieller Impact', en: 'Financial Impact' },
   { route: 'reports', de: 'Executive Report', en: 'Executive Report' },
   { route: 'scans', de: 'Scans', en: 'Scans' },
+  { route: 'scope', de: 'Assessment Scope', en: 'Assessment Scope' },
   { route: 'monitoring', de: 'Monitoring', en: 'Monitoring' },
   { route: 'settings', de: 'Einstellungen', en: 'Settings' },
   { route: 'subscription', de: 'Subscription', en: 'Subscription' },
@@ -70,8 +71,8 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
           <strong>Read-only Dashboard</strong>
           <small>
             {language === 'de'
-              ? 'Operative Steuerung bleibt in Business Central.'
-              : 'Operational control remains in Business Central.'}
+              ? 'Operative BC-Daten bleiben read-only; Full Assessment erlaubt nur die fachliche Scope-Bestätigung.'
+              : 'Operational BC data stays read-only; Full Assessment only allows assessment-scope confirmation.'}
           </small>
         </div>
       </aside>
@@ -120,7 +121,7 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
                     ? 'Scan-Scope bestätigt: keine Ausnahmen angewendet'
                     : 'Scan scope confirmed: no exceptions applied'}
               </strong>
-              <span>{language === 'de' ? 'Historischer Snapshot · Änderungen erfolgen nur in Business Central.' : 'Historical snapshot · changes remain in Business Central.'}</span>
+              <span>{language === 'de' ? 'Historischer Snapshot · Ausnahmen bleiben auditierbar.' : 'Historical snapshot · exceptions remain auditable.'}</span>
             </div>
             {exceptionState.data.exceptions_applied && (
               <details>
@@ -143,8 +144,8 @@ export function AppShell({ children, activeRoute }: PropsWithChildren<{ activeRo
           <span>BCSentinel</span>
           <span>
             {language === 'de'
-              ? 'Runtime-Daten · tenant-isoliert · read-only Weboberfläche'
-              : 'Runtime data · tenant isolated · read-only web surface'}
+              ? 'Runtime-Daten · tenant-isoliert · operative BC-Daten read-only'
+              : 'Runtime data · tenant isolated · operational BC data read-only'}
           </span>
         </footer>
       </div>
