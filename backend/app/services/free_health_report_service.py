@@ -8,20 +8,25 @@ from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.schemas.free_health_report import FreeHealthReport, FreeRiskArea, FreeSeveritySummary
+from app.services.assessment_scope_service import (
+    get_or_create_auto_scope,
+    included_module_codes,
+    supported_issue_area,
+)
 from app.services.localization_service import tenant_language
 
 
 MODULES = [
-    ("Finance", "finance_score"),
-    ("Sales", "sales_score"),
-    ("Purchasing", "purchasing_score"),
-    ("Inventory", "inventory_score"),
-    ("CRM", "crm_score"),
-    ("Manufacturing", "manufacturing_score"),
-    ("Service", "service_score"),
-    ("Jobs", "jobs_score"),
-    ("HR", "hr_score"),
-    ("System", "system_score"),
+    ("Finance", "finance_score", "finance"),
+    ("Sales", "sales_score", "sales"),
+    ("Purchasing", "purchasing_score", "purchasing"),
+    ("Inventory", "inventory_score", "inventory"),
+    ("CRM", "crm_score", "crm"),
+    ("Manufacturing", "manufacturing_score", "manufacturing"),
+    ("Service", "service_score", "service"),
+    ("Jobs", "jobs_score", "jobs"),
+    ("HR", "hr_score", "hr"),
+    ("System", "system_score", "system"),
 ]
 
 
@@ -153,6 +158,9 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
     if not company_label:
         company_label = tenant.tenant_id
 
+    scope = get_or_create_auto_scope(db, scan)
+    active_scope = included_module_codes(scope)
+
     modules_analyzed = _enabled_module_count(scan.enabled_modules)
     if modules_analyzed == 0 and run is not None:
         modules_analyzed = max(
@@ -160,7 +168,8 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
             _safe_int(run.completed_modules) or _safe_int(run.total_modules),
         )
 
-    issues = list(db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all())
+    all_issues = list(db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all())
+    issues = [issue for issue in all_issues if supported_issue_area(issue) in active_scope]
     by_category: dict[str, dict[str, int | str]] = {}
     severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 
@@ -175,7 +184,9 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
             bucket["severity"] = severity
 
     risk_areas: list[FreeRiskArea] = []
-    for name, score_attr in MODULES:
+    for name, score_attr, module_code in MODULES:
+        if module_code not in active_scope:
+            continue
         score = max(0, min(100, _safe_int(getattr(scan, score_attr, 100), 100)))
         bucket = by_category.get(name, {"issues": 0, "affected": 0, "severity": "info"})
         if score < 100 or int(bucket["issues"]) > 0:
@@ -191,29 +202,30 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
             )
     risk_areas.sort(key=lambda row: (row.score, -row.issue_count, -row.affected_records, row.name))
 
-    score = max(0, min(100, _safe_int(scan.data_score)))
+    score = max(0, min(100, _safe_int(scope.score_value)))
     affected_records = sum(max(0, _safe_int(issue.affected_count)) for issue in issues)
-    band = _impact_band(_safe_float(scan.estimated_loss_eur), language)
+    band = _impact_band(sum(max(0.0, _safe_float(issue.estimated_impact_eur)) for issue in issues), language)
+    scoped_issue_count = len(issues)
 
     if language == "de":
         summary = (
-            f"Der BCSentinel Health Check bewertet die Datenqualität mit {score}/100. "
-            f"Es wurden {max(0, _safe_int(scan.issues_count))} Auffälligkeiten in {len(risk_areas)} Risikobereichen erkannt. "
-            "Der Free Health Check zeigt bewusst nur aggregierte Ergebnisse."
+            f"Der vorläufige BCSentinel Health Score liegt bei {score}/100. "
+            f"Es wurden {scoped_issue_count} Auffälligkeiten in {len(risk_areas)} automatisch erkannten Standard-Risikobereichen berücksichtigt. "
+            "Die Anwendbarkeit weiterer Standardmodule wurde noch nicht bestätigt; Drittanbieter-Extensions und kundenspezifische Logik sind nicht Teil des Scores."
         )
         upgrade_message = (
-            "Das Assessment schaltet für 7 Tage die konkreten Findings, Ursachen, finanziellen Modellwerte, "
-            "Prioritäten und Handlungsempfehlungen dieses bereits abgeschlossenen Scans frei."
+            "Das Full Assessment schaltet die vollständigen Findings frei und ermöglicht die Bestätigung des tatsächlichen Standard-Modul-Scopes. "
+            "Eine daraus resultierende Score-Änderung ist eine Scope-Anpassung und noch keine gemessene Verbesserung."
         )
     else:
         summary = (
-            f"The BCSentinel Health Check rates data quality at {score}/100. "
-            f"It identified {max(0, _safe_int(scan.issues_count))} issues across {len(risk_areas)} risk areas. "
-            "The Free Health Check intentionally contains aggregate results only."
+            f"The preliminary BCSentinel Health Score is {score}/100. "
+            f"It includes {scoped_issue_count} issues across {len(risk_areas)} automatically detected standard risk areas. "
+            "Applicability of further standard modules has not yet been confirmed; third-party extensions and custom business logic are outside the score."
         )
         upgrade_message = (
-            "Assessment unlocks the concrete findings, root causes, modeled financial values, priorities and "
-            "recommendations from this already completed scan for 7 days."
+            "Full Assessment unlocks the complete findings and allows confirmation of the actual standard-module scope. "
+            "Any score change caused by scope confirmation is a scope adjustment, not measured remediation."
         )
 
     return FreeHealthReport(
@@ -229,7 +241,7 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
         score_status=_status(score, language),
         checks_count=max(0, _safe_int(scan.checks_count)),
         modules_analyzed=modules_analyzed,
-        issues_count=max(0, _safe_int(scan.issues_count)),
+        issues_count=scoped_issue_count,
         affected_records=affected_records,
         total_records=max(0, _safe_int(scan.total_records)),
         severity=FreeSeveritySummary(**severity_counts),
