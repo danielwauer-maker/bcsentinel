@@ -46,7 +46,10 @@ def _module_code(value: str | None) -> str:
     for token, module in CATEGORY_TO_MODULE.items():
         if token and token in normalized:
             return module
-    return "system"
+    # Unknown/custom categories are deliberately outside the supported standard
+    # scope. Falling back to System would incorrectly keep custom findings in a
+    # confirmed Full Assessment because System is always included.
+    return "unsupported"
 
 
 def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveReport:
