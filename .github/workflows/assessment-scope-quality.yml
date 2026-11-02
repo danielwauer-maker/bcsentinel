@@ -29,8 +29,12 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Compile scope modules
         run: python -m compileall app/assessment_scope_models.py app/routers/assessment_scope.py app/services/assessment_scope_service.py app/services/free_health_report_service.py app/services/quick_finding_selection_service.py
-      - name: Assessment scope unit tests
-        run: python -m pytest tests/test_assessment_scope_v1.py -q
+      - name: Auto scope detection unit test
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_auto_scope_scores_only_detected_active_standard_modules -q
+      - name: Full confirmation unit test
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_full_scope_confirmation_recalculates_without_new_scan -q
+      - name: Custom extension boundary unit test
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_custom_extensions_are_not_part_of_score -q
       - name: Free report regression
         run: python -m pytest tests/test_free_health_report.py -q
       - name: Quick assessment report regression
