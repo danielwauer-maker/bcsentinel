@@ -7,7 +7,11 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, Tenant, TenantScanCredit
-from app.schemas.validation_report import ValidationFindingDelta, ValidationReport
+from app.schemas.validation_report import (
+    ValidationBusinessAreaDelta,
+    ValidationFindingDelta,
+    ValidationReport,
+)
 from app.services.localization_service import tenant_language
 from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
 from app.services.quick_finding_selection_service import normalize_severity
@@ -25,6 +29,18 @@ BUSINESS_AREAS = (
     "HR",
     "System",
 )
+BUSINESS_AREA_SCORE_ATTRS = {
+    "Finance": "finance_score",
+    "Sales": "sales_score",
+    "Purchasing": "purchasing_score",
+    "Inventory": "inventory_score",
+    "CRM": "crm_score",
+    "Manufacturing": "manufacturing_score",
+    "Service": "service_score",
+    "Jobs": "jobs_score",
+    "HR": "hr_score",
+    "System": "system_score",
+}
 BUSINESS_AREA_LABELS_DE = {
     "Finance": "Finanzen",
     "Sales": "Verkauf",
@@ -51,6 +67,10 @@ def _safe_float(value: object) -> float:
         return float(value or 0.0)
     except (TypeError, ValueError):
         return 0.0
+
+
+def _bounded_score(value: object) -> int:
+    return max(0, min(100, _safe_int(value)))
 
 
 def _normalize_category(value: str | None, code: str | None = None) -> str:
@@ -212,6 +232,62 @@ def _delta(
     )
 
 
+def _aggregate_issue_metrics(rows: dict[str, ScanIssueRecord]) -> dict[str, dict[str, float | int]]:
+    metrics: dict[str, dict[str, float | int]] = {
+        area: {"findings": 0, "affected": 0, "impact": 0.0} for area in BUSINESS_AREAS
+    }
+    for issue in rows.values():
+        area = _normalize_category(issue.category, issue.code)
+        bucket = metrics[area]
+        bucket["findings"] = int(bucket["findings"]) + 1
+        bucket["affected"] = int(bucket["affected"]) + max(0, _safe_int(issue.affected_count))
+        bucket["impact"] = float(bucket["impact"]) + max(0.0, _safe_float(issue.estimated_impact_eur))
+    return metrics
+
+
+def _business_area_deltas(
+    baseline_scan: Scan,
+    validation_scan: Scan,
+    before_map: dict[str, ScanIssueRecord],
+    after_map: dict[str, ScanIssueRecord],
+    language: str,
+) -> list[ValidationBusinessAreaDelta]:
+    before_metrics = _aggregate_issue_metrics(before_map)
+    after_metrics = _aggregate_issue_metrics(after_map)
+    rows: list[ValidationBusinessAreaDelta] = []
+    for area in BUSINESS_AREAS:
+        score_attr = BUSINESS_AREA_SCORE_ATTRS[area]
+        before_score = _bounded_score(getattr(baseline_scan, score_attr, 0))
+        after_score = _bounded_score(getattr(validation_scan, score_attr, 0))
+        before = before_metrics[area]
+        after = after_metrics[area]
+        before_findings = int(before["findings"])
+        after_findings = int(after["findings"])
+        before_affected = int(before["affected"])
+        after_affected = int(after["affected"])
+        before_impact = round(float(before["impact"]), 2)
+        after_impact = round(float(after["impact"]), 2)
+        rows.append(
+            ValidationBusinessAreaDelta(
+                name=area,
+                label=_business_area_label(area, language),
+                baseline_score=before_score,
+                validation_score=after_score,
+                score_delta=after_score - before_score,
+                baseline_findings_count=before_findings,
+                validation_findings_count=after_findings,
+                findings_delta=after_findings - before_findings,
+                baseline_affected_records=before_affected,
+                validation_affected_records=after_affected,
+                affected_records_delta=after_affected - before_affected,
+                baseline_estimated_impact_eur=before_impact,
+                validation_estimated_impact_eur=after_impact,
+                estimated_impact_delta_eur=round(after_impact - before_impact, 2),
+            )
+        )
+    return rows
+
+
 def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str) -> ValidationReport:
     language = tenant_language(tenant)
     validation_scan = _load_validation_scan(db, tenant, validation_scan_id)
@@ -234,8 +310,9 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         status = _status(before, after)
         buckets[status].append(_delta(before, after, status, language))
 
-    baseline_score = max(0, min(100, _safe_int(baseline_scan.data_score)))
-    validation_score = max(0, min(100, _safe_int(validation_scan.data_score)))
+    business_areas = _business_area_deltas(baseline_scan, validation_scan, before_map, after_map, language)
+    baseline_score = _bounded_score(baseline_scan.data_score)
+    validation_score = _bounded_score(validation_scan.data_score)
     baseline_loss = round(max(0.0, _safe_float(baseline_scan.estimated_loss_eur)), 2)
     validation_loss = round(max(0.0, _safe_float(validation_scan.estimated_loss_eur)), 2)
     score_delta = validation_score - baseline_score
@@ -294,6 +371,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         regressed_count=len(buckets["regressed"]),
         new_count=len(buckets["new"]),
         executive_summary=executive_summary,
+        business_areas=business_areas,
         resolved=buckets["resolved"],
         improved=buckets["improved"],
         remaining=buckets["remaining"],
