@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from app.models import TenantScanCredit
 from app.schemas.validation_report import ValidationReport
 from app.services.validation_report_service import (
     BUSINESS_AREAS,
@@ -109,3 +110,14 @@ def test_vr3_contract_preserves_signed_business_impact_delta():
     assert "affected_records_delta" in fields
     assert "business_impact_delta_eur" in fields
     assert fields["business_impact_delta_eur"].default == 0.0
+
+
+def test_vr4_validation_credit_can_persist_exact_baseline_scan():
+    assert "baseline_scan_id" in TenantScanCredit.__table__.columns
+    assert TenantScanCredit.__table__.columns["baseline_scan_id"].nullable is True
+
+
+def test_vr4_report_exposes_baseline_reference_provenance():
+    fields = ValidationReport.model_fields
+    assert "baseline_reference_source" in fields
+    assert fields["baseline_reference_source"].default == "legacy_prior_assessment"
