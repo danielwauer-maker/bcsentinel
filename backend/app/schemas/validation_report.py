@@ -49,6 +49,7 @@ class ValidationReport(BaseModel):
     tenant_id: str
     language: str = "en"
     baseline_scan_id: str
+    baseline_reference_source: str = "legacy_prior_assessment"
     validation_scan_id: str
     generated_at_utc: datetime
     baseline_generated_at_utc: datetime
@@ -79,6 +80,7 @@ class ValidationReport(BaseModel):
     new_count: int = Field(ge=0)
 
     executive_summary: str
+    management_interpretation: List[str] = Field(default_factory=list)
     business_areas: List[ValidationBusinessAreaDelta] = Field(default_factory=list)
     resolved: List[ValidationFindingDelta] = Field(default_factory=list)
     improved: List[ValidationFindingDelta] = Field(default_factory=list)
