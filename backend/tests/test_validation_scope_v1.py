@@ -26,11 +26,12 @@ def test_validation_scope_binding_is_unique_per_validation_scan():
     assert "uq_validation_scope_validation_scan" in constraint_names
 
 
-def test_validation_scope_filters_findings_to_confirmed_modules():
+def test_validation_scope_filters_findings_to_confirmed_modules_and_excludes_custom():
     rows = [
         _finding("SALES_A", "Sales"),
         _finding("HR_A", "HR"),
         _finding("ITEM_A", "Inventory"),
+        _finding("CUSTOM_APP_A", "Contoso Custom Extension"),
     ]
     filtered = _filter_findings(rows, {"sales", "inventory", "system"})
     assert [row.code for row in filtered] == ["SALES_A", "ITEM_A"]
