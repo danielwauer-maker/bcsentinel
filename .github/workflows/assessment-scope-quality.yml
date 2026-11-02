@@ -1,0 +1,73 @@
+name: Assessment Scope Quality
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/assessment_scope_models.py'
+      - 'backend/app/routers/assessment_scope.py'
+      - 'backend/app/routers/__init__.py'
+      - 'backend/app/services/assessment_scope_service.py'
+      - 'backend/app/services/executive_report_v2_service.py'
+      - 'backend/app/services/free_health_report_service.py'
+      - 'backend/app/services/quick_finding_selection_service.py'
+      - 'backend/app/services/validation_scope_report_service.py'
+      - 'backend/alembic/versions/0033_assessment_scope_v1.py'
+      - 'backend/alembic/versions/0034_validation_scope_binding.py'
+      - 'backend/tests/test_assessment_scope_v1.py'
+      - 'backend/tests/test_validation_scope_v1.py'
+      - 'dashboard/src/api/assessmentScope.ts'
+      - 'dashboard/src/core/AssessmentScopePage.tsx'
+      - 'dashboard/src/App.tsx'
+      - 'dashboard/src/foundation/AppShell.tsx'
+      - '.github/workflows/assessment-scope-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  scope-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Compile scope modules
+        working-directory: backend
+        run: python -m compileall app/assessment_scope_models.py app/routers/assessment_scope.py app/services/assessment_scope_service.py app/services/executive_report_v2_service.py app/services/free_health_report_service.py app/services/quick_finding_selection_service.py app/services/validation_scope_report_service.py
+      - name: Auto scope detection unit test
+        working-directory: backend
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_auto_scope_scores_only_detected_active_standard_modules -q
+      - name: Full confirmation unit test
+        working-directory: backend
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_full_scope_confirmation_recalculates_without_new_scan -q
+      - name: Custom extension boundary unit test
+        working-directory: backend
+        run: python -m pytest tests/test_assessment_scope_v1.py::test_custom_extensions_are_not_part_of_score -q
+      - name: Validation scope binding tests
+        working-directory: backend
+        run: python -m pytest tests/test_validation_scope_v1.py -q
+      - name: Free report regression
+        working-directory: backend
+        run: python -m pytest tests/test_free_health_report.py -q
+      - name: Quick assessment report regression
+        working-directory: backend
+        run: python -m pytest tests/test_f8b_quick_assessment_report.py -q
+      - name: Quick Top-5 boundary regression
+        working-directory: backend
+        run: python -m pytest tests/test_f8c_quick_top5_boundary.py -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm install
+      - name: Type-check dashboard scope UI
+        working-directory: dashboard
+        run: npm run check
+      - name: Build dashboard scope UI
+        working-directory: dashboard
+        run: npm run build
