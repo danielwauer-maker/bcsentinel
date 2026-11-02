@@ -20,7 +20,7 @@ from app.services.monitoring_report_pdf_service import render_monitoring_report_
 from app.services.monitoring_report_service import build_monitoring_report
 from app.services.tenant_access_service import enforce_tenant_is_active
 
-router = APIRouter(prefix="/reports/monitoring", tags=["reports"])
+router = APIRouter(prefix="/monitoring", tags=["reports"])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent.parent / "templates"))
 MONITORING_REPORT_SHARE_TOKEN_TYPE = "monitoring_report_share"
 REPORT_SHARE_TOKEN_MINUTES = 15
