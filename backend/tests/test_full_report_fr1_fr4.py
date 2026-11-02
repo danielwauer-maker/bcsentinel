@@ -21,7 +21,12 @@ def test_validation_uses_same_five_level_severity_semantics_as_full_and_quick():
     after = _issue("SEV", "high", 10, 10000.0)
     assert _status(before, after) == "improved"
 
-    delta = _delta(_issue("WARN", "warning", 5, 1000.0), _issue("WARN", "info", 5, 1000.0), "improved")
+    delta = _delta(
+        _issue("WARN", "warning", 5, 1000.0),
+        _issue("WARN", "info", 5, 1000.0),
+        "improved",
+        "en",
+    )
     assert delta.severity_before == "medium"
     assert delta.severity_after == "info"
 
