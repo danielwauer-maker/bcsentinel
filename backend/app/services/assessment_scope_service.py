@@ -125,7 +125,8 @@ def _weighted_score(modules: Iterable[AssessmentScopeModule], fallback: int) -> 
     included = [module.module_score for module in modules if bool(module.included_in_score)]
     if not included:
         return _bounded_int(fallback, 100)
-    return int(round(sum(included) / len(included)))
+    average = sum(included) / len(included)
+    return int(average + 0.5)
 
 
 def _next_version(db: Session, scan_id: str) -> int:
@@ -176,8 +177,6 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
     module_rows: list[AssessmentScopeModule] = []
     for module_code, (display_name, score_attr) in SUPPORTED_STANDARD_MODULES.items():
         if legacy_mode:
-            # Historical scans predate reliable usage counters. Preserve their
-            # stored score and, when present, their legacy enabled-module list.
             included = module_code in legacy_enabled if legacy_enabled else True
             detection_status = "active" if included else "not_detected"
             confidence = 0.5
