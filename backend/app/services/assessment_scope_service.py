@@ -142,6 +142,26 @@ def get_latest_scope(db: Session, scan_id: str) -> AssessmentScopeSnapshot | Non
     )
 
 
+def get_latest_confirmed_scope(db: Session, scan_id: str) -> AssessmentScopeSnapshot | None:
+    return db.scalar(
+        select(AssessmentScopeSnapshot)
+        .where(
+            AssessmentScopeSnapshot.scan_id == scan_id,
+            AssessmentScopeSnapshot.state == "confirmed",
+        )
+        .order_by(AssessmentScopeSnapshot.version.desc())
+    )
+
+
+def get_scope_version(db: Session, scan_id: str, version: int) -> AssessmentScopeSnapshot | None:
+    return db.scalar(
+        select(AssessmentScopeSnapshot).where(
+            AssessmentScopeSnapshot.scan_id == scan_id,
+            AssessmentScopeSnapshot.version == version,
+        )
+    )
+
+
 def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot:
     existing = db.scalar(
         select(AssessmentScopeSnapshot)
