@@ -54,9 +54,6 @@ table 53129 "DH Deep Scan Finding"
             Caption = 'Estimated Impact (EUR)';
             DecimalPlaces = 0 : 2;
         }
-    }
-
-
         // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
         field(13; "Group Key"; Text[64])
         {
@@ -66,6 +63,8 @@ table 53129 "DH Deep Scan Finding"
             ObsoleteReason = 'Retained for backwards-compatible upgrade.';
             ObsoleteTag = '1.0.2.31';
         }
+
+    }
 
     keys
     {
