@@ -227,8 +227,6 @@ table 53128 "DH Deep Scan Run"
         {
             Caption = 'Recent Events';
         }
-    }
-
         // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
         field(55; "Scan Mode"; Text[30])
         {
@@ -328,6 +326,8 @@ table 53128 "DH Deep Scan Run"
             ObsoleteReason = 'Retained for backwards-compatible upgrade.';
             ObsoleteTag = '1.0.2.31';
         }
+
+    }
 
     keys
     {
