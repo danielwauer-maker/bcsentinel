@@ -126,6 +126,17 @@ table 53120 "DH Scan Header"
         }
     }
 
+
+        // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
+        field(36; "Applied Exception Count"; Integer)
+        {
+            Caption = 'Applied Exception Count';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+
     keys
     {
         key(PK; "Entry No.")
