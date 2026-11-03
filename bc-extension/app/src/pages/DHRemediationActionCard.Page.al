@@ -79,8 +79,13 @@ page 53195 "DH Remediation Action Card"
                 ApplicationArea = All;
                 Caption = 'Audit Trail';
                 Image = History;
-                RunObject = page "DH Remediation Audit";
-                RunPageLink = "Action ID" = field("Action ID");
+                trigger OnAction()
+                var
+                    Audit: Record "DH Remediation Audit";
+                begin
+                    Audit.SetRange("Action ID", Rec."Action ID");
+                    Page.Run(Page::"DH Remediation Audit", Audit);
+                end;
             }
         }
     }
