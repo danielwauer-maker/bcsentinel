@@ -1,6 +1,6 @@
-# F8 Target Contract — Quick Assessment + Record-Volume Pricing
+# F8 Final Contract — Quick Assessment + Record-Volume Pricing
 
-Status: product target frozen for implementation planning.
+Status: **frozen for Fiverr launch** as of 2026-11-03.
 
 ## Final customer journey
 
@@ -8,7 +8,7 @@ Free Health Check → Quick Assessment → Full Assessment → Validation → Mo
 
 ## Scan architecture
 
-There remains exactly one customer-facing scan engine/depth: the full BCSentinel Data Health / Deep Scan.
+There remains exactly one customer-facing initial scan engine/depth: the full BCSentinel Data Health / Deep Scan.
 
 The initial customer scan is executed once and stored in full. Free Health Check, Quick Assessment and Full Assessment are progressive access layers over that same initial scan. A new scan is created only for Validation after remediation; Monitoring later adds recurring full scans.
 
@@ -18,15 +18,17 @@ The initial customer scan is executed once and stored in full. Free Health Check
 - Exactly one initial full Data Health Scan for a newly registered tenant.
 - Aggregate-only result: score, counts, severity, risk areas and impact band.
 - No finding titles, issue codes, exact EUR values, root causes, detailed recommendations, record drilldowns or remediation worklists.
+- Free Health Check is **not** sold as a paid Fiverr package.
 
 ### Quick Assessment
 
 Quick Assessment is an entitlement/report layer, not a second scan mode.
 
-Target scope:
+Frozen scope:
 - reuse the qualifying existing initial scan;
 - no scan credit and no rescan;
-- reveal a limited prioritized subset of findings (target: Top 5);
+- permanent Quick entitlement until explicitly revoked;
+- reveal up to Top 5 prioritized findings;
 - finding title, severity, affected count and risk area for the exposed subset;
 - short management interpretation and limited recommended next actions;
 - no complete root-cause catalogue;
@@ -35,7 +37,7 @@ Target scope:
 - no full remediation worklist;
 - no exact complete Estimated Loss / Potential Saving model; aggregate impact band remains available;
 - dedicated Quick Assessment HTML/PDF report;
-- designed as the first paid entry product for Fiverr and direct channels.
+- Fiverr launch package name: **BASIC — Quick Assessment**.
 
 ### Full Assessment
 
@@ -44,11 +46,13 @@ Target scope:
 - full findings, exact modeled financial values, root-cause context, prioritization, recommendations and allowed detail/drilldown surfaces;
 - professional Assessment Report;
 - fixed 7-day full-detail access after activation;
-- optional one-time +7-day extension remains possible.
+- optional one-time +7-day extension remains technically available, but is not a separate Fiverr launch package;
+- Fiverr launch package name: **ADVANCED — Full Assessment**.
 
 ### Validation
 
-- requires prior paid Assessment baseline;
+- separate follow-up Gig / offer, not bundled into ADVANCED;
+- requires prior paid Full Assessment baseline;
 - grants exactly one new validation scan credit;
 - customer applies remediation first, then runs a new full Data Health Scan;
 - before/after comparison: resolved, improved, remaining, regressed and new;
@@ -57,7 +61,7 @@ Target scope:
 ### Monitoring
 
 - recurring full scans while subscription is active;
-- later polish, not required for the first controlled Fiverr pilot unless scope changes.
+- later launch phase; not required for the first Fiverr controlled pilot unless scope changes.
 
 ## Canonical record-volume classes
 
@@ -72,20 +76,30 @@ Use one shared sizing taxonomy across Fiverr, direct sales, operator tooling, fu
 | Enterprise | 5,000,001–20,000,000 |
 | Custom | >20,000,000 |
 
-The backend should derive the class from authoritative analyzed `total_records` rather than customer self-estimation whenever possible.
+The backend derives the class from authoritative analyzed `Scan.total_records` rather than customer self-estimation whenever possible.
 
-## Fiverr pilot pricing target (USD)
+## Frozen Fiverr launch pricing (USD)
 
-These values are the current pilot pricing target and may be commercially tuned without changing the product architecture.
+These values include the commercial Fiverr margin/provision assumption and are the launch source of truth for operator recommendations and Fiverr copy.
 
-| Record volume | Quick Assessment | Full Assessment | Validation |
+| Record volume | BASIC — Quick Assessment | ADVANCED — Full Assessment | Validation follow-up |
 |---|---:|---:|---:|
-| ≤100k | $129 | $299 | $149 |
-| 100k–250k | $169 | $349 | $179 |
-| 250k–1m | $229 | $449 | $229 |
-| 1m–5m | $349 | $649 | $329 |
-| 5m–20m | Custom Offer | Custom Offer | Custom Offer |
-| >20m | Individual review | Individual review | Individual review |
+| ≤100k | **$149** | **$349** | **$179** |
+| 100k–250k | **$199** | **$399** | **$219** |
+| 250k–1m | **$279** | **$549** | **$289** |
+| 1m–5m | **$429** | **$799** | **$429** |
+| 5m–20m | **$649** | **$1,199** | **$649** |
+| >20m | **Custom Offer** | **Custom Offer** | **Custom Offer** |
+
+## Fiverr package freeze
+
+Launch with exactly these commercial products:
+
+1. **BASIC — Quick Assessment**
+2. **ADVANCED — Full Assessment**
+3. **Validation** as a separate follow-up Gig / Custom Offer after Full Assessment
+
+There is no paid Fiverr Free Health Check package and no launch-time Assessment Plus/Premium package.
 
 ## Channel behavior
 
@@ -99,25 +113,15 @@ The customer may buy Quick Assessment or Full Assessment directly. During fulfil
 
 Fiverr remains the commercial/payment channel for Fiverr-origin paid services. The free technical scan must not be used to redirect paid Fiverr-origin transactions off-platform.
 
-## Implementation target
-
-F8 should add, without creating another scan engine:
-
-1. `quick_assessment` entitlement/product code and capability flags.
-2. Quick Assessment report contract, HTML/PDF and secure share links.
-3. Server-side payload boundary for Top-Finding exposure; never CSS-only hiding.
-4. Operator action to grant Quick Assessment with source/order metadata.
-5. Lifecycle email events for Quick Assessment activation/expiry where appropriate.
-6. Central record-volume class service based on `total_records`.
-7. Channel-specific pricing recommendation/read model; Fiverr USD pricing remains sales-channel metadata, not entitlement semantics.
-8. Update Fiverr launch kit and landing copy so Basic starts with Quick Assessment rather than selling the Free Health Report.
-9. Regression tests proving Free < Quick < Full Assessment detail boundaries and ensuring Quick never creates a new scan credit.
-
-## Frozen principles
+## Frozen implementation principles
 
 - No Quick Scan engine.
 - No second scan between Free, Quick Assessment and Full Assessment.
 - Progressive access over one stored full initial scan.
+- Quick entitlement is permanent until explicit revoke.
 - New scan only for Validation/remediation proof, then recurring scans for Monitoring.
+- Validation requires a paid Full Assessment baseline.
 - Record-volume pricing is centralized and channel-aware.
-- Pricing values may be tuned; entitlement semantics and scan architecture should remain stable.
+- Fiverr pricing is sales-channel metadata, not entitlement semantics.
+- Direct/Stripe EUR pricing is independent and must not be overwritten by Fiverr pricing changes.
+- `Scan.total_records` is authoritative for final Fiverr record class and recommendation.
