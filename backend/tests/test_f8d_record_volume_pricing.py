@@ -54,10 +54,11 @@ def test_record_count_normalization_is_safe_and_non_negative():
 @pytest.mark.parametrize(
     ("record_count", "quick", "assessment", "validation"),
     [
-        (100_000, 129.0, 299.0, 149.0),
-        (100_001, 169.0, 349.0, 179.0),
-        (250_001, 229.0, 449.0, 229.0),
-        (1_000_001, 349.0, 649.0, 329.0),
+        (100_000, 149.0, 349.0, 179.0),
+        (100_001, 199.0, 399.0, 219.0),
+        (250_001, 279.0, 549.0, 289.0),
+        (1_000_001, 429.0, 799.0, 429.0),
+        (5_000_001, 649.0, 1199.0, 649.0),
     ],
 )
 def test_fiverr_fixed_price_matrix(record_count, quick, assessment, validation):
@@ -81,15 +82,7 @@ def test_fiverr_fixed_price_matrix(record_count, quick, assessment, validation):
         assert quote["recommendation_type"] == "fixed_price"
 
 
-def test_fiverr_enterprise_requires_custom_offer_and_custom_requires_review():
-    enterprise = fiverr_price_recommendations(5_000_001)
-    assert enterprise["record_class"]["code"] == "enterprise"
-    for quote in enterprise["products"].values():
-        assert quote["price"] is None
-        assert quote["price_cents"] is None
-        assert quote["custom_offer_required"] is True
-        assert quote["recommendation_type"] == "custom_offer"
-
+def test_fiverr_custom_class_requires_individual_review():
     custom = fiverr_price_recommendations(20_000_001)
     assert custom["record_class"]["code"] == "custom"
     for quote in custom["products"].values():
@@ -117,8 +110,8 @@ def test_single_product_quote_is_channel_metadata_only():
             "max_records": 100_000,
         },
         "product_code": PRODUCT_QUICK_ASSESSMENT,
-        "price_cents": 12_900,
-        "price": 129.0,
+        "price_cents": 14_900,
+        "price": 149.0,
         "custom_offer_required": False,
         "recommendation_type": "fixed_price",
     }
