@@ -16,7 +16,7 @@ page 53170 "DH Notification Setup"
             {
                 field(Enabled; Rec.Enabled) { ApplicationArea = All; ToolTip = 'Specifies whether tenant-wide BCSentinel product notifications are enabled.'; }
                 field("Preferred Language"; Rec."Preferred Language") { ApplicationArea = All; ToolTip = 'Specifies the tenant fallback language for notification templates.'; }
-                field("Delivery Evidence Retention Days"; Rec."Delivery Evidence Retention Days") { ApplicationArea = All; ToolTip = 'Specifies the minimum retention horizon for delivery evidence.'; }
+                field("Delivery Retention Days"; Rec."Delivery Retention Days") { ApplicationArea = All; ToolTip = 'Specifies the minimum retention horizon for delivery evidence.'; }
                 field("Last Processing At UTC"; Rec."Last Processing At UTC") { ApplicationArea = All; Editable = false; }
                 field("Tenant ID"; Rec."Tenant ID") { ApplicationArea = All; Editable = false; }
                 field("Company ID"; Rec."Company ID") { ApplicationArea = All; Editable = false; }
