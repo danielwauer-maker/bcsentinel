@@ -25,7 +25,7 @@
     }
   },
   "extension": {
-    "candidate_version": "1.0.2.30",
+    "candidate_version": "1.0.2.31",
     "runtime": "16.0",
     "bc_application_major": 27,
     "privacy_statement": "https://bcsentinel.com/datenschutz",
@@ -60,7 +60,7 @@
     }
   },
   "manual_p0": [
-    "build and install final 1.0.2.30 app artifact in real BC Online",
+    "build and install final 1.0.2.31 app artifact in real BC Online",
     "BCSENTINEL PILOT non-SUPER runtime acceptance",
     "real tenant A/B negative isolation",
     "real report visual QA for Free/Quick/Full/Validation",
