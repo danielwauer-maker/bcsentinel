@@ -25,7 +25,7 @@ codeunit 53170 "DH Notification Mgt."
 
     procedure RaiseEvent(EventType: Code[50]; SourceRef: Text[150]; CorrelationKey: Text[150]; Summary: Text[250]; Severity: Code[20]; FindingKey: Code[100]; ActionId: Guid; ScanId: Code[50]; ValidationRef: Text[100]): Guid
     var
-        Event: Record "DH Notification Event";
+        NotificationEvent: Record "DH Notification Event";
         Setup: Record "DH Notification Setup";
         EventId: Guid;
     begin
@@ -35,31 +35,31 @@ codeunit 53170 "DH Notification Mgt."
         if not Setup.Enabled then
             exit(EmptyGuid());
 
-        Event.SetRange("Tenant ID", Setup."Tenant ID");
-        Event.SetRange("Company ID", Setup."Company ID");
-        Event.SetRange("Event Type", EventType);
-        Event.SetRange("Correlation Key", CorrelationKey);
-        if Event.FindFirst() then
-            exit(Event."Event ID");
+        NotificationEvent.SetRange("Tenant ID", Setup."Tenant ID");
+        NotificationEvent.SetRange("Company ID", Setup."Company ID");
+        NotificationEvent.SetRange("Event Type", EventType);
+        NotificationEvent.SetRange("Correlation Key", CorrelationKey);
+        if NotificationEvent.FindFirst() then
+            exit(NotificationEvent."Event ID");
 
-        Event.Init();
-        Event."Event ID" := CreateGuid();
-        Event."Tenant ID" := Setup."Tenant ID";
-        Event."Company ID" := Setup."Company ID";
-        Event."Event Type" := EventType;
-        Event."Occurred At UTC" := CurrentDateTime();
-        Event."Correlation Key" := CorrelationKey;
-        Event."Source Ref" := SourceRef;
-        Event.Severity := Severity;
-        Event."Finding Key" := FindingKey;
-        Event."Action ID" := ActionId;
-        Event."Scan ID" := ScanId;
-        Event."Validation Ref" := ValidationRef;
-        Event.Summary := Summary;
-        Event."Metadata Version" := 'v1';
-        Event.Insert(true);
-        EventId := Event."Event ID";
-        QueueEventDeliveries(Event);
+        NotificationEvent.Init();
+        NotificationEvent."Event ID" := CreateGuid();
+        NotificationEvent."Tenant ID" := Setup."Tenant ID";
+        NotificationEvent."Company ID" := Setup."Company ID";
+        NotificationEvent."Event Type" := EventType;
+        NotificationEvent."Occurred At UTC" := CurrentDateTime();
+        NotificationEvent."Correlation Key" := CorrelationKey;
+        NotificationEvent."Source Ref" := SourceRef;
+        NotificationEvent.Severity := Severity;
+        NotificationEvent."Finding Key" := FindingKey;
+        NotificationEvent."Action ID" := ActionId;
+        NotificationEvent."Scan ID" := ScanId;
+        NotificationEvent."Validation Ref" := ValidationRef;
+        NotificationEvent.Summary := Summary;
+        NotificationEvent."Metadata Version" := 'v1';
+        NotificationEvent.Insert(true);
+        EventId := NotificationEvent."Event ID";
+        QueueEventDeliveries(NotificationEvent);
         exit(EventId);
     end;
 
@@ -166,34 +166,34 @@ codeunit 53170 "DH Notification Mgt."
         end;
     end;
 
-    local procedure QueueEventDeliveries(Event: Record "DH Notification Event")
+    local procedure QueueEventDeliveries(NotificationEvent: Record "DH Notification Event")
     var
         Rule: Record "DH Notification Rule";
         Recipient: Record "DH Notification Recipient";
         Delivery: Record "DH Notification Delivery";
     begin
-        Rule.SetRange("Tenant ID", Event."Tenant ID");
-        Rule.SetRange("Company ID", Event."Company ID");
-        Rule.SetRange("Event Type", Event."Event Type");
+        Rule.SetRange("Tenant ID", NotificationEvent."Tenant ID");
+        Rule.SetRange("Company ID", NotificationEvent."Company ID");
+        Rule.SetRange("Event Type", NotificationEvent."Event Type");
         Rule.SetRange(Enabled, true);
         Rule.SetRange(Channel, 'email');
         if not Rule.FindSet() then
             exit;
 
         repeat
-            Recipient.SetRange("Tenant ID", Event."Tenant ID");
-            Recipient.SetRange("Company ID", Event."Company ID");
+            Recipient.SetRange("Tenant ID", NotificationEvent."Tenant ID");
+            Recipient.SetRange("Company ID", NotificationEvent."Company ID");
             Recipient.SetRange(Enabled, true);
             if Recipient.FindSet() then
                 repeat
                     Delivery.Reset();
-                    Delivery.SetRange("Event ID", Event."Event ID");
+                    Delivery.SetRange("Event ID", NotificationEvent."Event ID");
                     Delivery.SetRange("Rule ID", Rule."Rule ID");
                     Delivery.SetRange("Recipient ID", Recipient."Recipient ID");
                     if Delivery.IsEmpty() then begin
                         Delivery.Init();
                         Delivery."Delivery ID" := CreateGuid();
-                        Delivery."Event ID" := Event."Event ID";
+                        Delivery."Event ID" := NotificationEvent."Event ID";
                         Delivery."Rule ID" := Rule."Rule ID";
                         Delivery."Recipient ID" := Recipient."Recipient ID";
                         Delivery.Channel := 'email';
@@ -207,7 +207,7 @@ codeunit 53170 "DH Notification Mgt."
 
     local procedure ProcessDelivery(var Delivery: Record "DH Notification Delivery")
     var
-        Event: Record "DH Notification Event";
+        NotificationEvent: Record "DH Notification Event";
         Rule: Record "DH Notification Rule";
         Recipient: Record "DH Notification Recipient";
         Template: Record "DH Notification Template";
@@ -223,7 +223,7 @@ codeunit 53170 "DH Notification Mgt."
             SetDeliveryStatus(Delivery, 'suppressed', 'tenant notifications disabled');
             exit;
         end;
-        if not Event.Get(Delivery."Event ID") then begin
+        if not NotificationEvent.Get(Delivery."Event ID") then begin
             SetDeliveryStatus(Delivery, 'suppressed', 'event unavailable');
             exit;
         end;
@@ -252,8 +252,8 @@ codeunit 53170 "DH Notification Mgt."
         end;
 
         SetDeliveryStatus(Delivery, 'sending', '');
-        SubjectText := StrSubstNo(Template."Subject Template", Event.Summary);
-        BodyText := StrSubstNo(Template."Body Template", Event.Summary);
+        SubjectText := StrSubstNo(Template."Subject Template", NotificationEvent.Summary);
+        BodyText := StrSubstNo(Template."Body Template", NotificationEvent.Summary);
         if TrySendEmail(Recipient."Email Address", SubjectText, BodyText) then begin
             Delivery.Status := 'sent';
             Delivery."Sent At UTC" := CurrentDateTime();
@@ -302,14 +302,14 @@ codeunit 53170 "DH Notification Mgt."
 
     local procedure CheckOverdueRemediations()
     var
-        Action: Record "DH Remediation Action";
+        RemediationAction: Record "DH Remediation Action";
     begin
-        Action.SetFilter("Due At UTC", '<>%1&<%2', 0DT, CurrentDateTime());
-        if Action.FindSet() then
+        RemediationAction.SetFilter("Due At UTC", '<>%1&<%2', 0DT, CurrentDateTime());
+        if RemediationAction.FindSet() then
             repeat
-                if (Action.Status <> Action.Status::Completed) and (Action.Status <> Action.Status::Cancelled) then
-                    RaiseEvent('remediation.overdue', Format(Action."Action ID"), Format(Action."Action ID") + '|overdue', CopyStr(Action.Title, 1, 250), Format(Action.Priority), Action."Finding Key", Action."Action ID", '', '');
-            until Action.Next() = 0;
+                if (RemediationAction.Status <> RemediationAction.Status::Completed) and (RemediationAction.Status <> RemediationAction.Status::Cancelled) then
+                    RaiseEvent('remediation.overdue', Format(RemediationAction."Action ID"), Format(RemediationAction."Action ID") + '|overdue', CopyStr(RemediationAction.Title, 1, 250), Format(RemediationAction.Priority), RemediationAction."Finding Key", RemediationAction."Action ID", '', '');
+            until RemediationAction.Next() = 0;
     end;
 
     local procedure ValidateEventType(EventType: Code[50])
