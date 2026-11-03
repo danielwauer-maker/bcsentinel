@@ -1,4 +1,4 @@
-table 53194 "DH Remediation Action"
+table 53196 "DH Remediation Action"
 {
     Caption = 'BCSentinel Remediation Action';
     DataClassification = CustomerContent;
