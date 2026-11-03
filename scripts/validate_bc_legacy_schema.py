@@ -95,9 +95,31 @@ def main() -> int:
             errors.append(f"Missing legacy table {filename}")
             continue
         code = path.read_text(encoding="utf-8-sig")
+        # Field declarations must occur within the table's fields block.
+        # A regex over the complete file alone misses the AL syntax regression
+        # that caused widespread missing-method diagnostics in 1.0.2.31.
+        begin_fields = re.search(r"\\bfields\\s*\\{", code)
+        begin_keys = re.search(r"\\bkeys\\s*\\{", code)
+        if not begin_fields or not begin_keys or begin_keys.start() <= begin_fields.end():
+            errors.append(f"{filename}: malformed fields/keys sections")
+            continue
+        depth = 1
+        fields_end = None
+        for pos in range(begin_fields.end(), len(code)):
+            if code[pos] == "{":
+                depth += 1
+            elif code[pos] == "}":
+                depth -= 1
+                if depth == 0:
+                    fields_end = pos
+                    break
+        if fields_end is None or fields_end > begin_keys.start():
+            errors.append(f"{filename}: fields block is not correctly closed before keys")
+            continue
+        field_section = code[begin_fields.end():fields_end]
         found = {
             int(m.group(1)): (m.group(2).strip('"'), m.group(3))
-            for m in FIELD.finditer(code)
+            for m in FIELD.finditer(field_section)
         }
         for field_id, signature in expected.items():
             if field_id not in found:
@@ -112,7 +134,7 @@ def main() -> int:
         file = SRC / "tables" / ("DHScanCheckSelection.Table.al" if table_id == 53194 else "DHRemediationAction.Table.al")
         if f'table {table_id} "{table_name}"' not in file.read_text(encoding="utf-8-sig"):
             errors.append(f"Table ID {table_id} must belong to {table_name}")
-    for name in ("DHScanScheduleFrequency.Enum.al", "DHScheduledScanResult.Enum.al"):
+    for name in ("DHScanScheduleFrequency.Enum.al", "DHScheduledScanResult.Enum.al", "DHScanTriggerContext.Enum.al"):
         if not (SRC / "enums" / name).exists():
             errors.append(f"Missing legacy enum {name}")
     if errors:
