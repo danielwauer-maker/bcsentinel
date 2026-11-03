@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Static preflight: preserve the schema in user-supplied BCSentinel 1.0.2.25 .app.
+"""Static preflight: preserve the schema in user-supplied BCSentinel 1.0.2.22 .app.
 
 This is a *baseline* compatibility gate, not a substitute for comparing against
-the tenant's installed 1.0.2.28 package or running a real BC SaaS upgrade.
+the tenant's installed 1.0.2.22 package or running a real BC SaaS upgrade.
 """
 from __future__ import annotations
 
@@ -142,7 +142,7 @@ def main() -> int:
         for e in errors:
             print(f"- {e}")
         return 1
-    print("BC legacy schema compatibility baseline: PASS (1.0.2.25 source)")
+    print("BC legacy schema compatibility baseline: PASS (1.0.2.22 installed-source baseline)")
     print("Still requires compile and actual installed tenant schema comparison / upgrade test.")
     return 0
 
