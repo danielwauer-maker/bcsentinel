@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +45,22 @@ def main() -> int:
     require('field("Data Processing Consent"' in setup, "Setup page must expose Data Processing Consent.", errors)
     require('field("Registration Invite Code"' in setup, "Setup page must expose the controlled-pilot invite code.", errors)
     require('field("Tenant ID"' in setup and "Visible = false;" in setup, "Internal Tenant ID must remain hidden from normal customer setup.", errors)
+
+    # Fail fast on AL duplicate object identifiers before VS Code emits cascades.
+    # Different AL object types may reuse numeric IDs; same type may not.
+    seen_objects: dict[tuple[str, int], Path] = {}
+    al_root = ROOT / "bc-extension" / "app" / "src"
+    object_header = re.compile(r"^\\s*(table|page|codeunit|pageextension|tableextension|enum|enumextension|query|report|permissionset|controladdin)\\s+(\\d+)\\s+", re.IGNORECASE | re.MULTILINE)
+    for source in sorted(al_root.rglob("*.al")):
+        content = source.read_text(encoding="utf-8-sig")
+        match = object_header.search(content)
+        if not match:
+            continue
+        key = (match.group(1).lower(), int(match.group(2)))
+        previous = seen_objects.get(key)
+        require(previous is None, f"Duplicate AL object {key[0]} {key[1]}: {previous} and {source}", errors)
+        if previous is None:
+            seen_objects[key] = source
 
     if errors:
         print("Controlled pilot Extension static readiness: FAIL")
