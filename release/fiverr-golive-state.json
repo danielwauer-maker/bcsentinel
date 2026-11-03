@@ -36,7 +36,7 @@
     "product_price_freeze": "pass",
     "fiverr_requirements_delivery_contract": "pass",
     "fiverr_next_purchase_lifecycle": "pass",
-    "launch_contract_drift_gate": "pass_or_covered_by_aggregate_preflight",
+    "launch_contract_drift_gate": "pass",
     "bc_install_scan_guide_text": "pass_waiting_for_runtime_screenshots",
     "lifecycle_admin_templates_de_en": {
       "status": "pass",
@@ -53,7 +53,11 @@
     "tenant_security_automated": "pass",
     "backup_restore_automation": "pass",
     "legal_privacy_acceptance_checklist": "prepared_manual_signoff_required",
-    "aggregate_golive_preflight": "workflow_created_pending_latest_run_confirmation"
+    "aggregate_golive_preflight": {
+      "status": "pass",
+      "workflow_run_id": 41631566816,
+      "backend_regression_tests_passed": 41
+    }
   },
   "manual_p0": [
     "build and install final 1.0.2.30 app artifact in real BC Online",
