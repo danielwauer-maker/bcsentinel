@@ -14,6 +14,8 @@ permissionset 53190 "BCSENTINEL VIEWER"
         tabledata "DH Issue Exception" = R,
         tabledata "DH Issue Action Log" = R,
         tabledata "DH Duplicate Buffer" = R,
+        tabledata "DH Scan Check Selection" = R,
+        table "DH Scan Check Selection" = X,
         tabledata "DH Remediation Action" = R,
         tabledata "DH Remediation Audit" = R,
         tabledata "DH Notification Setup" = R,
