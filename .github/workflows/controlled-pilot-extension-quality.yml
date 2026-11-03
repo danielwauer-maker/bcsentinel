@@ -7,6 +7,7 @@ on:
       - 'bc-extension/app/src/permissionsets/**'
       - 'bc-extension/app/src/pages/DHSetup.Page.al'
       - 'scripts/validate_controlled_pilot_extension.py'
+      - 'scripts/validate_bc_legacy_schema.py'
       - 'scripts/validate_bc_compatibility.py'
       - 'config/bc-compatibility.json'
       - '.github/workflows/controlled-pilot-extension-quality.yml'
@@ -33,3 +34,5 @@ jobs:
         run: python scripts/validate_bc_compatibility.py
       - name: Validate controlled-pilot Extension contract
         run: python scripts/validate_controlled_pilot_extension.py
+      - name: Validate legacy schema upgrade baseline
+        run: python scripts/validate_bc_legacy_schema.py
