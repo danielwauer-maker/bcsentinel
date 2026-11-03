@@ -222,9 +222,6 @@ table 53100 "DH Setup"
             Caption = 'Product Access';
             DataClassification = SystemMetadata;
         }
-    }
-
-
         // Legacy schema preserved from verified 1.0.2.23–1.0.2.25 release packages.
         // These fields must remain for non-destructive upgrades from installed tenants.
         field(36; "Contact Email"; Text[100])
@@ -547,6 +544,8 @@ table 53100 "DH Setup"
             ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
             ObsoleteTag = '1.0.2.31';
         }
+
+    }
 
     keys
     {
