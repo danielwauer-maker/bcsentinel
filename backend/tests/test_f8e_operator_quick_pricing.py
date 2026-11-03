@@ -122,9 +122,9 @@ def test_operator_rows_use_authoritative_scan_volume_for_fiverr_recommendations(
         row = next(row for row in _operator_rows(db, "ten_f8e_pricing") if row["tenant_id"] == tenant["tenant_id"])
         assert row["total_records"] == 250_001
         assert row["record_class"]["code"] == "medium"
-        assert row["fiverr_pricing"]["quick_assessment"]["price"] == 229.0
-        assert row["fiverr_pricing"]["assessment"]["price"] == 449.0
-        assert row["fiverr_pricing"]["validation_check"]["price"] == 229.0
+        assert row["fiverr_pricing"]["quick_assessment"]["price"] == 279.0
+        assert row["fiverr_pricing"]["assessment"]["price"] == 549.0
+        assert row["fiverr_pricing"]["validation_check"]["price"] == 289.0
 
 
 def test_operator_rows_do_not_guess_pricing_without_scan(tenant_factory):
@@ -173,6 +173,5 @@ def test_operator_console_renders_quick_action_and_authoritative_pricing(
     assert "Grant Quick Assessment" in response.text
     assert "1.000.001" in response.text
     assert "Large class" in response.text
-    assert "$349" in response.text
-    assert "$649" in response.text
-    assert "$329" in response.text
+    assert "$429" in response.text
+    assert "$799" in response.text
