@@ -124,9 +124,6 @@ table 53120 "DH Scan Header"
         {
             Caption = 'HR Score';
         }
-    }
-
-
         // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
         field(36; "Applied Exception Count"; Integer)
         {
@@ -136,6 +133,8 @@ table 53120 "DH Scan Header"
             ObsoleteReason = 'Retained for backwards-compatible upgrade.';
             ObsoleteTag = '1.0.2.31';
         }
+
+    }
 
     keys
     {
