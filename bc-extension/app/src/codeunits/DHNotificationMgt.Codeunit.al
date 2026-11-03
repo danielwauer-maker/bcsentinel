@@ -133,7 +133,7 @@ codeunit 53170 "DH Notification Mgt."
         Setup."Primary Key" := '';
         Setup.Enabled := true;
         Setup."Preferred Language" := 'en';
-        Setup."Delivery Evidence Retention Days" := 365;
+        Setup."Delivery Retention Days" := 365;
         Setup.Insert(true);
     end;
 
