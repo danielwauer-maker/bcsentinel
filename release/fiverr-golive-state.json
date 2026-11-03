@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-03",
+  "status": "automatic_preparation_in_progress_manual_acceptance_required",
+  "channel": "fiverr_controlled_pilot",
+  "product": {
+    "name": "BCSentinel",
+    "target": "Microsoft Dynamics 365 Business Central Online",
+    "claim": "Clean Data – Higher Impact",
+    "scan_model": "one full initial scan; Free/Quick/Full are disclosure layers; Validation creates the next scan"
+  },
+  "fiverr_launch": {
+    "basic": "Quick Assessment",
+    "advanced": "Full Assessment",
+    "validation": "separate follow-up",
+    "free_is_paid_package": false,
+    "monitoring_is_launch_blocker": false,
+    "pricing_usd": {
+      "up_to_100k": {"quick": 149, "full": 349, "validation": 179},
+      "100k_to_250k": {"quick": 199, "full": 399, "validation": 219},
+      "250k_to_1m": {"quick": 279, "full": 549, "validation": 289},
+      "1m_to_5m": {"quick": 429, "full": 799, "validation": 429},
+      "5m_to_20m": {"quick": 649, "full": 1199, "validation": 649},
+      "above_20m": "custom_offer"
+    }
+  },
+  "extension": {
+    "candidate_version": "1.0.2.30",
+    "runtime": "16.0",
+    "bc_application_major": 27,
+    "privacy_statement": "https://bcsentinel.com/datenschutz",
+    "combined_non_super_permission_set": "BCSENTINEL PILOT",
+    "runtime_acceptance": "manual_open"
+  },
+  "automatic": {
+    "product_price_freeze": "pass",
+    "fiverr_requirements_delivery_contract": "pass",
+    "fiverr_next_purchase_lifecycle": "pass",
+    "launch_contract_drift_gate": "implemented",
+    "bc_install_scan_guide_text": "prepared_waiting_for_screenshots",
+    "lifecycle_admin_templates_de_en": "implemented_waiting_for_ci",
+    "extension_static_gate": "implemented_waiting_for_ci",
+    "landing_fiverr_copy": "aligned_waiting_for_ci",
+    "tenant_security_automated": "existing_pass",
+    "backup_restore_automation": "existing_pass",
+    "legal_privacy_acceptance_checklist": "prepared"
+  },
+  "manual_p0": [
+    "build and install final 1.0.2.30 app artifact in real BC Online",
+    "BCSENTINEL PILOT non-SUPER runtime acceptance",
+    "real tenant A/B negative isolation",
+    "real report visual QA for Free/Quick/Full/Validation",
+    "real SMTP provider plus SPF/DKIM/DMARC and inbox/bounce acceptance",
+    "real off-host production backup restore drill",
+    "privacy/DPA/legal/provider facts sign-off",
+    "immutable reviewed release candidate freeze and PROD promotion",
+    "fresh external-like PROD Fiverr journey Quick -> Full -> Validation",
+    "real Fiverr order dry-run",
+    "set published VITE_FIVERR_GIG_URL and smoke-test deployed frontend"
+  ],
+  "manual_p1": [
+    "final Lovable Quick/Full sample reports DE/EN",
+    "final BC install/scan screenshots and guide export"
+  ],
+  "deferred": [
+    "Monitoring report visual perfection",
+    "AppSource submission",
+    "public self-service signup",
+    "full direct Stripe E2E for Fiverr-origin purchases",
+    "LinkedIn launch"
+  ],
+  "release_rule": "automatic PASS never replaces external runtime/manual evidence"
+}
