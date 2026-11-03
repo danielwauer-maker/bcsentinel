@@ -1,8 +1,9 @@
 # BCSentinel Fiverr Pilot Release Candidate
 
-Status: **controlled-pilot architecture implemented — manual production gates open**  
+Status: **controlled-pilot architecture implemented — automatic repository work green, manual production gates open**  
 Target channel: Fiverr controlled pilot  
-Product architecture: one BCSentinel SaaS/Extension stack; Fiverr is a sales channel, not a product fork.
+Product architecture: one BCSentinel SaaS/Extension stack; Fiverr is a sales channel, not a product fork.  
+Automated/manual handoff: [`FIVERR_GOLIVE_AUTOMATED_READINESS.md`](FIVERR_GOLIVE_AUTOMATED_READINESS.md)
 
 ## Frozen customer lifecycle
 
@@ -82,6 +83,12 @@ Not sold at launch:
 - All Fiverr-origin payment and commercial communication remain on Fiverr.
 - Direct/Stripe EUR pricing remains independent from the Fiverr USD matrix.
 
+## Automatic repository acceptance
+
+Automatic repository work is treated as PASS only for code/content contracts that can be proven without external systems. Current automatic scope includes product/price semantics, entitlement funnel, report contracts, operator actions, lifecycle outbox, Fiverr next-purchase guidance, requirements/delivery contract, automated tenant-security gates and PostgreSQL recovery automation.
+
+The dedicated `Fiverr Launch Contract Quality Gate` protects frozen Fiverr package names and pricing markers from documentation drift. Automatic PASS never substitutes for the manual external/runtime gates below.
+
 ## Manual gates before first paid Fiverr pilot customer
 
 - Real BC Online install/upgrade of the final Extension artifact.
@@ -95,6 +102,7 @@ Not sold at launch:
 - Separate direct-Full path: initial Free scan -> Full Assessment grant without Quick purchase -> no rescan.
 - Final privacy/DPA/legal/provider-facts review.
 - Publish/activate the Fiverr offer using the frozen package copy and perform one real order dry-run through Fiverr.
+- Set the published Fiverr Gig URL as `VITE_FIVERR_GIG_URL`, deploy the reviewed frontend ref and verify the landing CTA.
 
 ## Explicit non-blockers for the controlled Fiverr pilot
 
