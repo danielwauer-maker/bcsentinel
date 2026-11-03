@@ -1,10 +1,8 @@
 table 53194 "DH Scan Check Selection"
 {
     Caption = 'Scan Check Selection';
+    // Keep this historical table definition for non-destructive upgrades. Do not obsolete the table yet.
     DataClassification = CustomerContent;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Legacy table retained for non-destructive schema upgrade from BCSentinel 1.0.2.25.';
-    ObsoleteTag = '1.0.2.31';
 
     fields
     {
