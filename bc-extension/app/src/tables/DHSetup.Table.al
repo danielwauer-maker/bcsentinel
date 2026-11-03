@@ -224,6 +224,330 @@ table 53100 "DH Setup"
         }
     }
 
+
+        // Legacy schema preserved from verified 1.0.2.23–1.0.2.25 release packages.
+        // These fields must remain for non-destructive upgrades from installed tenants.
+        field(36; "Contact Email"; Text[100])
+        {
+            Caption = 'Contact Email';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(37; "Can Run Data Health Score"; Boolean)
+        {
+            Caption = 'Can Run Data Health Score';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(38; "Data Health Score Completed"; Boolean)
+        {
+            Caption = 'Data Health Score Completed';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(39; "Scheduled Scans Enabled"; Boolean)
+        {
+            Caption = 'Scheduled Scans Enabled';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(40; "Schedule Frequency"; Enum "DH Scan Schedule Frequency")
+        {
+            Caption = 'Schedule Frequency';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(41; "Schedule Time"; Time)
+        {
+            Caption = 'Schedule Time';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(42; "Schedule Monday"; Boolean)
+        {
+            Caption = 'Schedule Monday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(43; "Schedule Tuesday"; Boolean)
+        {
+            Caption = 'Schedule Tuesday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(44; "Schedule Wednesday"; Boolean)
+        {
+            Caption = 'Schedule Wednesday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(45; "Schedule Thursday"; Boolean)
+        {
+            Caption = 'Schedule Thursday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(46; "Schedule Friday"; Boolean)
+        {
+            Caption = 'Schedule Friday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(47; "Schedule Saturday"; Boolean)
+        {
+            Caption = 'Schedule Saturday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(48; "Schedule Sunday"; Boolean)
+        {
+            Caption = 'Schedule Sunday';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(49; "Monthly Schedule Day"; Integer)
+        {
+            Caption = 'Monthly Schedule Day';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(50; "Next Scheduled Scan"; DateTime)
+        {
+            Caption = 'Next Scheduled Scan';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(51; "Last Scheduled Scan"; DateTime)
+        {
+            Caption = 'Last Scheduled Scan';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(52; "Last Scheduled Scan Result"; Enum "DH Scheduled Scan Result")
+        {
+            Caption = 'Last Scheduled Scan Result';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(53; "Last Scheduled Scan Duration"; Duration)
+        {
+            Caption = 'Last Scheduled Scan Duration';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(54; "Scheduled Scan Failure Count"; Integer)
+        {
+            Caption = 'Scheduled Scan Failure Count';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(55; "Last Scheduled Scan Error"; Text[250])
+        {
+            Caption = 'Last Scheduled Scan Error';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(56; "Scheduled Scan Task ID"; Guid)
+        {
+            Caption = 'Scheduled Scan Task ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(57; "Assessment Credits Available"; Integer)
+        {
+            Caption = 'Assessment Credits Available';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(58; "Validation Credits Available"; Integer)
+        {
+            Caption = 'Validation Credits Available';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(59; "Access Snapshot Received At"; DateTime)
+        {
+            Caption = 'Access Snapshot Received At';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(60; "Access Server Time UTC"; DateTime)
+        {
+            Caption = 'Access Server Time UTC';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(61; "Access Snapshot Expires At"; DateTime)
+        {
+            Caption = 'Access Snapshot Expires At';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(62; "Access Snapshot Version"; Text[30])
+        {
+            Caption = 'Access Snapshot Version';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(63; "Access Snapshot Tenant ID"; Text[100])
+        {
+            Caption = 'Access Snapshot Tenant ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(64; "Access Snapshot Environment"; Text[100])
+        {
+            Caption = 'Access Snapshot Environment';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(65; "Access Snapshot Env. Type"; Text[20])
+        {
+            Caption = 'Access Snapshot Env. Type';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(66; "Access Snapshot Company ID"; Text[50])
+        {
+            Caption = 'Access Snapshot Company ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(67; "Access Snapshot API URL"; Text[250])
+        {
+            Caption = 'Access Snapshot API URL';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(68; "Can View Reports"; Boolean)
+        {
+            Caption = 'Can View Reports';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(69; "Can Use Monitoring"; Boolean)
+        {
+            Caption = 'Can Use Monitoring';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(70; "Subscription Active"; Boolean)
+        {
+            Caption = 'Subscription Active';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(71; "Report Access Until"; Text[50])
+        {
+            Caption = 'Report Access Until';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(72; "Access Correlation ID"; Text[50])
+        {
+            Caption = 'Access Correlation ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(73; "Free Assessment Used"; Boolean)
+        {
+            Caption = 'Free Assessment Used';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(74; "Premium Until"; Text[50])
+        {
+            Caption = 'Premium Until';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(75; "Monitoring Until"; Text[50])
+        {
+            Caption = 'Monitoring Until';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained exclusively for backwards-compatible upgrades from previous BCSentinel versions.';
+            ObsoleteTag = '1.0.2.31';
+        }
+
     keys
     {
         key(PK; "Primary Key")
