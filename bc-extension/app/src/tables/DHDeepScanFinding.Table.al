@@ -56,6 +56,17 @@ table 53129 "DH Deep Scan Finding"
         }
     }
 
+
+        // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
+        field(13; "Group Key"; Text[64])
+        {
+            Caption = 'Group Key';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+
     keys
     {
         key(PK; "Entry No.")
