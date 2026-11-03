@@ -10,7 +10,7 @@ table 53176 "DH Notification Setup"
         field(3; "Company ID"; Text[100]) { Caption = 'Company ID'; DataClassification = SystemMetadata; Editable = false; }
         field(4; Enabled; Boolean) { Caption = 'Notifications Enabled'; DataClassification = CustomerContent; InitValue = true; }
         field(5; "Preferred Language"; Code[10]) { Caption = 'Preferred Language'; DataClassification = CustomerContent; InitValue = 'en'; }
-        field(6; "Delivery Evidence Retention Days"; Integer) { Caption = 'Delivery Evidence Retention Days'; DataClassification = SystemMetadata; InitValue = 365; MinValue = 30; }
+        field(6; "Delivery Retention Days"; Integer) { Caption = 'Delivery Evidence Retention Days'; DataClassification = SystemMetadata; InitValue = 365; MinValue = 30; }
         field(7; "Last Processing At UTC"; DateTime) { Caption = 'Last Processing At UTC'; DataClassification = SystemMetadata; Editable = false; }
         field(8; "Updated At UTC"; DateTime) { Caption = 'Updated At UTC'; DataClassification = SystemMetadata; Editable = false; }
         field(9; "Updated By"; Guid) { Caption = 'Updated By'; DataClassification = EndUserPseudonymousIdentifiers; Editable = false; }
@@ -29,8 +29,8 @@ table 53176 "DH Notification Setup"
         "Company ID" := CopyStr(CompanyName(), 1, MaxStrLen("Company ID"));
         if "Preferred Language" = '' then
             "Preferred Language" := 'en';
-        if "Delivery Evidence Retention Days" = 0 then
-            "Delivery Evidence Retention Days" := 365;
+        if "Delivery Retention Days" = 0 then
+            "Delivery Retention Days" := 365;
         "Updated At UTC" := CurrentDateTime();
         "Updated By" := UserSecurityId();
         TestField("Tenant ID");
