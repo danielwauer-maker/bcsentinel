@@ -86,7 +86,7 @@ def main() -> None:
 
     raise_section = mgt.split('procedure RaiseEvent', 1)[1].split('procedure ProcessQueuedDeliveries', 1)[0]
     assert "Status := 'sent'" not in raise_section
-    assert 'QueueEventDeliveries(Event)' in raise_section
+    assert 'QueueEventDeliveries(NotificationEvent)' in raise_section
 
     require(mgt, "Delivery.Status := 'queued'", 'Delivery."Attempt No." += 1')
     assert 'retry_creates_new_event' not in mgt.lower()
