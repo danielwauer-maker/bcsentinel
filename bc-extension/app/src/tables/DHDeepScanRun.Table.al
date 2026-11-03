@@ -228,6 +228,107 @@ table 53128 "DH Deep Scan Run"
             Caption = 'Recent Events';
         }
     }
+
+        // Legacy 1.0.2.25 persistent fields retained for schema-compatible upgrades.
+        field(55; "Scan Mode"; Text[30])
+        {
+            Caption = 'Scan Mode';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(56; "Client Request ID"; Guid)
+        {
+            Caption = 'Client Request ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(57; "Start Request Status"; Option)
+        {
+            Caption = 'Start Request Status';
+            DataClassification = SystemMetadata;
+            OptionMembers = Pending,Accepted,RetryRequired,Rejected;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(58; "Start Attempt Count"; Integer)
+        {
+            Caption = 'Start Attempt Count';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(59; "Last Start Attempt"; DateTime)
+        {
+            Caption = 'Last Start Attempt';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(60; "Execution Token"; Guid)
+        {
+            Caption = 'Execution Token';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(61; "Correlation ID"; Text[50])
+        {
+            Caption = 'Correlation ID';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(62; "Execution Attempt"; Integer)
+        {
+            Caption = 'Execution Attempt';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(63; "Lease Expires At"; DateTime)
+        {
+            Caption = 'Lease Expires At';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(64; "Backend Sync Status"; Option)
+        {
+            Caption = 'Backend Sync Status';
+            DataClassification = SystemMetadata;
+            OptionMembers = NotStarted,Pending,Synchronized,Failed,RetryRequired;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(65; "Backend Sync Error"; Text[250])
+        {
+            Caption = 'Backend Sync Error';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+        field(66; "Applied Exception Count"; Integer)
+        {
+            Caption = 'Applied Exception Count';
+            DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Retained for backwards-compatible upgrade.';
+            ObsoleteTag = '1.0.2.31';
+        }
+
     keys
     {
         key(PK; "Entry No.")
