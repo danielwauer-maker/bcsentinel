@@ -137,6 +137,21 @@ def main() -> int:
     for name in ("DHScanScheduleFrequency.Enum.al", "DHScheduledScanResult.Enum.al", "DHScanTriggerContext.Enum.al"):
         if not (SRC / "enums" / name).exists():
             errors.append(f"Missing legacy enum {name}")
+    # Installed Finding Identity Tests extension depends on this public API.
+    finding_source = (SRC / "tables" / "DHDeepScanFinding.Table.al").read_text(encoding="utf-8-sig")
+    for required in (
+        "procedure ApplyBackendImpact(",
+        "procedure BuildGroupKey(",
+        'key(GroupIdentity; "Deep Scan Entry No.", "Issue Code", "Group Key")',
+    ):
+        if required not in finding_source:
+            errors.append(f"Missing externally referenced finding identity API: {required}")
+    permissions = (SRC / "permissionsets" / "BCSentinelPermissionSets.al").read_text(encoding="utf-8-sig")
+    if 'table "DH Scan Check Selection" = X' not in permissions:
+        errors.append("Legacy table 53194 must appear as executable table object in a permission set")
+    if 'tabledata "DH Scan Check Selection" = R' not in permissions:
+        errors.append("Legacy table 53194 needs data read permissions")
+
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
