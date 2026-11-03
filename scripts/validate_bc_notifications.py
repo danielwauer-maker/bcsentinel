@@ -33,7 +33,7 @@ def main() -> None:
     permissions = text("permissionsets/BCSentinelPermissionSets.al")
 
     require(setup, '"Tenant ID"', '"Company ID"', 'Enabled', '"Preferred Language"',
-            '"Delivery Evidence Retention Days"', 'CoreSetup."Tenant ID"', 'CompanyName()')
+            '"Delivery Retention Days"', 'CoreSetup."Tenant ID"', 'CompanyName()')
 
     for field in [
         '"Event ID"', '"Tenant ID"', '"Company ID"', '"Event Type"', '"Occurred At UTC"',
