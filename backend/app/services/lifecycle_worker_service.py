@@ -7,7 +7,12 @@ import json
 from sqlalchemy import select, update
 
 from app.lifecycle_models import LifecycleEmailOutbox
+from app.services.fiverr_next_purchase_service import (
+    build_fiverr_next_purchase_recommendation,
+    render_fiverr_next_purchase_html,
+)
 from app.services.lifecycle_email_service import (
+    EVENT_SCAN_COMPLETED,
     EVENT_SCAN_STARTED,
     EVENT_VALIDATION_AVAILABLE,
     MAX_ATTEMPTS,
@@ -103,7 +108,18 @@ def process_due_outbox_safely(db, *, limit: int = 25) -> dict[str, int]:
         db.flush()
         try:
             payload = json.loads(row.payload_json or "{}")
-            subject, body = _worker_event_copy(row.event_type, normalize_language(row.language), payload)
+            language = normalize_language(row.language)
+            subject, body = _worker_event_copy(row.event_type, language, payload)
+            if row.event_type == EVENT_SCAN_COMPLETED:
+                recommendation = build_fiverr_next_purchase_recommendation(
+                    db,
+                    tenant_id=row.tenant_id,
+                    scan_id=str(payload.get("scan_id") or ""),
+                )
+                body += render_fiverr_next_purchase_html(
+                    recommendation,
+                    language=language,
+                )
             _send_html_email(target_email=row.target_email, subject=subject, html_body=body)
             row.status = "sent"
             row.sent_at_utc = utc_now()
