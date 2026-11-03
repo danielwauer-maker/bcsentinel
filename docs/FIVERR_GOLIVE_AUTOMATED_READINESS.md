@@ -1,6 +1,6 @@
 # BCSentinel Fiverr Go-Live — Automated Readiness
 
-Status: **automatic repository work complete; manual acceptance gates remain**  
+Status: **automatic repository preparation complete; manual acceptance gates remain**  
 Date: 2026-11-03  
 Scope: first controlled paid Fiverr pilot for Microsoft Dynamics 365 Business Central Online.
 
@@ -8,11 +8,12 @@ Scope: first controlled paid Fiverr pilot for Microsoft Dynamics 365 Business Ce
 
 For the controlled Fiverr pilot, use these sources in this order:
 
-1. `docs/FIVERR_PILOT_RELEASE_CANDIDATE.md`
-2. `docs/FIVERR_GIG_LAUNCH_KIT.md`
-3. `docs/FIVERR_REQUIREMENTS_DELIVERY_FINAL.md`
-4. `docs/FIVERR_NEXT_PURCHASE_EMAIL.md`
-5. `release/current-product-state.json`
+1. `release/fiverr-golive-state.json`
+2. `docs/FIVERR_PILOT_RELEASE_CANDIDATE.md`
+3. `docs/FIVERR_GIG_LAUNCH_KIT.md`
+4. `docs/FIVERR_REQUIREMENTS_DELIVERY_FINAL.md`
+5. `docs/FIVERR_NEXT_PURCHASE_EMAIL.md`
+6. `release/current-product-state.json` only for broader product context not superseded above
 
 `docs/MANUAL_GO_LIVE_CHECKLIST.md` is an older broad SaaS checklist and contains historical direct/Stripe assumptions. It must **not** override the frozen Fiverr product, pricing, entitlement or launch-scope contracts above.
 
@@ -62,25 +63,44 @@ Completed `Scan.total_records` is authoritative. Buyer estimates are scoping onl
 | Validation report contract | PASS | final Lovable visual implementation + real-data QA |
 | Monitoring report backend | PASS for later product stage | visual polish deferred; not launch blocker |
 | Lifecycle email engine | PASS | real SMTP/DNS/provider acceptance |
+| Lifecycle DE/EN Admin Editor | PASS | admin UI smoke + real SMTP delivery |
 | Fiverr next-purchase guidance | PASS | final published Fiverr URL/config where desired |
 | Fiverr Requirements / Delivery contract | PASS | one real Fiverr order dry-run |
 | Backup / restore automation | PASS | off-host operational PROD restore drill |
 | Automated tenant-security gates | PASS | real two-tenant BC SaaS negative test |
-| Extension source 1.0.2.29 | PASS | build/install/runtime acceptance in real BC Online |
-| Non-SUPER source/permission design | PASS/previous runtime evidence | final SETUP acceptance on 1.0.2.29 |
-| Landing Fiverr CTA support | PASS | publish Gig URL and deploy reviewed frontend ref |
-| BC install/scan guide text structure | PASS when draft exists | screenshots from accepted Extension |
+| Extension source 1.0.2.30 | PASS static gate | build/install/runtime acceptance in real BC Online |
+| Combined non-SUPER permission design | PASS static gate | `BCSENTINEL PILOT` runtime acceptance without SUPER |
+| Landing Fiverr CTA/copy | PASS CI/build | publish Gig URL and deploy reviewed frontend ref |
+| BC install/scan guide text | PASS draft | screenshots from accepted 1.0.2.30 Extension |
+| Legal/privacy acceptance checklist | PREPARED | legal/provider-facts sign-off remains manual |
 | Fiverr sample-report strategy | DEFINED | final Lovable DE/EN exports |
+
+## Automatic quality gates
+
+Current controlled-pilot automation includes:
+
+- frozen Fiverr launch-contract drift validation;
+- BC compatibility contract validation;
+- controlled-pilot Extension static validation;
+- DE/EN lifecycle Admin Template regression coverage;
+- Free/Quick/Full/Validation funnel regressions;
+- automated tenant-security tests;
+- synthetic pilot journey tests;
+- pricing/next-purchase lifecycle regressions;
+- frontend frozen Fiverr copy validation + production build;
+- PostgreSQL backup/restore automation already present in the project.
+
+The aggregate workflow is `.github/workflows/fiverr-automatic-golive-preflight.yml`.
 
 ## Manual P0 gates before first paid Fiverr customer
 
 These are deliberately not marked complete by repository automation:
 
-1. Build/install/upgrade final Extension 1.0.2.29 in real Business Central Online.
-2. Test SETUP role without SUPER for the selected pilot flow.
+1. Build/install/upgrade final Extension **1.0.2.30** in real Business Central Online.
+2. Assign only the combined **BCSENTINEL PILOT** permission set to the pilot user and confirm the complete selected flow without SUPER.
 3. Run real Tenant A / Tenant B negative isolation tests.
-4. Run visual QA of real Free, Quick, Full and Validation HTML/PDF outputs.
-5. Configure real SMTP provider and accept SPF/DKIM/DMARC, inbox/spam placement and bounce behavior.
+4. Run visual QA of real Free, Quick, Full and Validation HTML/PDF outputs in DE/EN where applicable.
+5. Configure a real SMTP provider and accept SPF/DKIM/DMARC, inbox/spam placement and bounce behavior.
 6. Perform an off-host/operational backup + isolated restore drill against the actual production procedure.
 7. Complete privacy/DPA/legal/provider-facts sign-off.
 8. Freeze an immutable reviewed release candidate and promote exactly that ref to PROD.
