@@ -1,18 +1,19 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-01T21:20:00Z",
+  "generated_at_utc": "2026-11-03T09:30:00Z",
   "source_of_truth": {
     "core_repo": "danielwauer-maker/bcsentinel",
     "core_branch": "main",
     "master_state": "docs/BCSENTINEL_MASTER_STATE.md",
     "fiverr_pilot_rc": "docs/FIVERR_PILOT_RELEASE_CANDIDATE.md",
+    "fiverr_pricing_contract": "docs/product/F8_QUICK_ASSESSMENT_PRICING_TARGET.md",
     "rule": "Reviewed main is canonical technical truth; PROD remains a manually promoted immutable release ref."
   },
   "repositories": {
     "core": {
       "repo": "danielwauer-maker/bcsentinel",
-      "technical_baseline_sha": "270b712b07544dcf60d64e14bea06a77566fcb9c",
-      "status": "F0-F8 automatic implementation complete including permanent Quick semantics, automatic report resolution and final two-page Quick Assessment report; manual controlled-pilot gates remain"
+      "technical_baseline_sha": "9fcdea8a336e47fd337b66034da64bae0b03570e",
+      "status": "F0-F8 automatic implementation complete including permanent Quick semantics, automatic report resolution, final two-page Quick Assessment report and frozen Fiverr pricing; manual controlled-pilot gates remain"
     },
     "frontend": {
       "repo": "danielwauer-maker/bcsentinel-frontend",
@@ -60,7 +61,7 @@
       "activation": "unlocks same existing qualifying initial scan",
       "scan_credit_on_canonical_grant": 0,
       "full_access_days": 7,
-      "extension": "maximum one additional 7-day extension",
+      "extension": "maximum one additional 7-day extension; technically available but not a separate Fiverr launch package",
       "fallback_after_expiry": "Quick if a permanent Quick entitlement exists; otherwise Free",
       "validation_baseline_eligible": true,
       "report": "Assessment Report"
@@ -95,7 +96,7 @@
     "authoritative_metric": "persisted Scan.total_records from completed analysis"
   },
   "direct_pricing_eur": {
-    "status": "unchanged by F8; six record classes map through compatibility layer",
+    "status": "unchanged by Fiverr freeze; six record classes map through compatibility layer",
     "up_to_250k": {"assessment": 249, "validation": 129, "monitoring_monthly": 199, "monitoring_annual": 1990},
     "up_to_1m": {"assessment": 399, "validation": 199, "monitoring_monthly": 299, "monitoring_annual": 2990},
     "up_to_5m": {"assessment": 699, "validation": 349, "monitoring_monthly": 499, "monitoring_annual": 4990},
@@ -103,14 +104,13 @@
     "above_20m": "custom"
   },
   "fiverr_pricing_usd": {
-    "micro": {"quick_assessment": 129, "assessment": 299, "validation_check": 149},
-    "small": {"quick_assessment": 169, "assessment": 349, "validation_check": 179},
-    "medium": {"quick_assessment": 229, "assessment": 449, "validation_check": 229},
-    "large": {"quick_assessment": 349, "assessment": 649, "validation_check": 329},
-    "enterprise": "custom_offer",
-    "custom": "individual_review",
-    "premium_assessment_plus_micro": 399,
-    "premium_semantics": "Full Assessment plus the one allowed additional 7-day extension; no new scan and no separate core entitlement"
+    "status": "frozen for launch 2026-11-03",
+    "micro": {"quick_assessment": 149, "assessment": 349, "validation_check": 179},
+    "small": {"quick_assessment": 199, "assessment": 399, "validation_check": 219},
+    "medium": {"quick_assessment": 279, "assessment": 549, "validation_check": 289},
+    "large": {"quick_assessment": 429, "assessment": 799, "validation_check": 429},
+    "enterprise": {"quick_assessment": 649, "assessment": 1199, "validation_check": 649},
+    "custom": "custom_offer"
   },
   "fiverr_channel": {
     "architecture": "sales channel only; no product or Extension fork",
@@ -120,6 +120,7 @@
     "automation_after_grant": true,
     "scraping": false,
     "free_health_check_is_paid_fiverr_package": false,
+    "assessment_plus_is_launch_package": false,
     "operator_console": "/admin/operator",
     "operator_features": [
       "tenant/email/order search",
@@ -133,12 +134,16 @@
       "channel/order/action audit"
     ],
     "launch_kit": "docs/FIVERR_GIG_LAUNCH_KIT.md",
-    "packages_micro": {
-      "basic": "Quick Assessment $129",
-      "standard": "Full Assessment $299",
-      "premium": "Assessment Plus $399"
+    "launch_products": {
+      "basic": "Quick Assessment",
+      "advanced": "Full Assessment",
+      "validation": "separate follow-up Gig / Custom Offer"
     },
-    "validation_followup_micro": "$149",
+    "base_micro_prices": {
+      "basic_quick_assessment": 149,
+      "advanced_full_assessment": 349,
+      "validation_followup": 179
+    },
     "landing_activation": "frontend supports VITE_FIVERR_GIG_URL; populated CTA advertises Quick Assessment, empty value preserves waitlist",
     "linkedin_launch_kit": "bcsentinel-frontend/docs/FIVERR_PILOT_LINKEDIN_LAUNCH.md"
   },
@@ -238,9 +243,9 @@
     "F3_lifecycle_email": "complete including permanent-Quick alignment",
     "F4_operator_admin": "merged",
     "F5_security_prod_rc_automatic": "complete; manual production gates open",
-    "F6_fiverr_launch_assets": "merged",
+    "F6_fiverr_launch_assets": "merged; pricing/package copy synchronized 2026-11-03",
     "F7_landing_linkedin": "merged",
-    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics, automatic report resolver and final Quick report Golden Master"
+    "F8_free_quick_full_validation_funnel": "complete including permanent-Quick semantics, automatic report resolver, final Quick report Golden Master and frozen Fiverr price matrix"
   },
   "readiness": {
     "technical_fiverr_controlled_pilot_after_automatic_F8": 99,
