@@ -98,8 +98,8 @@ def main() -> int:
         # Field declarations must occur within the table's fields block.
         # A regex over the complete file alone misses the AL syntax regression
         # that caused widespread missing-method diagnostics in 1.0.2.31.
-        begin_fields = re.search(r"\\bfields\\s*\\{", code)
-        begin_keys = re.search(r"\\bkeys\\s*\\{", code)
+        begin_fields = re.search(r"\bfields\s*\{", code)
+        begin_keys = re.search(r"\bkeys\s*\{", code)
         if not begin_fields or not begin_keys or begin_keys.start() <= begin_fields.end():
             errors.append(f"{filename}: malformed fields/keys sections")
             continue
