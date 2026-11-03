@@ -1,7 +1,19 @@
 pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor"
 {
+    layout
+    {
+        modify(Headline)
+        {
+            Visible = ShowPremiumDetails;
+        }
+    }
+
     actions
     {
+        modify(OpenAllIssues)
+        {
+            Visible = ShowPremiumDetails;
+        }
         modify(OpenExecutiveReport)
         {
             Visible = false;
@@ -172,4 +184,25 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        RefreshAccessState();
+    end;
+
+    var
+        ShowPremiumDetails: Boolean;
+
+    local procedure RefreshAccessState()
+    var
+        Setup: Record "DH Setup";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ShowPremiumDetails := false;
+        if not Setup.Get('SETUP') then
+            exit;
+        if Setup.Registered then
+            ApiClient.RefreshLicenseStatus(Setup);
+        ShowPremiumDetails := Setup."Can View Issue Details";
+    end;
 }
