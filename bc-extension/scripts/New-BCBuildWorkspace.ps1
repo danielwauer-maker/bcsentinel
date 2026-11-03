@@ -3,7 +3,9 @@ param(
     [ValidateSet("DevCloud", "ReleaseCloud", "OnPremBc19")]
     [string]$Profile = "ReleaseCloud",
 
-    [string]$OutputPath
+    [string]$OutputPath,
+
+    [switch]$ReuseSymbolCache
 )
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -50,9 +52,21 @@ if (Test-Path -LiteralPath $appSourceCopPath) {
     Copy-Item -LiteralPath $appSourceCopPath -Destination (Join-Path $outputRoot "AppSourceCop.json") -Force
 }
 
+# Release builds must not silently reuse stale Microsoft symbols or package the
+# BCSentinel extension itself as a dependency. Download fresh symbols in VS Code.
+# ReuseSymbolCache is opt-in for offline development only; never copy own .app.
 $packageCachePath = Join-Path $repoRoot ".alpackages"
-if (Test-Path -LiteralPath $packageCachePath) {
-    Copy-Item -LiteralPath $packageCachePath -Destination (Join-Path $outputRoot ".alpackages") -Recurse -Force
+if ($ReuseSymbolCache -and (Test-Path -LiteralPath $packageCachePath)) {
+    $targetPackageCache = Join-Path $outputRoot ".alpackages"
+    New-Item -ItemType Directory -Path $targetPackageCache -Force | Out-Null
+    Get-ChildItem -LiteralPath $packageCachePath -File -Filter "*.app" | Where-Object {
+        $_.Name -notmatch "BCSentinel"
+    } | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $targetPackageCache -Force
+    }
+    Write-Warning "Reused external symbols on explicit request. Verify BC version before packaging."
+} else {
+    Write-Host "  Symbols: clean (download fresh symbols for the target BC environment)"
 }
 
 $launchPath = Join-Path $repoRoot ".vscode\launch.json"
