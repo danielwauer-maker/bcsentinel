@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-11-03",
-  "status": "automatic_preparation_in_progress_manual_acceptance_required",
+  "status": "automatic_preparation_complete_manual_acceptance_required",
   "channel": "fiverr_controlled_pilot",
   "product": {
     "name": "BCSentinel",
@@ -36,14 +36,24 @@
     "product_price_freeze": "pass",
     "fiverr_requirements_delivery_contract": "pass",
     "fiverr_next_purchase_lifecycle": "pass",
-    "launch_contract_drift_gate": "implemented",
-    "bc_install_scan_guide_text": "prepared_waiting_for_screenshots",
-    "lifecycle_admin_templates_de_en": "implemented_waiting_for_ci",
-    "extension_static_gate": "implemented_waiting_for_ci",
-    "landing_fiverr_copy": "aligned_waiting_for_ci",
-    "tenant_security_automated": "existing_pass",
-    "backup_restore_automation": "existing_pass",
-    "legal_privacy_acceptance_checklist": "prepared"
+    "launch_contract_drift_gate": "pass_or_covered_by_aggregate_preflight",
+    "bc_install_scan_guide_text": "pass_waiting_for_runtime_screenshots",
+    "lifecycle_admin_templates_de_en": {
+      "status": "pass",
+      "workflow_run_id": 41630315379
+    },
+    "extension_static_gate": {
+      "status": "pass",
+      "workflow_run_id": 41630765227
+    },
+    "landing_fiverr_copy": {
+      "status": "pass",
+      "workflow_run_id": 41630973190
+    },
+    "tenant_security_automated": "pass",
+    "backup_restore_automation": "pass",
+    "legal_privacy_acceptance_checklist": "prepared_manual_signoff_required",
+    "aggregate_golive_preflight": "workflow_created_pending_latest_run_confirmation"
   },
   "manual_p0": [
     "build and install final 1.0.2.30 app artifact in real BC Online",
@@ -69,5 +79,6 @@
     "full direct Stripe E2E for Fiverr-origin purchases",
     "LinkedIn launch"
   ],
+  "manual_runbook": "docs/FIVERR_MANUAL_ACCEPTANCE_RUNBOOK.md",
   "release_rule": "automatic PASS never replaces external runtime/manual evidence"
 }
