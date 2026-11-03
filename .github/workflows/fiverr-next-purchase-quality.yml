@@ -1,0 +1,45 @@
+name: Fiverr Next Purchase Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "backend/app/services/fiverr_next_purchase_service.py"
+      - "backend/app/services/lifecycle_worker_service.py"
+      - "backend/app/services/record_volume_pricing_service.py"
+      - "backend/tests/test_fiverr_next_purchase_email.py"
+      - "backend/tests/test_f8d_record_volume_pricing.py"
+      - ".github/workflows/fiverr-next-purchase-quality.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/app/services/fiverr_next_purchase_service.py"
+      - "backend/app/services/lifecycle_worker_service.py"
+      - "backend/app/services/record_volume_pricing_service.py"
+      - "backend/tests/test_fiverr_next_purchase_email.py"
+      - "backend/tests/test_f8d_record_volume_pricing.py"
+      - ".github/workflows/fiverr-next-purchase-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-next-purchase-mail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Compile lifecycle purchase guidance
+        run: python -m py_compile app/services/fiverr_next_purchase_service.py app/services/lifecycle_worker_service.py
+      - name: Run Fiverr pricing and next-purchase mail regression
+        run: pytest -q tests/test_f8d_record_volume_pricing.py tests/test_fiverr_next_purchase_email.py tests/test_f3_lifecycle_email.py tests/test_f8f_quick_lifecycle_email.py
