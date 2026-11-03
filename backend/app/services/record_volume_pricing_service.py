@@ -16,7 +16,7 @@ CHANNEL_FIVERR = "fiverr"
 # Canonical sizing taxonomy shared by commercial channels and operator tooling.
 # Boundaries are intentionally independent from the legacy/direct EUR pricing
 # tier keys in product_pricing_service.py so the existing Stripe/direct pricing
-# contract can remain backward compatible while F8 rolls out progressively.
+# contract can remain backward compatible while channel pricing evolves.
 RECORD_VOLUME_CLASSES = (
     {"code": "micro", "display_name": "Micro", "min_records": 0, "max_records": 100_000},
     {"code": "small", "display_name": "Small", "min_records": 100_001, "max_records": 250_000},
@@ -26,34 +26,35 @@ RECORD_VOLUME_CLASSES = (
     {"code": "custom", "display_name": "Custom", "min_records": 20_000_001, "max_records": None},
 )
 
-# Fiverr pilot pricing is sales-channel metadata only. It does not grant
-# entitlements and does not alter the existing direct/Stripe EUR price table.
-# None means the operator must create a Custom Offer / perform individual review.
+# Frozen Fiverr launch pricing (2026-11-03).
+# Fiverr remains sales-channel metadata only. These values do not grant
+# entitlements and do not alter the direct/Stripe EUR price table.
+# >20m requires a Custom Offer / individual review.
 FIVERR_TARGET_PRICES_USD_CENTS: dict[str, dict[str, int | None]] = {
     "micro": {
-        PRODUCT_QUICK_ASSESSMENT: 12_900,
-        PRODUCT_ASSESSMENT: 29_900,
-        PRODUCT_VALIDATION_CHECK: 14_900,
-    },
-    "small": {
-        PRODUCT_QUICK_ASSESSMENT: 16_900,
+        PRODUCT_QUICK_ASSESSMENT: 14_900,
         PRODUCT_ASSESSMENT: 34_900,
         PRODUCT_VALIDATION_CHECK: 17_900,
     },
+    "small": {
+        PRODUCT_QUICK_ASSESSMENT: 19_900,
+        PRODUCT_ASSESSMENT: 39_900,
+        PRODUCT_VALIDATION_CHECK: 21_900,
+    },
     "medium": {
-        PRODUCT_QUICK_ASSESSMENT: 22_900,
-        PRODUCT_ASSESSMENT: 44_900,
-        PRODUCT_VALIDATION_CHECK: 22_900,
+        PRODUCT_QUICK_ASSESSMENT: 27_900,
+        PRODUCT_ASSESSMENT: 54_900,
+        PRODUCT_VALIDATION_CHECK: 28_900,
     },
     "large": {
-        PRODUCT_QUICK_ASSESSMENT: 34_900,
-        PRODUCT_ASSESSMENT: 64_900,
-        PRODUCT_VALIDATION_CHECK: 32_900,
+        PRODUCT_QUICK_ASSESSMENT: 42_900,
+        PRODUCT_ASSESSMENT: 79_900,
+        PRODUCT_VALIDATION_CHECK: 42_900,
     },
     "enterprise": {
-        PRODUCT_QUICK_ASSESSMENT: None,
-        PRODUCT_ASSESSMENT: None,
-        PRODUCT_VALIDATION_CHECK: None,
+        PRODUCT_QUICK_ASSESSMENT: 64_900,
+        PRODUCT_ASSESSMENT: 119_900,
+        PRODUCT_VALIDATION_CHECK: 64_900,
     },
     "custom": {
         PRODUCT_QUICK_ASSESSMENT: None,
@@ -101,7 +102,7 @@ def fiverr_price_recommendation(
     total_records: int | float | str | None,
     product_code: str,
 ) -> dict[str, Any]:
-    """Return the canonical Fiverr pilot recommendation for one paid product.
+    """Return the canonical Fiverr launch recommendation for one paid product.
 
     This is deliberately a read model only. It never grants an entitlement,
     creates a scan credit, records a purchase or redirects a payment flow.
@@ -154,12 +155,12 @@ def fiverr_price_recommendations(total_records: int | float | str | None) -> dic
 
 
 def legacy_direct_tier_code_for_count(total_records: int | float | str | None) -> str:
-    """Bridge F8 canonical sizing to the currently deployed direct EUR tiers.
+    """Bridge canonical sizing to the currently deployed direct EUR tiers.
 
     Micro and Small intentionally map to the existing <=250k direct tier. This
     preserves current public/Stripe EUR behavior until that channel is migrated
-    explicitly, while all new channel-aware code can already use the canonical
-    six-class taxonomy.
+    explicitly, while all channel-aware code can use the canonical six-class
+    taxonomy.
     """
     class_code = record_volume_class_for_count(total_records)["code"]
     return {
