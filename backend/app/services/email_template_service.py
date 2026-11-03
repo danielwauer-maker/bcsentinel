@@ -11,8 +11,7 @@ from app.services.billing_service import utc_now
 PLACEHOLDER_PATTERN = re.compile(r"{{\s*([a-zA-Z0-9_]+)\s*}}")
 SUPPORTED_EMAIL_LANGUAGES = ("en", "de")
 
-# English keeps the historical storage key for backward compatibility. Localized
-# variants use a deterministic suffix and therefore need no schema migration.
+
 def storage_key(base_key: str, language: str = "en") -> str:
     normalized_language = (language or "en").strip().lower()
     if normalized_language not in SUPPORTED_EMAIL_LANGUAGES:
@@ -94,9 +93,154 @@ BASE_TEMPLATE_META: dict[str, dict[str, object]] = {
     },
 }
 
+BASE_TEMPLATE_META.update({
+    "lifecycle_registration_completed": {
+        "label": "Lifecycle · Registration completed",
+        "description": "Transactional lifecycle email after BCSentinel tenant registration.",
+        "placeholders": ["environment_name"],
+        "translations": {
+            "en": {"subject": "BCSentinel registration completed", "html": "<p>Your BCSentinel registration is complete. You can now start your first Data Health Scan.</p>"},
+            "de": {"subject": "BCSentinel Registrierung abgeschlossen", "html": "<p>Ihre BCSentinel-Registrierung ist abgeschlossen. Sie können jetzt Ihren ersten Data Health Scan starten.</p>"},
+        },
+    },
+    "lifecycle_scan_started": {
+        "label": "Lifecycle · Scan started",
+        "description": "Transactional lifecycle email when a Data Health Scan starts.",
+        "placeholders": ["scan_id"],
+        "translations": {
+            "en": {"subject": "BCSentinel scan started", "html": "<p>Your Data Health Scan <strong>{{ scan_id }}</strong> has started. You will receive another message when the result is available.</p>"},
+            "de": {"subject": "BCSentinel Scan gestartet", "html": "<p>Ihr Data Health Scan <strong>{{ scan_id }}</strong> wurde gestartet. Sie erhalten eine weitere Nachricht, sobald das Ergebnis verfügbar ist.</p>"},
+        },
+    },
+    "lifecycle_scan_completed": {
+        "label": "Lifecycle · Scan completed",
+        "description": "Transactional lifecycle email for a completed non-validation scan. Fiverr next-purchase guidance is appended separately.",
+        "placeholders": ["scan_id", "data_score", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel scan completed", "html": "<p>Scan <strong>{{ scan_id }}</strong> is complete. Data Health Score: <strong>{{ data_score }}/100</strong>.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Scan abgeschlossen", "html": "<p>Der Scan <strong>{{ scan_id }}</strong> ist abgeschlossen. Data Health Score: <strong>{{ data_score }}/100</strong>.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_scan_failed": {
+        "label": "Lifecycle · Scan failed",
+        "description": "Transactional lifecycle email for a failed scan.",
+        "placeholders": ["scan_id", "error_message"],
+        "translations": {
+            "en": {"subject": "BCSentinel scan failed", "html": "<p>Scan <strong>{{ scan_id }}</strong> could not be completed. {{ error_message }}</p>"},
+            "de": {"subject": "BCSentinel Scan fehlgeschlagen", "html": "<p>Der Scan <strong>{{ scan_id }}</strong> konnte nicht abgeschlossen werden. {{ error_message }}</p>"},
+        },
+    },
+    "lifecycle_quick_activated_existing": {
+        "label": "Lifecycle · Quick activated · existing scan",
+        "description": "Permanent Quick activation when a qualifying scan already exists.",
+        "placeholders": ["report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel Quick Assessment activated", "html": "<p>Your Quick Assessment is permanently unlocked for the existing Data Health Scan. You can reopen the prioritized Quick Assessment results through BCSentinel at any time.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Quick Assessment aktiviert", "html": "<p>Ihr Quick Assessment ist dauerhaft für den vorhandenen Data Health Scan freigeschaltet. Sie können die priorisierten Quick-Assessment-Ergebnisse jederzeit erneut über BCSentinel öffnen.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_quick_activated_prescan": {
+        "label": "Lifecycle · Quick activated · before first scan",
+        "description": "Permanent Quick activation before the first qualifying scan.",
+        "placeholders": [],
+        "translations": {
+            "en": {"subject": "BCSentinel Quick Assessment activated", "html": "<p>Your Quick Assessment is permanently unlocked. Start the included first Data Health Scan; once it completes, the Quick Assessment Report for that scan will become available automatically.</p>"},
+            "de": {"subject": "BCSentinel Quick Assessment aktiviert", "html": "<p>Ihr Quick Assessment ist dauerhaft freigeschaltet. Starten Sie jetzt den enthaltenen ersten Data Health Scan; nach Abschluss wird automatisch der Quick Assessment Report für diesen Scan verfügbar.</p>"},
+        },
+    },
+    "lifecycle_quick_activated_legacy": {
+        "label": "Lifecycle · Quick activated · legacy finite",
+        "description": "Compatibility template for historical finite Quick grants only.",
+        "placeholders": ["valid_until", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel Quick Assessment activated", "html": "<p>Your Quick Assessment is active until <strong>{{ valid_until }}</strong>. You can now review the prioritized Quick Assessment results from your existing Data Health Scan.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Quick Assessment aktiviert", "html": "<p>Ihr Quick Assessment ist bis <strong>{{ valid_until }}</strong> aktiv. Sie können jetzt die priorisierten Quick-Assessment-Ergebnisse des vorhandenen Data Health Scans einsehen.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_quick_expiring": {
+        "label": "Lifecycle · Quick expiring · legacy",
+        "description": "Compatibility template for historical finite Quick grants only.",
+        "placeholders": ["valid_until", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel Quick Assessment: access expires soon", "html": "<p>Your historical time-limited Quick Assessment access expires at <strong>{{ valid_until }}</strong>.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Quick Assessment: Zugang läuft bald ab", "html": "<p>Ihr historischer zeitlich begrenzter Quick-Assessment-Zugang läuft am <strong>{{ valid_until }}</strong> ab.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_quick_expired": {
+        "label": "Lifecycle · Quick expired · legacy",
+        "description": "Compatibility template for historical finite Quick grants only.",
+        "placeholders": [],
+        "translations": {
+            "en": {"subject": "BCSentinel Quick Assessment access expired", "html": "<p>The historical time-limited Quick Assessment access has expired. New Quick Assessments are granted permanently.</p>"},
+            "de": {"subject": "BCSentinel Quick-Assessment-Zugang abgelaufen", "html": "<p>Der historische zeitlich begrenzte Quick-Assessment-Zugang ist abgelaufen. Neue Quick Assessments werden dauerhaft freigeschaltet.</p>"},
+        },
+    },
+    "lifecycle_assessment_activated": {
+        "label": "Lifecycle · Full Assessment activated",
+        "description": "Transactional lifecycle email when Full Assessment detail access is activated.",
+        "placeholders": ["valid_until", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel Assessment activated", "html": "<p>Your full Assessment access is active until <strong>{{ valid_until }}</strong>.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Assessment aktiviert", "html": "<p>Ihr vollständiger Assessment-Zugang ist bis <strong>{{ valid_until }}</strong> aktiv.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_assessment_extended": {
+        "label": "Lifecycle · Full Assessment extended",
+        "description": "Transactional lifecycle email after the one allowed Full Assessment extension.",
+        "placeholders": ["valid_until", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel Assessment extended", "html": "<p>Your full Assessment access is active until <strong>{{ valid_until }}</strong>.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Assessment verlängert", "html": "<p>Ihr vollständiger Assessment-Zugang ist bis <strong>{{ valid_until }}</strong> aktiv.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_assessment_expiring": {
+        "label": "Lifecycle · Full Assessment expiring",
+        "description": "Transactional warning before Full Assessment detail access expires.",
+        "placeholders": ["valid_until"],
+        "translations": {
+            "en": {"subject": "BCSentinel Assessment: access expires soon", "html": "<p>Your Assessment access expires at <strong>{{ valid_until }}</strong>. Download your report and plan next steps if needed.</p>"},
+            "de": {"subject": "BCSentinel Assessment: Zugang läuft bald ab", "html": "<p>Ihr Assessment-Zugang läuft am <strong>{{ valid_until }}</strong> ab. Laden Sie Ihren Report herunter und planen Sie bei Bedarf die nächsten Schritte.</p>"},
+        },
+    },
+    "lifecycle_assessment_expired": {
+        "label": "Lifecycle · Full Assessment expired",
+        "description": "Transactional email after Full Assessment detail access expires.",
+        "placeholders": [],
+        "translations": {
+            "en": {"subject": "BCSentinel Assessment access expired", "html": "<p>Live access to full Assessment details has expired. Any permanently purchased Quick Assessment remains available.</p>"},
+            "de": {"subject": "BCSentinel Assessment-Zugang abgelaufen", "html": "<p>Der Live-Zugriff auf die vollständigen Assessment-Details ist abgelaufen. Ein dauerhaft erworbenes Quick Assessment bleibt davon unberührt.</p>"},
+        },
+    },
+    "lifecycle_validation_available": {
+        "label": "Lifecycle · Validation available",
+        "description": "Transactional lifecycle email after Validation is granted and before the new scan.",
+        "placeholders": ["baseline_scan_id"],
+        "translations": {
+            "en": {"subject": "BCSentinel Validation available", "html": "<p>Your Validation is available. Start a new Data Health Scan now. The 7-day full Validation result window begins with that new scan.</p><p>Baseline: <strong>{{ baseline_scan_id }}</strong></p>"},
+            "de": {"subject": "BCSentinel Validation verfügbar", "html": "<p>Ihre Validation ist freigeschaltet. Starten Sie jetzt einen neuen Data Health Scan. Das 7-Tage-Fenster für vollständige Validation-Ergebnisse beginnt mit diesem neuen Scan.</p><p>Baseline: <strong>{{ baseline_scan_id }}</strong></p>"},
+        },
+    },
+    "lifecycle_validation_completed": {
+        "label": "Lifecycle · Validation completed",
+        "description": "Transactional lifecycle email after the Validation scan completes.",
+        "placeholders": ["scan_id", "data_score", "report_url"],
+        "translations": {
+            "en": {"subject": "BCSentinel validation completed", "html": "<p>Scan <strong>{{ scan_id }}</strong> is complete. Data Health Score: <strong>{{ data_score }}/100</strong>.</p><p><a href=\"{{ report_url }}\">Open BCSentinel report</a></p>"},
+            "de": {"subject": "BCSentinel Validation abgeschlossen", "html": "<p>Der Scan <strong>{{ scan_id }}</strong> ist abgeschlossen. Data Health Score: <strong>{{ data_score }}/100</strong>.</p><p><a href=\"{{ report_url }}\">BCSentinel Report öffnen</a></p>"},
+        },
+    },
+    "lifecycle_validation_expiring": {
+        "label": "Lifecycle · Validation expiring",
+        "description": "Transactional warning before Validation result access expires.",
+        "placeholders": ["valid_until"],
+        "translations": {
+            "en": {"subject": "BCSentinel Validation: access expires soon", "html": "<p>Your Validation access expires at <strong>{{ valid_until }}</strong>. Download your report and plan next steps if needed.</p>"},
+            "de": {"subject": "BCSentinel Validation: Zugang läuft bald ab", "html": "<p>Ihr Validation-Zugang läuft am <strong>{{ valid_until }}</strong> ab. Laden Sie Ihren Report herunter und planen Sie bei Bedarf die nächsten Schritte.</p>"},
+        },
+    },
+})
 
-# Admin surfaces historically import this symbol. Keep it as a flat storage-key
-# catalog while attaching base_key/language metadata to every entry.
+
 DEFAULT_ADMIN_EMAIL_TEMPLATES: dict[str, dict[str, object]] = {}
 for _base_key, _meta in BASE_TEMPLATE_META.items():
     for _language in SUPPORTED_EMAIL_LANGUAGES:
