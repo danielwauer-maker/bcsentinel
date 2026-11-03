@@ -1,59 +1,79 @@
-# Executive Report Readiness
+# Full Assessment Report Readiness
 
-Datum: 2026-06-10
+Datum: 2026-11-03
 
-Status: PARTIAL / CODE REVIEW PASS / RUNTIME HTML-PDF NOT EXECUTED.
+Status: TECHNICAL PASS / MANUAL VISUAL ACCEPTANCE PENDING.
 
-## Gepruefte Dateien
+## Customer-delivery contract
 
-- `backend/app/services/executive_report_service.py`
-- `backend/app/templates/executive_report.html`
-- `backend/tests/test_executive_report.py`
+The Full Assessment report is the paid decision document for the qualifying existing Deep Scan. HTML and PDF are derivatives of the same canonical backend report model; renderers do not recalculate scan or financial KPIs.
 
-## Code-Befund
+## Implemented content
 
 PASS:
 
-- Management Summary wird erzeugt.
-- KPIs fuer Data Health Score, Business Impact, Saving und betroffene Datensaetze sind vorhanden.
-- Top-10-Risiken sind vorhanden.
-- Kritische Findings sind vorhanden.
-- Finanzielle Risiken sind vorhanden.
-- Empfohlene Massnahmen sind vorhanden.
-- Priority Matrix ist vorhanden.
-- Next Steps sind vorhanden.
-- HTML-Template nutzt `report.language`.
-- PDF-Erzeugung liefert laut Test erwartbar `%PDF-1.4`.
-- Share-Link-Tests fuer HTML/PDF existieren in `backend/tests/test_executive_report.py`.
+- Executive / Management Summary.
+- Data Health Score and score status.
+- Records analyzed, checks executed, findings and affected-record coverage.
+- Confirmed standard Business Central scope limitation messaging.
+- Business Area Impact with score, finding count, affected records, severity, modeled impact and share.
+- Business Area Health / module score presentation.
+- Top-risk summary.
+- Complete detailed finding list, not only Top 10.
+- Finding code, area, severity, affected records, modeled impact and remediation direction.
+- Priority sequence P1/P2/P3.
+- Recommended remediation actions.
+- Validation baseline statement.
+- Remediation roadmap / next steps.
+- Methodology and limitations.
+- Explicit wording that modeled business-impact and saving values are not accounting-confirmed loss, guaranteed saving, realized saving or ROI.
+- Unsupported root causes are not inferred.
+- Immutable scan-time exception transparency where exceptions exist.
+- German / English rendering from the same report contract.
+- Secure tenant-bound HTML/PDF access and signed share links.
 
-WARN:
+## PDF finalization
 
-- Einige Begriffe bleiben fachlich Englisch im deutschen Report, z. B. `Executive Management Report`, `Business Impact`, `Findings`, `Impact`. Das kann als Produktterminologie akzeptiert werden, sollte aber vor zahlendem Kunden final entschieden werden.
-- PDF ist eine einfache generierte Text-PDF-Ausgabe. Fuer Pilot ausreichend, fuer zahlende Executive-Kunden nur bedingt professionell.
-- Live-Rendering HTML/PDF konnte nicht ausgefuehrt werden.
+The paid Assessment PDF is no longer a short summary-only export. It now contains:
 
-FAIL / offen:
+1. Executive summary and management KPIs.
+2. Scan scope and coverage.
+3. Business-area impact and priority sequence.
+4. Complete detailed findings across dynamically generated pages.
+5. Remediation roadmap and next steps.
+6. Methodology and limitations.
+7. Applied exception pages where required.
 
-- Keine visuelle PDF-Abnahme in dieser Umgebung.
-- Kein Test mit echtem Scan aus BC und deutscher Tenant-Sprache ausgefuehrt.
+Automated regression explicitly verifies that a finding beyond the Top-10 boundary (Finding 12) is present in the PDF, preventing a regression to summary-only delivery.
 
-## Empfohlene Pilot-Abnahme
+## Automated quality gate
 
-1. Testtenant mit `preferred_language=de` anlegen.
-2. Deep Scan mit mehreren Issues ausfuehren.
-3. HTML Report oeffnen.
-4. PDF Report oeffnen.
-5. Share Links fuer HTML/PDF oeffnen.
-6. Pruefen:
-   - Management Summary verstaendlich.
-   - Risiko-Matrix vorhanden.
-   - Next Steps vorhanden.
-   - Kein `undefined`, kein Platzhalter.
-   - Keine kaputten Umlaute.
-   - APP_BASE_URL statt localhost in Links.
+`.github/workflows/executive-report-contract-quality.yml` covers:
 
-## Go/No-Go
+- shared report contract validation;
+- backend compilation;
+- existing Executive Report tests;
+- F2 report-family tests;
+- Full Assessment final-completeness tests;
+- D10 report contract tests.
 
-Go fuer handgefuehrten Pilot: Ja, wenn HTML/PDF live funktionieren.
+The gate runs on pull requests, relevant pushes to `main`, and manual dispatch.
 
-No-Go als "final professional paid customer report", solange PDF nicht visuell abgenommen ist.
+## Remaining P0 manual acceptance
+
+The only remaining Full Report P0 gate is visual acceptance using a representative real or production-like scan:
+
+1. Open German Full Assessment HTML.
+2. Export/open PDF.
+3. Verify no clipping/overlap across short and long finding text.
+4. Verify page breaks for >10 findings.
+5. Verify umlauts/special characters are readable.
+6. Verify long EUR values and record counts fit cards/rows.
+7. Verify exception page when exceptions exist.
+8. Verify the report visually matches the frozen BCSentinel brand and is suitable for direct Fiverr delivery without manual redesign.
+
+## Go / No-Go
+
+- Technical/content/security gate: GO once CI is green.
+- Paid customer visual-delivery gate: YELLOW until the manual visual acceptance above is completed.
+- No product-logic redesign is required to close the remaining gate.
