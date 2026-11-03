@@ -1,0 +1,35 @@
+name: Controlled Pilot Extension Quality Gate
+
+on:
+  push:
+    paths:
+      - 'bc-extension/app.json'
+      - 'bc-extension/app/src/permissionsets/**'
+      - 'bc-extension/app/src/pages/DHSetup.Page.al'
+      - 'scripts/validate_controlled_pilot_extension.py'
+      - 'scripts/validate_bc_compatibility.py'
+      - 'config/bc-compatibility.json'
+      - '.github/workflows/controlled-pilot-extension-quality.yml'
+  pull_request:
+    paths:
+      - 'bc-extension/app.json'
+      - 'bc-extension/app/src/permissionsets/**'
+      - 'bc-extension/app/src/pages/DHSetup.Page.al'
+      - 'scripts/validate_controlled_pilot_extension.py'
+      - 'scripts/validate_bc_compatibility.py'
+      - 'config/bc-compatibility.json'
+      - '.github/workflows/controlled-pilot-extension-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  static-extension-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate BC compatibility contract
+        run: python scripts/validate_bc_compatibility.py
+      - name: Validate controlled-pilot Extension contract
+        run: python scripts/validate_controlled_pilot_extension.py
