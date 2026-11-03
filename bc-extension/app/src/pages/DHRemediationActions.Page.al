@@ -13,7 +13,7 @@ page 53194 "DH Remediation Actions"
     {
         area(Content)
         {
-            repeater(Actions)
+            repeater(RemediationLines)
             {
                 field(Title; Rec.Title) { ApplicationArea = All; }
                 field("Finding Key"; Rec."Finding Key") { ApplicationArea = All; }
