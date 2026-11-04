@@ -5,6 +5,7 @@ on:
     paths:
       - 'bc-extension/app/src/controladdin/ScanVisualAddIn.al'
       - 'bc-extension/app/src/controladdin/js/scanvisual.js'
+      - 'bc-extension/app/src/controladdin/js/scanvisual-startup.js'
       - 'bc-extension/app/src/controladdin/css/scanvisual.css'
       - 'bc-extension/app/src/pages/DHDeepScanMonitor.Page.al'
       - 'scripts/validate_bc_scan_visual.py'
@@ -31,6 +32,8 @@ jobs:
         with:
           node-version: '22'
       - name: Check JavaScript syntax
-        run: node --check bc-extension/app/src/controladdin/js/scanvisual.js
+        run: |
+          node --check bc-extension/app/src/controladdin/js/scanvisual.js
+          node --check bc-extension/app/src/controladdin/js/scanvisual-startup.js
       - name: Check control add-in AL and frontend data contract
         run: python scripts/validate_bc_scan_visual.py
