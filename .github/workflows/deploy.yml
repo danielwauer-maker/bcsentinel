@@ -180,6 +180,21 @@ jobs:
           done
 
           curl -4 -fsS https://dev-api.bcsentinel.com/health/ready
+          echo
+          echo "=== Verify public DEV lifecycle API route ==="
+          curl -4 -fsS https://dev-api.bcsentinel.com/openapi.json -o /tmp/dev-openapi.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/dev-openapi.json', encoding='utf-8') as stream:
+              paths = json.load(stream).get('paths', {})
+          assert 'put' in paths.get('/tenant/lifecycle-profile', {}), 'DEV public API does not expose PUT /tenant/lifecycle-profile'
+          print('Public DEV lifecycle route: PASS')
+          PY
+          status="$(curl -4 -sS -o /dev/null -w '%{http_code}' -X PUT \
+            https://dev-api.bcsentinel.com/tenant/lifecycle-profile \
+            -H 'Content-Type: application/json' \
+            --data '{"primary_notification_email":"probe@example.invalid","preferred_language":"de"}')"
+          test "$status" = '401' || { echo "Unexpected unauthenticated lifecycle response: $status"; exit 1; }
           curl -4 -fsS https://dev.bcsentinel.com/ >/dev/null
           curl -4 -fsS https://dev.bcsentinel.com/pilot.html >/dev/null
 
