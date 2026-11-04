@@ -652,6 +652,7 @@
         Payload: JsonObject;
         Modules: JsonArray;
         Setup: Record "DH Setup";
+        JsonText: Text;
     begin
         if not ScanVisualReady then
             exit;
@@ -695,7 +696,8 @@
             AddVisualModule(Modules, 'HR', Rec."HR Progress %", Rec."HR Score");
 
         Payload.Add('modules', Modules);
-        CurrPage.ScanVisual.SetScanData(Format(Payload));
+        Payload.WriteTo(JsonText);
+        CurrPage.ScanVisual.SetScanData(JsonText);
     end;
 
     local procedure AddVisualModule(var Modules: JsonArray; ModuleName: Text; Progress: Integer; Score: Integer)
