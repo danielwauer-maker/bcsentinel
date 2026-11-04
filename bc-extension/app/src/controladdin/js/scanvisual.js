@@ -258,7 +258,7 @@
         var free = el("div", "bcs-v3-free");
         var score = percent(insights.score);
         var top = el("div", "bcs-v3-top-grid");
-        var scoreCard = sectionCard("Data Health Score", "\u25c9");
+        var scoreCard = sectionCard("Data Health Score", "score");
         var scoreContent = el("div", "bcs-v3-score-content");
         scoreContent.appendChild(scoreGauge(score));
         var scoreCopy = el("div", "bcs-v3-score-copy");
@@ -275,16 +275,16 @@
         scoreCard.appendChild(scoreContent);
         top.appendChild(scoreCard);
 
-        var scope = sectionCard(t(lang, "Scan Scope", "Scan scope"), "\u25c8");
+        var scope = sectionCard(t(lang, "Scan Scope", "Scan scope"), "search");
         var scopeItems = el("div", "bcs-v3-scope-grid");
         [
-            [count(insights.affected_records, lang), t(lang, "Betroffene\nDatens\u00e4tze", "Affected\nrecords"), "\u25a4"],
-            [count(insights.checks, lang), t(lang, "Checks\ndurchgef\u00fchrt", "Checks\nexecuted"), "\u2315"],
-            [count(insights.modules_analyzed, lang), t(lang, "Bereiche\nanalysiert", "Areas\nanalyzed"), "\u25c7"],
-            [count(insights.findings, lang), t(lang, "Findings\ngesamt", "Findings\ntotal"), "\u26a0"]
+            [count(insights.affected_records, lang), t(lang, "Betroffene\nDatens\u00e4tze", "Affected\nrecords"), "database"],
+            [count(insights.checks, lang), t(lang, "Checks\ndurchgef\u00fchrt", "Checks\nexecuted"), "search"],
+            [count(insights.modules_analyzed, lang), t(lang, "Bereiche\nanalysiert", "Areas\nanalyzed"), "cube"],
+            [count(insights.findings, lang), t(lang, "Findings\ngesamt", "Findings\ntotal"), "findings"]
         ].forEach(function (entry) {
             var item = el("div", "bcs-v3-scope-item");
-            item.appendChild(el("span", "bcs-v3-scope-icon", entry[2]));
+            item.appendChild(svgIcon(entry[2], "bcs-v3-scope-icon"));
             item.appendChild(el("strong", "", entry[0]));
             item.appendChild(el("span", "bcs-v3-scope-label", entry[1]));
             scopeItems.appendChild(item);
@@ -294,7 +294,7 @@
         free.appendChild(top);
 
         var analysis = el("div", "bcs-v3-analysis-grid");
-        var severity = sectionCard(t(lang, "Schweregrad-Verteilung der Findings", "Finding severity distribution"), "\u25a6");
+        var severity = sectionCard(t(lang, "Schweregrad-Verteilung der Findings", "Finding severity distribution"), "severity");
         var sev = insights.severity || {};
         var levels = [
             ["critical", t(lang,"Kritisch","Critical"), "#cf3a3a"],
@@ -330,7 +330,7 @@
         severity.appendChild(severityList);
         analysis.appendChild(severity);
 
-        var risks = sectionCard(t(lang, "Top-Risikobereiche (aggregiert)", "Top risk areas (aggregate)"), "\u26a0");
+        var risks = sectionCard(t(lang, "Top-Risikobereiche (aggregiert)", "Top risk areas (aggregate)"), "alert");
         var table = el("div", "bcs-v3-risk-table");
         var head = el("div", "bcs-v3-risk-row bcs-v3-risk-head");
         [ "#", t(lang,"Bereich","Area"), t(lang,"H\u00f6chster Schweregrad","Highest severity"),
@@ -454,11 +454,11 @@
         header.appendChild(mountainArtwork());
         root.appendChild(header);
         var meta = el("div","bcs-v3-meta");
-        meta.appendChild(metaItem("▥",t(lang,"Firma","Company"), data.companyName));
-        meta.appendChild(metaItem("◈",t(lang,"BC-Umgebung","BC environment"),data.environmentName));
-        meta.appendChild(metaItem("▦",t(lang,"Scan-Datum","Scan date"),data.startedAt));
-        meta.appendChild(metaItem("▤",t(lang,"Run-ID","Run ID"),data.runId));
-        meta.appendChild(metaItem(completed ? "✓" : status === "failed" ? "!" : "▶",
+        meta.appendChild(metaItem("company",t(lang,"Firma","Company"), data.companyName));
+        meta.appendChild(metaItem("environment",t(lang,"BC-Umgebung","BC environment"),data.environmentName));
+        meta.appendChild(metaItem("calendar",t(lang,"Scan-Datum","Scan date"),data.startedAt));
+        meta.appendChild(metaItem("run",t(lang,"Run-ID","Run ID"),data.runId));
+        meta.appendChild(metaItem(completed ? "check" : status === "failed" ? "alert" : "run",
             t(lang,"Status","Status"),statusLabels[status] || status,
             completed ? "done" : status === "failed" ? "error" : "active"));
         root.appendChild(meta);
