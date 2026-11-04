@@ -279,3 +279,26 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: 
         padding-top: 7px;
     }
 }
+
+/* Free Health reference: concise copy sits in the hero, not in an extra BC field. */
+.bcs-v3-hero-context {
+    position: absolute;
+    left: 24px;
+    bottom: 19px;
+    z-index: 2;
+    margin: 0;
+    border-left: 4px solid #ff921f;
+    padding: 1px 0 1px 13px;
+    width: min(61%, 730px);
+    color: #f4f8ff;
+    font-size: 12px;
+    line-height: 1.38;
+    pointer-events: none;
+}
+@media(max-width:950px) {
+    .bcs-v3-hero-context { max-width: 65%; font-size: 11px; }
+}
+@media(max-width:650px) {
+    .bcs-v3-hero-context { width: 84%; max-width: none; bottom: 12px; font-size: 10px; }
+    .bcs-v2-hero { min-height: 165px; padding-bottom: 75px; }
+}
