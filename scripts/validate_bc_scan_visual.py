@@ -9,6 +9,7 @@ SRC = ROOT / "bc-extension" / "app" / "src"
 AL = (SRC / "controladdin" / "ScanVisualAddIn.al").read_text(encoding="utf-8-sig")
 PAGE = (SRC / "pages" / "DHDeepScanMonitor.Page.al").read_text(encoding="utf-8-sig")
 JS = (SRC / "controladdin" / "js" / "scanvisual.js").read_text(encoding="utf-8-sig")
+STARTUP = (SRC / "controladdin" / "js" / "scanvisual-startup.js").read_text(encoding="utf-8-sig")
 CSS = (SRC / "controladdin" / "css" / "scanvisual.css").read_text(encoding="utf-8-sig")
 
 def check(condition: bool, description: str) -> None:
@@ -17,7 +18,8 @@ def check(condition: bool, description: str) -> None:
 
 def main() -> None:
     for piece in ('controladdin "BCSentinel Scan Visual"', "procedure SetScanData(JsonData: Text);",
-                  "event ControlReady();", "StartupScript = './js/scanvisual.js';",
+                  "event ControlReady();", "Scripts = './js/scanvisual.js';",
+                  "StartupScript = './js/scanvisual-startup.js';",
                   "StyleSheets = './css/scanvisual.css';"):
         check(piece in AL, f"Control Add-in contract missing: {piece}")
     for piece in ('usercontrol(ScanVisual; "BCSentinel Scan Visual")',
@@ -33,6 +35,10 @@ def main() -> None:
     for piece in ("window.SetScanData", "JSON.parse(", "InvokeExtensibilityMethod",
                   "ControlReady", "aria-valuenow", "role", "progressbar", "textContent"):
         check(piece in JS, f"Safe frontend rendering / event contract missing {piece}")
+    check("window.BCSentinelScanVisualInit = initialize;" in JS, "Control add-in library must export explicit initialization")
+    check("window.BCSentinelScanVisualInit();" in STARTUP, "Startup must initialize library after it loads")
+    check('document.getElementById("controlAddIn")' in JS, "Render into BC control host")
+    check("DOMContentLoaded" not in JS, "Do not wait for already-fired DOMContentLoaded")
     check("innerHTML" not in JS, "Do not inject AL-provided text through innerHTML")
     check("fetch(" not in JS and "XMLHttpRequest" not in JS,
           "Frontend must not fetch external data or handle tenant tokens")
