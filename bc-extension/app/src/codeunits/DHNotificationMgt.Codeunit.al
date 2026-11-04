@@ -117,7 +117,7 @@ codeunit 53170 "DH Notification Mgt."
         Audit."New Value" := NewValue;
         Audit."Changed At UTC" := CurrentDateTime();
         Audit."Changed By" := UserSecurityId();
-        if CoreSetup.Get() then
+        if CoreSetup.Get('SETUP') then
             Audit."Tenant ID" := CoreSetup."Tenant ID";
         Audit."Company ID" := CopyStr(CompanyName(), 1, MaxStrLen(Audit."Company ID"));
         Audit.Insert(false);
@@ -126,9 +126,25 @@ codeunit 53170 "DH Notification Mgt."
     local procedure EnsureSetup()
     var
         Setup: Record "DH Notification Setup";
+        CoreSetup: Record "DH Setup";
     begin
-        if Setup.Get() then
+        if not CoreSetup.Get('SETUP') then
+            Error('BCSentinel Setup is missing. Register the tenant first.');
+        CoreSetup.TestField(Registered, true);
+        CoreSetup.TestField("Tenant ID");
+
+        if Setup.Get() then begin
+            // Tenant credentials can change after a local registration reset.
+            // Never associate new notification events with the previous tenant.
+            if (Setup."Tenant ID" <> CoreSetup."Tenant ID") or
+               (Setup."Company ID" <> CopyStr(CompanyName(), 1, MaxStrLen(Setup."Company ID"))) then begin
+                Setup."Tenant ID" := CoreSetup."Tenant ID";
+                Setup."Company ID" := CopyStr(CompanyName(), 1, MaxStrLen(Setup."Company ID"));
+                Setup.Modify(true);
+            end;
             exit;
+        end;
+
         Setup.Init();
         Setup."Primary Key" := '';
         Setup.Enabled := true;
