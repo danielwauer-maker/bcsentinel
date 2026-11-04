@@ -157,7 +157,14 @@ codeunit 53170 "DH Notification Mgt."
     var
         Template: Record "DH Notification Template";
         Rule: Record "DH Notification Rule";
+        CoreSetup: Record "DH Setup";
+        CurrentCompanyId: Text[100];
     begin
+        if not CoreSetup.Get('SETUP') then
+            Error('BCSentinel Setup is missing. Register the tenant first.');
+        CoreSetup.TestField(Registered, true);
+        CoreSetup.TestField("Tenant ID");
+        CurrentCompanyId := CopyStr(CompanyName(), 1, MaxStrLen(Rule."Company ID"));
         if not Template.Get(TemplateKey, 'en') then begin
             Template.Init();
             Template."Template Key" := TemplateKey;
@@ -170,10 +177,16 @@ codeunit 53170 "DH Notification Mgt."
             Template.Insert(true);
         end;
 
+        // A default rule belongs to exactly one tenant and BC company.
+        // A previous tenant's rule must not suppress a new tenant's defaults.
+        Rule.SetRange("Tenant ID", CoreSetup."Tenant ID");
+        Rule.SetRange("Company ID", CurrentCompanyId);
         Rule.SetRange("Event Type", EventType);
         if Rule.IsEmpty() then begin
             Rule.Init();
             Rule."Rule ID" := CreateGuid();
+            Rule."Tenant ID" := CoreSetup."Tenant ID";
+            Rule."Company ID" := CurrentCompanyId;
             Rule."Event Type" := EventType;
             Rule.Enabled := true;
             Rule.Channel := 'email';
