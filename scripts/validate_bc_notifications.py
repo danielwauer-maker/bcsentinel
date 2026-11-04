@@ -128,6 +128,11 @@ def main() -> None:
             'Setup."Tenant ID" := CoreSetup."Tenant ID"',
             'Setup.Modify(true);')
 
+    deep_scan = text("codeunits/DHDeepScanMgt.Codeunit.al")
+    preflight_at = deep_scan.index('NotificationMgt.EnsureSetupAndDefaults();')
+    reserve_at = deep_scan.index('ApiClient.StartDeepScan(')
+    assert preflight_at < reserve_at, "Notification configuration must be initialized before a scan credit is reserved"
+
     print("BC notification implementation contract: PASS")
 
 
