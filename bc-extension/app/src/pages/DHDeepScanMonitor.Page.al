@@ -29,10 +29,11 @@
 
             group(Overview)
             {
-                Caption = 'Overview';
+                Caption = 'Scan Details';
 
                 field(ScanStatus; ScanStatusTxt)
                 {
+                    Visible = false; // Shown in the graphical scan monitor.
                     ApplicationArea = All;
                     Caption = 'Scan Status';
                     ToolTip = 'Specifies Scan Status.';
@@ -40,11 +41,13 @@
                 }
                 field("Current Module"; CurrentModuleTxt)
                 {
+                    Visible = false; // Shown in the graphical scan monitor.
                     ApplicationArea = All;
                     ToolTip = 'Specifies Current Module.';
                 }
                 field("Current Step"; CurrentStepTxt)
                 {
+                    Visible = false; // Shown in the graphical scan monitor.
                     ApplicationArea = All;
                     Caption = 'Current Step';
                     ToolTip = 'Specifies Current Step.';
@@ -60,6 +63,7 @@
                 }
                 field(ETA; ETATxt)
                 {
+                    Visible = false; // Shown in the graphical scan monitor.
                     ApplicationArea = All;
                     Caption = 'ETA';
                     ToolTip = 'Specifies ETA.';
@@ -72,6 +76,7 @@
                 }
                 field("Estimated Remaining Time"; EstimatedRemainingTxt)
                 {
+                    Visible = ShowEstimatedRemaining;
                     ApplicationArea = All;
                     Caption = 'Estimated Remaining Time';
                     ToolTip = 'Specifies Estimated Remaining Time.';
@@ -83,11 +88,13 @@
                 }
                 field("Finished At"; FinishedAtValue)
                 {
+                    Visible = ShowFinishedAt;
                     ApplicationArea = All;
                     ToolTip = 'Specifies Finished At.';
                 }
                 field(Headline; HeadlineTxt)
                 {
+                    Visible = false; // Shown in the graphical scan monitor.
                     ApplicationArea = All;
                     ToolTip = 'Specifies Headline.';
                     MultiLine = true;
@@ -99,6 +106,7 @@
 
                 field(WarningMessage; WarningMessageTxt)
                 {
+                    Visible = ShowWarningDetail;
                     ApplicationArea = All;
                     Caption = 'Warning';
                     ToolTip = 'Specifies Warning.';
@@ -107,6 +115,7 @@
                 }
                 field(ErrorMessage; ErrorMessageTxt)
                 {
+                    Visible = ShowErrorDetail;
                     ApplicationArea = All;
                     Caption = 'Error';
                     ToolTip = 'Specifies Error.';
@@ -115,6 +124,7 @@
                 }
                 field(RecentEvents; RecentEventsTxt)
                 {
+                    Visible = ShowRecentEvents;
                     ApplicationArea = All;
                     Caption = 'Recent Events';
                     ToolTip = 'Specifies Recent Events.';
@@ -509,6 +519,11 @@
 
     var
         ScanVisualReady: Boolean;
+        ShowEstimatedRemaining: Boolean;
+        ShowFinishedAt: Boolean;
+        ShowWarningDetail: Boolean;
+        ShowErrorDetail: Boolean;
+        ShowRecentEvents: Boolean;
         BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;
@@ -726,6 +741,11 @@
         WarningMessageTxt := GetDisplayWarningText();
         ErrorMessageTxt := GetDisplayErrorText();
         RecentEventsTxt := Rec."Recent Events";
+        ShowEstimatedRemaining := (Rec.Status <> Rec.Status::Completed) and (Rec."Estimated Remaining Seconds" > 0);
+        ShowFinishedAt := Rec."Finished At" <> 0DT;
+        ShowWarningDetail := WarningMessageTxt <> '';
+        ShowErrorDetail := ErrorMessageTxt <> '';
+        ShowRecentEvents := RecentEventsTxt <> '';
 
         DeepScoreValue := Rec."Deep Score";
         ChecksCountValue := Rec."Checks Count";
