@@ -49,6 +49,39 @@ jobs:
               print('Response not JSON')
           PY
           if [[ "$status" != "401" ]]; then
-            echo "::error::Expected 401 from the mounted authenticated endpoint, got $status"
-            exit 1
+            echo "::warning::Expected 401 from mounted endpoint, got $status. Inspecting backend container next."
           fi
+      - name: Diagnose running DEV container and reverse proxy
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" bash -s <<'REMOTE'
+            set -euo pipefail
+            cd /home/daniel/data-health-management-dev
+            echo "=== Server checkout HEAD ==="
+            git rev-parse HEAD
+            echo "=== Running container and image ==="
+            docker inspect dhm-dev-backend --format 'name={{.Name}} image={{.Image}} started={{.State.StartedAt}}'
+            echo "=== Runtime FastAPI route registry (inside running container) ==="
+            docker exec dhm-dev-backend python - <<'PY'
+          import json, urllib.request
+          with urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=10) as response:
+              doc = json.load(response)
+          path='/tenant/lifecycle-profile'
+          print('container_route_present=',path in doc.get('paths',{}))
+          print('container_route_methods=',list(doc.get('paths',{}).get(path,{})))
+          PY
+            echo "=== Host local endpoint route registry ==="
+            python3 - <<'PY'
+          import json, urllib.request
+          with urllib.request.urlopen('http://127.0.0.1:8001/openapi.json', timeout=10) as response:
+              doc=json.load(response)
+          print('local_route_present=', '/tenant/lifecycle-profile' in doc.get('paths',{}))
+          PY
+            echo "=== Active Nginx config summary ==="
+            nginx -T 2>/dev/null | grep -E 'server_name dev-api.bcsentinel.com|proxy_pass http://127.0.0.1:800[01]' | head -30 || true
+          REMOTE
+
