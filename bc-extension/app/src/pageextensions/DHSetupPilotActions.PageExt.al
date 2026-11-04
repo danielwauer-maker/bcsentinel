@@ -38,10 +38,7 @@ pageextension 53164 "DH Setup Pilot Actions" extends "DH Setup"
                     Message('BCSentinel tenant registration completed.');
                 end;
             }
-        }
 
-        addafter(RegisterTenantCurrent)
-        {
             action(RunFreeScan)
             {
                 Caption = 'Run Free Scan';
