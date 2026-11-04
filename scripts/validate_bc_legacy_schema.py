@@ -224,6 +224,24 @@ def main() -> int:
     if "DeepScanRun.\"Progress %\" := 99;" not in runner:
         errors.append("Finalization must remain below 100% until backend result sync completes")
 
+    # Scan monitor must query the backend on open and before attempting to
+    # heal a cached terminal state; stale-state warnings must not be cosmetic.
+    monitor = (SRC / "pages" / "DHDeepScanMonitor.Page.al").read_text(encoding="utf-8-sig")
+    onopen = monitor.split("trigger OnOpenPage()", 1)
+    if len(onopen) < 2 or "ReloadMonitor();" not in onopen[1].split("    end;", 1)[0]:
+        errors.append("Scan monitor must fetch backend status when opened")
+    reload_start = monitor.find("local procedure ReloadMonitor()")
+    reload_end = monitor.find("local procedure ReloadDisplayValuesFromRec()", reload_start)
+    if reload_start < 0 or reload_end < 0:
+        errors.append("Scan monitor backend refresh procedure missing")
+    else:
+        reload_code = monitor[reload_start:reload_end]
+        first_refresh = reload_code.find("TryRefreshBackendStatus(")
+        first_heal = reload_code.find("TrySyncLocalTerminalStatus(")
+        if first_refresh < 0 or first_heal < 0 or first_refresh >= first_heal:
+            errors.append("Scan monitor must read authoritative backend state before healing")
+        if 'DeepScanRun."Warning Message" := \'\';' not in reload_code:
+            errors.append("Scan monitor must clear stale warnings on confirmed completed status")
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
