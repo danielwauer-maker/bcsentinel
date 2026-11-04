@@ -472,7 +472,10 @@ codeunit 53100 "DH API Client"
         Response: HttpResponseMessage;
         ResponseText: Text;
     begin
-        EnsureReadyForScan(Setup);
+        // /scan/start already reserved the credit for this Run ID. Do not check
+        // for an unused credit again while uploading the same scan's results.
+        // The backend validates ownership and the existing Run ID in /scan/sync.
+        EnsureTenantAccessConfigured(Setup);
 
         Content.WriteFrom(RequestText);
         Content.GetHeaders(Headers);
