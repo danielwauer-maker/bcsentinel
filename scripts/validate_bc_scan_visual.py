@@ -11,6 +11,8 @@ PAGE = (SRC / "pages" / "DHDeepScanMonitor.Page.al").read_text(encoding="utf-8-s
 JS = (SRC / "controladdin" / "js" / "scanvisual.js").read_text(encoding="utf-8-sig")
 STARTUP = (SRC / "controladdin" / "js" / "scanvisual-startup.js").read_text(encoding="utf-8-sig")
 CSS = (SRC / "controladdin" / "css" / "scanvisual.css").read_text(encoding="utf-8-sig")
+REPORT_ACTIONS = (SRC / "pageextensions" / "DHDeepScanMonitorReports.PageExt.al").read_text(encoding="utf-8-sig")
+REPORT_ACCESS = (SRC / "codeunits" / "DHReportAccessClient.Codeunit.al").read_text(encoding="utf-8-sig")
 
 def check(condition: bool, description: str) -> None:
     if not condition:
@@ -45,6 +47,19 @@ def main() -> None:
     check("https://" not in JS and "@import" not in CSS,
           "Frontend assets must be packaged without external dependencies")
     check(".bcs-bar-fill" in CSS and ".bcs-metrics" in CSS, "Missing visual styles")
+    # The visible menu must not expose specific report tiers; the backend
+    # chooses the correct report variant for the scan and current entitlement.
+    for obsolete in ("action(OpenFreeHealthReport)", "action(OpenFreeHealthPdf)",
+                     "action(OpenQuickAssessmentReport)", "action(OpenQuickAssessmentPdf)",
+                     "action(OpenAssessmentReport)", "action(OpenAssessmentPdf)",
+                     "action(OpenValidationReport)", "action(OpenValidationPdf)"):
+        check(obsolete not in REPORT_ACTIONS, f"Report tier exposed in BC action menu: {obsolete}")
+    check("action(OpenBestAvailableReport)" in REPORT_ACTIONS, "Missing authorized report action")
+    check("action(OpenBestAvailablePdf)" in REPORT_ACTIONS, "Missing authorized PDF action")
+    check("GetPreferredReportVariant(ScanId)" in REPORT_ACCESS, "Backend preferred-report lookup missing")
+    check("Caption = 'Scan Details';" in PAGE, "Duplicate overview not condensed")
+    check("Visible = ShowStatusDetails;" in PAGE, "Diagnostics should only show when data is present")
+    check("RequestedHeight = 800;" in AL, "Add-in must show all ten scan modules")
     print("Embedded scan Control Add-in static contract: PASS")
     print("AL: Package and sandbox UI acceptance still required.")
 
