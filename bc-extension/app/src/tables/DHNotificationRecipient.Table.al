@@ -32,8 +32,11 @@ table 53172 "DH Notification Recipient"
     begin
         if IsNullGuid("Recipient ID") then
             "Recipient ID" := CreateGuid();
-        if Setup.Get() then
-            "Tenant ID" := Setup."Tenant ID";
+        if not Setup.Get('SETUP') then
+            Error('BCSentinel Setup is missing. Register the tenant first.');
+        Setup.TestField(Registered, true);
+        Setup.TestField("Tenant ID");
+        "Tenant ID" := Setup."Tenant ID";
         "Company ID" := CopyStr(CompanyName(), 1, MaxStrLen("Company ID"));
         if "Language Code" = '' then
             "Language Code" := 'en';
