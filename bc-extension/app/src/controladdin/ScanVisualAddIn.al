@@ -1,8 +1,8 @@
 controladdin "BCSentinel Scan Visual"
 {
-    RequestedHeight = 800;
-    MinimumHeight = 700;
-    MaximumHeight = 1100;
+    RequestedHeight = 560;
+    MinimumHeight = 460;
+    MaximumHeight = 680;
     RequestedWidth = 960;
     MinimumWidth = 320;
     MaximumWidth = 2000;
