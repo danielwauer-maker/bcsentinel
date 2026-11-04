@@ -63,8 +63,8 @@ def main() -> None:
     # Never send paid scan results to the browser for unverified Free/Quick access.
     for expected in (
         "ResolveVisualAccess();",
-        'ReportAccess.GetPreferredReportVariant(ScanId)',
-        "VisualAccessVariant := 'free-health';",
+        'ReportAccess.GetMonitorInsights(ScanId)',
+        "VisualAccessVariant := 'unavailable';",
         "Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));",
         "if VisualAccessVariant in ['assessment', 'validation'] then",
         "ModuleData.Add('score', Score);",
@@ -88,6 +88,12 @@ def main() -> None:
     check("Visible = false; // Rendered in the add-in" in PAGE,
           "Native diagnostics must not duplicate the add-in")
     check(".bcs-v2-hero" in CSS and ".bcs-v2-disclosure" in CSS, "Missing V2 styles")
+    check("#controlAddIn { height: 100%; max-height: 100%; overflow-x: hidden; overflow-y: auto;" in CSS,
+          "Control Add-in must scroll internally when long")
+    check("Payload.Add('insights', VisualInsights);" in PAGE, "Missing server-vetted report data")
+    check('procedure GetMonitorInsights(ScanId: Code[50])' in REPORT_ACCESS, "Missing monitor insights client")
+    check('data.insights && data.insights.tier === data.accessTier' in JS, "Frontend must validate matching tier")
+
     print("Embedded scan Control Add-in static contract: PASS")
     print("AL: Package and sandbox UI acceptance still required.")
 
