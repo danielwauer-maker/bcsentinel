@@ -102,7 +102,8 @@
             }
             group(StatusDetails)
             {
-                Caption = 'Status Details';
+                Caption = 'Events & Diagnostics';
+                Visible = ShowStatusDetails;
 
                 field(WarningMessage; WarningMessageTxt)
                 {
@@ -524,6 +525,7 @@
         ShowWarningDetail: Boolean;
         ShowErrorDetail: Boolean;
         ShowRecentEvents: Boolean;
+        ShowStatusDetails: Boolean;
         BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;
@@ -746,6 +748,7 @@
         ShowWarningDetail := WarningMessageTxt <> '';
         ShowErrorDetail := ErrorMessageTxt <> '';
         ShowRecentEvents := RecentEventsTxt <> '';
+        ShowStatusDetails := ShowWarningDetail or ShowErrorDetail or ShowRecentEvents;
 
         DeepScoreValue := Rec."Deep Score";
         ChecksCountValue := Rec."Checks Count";
