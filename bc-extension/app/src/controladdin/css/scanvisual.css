@@ -322,7 +322,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: 
     opacity: 1;
     filter: saturate(1.1) contrast(1.09);
 }
-.bcs-v3-hero-context { bottom: 17px; width: min(61%, 760px); font-size: 13px; line-height: 1.42; }
+.bcs-v3-hero-context { bottom: 45px; width: min(61%, 760px); font-size: 13px; line-height: 1.42; }
 .bcs-v2-wordmark { font-size: 26px; letter-spacing: -.035em; }
 .bcs-v2-claim { font-size: 11.5px; letter-spacing: .005em; }
 .bcs-v2-heading strong { font-size: 20px; }
@@ -413,7 +413,7 @@ svg.bcs-v3-lock-icon { width: 23px; height: 23px; color: #14213d; }
 }
 @media(max-width:650px) {
     .bcs-v2-hero { padding: 15px 14px 76px; min-height: 182px; }
-    .bcs-v3-hero-context { left: 15px; bottom: 12px; font-size: 11px; }
+    .bcs-v3-hero-context { left: 15px; bottom: 48px; font-size: 11px; }
     .bcs-v3-card { padding: 14px 11px; }
     .bcs-v3-score-content { flex-wrap: wrap; justify-content: flex-start; }
     .bcs-v3-scope-grid { grid-template-columns:repeat(2,minmax(0,1fr)); row-gap: 16px; }
