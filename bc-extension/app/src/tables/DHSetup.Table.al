@@ -620,11 +620,31 @@ table 53100 "DH Setup"
 
     procedure IsPremiumLicenseActive(): Boolean
     begin
-        exit(("Current Plan" = "Current Plan"::Premium) and (("License Status" = "License Status"::Active) or ("License Status" = "License Status"::Trial)));
+        exit(Registered and ("Tenant ID" <> '') and ("Current Plan" = "Current Plan"::Premium) and (("License Status" = "License Status"::Active) or ("License Status" = "License Status"::Trial)));
+    end;
+
+    procedure ClearCachedProductAccess()
+    begin
+        // The backend is authoritative; cached entitlements cannot be reused after a local identity reset.
+        "Current Plan" := "Current Plan"::Free;
+        "License Status" := "License Status"::Expired;
+        "Last License Check" := 0DT;
+        "Premium Enabled" := false;
+        "Scan Credits Available" := 0;
+        "Monitoring Active" := false;
+        "Dashboard Access Until" := '';
+        "Issue Access Until" := '';
+        "Can Run Deep Scan" := false;
+        "Can View Dashboard" := false;
+        "Can View Issue Details" := false;
+        "Product Access Model" := 'none';
     end;
 
     procedure GetFeatureAccessText(): Text[100]
     begin
+        if not Registered or ("Tenant ID" = '') then
+            exit('Register the tenant to activate product access.');
+
         if "Monitoring Active" then
             exit('Monitoring active');
 
