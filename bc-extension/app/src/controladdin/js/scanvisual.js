@@ -123,37 +123,109 @@
         return field;
     }
 
-    function mountainArtwork() {
-        // Packaged vector landscape: no external requests, no third-party imagery.
+    // Consistent stroke-based icon family (packaged SVG, no CDN or emoji).
+    var iconPaths = {
+        company: '<rect x="4" y="8" width="16" height="13" rx="1"/><path d="M9 8V3h6v5M8 12h2m4 0h2m-8 4h2m4 0h2M12 21v-5"/>',
+        environment: '<path d="m12 2 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',
+        calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3"/>',
+        run: '<path d="M4 4h3v16H4zM10 4v16M13 4h2v16h-2zM18 4h2v16h-2z"/>',
+        check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+        alert: '<path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5m0 3h.01"/>',
+        score: '<path d="M3 12a9 9 0 1 1 18 0"/><path d="m12 12 5-5"/><circle cx="12" cy="12" r="1.5"/><path d="M4 18h16M8 21h8"/>',
+        database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/>',
+        search: '<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>',
+        cube: '<path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10 9-5M12 12 3 7m9 5v10"/>',
+        findings: '<path d="m12 2 10 19H2L12 2Z"/><path d="M12 8v6m0 3h.01"/>',
+        severity: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h7M7 16h4"/>',
+        impact: '<path d="M3 17 9 11l4 3 8-9"/><path d="M15 5h6v6M3 21h18"/>',
+        lock: '<rect x="5" y="10" width="14" height="12" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1"/>',
+        chart: '<path d="M3 21h18M5 18v-7h4v7m3 0V5h4v13m3 0V9h3v9"/>',
+        roadmap: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="m14 10 7-7"/>',
+        info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>'
+    };
+    function svgIcon(icon, className) {
         var ns = "http://www.w3.org/2000/svg";
         var svg = document.createElementNS(ns, "svg");
-        svg.setAttribute("viewBox", "0 0 720 190");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "1.8");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        svg.setAttribute("class", className || "");
+        svg.setAttribute("aria-hidden", "true");
+        // SVG paths above are static source code, never untrusted payloads.
+        // Parse their shapes without injecting runtime HTML.
+        var pattern = /<(path|rect|circle|ellipse)\b([^>]*)\/>/g;
+        var match;
+        while ((match = pattern.exec(iconPaths[icon] || iconPaths.info)) !== null) {
+            var child = document.createElementNS(ns, match[1]);
+            var attrPattern = /([\w-]+)="([^"]*)"/g;
+            var attr;
+            while ((attr = attrPattern.exec(match[2])) !== null) child.setAttribute(attr[1], attr[2]);
+            svg.appendChild(child);
+        }
+        return svg;
+    }
+    function mountainArtwork() {
+        var ns = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 1000 330");
         svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
         svg.setAttribute("class", "bcs-v3-mountains");
         svg.setAttribute("aria-hidden", "true");
-        function path(d, fill, opacity) {
-            var p = document.createElementNS(ns, "path");
-            p.setAttribute("d", d);
-            p.setAttribute("fill", fill);
-            if (opacity !== undefined) p.setAttribute("opacity", opacity);
-            svg.appendChild(p);
+        function shape(tag, properties) {
+            var element = document.createElementNS(ns, tag);
+            Object.keys(properties).forEach(function (key) { element.setAttribute(key, String(properties[key])); });
+            svg.appendChild(element);
+            return element;
         }
-        path("M0 160 L70 112 L115 132 L202 70 L256 117 L338 41 L413 110 L506 19 L592 92 L641 48 L720 132 L720 190 L0 190Z", "#1d5790", ".73");
-        path("M0 185 L128 125 L208 163 L335 66 L424 145 L516 31 L607 124 L700 68 L720 101 L720 190 Z", "#0b365d", ".92");
-        path("M194 75 L202 70 L230 96 L212 89 Z M326 78 L338 41 L374 81 L347 67 Z M495 51 L506 19 L540 54 L518 44 Z M632 59 L641 48 L664 75 L646 65 Z", "#91dbff", ".96");
-        path("M0 190 L35 153 L76 178 L110 148 L148 179 L214 130 L244 185 L292 146 L360 180 L420 133 L474 177 L531 117 L585 180 L628 126 L690 170 L720 154 L720 190Z", "#061e34");
-        for (var i = 0; i < 22; i++) {
-            var x = 20 + i * 33;
-            var height = 17 + (i * 7) % 28;
-            path("M" + x + " 190 L" + (x + 8) + " " + (189 - height) +
-                 " L" + (x + 17) + " 190 Z", "#021526", ".87");
+        // A tightly layered alpine silhouette: moonlight, foothills, granite,
+        // snow caps, haze, and several ranks of conifers. All graphics are
+        // bundled vector shapes with no remote image dependencies.
+        var defs = shape("defs", {});
+        function gradient(id, stops) {
+            var linear = document.createElementNS(ns, "linearGradient");
+            linear.setAttribute("id", id);
+            linear.setAttribute("x1", "0"); linear.setAttribute("y1", "0");
+            linear.setAttribute("x2", "0"); linear.setAttribute("y2", "1");
+            stops.forEach(function (stop) {
+                var element = document.createElementNS(ns, "stop");
+                element.setAttribute("offset", stop[0]);
+                element.setAttribute("stop-color", stop[1]);
+                linear.appendChild(element);
+            });
+            defs.appendChild(linear);
+        }
+        gradient("bcs-sky", [["0%", "#0c3558"], ["63%", "#184970"], ["100%", "#03172b"]]);
+        gradient("bcs-rock", [["0%", "#2a668d"], ["54%", "#123e60"], ["100%", "#041d34"]]);
+        gradient("bcs-forest", [["0%", "#092d41"], ["100%", "#02121f"]]);
+        shape("rect", {x:0, y:0, width:1000, height:330, fill:"url(#bcs-sky)"});
+        shape("circle", {cx:765, cy:76, r:71, fill:"#c3e9f6", opacity:".09"});
+        shape("path", {d:"M0 244 69 198 126 220 214 129 287 195 365 85 437 165 532 51 615 155 714 25 805 126 868 67 1000 173 1000 330H0Z",fill:"#285f86",opacity:".64"});
+        shape("path", {d:"M20 269 120 189 165 207 249 117 314 174 380 62 475 189 552 49 628 162 728 8 837 152 911 56 1000 150V330H0Z",fill:"url(#bcs-rock)"});
+        shape("path", {d:"M245 123 249 117 276 148 258 139 247 153 231 151Z M374 78 380 62 419 117 390 100 382 118 361 110Z M542 68 552 49 602 115 560 89 547 108 532 100Z M717 28 728 8 786 91 749 67 731 80 706 76Z M903 73 911 56 953 110 925 92 908 103 889 100Z",fill:"#bfe6f5",opacity:".96"});
+        shape("path", {d:"M380 62 390 100 413 115 432 160 414 176 399 134 381 116 361 110Z M552 49 570 93 588 117 612 154 590 174 566 128 547 108Z M728 8 741 76 765 91 790 129 766 151 748 113 731 80Z",fill:"#5d97b5",opacity:".65"});
+        shape("path", {d:"M0 255 138 205 221 243 314 188 395 250 462 205 563 265 661 196 763 265 856 187 1000 237V330H0Z",fill:"#0d344f",opacity:".84"});
+        shape("path", {d:"M0 300 88 247 153 288 236 244 318 289 407 230 501 291 610 234 703 281 784 239 858 286 944 229 1000 258V330H0Z",fill:"#08283d"});
+        shape("path", {d:"M0 298 Q140 282 265 297T525 291T770 295T1000 292V330H0Z",fill:"#cce4ec",opacity:".055"});
+        for (var rank=0;rank<3;rank++) {
+            var layer = rank===0 ? "#123a4d" : rank===1 ? "#092b3d" : "url(#bcs-forest)";
+            var opacity = rank===0 ? ".72" : rank===1 ? ".88" : "1";
+            for (var n=0;n<64;n++) {
+                var x=n*18-25+(rank*9);
+                var height=17+((n*17+rank*11)%51)+rank*13;
+                var bottom=308+rank*11;
+                var crown=bottom-height;
+                shape("path",{d:"M"+(x+8)+" "+crown+" L"+(x-4)+" "+(bottom-8)+" L"+(x+3)+" "+(bottom-8)+" L"+(x-9)+" "+bottom+" L"+(x+25)+" "+bottom+" L"+(x+13)+" "+(bottom-8)+" L"+(x+20)+" "+(bottom-8)+"Z",fill:layer,opacity:opacity});
+            }
         }
         return svg;
     }
 
     function metaItem(icon, caption, value, tone) {
         var cell = el("div", "bcs-v3-meta-item " + (tone || ""));
-        cell.appendChild(el("span", "bcs-v3-meta-icon", icon));
+        cell.appendChild(svgIcon(icon, "bcs-v3-meta-icon"));
         var labels = el("span", "bcs-v3-meta-copy");
         labels.appendChild(el("small", "", caption));
         labels.appendChild(el("strong", "", value || "-"));
@@ -164,7 +236,7 @@
     function sectionCard(title, icon) {
         var card = el("section", "bcs-v3-card");
         var heading = el("h3", "bcs-v3-card-title");
-        heading.appendChild(el("span", "bcs-v3-title-icon", icon));
+        heading.appendChild(svgIcon(icon, "bcs-v3-title-icon"));
         heading.appendChild(el("span", "", title));
         card.appendChild(heading);
         return card;
