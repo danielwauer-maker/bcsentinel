@@ -73,8 +73,8 @@ def main() -> None:
         check(expected in PAGE, "Missing gated AL field or event: " + expected)
     for expected in (
         "data.canViewFullScores === true",
-        'data.accessTier === "assessment"',
-        'data.accessTier === "validation"',
+        'tier === "assessment"',
+        'tier === "validation"',
         "typeof data.issues ===",
         "data.events",
         "bcs-v2-disclosure",
