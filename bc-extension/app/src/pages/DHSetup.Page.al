@@ -14,7 +14,7 @@
             {
                 Caption = 'Overview';
 
-                field(ProductAccessModel; Rec."Product Access Model")
+                field(ProductAccessModel; Rec.GetProductAccessDisplayText())
                 {
                     ApplicationArea = All;
                     Caption = 'Product Access';
