@@ -130,10 +130,12 @@
         root.appendChild(columns);
     }
     function initialize() {
-        if (ready || !document.body) return;
+        if (ready) return;
+        var host = document.getElementById("controlAddIn") || document.body;
+        if (!host) throw new Error("Business Central control host is unavailable.");
         root = node("main", "bcs-root");
         root.setAttribute("aria-label", "BCSentinel Scan Monitor");
-        document.body.appendChild(root);
+        host.appendChild(root);
         ready = true;
         render();
         if (window.Microsoft && window.Microsoft.Dynamics && window.Microsoft.Dynamics.NAV &&
@@ -149,6 +151,6 @@
         }
         if (ready) render();
     };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
-    else initialize();
+    // Called by the dedicated StartupScript after this library has loaded.
+    window.BCSentinelScanVisualInit = initialize;
 })();
