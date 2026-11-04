@@ -51,24 +51,45 @@ const base = {
     language:"de",currentModule:"All modules completed",
     currentStep:"Scan completed",modules,events:"Scan started | Scan completed"
 };
-let rendered = show({...base, accessTier:"free-health",canViewFullScores:false});
+let rendered = show({...base, accessTier:"free-health",canViewFullScores:false,
+    insights:{tier:"free-health",score:40,checks:202,findings:72,affected_records:1250,
+              impact_band:"Hoch",risk_areas:[{name:"Inventory",findings:25}]}});
 assert.match(rendered,/BCSentinel/);
 assert.match(rendered,/202/);
-assert.match(rendered,/Prüfungen/);
-assert.match(rendered,/Detail-Scores geschützt/);
+assert.match(rendered,/Pr\u00fcfungen/);
+assert.match(rendered,/Detaillierte Modul-Scores/);
+assert.match(rendered,/40\/100/);
+assert.match(rendered,/72/);
+assert.match(rendered,/Inventory/);
 assert.doesNotMatch(rendered,/47\/100/);
 assert.doesNotMatch(rendered,/27\/100/);
 assert.doesNotMatch(rendered,/(^|\D)95(\D|$)/);
 
-rendered = show({...base,accessTier:"quick-assessment",canViewFullScores:false});
+rendered = show({...base,accessTier:"quick-assessment",canViewFullScores:false,
+    insights:{tier:"quick-assessment",score:40,findings:72,
+              top_findings:[{rank:1,title:"Duplicate inventory references",severity:"high"}]}});
+assert.match(rendered,/Duplicate inventory references/);
 assert.doesNotMatch(rendered,/47\/100/);
 assert.doesNotMatch(rendered,/27\/100/);
 
-rendered = show({...base,accessTier:"assessment",canViewFullScores:true});
+rendered = show({...base,accessTier:"assessment",canViewFullScores:true,
+    insights:{tier:"assessment",score:47,checks:202,findings:95,impact_eur:30000,
+              top_findings:[{rank:1,title:"Missing customer attributes",severity:"high"}]}});
 assert.match(rendered,/47\/100/);
 assert.match(rendered,/95/);
 assert.match(rendered,/27\/100/);
-assert.match(rendered,/Findings, keine Datensätze/);
+assert.match(rendered,/Findings, nicht Datens\u00e4tze/);
+assert.match(rendered,/Missing customer attributes/);
+
+rendered = show({...base,accessTier:"validation",canViewFullScores:true,
+    insights:{tier:"validation",score:62,findings:51,score_delta:15,resolved:12,new:1}});
+assert.match(rendered,/62\/100/);
+assert.match(rendered,/Score-\u00c4nderung/);
+
+rendered = show({...base,accessTier:"monitoring",canViewFullScores:true,
+    insights:{tier:"monitoring",score:67,findings:40,trend:[{score:52},{score:61},{score:67}]}});
+assert.match(rendered,/67\/100/);
+assert.match(rendered,/Score-Verlauf/);
 
 const buttons = [];
 function traverse(e) {
@@ -81,7 +102,12 @@ buttons[0].handlers.click();
 assert.equal(buttons[0].attributes["aria-expanded"], "true");
 assert.match(host.textContent,/Startzeit/);
 
-rendered = show({...base,accessTier:"free-health",canViewFullScores:true});
-assert.doesNotMatch(rendered,/47\/100/, "Never trust a mismatched disclosure flag");
+rendered = show({...base,accessTier:"free-health",canViewFullScores:true,
+    insights:{tier:"free-health",score:40,findings:72}});
+assert.doesNotMatch(rendered,/47\/100/, "Never trust mismatched disclosure flag");
 assert.doesNotMatch(rendered,/27\/100/);
-console.log("Scan visual UI tests: PASS (Free, Quick, Assessment, disclosure and denied-tier mismatch)");
+
+rendered = show({...base,accessTier:"free-health",canViewFullScores:false});
+assert.doesNotMatch(rendered,/47\/100/);
+assert.doesNotMatch(rendered,/95/);
+console.log("Scan visual UI tests: PASS (five product tiers, safe fallback, details and disclosure)");
