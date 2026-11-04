@@ -640,6 +640,19 @@ table 53100 "DH Setup"
         "Product Access Model" := 'none';
     end;
 
+    procedure GetProductAccessDisplayText(): Text[30]
+    begin
+        // Backend 'none' means no paid entitlement, not that registered Free Entry is unavailable.
+        // Keep the underlying access model unchanged for authorization and license checks.
+        if not Registered or ("Tenant ID" = '') then
+            exit('none');
+
+        if ("Product Access Model" = '') or (LowerCase("Product Access Model") = 'none') then
+            exit('Free');
+
+        exit("Product Access Model");
+    end;
+
     procedure GetFeatureAccessText(): Text[100]
     begin
         if not Registered or ("Tenant ID" = '') then
