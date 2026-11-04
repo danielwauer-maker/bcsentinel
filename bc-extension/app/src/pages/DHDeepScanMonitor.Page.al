@@ -707,6 +707,7 @@
         Payload: JsonObject;
         Modules: JsonArray;
         Setup: Record "DH Setup";
+        EnvironmentInfo: Codeunit "Environment Information";
         JsonText: Text;
     begin
         if not ScanVisualReady then
@@ -714,6 +715,14 @@
 
         ResolveVisualAccess();
         Payload.Add('runId', Format(Rec."Run ID"));
+        Payload.Add('companyName', CompanyName());
+        if EnvironmentInfo.IsSandbox() then
+            Payload.Add('environmentName', 'Sandbox')
+        else
+            if EnvironmentInfo.IsProduction() then
+                Payload.Add('environmentName', 'Production')
+            else
+                Payload.Add('environmentName', EnvironmentInfo.GetEnvironmentName());
         Payload.Add('status', LowerCase(Format(Rec.Status)));
         Payload.Add('progress', GetDisplayProgressPercent());
         // Full-score and module-level scores are disclosed only when the
