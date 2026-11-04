@@ -302,3 +302,121 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: 
     .bcs-v3-hero-context { width: 84%; max-width: none; bottom: 12px; font-size: 10px; }
     .bcs-v2-hero { min-height: 165px; padding-bottom: 75px; }
 }
+
+
+/* BCSentinel Scan Monitor V3.2: premium reference-fidelity typography/icons */
+.bcs-v2-root { padding: 11px 17px 26px; }
+.bcs-v2-hero {
+    min-height: 166px;
+    padding: 18px 25px 66px;
+    background: linear-gradient(120deg, #05192b 3%, #082a47 68%, #0c3b5d 100%);
+    border-right-width: 6px;
+    box-shadow: 0 6px 16px rgba(3, 26, 46, .15);
+}
+.bcs-v2-hero::after {
+    background: linear-gradient(90deg, #061d32 3%, rgba(6,29,50,.97) 37%, rgba(6,29,50,.71) 59%, rgba(6,29,50,.12) 100%);
+}
+.bcs-v3-mountains {
+    width: 73%;
+    right: -7%;
+    opacity: 1;
+    filter: saturate(1.1) contrast(1.09);
+}
+.bcs-v3-hero-context { bottom: 17px; width: min(61%, 760px); font-size: 13px; line-height: 1.42; }
+.bcs-v2-wordmark { font-size: 26px; letter-spacing: -.035em; }
+.bcs-v2-claim { font-size: 11.5px; letter-spacing: .005em; }
+.bcs-v2-heading strong { font-size: 20px; }
+.bcs-v2-heading span { font-size: 12px; }
+.bcs-v3-meta {
+    grid-template-columns: 1.06fr .86fr 1.24fr 1.57fr .88fr;
+    margin: -29px 17px 15px;
+    padding: 13px 4px;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(6, 29, 53, .13);
+}
+.bcs-v3-meta-item { padding: 3px 13px; gap: 10px; }
+.bcs-v3-meta-icon, svg.bcs-v3-meta-icon {
+    width: 24px; height: 24px; flex: 0 0 24px; color: #14213d;
+}
+.bcs-v3-meta-item.done .bcs-v3-meta-icon { color: #11a36a; }
+.bcs-v3-meta-item.error .bcs-v3-meta-icon { color: #cf3a3a; }
+.bcs-v3-meta-copy small { font-size: 11px; color: #65758c; }
+.bcs-v3-meta-copy strong { font-size: 12px; line-height: 1.3; }
+.bcs-v3-top-grid, .bcs-v3-analysis-grid { gap: 14px; margin-bottom: 14px; }
+.bcs-v3-card {
+    padding: 17px 20px;
+    border: 1px solid #d8e4ef;
+    border-radius: 13px;
+    box-shadow: 0 4px 11px rgba(16, 50, 90, .07);
+}
+.bcs-v3-card-title { gap: 11px; font-size: 18px; line-height: 1.24; margin-bottom: 16px; }
+svg.bcs-v3-title-icon { width: 25px; height: 25px; flex: 0 0 25px; color: #246bfd; }
+svg.bcs-impact-icon { color: #ff921f; }
+.bcs-v3-score-content { gap: 24px; padding: 4px 0 7px; }
+.bcs-v3-gauge { width: 152px; height: 152px; }
+.bcs-v3-gauge-inner { width: 110px; height: 110px; }
+.bcs-v3-gauge-inner strong { font-size: 49px; font-weight: 800; letter-spacing: -.05em; }
+.bcs-v3-gauge-inner small { font-size: 13px; }
+.bcs-v3-risk-caption { border-radius: 8px; padding: 8px 12px; font-size: 15px; line-height: 1.25; }
+.bcs-v3-score-copy { max-width: 295px; }
+.bcs-v3-score-copy p { font-size: 13px; line-height: 1.48; margin-top: 13px; }
+.bcs-v3-scope-item { gap: 8px; padding: 6px 10px 3px; }
+svg.bcs-v3-scope-icon { width: 34px; height: 34px; color: #246bfd; flex: 0 0 34px; }
+.bcs-v3-scope-item:last-child svg { color: #ff921f; }
+.bcs-v3-scope-item strong { font-size: clamp(25px, 2.2vw, 34px); font-weight: 810; letter-spacing: -.04em; }
+.bcs-v3-scope-label { font-size: 13px; line-height: 1.3; font-weight: 550; }
+.bcs-v3-severity-bar { height: 38px; margin-bottom: 12px; border-radius: 9px; }
+.bcs-v3-severity-bar>span { font-size: 13px; }
+.bcs-v3-severity-list { gap: 4px; }
+.bcs-v3-severity-item { padding: 6px 5px; font-size: 13px; }
+.bcs-v3-severity-item strong { font-size: 14px; font-variant-numeric: tabular-nums; }
+.bcs-v3-dot { width: 13px; height: 13px; }
+.bcs-v3-risk-row {
+    grid-template-columns: 28px minmax(95px,1.1fr) minmax(115px,1.1fr) 56px 100px;
+    column-gap: 8px; min-height: 36px; font-size: 13px;
+}
+.bcs-v3-risk-row strong { font-weight: 750; font-variant-numeric: tabular-nums; }
+.bcs-v3-risk-head { font-size: 11px; font-weight: 800; }
+.bcs-v3-risk-pill { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 10px; font-size: 12px; border-radius: 10px; }
+.bcs-v3-impact { gap: 25px; }
+.bcs-v3-impact-left h3 { font-size: 16px; }
+.bcs-v3-impact-scale span { padding: 11px 4px; font-size: 13px; }
+.bcs-v3-impact-right strong { font-size: 18px; line-height: 1.3; }
+.bcs-v3-impact-right p { font-size: 13px; }
+.bcs-v3-upsell { padding: 22px 24px; border-radius: 13px; box-shadow: 0 5px 18px rgba(5,29,50,.15); }
+.bcs-v3-upsell h3 { margin: 0 0 19px; font-size: 22px; }
+.bcs-v3-upsell h3::before { content: none; }
+.bcs-v3-upsell-heading { display: flex; gap: 12px; align-items: center; }
+svg.bcs-v3-upsell-icon { color: #ff921f; width: 30px; height: 30px; flex: 0 0 30px; }
+.bcs-v3-benefit-heading { min-height: 94px; gap: 12px; }
+svg.bcs-v3-benefit-icon { width: 30px; height: 30px; flex: 0 0 30px; color: #e9f5ff; }
+.bcs-v3-benefit-heading strong { font-size: 15px; }
+.bcs-v3-benefit-heading p { font-size: 12px; line-height: 1.42; }
+.bcs-v3-preview { height: 98px; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.3); }
+.bcs-v3-preview>span:not(.bcs-v3-lock) { filter: blur(3px); }
+.bcs-v3-lock { width: 45px!important; height: 45px!important; }
+svg.bcs-v3-lock-icon { width: 23px; height: 23px; color: #14213d; }
+.bcs-v2-disclosure-toggle { padding: 15px 18px; }
+.bcs-v2-disclosure-heading strong { font-size: 14px; }
+@media(max-width:1150px) {
+    .bcs-v3-top-grid { grid-template-columns: 1fr 1.3fr; }
+    .bcs-v3-gauge { width: 126px; height: 126px; }
+    .bcs-v3-gauge-inner { width: 90px; height: 90px; }
+    .bcs-v3-gauge-inner strong { font-size: 40px; }
+    .bcs-v3-risk-row { grid-template-columns: 21px minmax(78px,1fr) minmax(85px,.95fr) 46px 74px; column-gap: 5px; font-size: 11px; }
+    .bcs-v3-risk-head { font-size: 9px; }
+}
+@media(max-width:950px) {
+    .bcs-v3-top-grid,.bcs-v3-analysis-grid { grid-template-columns: 1fr; }
+    .bcs-v3-scope-item strong { font-size: 28px; }
+    .bcs-v3-mountains { width: 90%; right: -24%; }
+}
+@media(max-width:650px) {
+    .bcs-v2-hero { padding: 15px 14px 76px; min-height: 182px; }
+    .bcs-v3-hero-context { left: 15px; bottom: 12px; font-size: 11px; }
+    .bcs-v3-card { padding: 14px 11px; }
+    .bcs-v3-score-content { flex-wrap: wrap; justify-content: flex-start; }
+    .bcs-v3-scope-grid { grid-template-columns:repeat(2,minmax(0,1fr)); row-gap: 16px; }
+    .bcs-v3-risk-row { grid-template-columns: 18px minmax(70px,1fr) minmax(65px,.9fr) 37px 60px; column-gap: 4px; }
+    .bcs-v3-upsell { padding: 18px 13px; }
+}
