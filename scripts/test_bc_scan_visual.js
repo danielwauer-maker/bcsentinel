@@ -63,6 +63,16 @@ assert.match(rendered,/Weitere Analysedetails im Assessment/);
 assert.match(rendered,/CRONUS DE/);
 assert.match(rendered,/Sandbox/);
 assert.match(rendered,/Abgeschlossen/);
+// Status belongs only in the white metadata strip, not in the mountain hero.
+const visualRoot = host.children[0];
+const brandHero = visualRoot.children.find(e => e.className === "bcs-v2-hero");
+const scanMeta = visualRoot.children.find(e => e.className === "bcs-v3-meta");
+assert.ok(brandHero, "Dark branded header is present");
+assert.ok(scanMeta, "White scan metadata strip is present");
+assert.doesNotMatch(brandHero.textContent,/Abgeschlossen/, "No duplicate completion badge in the hero");
+assert.match(scanMeta.textContent,/Abgeschlossen/, "Completion status stays in scan metadata");
+assert.ok(brandHero.children.some(e => e.attributes.class === "bcs-v3-mountains"),
+          "Right-side mountain artwork stays in the branded header");
 assert.match(rendered,/40von 100/);
 assert.match(rendered,/72/);
 assert.match(rendered,/Inventory/);
