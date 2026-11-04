@@ -65,7 +65,7 @@ def main() -> None:
         "ResolveVisualAccess();",
         'ReportAccess.GetMonitorInsights(ScanId)',
         "VisualAccessVariant := 'unavailable';",
-        "Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));",
+        "Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation', 'monitoring']));",
         "if VisualAccessVariant in ['assessment', 'validation'] then",
         "ModuleData.Add('score', Score);",
         "Payload.Add('warning', GetDisplayWarningText());",
