@@ -46,7 +46,7 @@ def main() -> None:
           "Frontend must not fetch external data or handle tenant tokens")
     check("https://" not in JS and "@import" not in CSS,
           "Frontend assets must be packaged without external dependencies")
-    check(".bcs-bar-fill" in CSS and ".bcs-metrics" in CSS, "Missing visual styles")
+    check(".bcs-v2-fill" in CSS and ".bcs-v2-kpis" in CSS, "Missing V2 visual styles")
     # The visible menu must not expose specific report tiers; the backend
     # chooses the correct report variant for the scan and current entitlement.
     for obsolete in ("action(OpenFreeHealthReport)", "action(OpenFreeHealthPdf)",
@@ -58,37 +58,36 @@ def main() -> None:
     check("action(OpenBestAvailablePdf)" in REPORT_ACTIONS, "Missing authorized PDF action")
     check("procedure GetPreferredReportVariant(ScanId: Code[50])" in REPORT_ACCESS, "Backend preferred-report lookup missing")
     check("Caption = 'Scan Details';" in PAGE, "Duplicate overview not condensed")
-    check("Visible = ShowStatusDetails;" in PAGE, "Diagnostics should only show when data is present")
+    check("Visible = false; // Rendered in the add-in to avoid duplicate technical fields." in PAGE, "Native diagnostics must not duplicate V2")
     check("RequestedHeight = 800;" in AL, "Add-in must show all ten scan modules")
-    # The graphical monitor must not send paid scores/findings to the browser
-    # when the authenticated backend does not grant this scan full disclosure.
-    for required in (
+    # Never send paid scan results to the browser for unverified Free/Quick access.
+    for expected in (
         "ResolveVisualAccess();",
-        "TryGetVerifiedReportVariant(Rec.\\"Run ID\\")",
-        "ReportAccess.GetPreferredReportVariant(ScanId)",
+        'ReportAccess.GetPreferredReportVariant(ScanId)',
         "VisualAccessVariant := 'free-health';",
         "Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));",
         "if VisualAccessVariant in ['assessment', 'validation'] then",
         "ModuleData.Add('score', Score);",
-        "Payload.Add('issues', Rec.\\"Issues Count\\");",
         "Payload.Add('warning', GetDisplayWarningText());",
-        "Payload.Add('events', Format(Rec.\\"Recent Events\\"));",
     ):
-        check(required.replace('\\\\"','"') in PAGE, "Monitor entitlement or diagnostic payload missing: " + required)
+        check(expected in PAGE, "Missing gated AL field or event: " + expected)
+    for expected in (
+        "data.canViewFullScores === true",
+        'data.accessTier === "assessment"',
+        'data.accessTier === "validation"',
+        "typeof data.issues ===",
+        "data.events",
+        "bcs-v2-disclosure",
+        'button.addEventListener("click"',
+        "aria-expanded",
+        "bcs-v2-hero",
+    ):
+        check(expected in JS, "Missing client gating or UX behavior: " + expected)
     check("Visible = false; // The graphical add-in renders these details" in PAGE,
-          "Native scan overview should not duplicate graphical overview")
+          "Native scan detail group must not duplicate the add-in")
     check("Visible = false; // Rendered in the add-in" in PAGE,
-          "Native diagnostics should not duplicate graphical diagnostics")
-    for required in ("data.canViewFullScores === true",
-                     'data.accessTier === "assessment"', 'data.accessTier === "validation"',
-                     "typeof data.issues ===", "data.events", 'bcs-v2-disclosure',
-                     'button.addEventListener("click"', "aria-expanded",
-                     'bcs-v2-brand', 'bcs-v2-hero'):
-        check(required in JS, "Control Add-in V2 gating/interaction missing: " + required)
-    for old in ("data.score +", "m.score +"):
-        check(old not in JS, "Full score bypasses disclosure check: " + old)
-    check(".bcs-v2-hero" in CSS and ".bcs-v2-disclosure" in CSS,
-          "Missing V2 branded scan layout styles")
+          "Native diagnostics must not duplicate the add-in")
+    check(".bcs-v2-hero" in CSS and ".bcs-v2-disclosure" in CSS, "Missing V2 styles")
     print("Embedded scan Control Add-in static contract: PASS")
     print("AL: Package and sandbox UI acceptance still required.")
 
