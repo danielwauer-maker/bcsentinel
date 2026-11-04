@@ -49,9 +49,8 @@ codeunit 53124 "DH Deep Scan Mgt."
 
         Commit();
 
-        RunDeepScanNow(DeepScanRun);
-
-        Message(ScanStartedMsg, DeepScanRun."Run ID");
+        if RunDeepScanNow(DeepScanRun) then
+            Message(ScanStartedMsg, DeepScanRun."Run ID");
 
         exit(EntryNo);
     end;
@@ -70,7 +69,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun.Modify(true);
     end;
 
-    local procedure RunDeepScanNow(var DeepScanRun: Record "DH Deep Scan Run")
+    local procedure RunDeepScanNow(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
     var
         DeepScanRunner: Codeunit "DH Deep Scan Runner";
         DeepScanFailure: Codeunit "DH Deep Scan Failure";
@@ -82,8 +81,10 @@ codeunit 53124 "DH Deep Scan Mgt."
             FailureDetails := GetLastErrorText();
             DeepScanFailure.FailRun(DeepScanRun, FailureDetails);
             Commit();
-            Message('BCSentinel scan %1 failed. Review Scan History for details. The backend will restore a Free Entry credit after accepting the failed status.', DeepScanRun."Run ID");
+            Message('BCSentinel scan %1 failed. Review Scan History for details. A Free Entry credit can be restored when the backend receives the failed status.', DeepScanRun."Run ID");
+            exit(false);
         end;
+        exit(true);
     end;
 
     local procedure CreateOrUpdateScanHeader(var DeepScanRun: Record "DH Deep Scan Run")
