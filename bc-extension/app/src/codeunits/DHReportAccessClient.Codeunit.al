@@ -54,6 +54,44 @@ codeunit 53202 "DH Report Access Client"
         exit(Variant);
     end;
 
+    procedure GetMonitorInsights(ScanId: Code[50]): JsonObject
+    var
+        Setup: Record "DH Setup";
+        Client: HttpClient;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        ResponseText: Text;
+        Insights: JsonObject;
+        ApiToken: Text;
+        ApiClient: Codeunit "DH API Client";
+        SecretMgt: Codeunit "DH Secret Mgt.";
+    begin
+        if ScanId = '' then
+            Error('No BCSentinel scan selected.');
+        if not Setup.Get('SETUP') then
+            Error('BCSentinel setup was not found.');
+        if not Setup.Registered or (Setup."Tenant ID" = '') then
+            Error('BCSentinel tenant registration is required.');
+
+        ApiToken := SecretMgt.GetApiToken(Setup);
+        if ApiToken = '' then
+            Error('BCSentinel API token is missing.');
+        RequestHeaders := Client.DefaultRequestHeaders();
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', ApiToken);
+
+        if not Client.Get(BuildUrl(Setup."API Base URL",
+            '/reports/' + Format(ScanId) + '/monitor-insights'), Response) then
+            Error('The BCSentinel monitor insights request could not be sent.');
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('BCSentinel monitor insights unavailable. Status %1. %2',
+                Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
+        if not Insights.ReadFrom(ResponseText) then
+            Error('BCSentinel returned an invalid monitor insights response.');
+        exit(Insights);
+    end;
+
     local procedure BuildUrl(BaseUrl: Text; Path: Text): Text
     var
         NormalizedBaseUrl: Text;
