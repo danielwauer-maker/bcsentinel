@@ -9,7 +9,8 @@ controladdin "BCSentinel Scan Visual"
     HorizontalStretch = true;
     VerticalStretch = false;
 
-    StartupScript = './js/scanvisual.js';
+    Scripts = './js/scanvisual.js';
+    StartupScript = './js/scanvisual-startup.js';
     StyleSheets = './css/scanvisual.css';
 
     procedure SetScanData(JsonData: Text);
