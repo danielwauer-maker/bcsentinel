@@ -522,6 +522,7 @@
 
     var
         ScanVisualReady: Boolean;
+        VisualInsights: JsonObject;
         VisualAccessRunId: Code[50];
         VisualAccessVariant: Text[30];
         VisualAccessChecked: Boolean;
@@ -670,26 +671,35 @@
     end;
 
     local procedure ResolveVisualAccess()
+    var
+        TierToken: JsonToken;
+        Tier: Text;
     begin
         if VisualAccessChecked and (VisualAccessRunId = Rec."Run ID") then
             exit;
         VisualAccessRunId := Rec."Run ID";
         VisualAccessChecked := true;
-        // Fail closed. Never derive disclosure permission from a local subscription
-        // label, an expired BC license snapshot, or data already in the scan table.
-        VisualAccessVariant := 'free-health';
+        VisualAccessVariant := 'unavailable';
+        Clear(VisualInsights);
         if Rec."Run ID" = '' then
             exit;
-        if not TryGetVerifiedReportVariant(Rec."Run ID") then
-            VisualAccessVariant := 'free-health';
+        // A single backend-authenticated response is both the disclosure
+        // decision and the precise report-scoped values for this scan.
+        if not TryGetVerifiedMonitorInsights(Rec."Run ID", VisualInsights) then
+            exit;
+        if not VisualInsights.Get('tier', TierToken) then
+            exit;
+        Tier := LowerCase(TierToken.AsValue().AsText());
+        if Tier in ['free-health', 'quick-assessment', 'assessment', 'validation', 'monitoring'] then
+            VisualAccessVariant := CopyStr(Tier, 1, MaxStrLen(VisualAccessVariant));
     end;
 
     [TryFunction]
-    local procedure TryGetVerifiedReportVariant(ScanId: Code[50])
+    local procedure TryGetVerifiedMonitorInsights(ScanId: Code[50]; var Insights: JsonObject)
     var
         ReportAccess: Codeunit "DH Report Access Client";
     begin
-        VisualAccessVariant := CopyStr(ReportAccess.GetPreferredReportVariant(ScanId), 1, MaxStrLen(VisualAccessVariant));
+        Insights := ReportAccess.GetMonitorInsights(ScanId);
     end;
 
     local procedure PushScanVisual()
@@ -709,12 +719,14 @@
         // Full-score and module-level scores are disclosed only when the
         // backend has verified the current scan's full report entitlement.
         // A Free/Quick user must never receive full details in the JS payload.
-        Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));
+        Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation', 'monitoring']));
         Payload.Add('accessTier', VisualAccessVariant);
-        if VisualAccessVariant in ['assessment', 'validation'] then
+        if VisualAccessVariant <> 'unavailable' then
+            Payload.Add('insights', VisualInsights);
+        if VisualAccessVariant in ['assessment', 'validation', 'monitoring'] then
             Payload.Add('score', Rec."Deep Score");
         Payload.Add('checks', Rec."Checks Count");
-        if VisualAccessVariant in ['assessment', 'validation'] then
+        if VisualAccessVariant in ['assessment', 'validation', 'monitoring'] then
             Payload.Add('issues', Rec."Issues Count");
         Payload.Add('currentModule', GetCurrentModuleText());
         Payload.Add('currentStep', GetCurrentStepText());
@@ -766,7 +778,7 @@
     begin
         ModuleData.Add('name', ModuleName);
         ModuleData.Add('progress', Progress);
-        if VisualAccessVariant in ['assessment', 'validation'] then
+        if VisualAccessVariant in ['assessment', 'validation', 'monitoring'] then
             ModuleData.Add('score', Score);
         Modules.Add(ModuleData);
     end;
