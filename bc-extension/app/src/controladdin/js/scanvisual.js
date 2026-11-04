@@ -357,7 +357,10 @@
 
         var impact = el("section", "bcs-v3-card bcs-v3-impact");
         var impactPreview = el("div", "bcs-v3-impact-left");
-        impactPreview.appendChild(el("h3", "bcs-v3-card-title", t(lang,"Business Impact (Vorschau)","Business impact (preview)")));
+        var impactHeading = el("h3", "bcs-v3-card-title");
+        impactHeading.appendChild(svgIcon("impact", "bcs-v3-title-icon bcs-impact-icon"));
+        impactHeading.appendChild(el("span", "", t(lang,"Business Impact (Vorschau)","Business impact (preview)")));
+        impactPreview.appendChild(impactHeading);
         var band = String(insights.impact_band || "").toLowerCase();
         var bandLabels = [["low",t(lang,"Niedrig","Low")],["medium",t(lang,"Mittel","Medium")],
                           ["high",t(lang,"Hoch","High")],["very high",t(lang,"Sehr hoch","Very high")]];
@@ -381,16 +384,19 @@
         free.appendChild(impact);
 
         var upsell = el("section","bcs-v3-upsell");
-        upsell.appendChild(el("h3","", t(lang,"Weitere Analysedetails im Assessment","More analysis details in Assessment")));
+        var upsellHeading = el("h3", "bcs-v3-upsell-heading");
+        upsellHeading.appendChild(svgIcon("lock", "bcs-v3-upsell-icon"));
+        upsellHeading.appendChild(el("span", "", t(lang,"Weitere Analysedetails im Assessment","More analysis details in Assessment")));
+        upsell.appendChild(upsellHeading);
         var benefits = el("div","bcs-v3-upsell-grid");
         [
-            ["\u2315",t(lang,"Detaillierte Findings","Detailed findings"),t(lang,"Beschreibung und Kontext erkannter Datenqualit\u00e4tsprobleme.","Descriptions and context of findings"),"table"],
-            ["\u25a5",t(lang,"Modellierter finanzieller Impact","Modeled financial impact"),t(lang,"Quantifizierte finanzielle Auswirkungen und Einsparpotenziale.","Financial impact and savings potential"),"bars"],
-            ["\u25ce",t(lang,"Priorisierte Ma\u00dfnahmen & Roadmap","Prioritized actions & roadmap"),t(lang,"Konkrete Empfehlungen mit Priorisierung und Umsetzungsplan.","Actionable recommendations and plan"),"roadmap"]
+            ["search",t(lang,"Detaillierte Findings","Detailed findings"),t(lang,"Beschreibung und Kontext erkannter Datenqualit\u00e4tsprobleme.","Descriptions and context of findings"),"table"],
+            ["chart",t(lang,"Modellierter finanzieller Impact","Modeled financial impact"),t(lang,"Quantifizierte finanzielle Auswirkungen und Einsparpotenziale.","Financial impact and savings potential"),"bars"],
+            ["roadmap",t(lang,"Priorisierte Ma\u00dfnahmen & Roadmap","Prioritized actions & roadmap"),t(lang,"Konkrete Empfehlungen mit Priorisierung und Umsetzungsplan.","Actionable recommendations and plan"),"roadmap"]
         ].forEach(function (benefit) {
             var card = el("div","bcs-v3-benefit");
             var lead = el("div","bcs-v3-benefit-heading");
-            lead.appendChild(el("span","",benefit[0]));
+            lead.appendChild(svgIcon(benefit[0], "bcs-v3-benefit-icon"));
             var copy = el("div","");
             copy.appendChild(el("strong","",benefit[1]));
             copy.appendChild(el("p","",benefit[2]));
@@ -402,7 +408,9 @@
                 mark.style.height=(12+(n*19)%34)+"px";
                 preview.appendChild(mark);
             }
-            preview.appendChild(el("span","bcs-v3-lock","\uD83D\uDD12"));
+            var lockBadge = el("span", "bcs-v3-lock");
+            lockBadge.appendChild(svgIcon("lock", "bcs-v3-lock-icon"));
+            preview.appendChild(lockBadge);
             card.appendChild(preview);
             benefits.appendChild(card);
         });
