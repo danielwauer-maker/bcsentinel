@@ -47,12 +47,14 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Issues Count" := IssuesCount;
         DeepScanRun."Rating" := CopyStr(GetRating(Score), 1, MaxStrLen(DeepScanRun."Rating"));
         DeepScanRun."Headline" := CopyStr(GetHeadline(Score, IssuesCount), 1, MaxStrLen(DeepScanRun."Headline"));
-        DeepScanRun.Status := DeepScanRun.Status::Completed;
-        DeepScanRun."Finished At" := CurrentDateTime();
-        DeepScanRun."Current Module" := 'Completed';
-        DeepScanRun."Progress %" := 100;
+        // Module checks finished, but the scan is not completed until the
+        // backend has accepted the results and commercial/finding payload.
+        DeepScanRun.Status := DeepScanRun.Status::Running;
+        DeepScanRun."Current Module" := 'Finalizing';
+        DeepScanRun."Current Step" := 'Synchronizing scan results';
+        DeepScanRun."Progress %" := 99;
         DeepScanRun."Completed Modules" := DeepScanRun."Total Modules";
-        DeepScanRun."ETA Text" := 'Completed';
+        DeepScanRun."ETA Text" := 'Synchronizing';
         DeepScanRun."System Progress %" := 100;
         DeepScanRun."Finance Progress %" := 100;
         DeepScanRun."Sales Progress %" := 100;
@@ -64,19 +66,44 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Jobs Progress %" := 100;
         DeepScanRun."HR Progress %" := 100;
         DeepScanRun.Modify(true);
-        TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
-
         EnsureDashboardHeaderForDeepScan(DeepScanRun);
         Commit();
 
-        if Setup.Get('SETUP') then begin
-            RequestText := BuildSyncPayload(Setup, DeepScanRun);
-            SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
-            ApplySyncCommercials(DeepScanRun, SyncResponseText);
-            ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
-            ApiClient.RefreshLicenseStatus(Setup);
-            TryUpdateBackendProgress(DeepScanRun, 'completed', 'Scan completed', 'Scan completed');
-        end;
+        if not Setup.Get('SETUP') then
+            Error('BCSentinel Setup is missing during scan finalization.');
+
+        RequestText := BuildSyncPayload(Setup, DeepScanRun);
+        SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse(Setup, RequestText);
+        ApplySyncCommercials(DeepScanRun, SyncResponseText);
+        ApplySyncFindingImpacts(DeepScanRun, SyncResponseText);
+
+        DeepScanRun.Get(DeepScanRun."Entry No.");
+        DeepScanRun.Status := DeepScanRun.Status::Completed;
+        DeepScanRun."Finished At" := CurrentDateTime();
+        DeepScanRun."Current Module" := 'Completed';
+        DeepScanRun."Current Step" := 'Scan completed';
+        DeepScanRun."Progress %" := 100;
+        DeepScanRun."ETA Text" := 'Completed';
+        DeepScanRun.Modify(true);
+        EnsureDashboardHeaderForDeepScan(DeepScanRun);
+        Commit();
+
+        // Refreshing the local entitlement snapshot is advisory; the available
+        // credit has already been consumed on start.
+        TryRefreshLicenseStatus(Setup);
+    end;
+
+    local procedure TryRefreshLicenseStatus(var Setup: Record "DH Setup")
+    begin
+        if not RefreshLicenseStatusSafely(Setup) then;
+    end;
+
+    [TryFunction]
+    local procedure RefreshLicenseStatusSafely(var Setup: Record "DH Setup")
+    var
+        ApiClient: Codeunit "DH API Client";
+    begin
+        ApiClient.RefreshLicenseStatus(Setup);
     end;
 
     local procedure RunChecks(var DeepScanRun: Record "DH Deep Scan Run"; var Score: Integer; var ChecksCount: Integer; var IssuesCount: Integer)
