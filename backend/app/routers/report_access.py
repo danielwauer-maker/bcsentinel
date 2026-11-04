@@ -17,6 +17,25 @@ class PreferredReportVariantResponse(BaseModel):
     report_variant: str
 
 
+@router.get("/{scan_id}/monitor-insights")
+def get_monitor_insights(
+    scan_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> dict:
+    """Return only the insight fields authorized for this tenant and scan."""
+    from app.services.monitor_insights_service import build_monitor_insights
+
+    header_tenant_id, header_api_token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        owned_scan = db.scalar(
+            select(Scan.id).where(Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id)
+        )
+        if owned_scan is None:
+            raise HTTPException(status_code=404, detail="Scan report not found.")
+        return build_monitor_insights(db, tenant, scan_id)
+
+
 @router.get("/{scan_id}/preferred-variant", response_model=PreferredReportVariantResponse)
 def get_preferred_report_variant(
     scan_id: str,
