@@ -185,6 +185,23 @@ def main() -> int:
     if 'field(ProductAccessModel; Rec.GetProductAccessDisplayText())' not in setup_page:
         errors.append("Setup page must use display-only access mapping instead of raw backend model")
 
+    pilot_actions = (SRC / "pageextensions" / "DHSetupPilotActions.PageExt.al").read_text(encoding="utf-8-sig")
+    for required in (
+        'Visible = ShowRegisterTenantAction;',
+        'action(RunFreeScan)',
+        "Caption = 'Run Free Scan';",
+        'Promoted = true;',
+        'Visible = ShowFreeScanAction;',
+        'trigger OnAfterGetCurrRecord()',
+        'UpdatePilotActionVisibility();',
+    ):
+        if required not in pilot_actions:
+            errors.append(f"BC onboarding UI missing required action visibility behavior: {required}")
+    if "ShowRegisterTenantAction := not Rec.Registered" not in pilot_actions:
+        errors.append("Register Tenant must disappear once tenant is registered")
+    if 'Rec."Scan Credits Available" > 0' not in pilot_actions:
+        errors.append("Free Scan action must respect available scan credits")
+
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
