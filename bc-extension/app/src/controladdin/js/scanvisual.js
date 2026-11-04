@@ -122,6 +122,223 @@
         field.appendChild(el("strong", "", value || "\u2014"));
         return field;
     }
+
+    function mountainArtwork() {
+        // Packaged vector landscape: no external requests, no third-party imagery.
+        var ns = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 720 190");
+        svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
+        svg.setAttribute("class", "bcs-v3-mountains");
+        svg.setAttribute("aria-hidden", "true");
+        function path(d, fill, opacity) {
+            var p = document.createElementNS(ns, "path");
+            p.setAttribute("d", d);
+            p.setAttribute("fill", fill);
+            if (opacity !== undefined) p.setAttribute("opacity", opacity);
+            svg.appendChild(p);
+        }
+        path("M0 160 L70 112 L115 132 L202 70 L256 117 L338 41 L413 110 L506 19 L592 92 L641 48 L720 132 L720 190 L0 190Z", "#1d5790", ".73");
+        path("M0 185 L128 125 L208 163 L335 66 L424 145 L516 31 L607 124 L700 68 L720 101 L720 190 Z", "#0b365d", ".92");
+        path("M194 75 L202 70 L230 96 L212 89 Z M326 78 L338 41 L374 81 L347 67 Z M495 51 L506 19 L540 54 L518 44 Z M632 59 L641 48 L664 75 L646 65 Z", "#91dbff", ".96");
+        path("M0 190 L35 153 L76 178 L110 148 L148 179 L214 130 L244 185 L292 146 L360 180 L420 133 L474 177 L531 117 L585 180 L628 126 L690 170 L720 154 L720 190Z", "#061e34");
+        for (var i = 0; i < 22; i++) {
+            var x = 20 + i * 33;
+            var height = 17 + (i * 7) % 28;
+            path("M" + x + " 190 L" + (x + 8) + " " + (189 - height) +
+                 " L" + (x + 17) + " 190 Z", "#021526", ".87");
+        }
+        return svg;
+    }
+
+    function metaItem(icon, caption, value, tone) {
+        var cell = el("div", "bcs-v3-meta-item " + (tone || ""));
+        cell.appendChild(el("span", "bcs-v3-meta-icon", icon));
+        var labels = el("span", "bcs-v3-meta-copy");
+        labels.appendChild(el("small", "", caption));
+        labels.appendChild(el("strong", "", value || "-"));
+        cell.appendChild(labels);
+        return cell;
+    }
+
+    function sectionCard(title, icon) {
+        var card = el("section", "bcs-v3-card");
+        var heading = el("h3", "bcs-v3-card-title");
+        heading.appendChild(el("span", "bcs-v3-title-icon", icon));
+        heading.appendChild(el("span", "", title));
+        card.appendChild(heading);
+        return card;
+    }
+
+    function scoreGauge(score) {
+        var gauge = el("div", "bcs-v3-gauge");
+        gauge.style.background = "conic-gradient(#d98e04 0 " + percent(score) +
+            "%, #e5eaf0 " + percent(score) + "% 100%)";
+        var inside = el("div", "bcs-v3-gauge-inner");
+        inside.appendChild(el("strong", "", String(percent(score))));
+        inside.appendChild(el("small", "", "von 100"));
+        gauge.appendChild(inside);
+        return gauge;
+    }
+
+    function freeDashboard(data, insights, lang) {
+        // All displayed values are derived from the authenticated Free report.
+        var free = el("div", "bcs-v3-free");
+        var score = percent(insights.score);
+        var top = el("div", "bcs-v3-top-grid");
+        var scoreCard = sectionCard("Data Health Score", "\u25c9");
+        var scoreContent = el("div", "bcs-v3-score-content");
+        scoreContent.appendChild(scoreGauge(score));
+        var scoreCopy = el("div", "bcs-v3-score-copy");
+        scoreCopy.appendChild(el("strong", "bcs-v3-risk-caption",
+            score < 60 ? t(lang, "Kritischer Verbesserungsbedarf", "Critical improvement needed") :
+            score < 80 ? t(lang, "Verbesserungsbedarf", "Improvement needed") :
+            t(lang, "Guter Datenzustand", "Good data health")));
+        scoreCopy.appendChild(el("p", "", score < 60 ?
+            t(lang, "Ihre Datenqualit\u00e4t weist erhebliches Verbesserungspotenzial auf.",
+              "Your data quality has significant room for improvement.") :
+            t(lang, "Der vorl\u00e4ufige Score bewertet den erkannten Standard-Scope.",
+              "This preliminary score covers the detected standard scope.")));
+        scoreContent.appendChild(scoreCopy);
+        scoreCard.appendChild(scoreContent);
+        top.appendChild(scoreCard);
+
+        var scope = sectionCard(t(lang, "Scan Scope", "Scan scope"), "\u25c8");
+        var scopeItems = el("div", "bcs-v3-scope-grid");
+        [
+            [count(insights.affected_records, lang), t(lang, "Betroffene\nDatens\u00e4tze", "Affected\nrecords"), "\u25a4"],
+            [count(insights.checks, lang), t(lang, "Checks\ndurchgef\u00fchrt", "Checks\nexecuted"), "\u2315"],
+            [count(insights.modules_analyzed, lang), t(lang, "Bereiche\nanalysiert", "Areas\nanalyzed"), "\u25c7"],
+            [count(insights.findings, lang), t(lang, "Findings\ngesamt", "Findings\ntotal"), "\u26a0"]
+        ].forEach(function (entry) {
+            var item = el("div", "bcs-v3-scope-item");
+            item.appendChild(el("span", "bcs-v3-scope-icon", entry[2]));
+            item.appendChild(el("strong", "", entry[0]));
+            item.appendChild(el("span", "bcs-v3-scope-label", entry[1]));
+            scopeItems.appendChild(item);
+        });
+        scope.appendChild(scopeItems);
+        top.appendChild(scope);
+        free.appendChild(top);
+
+        var analysis = el("div", "bcs-v3-analysis-grid");
+        var severity = sectionCard(t(lang, "Schweregrad-Verteilung der Findings", "Finding severity distribution"), "\u25a6");
+        var sev = insights.severity || {};
+        var levels = [
+            ["critical", t(lang,"Kritisch","Critical"), "#cf3a3a"],
+            ["high", t(lang,"Hoch","High"), "#ff921f"],
+            ["medium", t(lang,"Mittel","Medium"), "#f6b900"],
+            ["low", t(lang,"Niedrig","Low"), "#11a36a"],
+            ["info", "Info", "#9aaabc"]
+        ];
+        var total = levels.reduce(function (sum, level) { return sum + Math.max(0, Number(sev[level[0]]) || 0); }, 0);
+        var segments = el("div", "bcs-v3-severity-bar");
+        levels.forEach(function (level) {
+            var value = Math.max(0, Number(sev[level[0]]) || 0);
+            if (total <= 0 || value <= 0) return;
+            var segment = el("span", "", Math.round(value / total * 100) + "%");
+            segment.style.width = (value / total * 100) + "%";
+            segment.style.background = level[2];
+            segment.setAttribute("title", level[1] + ": " + count(value, lang));
+            segments.appendChild(segment);
+        });
+        severity.appendChild(segments);
+        var severityList = el("div", "bcs-v3-severity-list");
+        levels.forEach(function (level) {
+            var item = el("div", "bcs-v3-severity-item");
+            var label = el("span", "");
+            var dot = el("i", "bcs-v3-dot");
+            dot.style.background = level[2];
+            label.appendChild(dot);
+            label.appendChild(el("span", "", level[1]));
+            item.appendChild(label);
+            item.appendChild(el("strong", "", count(sev[level[0]], lang)));
+            severityList.appendChild(item);
+        });
+        severity.appendChild(severityList);
+        analysis.appendChild(severity);
+
+        var risks = sectionCard(t(lang, "Top-Risikobereiche (aggregiert)", "Top risk areas (aggregate)"), "\u26a0");
+        var table = el("div", "bcs-v3-risk-table");
+        var head = el("div", "bcs-v3-risk-row bcs-v3-risk-head");
+        [ "#", t(lang,"Bereich","Area"), t(lang,"H\u00f6chster Schweregrad","Highest severity"),
+            "Findings", t(lang,"Betroffene Datens\u00e4tze","Affected records") ].forEach(function (title) {
+            head.appendChild(el("span","",title));
+        });
+        table.appendChild(head);
+        var areas = Array.isArray(insights.risk_areas) ? insights.risk_areas.slice(0,5) : [];
+        areas.forEach(function (area, index) {
+            var row = el("div", "bcs-v3-risk-row");
+            row.appendChild(el("span", "", String(index + 1)));
+            row.appendChild(el("strong", "", area.name));
+            var severityText = String(area.severity || "info").toLowerCase();
+            var severityCaption = {critical:"Kritisch",high:"Hoch",medium:"Mittel",low:"Niedrig",info:"Info"}[severityText] || severityText;
+            var severityPill = el("span", "bcs-v3-risk-pill " + severityText, lang === "de" ? severityCaption : severityText);
+            row.appendChild(severityPill);
+            row.appendChild(el("strong", "", count(area.findings, lang)));
+            row.appendChild(el("span", "", count(area.affected_records,lang)));
+            table.appendChild(row);
+        });
+        risks.appendChild(table);
+        analysis.appendChild(risks);
+        free.appendChild(analysis);
+
+        var impact = el("section", "bcs-v3-card bcs-v3-impact");
+        var impactPreview = el("div", "bcs-v3-impact-left");
+        impactPreview.appendChild(el("h3", "bcs-v3-card-title", t(lang,"Business Impact (Vorschau)","Business impact (preview)")));
+        var band = String(insights.impact_band || "").toLowerCase();
+        var bandLabels = [["low",t(lang,"Niedrig","Low")],["medium",t(lang,"Mittel","Medium")],
+                          ["high",t(lang,"Hoch","High")],["very high",t(lang,"Sehr hoch","Very high")]];
+        var bandBar = el("div","bcs-v3-impact-scale");
+        bandLabels.forEach(function (option) {
+            var key = option[0];
+            var active = (key === "high" && (band === "hoch" || band === "high")) ||
+                         (key === "medium" && (band === "mittel" || band === "medium")) ||
+                         (key === "low" && (band === "niedrig" || band === "low")) ||
+                         (key === "very high" && (band === "sehr hoch" || band === "very high"));
+            bandBar.appendChild(el("span", active ? "active" : "", option[1]));
+        });
+        impactPreview.appendChild(bandBar);
+        impact.appendChild(impactPreview);
+        var impactCopy = el("div", "bcs-v3-impact-right");
+        impactCopy.appendChild(el("strong", "", t(lang,"Business Impact: ","Business impact: ") + (insights.impact_band || "-")));
+        impactCopy.appendChild(el("p", "", t(lang,
+            "Die detaillierte finanzielle Bewertung mit modelliertem Verlust und potenziellen Einsparungen ist im Full Assessment enthalten.",
+            "Detailed modeled losses and potential savings are included in the Full Assessment.")));
+        impact.appendChild(impactCopy);
+        free.appendChild(impact);
+
+        var upsell = el("section","bcs-v3-upsell");
+        upsell.appendChild(el("h3","", t(lang,"Weitere Analysedetails im Assessment","More analysis details in Assessment")));
+        var benefits = el("div","bcs-v3-upsell-grid");
+        [
+            ["\u2315",t(lang,"Detaillierte Findings","Detailed findings"),t(lang,"Beschreibung und Kontext erkannter Datenqualit\u00e4tsprobleme.","Descriptions and context of findings"),"table"],
+            ["\u25a5",t(lang,"Modellierter finanzieller Impact","Modeled financial impact"),t(lang,"Quantifizierte finanzielle Auswirkungen und Einsparpotenziale.","Financial impact and savings potential"),"bars"],
+            ["\u25ce",t(lang,"Priorisierte Ma\u00dfnahmen & Roadmap","Prioritized actions & roadmap"),t(lang,"Konkrete Empfehlungen mit Priorisierung und Umsetzungsplan.","Actionable recommendations and plan"),"roadmap"]
+        ].forEach(function (benefit) {
+            var card = el("div","bcs-v3-benefit");
+            var lead = el("div","bcs-v3-benefit-heading");
+            lead.appendChild(el("span","",benefit[0]));
+            var copy = el("div","");
+            copy.appendChild(el("strong","",benefit[1]));
+            copy.appendChild(el("p","",benefit[2]));
+            lead.appendChild(copy);
+            card.appendChild(lead);
+            var preview = el("div","bcs-v3-preview "+ benefit[3]);
+            for(var n=0;n<8;n++) {
+                var mark=el("span","");
+                mark.style.height=(12+(n*19)%34)+"px";
+                preview.appendChild(mark);
+            }
+            preview.appendChild(el("span","bcs-v3-lock","\uD83D\uDD12"));
+            card.appendChild(preview);
+            benefits.appendChild(card);
+        });
+        upsell.appendChild(benefits);
+        free.appendChild(upsell);
+        return free;
+    }
+
     function render() {
         if (!root) return;
         root.replaceChildren();
@@ -156,12 +373,21 @@
         descriptor.appendChild(el("strong", "", "Scan Monitor"));
         descriptor.appendChild(el("span", "", data.runId));
         header.appendChild(descriptor);
-        var state = el("div", "bcs-v2-state");
-        state.appendChild(el("div", "bcs-v2-pill " + (completed ? "done" : status === "failed" ? "error" : "active"), statusLabels[status] || status));
-        state.appendChild(el("small", "", completed ? t(lang, "Scan erfolgreich abgeschlossen.", "Scan completed successfully.") : String(data.currentStep || "")));
-        header.appendChild(state);
+        header.appendChild(mountainArtwork());
         root.appendChild(header);
+        var meta = el("div","bcs-v3-meta");
+        meta.appendChild(metaItem("▥",t(lang,"Firma","Company"), data.companyName));
+        meta.appendChild(metaItem("◈",t(lang,"BC-Umgebung","BC environment"),data.environmentName));
+        meta.appendChild(metaItem("▦",t(lang,"Scan-Datum","Scan date"),data.startedAt));
+        meta.appendChild(metaItem("▤",t(lang,"Run-ID","Run ID"),data.runId));
+        meta.appendChild(metaItem(completed ? "✓" : status === "failed" ? "!" : "▶",
+            t(lang,"Status","Status"),statusLabels[status] || status,
+            completed ? "done" : status === "failed" ? "error" : "active"));
+        root.appendChild(meta);
 
+        if (completed && tier === "free-health" && insights) {
+            root.appendChild(freeDashboard(data, insights, lang));
+        } else {
         var kpis = el("div", "bcs-v2-kpis");
         var scoreAvailable = completed && insights && typeof insights.score === "number";
         var score = scoreAvailable ? percent(insights.score) : null;
@@ -297,6 +523,7 @@
         root.appendChild(disclosure("details", t(lang, "Scan Details", "Scan details"),
             t(lang, "Zeiten, Status und technische Informationen", "Timing, status and technical information"), details));
 
+        }
         var diagnostics = el("div", "bcs-v2-diagnostics");
         if (data.error) diagnostics.appendChild(el("p", "bcs-v2-error", data.error));
         if (data.warning) diagnostics.appendChild(el("p", "bcs-v2-warning", data.warning));
