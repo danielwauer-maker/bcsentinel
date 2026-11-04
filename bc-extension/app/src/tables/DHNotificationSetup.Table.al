@@ -24,8 +24,11 @@ table 53176 "DH Notification Setup"
         NotificationMgt: Codeunit "DH Notification Mgt.";
     begin
         "Primary Key" := '';
-        if CoreSetup.Get() then
-            "Tenant ID" := CoreSetup."Tenant ID";
+        if not CoreSetup.Get('SETUP') then
+            Error('BCSentinel Setup is missing. Open BCSentinel Setup and register the tenant first.');
+        CoreSetup.TestField(Registered, true);
+        CoreSetup.TestField("Tenant ID");
+        "Tenant ID" := CoreSetup."Tenant ID";
         "Company ID" := CopyStr(CompanyName(), 1, MaxStrLen("Company ID"));
         if "Preferred Language" = '' then
             "Preferred Language" := 'en';
