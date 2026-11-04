@@ -232,3 +232,50 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: 
  .bcs-v3-risk-row {grid-template-columns:18px 1fr .8fr 38px 65px;column-gap:4px;}
  .bcs-v3-hero {min-height:130px;}
 }
+
+/* V3.1: keep completion state in the native-like scan metadata strip only.
+   The blue hero is reserved for BCSentinel branding and right-aligned mountains. */
+.bcs-v2-hero {
+    min-height: 138px;
+    padding: 17px 24px 45px;
+    background: linear-gradient(108deg, #071b2f 0%, #08243e 51%, #06365d 100%);
+}
+.bcs-v2-hero::after {
+    background: linear-gradient(90deg, rgba(8,33,56,1) 0%, rgba(8,33,56,.94) 38%, rgba(8,33,56,.40) 66%, transparent 92%);
+}
+.bcs-v3-mountains {
+    right: -7%;
+    width: 64%;
+    height: 100%;
+    opacity: .99;
+    pointer-events: none;
+}
+.bcs-v2-heading { flex: 0 1 270px; }
+.bcs-v3-meta {
+    grid-template-columns: 1.05fr .85fr 1.23fr 1.53fr .90fr;
+    align-items: center;
+    margin-top: -27px;
+    margin-bottom: 13px;
+    padding: 12px 3px;
+}
+.bcs-v3-meta-item.done .bcs-v3-meta-icon,
+.bcs-v3-meta-item.done strong { color: #11a36a; }
+.bcs-v3-meta-item.error .bcs-v3-meta-icon,
+.bcs-v3-meta-item.error strong { color: #cf3a3a; }
+.bcs-v3-meta-item.done strong,
+.bcs-v3-meta-item.error strong { font-weight: 800; }
+@media(max-width:950px) {
+    .bcs-v3-mountains { width: 74%; right: -13%; }
+    .bcs-v2-hero { padding-bottom: 48px; }
+}
+@media(max-width:650px) {
+    .bcs-v3-mountains { width: 100%; right: -35%; opacity: .76; }
+    .bcs-v2-heading { flex: 1 1 180px; }
+    .bcs-v3-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bcs-v3-meta-item:nth-child(5) {
+        grid-column: 1 / -1;
+        border-right: 0;
+        border-top: 1px solid #d5e1ed;
+        padding-top: 7px;
+    }
+}
