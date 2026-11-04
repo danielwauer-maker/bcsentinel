@@ -119,6 +119,7 @@
             group(OnlineDashboard)
             {
                 Caption = 'Online';
+                Visible = false; // Hidden until external dashboard passes release acceptance.
 
                 field(OpenExternalDashboardLink; OpenDashboardLinkTxt)
                 {
@@ -394,6 +395,7 @@
             action(OpenExternalDashboard)
             {
                 Caption = 'Open BCSentinel Dashboard';
+                Visible = false; // Keep code, hide unfinished external navigation.
                 ApplicationArea = All;
                 Image = View;
                 ToolTip = 'Open the external BCSentinel dashboard for the current scan.';
