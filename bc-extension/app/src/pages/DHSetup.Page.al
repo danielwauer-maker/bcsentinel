@@ -499,6 +499,7 @@
         Rec.Registered := false;
         Rec."Registration Date" := 0DT;
         DeleteStoredApiToken();
+        Rec.ClearCachedProductAccess();
         Rec.Modify(true);
     end;
 
