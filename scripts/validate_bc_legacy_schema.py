@@ -202,6 +202,28 @@ def main() -> int:
     if 'Rec."Scan Credits Available" > 0' not in pilot_actions:
         errors.append("Free Scan action must respect available scan credits")
 
+    # The backend consumes the Free Entry credit at /scan/start. A matching
+    # /scan/sync must never require a second unused credit locally.
+    api_source = (SRC / "codeunits" / "DHApiClient.Codeunit.al").read_text(encoding="utf-8-sig")
+    sync_start = api_source.find('procedure SyncScanToBackendAndGetResponse(')
+    sync_end = api_source.find('procedure DeleteScanFromBackend(', sync_start)
+    if sync_start < 0 or sync_end < 0:
+        errors.append("Missing backend scan result sync API")
+    else:
+        sync_body = api_source[sync_start:sync_end]
+        if 'EnsureTenantAccessConfigured(Setup);' not in sync_body or 'EnsureReadyForScan(Setup);' in sync_body:
+            errors.append("Scan result sync must authorize registered tenant without checking unused credit")
+    runner = (SRC / "codeunits" / "DHDeepScanRunner.Codeunit.al").read_text(encoding="utf-8-sig")
+    if runner.find('SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse') < 0:
+        errors.append("Scan runner must transmit results to backend")
+    else:
+        sync_pos = runner.find('SyncResponseText := ApiClient.SyncScanToBackendAndGetResponse')
+        first_terminal = runner.find('DeepScanRun.Status := DeepScanRun.Status::Completed;')
+        if first_terminal < sync_pos:
+            errors.append("Runner marks scan Completed before backend result synchronization")
+    if "DeepScanRun.\"Progress %\" := 99;" not in runner:
+        errors.append("Finalization must remain below 100% until backend result sync completes")
+
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
