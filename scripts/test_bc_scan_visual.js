@@ -96,6 +96,11 @@ rendered = show({...base,accessTier:"monitoring",canViewFullScores:true,
 assert.match(rendered,/67\/100/);
 assert.match(rendered,/Score-Verlauf/);
 
+// Re-render the Free view before checking its single diagnostics disclosure.
+rendered = show({...base,accessTier:"free-health",canViewFullScores:false,
+    insights:{tier:"free-health",score:40,checks:202,findings:72,
+              severity:{critical:0,high:17,medium:35,low:20,info:0},
+              risk_areas:[],impact_band:"Hoch",affected_records:8846,modules_analyzed:10}});
 const buttons = [];
 function traverse(e) {
     if(e.tagName === "button") buttons.push(e);
