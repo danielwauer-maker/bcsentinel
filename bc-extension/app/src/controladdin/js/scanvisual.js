@@ -247,12 +247,16 @@
         // Distinct quality spectrum over the earned arc; unearned area is
         // neutral grey rather than a misleading full green ring.
         var value = percent(score);
-        var first = Math.max(1, Math.round(value * .32));
-        var second = Math.max(first, Math.round(value * .7));
-        gauge.style.background = "conic-gradient(#cf3a3a 0 " + first +
-            "%, #ff921f " + first + "% " + second +
-            "%, #f6b900 " + second + "% " + value +
-            "%, #e5eaf0 " + value + "% 100%)";
+        if (value === 0) {
+            gauge.style.background = "#e5eaf0";
+        } else {
+            var first = Math.max(0, Math.round(value * .32));
+            var second = Math.max(first, Math.round(value * .7));
+            gauge.style.background = "conic-gradient(#cf3a3a 0 " + first +
+                "%, #ff921f " + first + "% " + second +
+                "%, #f6b900 " + second + "% " + value +
+                "%, #e5eaf0 " + value + "% 100%)";
+        }
         var inside = el("div", "bcs-v3-gauge-inner");
         inside.appendChild(el("strong", "", String(percent(score))));
         inside.appendChild(el("small", "", "von 100"));
