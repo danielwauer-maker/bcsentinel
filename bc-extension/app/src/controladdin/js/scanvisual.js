@@ -376,7 +376,7 @@
         // Deliberately no completion badge in the dark hero: the scan state is
         // displayed exactly once in the white metadata bar below.
         var heroContext = el("p", "bcs-v3-hero-context", t(lang,
-            "Kompakte Bewertung Ihrer Business-Central-Datenqualit\\u00e4t, identifizierter Risikobereiche und des modellierten Business Impacts.",
+            "Kompakte Bewertung Ihrer Business-Central-Datenqualit\u00e4t, identifizierter Risikobereiche und des modellierten Business Impacts.",
             "Concise overview of Business Central data quality, identified risks and modeled business impact."));
         header.appendChild(heroContext);
         header.appendChild(mountainArtwork());
