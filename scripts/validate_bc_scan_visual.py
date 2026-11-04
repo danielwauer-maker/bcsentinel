@@ -60,6 +60,35 @@ def main() -> None:
     check("Caption = 'Scan Details';" in PAGE, "Duplicate overview not condensed")
     check("Visible = ShowStatusDetails;" in PAGE, "Diagnostics should only show when data is present")
     check("RequestedHeight = 800;" in AL, "Add-in must show all ten scan modules")
+    # The graphical monitor must not send paid scores/findings to the browser
+    # when the authenticated backend does not grant this scan full disclosure.
+    for required in (
+        "ResolveVisualAccess();",
+        "TryGetVerifiedReportVariant(Rec.\\"Run ID\\")",
+        "ReportAccess.GetPreferredReportVariant(ScanId)",
+        "VisualAccessVariant := 'free-health';",
+        "Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));",
+        "if VisualAccessVariant in ['assessment', 'validation'] then",
+        "ModuleData.Add('score', Score);",
+        "Payload.Add('issues', Rec.\\"Issues Count\\");",
+        "Payload.Add('warning', GetDisplayWarningText());",
+        "Payload.Add('events', Format(Rec.\\"Recent Events\\"));",
+    ):
+        check(required.replace('\\\\"','"') in PAGE, "Monitor entitlement or diagnostic payload missing: " + required)
+    check("Visible = false; // The graphical add-in renders these details" in PAGE,
+          "Native scan overview should not duplicate graphical overview")
+    check("Visible = false; // Rendered in the add-in" in PAGE,
+          "Native diagnostics should not duplicate graphical diagnostics")
+    for required in ("data.canViewFullScores === true",
+                     'data.accessTier === "assessment"', 'data.accessTier === "validation"',
+                     "typeof data.issues ===", "data.events", 'bcs-v2-disclosure',
+                     'button.addEventListener("click"', "aria-expanded",
+                     'bcs-v2-brand', 'bcs-v2-hero'):
+        check(required in JS, "Control Add-in V2 gating/interaction missing: " + required)
+    for old in ("data.score +", "m.score +"):
+        check(old not in JS, "Full score bypasses disclosure check: " + old)
+    check(".bcs-v2-hero" in CSS and ".bcs-v2-disclosure" in CSS,
+          "Missing V2 branded scan layout styles")
     print("Embedded scan Control Add-in static contract: PASS")
     print("AL: Package and sandbox UI acceptance still required.")
 
