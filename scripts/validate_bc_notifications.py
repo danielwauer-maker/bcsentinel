@@ -144,6 +144,23 @@ def main() -> None:
             'DeepScanRun.Status := DeepScanRun.Status::Failed;',
             "ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed'")
 
+    # All per-tenant notification tables must resolve the singleton key explicitly.
+    # A blank Get() silently leaves Tenant ID empty and blocks scan finalization.
+    for name, source in (
+        ("Notification Rule", rule),
+        ("Notification Recipient", recipient),
+        ("Notification Setup", setup),
+    ):
+        require(source, "Get('SETUP')", 'TestField("Tenant ID")')
+        assert 'if Setup.Get() then\n            "Tenant ID" := Setup."Tenant ID";' not in source, (
+            f"{name}: blank-key core setup lookup reintroduced"
+        )
+    require(mgt,
+            'Rule.SetRange("Tenant ID", CoreSetup."Tenant ID");',
+            'Rule.SetRange("Company ID", CurrentCompanyId);',
+            'Rule."Tenant ID" := CoreSetup."Tenant ID";',
+            'Rule."Company ID" := CurrentCompanyId;')
+
     print("BC notification implementation contract: PASS")
 
 
