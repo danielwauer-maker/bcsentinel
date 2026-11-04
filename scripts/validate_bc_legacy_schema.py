@@ -175,6 +175,16 @@ def main() -> int:
             if history_field in block:
                 errors.append(f"Registration reset must preserve historical {history_field}")
 
+    # Free Entry is a UI state, while the backend 'none' access_model means no paid entitlement.
+    setup_source = (SRC / "tables" / "DHSetup.Table.al").read_text(encoding="utf-8-sig")
+    setup_page = (SRC / "pages" / "DHSetup.Page.al").read_text(encoding="utf-8-sig")
+    if "procedure GetProductAccessDisplayText()" not in setup_source:
+        errors.append("Missing display-only Free Entry product access mapping")
+    if "exit('Free');" not in setup_source:
+        errors.append("Registered Free Entry users must display Free")
+    if 'field(ProductAccessModel; Rec.GetProductAccessDisplayText())' not in setup_page:
+        errors.append("Setup page must use display-only access mapping instead of raw backend model")
+
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
