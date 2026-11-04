@@ -59,7 +59,7 @@ def main() -> None:
     check("procedure GetPreferredReportVariant(ScanId: Code[50])" in REPORT_ACCESS, "Backend preferred-report lookup missing")
     check("Caption = 'Scan Details';" in PAGE, "Duplicate overview not condensed")
     check("Visible = false; // Rendered in the add-in to avoid duplicate technical fields." in PAGE, "Native diagnostics must not duplicate V2")
-    check("RequestedHeight = 800;" in AL, "Add-in must show all ten scan modules")
+    check("RequestedHeight = 560;" in AL, "Add-in must fit within BC host viewport")
     # Never send paid scan results to the browser for unverified Free/Quick access.
     for expected in (
         "ResolveVisualAccess();",
@@ -88,6 +88,20 @@ def main() -> None:
     check("Visible = false; // Rendered in the add-in" in PAGE,
           "Native diagnostics must not duplicate the add-in")
     check(".bcs-v2-hero" in CSS and ".bcs-v2-disclosure" in CSS, "Missing V2 styles")
+    check("meta.appendChild(metaItem(" in JS and "statusLabels[status] || status" in JS,
+          "Scan status must remain in the metadata strip")
+    check('header.appendChild(mountainArtwork());' in JS,
+          "Mountain vector art must appear in the blue scan header")
+    check('header.appendChild(state)' not in JS,
+          "Do not display duplicate status in the blue scan header")
+    check('root.appendChild(freeDashboard(data, insights, lang));' in JS,
+          "Free report must use the authorized Free dashboard view")
+    check('CompanyName()' in PAGE and "EnvironmentInfo.IsSandbox()" in PAGE,
+          "Company and environment metadata must originate from BC, not placeholders")
+    check("bcs-v3-severity-bar" in JS and "bcs-v3-upsell" in JS,
+          "Free scope severity and locked analysis previews must be drawn")
+    check("#controlAddIn { height: 100%; max-height: 100%; overflow-x: hidden; overflow-y: auto;" in CSS,
+          "Embedded free report must remain independently scrollable")
     check("#controlAddIn { height: 100%; max-height: 100%; overflow-x: hidden; overflow-y: auto;" in CSS,
           "Control Add-in must scroll internally when long")
     check("Payload.Add('insights', VisualInsights);" in PAGE, "Missing server-vetted report data")
