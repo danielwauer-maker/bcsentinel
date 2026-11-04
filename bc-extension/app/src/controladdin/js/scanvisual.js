@@ -102,7 +102,7 @@
         labels.appendChild(el("strong", "", title));
         labels.appendChild(el("small", "", hint));
         button.appendChild(labels);
-        button.appendChild(el("span", "bcs-v2-chevron", panelState[id] ? "\\u2303" : "\\u2304"));
+        button.appendChild(el("span", "bcs-v2-chevron", panelState[id] ? "\u2303" : "\u2304"));
         var detail = el("div", "bcs-v2-disclosure-body");
         detail.hidden = !panelState[id];
         detail.appendChild(contents);
@@ -110,7 +110,7 @@
             panelState[id] = !panelState[id];
             button.setAttribute("aria-expanded", panelState[id] ? "true" : "false");
             detail.hidden = !panelState[id];
-            button.lastChild.textContent = panelState[id] ? "\\u2303" : "\\u2304";
+            button.lastChild.textContent = panelState[id] ? "\u2303" : "\u2304";
         });
         section.appendChild(button);
         section.appendChild(detail);
@@ -119,7 +119,7 @@
     function detailField(caption, value) {
         var field = el("div", "bcs-v2-detail-field");
         field.appendChild(el("small", "", caption));
-        field.appendChild(el("strong", "", value || "\\u2014"));
+        field.appendChild(el("strong", "", value || "\u2014"));
         return field;
     }
     function render() {
@@ -129,7 +129,7 @@
         var lang = String(data.language || "en").toLowerCase() === "de" ? "de" : "en";
         var status = String(data.status || "queued").toLowerCase();
         if (!data.runId) {
-            root.appendChild(el("div", "bcs-v2-empty", t(lang, "Kein Scan ausgew\\u00e4hlt", "No scan selected")));
+            root.appendChild(el("div", "bcs-v2-empty", t(lang, "Kein Scan ausgew\u00e4hlt", "No scan selected")));
             return;
         }
         var completed = status === "completed";
@@ -139,7 +139,7 @@
             (tier === "assessment" || tier === "validation" || tier === "monitoring");
         var statusLabels = {
             completed: t(lang, "Abgeschlossen", "Completed"),
-            running: t(lang, "Wird ausgef\\u00fchrt", "Running"),
+            running: t(lang, "Wird ausgef\u00fchrt", "Running"),
             failed: t(lang, "Fehlgeschlagen", "Failed"),
             queued: t(lang, "In Warteschlange", "Queued"),
             canceled: t(lang, "Abgebrochen", "Canceled")
@@ -149,7 +149,7 @@
         brand.appendChild(identityIcon());
         var name = el("div", "bcs-v2-brand-copy");
         name.appendChild(el("div", "bcs-v2-wordmark", "BCSentinel"));
-        name.appendChild(el("div", "bcs-v2-claim", "Clean Data \\u2013 Higher Impact"));
+        name.appendChild(el("div", "bcs-v2-claim", "Clean Data \u2013 Higher Impact"));
         brand.appendChild(name);
         header.appendChild(brand);
         var descriptor = el("div", "bcs-v2-heading");
@@ -199,7 +199,7 @@
         progressPanel.appendChild(el("p", "bcs-v2-subtitle", t(lang, "Technischer Scanfortschritt je Modul", "Technical scan progress per module")));
         var scorePanel = el("section", "bcs-v2-card bcs-v2-panel");
         scorePanel.appendChild(el("h3", "", t(lang, "Modul-Scores", "Module scores")));
-        scorePanel.appendChild(el("p", "bcs-v2-subtitle", t(lang, "Datenqualit\\u00e4t je Modul (0\\u2013100 Punkte)", "Data quality by module (0\\u2013100)")));
+        scorePanel.appendChild(el("p", "bcs-v2-subtitle", t(lang, "Datenqualit\u00e4t je Modul (0\u2013100 Punkte)", "Data quality by module (0\u2013100)")));
         modules.forEach(function (module) {
             progressPanel.appendChild(moduleItem(String(module.name || ""), module.progress, "progress"));
             if (paid && completed && Object.prototype.hasOwnProperty.call(module, "score"))
@@ -215,7 +215,7 @@
                       "Full module scores are available with Full Assessment, Validation or Monitoring.")));
             scorePanel.appendChild(gate);
         } else if (!completed) {
-            scorePanel.appendChild(el("p", "bcs-v2-locked", t(lang, "Modul-Scores nach Scanabschluss verf\\u00fcgbar.", "Module scores available after scan completion.")));
+            scorePanel.appendChild(el("p", "bcs-v2-locked", t(lang, "Modul-Scores nach Scanabschluss verf\u00fcgbar.", "Module scores available after scan completion.")));
         }
         columns.appendChild(progressPanel);
         columns.appendChild(scorePanel);
