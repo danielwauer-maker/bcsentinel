@@ -152,6 +152,29 @@ def main() -> int:
     if 'tabledata "DH Scan Check Selection" = R' not in permissions:
         errors.append("Legacy table 53194 needs data read permissions")
 
+    # A reset must invalidate cached entitlements without deleting scan history.
+    setup_source = (SRC / "tables" / "DHSetup.Table.al").read_text(encoding="utf-8-sig")
+    page_source = (SRC / "pages" / "DHSetup.Page.al").read_text(encoding="utf-8-sig")
+    reset_proc = page_source.split("local procedure ResetLocalRegistrationState()", 1)
+    if len(reset_proc) < 2:
+        errors.append("Missing local registration reset action")
+    elif "Rec.ClearCachedProductAccess();" not in reset_proc[1].split("local procedure", 1)[0]:
+        errors.append("Registration reset does not clear cached product access")
+    clear_proc = setup_source.split("procedure ClearCachedProductAccess()", 1)
+    if len(clear_proc) < 2:
+        errors.append("Missing cached access reset procedure")
+    else:
+        block = clear_proc[1].split("    procedure", 1)[0]
+        for name in ('"Product Access Model"', '"Monitoring Active"', '"Scan Credits Available"',
+                     '"Dashboard Access Until"', '"Issue Access Until"', '"Can Run Deep Scan"',
+                     '"Can View Dashboard"', '"Can View Issue Details"', '"Premium Enabled"',
+                     '"Last License Check"'):
+            if name not in block:
+                errors.append(f"Cached access reset does not invalidate {name}")
+        for history_field in ('"Last Score"', '"Last Scan Date"'):
+            if history_field in block:
+                errors.append(f"Registration reset must preserve historical {history_field}")
+
     if errors:
         print("BC legacy schema compatibility baseline: FAIL")
         for e in errors:
