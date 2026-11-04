@@ -133,6 +133,17 @@ def main() -> None:
     reserve_at = deep_scan.index('ApiClient.StartDeepScan(')
     assert preflight_at < reserve_at, "Notification configuration must be initialized before a scan credit is reserved"
 
+    failure_handler = text("codeunits/DHDeepScanFailure.Codeunit.al")
+    require(deep_scan,
+            'if not DeepScanRunner.Run(DeepScanRun) then begin',
+            'FailureDetails := GetLastErrorText();',
+            'DeepScanFailure.FailRun(DeepScanRun, FailureDetails);',
+            'Commit();')
+    require(failure_handler,
+            'procedure FailRun(var DeepScanRun: Record "DH Deep Scan Run"; FailureDetails: Text)',
+            'DeepScanRun.Status := DeepScanRun.Status::Failed;',
+            "ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed'")
+
     print("BC notification implementation contract: PASS")
 
 
