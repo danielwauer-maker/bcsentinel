@@ -16,6 +16,17 @@
     {
         area(Content)
         {
+            usercontrol(ScanVisual; "BCSentinel Scan Visual")
+            {
+                ApplicationArea = All;
+
+                trigger ControlReady()
+                begin
+                    ScanVisualReady := true;
+                    PushScanVisual();
+                end;
+            }
+
             group(Overview)
             {
                 Caption = 'Overview';
@@ -41,6 +52,7 @@
                 }
                 field(OverallBar; OverallBarTxt)
                 {
+                    Visible = false; // Superseded by accessible Control Add-in progress.
                     ApplicationArea = All;
                     Caption = 'Overall Progress';
                     ToolTip = 'Specifies Overall Progress.';
@@ -175,6 +187,7 @@
             group(ModuleProgress)
             {
                 Caption = 'Module Progress';
+                Visible = false; // Replaced by graphical module progress bars.
 
                 field(SystemProgress; SystemProgressTxt)
                 {
@@ -261,6 +274,7 @@
             group(ModuleScores)
             {
                 Caption = 'Module Scores';
+                Visible = false; // Replaced by graphical module score bars.
 
                 field("System Score"; SystemScoreValue)
                 {
@@ -490,9 +504,11 @@
     trigger OnAfterGetCurrRecord()
     begin
         ReloadDisplayValuesFromRec();
+        PushScanVisual();
     end;
 
     var
+        ScanVisualReady: Boolean;
         BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;
@@ -627,7 +643,69 @@
                 Rec."Current Step" := 'Waiting for backend status';
             ReloadDisplayValuesFromRec();
             LoadDashboardValues();
+            PushScanVisual();
         end;
+    end;
+
+    local procedure PushScanVisual()
+    var
+        Payload: JsonObject;
+        Modules: JsonArray;
+        Setup: Record "DH Setup";
+    begin
+        if not ScanVisualReady then
+            exit;
+
+        Payload.Add('runId', Format(Rec."Run ID"));
+        Payload.Add('status', LowerCase(Format(Rec.Status)));
+        Payload.Add('progress', GetDisplayProgressPercent());
+        Payload.Add('score', Rec."Deep Score");
+        Payload.Add('checks', Rec."Checks Count");
+        Payload.Add('issues', Rec."Issues Count");
+        Payload.Add('currentModule', GetCurrentModuleText());
+        Payload.Add('currentStep', GetCurrentStepText());
+
+        if Setup.Get('SETUP') then
+            if UpperCase(Setup."Preferred Report Language") = 'DE' then
+                Payload.Add('language', 'de')
+            else
+                Payload.Add('language', 'en')
+        else
+            Payload.Add('language', 'en');
+
+        if ShowSystem then
+            AddVisualModule(Modules, 'System', Rec."System Progress %", Rec."System Score");
+        if ShowFinance then
+            AddVisualModule(Modules, 'Finance', Rec."Finance Progress %", Rec."Finance Score");
+        if ShowSales then
+            AddVisualModule(Modules, 'Sales', Rec."Sales Progress %", Rec."Sales Score");
+        if ShowPurchasing then
+            AddVisualModule(Modules, 'Purchasing', Rec."Purchasing Progress %", Rec."Purchasing Score");
+        if ShowInventory then
+            AddVisualModule(Modules, 'Inventory', Rec."Inventory Progress %", Rec."Inventory Score");
+        if ShowCRM then
+            AddVisualModule(Modules, 'CRM', Rec."CRM Progress %", Rec."CRM Score");
+        if ShowManufacturing then
+            AddVisualModule(Modules, 'Manufacturing', Rec."Manufacturing Progress %", Rec."Manufacturing Score");
+        if ShowService then
+            AddVisualModule(Modules, 'Service', Rec."Service Progress %", Rec."Service Score");
+        if ShowJobs then
+            AddVisualModule(Modules, 'Jobs', Rec."Jobs Progress %", Rec."Jobs Score");
+        if ShowHR then
+            AddVisualModule(Modules, 'HR', Rec."HR Progress %", Rec."HR Score");
+
+        Payload.Add('modules', Modules);
+        CurrPage.ScanVisual.SetScanData(Format(Payload));
+    end;
+
+    local procedure AddVisualModule(var Modules: JsonArray; ModuleName: Text; Progress: Integer; Score: Integer)
+    var
+        ModuleData: JsonObject;
+    begin
+        ModuleData.Add('name', ModuleName);
+        ModuleData.Add('progress', Progress);
+        ModuleData.Add('score', Score);
+        Modules.Add(ModuleData);
     end;
 
     local procedure ReloadDisplayValuesFromRec()
