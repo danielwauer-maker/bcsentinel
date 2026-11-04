@@ -167,21 +167,21 @@
         var score = scoreAvailable ? percent(insights.score) : null;
         var scope = tier === "free-health" || tier === "quick-assessment";
         var scoreHint = scoreAvailable ? (scope ?
-            t(lang, "Vorlaeufiger Scope-Score", "Preliminary scope score") :
+            t(lang, "Vorl\u00e4ufiger Scope-Score", "Preliminary scope score") :
             (score < 60 ? t(lang, "Kritisch", "Critical") : score < 80 ?
-             t(lang, "Erhoeht", "Elevated") : t(lang, "Gut", "Good"))) :
-            t(lang, "Vorschau nicht verfuegbar", "Preview unavailable");
+             t(lang, "Erh\u00f6ht", "Elevated") : t(lang, "Gut", "Good"))) :
+            t(lang, "Vorschau nicht verf\u00fcgbar", "Preview unavailable");
         kpis.appendChild(metric("Data Health Score", scoreAvailable ? score + "/100" : "-",
             scoreHint, scoreAvailable && score < 60 ? "critical" : "restricted", "01"));
         var checks = insights && typeof insights.checks === "number" ? insights.checks : data.checks;
         var modules = Array.isArray(data.modules) ? data.modules : [];
-        kpis.appendChild(metric(t(lang, "Pruefungen", "Checks"),
+        kpis.appendChild(metric(t(lang, "Pr\u00fcfungen", "Checks"),
             count(checks, lang), modules.length + " " + t(lang, "Module", "modules"), "checks", "02"));
         var findings = completed && insights && typeof insights.findings === "number"
             ? count(insights.findings, lang) : "-";
-        kpis.appendChild(metric(t(lang, "Auffaelligkeiten", "Findings"), findings,
+        kpis.appendChild(metric(t(lang, "Auff\u00e4lligkeiten", "Findings"), findings,
             scope ? t(lang, "Im erkannten Standard-Scope", "Within the detected standard scope") :
-            t(lang, "Findings, nicht Datensaetze", "Findings, not affected records"), "issues", "03"));
+            t(lang, "Findings, nicht Datens\u00e4tze", "Findings, not affected records"), "issues", "03"));
         root.appendChild(kpis);
 
         var overview = el("section", "bcs-v2-card bcs-v2-overall");
@@ -209,9 +209,9 @@
             var gate = el("div", "bcs-v2-locked");
             gate.appendChild(el("strong", "", t(lang, "Detaillierte Modul-Scores", "Detailed module scores")));
             gate.appendChild(el("p", "", tier === "unavailable" ?
-                t(lang, "Die Berechtigungspruefung ist derzeit nicht verfuegbar. Ihr Scanfortschritt bleibt sichtbar.",
+                t(lang, "Die Berechtigungspr\u00fcfung ist derzeit nicht verf\u00fcgbar. Ihr Scanfortschritt bleibt sichtbar.",
                       "Entitlement check unavailable. Your scan progress remains visible.") :
-                t(lang, "Volle Modul-Scores sind im Full Assessment, Validation oder Monitoring verfuegbar.",
+                t(lang, "Volle Modul-Scores sind im Full Assessment, Validation oder Monitoring verf\u00fcgbar.",
                       "Full module scores are available with Full Assessment, Validation or Monitoring.")));
             scorePanel.appendChild(gate);
         } else if (!completed) {
@@ -237,17 +237,17 @@
                 insightKpis.appendChild(stat);
             }
             if (typeof insights.affected_records === "number")
-                smallStat(t(lang, "Betroffene Datensaetze", "Affected records"), count(insights.affected_records, lang));
+                smallStat(t(lang, "Betroffene Datens\u00e4tze", "Affected records"), count(insights.affected_records, lang));
             if (insights.impact_band) smallStat("Business Impact Band", insights.impact_band);
             if (typeof insights.score_delta === "number")
-                smallStat(t(lang, "Score-Aenderung", "Score change"), (insights.score_delta > 0 ? "+" : "") + insights.score_delta);
+                smallStat(t(lang, "Score-\u00c4nderung", "Score change"), (insights.score_delta > 0 ? "+" : "") + insights.score_delta);
             if (typeof insights.resolved === "number") smallStat(t(lang, "Behoben", "Resolved"), insights.resolved);
             if (typeof insights.new === "number") smallStat(t(lang, "Neu", "New"), insights.new);
             if (typeof insights.impact_eur === "number" && paid)
                 smallStat(t(lang, "Modellierter Impact", "Modeled impact"),
                     insights.impact_eur.toLocaleString(lang === "de" ? "de-DE" : "en-US", {style:"currency",currency:"EUR"}));
             if (typeof insights.impact_delta_eur === "number" && paid)
-                smallStat(t(lang, "Impact-Aenderung", "Impact change"),
+                smallStat(t(lang, "Impact-\u00c4nderung", "Impact change"),
                     insights.impact_delta_eur.toLocaleString(lang === "de" ? "de-DE" : "en-US", {style:"currency",currency:"EUR"}));
             if (insightKpis.children.length) insightPanel.appendChild(insightKpis);
             var riskAreas = Array.isArray(insights.risk_areas) ? insights.risk_areas : [];
@@ -257,7 +257,7 @@
                 riskAreas.slice(0, 10).forEach(function (area) {
                     var areaRow = el("div", "bcs-v2-area");
                     areaRow.appendChild(el("strong", "", area.name));
-                    areaRow.appendChild(el("span", "", String(area.findings || 0) + " " + t(lang, "Auffaelligkeiten", "findings")));
+                    areaRow.appendChild(el("span", "", String(area.findings || 0) + " " + t(lang, "Auff\u00e4lligkeiten", "findings")));
                     areas.appendChild(areaRow);
                 });
                 insightPanel.appendChild(areas);
