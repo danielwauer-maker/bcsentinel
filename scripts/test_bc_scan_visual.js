@@ -57,13 +57,13 @@ let rendered = show({...base, accessTier:"free-health",canViewFullScores:false,
               risk_areas:[{name:"Inventory",findings:25,severity:"high",affected_records:3200}]}});
 assert.match(rendered,/BCSentinel/);
 assert.match(rendered,/202/);
-assert.match(rendered,/Pr\u00fcfungen/);
+assert.match(rendered,/durchgef\u00fchrt/);
 assert.match(rendered,/Schweregrad-Verteilung der Findings/);
 assert.match(rendered,/Weitere Analysedetails im Assessment/);
 assert.match(rendered,/CRONUS DE/);
 assert.match(rendered,/Sandbox/);
 assert.match(rendered,/Abgeschlossen/);
-assert.match(rendered,/40\/100/);
+assert.match(rendered,/40von 100/);
 assert.match(rendered,/72/);
 assert.match(rendered,/Inventory/);
 assert.doesNotMatch(rendered,/47\/100/);
