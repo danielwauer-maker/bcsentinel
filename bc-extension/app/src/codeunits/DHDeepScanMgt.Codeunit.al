@@ -5,6 +5,7 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
         ApiClient: Codeunit "DH API Client";
+        NotificationMgt: Codeunit "DH Notification Mgt.";
         TaskId: Guid;
         EntryNo: Integer;
         TotalModules: Integer;
@@ -14,6 +15,10 @@ codeunit 53124 "DH Deep Scan Mgt."
         TotalModules := Setup.GetEnabledDeepScanModuleCount();
         if TotalModules <= 0 then
             Error('Please enable at least one scan module on the BCSentinel setup page.');
+
+        // Validate notification configuration before reserving the scan on the backend.
+        // Once /scan/start succeeds, the Free Entry credit is consumed.
+        NotificationMgt.EnsureSetupAndDefaults();
 
         EntryNo := GetNextRunEntryNo();
 
