@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ~/.ssh
-          printf '%s\\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
           ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" bash -s <<'REMOTE'
