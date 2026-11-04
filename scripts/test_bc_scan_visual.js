@@ -48,16 +48,21 @@ const modules = [
 const base = {
     runId:"RUN_TEST_001",status:"completed",progress:100,
     checks:202,score:47,issues:95,
-    language:"de",currentModule:"All modules completed",
+    language:"de",companyName:"CRONUS DE",environmentName:"Sandbox",startedAt:"04.11.2026 11:37",currentModule:"All modules completed",
     currentStep:"Scan completed",modules,events:"Scan started | Scan completed"
 };
 let rendered = show({...base, accessTier:"free-health",canViewFullScores:false,
     insights:{tier:"free-health",score:40,checks:202,findings:72,affected_records:1250,
-              impact_band:"Hoch",risk_areas:[{name:"Inventory",findings:25}]}});
+              impact_band:"Hoch",modules_analyzed:10,severity:{critical:0,high:17,medium:35,low:20,info:0},
+              risk_areas:[{name:"Inventory",findings:25,severity:"high",affected_records:3200}]}});
 assert.match(rendered,/BCSentinel/);
 assert.match(rendered,/202/);
 assert.match(rendered,/Pr\u00fcfungen/);
-assert.match(rendered,/Detaillierte Modul-Scores/);
+assert.match(rendered,/Schweregrad-Verteilung der Findings/);
+assert.match(rendered,/Weitere Analysedetails im Assessment/);
+assert.match(rendered,/CRONUS DE/);
+assert.match(rendered,/Sandbox/);
+assert.match(rendered,/Abgeschlossen/);
 assert.match(rendered,/40\/100/);
 assert.match(rendered,/72/);
 assert.match(rendered,/Inventory/);
@@ -97,10 +102,10 @@ function traverse(e) {
     e.children.forEach(traverse);
 }
 traverse(host);
-assert.equal(buttons.length, 2, "Two accessible disclosure buttons are present");
+assert.equal(buttons.length, 1, "Free dashboard retains only the diagnostics disclosure");
 buttons[0].handlers.click();
 assert.equal(buttons[0].attributes["aria-expanded"], "true");
-assert.match(host.textContent,/Startzeit/);
+assert.match(host.textContent,/Scan started/);
 
 rendered = show({...base,accessTier:"free-health",canViewFullScores:true,
     insights:{tier:"free-health",score:40,findings:72}});
