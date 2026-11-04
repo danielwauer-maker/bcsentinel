@@ -4,10 +4,15 @@ codeunit 53129 "DH Deep Scan Failure"
 
     trigger OnRun()
     begin
-        MarkRunAsFailed(Rec);
+        MarkRunAsFailed(Rec, GetLastErrorText());
     end;
 
-    local procedure MarkRunAsFailed(var DeepScanRun: Record "DH Deep Scan Run")
+    procedure FailRun(var DeepScanRun: Record "DH Deep Scan Run"; FailureDetails: Text)
+    begin
+        MarkRunAsFailed(DeepScanRun, FailureDetails);
+    end;
+
+    local procedure MarkRunAsFailed(var DeepScanRun: Record "DH Deep Scan Run"; FailureDetails: Text)
     begin
         if not DeepScanRun.Get(DeepScanRun."Entry No.") then
             exit;
@@ -15,7 +20,9 @@ codeunit 53129 "DH Deep Scan Failure"
         DeepScanRun.Status := DeepScanRun.Status::Failed;
         DeepScanRun."Finished At" := CurrentDateTime();
         DeepScanRun."Headline" := 'Deep scan failed';
-        DeepScanRun."Error Message" := CopyStr(GetLastErrorText(), 1, MaxStrLen(DeepScanRun."Error Message"));
+        if FailureDetails = '' then
+            FailureDetails := 'Scan processing failed. See Business Central telemetry for details.';
+        DeepScanRun."Error Message" := CopyStr(FailureDetails, 1, MaxStrLen(DeepScanRun."Error Message"));
         DeepScanRun."Current Step" := 'Scan failed';
         DeepScanRun."Last Heartbeat" := CurrentDateTime();
         DeepScanRun.Modify(true);
