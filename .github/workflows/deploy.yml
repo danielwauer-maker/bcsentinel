@@ -119,21 +119,21 @@ jobs:
             COMPOSE="docker compose -f docker-compose.dev.yml --env-file .env.dev"
 
             # Database must be available before migrations run.
-            $COMPOSE up -d postgres
+            $COMPOSE up -d postgres </dev/null
 
             # Build the release images first. Migration commands must never run
             # from a stale backend image that predates the checked-out ref.
-            $COMPOSE build
+            $COMPOSE build </dev/null
 
             # Run migrations with the freshly built backend image.
-            $COMPOSE run -T --rm backend alembic upgrade head
+            $COMPOSE run --interactive=false -T --rm backend alembic upgrade head </dev/null
 
             # Recreate running services so the checked-out release is actually
             # what serves traffic, even when an older container is still healthy.
-            $COMPOSE up -d --force-recreate
+            $COMPOSE up -d --force-recreate </dev/null
 
             echo "=== Deployed backend container ==="
-            $COMPOSE ps backend
+            $COMPOSE ps backend </dev/null
             echo "=== Verify new lifecycle route is actually served ==="
             python3 - <<'PY'
           import json
@@ -224,10 +224,10 @@ jobs:
 
             COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 
-            $COMPOSE up -d postgres
-            $COMPOSE build
-            $COMPOSE run -T --rm backend alembic upgrade head
-            $COMPOSE up -d --force-recreate
+            $COMPOSE up -d postgres </dev/null
+            $COMPOSE build </dev/null
+            $COMPOSE run --interactive=false -T --rm backend alembic upgrade head </dev/null
+            $COMPOSE up -d --force-recreate </dev/null
           EOF
       - name: PROD smoke
         run: |
