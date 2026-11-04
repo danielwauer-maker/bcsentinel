@@ -4,7 +4,7 @@ pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor
     {
         modify(Headline)
         {
-            Visible = ShowPremiumDetails;
+            Visible = false; // Unified scan headline is rendered by the V2 Control Add-in.
         }
     }
 
