@@ -30,6 +30,11 @@ from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
 from app.routers.license import router as license_router
+from app.routers.lifecycle import (
+    router as lifecycle_router,
+    start_lifecycle_worker,
+    stop_lifecycle_worker,
+)
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
@@ -120,7 +125,11 @@ async def lifespan(app: FastAPI):
         ensure_default_impact_config(db)
         ensure_default_email_templates(db)
 
-    yield
+    await start_lifecycle_worker()
+    try:
+        yield
+    finally:
+        await stop_lifecycle_worker()
     log_event(logger, logging.INFO, "app_shutdown", "Application shutdown completed.", environment=settings.ENV)
 
 
@@ -148,6 +157,7 @@ app.include_router(public_router)
 app.include_router(reports_router)
 app.include_router(scans_router)
 app.include_router(license_router)
+app.include_router(lifecycle_router)
 
 
 @app.middleware("http")
