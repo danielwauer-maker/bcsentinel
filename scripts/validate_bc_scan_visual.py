@@ -56,7 +56,7 @@ def main() -> None:
         check(obsolete not in REPORT_ACTIONS, f"Report tier exposed in BC action menu: {obsolete}")
     check("action(OpenBestAvailableReport)" in REPORT_ACTIONS, "Missing authorized report action")
     check("action(OpenBestAvailablePdf)" in REPORT_ACTIONS, "Missing authorized PDF action")
-    check("GetPreferredReportVariant(ScanId)" in REPORT_ACCESS, "Backend preferred-report lookup missing")
+    check("procedure GetPreferredReportVariant(ScanId: Code[50])" in REPORT_ACCESS, "Backend preferred-report lookup missing")
     check("Caption = 'Scan Details';" in PAGE, "Duplicate overview not condensed")
     check("Visible = ShowStatusDetails;" in PAGE, "Diagnostics should only show when data is present")
     check("RequestedHeight = 800;" in AL, "Add-in must show all ten scan modules")
