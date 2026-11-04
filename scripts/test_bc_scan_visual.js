@@ -63,6 +63,26 @@ assert.match(rendered,/Weitere Analysedetails im Assessment/);
 assert.match(rendered,/CRONUS DE/);
 assert.match(rendered,/Sandbox/);
 assert.match(rendered,/Abgeschlossen/);
+// Visual-polish contract: no placeholder typography icons or shallow landscapes.
+const root = host.children[0];
+function flattenElements(element, accum) {
+    accum.push(element);
+    (element.children || []).forEach(function (child) { flattenElements(child, accum); });
+    return accum;
+}
+const allVisualNodes = flattenElements(root, []);
+const svgIcons = allVisualNodes.filter(function (node) {
+    return node.tagName === "svg" && (node.attributes["class"] || "").includes("bcs-v3-");
+});
+assert.ok(svgIcons.length >= 12, "Free dashboard uses SVG for metadata, scope, and headings");
+const alpine = allVisualNodes.find(function (node) {
+    return node.tagName === "svg" && node.attributes["class"] === "bcs-v3-mountains";
+});
+assert.ok(alpine, "Detailed mountain artwork exists");
+assert.ok(alpine.children.length > 100, "Alpine SVG has multiple mountain and forest layers");
+assert.ok(!allVisualNodes.some(function (node) {
+    return node.tagName === "span" && ["▥","◈","▦","▤","◉","⌕","⚠","🔒"].includes(node._text);
+}), "Placeholder symbol spans and emoji are removed");
 // Status belongs only in the white metadata strip, not in the mountain hero.
 const visualRoot = host.children[0];
 const brandHero = visualRoot.children.find(e => e.className === "bcs-v2-hero");
