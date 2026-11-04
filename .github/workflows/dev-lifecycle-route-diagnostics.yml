@@ -1,0 +1,54 @@
+name: DEV Lifecycle Route Diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dev-lifecycle-route-diagnostics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-dev-lifecycle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check public route availability without tenant credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://dev-api.bcsentinel.com"
+          echo "=== Health ==="
+          curl -fsS --max-time 15 "$base/health/ready"
+          echo
+          echo "=== Public OpenAPI route registry ==="
+          curl -fsS --max-time 20 "$base/openapi.json" -o /tmp/dev-openapi.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/dev-openapi.json') as f:
+              spec = json.load(f)
+          path = '/tenant/lifecycle-profile'
+          methods = list(spec.get('paths', {}).get(path, {}))
+          print(f'Lifecycle route advertised: {path in spec.get("paths", {})}')
+          print(f'Lifecycle methods: {methods}')
+          print(f'OpenAPI paths count: {len(spec.get("paths", {}))}')
+          PY
+          echo "=== Unauthenticated PUT should return 401, not 404 ==="
+          status=$(curl -sS --max-time 20 -X PUT "$base/tenant/lifecycle-profile" \
+            -H 'Content-Type: application/json' \
+            --data '{"primary_notification_email":"probe@example.invalid","preferred_language":"de"}' \
+            -o /tmp/lifecycle-reply.json -w '%{http_code}')
+          echo "Unauthenticated PUT status: $status"
+          python3 - <<'PY'
+          import json
+          try:
+              with open('/tmp/lifecycle-reply.json') as f: data = json.load(f)
+              print('Response detail:', str(data.get('detail', '<none>'))[:300])
+          except Exception:
+              print('Response not JSON')
+          PY
+          if [[ "$status" != "401" ]]; then
+            echo "::error::Expected 401 from the mounted authenticated endpoint, got $status"
+            exit 1
+          fi
