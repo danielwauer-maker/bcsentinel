@@ -75,7 +75,7 @@ def main() -> None:
         "data.canViewFullScores === true",
         'tier === "assessment"',
         'tier === "validation"',
-        "typeof data.issues ===",
+        "typeof insights.findings ===",
         "data.events",
         "bcs-v2-disclosure",
         'button.addEventListener("click"',
