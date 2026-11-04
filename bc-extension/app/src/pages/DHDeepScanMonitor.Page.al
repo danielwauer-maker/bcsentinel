@@ -30,6 +30,7 @@
             group(Overview)
             {
                 Caption = 'Scan Details';
+                Visible = false; // The graphical add-in renders these details in an accessible disclosure.
 
                 field(ScanStatus; ScanStatusTxt)
                 {
@@ -103,7 +104,7 @@
             group(StatusDetails)
             {
                 Caption = 'Events & Diagnostics';
-                Visible = ShowStatusDetails;
+                Visible = false; // Rendered in the add-in to avoid duplicate technical fields.
 
                 field(WarningMessage; WarningMessageTxt)
                 {
@@ -392,6 +393,7 @@
 
                 trigger OnAction()
                 begin
+                    VisualAccessChecked := false;
                     ReloadMonitor();
                     CurrPage.Update(false);
                 end;
@@ -520,6 +522,9 @@
 
     var
         ScanVisualReady: Boolean;
+        VisualAccessRunId: Code[50];
+        VisualAccessVariant: Text[30];
+        VisualAccessChecked: Boolean;
         ShowEstimatedRemaining: Boolean;
         ShowFinishedAt: Boolean;
         ShowWarningDetail: Boolean;
@@ -664,6 +669,29 @@
         end;
     end;
 
+    local procedure ResolveVisualAccess()
+    begin
+        if VisualAccessChecked and (VisualAccessRunId = Rec."Run ID") then
+            exit;
+        VisualAccessRunId := Rec."Run ID";
+        VisualAccessChecked := true;
+        // Fail closed. Never derive disclosure permission from a local subscription
+        // label, an expired BC license snapshot, or data already in the scan table.
+        VisualAccessVariant := 'free-health';
+        if Rec."Run ID" = '' then
+            exit;
+        if not TryGetVerifiedReportVariant(Rec."Run ID") then
+            VisualAccessVariant := 'free-health';
+    end;
+
+    [TryFunction]
+    local procedure TryGetVerifiedReportVariant(ScanId: Code[50])
+    var
+        ReportAccess: Codeunit "DH Report Access Client";
+    begin
+        VisualAccessVariant := CopyStr(ReportAccess.GetPreferredReportVariant(ScanId), 1, MaxStrLen(VisualAccessVariant));
+    end;
+
     local procedure PushScanVisual()
     var
         Payload: JsonObject;
@@ -674,14 +702,29 @@
         if not ScanVisualReady then
             exit;
 
+        ResolveVisualAccess();
         Payload.Add('runId', Format(Rec."Run ID"));
         Payload.Add('status', LowerCase(Format(Rec.Status)));
         Payload.Add('progress', GetDisplayProgressPercent());
-        Payload.Add('score', Rec."Deep Score");
+        // Full-score and module-level scores are disclosed only when the
+        // backend has verified the current scan's full report entitlement.
+        // A Free/Quick user must never receive full details in the JS payload.
+        Payload.Add('canViewFullScores', (VisualAccessVariant in ['assessment', 'validation']));
+        Payload.Add('accessTier', VisualAccessVariant);
+        if VisualAccessVariant in ['assessment', 'validation'] then
+            Payload.Add('score', Rec."Deep Score");
         Payload.Add('checks', Rec."Checks Count");
-        Payload.Add('issues', Rec."Issues Count");
+        if VisualAccessVariant in ['assessment', 'validation'] then
+            Payload.Add('issues', Rec."Issues Count");
         Payload.Add('currentModule', GetCurrentModuleText());
         Payload.Add('currentStep', GetCurrentStepText());
+        Payload.Add('startedAt', Format(Rec."Started At"));
+        Payload.Add('finishedAt', Format(Rec."Finished At"));
+        Payload.Add('lastHeartbeat', Format(Rec."Last Heartbeat"));
+        Payload.Add('eta', GetEtaText());
+        Payload.Add('warning', GetDisplayWarningText());
+        Payload.Add('error', GetDisplayErrorText());
+        Payload.Add('events', Format(Rec."Recent Events"));
 
         if Setup.Get('SETUP') then
             if UpperCase(Setup."Preferred Report Language") = 'DE' then
@@ -723,7 +766,8 @@
     begin
         ModuleData.Add('name', ModuleName);
         ModuleData.Add('progress', Progress);
-        ModuleData.Add('score', Score);
+        if VisualAccessVariant in ['assessment', 'validation'] then
+            ModuleData.Add('score', Score);
         Modules.Add(ModuleData);
     end;
 
