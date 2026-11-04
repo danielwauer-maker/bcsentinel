@@ -118,6 +118,16 @@ def main() -> None:
             'page "DH Notification Deliveries" = X',
             'codeunit "DH Notification Mgt." = X')
 
+    # Registration must establish the active tenant before notification setup is
+    # initialized. Looking up DH Setup without 'SETUP' silently clears Tenant ID.
+    require(setup,
+            "CoreSetup.Get('SETUP')", 'CoreSetup.TestField("Tenant ID")',
+            '"Tenant ID" := CoreSetup."Tenant ID"')
+    require(mgt,
+            "if not CoreSetup.Get('SETUP') then",
+            'Setup."Tenant ID" := CoreSetup."Tenant ID"',
+            'Setup.Modify(true);')
+
     print("BC notification implementation contract: PASS")
 
 
