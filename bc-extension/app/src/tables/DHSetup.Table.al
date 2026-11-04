@@ -667,7 +667,7 @@ table 53100 "DH Setup"
         if "Premium Enabled" then
             exit('Paid scan access active');
 
-        exit('Register the tenant and buy or grant a scan product to unlock paid scan actions');
+        exit('No scan credit available. Check scan history or request access.');
     end;
 
     procedure GetUpgradeHintText(): Text[250]
