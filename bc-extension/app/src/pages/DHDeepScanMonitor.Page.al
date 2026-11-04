@@ -477,9 +477,9 @@
 
     trigger OnOpenPage()
     begin
-        UpdateModuleVisibility();
-        ReloadDisplayValuesFromRec();
-        LoadDashboardValues();
+        // Reconcile the stored BC status with the backend when opening the
+        // monitor, not only when the user clicks Refresh Status.
+        ReloadMonitor();
     end;
 
     trigger OnAfterGetRecord()
@@ -592,25 +592,35 @@
 
         if DeepScanRun.Get(Rec."Entry No.") then begin
             if Setup.Get('SETUP') then begin
-                if DeepScanRun."Run ID" <> '' then
-                    if IsLocalTerminalStatus(DeepScanRun) and BackendStatusNeedsHealing(DeepScanRun) then
-                        if not TrySyncLocalTerminalStatus(ApiClient, Setup, DeepScanRun) then begin
-                            BackendRefreshFailures += 1;
-                        end;
-
-                if DeepScanRun."Run ID" <> '' then
+                if DeepScanRun."Run ID" <> '' then begin
+                    // Read first: the backend may already have completed during
+                    // /scan/sync while BC still holds an earlier 'running' value.
                     if TryRefreshBackendStatus(ApiClient, Setup, DeepScanRun) then begin
                         BackendRefreshFailures := 0;
+                        if LowerCase(DeepScanRun."Backend Status") = 'completed' then
+                            DeepScanRun."Warning Message" := '';
+                        DeepScanRun.Modify(false);
                         Commit();
-                    end
-                    else begin
+                    end else begin
                         BackendRefreshFailures += 1;
                         if BackendRefreshFailures >= 3 then begin
                             DeepScanRun."Warning Message" := CopyStr(GetBackendRefreshWarning(DeepScanRun), 1, MaxStrLen(DeepScanRun."Warning Message"));
-                            DeepScanRun.Modify(true);
+                            DeepScanRun.Modify(false);
                             Commit();
                         end;
                     end;
+
+                    // Only attempt to heal after reading the authoritative
+                    // backend state, never from a possibly stale cached value.
+                    if (BackendRefreshFailures = 0) and
+                       IsLocalTerminalStatus(DeepScanRun) and
+                       BackendStatusNeedsHealing(DeepScanRun) then
+                        if TrySyncLocalTerminalStatus(ApiClient, Setup, DeepScanRun) then begin
+                            DeepScanRun.Modify(false);
+                            Commit();
+                        end else
+                            BackendRefreshFailures += 1;
+                end;
             end;
             Rec := DeepScanRun;
             if (BackendRefreshFailures > 0) and (BackendRefreshFailures < 3) and (Rec."Backend Status" = '') then
