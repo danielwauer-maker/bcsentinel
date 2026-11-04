@@ -134,15 +134,36 @@ jobs:
 
             echo "=== Deployed backend container ==="
             $COMPOSE ps backend </dev/null
-            echo "=== Verify new lifecycle route is actually served ==="
+            echo "=== Wait for DEV backend readiness and verify lifecycle route ==="
             python3 - <<'PY'
           import json
+          import time
+          import urllib.error
           import urllib.request
-          with urllib.request.urlopen('http://127.0.0.1:8001/openapi.json', timeout=15) as response:
-              document = json.load(response)
-          route = document.get('paths', {}).get('/tenant/lifecycle-profile', {})
-          assert 'put' in route, 'Deployed DEV backend does not expose PUT /tenant/lifecycle-profile'
-          print('DEV lifecycle profile route deployed: PASS')
+
+          base = 'http://127.0.0.1:8001'
+          deadline = time.monotonic() + 120
+          last_error = None
+          for attempt in range(1, 61):
+              try:
+                  with urllib.request.urlopen(base + '/health/ready', timeout=5) as response:
+                      health = json.load(response)
+                  if health.get('status') != 'ok':
+                      raise RuntimeError('Backend readiness is not ok')
+                  with urllib.request.urlopen(base + '/openapi.json', timeout=5) as response:
+                      document = json.load(response)
+                  route = document.get('paths', {}).get('/tenant/lifecycle-profile', {})
+                  if 'put' not in route:
+                      raise RuntimeError('Deployed DEV backend does not expose PUT /tenant/lifecycle-profile')
+                  print(f'DEV lifecycle profile route deployed: PASS (attempt {attempt})')
+                  break
+              except (OSError, ValueError, RuntimeError) as exc:
+                  last_error = str(exc)
+                  if time.monotonic() >= deadline:
+                      raise SystemExit(f'DEV backend did not become ready with lifecycle route: {last_error}')
+                  time.sleep(2)
+          else:
+              raise SystemExit(f'DEV backend readiness failed: {last_error}')
           PY
           EOF
       - name: DEV route diagnostics
