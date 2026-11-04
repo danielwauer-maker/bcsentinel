@@ -455,6 +455,7 @@
     trigger OnOpenPage()
     begin
         EnsureSetupExists();
+        EnsureUnregisteredAccessIsCleared();
         UpdateActionState();
         UpdateNoticeTexts();
         //RefreshLicenseSilently();
@@ -477,6 +478,19 @@
 
         Rec.ApplyDefaults();
         Rec.Modify(true);
+    end;
+
+    local procedure EnsureUnregisteredAccessIsCleared()
+    begin
+        // Upgrade compatibility: older versions left a cached product access label after local reset.
+        if not Rec.Registered and (Rec."Tenant ID" = '') then
+            if (Rec."Product Access Model" <> 'none') or Rec."Monitoring Active" or
+               (Rec."Scan Credits Available" <> 0) or Rec."Premium Enabled" or
+               (Rec."Dashboard Access Until" <> '') or (Rec."Issue Access Until" <> '') or
+               Rec."Can Run Deep Scan" or Rec."Can View Dashboard" or Rec."Can View Issue Details" then begin
+                Rec.ClearCachedProductAccess();
+                Rec.Modify(true);
+            end;
     end;
 
     local procedure HasStoredApiToken(): Boolean
