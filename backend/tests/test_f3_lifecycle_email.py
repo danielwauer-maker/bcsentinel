@@ -20,6 +20,16 @@ from app.services.lifecycle_worker_service import process_due_outbox_safely
 from app.services.product_license_service import PRODUCT_ASSESSMENT, PRODUCT_VALIDATION_CHECK
 
 
+def test_lifecycle_profile_route_is_mounted_in_application():
+    """Prevent 404s when the handler exists but its router is not included."""
+    from app.main import app
+
+    assert any(
+        route.path == "/tenant/lifecycle-profile" and "PUT" in getattr(route, "methods", set())
+        for route in app.routes
+    ), "PUT /tenant/lifecycle-profile must be registered in FastAPI"
+
+
 def test_lifecycle_profile_requires_tenant_auth_and_queues_registration_once(
     client, tenant_factory, auth_header_factory
 ):
