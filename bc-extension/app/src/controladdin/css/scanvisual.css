@@ -1,7 +1,7 @@
 :root { color-scheme: light; }
 html, body { margin: 0; padding: 0; background: #f7f9fc; font-family: Inter, "Segoe UI", Arial, sans-serif; color: #14213d; }
 * { box-sizing: border-box; }
-.bcs-root { max-width: 1400px; margin: 0 auto; padding: 16px; }
+.bcs-root { width: 100%; max-width: none; margin: 0; padding: 16px 20px; }
 .bcs-empty { padding: 24px; text-align: center; color: #64748b; }
 .bcs-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
 .bcs-eyebrow { color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; }
@@ -30,7 +30,7 @@ html, body { margin: 0; padding: 0; background: #f7f9fc; font-family: Inter, "Se
 .bcs-context { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 7px; font-size: 11px; color: #64748b; margin-top: 8px; }
 .bcs-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .bcs-panel { background: white; border: 1px solid #e0e7f0; border-radius: 10px; padding: 13px 15px; }
-.bcs-module { margin-bottom: 9px; }
+.bcs-module { margin-bottom: 10px; }
 .bcs-module-labels { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-size: 11px; color: #45566c; font-variant-numeric: tabular-nums; }
 .bcs-module:last-child { margin-bottom: 0; }
 @media (max-width: 650px) {
