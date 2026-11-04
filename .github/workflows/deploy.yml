@@ -126,7 +126,7 @@ jobs:
             $COMPOSE build
 
             # Run migrations with the freshly built backend image.
-            $COMPOSE run --rm backend alembic upgrade head
+            $COMPOSE run -T --rm backend alembic upgrade head
 
             # Recreate running services so the checked-out release is actually
             # what serves traffic, even when an older container is still healthy.
@@ -134,6 +134,16 @@ jobs:
 
             echo "=== Deployed backend container ==="
             $COMPOSE ps backend
+            echo "=== Verify new lifecycle route is actually served ==="
+            python3 - <<'PY'
+          import json
+          import urllib.request
+          with urllib.request.urlopen('http://127.0.0.1:8001/openapi.json', timeout=15) as response:
+              document = json.load(response)
+          route = document.get('paths', {}).get('/tenant/lifecycle-profile', {})
+          assert 'put' in route, 'Deployed DEV backend does not expose PUT /tenant/lifecycle-profile'
+          print('DEV lifecycle profile route deployed: PASS')
+          PY
           EOF
       - name: DEV route diagnostics
         run: |
@@ -216,7 +226,7 @@ jobs:
 
             $COMPOSE up -d postgres
             $COMPOSE build
-            $COMPOSE run --rm backend alembic upgrade head
+            $COMPOSE run -T --rm backend alembic upgrade head
             $COMPOSE up -d --force-recreate
           EOF
       - name: PROD smoke
