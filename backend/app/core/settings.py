@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     TOKEN_EXPIRE_MINUTES: int = 60
     CORS_ALLOW_ORIGINS: str | None = None
     APP_BASE_URL: str | None = None
+    # Full v6 viewer origin, configured only after authenticated viewer is deployed in DEV.
+    REPORT_V6_VIEWER_BASE_URL: str | None = None
     TENANT_REGISTRATION_INVITE_CODE: str | None = None
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
