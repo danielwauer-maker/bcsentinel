@@ -111,7 +111,7 @@ def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
     db.commit()
     # This one-use code is a sensitive capability. The viewer must strip it
     # immediately, before API fetches, and send Referrer-Policy: no-referrer.
-    return f"{viewer_url}/report/live?{urlencode({'code': raw_code, 'lang': 'de'})}"
+    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': scan.bc_company_id, 'code': raw_code, 'lang': 'de'})}"
 
 
 def redeem_code(db, raw_code: str) -> dict:
