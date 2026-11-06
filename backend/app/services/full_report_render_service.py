@@ -122,6 +122,30 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
             "area": AREA_KEYS[row.name],
             "score": row.score, "impactEur": _currency(row.estimated_impact_eur),
         })
+    # Include every customer-confirmed supported standard area, including
+    # those with zero detected findings. The score comes from the immutable
+    # scope module snapshot, never from a fabricated demo area score.
+    module_areas = {
+        "system": "System & Plattform", "finance": "Finanzen",
+        "sales": "Verkauf", "purchasing": "Einkauf",
+        "inventory": "Lager & Artikel", "crm": "CRM & Stammdaten",
+        "manufacturing": "Produktion", "service": "Service",
+        "jobs": "Projekte", "hr": "Personal",
+    }
+    existing_area_names = {row["area"] for row in area_rows}
+    for module in getattr(scope, "modules", []):
+        if not module.included_in_score:
+            continue
+        area_name = module_areas.get(module.module_code)
+        if not area_name:
+            _deny("confirmed scope contains unsupported business area")
+        if area_name not in existing_area_names:
+            area_rows.append({
+                "area": area_name,
+                "score": module.module_score,
+                "impactEur": 0.0,
+            })
+            existing_area_names.add(area_name)
     finding_impact = round(sum(_currency(f.estimated_impact_eur) for f in findings), 2)
     area_impact = round(sum(row["impactEur"] for row in area_rows), 2)
     total_impact = _currency(report.estimated_loss_eur)
