@@ -7,6 +7,10 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/report-native-access-qa.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/report-native-access-qa.yml'
   workflow_dispatch:
 
 permissions:
