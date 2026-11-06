@@ -432,6 +432,23 @@
                 end;
             }
 
+            action(OpenFullReportV6)
+            {
+                Caption = 'Full Assessment (v6)';
+                ToolTip = 'Opens the professional Full Assessment HTML report outside Business Central.';
+                ApplicationArea = All;
+                Image = Report;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenArchivedFullV6(Rec."Run ID");
+                end;
+            }
+
             action(OpenExecutivePdf)
             {
                 Caption = 'Executive PDF';
