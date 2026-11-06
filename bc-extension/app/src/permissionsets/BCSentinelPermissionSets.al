@@ -40,7 +40,8 @@ permissionset 53190 "BCSENTINEL VIEWER"
         codeunit "DH Generic Remediation" = X,
         codeunit "DH API URL Policy" = X,
         codeunit "DH Tenant Identity Mgt." = X,
-        codeunit "DH Exception Mgt." = X;
+        codeunit "DH Exception Mgt." = X,
+        codeunit "DH Report Link Mgt." = X;
 }
 
 permissionset 53191 "BCSENTINEL SCAN"
@@ -103,6 +104,7 @@ permissionset 53191 "BCSENTINEL SCAN"
         codeunit "DH Secret Mgt." = X,
         codeunit "DH API URL Policy" = X,
         codeunit "DH Tenant Identity Mgt." = X,
+        codeunit "DH Report Link Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
 }
