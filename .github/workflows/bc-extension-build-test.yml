@@ -1,0 +1,90 @@
+name: BC Extension AL Build (Sandbox Test)
+
+on:
+  push:
+    branches:
+      - feature/report-renderer-backend-bridge-20261106
+    paths:
+      - 'bc-extension/**'
+      - '.github/workflows/bc-extension-build-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout development branch
+        uses: actions/checkout@v4
+
+      - name: Install compiler runtime libraries
+        run: sudo apt-get update -qq && sudo apt-get install -y libicu-dev zlib1g libssl3 libstdc++6
+
+      - name: Download Microsoft AL compiler and Business Central 27 symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .buildtools/alc .buildtools/packages bc-extension/.alpackages
+          COMPILER_VERSION=16.2.28.57946
+          curl --fail --location --retry 3 --silent --show-error \
+            -o .buildtools/alc.nupkg \
+            "https://api.nuget.org/v3-flatcontainer/microsoft.dynamics.businesscentral.development.tools.linux/${COMPILER_VERSION}/microsoft.dynamics.businesscentral.development.tools.linux.${COMPILER_VERSION}.nupkg"
+          python3 -m zipfile -e .buildtools/alc.nupkg .buildtools/alc
+          chmod +x .buildtools/alc/lib/net8.0/linux-x64/alc
+          SYMBOL_FEED="https://dynamicssmb2.pkgs.visualstudio.com/571e802d-b44b-45fc-bd41-4cfddec73b44/_packaging/b656b10c-3de0-440c-900c-bc2e4e86d84c/nuget/v3/flat2"
+          packages=(
+            microsoft.platform.symbols/27.0.40210
+            microsoft.application.symbols/27.0.38460.40293
+            microsoft.systemapplication.symbols.63ca2fa4-4f03-4f2b-a480-172fef340d3f/27.0.38460.40293
+            microsoft.businessfoundation.symbols.f3552374-a1f2-4356-848e-196002525837/27.0.38460.40293
+            microsoft.baseapplication.symbols.437dbf0e-84ff-417a-965d-ed2bb9650972/27.0.38460.40293
+          )
+          for package in "${packages[@]}"; do
+            name="${package%%/*}"
+            version="${package##*/}"
+            curl --fail --location --retry 3 --silent --show-error \
+              -o ".buildtools/packages/${name}.nupkg" \
+              "${SYMBOL_FEED}/${name}/${version}/${name}.${version}.nupkg"
+            python3 -m zipfile -e ".buildtools/packages/${name}.nupkg" ".buildtools/packages/${name}"
+          done
+          find .buildtools/packages -type f -name '*.app' -exec cp {} bc-extension/.alpackages/ \;
+          count=$(find bc-extension/.alpackages -maxdepth 1 -name '*.app' | wc -l)
+          test "$count" -eq 5
+
+      - name: Compile BCSentinel AL package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          VERSION=$(python3 -c "import json; print(json.load(open('bc-extension/app.json'))['version'])")
+          echo "Extension version: $VERSION"
+          .buildtools/alc/lib/net8.0/linux-x64/alc \
+            /project:bc-extension \
+            /packagecachepath:bc-extension/.alpackages \
+            "/out:dist/BCSentinel_${VERSION}.app" \
+            /ruleset:bc-extension/app.ruleset.json 2>&1 | tee dist/build.log
+          test -s "dist/BCSentinel_${VERSION}.app"
+          sha256sum "dist/BCSentinel_${VERSION}.app" | tee dist/SHA256SUMS
+          python3 - <<'PY'
+          import json, zipfile, glob, io
+          p = glob.glob('dist/*.app')
+          assert len(p) == 1, p
+          raw = open(p[0], 'rb').read()
+          with zipfile.ZipFile(io.BytesIO(raw[40:])) as pkg:
+              assert 'NavxManifest.xml' in pkg.namelist()
+          print('Valid NAVX .app package:', p[0], 'size:', len(raw))
+          PY
+
+      - name: Upload installable Sandbox extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: BCSentinel-BC27-Sandbox-Extension-${{ github.run_number }}
+          path: |
+            dist/*.app
+            dist/SHA256SUMS
+            dist/build.log
+          if-no-files-found: error
+          retention-days: 14
