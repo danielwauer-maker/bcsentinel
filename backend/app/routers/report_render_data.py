@@ -7,6 +7,9 @@ from __future__ import annotations
 
 from typing import Literal
 
+import hashlib
+import json
+
 from fastapi import APIRouter, Header, HTTPException, Query, Response
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
@@ -25,6 +28,8 @@ from app.services.monitoring_report_service import build_monitoring_report
 from app.services.tenant_access_service import enforce_tenant_is_active
 from app.services.scan_company_service import canonical_company_id
 from app.services.full_report_render_service import build_full_render_vm
+from app.report_archive_models import ReportArchive
+from app.services.report_archive_service import verify_scoped_session
 
 router = APIRouter(prefix="/account/reports", tags=["reports"])
 ReportVariant = Literal["free", "quick", "full", "validation", "monitoring"]
@@ -120,13 +125,35 @@ def read_report_for_renderer(
     if response is not None:
         response.headers["Cache-Control"] = "no-store, private"
         response.headers["Pragma"] = "no-cache"
-    _, tenant_id, _ = _tenant_user_principal(authorization)
+    # A report-scoped bearer is accepted only for the exact Full scan/company
+    # for which BC previously obtained a one-time grant. Other variants still
+    # require the independent account membership authentication.
+    scoped_tenant_id = verify_scoped_session(
+        authorization, scan_id=scan_id, company_id=company_id, variant=variant
+    ) if variant == "full" else None
+    if scoped_tenant_id is None:
+        _, tenant_id, _ = _tenant_user_principal(authorization)
+    else:
+        tenant_id = scoped_tenant_id
+
     with SessionLocal() as db:
         enforce_tenant_is_active(db, tenant_id)
         scan = _require_company_scan(db, tenant_id, scan_id, company_id)
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
+        if scoped_tenant_id is not None:
+            archived = db.scalar(select(ReportArchive).where(
+                ReportArchive.tenant_id == tenant_id,
+                ReportArchive.company_id == scan.bc_company_id,
+                ReportArchive.scan_id == scan_id,
+                ReportArchive.variant == "full",
+            ))
+            if archived is None:
+                raise HTTPException(status_code=404, detail="Report not found.")
+            if hashlib.sha256(archived.payload_json.encode("utf-8")).hexdigest() != archived.sha256:
+                raise HTTPException(status_code=409, detail="Report archive integrity check failed.")
+            return ReportRenderEnvelope.model_validate(json.loads(archived.payload_json))
 
         # Existing financial models explicitly store EUR-derived estimates.
         # We refuse to relabel them as company LCY until an immutable,
