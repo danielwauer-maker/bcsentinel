@@ -82,6 +82,12 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
         _deny("missing or repeated finding IDs")
     if report.issues_count != len(findings):
         _deny("finding count does not match scoped findings")
+    ranks = [f.rank for f in findings]
+    if (not all(isinstance(rank, int) and rank > 0 for rank in ranks)
+            or len(set(ranks)) != len(ranks)):
+        _deny("finding ranks must be unique positive integers")
+    if any(not str(f.title or "").strip() for f in findings):
+        _deny("missing finding title")
 
     severity = {s: 0 for s in SEVERITIES}
     for f in findings:
@@ -94,6 +100,10 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
     # never arbitrarily assign a priority to a missing ID.
     priorities = {}
     groups = sorted(report.priority_matrix, key=lambda x: {"P1": 0, "P2": 1, "P3": 2}.get(x.priority, 99))
+    if len({group.priority for group in groups}) != len(groups):
+        _deny("duplicate priority groups")
+    if any(not str(group.focus or "").strip() for group in groups):
+        _deny("missing priority group title")
     for group in groups:
         if group.priority not in ("P1", "P2", "P3"):
             _deny("unrecognized priority group")
@@ -149,6 +159,11 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
     finding_impact = round(sum(_currency(f.estimated_impact_eur) for f in findings), 2)
     area_impact = round(sum(row["impactEur"] for row in area_rows), 2)
     total_impact = _currency(report.estimated_loss_eur)
+    potential_impact = _currency(report.potential_saving_eur)
+    if potential_impact > total_impact + 0.5:
+        _deny("improvement potential exceeds modeled total exposure")
+    if not findings and (total_impact != 0 or potential_impact != 0):
+        _deny("financial impact without findings")
     reconciled = isclose(finding_impact, area_impact, abs_tol=0.01) and isclose(
         area_impact, total_impact, abs_tol=0.01
     )
@@ -230,7 +245,7 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
         "severity": severity,
         "businessAreas": area_rows,
         "totalImpactEur": total_impact,
-        "improvementPotentialEur": _currency(report.potential_saving_eur),
+        "improvementPotentialEur": potential_impact,
         "impactModel": {
             "findingValueType": "modeledFindingExposure",
             "areaValueType": "modeledBusinessAreaImpact",
@@ -247,7 +262,7 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
             "findings": len(findings),
             "critical": severity["critical"], "high": severity["high"],
             "impactEur": total_impact,
-            "potentialEur": _currency(report.potential_saving_eur),
+            "potentialEur": potential_impact,
         },
         # These must not be misrepresented as benefits: no scan-specific
         # evidence model currently proves the benefits; retain empty list.
