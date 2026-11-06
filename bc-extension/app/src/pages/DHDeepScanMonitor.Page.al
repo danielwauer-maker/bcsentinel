@@ -1365,7 +1365,7 @@
         Hyperlink(ReportUrl);
     end;
 
-    local procedure OpenFullReportV6()
+    local procedure OpenFullReportV6Viewer()
     var
         Setup: Record "DH Setup";
         Client: HttpClient;
