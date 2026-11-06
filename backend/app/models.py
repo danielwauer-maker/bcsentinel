@@ -190,6 +190,8 @@ class Scan(Base):
     summary_headline: Mapped[str] = mapped_column(String(255))
     summary_rating: Mapped[str] = mapped_column(String(30))
     enabled_modules: Mapped[str | None] = mapped_column(Text, nullable=True)
+    bc_company_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    lcy_code: Mapped[str | None] = mapped_column(String(3), nullable=True)
     total_records: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     estimated_loss_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
     potential_saving_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
