@@ -152,9 +152,10 @@ def redeem_code(db, raw_code: str) -> dict:
     }, expires_delta=timedelta(minutes=SESSION_TTL_MINUTES))
     db.commit()
     return {
-        "accessToken": session, "tenantId": grant.tenant_id,
-        "companyId": grant.company_id, "scanId": grant.scan_id,
-        "variant": "full", "expiresInSeconds": SESSION_TTL_MINUTES * 60,
+        "access_token": session, "token_type": "bearer",
+        "tenant_id": grant.tenant_id, "company_id": grant.company_id,
+        "scan_id": grant.scan_id, "report_variant": "full",
+        "expires_at": (now + timedelta(minutes=SESSION_TTL_MINUTES)).isoformat(),
     }
 
 
