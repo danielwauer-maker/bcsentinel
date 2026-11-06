@@ -39,6 +39,7 @@ from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
 from app.routers.report_render_data import router as report_render_data_router
+from app.routers.report_native_access import router as report_native_access_router
 from app.routers.scans import router as scans_router
 from app.schemas.scan import (
     QuickScanRequest,
