@@ -432,6 +432,55 @@ def create_executive_report_share_link(
     return ExecutiveReportShareLinkResponse(url=_shared_report_url(request, scan_id, selected_type, token))
 
 
+@router.post("/executive/{scan_id}/v6-link", response_model=ExecutiveReportShareLinkResponse)
+def create_full_v6_navigation_link(
+    scan_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReportShareLinkResponse:
+    """Return a NON-CREDENTIAL navigation URL for the account-authenticated v6 viewer.
+
+    The BC API token is verified server-side and never returned or embedded in the
+    link. Opening this URL alone grants zero report privileges: the browser must
+    complete account OIDC sign-in, acquire a membership-bound tenant session,
+    and pass the company/scan checks in /account/reports/full/{scan_id}.
+    The legacy share-link endpoint remains unchanged for existing users.
+    """
+    from urllib.parse import urlencode, urlparse
+
+    from app.services.scan_company_service import canonical_company_id
+
+    viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
+    target = urlparse(viewer)
+    if (
+        not viewer or target.scheme != "https" or not target.netloc
+        or target.username or target.password or target.query or target.fragment
+    ):
+        raise HTTPException(status_code=503, detail="Authenticated v6 report viewer is not configured.")
+
+    tenant_id, api_token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, api_token)
+        enforce_tenant_is_active(db, tenant.tenant_id)
+        scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id))
+        if scan is None:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        if not scan.bc_company_id or not scan.lcy_code:
+            raise HTTPException(status_code=409, detail="Scan has no verified company/LCY binding.")
+        company_id = canonical_company_id(scan.bc_company_id)
+        access = build_product_access_snapshot(db, tenant)
+        if not (
+            access["can_view_executive_report"]
+            and (access.get("assessment_access_active") or access.get("monitoring_active"))
+        ):
+            raise HTTPException(status_code=402, detail="Full Assessment access required.")
+        if scan.lcy_code.upper() != "EUR":
+            raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
+
+    # Only non-secret identifiers; no tenant token, bearer or share credential.
+    query = urlencode({"scanId": scan_id, "companyId": company_id, "lang": "de"})
+    return ExecutiveReportShareLinkResponse(url=f"{viewer}/report/live?{query}")
+
+
 @router.get("/executive/{scan_id}/html", response_class=HTMLResponse)
 def render_executive_report_html(request: Request, scan_id: str, tenant_auth: tuple[str, str] = Depends(require_tenant_headers)):
     report = _load_report(scan_id, tenant_auth)
