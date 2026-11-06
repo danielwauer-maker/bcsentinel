@@ -98,9 +98,9 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
 def read_report_for_renderer(
     variant: ReportVariant,
     scan_id: str,
+    response: Response,
     company_id: str = Query(min_length=32, max_length=64),
     authorization: str | None = Header(default=None, alias="Authorization"),
-    response: Response,
 ) -> ReportRenderEnvelope:
     # The 15-minute tenant-user token is scoped to an ACTIVE membership and its
     # role/status binding. An account-level token and BC API token are rejected.
