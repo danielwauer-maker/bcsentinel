@@ -4,10 +4,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.exception_snapshot_models import ScanExceptionSnapshot
-from app.models import Tenant, ScanIssueRecord
-from app.schemas.report import ExecutiveReport, ReportAppliedException
+from app.models import Scan, Tenant, ScanIssueRecord, TenantScanCredit
+from app.schemas.report import ExecutiveReport, ReportAppliedException, ReportCategoryImpact, ReportPriorityItem
 from app.services.assessment_scope_service import get_latest_confirmed_scope, included_module_codes
 from app.services.executive_report_service import build_executive_report as build_base_executive_report
+from app.services.executive_report_service import _finding, _sorted_issues
+from app.services.check_catalog_service import resolve_check_texts
+from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
+
 
 
 CATEGORY_TO_MODULE = {
@@ -49,6 +53,104 @@ def _module_code(value: str | None) -> str:
     # scope. Falling back to System would incorrectly keep custom findings in a
     # confirmed Full Assessment because System is always included.
     return "unsupported"
+
+
+def _enrich_staging_report(db: Session, tenant: Tenant, report: ExecutiveReport) -> ExecutiveReport:
+    """Bridge legacy DEV report to evidenced Full v6 fields without demo defaults.
+
+    The existing staging builder deliberately projects only top-N findings and
+    narrative priority recommendations. For the Full renderer, every detail
+    and its deterministic priority must come from stored scan issue records.
+    This change does not alter the legacy executive-report builder or HTML.
+    """
+    scan = db.scalar(select(Scan).where(
+        Scan.scan_id == report.scan_id, Scan.tenant_id == tenant.tenant_id
+    ))
+    if scan is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Scan not found.")
+
+    issues = _sorted_issues(db.scalars(
+        select(ScanIssueRecord).where(ScanIssueRecord.scan_id == report.scan_id)
+    ).all())
+    texts = resolve_check_texts(db, {issue.code for issue in issues}, report.language)
+    findings = [
+        _finding(index + 1, issue, texts[issue.code])
+        for index, issue in enumerate(issues)
+    ]
+
+    # This priority algorithm is the explicit Full model already used on the
+    # independent feature branch. It uses supported severity and modeled
+    # finding exposure only; no invented effort/ROI assignment.
+    remaining = list(findings)
+    priority_groups: list[ReportPriorityItem] = []
+    rules = (
+        ("P1", lambda f: f.severity == "critical" or f.estimated_impact_eur >= 100_000),
+        ("P2", lambda f: f.severity == "high" or f.estimated_impact_eur >= 25_000),
+        ("P3", lambda f: True),
+    )
+    german = str(report.language or "").lower().startswith("de")
+    labels = (
+        ("Kritische / sehr hohe Business-Priorität", "Hohe Business-Priorität", "Weitere priorisierte Bereinigung")
+        if german else
+        ("Critical / very-high business priority", "High business priority", "Remaining prioritized remediation")
+    )
+    for (priority, predicate), label in zip(rules, labels):
+        group = [f for f in remaining if predicate(f)]
+        remaining = [f for f in remaining if not predicate(f)]
+        if group:
+            exposure = round(sum(max(0.0, float(f.estimated_impact_eur)) for f in group), 2)
+            text = (
+                f"{len(group)} Findings · {exposure:.2f} EUR modellierter Impact"
+                if german else
+                f"{len(group)} findings · EUR {exposure:.2f} modeled impact"
+            )
+            priority_groups.append(ReportPriorityItem(
+                priority=priority, focus=label, impact=text,
+                recommendation=group[0].recommendation,
+                finding_codes=[f.code for f in group], effort=None,
+            ))
+
+    module_scores = {
+        "Finance": scan.finance_score, "Sales": scan.sales_score,
+        "Purchasing": scan.purchasing_score, "Inventory": scan.inventory_score,
+        "CRM": scan.crm_score, "Manufacturing": scan.manufacturing_score,
+        "Service": scan.service_score, "Jobs": scan.jobs_score,
+        "HR": scan.hr_score, "System": scan.system_score,
+    }
+    impact_by_area: dict[str, list] = {}
+    for finding in findings:
+        impact_by_area.setdefault(finding.category, []).append(finding)
+    areas: list[ReportCategoryImpact] = []
+    exposure_total = sum(max(0.0, float(f.estimated_impact_eur)) for f in findings)
+    severity_order = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+    for name, grouped in impact_by_area.items():
+        if name not in module_scores:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=409, detail="Unsupported finding business area.")
+        amount = round(sum(max(0.0, float(f.estimated_impact_eur)) for f in grouped), 2)
+        areas.append(ReportCategoryImpact(
+            name=name, score=max(0, min(100, int(module_scores[name]))),
+            issue_count=len(grouped),
+            affected_count=sum(int(f.affected_count) for f in grouped),
+            estimated_impact_eur=amount,
+            impact_share_percent=round(amount / exposure_total * 100.0, 1) if exposure_total else 0.0,
+            highest_severity=max((f.severity for f in grouped), key=lambda v: severity_order.get(v, -1)),
+        ))
+
+    validation_scan = db.scalar(select(TenantScanCredit.id).where(
+        TenantScanCredit.tenant_id == tenant.tenant_id,
+        TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+        TenantScanCredit.status == "consumed",
+        TenantScanCredit.consumed_scan_id == report.scan_id,
+    ))
+    return report.model_copy(update={
+        "all_findings": findings,
+        "priority_matrix": priority_groups,
+        "business_area_impact": areas,
+        "validation_baseline_scan_id": report.scan_id,
+        "validation_baseline_eligible": validation_scan is None,
+    })
 
 
 def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveReport:
@@ -172,6 +274,7 @@ def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveRep
 def build_executive_report(db: Session, tenant: Tenant, scan_id: str) -> ExecutiveReport:
     """Canonical Full Assessment report with immutable exception and scope overlays."""
     report = build_base_executive_report(db, tenant, scan_id)
+    report = _enrich_staging_report(db, tenant, report)
     report = _apply_confirmed_scope(db, report)
     rows = db.scalars(
         select(ScanExceptionSnapshot)
