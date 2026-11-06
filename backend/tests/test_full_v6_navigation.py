@@ -39,9 +39,9 @@ def test_v6_launch_rejects_unauthenticated(client, monkeypatch):
 def test_v6_launch_returns_only_navigation_context(client, monkeypatch, tenant_factory, scan_factory, auth_header_factory):
     tenant = _scan(tenant_factory, scan_factory)
     monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
-    monkeypatch.setattr(reports, "build_product_access_snapshot", lambda db, tenant: {
-        "can_view_executive_report": True, "assessment_access_active": True
-    })
+    from app.services import report_archive_service as archive_service
+    # Previously purchased and sealed Full reports remain accessible.
+    monkeypatch.setattr(archive_service, "archive_full_report", lambda db, tenant, scan: object())
     res = client.post(_url(), headers=auth_header_factory(tenant))
     assert res.status_code == 200, res.text
     result = res.json()["url"]
