@@ -26,6 +26,7 @@ from app.core.observability import (
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
 from app.models import Scan, ScanIssueRecord, Tenant
+from app import report_archive_models  # noqa: F401 - register tables for test databases
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
