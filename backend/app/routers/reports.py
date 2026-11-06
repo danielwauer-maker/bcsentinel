@@ -39,11 +39,22 @@ class ExecutiveReportShareLinkResponse(BaseModel):
     url: str
 
 
+def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
+    """Report access must never look up scans across tenants."""
+    from app.models import Scan
+    owned = db.scalar(select(Scan.id).where(
+        Scan.scan_id == scan_id, Scan.tenant_id == tenant_id
+    ))
+    if owned is None:
+        raise HTTPException(status_code=404, detail="Report not found.")
+
+
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_capability(db, tenant, CAPABILITY_REPORT)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         return build_executive_report(db, tenant, scan_id)
 
 
@@ -134,6 +145,7 @@ def create_executive_report_share_link(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_capability(db, tenant, CAPABILITY_REPORT, denial_event="token_issuance_denied")
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         build_executive_report(db, tenant, scan_id)
         token = _create_share_token(tenant=tenant, scan_id=scan_id, report_type=selected_type)
     return ExecutiveReportShareLinkResponse(
