@@ -56,7 +56,7 @@ def fixtures(n: int = 27, *, impact_mismatch=False, confirmed=True):
         company_label="Customer Ltd", environment_label="PROD",
         all_findings=findings, issues_count=n, priority_matrix=groups,
         business_area_impact=[NS(name="Finance", score=72, estimated_impact_eur=sum_impact)],
-        estimated_loss_eur=sum_impact, potential_saving_eur=30.0,
+        estimated_loss_eur=sum_impact, potential_saving_eur=30.0 if n > 0 else 0.0,
         language="en", total_records=1000, checks_count=45,
         executive_summary="Customer-owned actual scan evidence, not illustrative.",
         headline="Data quality needs improvement",
@@ -167,6 +167,7 @@ def test_captured_exception_from_other_company_fails_closed(monkeypatch):
 
 def test_potential_above_total_blocks_including_zero_finding_fixture(monkeypatch):
     tenant, scan, scope, report = fixtures(0)
+    report.potential_saving_eur = 30.0  # Deliberately inconsistent source input.
     monkeypatch.setattr(svc, "get_latest_confirmed_scope", lambda *_: scope)
     monkeypatch.setattr(svc, "build_executive_report", lambda *_: report)
     with pytest.raises(HTTPException) as exc:
