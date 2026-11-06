@@ -38,6 +38,7 @@ from app.routers.lifecycle import (
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
+from app.routers.report_render_data import router as report_render_data_router
 from app.routers.scans import router as scans_router
 from app.schemas.scan import (
     QuickScanRequest,
@@ -155,6 +156,7 @@ app.include_router(billing_router)
 app.include_router(partners_router)
 app.include_router(public_router)
 app.include_router(reports_router)
+app.include_router(report_render_data_router)
 app.include_router(scans_router)
 app.include_router(license_router)
 app.include_router(lifecycle_router)
