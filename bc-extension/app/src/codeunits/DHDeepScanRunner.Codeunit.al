@@ -2658,6 +2658,8 @@ codeunit 53128 "DH Deep Scan Runner"
         ScanDateTime: DateTime;
         RequestText: Text;
         DataProfilingMgt: Codeunit "DH Data Profiling Mgt.";
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
         ModuleScores: JsonObject;
         EnabledModules: JsonArray;
     begin
@@ -2669,6 +2671,8 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('tenant_id', Setup."Tenant ID");
         Payload.Add('preferred_language', GetPreferredLanguage());
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
+        Payload.Add('bc_company_id', IdentityMgt.GetCompanyId());
+        Payload.Add('lcy_code', CurrencyMgt.GetLocalCurrencyCode());
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
         Payload.Add('execution_token', Format(DeepScanRun."Execution Token"));
         Payload.Add('worker_id', Format(DeepScanRun."Client Request ID"));
