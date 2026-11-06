@@ -54,7 +54,13 @@ def _revision_info(config: Config) -> tuple[str, str]:
     if head is None or head.down_revision is None:
         raise RuntimeError("The Alembic head has no downgrade target.")
     if isinstance(head.down_revision, tuple):
-        raise RuntimeError("The current head is a merge revision; P0-04 needs an explicit rollback target.")
+        # DEV v6 reconciliation has two historical lines. On a disposable
+        # PostgreSQL database, explicitly roll back to the existing staging
+        # parent, forcing the complete report-branch migrations to replay.
+        # Never infer an arbitrary parent for an unknown Alembic merge.
+        if head.revision != "0037_merge_staging_report" or "0031_public_contact_inbox" not in head.down_revision:
+            raise RuntimeError("An unrecognized Alembic merge head requires a reviewed rollback target.")
+        return head.revision, "0031_public_contact_inbox"
     return head.revision, str(head.down_revision)
 
 
