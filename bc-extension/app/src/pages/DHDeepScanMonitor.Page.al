@@ -455,7 +455,7 @@
 
                 trigger OnAction()
                 begin
-                    OpenFullReportV6();
+                    OpenFullReportV6Viewer();
                 end;
             }
 
