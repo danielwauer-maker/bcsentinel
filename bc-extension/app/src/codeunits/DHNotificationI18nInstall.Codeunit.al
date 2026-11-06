@@ -1,4 +1,4 @@
-codeunit 53198 "DH Notification I18n Install"
+codeunit 53302 "DH Notification I18n Install"
 {
     Subtype = Install;
 

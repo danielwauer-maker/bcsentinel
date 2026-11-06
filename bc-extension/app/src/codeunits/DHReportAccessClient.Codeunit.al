@@ -1,4 +1,4 @@
-codeunit 53202 "DH Report Access Client"
+codeunit 53301 "DH Report Access Client"
 {
     procedure GetPreferredReportVariant(ScanId: Code[50]): Text
     var

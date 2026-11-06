@@ -1,4 +1,4 @@
-codeunit 53200 "DH Report Link Mgt."
+codeunit 53303 "DH Report Link Mgt."
 {
     procedure OpenBestAvailableReport(ScanId: Code[50]; ReportType: Text)
     var
