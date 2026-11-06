@@ -477,9 +477,11 @@ def create_full_v6_navigation_link(
         if scan.lcy_code.upper() != "EUR":
             raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
 
-    # Only non-secret identifiers; no tenant token, bearer or share credential.
-    query = urlencode({"scanId": scan_id, "companyId": company_id, "lang": "de"})
-    return ExecutiveReportShareLinkResponse(url=f"{viewer}/report/live?{query}")
+        # The immutable archive is sealed at first paid access and remains
+        # available on subsequent BC-authenticated history requests.
+        from app.services.report_archive_service import issue_full_link
+        return ExecutiveReportShareLinkResponse(url=issue_full_link(db, tenant, scan, viewer))
+
 
 
 @router.get("/executive/{scan_id}/html", response_class=HTMLResponse)
