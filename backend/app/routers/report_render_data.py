@@ -89,7 +89,11 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
         return build_quick_assessment_report(db, tenant, scan_id)
     access = build_product_access_snapshot(db, tenant)
     if variant == "full":
-        if not access["can_view_executive_report"]:
+        # Validation-only rights must never unlock the initial Full Assessment.
+        if not (
+            access["can_view_executive_report"]
+            and (access.get("assessment_access_active") or access.get("monitoring_active"))
+        ):
             raise HTTPException(status_code=402, detail="Full Assessment access required.")
         return build_executive_report(db, tenant, scan_id)
     if variant == "validation":
