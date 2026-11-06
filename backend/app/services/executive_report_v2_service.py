@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.exception_snapshot_models import ScanExceptionSnapshot
-from app.models import Tenant
+from app.models import Tenant, ScanIssueRecord
 from app.schemas.report import ExecutiveReport, ReportAppliedException
 from app.services.assessment_scope_service import get_latest_confirmed_scope, included_module_codes
 from app.services.executive_report_service import build_executive_report as build_base_executive_report
@@ -43,9 +43,8 @@ def _module_code(value: str | None) -> str:
     normalized = str(value or "").strip().lower()
     if normalized in CATEGORY_TO_MODULE:
         return CATEGORY_TO_MODULE[normalized]
-    for token, module in CATEGORY_TO_MODULE.items():
-        if token and token in normalized:
-            return module
+    # Do not use substring matching: an extension area called "Custom Finance
+    # Workflow" must not silently become a supported BC Finance module.
     # Unknown/custom categories are deliberately outside the supported standard
     # scope. Falling back to System would incorrectly keep custom findings in a
     # confirmed Full Assessment because System is always included.
@@ -58,7 +57,21 @@ def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveRep
         return report
 
     included = included_module_codes(scope)
-    findings = [item for item in report.all_findings if _module_code(item.category) in included]
+    # Project against the ORIGINAL scan issue category. The base report may
+    # normalize unknown extension categories into "System", which must not
+    # accidentally include custom logic in the confirmed standard BC scope.
+    raw_issues = db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == report.scan_id)).all()
+    raw_by_code: dict[str, str | None] = {}
+    for issue in raw_issues:
+        if issue.code in raw_by_code:
+            # Duplicate issue identifiers cannot be reliably bound to a scope.
+            from fastapi import HTTPException
+            raise HTTPException(status_code=409, detail="Ambiguous duplicate issue code in confirmed scope.")
+        raw_by_code[issue.code] = issue.category
+    findings = [
+        item for item in report.all_findings
+        if item.code in raw_by_code and _module_code(raw_by_code[item.code]) in included
+    ]
     finding_codes = {item.code for item in findings}
     top_risks = [item for item in report.top_risks if item.code in finding_codes]
     quick_wins = [item for item in report.quick_wins if item.code in finding_codes]
