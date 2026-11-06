@@ -163,3 +163,31 @@ def test_captured_exception_from_other_company_fails_closed(monkeypatch):
         svc.build_full_render_vm(FakeDb(captured=capture, rows=[captured]), tenant, scan)
     assert exc.value.status_code == 409
     assert "another BC company" in str(exc.value.detail)
+
+
+def test_potential_above_total_blocks_including_zero_finding_fixture(monkeypatch):
+    tenant, scan, scope, report = fixtures(0)
+    monkeypatch.setattr(svc, "get_latest_confirmed_scope", lambda *_: scope)
+    monkeypatch.setattr(svc, "build_executive_report", lambda *_: report)
+    with pytest.raises(HTTPException) as exc:
+        svc.build_full_render_vm(FakeDb(), tenant, scan)
+    assert exc.value.status_code == 409
+    assert "improvement potential exceeds" in str(exc.value.detail)
+
+
+@pytest.mark.parametrize("fault", ["duplicate_rank", "blank_title", "duplicate_priority", "blank_priority_title"])
+def test_invalid_full_evidence_fails_before_lovable(monkeypatch, fault):
+    tenant, scan, scope, report = fixtures(5)
+    if fault == "duplicate_rank":
+        report.all_findings[1].rank = report.all_findings[0].rank
+    elif fault == "blank_title":
+        report.all_findings[0].title = "  "
+    elif fault == "duplicate_priority":
+        report.priority_matrix.append(report.priority_matrix[0])
+    elif fault == "blank_priority_title":
+        report.priority_matrix[0].focus = " "
+    monkeypatch.setattr(svc, "get_latest_confirmed_scope", lambda *_: scope)
+    monkeypatch.setattr(svc, "build_executive_report", lambda *_: report)
+    with pytest.raises(HTTPException) as exc:
+        svc.build_full_render_vm(FakeDb(), tenant, scan)
+    assert exc.value.status_code == 409
