@@ -79,6 +79,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PUBLIC_FRONTEND_ORIGINS = [
     "https://dev.bcsentinel.com",
+    # Pinned, browser-side Lovable v6 renderer (DEV only); no wildcard CORS.
+    "https://sentinel-assessment-atlas.lovable.app",
     "https://www.bcsentinel.com",
     "https://bcsentinel.com",
 ]
