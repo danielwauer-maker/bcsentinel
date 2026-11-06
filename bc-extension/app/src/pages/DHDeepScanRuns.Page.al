@@ -139,6 +139,24 @@
                 end;
             }
 
+            action(OpenArchivedFullReport)
+            {
+                Caption = 'Open Full Report (v6)';
+                ToolTip = 'Opens the archived Full Assessment for the selected scan in a separate browser window, when purchased and retained.';
+                ApplicationArea = All;
+                Image = Report;
+                Scope = Repeater;
+
+                trigger OnAction()
+                var
+                    ReportLinks: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Scan Type" <> Rec."Scan Type"::Deep then
+                        Error('Full Assessment is available for deep scans only.');
+                    ReportLinks.OpenArchivedFullV6(GetBackendDeleteIdFor(Rec));
+                end;
+            }
+
             action(DeleteSelectedScan)
             {
                 Caption = 'Delete Selected Scan(s)';

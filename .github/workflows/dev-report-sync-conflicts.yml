@@ -1,0 +1,57 @@
+name: DEV Report Sync - Non-Destructive Conflict Audit
+
+on:
+  push:
+    branches:
+      - feature/report-renderer-backend-bridge-20261106
+    paths:
+      - '.github/workflows/dev-report-sync-conflicts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out current staging, fetch feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Merge rehearsal - never commit, push or deploy
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p merge-audit
+          git config user.name "BCSentinel Merge Audit"
+          git config user.email "merge-audit@users.noreply.github.com"
+          git fetch origin staging feature/report-renderer-backend-bridge-20261106
+          echo "Staging: $(git rev-parse HEAD)" > merge-audit/summary.txt
+          echo "Feature: $(git rev-parse origin/feature/report-renderer-backend-bridge-20261106)" >> merge-audit/summary.txt
+          echo "Merge base: $(git merge-base HEAD origin/feature/report-renderer-backend-bridge-20261106)" >> merge-audit/summary.txt
+          git merge --no-commit --no-ff origin/feature/report-renderer-backend-bridge-20261106 > merge-audit/merge.log 2>&1
+          rc=$?
+          echo "Merge rehearsal exit: $rc" >> merge-audit/summary.txt
+          git diff --name-only --diff-filter=U > merge-audit/conflicted-files.txt
+          git status --short > merge-audit/status.txt
+          printf "Conflicted files: " >> merge-audit/summary.txt
+          wc -l < merge-audit/conflicted-files.txt >> merge-audit/summary.txt
+          {
+            echo "### Staging/PR#149 conflict audit (no branch changes)"
+            cat merge-audit/summary.txt
+            echo "#### Conflicting paths"
+            head -100 merge-audit/conflicted-files.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+          # Status 0 is deliberate: this is an audit, NOT successful integration.
+          exit 0
+
+      - name: Upload conflict list and merge log
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-report-sync-conflict-audit
+          path: merge-audit/
+          retention-days: 14

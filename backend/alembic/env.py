@@ -14,6 +14,7 @@ from app import customer_runtime_models  # noqa: F401
 from app import exception_snapshot_models  # noqa: F401
 from app import operations_governance_models  # noqa: F401
 from app import models  # noqa: F401
+from app import report_archive_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

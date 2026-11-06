@@ -26,6 +26,7 @@ from app.core.observability import (
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
 from app.models import Scan, ScanIssueRecord, Tenant
+from app import report_archive_models  # noqa: F401 - register tables for test databases
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
@@ -38,6 +39,8 @@ from app.routers.lifecycle import (
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
+from app.routers.report_render_data import router as report_render_data_router
+from app.routers.report_native_access import router as report_native_access_router
 from app.routers.scans import router as scans_router
 from app.schemas.scan import (
     QuickScanRequest,
@@ -76,6 +79,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PUBLIC_FRONTEND_ORIGINS = [
     "https://dev.bcsentinel.com",
+    # Pinned, browser-side Lovable v6 renderer (DEV only); no wildcard CORS.
+    "https://sentinel-assessment-atlas.lovable.app",
     "https://www.bcsentinel.com",
     "https://bcsentinel.com",
 ]
@@ -155,6 +160,8 @@ app.include_router(billing_router)
 app.include_router(partners_router)
 app.include_router(public_router)
 app.include_router(reports_router)
+app.include_router(report_render_data_router)
+app.include_router(report_native_access_router)
 app.include_router(scans_router)
 app.include_router(license_router)
 app.include_router(lifecycle_router)

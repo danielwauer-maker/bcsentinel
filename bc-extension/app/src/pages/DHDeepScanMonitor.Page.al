@@ -446,6 +446,19 @@
                 end;
             }
 
+            action(OpenFullReportV6)
+            {
+                Caption = 'Full Assessment (v6 Test)';
+                ApplicationArea = All;
+                Image = Report;
+                ToolTip = 'Open the new Full Assessment viewer. Requires a separate BCSentinel account sign-in and an active Full entitlement.';
+
+                trigger OnAction()
+                begin
+                    OpenFullReportV6Viewer();
+                end;
+            }
+
             action(OpenExecutivePdf)
             {
                 Caption = 'Executive PDF';
@@ -1350,6 +1363,50 @@
         ReportUrl := GetExecutiveReportShareUrl(Setup, ReportType);
 
         Hyperlink(ReportUrl);
+    end;
+
+    local procedure OpenFullReportV6Viewer()
+    var
+        Setup: Record "DH Setup";
+        Client: HttpClient;
+        RequestHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        ApiClient: Codeunit "DH API Client";
+        ResponseText: Text;
+        LaunchUrl: Text;
+    begin
+        if not CanOpenExecutiveReport() then
+            exit;
+
+        LoadSetupOrError(Setup);
+        RequestHeaders := Client.DefaultRequestHeaders();
+        RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
+        RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
+        if not Client.Post(
+            BuildUrl(Setup."API Base URL", '/reports/executive/' + EncodeUrlValue(Format(Rec."Run ID")) + '/v6-link'),
+            GetEmptyJsonContent(), Response)
+        then
+            Error('The BCSentinel v6 viewer link service could not be reached.');
+
+        Response.Content().ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('BCSentinel v6 viewer is unavailable (HTTP %1). %2',
+                Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
+
+        LaunchUrl := ExtractUrlFromJson(ResponseText);
+        Hyperlink(LaunchUrl);
+    end;
+
+    local procedure GetEmptyJsonContent(): HttpContent
+    var
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+    begin
+        Content.WriteFrom('{}');
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+        exit(Content);
     end;
 
     local procedure CanOpenExecutiveReport(): Boolean

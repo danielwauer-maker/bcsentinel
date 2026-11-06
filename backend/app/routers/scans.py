@@ -17,6 +17,7 @@ from app.security.tenant import (
     load_authenticated_tenant,
     require_tenant_headers,
 )
+from app.services.scan_company_service import canonical_company_id, canonical_lcy_code
 from app.services.impact_service import (
     apply_commercials_to_scan,
     calculate_scan_commercials,
@@ -81,6 +82,8 @@ class ModuleScoresPayload(BaseModel):
 class ScanSyncPayload(BaseModel):
     tenant_id: str
     preferred_language: Optional[str] = None
+    bc_company_id: Optional[str] = Field(default=None, min_length=32, max_length=64)
+    lcy_code: Optional[str] = Field(default=None, min_length=3, max_length=3)
     scan_id: str
     scan_type: str
     generated_at_utc: datetime
@@ -303,6 +306,22 @@ def sync_scan(
         if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
 
+        # A company binding is immutable after the first successful upload.
+        # Legacy uploads without a company GUID remain available through legacy
+        # endpoints, but are not eligible for the new browser-rendering API.
+        if bool(payload.bc_company_id) != bool(payload.lcy_code):
+            raise HTTPException(status_code=422, detail="BC company ID and LCY code must be supplied together.")
+        try:
+            normalized_company_id = canonical_company_id(payload.bc_company_id) if payload.bc_company_id else ""
+            normalized_lcy = canonical_lcy_code(payload.lcy_code) if payload.lcy_code else ""
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        if existing_scan is not None and existing_scan.bc_company_id:
+            if normalized_company_id and existing_scan.bc_company_id.lower() != normalized_company_id:
+                raise HTTPException(status_code=409, detail="Scan BC company binding cannot change.")
+            if normalized_lcy and existing_scan.lcy_code != normalized_lcy:
+                raise HTTPException(status_code=409, detail="Scan local currency binding cannot change.")
+
         scan = existing_scan
         normalized_generated_at = _normalize_utc(payload.generated_at_utc)
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
@@ -354,6 +373,10 @@ def sync_scan(
             scan.enabled_modules = _normalize_enabled_modules(payload.enabled_modules)
 
             db.query(ScanIssueRecord).filter(ScanIssueRecord.scan_id == payload.scan_id).delete()
+
+        if normalized_company_id:
+            scan.bc_company_id = normalized_company_id
+            scan.lcy_code = normalized_lcy
 
         apply_commercials_to_scan(scan, commercials)
 

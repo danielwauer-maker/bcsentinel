@@ -2378,6 +2378,7 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure BuildSyncPayload(var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"): Text
     var
         Finding: Record "DH Deep Scan Finding";
+        ReportGLSetup: Record "General Ledger Setup";
         Payload: JsonObject;
         IssuesArray: JsonArray;
         IssueObject: JsonObject;
@@ -2394,6 +2395,13 @@ codeunit 53128 "DH Deep Scan Runner"
 
         Payload.Add('tenant_id', Setup."Tenant ID");
         Payload.Add('preferred_language', GetPreferredLanguage());
+        // Only the authoritative current BC company and local accounting
+        // currency can bind a scan. No country/language currency inference.
+        if ReportGLSetup.Get() then
+            if ReportGLSetup."LCY Code" <> '' then begin
+                Payload.Add('bc_company_id', Format(CompanyProperty.ID()));
+                Payload.Add('lcy_code', Format(ReportGLSetup."LCY Code"));
+            end;
         Payload.Add('scan_id', Format(DeepScanRun."Run ID"));
         Payload.Add('bc_run_id', DeepScanRun."Run ID");
         Payload.Add('scan_type', 'deep');

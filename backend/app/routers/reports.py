@@ -25,6 +25,7 @@ from app.services.free_health_report_pdf_service import render_free_health_repor
 from app.services.free_health_report_service import build_free_health_report
 from app.services.product_license_service import build_product_access_snapshot
 from app.services.tenant_access_service import enforce_tenant_is_active
+from app.services.tenant_access_service import enforce_tenant_is_active
 from app.services.validation_report_pdf_service import render_validation_report_pdf
 from app.services.validation_report_service import build_validation_report
 
@@ -430,6 +431,54 @@ def create_executive_report_share_link(
             raise HTTPException(status_code=402, detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.")
     token = _create_share_token(tenant_id=header_tenant_id, scan_id=scan_id, report_type=selected_type)
     return ExecutiveReportShareLinkResponse(url=_shared_report_url(request, scan_id, selected_type, token))
+
+
+@router.post("/executive/{scan_id}/v6-link", response_model=ExecutiveReportShareLinkResponse)
+def create_full_v6_navigation_link(
+    scan_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReportShareLinkResponse:
+    """Mint a short-lived one-time BC-native report launch capability.
+
+    The BC API token is verified server-side and never returned or embedded in the
+    link. Opening this URL alone grants zero report privileges: the browser must
+    complete account OIDC sign-in, acquire a membership-bound tenant session,
+    and pass the company/scan checks in /account/reports/full/{scan_id}.
+    The legacy share-link endpoint remains unchanged for existing users.
+    """
+    from urllib.parse import urlencode, urlparse
+
+    from app.services.scan_company_service import canonical_company_id
+
+    viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
+    target = urlparse(viewer)
+    if (
+        not viewer or target.scheme != "https" or not target.netloc
+        or target.username or target.password or target.query or target.fragment
+    ):
+        raise HTTPException(status_code=503, detail="Authenticated v6 report viewer is not configured.")
+
+    tenant_id, api_token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, api_token)
+        enforce_tenant_is_active(db, tenant.tenant_id)
+        scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id))
+        if scan is None:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        if not scan.bc_company_id or not scan.lcy_code:
+            raise HTTPException(status_code=409, detail="Scan has no verified company/LCY binding.")
+        company_id = canonical_company_id(scan.bc_company_id)
+        if scan.lcy_code.upper() != "EUR":
+            raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
+
+        # New Full reports require paid access; previously purchased and sealed
+        # reports remain available through history while retained by the tenant.
+        # issue_full_link/archive_full_report enforces this distinction.
+        # The immutable archive is sealed at first paid access and remains
+        # available on subsequent BC-authenticated history requests.
+        from app.services.report_archive_service import issue_full_link
+        return ExecutiveReportShareLinkResponse(url=issue_full_link(db, tenant, scan, viewer))
+
 
 
 @router.get("/executive/{scan_id}/html", response_class=HTMLResponse)
