@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-e5-recovery-automation-v1",
+  "status": "automation_prepared",
+  "official_sprint_done": false,
+  "backup": {
+    "format": "postgresql-custom",
+    "checksum": "sha256",
+    "manifest_required": true,
+    "alembic_revision_recorded": true,
+    "secrets_in_artifact_forbidden": true
+  },
+  "restore": {
+    "checksum_verification_required": true,
+    "isolated_database_required": true,
+    "alembic_revision_validation_required": true,
+    "data_probe_required": true
+  },
+  "pilot_retention": {
+    "daily_backups_minimum": 7,
+    "off_host_required": true,
+    "encryption_at_rest_required": true
+  },
+  "manual_evidence_required": [
+    "real off-host encrypted backup",
+    "restore into isolated non-CI environment",
+    "measured restore duration",
+    "RTO/RPO acceptance",
+    "tenant sample and backend /health/ready verification"
+  ]
+}

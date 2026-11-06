@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-e7-scale-soak-v1",
+  "status": "automation_prepared",
+  "official_sprint_done": false,
+  "ci_scale_matrix": [1, 5, 10, 25, 50],
+  "ci_assertions": [
+    "all active tenant memberships are listed for one account",
+    "tenant sessions are minted only for memberships of the account",
+    "tenant-specific role and product state remain isolated",
+    "repeated tenant switching never changes an existing session scope",
+    "mixed tenant header and bearer session is rejected"
+  ],
+  "soak_preparation": {
+    "duration_hours_target": 24,
+    "tenant_count_target": 50,
+    "real_infrastructure_required": true,
+    "monitor": [
+      "API error rate",
+      "p50/p95 latency",
+      "database connections",
+      "memory and CPU",
+      "scan failures",
+      "Stripe webhook failures",
+      "email delivery failures"
+    ]
+  },
+  "manual_evidence_required": [
+    "24-hour soak on the accepted DEV/release-candidate stack",
+    "measured p50/p95 response latency and error rate",
+    "resource utilization and database connection evidence",
+    "multi-tenant isolation spot checks during soak",
+    "no unresolved P0/P1 operational incidents"
+  ]
+}

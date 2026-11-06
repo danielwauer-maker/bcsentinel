@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.1.0",
+  "contract": "bcsentinel-x8-pre-manual-pilot-audit-v1",
+  "status": "ready",
+  "pre_manual_ready": true,
+  "official_sprint_done": false,
+  "official_go_live_readiness_owned_here": false,
+  "purpose": "Machine-readable audit proving that no known P0 product/code blocker remains before the consolidated manual/external acceptance block. It does not replace E3-E8 acceptance or change official go-live readiness.",
+  "required_contracts": [
+    "config/x1-ui-convergence.json",
+    "config/x3-exception-transparency.json",
+    "config/x4-notification-email-i18n.json",
+    "config/x5-executive-report-production.json",
+    "config/x6-legal-review.json",
+    "config/x7-dev-acceptance.json",
+    "config/e4-provider-contract.json",
+    "config/e5-recovery-automation.json",
+    "config/e6-synthetic-pilot-journey.json",
+    "config/e7-scale-soak.json"
+  ],
+  "code_blockers": [],
+  "external_evidence": [
+    {
+      "id": "X6-LEGAL-FACT-VERIFICATION",
+      "description": "Final contracting entity, providers, retention/transfer facts and legal review remain external acceptance evidence; the repository contains a review candidate and must not claim legal approval."
+    },
+    {
+      "id": "X7-DEV-LIVE-SMOKE",
+      "description": "dev.bcsentinel.com and dev-api.bcsentinel.com must be verified against the merged acceptance stack."
+    },
+    {
+      "id": "E4-PROVIDER-EVIDENCE",
+      "description": "Real Stripe checkout/webhooks/portal/invoice paths and real SMTP/SPF/DKIM/DMARC delivery evidence remain required."
+    },
+    {
+      "id": "E5-OFFHOST-RECOVERY",
+      "description": "A real off-host backup restore with observed RTO/RPO remains required even though the PostgreSQL CI restore drill is green."
+    },
+    {
+      "id": "E7-REAL-SOAK",
+      "description": "The 24-hour/50-tenant real infrastructure soak remains required."
+    }
+  ],
+  "manual_acceptance": [
+    "E3 Business Central role/runtime acceptance",
+    "E4 real Stripe and SMTP/DNS provider acceptance",
+    "E5 real off-host backup/restore and RTO/RPO evidence",
+    "E6 real pilot end-to-end journey including multi-tenant switching",
+    "E7 real 24-hour scale/soak evidence",
+    "X1 final visual/Figma/DEV responsive acceptance",
+    "Executive Report PDF/HTML visual acceptance",
+    "F1 controlled pilot launch authorization"
+  ],
+  "hard_rules": {
+    "no_automatic_main_to_prod": true,
+    "dashboard_bc_writes_forbidden": true,
+    "official_readiness_not_recomputed": true,
+    "legal_review_must_not_claim_approval": true,
+    "legacy_public_roi_forbidden": true,
+    "legacy_pricing_literals_forbidden": true,
+    "stale_placeholder_legal_content_forbidden": true,
+    "x3_exception_snapshot_transport_required": true,
+    "x4_email_i18n_contract_required": true
+  }
+}

@@ -1,0 +1,34 @@
+name: Landing + Pilot Production Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'landingpage/**'
+      - 'backend/app/routers/public.py'
+      - 'backend/app/public_lead_models.py'
+      - 'backend/alembic/versions/0021_pilot_interests.py'
+      - 'backend/tests/test_public_pilot_interest.py'
+      - 'scripts/validate_landing_pilot_production.py'
+      - '.github/workflows/landing-pilot-production-quality.yml'
+
+jobs:
+  validate-landing-pilot-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate D9 product, pricing, SEO and accessibility contracts
+        run: python scripts/validate_landing_pilot_production.py
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Compile backend
+        run: python -m compileall -q backend/app
+      - name: Run pilot intake tests
+        working-directory: backend
+        run: pytest -q tests/test_public_pilot_interest.py
+      - name: Run record-volume pricing regression
+        working-directory: backend
+        run: pytest -q tests/test_record_based_pricing.py

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-x4-notification-email-i18n-v1",
+  "status": "complete",
+  "languages": ["en", "de"],
+  "business_central": {
+    "localized_default_templates": true,
+    "non_destructive_upgrade_seed": true,
+    "preferred_language_fallback": true
+  },
+  "saas_email": {
+    "localized_editable_templates": true,
+    "english_backward_compatible_storage_keys": true,
+    "language_specific_storage_keys": true,
+    "english_fallback": true,
+    "placeholder_validation": true,
+    "active_content_rejected": true,
+    "admin_preview_rendering": true,
+    "admin_test_send": true,
+    "test_send_audited": true
+  },
+  "manual_external_evidence": [
+    "real SMTP delivery to external mailbox",
+    "SPF/DKIM/DMARC validation",
+    "sender/reply-to and spam placement acceptance"
+  ],
+  "official_e4_done": false
+}

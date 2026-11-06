@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "bcsentinel-synthetic-demo-v1",
+  "synthetic": true,
+  "customer_data": false,
+  "tenant": {
+    "tenant_id": "demo_contoso_trading",
+    "display_name": "Contoso Trading GmbH",
+    "environment_name": "DEMO",
+    "preferred_language": "de",
+    "current_plan": "monitoring_monthly",
+    "license_status": "active"
+  },
+  "scan": {
+    "scan_id": "demo_scan_2026_10_10",
+    "scan_type": "deep",
+    "data_score": 72,
+    "checks_count": 148,
+    "issues_count": 26,
+    "total_records": 824315,
+    "estimated_loss_eur": 184600.0,
+    "potential_saving_eur": 129220.0,
+    "validated_improvement_eur": 0.0,
+    "realized_saving_eur": 0.0
+  },
+  "findings": [
+    {"code": "DUPLICATE_CUSTOMERS", "category": "master_data", "title": "Mögliche doppelte Debitoren", "severity": "critical", "affected_count": 37, "estimated_impact_eur": 42000.0},
+    {"code": "INACTIVE_ITEMS_WITH_STOCK", "category": "inventory", "title": "Inaktive Artikel mit Lagerbestand", "severity": "high", "affected_count": 61, "estimated_impact_eur": 31800.0},
+    {"code": "PRICE_CONDITION_VARIANCE", "category": "sales", "title": "Auffällige Preis- und Konditionsabweichungen", "severity": "high", "affected_count": 19, "estimated_impact_eur": 52800.0}
+  ],
+  "actions": [
+    {"title": "Doppelte Debitoren prüfen und zusammenführen", "status": "InProgress", "priority": "High", "owner_display_name": "Demo Data Steward"},
+    {"title": "Lagerbestand inaktiver Artikel bewerten", "status": "Open", "priority": "Medium", "owner_display_name": "Demo Inventory Lead"}
+  ],
+  "exceptions": [
+    {"issue_code": "DUPLICATE_CUSTOMERS", "record_caption": "CONTOSO-DEMO-1007", "reason": "Bewusst getrennte Rechnungsempfänger im Demo-Szenario"}
+  ],
+  "monitoring_history": [
+    {"period": "2026-07", "data_score": 64},
+    {"period": "2026-08", "data_score": 67},
+    {"period": "2026-09", "data_score": 70},
+    {"period": "2026-10", "data_score": 72}
+  ],
+  "disclaimer_de": "Synthetische Demodaten – keine Kundendaten und keine realen finanziellen Aussagen.",
+  "disclaimer_en": "Synthetic demo data – no customer data and no real financial claims."
+}

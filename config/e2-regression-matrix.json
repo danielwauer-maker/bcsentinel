@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "sprint": "E2",
+  "name": "Automated Regression",
+  "target_readiness_pct": 97.5,
+  "principle": "Reuse existing product gates; do not duplicate product truth or KPI logic.",
+  "categories": {
+    "al_and_contracts": {
+      "required": true,
+      "checks": [
+        "scripts/check_al_localization.py",
+        "scripts/validate_bc_remediation.py",
+        "scripts/validate_bc_notifications.py",
+        "scripts/check_pricing_consistency.py",
+        "scripts/validate_backend_remediation_api.py",
+        "scripts/validate_backend_notification_read_model.py",
+        "scripts/validate_dashboard_foundation.py",
+        "scripts/validate_dashboard_core_pages.py",
+        "scripts/validate_dashboard_service_pages.py",
+        "scripts/validate_landing_pilot_production.py",
+        "scripts/validate_executive_report_contract.py",
+        "scripts/validate_e1_tenant_security.py"
+      ]
+    },
+    "backend": {
+      "required": true,
+      "command": "pytest -q",
+      "scope": "backend/tests"
+    },
+    "dashboard": {
+      "required": true,
+      "commands": ["npm run check", "npm run build"]
+    },
+    "accessibility": {
+      "required": true,
+      "evidence_check": "scripts/validate_landing_pilot_production.py",
+      "scope": "landing/public production surfaces plus dashboard semantic/static contracts"
+    },
+    "responsive": {
+      "required": true,
+      "evidence_checks": [
+        "scripts/validate_dashboard_foundation.py",
+        "scripts/validate_dashboard_core_pages.py",
+        "scripts/validate_dashboard_service_pages.py"
+      ],
+      "scope": "desktop/tablet/mobile contract regressions; real-tenant visual proof remains E3"
+    },
+    "security": {
+      "required": true,
+      "evidence_check": "scripts/validate_e1_tenant_security.py",
+      "scope": "tenant isolation, lifecycle, sessions, entitlement/resource boundaries"
+    }
+  },
+  "deferred_runtime_gates": {
+    "E3": "real Business Central role/runtime and visual acceptance",
+    "E4": "real Stripe, SMTP and external provider acceptance"
+  }
+}

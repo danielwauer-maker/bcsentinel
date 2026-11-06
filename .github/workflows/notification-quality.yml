@@ -1,0 +1,37 @@
+name: Notification Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "bc-extension/app/src/tables/DHNotification*.al"
+      - "bc-extension/app/src/codeunits/DHNotificationMgt.Codeunit.al"
+      - "bc-extension/app/src/pages/DHNotification*.al"
+      - "bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al"
+      - "scripts/validate_bc_notifications.py"
+      - ".github/workflows/notification-quality.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "bc-extension/app/src/tables/DHNotification*.al"
+      - "bc-extension/app/src/codeunits/DHNotificationMgt.Codeunit.al"
+      - "bc-extension/app/src/pages/DHNotification*.al"
+      - "bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al"
+      - "scripts/validate_bc_notifications.py"
+      - ".github/workflows/notification-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-notifications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate BC notification implementation contract
+        run: python scripts/validate_bc_notifications.py

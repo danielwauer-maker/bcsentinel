@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-e6-synthetic-pilot-journey-v1",
+  "status": "automation_prepared",
+  "official_sprint_done": false,
+  "synthetic_flow": [
+    "public pilot interest",
+    "OIDC-backed account session",
+    "multi-tenant membership listing",
+    "tenant A selection and dashboard",
+    "tenant B switch with independent role/product state",
+    "tenant B dashboard",
+    "tenant B Executive Report",
+    "tenant B Monitoring Report",
+    "cross-tenant report isolation",
+    "mixed tenant-header/session rejection"
+  ],
+  "required_boundaries": {
+    "account_auth_not_equal_entitlement": true,
+    "tenant_session_reissued_on_switch": true,
+    "tenant_specific_roles": true,
+    "tenant_specific_commercial_and_product_state": true,
+    "foreign_report_returns_404": true,
+    "web_bc_write_forbidden": true
+  },
+  "manual_evidence_required": [
+    "real Business Central tenant/environment/company connection",
+    "real pilot user login",
+    "real tenant switch with separate customer data",
+    "real scan and monitoring result",
+    "real Executive Report visual acceptance",
+    "real provider path where payment/email is part of the pilot"
+  ]
+}

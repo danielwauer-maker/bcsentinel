@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "contract": "bcsentinel-e4-provider-contract-v1",
+  "status": "automation_prepared",
+  "official_sprint_done": false,
+  "stripe": {
+    "canonical_list_price_server_side": true,
+    "tenant_override_server_side": true,
+    "promotion_code_only_without_tenant_override": true,
+    "sponsored_pilot_without_fake_zero_checkout": true,
+    "webhook_entitlement_boundary_required": true,
+    "portal_and_cancel_paths_required": true
+  },
+  "email": {
+    "languages": ["de", "en"],
+    "editable_templates": true,
+    "safe_placeholder_catalog": true,
+    "english_fallback": true,
+    "real_delivery_required_for_acceptance": true
+  },
+  "manual_evidence_required": [
+    "real Stripe checkout for each product path",
+    "real Stripe promotion code and tenant-specific commercial condition",
+    "real sponsored/free pilot conversion path",
+    "real Stripe customer portal, cancel, failure and invoice evidence",
+    "real SMTP delivery to external inboxes",
+    "SPF, DKIM and DMARC verification",
+    "sender/from-name and spam-placement check"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "bcsentinel-data-retention-v1",
+  "scan_history_days": 730,
+  "report_history_days": 730,
+  "product_telemetry_days": 180,
+  "security_audit_days": 2555,
+  "canceled_tenant_read_only_days": 90,
+  "logical_delete_grace_days": 30,
+  "backup_purge_target_days_after_logical_delete": 35,
+  "export_before_delete_supported": true,
+  "notes": "These are product policy defaults for the controlled pilot and must be reconciled with final legal/DPA wording before production launch. Audit and backup retention may override ordinary tenant data retention where legally or operationally required."
+}

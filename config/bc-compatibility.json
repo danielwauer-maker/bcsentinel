@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "bcsentinel-bc-compatibility-v1",
+  "minimum_extension_version": "1.0.2.6",
+  "supported_bc_major_versions": [27],
+  "required_capabilities": [
+    "api_reachable",
+    "required_permissions"
+  ],
+  "notes": "Minimum extension version is a compatibility floor, not the current release version. Update only when runtime contracts require a newer extension."
+}

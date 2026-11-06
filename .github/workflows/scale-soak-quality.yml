@@ -1,0 +1,31 @@
+name: E7 Scale Soak Preparation Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  multitenant-scale:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: e7_scale_ci_secret_not_for_prod
+      ADMIN_USERNAME: e7-ci
+      ADMIN_PASSWORD: e7-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-e7.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate E7 scale/soak contract
+        run: python scripts/validate_e7_scale_soak.py
+      - name: Run 1/5/10/25/50 tenant account scale matrix
+        working-directory: backend
+        run: pytest -q tests/test_e7_scale_multitenant.py
+      - name: Re-run tenant isolation security contracts
+        working-directory: backend
+        run: pytest -q tests/test_x0_account_auth_switching.py tests/test_e1_tenant_security.py

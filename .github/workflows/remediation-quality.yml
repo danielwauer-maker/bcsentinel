@@ -1,0 +1,45 @@
+name: Remediation Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "bc-extension/app/src/enums/DHRemediationEnums.al"
+      - "bc-extension/app/src/tables/DHRemediationAction.Table.al"
+      - "bc-extension/app/src/tables/DHRemediationAudit.Table.al"
+      - "bc-extension/app/src/codeunits/DHRemediationMgt.Codeunit.al"
+      - "bc-extension/app/src/pages/DHRemediationActions.Page.al"
+      - "bc-extension/app/src/pages/DHRemediationActionCard.Page.al"
+      - "bc-extension/app/src/pages/DHRemediationAudit.Page.al"
+      - "bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al"
+      - "scripts/validate_bc_remediation.py"
+      - ".github/workflows/remediation-quality.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "bc-extension/app/src/enums/DHRemediationEnums.al"
+      - "bc-extension/app/src/tables/DHRemediationAction.Table.al"
+      - "bc-extension/app/src/tables/DHRemediationAudit.Table.al"
+      - "bc-extension/app/src/codeunits/DHRemediationMgt.Codeunit.al"
+      - "bc-extension/app/src/pages/DHRemediationActions.Page.al"
+      - "bc-extension/app/src/pages/DHRemediationActionCard.Page.al"
+      - "bc-extension/app/src/pages/DHRemediationAudit.Page.al"
+      - "bc-extension/app/src/permissionsets/BCSentinelPermissionSets.al"
+      - "scripts/validate_bc_remediation.py"
+      - ".github/workflows/remediation-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-remediation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate BC remediation implementation contract
+        run: python scripts/validate_bc_remediation.py

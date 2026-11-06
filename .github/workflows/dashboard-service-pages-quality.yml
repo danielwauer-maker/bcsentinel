@@ -1,0 +1,37 @@
+name: Dashboard Service Pages Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'dashboard/**'
+      - 'scripts/validate_dashboard_service_pages.py'
+      - 'scripts/validate_dashboard_foundation.py'
+      - 'scripts/validate_dashboard_core_pages.py'
+      - '.github/workflows/dashboard-service-pages-quality.yml'
+
+jobs:
+  validate-dashboard-service-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate D6 dashboard foundation regression
+        run: python scripts/validate_dashboard_foundation.py
+      - name: Validate D7 dashboard core pages regression
+        run: python scripts/validate_dashboard_core_pages.py
+      - name: Validate D8 service page contracts
+        run: python scripts/validate_dashboard_service_pages.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm install
+      - name: Type-check dashboard
+        working-directory: dashboard
+        run: npm run check
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build

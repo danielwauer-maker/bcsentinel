@@ -1,0 +1,43 @@
+name: BC Scan Visual Control Add-in Quality
+
+on:
+  push:
+    paths:
+      - 'bc-extension/app/src/controladdin/ScanVisualAddIn.al'
+      - 'bc-extension/app/src/controladdin/js/scanvisual.js'
+      - 'bc-extension/app/src/controladdin/js/scanvisual-startup.js'
+      - 'bc-extension/app/src/controladdin/css/scanvisual.css'
+      - 'bc-extension/app/src/pages/DHDeepScanMonitor.Page.al'
+      - 'scripts/validate_bc_scan_visual.py'
+      - 'scripts/test_bc_scan_visual.js'
+      - '.github/workflows/bc-scan-visual-quality.yml'
+  pull_request:
+    paths:
+      - 'bc-extension/app/src/controladdin/ScanVisualAddIn.al'
+      - 'bc-extension/app/src/controladdin/js/scanvisual.js'
+      - 'bc-extension/app/src/controladdin/css/scanvisual.css'
+      - 'bc-extension/app/src/pages/DHDeepScanMonitor.Page.al'
+      - 'scripts/validate_bc_scan_visual.py'
+      - 'scripts/test_bc_scan_visual.js'
+      - '.github/workflows/bc-scan-visual-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-visual:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check bc-extension/app/src/controladdin/js/scanvisual.js
+          node --check bc-extension/app/src/controladdin/js/scanvisual-startup.js
+      - name: Test scan visual subscription-specific disclosure and accessible interactions
+        run: node scripts/test_bc_scan_visual.js
+      - name: Check control add-in AL and frontend data contract
+        run: python scripts/validate_bc_scan_visual.py

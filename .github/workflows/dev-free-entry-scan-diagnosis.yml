@@ -1,0 +1,68 @@
+name: DEV Free Entry Scan Read-Only Diagnosis
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/dev-free-entry-scan-diagnosis.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  investigate:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Set up SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Read exact DEV scan and its original free-entry credit
+        shell: bash
+        run: |
+          ssh -T "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" bash -s <<'REMOTE'
+            set -euo pipefail
+            docker exec -i dhm-dev-backend python - <<'PY'
+          from sqlalchemy import select, func
+          from app.db import SessionLocal
+          from app.models import Scan, ScanRunStatus, TenantScanCredit, ScanIssueRecord
+          rid = 'RUN_20261104_000001'
+          with SessionLocal() as db:
+              scan = db.scalar(select(Scan).where(Scan.scan_id == rid))
+              run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == rid))
+              print('scan_exists:', scan is not None)
+              print('run_exists:', run is not None)
+              if scan is not None:
+                  print('scan_score:', scan.data_score)
+                  print('scan_checks:', scan.checks_count)
+                  print('scan_issues:', scan.issues_count)
+                  print('persisted_issue_records:', db.scalar(select(func.count()).select_from(ScanIssueRecord).where(ScanIssueRecord.scan_id == rid)))
+              if run is not None:
+                  print('backend_status:', run.status)
+                  print('backend_progress:', run.progress_percent)
+                  print('completed_modules:', run.completed_modules)
+                  print('total_modules:', run.total_modules)
+                  print('last_heartbeat:', run.heartbeat_at_utc.isoformat() if run.heartbeat_at_utc else None)
+                  print('has_completed_timestamp:', run.completed_at_utc is not None)
+                  print('has_failed_timestamp:', run.failed_at_utc is not None)
+                  print('backend_error_code:', run.error_code or 'none')
+              tenant_ids = {x.tenant_id for x in (scan, run) if x is not None}
+              print('scan_and_run_same_tenant:', len(tenant_ids) <= 1)
+              if len(tenant_ids) == 1:
+                  tid = next(iter(tenant_ids))
+                  credits = db.scalars(select(TenantScanCredit).where(
+                      TenantScanCredit.tenant_id == tid,
+                      TenantScanCredit.product_code == 'free_entry'
+                  )).all()
+                  print('free_entry_credit_count:', len(credits))
+                  print('original_credit_linked_to_run:', sum(c.consumed_scan_id == rid and c.status == 'consumed' for c in credits))
+                  print('free_entry_available_count:', sum(c.status == 'available' for c in credits))
+                  print('free_entry_credit_other_consumed:', sum(c.status == 'consumed' and c.consumed_scan_id != rid for c in credits))
+              print('READ ONLY: no data changed, no private tenant IDs or tokens printed')
+          PY
+          REMOTE

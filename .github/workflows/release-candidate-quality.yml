@@ -1,0 +1,62 @@
+name: E8 Release Candidate Preparation Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Full immutable 40-character Git SHA for manifest generation
+        required: true
+        type: string
+
+jobs:
+  rc-preparation:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: e8_ci_secret_not_for_prod
+      ADMIN_USERNAME: e8-ci
+      ADMIN_PASSWORD: e8-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-e8.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate E8 RC freeze contract
+        run: python scripts/validate_e8_release_candidate.py
+      - name: Resolve immutable release SHA
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            SHA="${{ inputs.release_ref }}"
+          fi
+          test "${#SHA}" -eq 40
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - name: Build release candidate evidence manifest
+        run: python scripts/build_e8_release_manifest.py --git-sha "${{ steps.release.outputs.sha }}"
+      - name: Validate generated manifest is non-promotional
+        run: |
+          python - <<'PY'
+          import json
+          data = json.load(open('artifacts/e8/release-manifest.json', encoding='utf-8'))
+          assert data['official_e8_done'] is False
+          assert data['pre_manual_ready'] is True
+          assert len(data['release_ref']) == 40
+          assert data['versions']['bc_extension']
+          assert data['versions']['dashboard']
+          assert data['versions']['alembic_head']
+          print('E8 release manifest evidence: PASS')
+          PY
+      - name: Upload release candidate evidence manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: e8-release-candidate-evidence-${{ github.run_number }}
+          path: artifacts/e8/release-manifest.json
+          retention-days: 14

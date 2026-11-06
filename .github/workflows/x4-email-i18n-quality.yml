@@ -1,0 +1,28 @@
+name: X4 Notification Email i18n Quality Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  x4-email-i18n:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: x4_ci_secret_not_for_prod
+      ADMIN_USERNAME: x4-ci
+      ADMIN_PASSWORD: x4-ci-password
+      DATABASE_URL: sqlite:////tmp/bcsentinel-x4.db
+      ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Validate X4 contract
+        run: python scripts/validate_x4_notification_email_i18n.py
+      - name: Run X4 SaaS email regressions
+        working-directory: backend
+        run: pytest -q tests/test_x4_email_i18n.py

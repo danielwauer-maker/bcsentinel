@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.2.0",
+  "contract": "bcsentinel-x7-dev-acceptance-v1",
+  "environments": {
+    "dev": {
+      "web_host": "dev.bcsentinel.com",
+      "api_host": "dev-api.bcsentinel.com",
+      "deployment_branch": "dev-acceptance",
+      "deployment_trigger": "dev_acceptance_push_or_manual",
+      "acceptance_surface": true
+    },
+    "prod": {
+      "web_hosts": ["bcsentinel.com", "www.bcsentinel.com"],
+      "api_host": "api.bcsentinel.com",
+      "deployment_trigger": "manual_only",
+      "required_confirmation": "PROMOTE_TO_PROD",
+      "requires_approved_release_ref": true
+    }
+  },
+  "promotion_path": ["DEV", "RC", "PROD"],
+  "rules": {
+    "main_push_auto_prod_forbidden": true,
+    "legacy_staging_auto_deploy_forbidden": true,
+    "prod_checkout_before_dev_acceptance_forbidden": true,
+    "migration_before_app_start": true,
+    "ready_health_required": true,
+    "public_dev_landing_smoke_required": true,
+    "public_dev_pilot_smoke_required": true,
+    "prod_previous_release_ref_required": true,
+    "deployment_secrets_in_git_forbidden": true
+  },
+  "dev_acceptance_evidence": {
+    "status": "passed",
+    "accepted_at_utc": "2026-10-10T20:49:00Z",
+    "release_ref": "f5c5ab2c6bf9cf102d8fe0f05af04496900c40c4",
+    "workflow_run_id": 38085095443,
+    "deployment_branch": "dev-acceptance",
+    "regression_gate": "passed",
+    "migration_and_container_deploy": "passed",
+    "api_ready_https_smoke": "passed",
+    "landing_https_smoke": "passed",
+    "pilot_https_smoke": "passed",
+    "prod_job": "skipped",
+    "legacy_dev_webroot_bridge": "landingpage_neu -> landingpage"
+  },
+  "remaining_external_evidence": [
+    "github_production_environment_protection"
+  ]
+}

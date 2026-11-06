@@ -1,0 +1,161 @@
+from __future__ import annotations
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models import Scan, ScanIssueRecord
+from app.schemas.quick_assessment_report import QuickFinding
+from app.services.assessment_scope_service import get_or_create_auto_scope, included_module_codes, supported_issue_area
+
+MAX_QUICK_FINDINGS = 5
+SEVERITY_WEIGHT = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+
+_DE_AREA_LABELS = {
+    "Finance": "Finanzen",
+    "Sales": "Verkauf",
+    "Purchasing": "Einkauf",
+    "Inventory": "Artikel & Lager",
+    "CRM": "CRM / Kunden",
+    "Manufacturing": "Fertigung",
+    "Service": "Service",
+    "Jobs": "Projekte / Jobs",
+    "HR": "Personal",
+    "System": "System & Setup",
+}
+
+
+def _safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(value or default)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_float(value: object, default: float = 0.0) -> float:
+    try:
+        return float(value or default)
+    except (TypeError, ValueError):
+        return default
+
+
+def normalize_severity(value: object) -> str:
+    normalized = str(value or "").strip().lower()
+    mapping = {
+        "critical": "critical",
+        "crit": "critical",
+        "high": "high",
+        "medium": "medium",
+        "moderate": "medium",
+        "warning": "medium",
+        "low": "low",
+        "info": "info",
+        "informational": "info",
+    }
+    return mapping.get(normalized, "info")
+
+
+def quick_impact_band(value: object, language: str) -> str:
+    impact = max(0.0, _safe_float(value))
+    if impact < 5_000:
+        return "Niedrig" if language == "de" else "Low"
+    if impact < 25_000:
+        return "Moderat" if language == "de" else "Moderate"
+    if impact < 100_000:
+        return "Hoch" if language == "de" else "High"
+    return "Sehr hoch" if language == "de" else "Very high"
+
+
+def _risk_area(issue: ScanIssueRecord) -> str:
+    module_code = supported_issue_area(issue)
+    return {
+        "finance": "Finance",
+        "sales": "Sales",
+        "purchasing": "Purchasing",
+        "inventory": "Inventory",
+        "crm": "CRM",
+        "manufacturing": "Manufacturing",
+        "service": "Service",
+        "jobs": "Jobs",
+        "hr": "HR",
+        "system": "System",
+    }.get(module_code, "System")
+
+
+def _area_label(area: str, language: str) -> str:
+    return _DE_AREA_LABELS.get(area, area) if language == "de" else area
+
+
+def _next_action(issue: ScanIssueRecord, area: str, language: str) -> str:
+    title = str(issue.title or "Data quality finding").strip() or "Data quality finding"
+    if language == "de":
+        area_action = {
+            "Finance": "Buchungs- und Abstimmungssetup sowie die betroffenen Datensätze fachlich prüfen",
+            "Sales": "Verkaufsstammdaten und Prozesssetup für die betroffenen Datensätze fachlich prüfen",
+            "Purchasing": "Lieferanten-/Einkaufsstammdaten und Prozesssetup fachlich prüfen",
+            "Inventory": "Artikel-, Lager- und Bewertungsdaten im betroffenen Bereich fachlich prüfen",
+            "CRM": "Kunden-/Kontaktstammdaten im betroffenen Bereich fachlich prüfen",
+            "Manufacturing": "Fertigungsstammdaten und Prozesssetup im betroffenen Bereich fachlich prüfen",
+            "Service": "Service-Stammdaten und Prozesssetup im betroffenen Bereich fachlich prüfen",
+            "Jobs": "Projekt-/Job-Stammdaten und Prozesssetup im betroffenen Bereich fachlich prüfen",
+            "HR": "HR-Stammdaten und zugehöriges Setup im betroffenen Bereich fachlich prüfen",
+            "System": "betroffene Datensätze und das zugrunde liegende Business-Central-Setup fachlich prüfen",
+        }.get(area, "betroffene Datensätze und das zugrunde liegende Business-Central-Setup fachlich prüfen")
+        return f'Finding „{title}“ priorisieren: {area_action}.'
+
+    area_action = {
+        "Finance": "review posting/reconciliation setup and the affected records",
+        "Sales": "review sales master data and process setup for the affected records",
+        "Purchasing": "review vendor/purchasing master data and process setup",
+        "Inventory": "review item, inventory and costing data in the affected area",
+        "CRM": "review customer/contact master data in the affected area",
+        "Manufacturing": "review manufacturing master data and process setup in the affected area",
+        "Service": "review service master data and process setup in the affected area",
+        "Jobs": "review job/project master data and process setup in the affected area",
+        "HR": "review HR master data and related setup in the affected area",
+        "System": "review the affected records and the underlying Business Central setup",
+    }.get(area, "review the affected records and the underlying Business Central setup")
+    return f'Prioritize “{title}”: {area_action}.'
+
+
+def _priority_key(issue: ScanIssueRecord) -> tuple[float, int, int, str]:
+    severity = normalize_severity(issue.severity)
+    return (
+        -_safe_float(issue.estimated_impact_eur),
+        SEVERITY_WEIGHT[severity],
+        -_safe_int(issue.affected_count),
+        str(issue.code or ""),
+    )
+
+
+def select_quick_findings(db: Session, *, scan_id: str, language: str) -> list[QuickFinding]:
+    """Return at most five Quick-safe findings inside the automatic standard scope."""
+    scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id))
+    if scan is None:
+        return []
+    scope = get_or_create_auto_scope(db, scan)
+    active_scope = included_module_codes(scope)
+
+    issues = list(
+        db.scalars(
+            select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan_id)
+        ).all()
+    )
+    scoped_issues = [issue for issue in issues if supported_issue_area(issue) in active_scope]
+    prioritized = sorted(scoped_issues, key=_priority_key)[:MAX_QUICK_FINDINGS]
+
+    findings: list[QuickFinding] = []
+    for rank, issue in enumerate(prioritized, start=1):
+        area = _risk_area(issue)
+        findings.append(
+            QuickFinding(
+                rank=rank,
+                title=str(issue.title or "Data quality finding").strip() or "Data quality finding",
+                severity=normalize_severity(issue.severity),
+                affected_count=max(0, _safe_int(issue.affected_count)),
+                risk_area=area,
+                risk_area_label=_area_label(area, language),
+                impact_band=quick_impact_band(issue.estimated_impact_eur, language),
+                next_action=_next_action(issue, area, language),
+            )
+        )
+    return findings

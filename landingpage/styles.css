@@ -9,11 +9,11 @@
   --text: #eff4ff;
   --muted: #acbbd8;
   --muted-2: #7f91b3;
-  --orange: #ff8f3d;
+  --orange: #FF921F;
   --orange-soft: #ffbc82;
-  --blue: #4a8dff;
+  --blue: #246BFD;
   --blue-soft: #8ab5ff;
-  --green: #56d6a1;
+  --green: #11A36A;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
   --radius-xl: 30px;
   --radius-lg: 22px;
@@ -322,8 +322,8 @@ p {
 }
 .btn:hover { transferm: translateY(-1px); }
 .btn-primary {
-  color: #fff;
-  background: linear-gradient(135deg, var(--orange), #ff7618);
+  color: #082138;
+  background: var(--orange);
   box-shadow: 0 16px 38px rgba(255, 118, 24, .24);
 }
 .btn-secondary {
