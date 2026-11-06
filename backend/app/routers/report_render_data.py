@@ -24,6 +24,7 @@ from app.services.validation_report_service import build_validation_report
 from app.services.monitoring_report_service import build_monitoring_report
 from app.services.tenant_access_service import enforce_tenant_is_active
 from app.services.scan_company_service import canonical_company_id
+from app.services.full_report_render_service import build_full_render_vm
 
 router = APIRouter(prefix="/account/reports", tags=["reports"])
 ReportVariant = Literal["free", "quick", "full", "validation", "monitoring"]
@@ -50,6 +51,7 @@ class ReportRenderEnvelope(BaseModel):
     language: str
     currency: ReportCurrencyContext
     report: dict
+    render_vm: dict | None = None
 
 
 def _require_company_scan(db, tenant_id: str, scan_id: str, company_id: str) -> Scan:
@@ -129,6 +131,9 @@ def read_report_for_renderer(
             raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
 
         report = _build_authorized_report(db, tenant, scan_id, variant)
+        # Only Full currently has an evidenced v6 renderer projection. The
+        # other report types retain their existing safe, raw stage contracts.
+        render_vm = build_full_render_vm(db, tenant, scan) if variant == "full" else None
         if variant == "validation":
             _assert_comparable_history(
                 db, tenant_id, company_id, scan.lcy_code,
@@ -151,5 +156,6 @@ def read_report_for_renderer(
                 report_currency="EUR",
             ),
             report=data,
+            render_vm=render_vm,
         )
 
