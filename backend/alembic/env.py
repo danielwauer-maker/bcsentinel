@@ -8,6 +8,13 @@ from sqlalchemy import Column, MetaData, String, Table, engine_from_config, insp
 from app.core.settings import settings
 from app.db import Base
 from app import models  # noqa: F401
+from app import account_models  # noqa: F401
+from app import assessment_scope_models  # noqa: F401
+from app import commercial_override_models  # noqa: F401
+from app import customer_runtime_models  # noqa: F401
+from app import exception_snapshot_models  # noqa: F401
+from app import operations_governance_models  # noqa: F401
+from app import report_archive_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
