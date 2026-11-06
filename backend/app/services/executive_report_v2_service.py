@@ -79,7 +79,29 @@ def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveRep
     financial_risks = [item for item in report.financial_risks if item.code in finding_codes]
     data_quality = [item for item in report.data_quality if _module_code(item.name) in included]
     master_data_quality = [item for item in report.master_data_quality if _module_code(item.name) in included]
-    business_area_impact = [item for item in report.business_area_impact if _module_code(item.name) in included]
+    # Area impact must be re-aggregated from the SAME accepted scoped findings.
+    # Filtering only the original area rows would leave unsupported extension
+    # amounts included in the System bucket and disagree with finding totals.
+    area_groups: dict[str, list] = {}
+    for finding in findings:
+        area_groups.setdefault(finding.category, []).append(finding)
+    scoped_total = sum(max(0.0, float(f.estimated_impact_eur or 0.0)) for f in findings)
+    business_area_impact = []
+    severity_order = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+    for old_area in report.business_area_impact:
+        group = area_groups.get(old_area.name, [])
+        if not group or _module_code(old_area.name) not in included:
+            continue
+        area_impact = round(sum(max(0.0, float(f.estimated_impact_eur or 0.0)) for f in group), 2)
+        business_area_impact.append(old_area.model_copy(update={
+            "issue_count": len(group),
+            "affected_count": sum(max(0, f.affected_count) for f in group),
+            "estimated_impact_eur": area_impact,
+            "impact_share_percent": round(area_impact / scoped_total * 100.0, 1) if scoped_total else 0.0,
+            "highest_severity": max(
+                (f.severity for f in group), key=lambda x: severity_order.get(x, -1)
+            ),
+        }))
     priorities = [
         item.model_copy(update={"finding_codes": [code for code in item.finding_codes if code in finding_codes]})
         for item in report.priority_matrix
