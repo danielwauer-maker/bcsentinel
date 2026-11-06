@@ -95,6 +95,8 @@ class ModuleScoresPayload(BaseModel):
 
 class ScanSyncPayload(BaseModel):
     tenant_id: str
+    bc_company_id: Optional[str] = None
+    lcy_code: Optional[str] = None
     preferred_language: Optional[str] = None
     scan_id: str
     scan_type: str
@@ -360,6 +362,30 @@ def sync_scan(
         if existing_scan is not None and existing_scan.tenant_id != payload.tenant_id:
             raise HTTPException(status_code=409, detail="scan_id already exists for another tenant.")
 
+        # Scan-time BC company + LCY evidence is mandatory for new Full v6.
+        # Legacy sync requests remain supported but cannot create a v6 archive.
+        # Never guess a missing company from the tenant's current registration.
+        from app.services.scan_company_service import canonical_company_id, canonical_lcy_code
+        bc_company_id = None
+        lcy_code = None
+        if payload.bc_company_id is not None or payload.lcy_code is not None:
+            try:
+                if not payload.bc_company_id or not payload.lcy_code:
+                    raise ValueError("Both BC company ID and LCY code are required together.")
+                bc_company_id = canonical_company_id(payload.bc_company_id)
+                lcy_code = canonical_lcy_code(payload.lcy_code)
+                registered_company = str(tenant.bc_company_id or "").strip()
+                if registered_company and canonical_company_id(registered_company) != bc_company_id:
+                    raise HTTPException(status_code=409, detail="Scan BC company differs from registered tenant company.")
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail="Invalid scan company/LCY binding.") from exc
+        if existing_scan is not None and existing_scan.bc_company_id:
+            if bc_company_id and existing_scan.bc_company_id != bc_company_id:
+                raise HTTPException(status_code=409, detail="Scan is already bound to another BC company.")
+            if lcy_code and existing_scan.lcy_code and existing_scan.lcy_code != lcy_code:
+                raise HTTPException(status_code=409, detail="Scan is already bound to another LCY.")
+            # Replay requests without evidence must not erase earlier evidence.
+
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
         if existing_scan is None and normalized_scan_type in {"deep", "data_health_score"}:
             legacy_request_id = str(
@@ -426,6 +452,10 @@ def sync_scan(
             scan.enabled_modules = _normalize_enabled_modules(payload.enabled_modules)
 
 
+
+        if bc_company_id:
+            scan.bc_company_id = bc_company_id
+            scan.lcy_code = lcy_code
 
         apply_commercials_to_scan(scan, commercials)
 
