@@ -193,19 +193,14 @@ def build_full_render_vm(db: Session, tenant: Tenant, scan: Scan) -> dict:
     elif not captured:
         exceptions = {"status": "confirmed_none", "scopeVersion": snapshot_version}
     else:
-        by_code = {f.code: f for f in findings}
-        items = []
+        # The current immutable snapshot records an issue code and reason, but no
+        # verified exception classification (accepted risk / N/A / unsupported)
+        # or status. Do not invent accepted_risk or a lifecycle status for live
+        # customer reports. Until BC captures these typed fields, fail closed.
         for item in captured:
             if item.company_id and item.company_id.lower() != scan.bc_company_id.lower():
                 _deny("exception from another BC company")
-            linked = by_code.get(item.issue_code)
-            items.append({
-                "area": AREA_KEYS[linked.category] if linked else "Not mapped",
-                "check": item.issue_code, "findingCode": item.issue_code,
-                "type": "accepted_risk", "reason": item.reason,
-                "status": "Captured at scan",
-            })
-        exceptions = {"status": "supplied", "scopeVersion": snapshot_version, "items": items}
+        _deny("captured exceptions have no verified type/status evidence")
 
     timestamp = report.scan_generated_at_utc.astimezone(timezone.utc).isoformat()
     top = detail[:10]
