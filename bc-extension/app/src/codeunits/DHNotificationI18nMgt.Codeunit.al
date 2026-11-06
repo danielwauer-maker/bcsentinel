@@ -1,4 +1,4 @@
-codeunit 53197 "DH Notification I18n Mgt."
+codeunit 53304 "DH Notification I18n Mgt."
 {
     procedure EnsureGermanDefaults()
     begin

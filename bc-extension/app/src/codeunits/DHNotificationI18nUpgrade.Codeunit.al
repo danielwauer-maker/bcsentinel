@@ -1,4 +1,4 @@
-codeunit 53199 "DH Notification I18n Upgrade"
+codeunit 53305 "DH Notification I18n Upgrade"
 {
     Subtype = Upgrade;
 
