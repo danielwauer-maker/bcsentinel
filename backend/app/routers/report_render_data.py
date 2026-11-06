@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query, Response
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
@@ -101,9 +100,13 @@ def read_report_for_renderer(
     scan_id: str,
     company_id: str = Query(min_length=32, max_length=64),
     authorization: str | None = Header(default=None, alias="Authorization"),
+    response: Response,
 ) -> ReportRenderEnvelope:
     # The 15-minute tenant-user token is scoped to an ACTIVE membership and its
     # role/status binding. An account-level token and BC API token are rejected.
+    if response is not None:
+        response.headers["Cache-Control"] = "no-store, private"
+        response.headers["Pragma"] = "no-cache"
     _, tenant_id, _ = _tenant_user_principal(authorization)
     with SessionLocal() as db:
         enforce_tenant_is_active(db, tenant_id)
@@ -143,18 +146,3 @@ def read_report_for_renderer(
             report=data,
         )
 
-
-@router.get("/{variant}/{scan_id}/pdf-status")
-def report_pdf_status(
-    variant: ReportVariant,
-    scan_id: str,
-    company_id: str = Query(min_length=32, max_length=64),
-    authorization: str | None = Header(default=None, alias="Authorization"),
-):
-    # Never offer a client-side PDF shortcut to a different entitlement tier.
-    read_report_for_renderer(variant, scan_id, company_id, authorization)
-    return JSONResponse(
-        {"status": "renderer_not_deployed", "reason": "Chromium PDF renderer must use the authorized report envelope."},
-        status_code=503,
-        headers={"Cache-Control": "no-store"},
-    )
