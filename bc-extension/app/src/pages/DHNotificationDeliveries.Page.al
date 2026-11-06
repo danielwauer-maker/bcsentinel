@@ -1,4 +1,4 @@
-page 53174 "DH Notification Deliveries"
+page 53310 "DH Notification Deliveries"
 {
     PageType = List;
     SourceTable = "DH Notification Delivery";

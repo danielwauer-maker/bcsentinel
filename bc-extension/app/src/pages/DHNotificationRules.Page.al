@@ -1,4 +1,4 @@
-page 53172 "DH Notification Rules"
+page 53308 "DH Notification Rules"
 {
     PageType = List;
     SourceTable = "DH Notification Rule";

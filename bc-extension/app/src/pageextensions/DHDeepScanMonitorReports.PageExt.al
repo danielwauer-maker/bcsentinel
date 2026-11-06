@@ -1,4 +1,4 @@
-pageextension 53201 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor"
+pageextension 53311 "DH Deep Scan Monitor Reports" extends "DH Deep Scan Monitor"
 {
     layout
     {
