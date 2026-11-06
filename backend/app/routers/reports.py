@@ -141,6 +141,51 @@ def create_executive_report_share_link(
     )
 
 
+@router.post("/executive/{scan_id}/v6-link", response_model=ExecutiveReportShareLinkResponse)
+def create_full_v6_link(
+    scan_id: str,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReportShareLinkResponse:
+    """Exchange existing BC tenant authorization for one-use v6 access.
+
+    Never expose the durable BC API token. Existing staging report routes and
+    their capability restrictions are preserved.
+    """
+    from urllib.parse import urlparse
+
+    from app.models import Scan
+    from app.services.report_archive_service import issue_full_link
+    from app.services.scan_company_service import canonical_company_id
+
+    viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
+    parsed = urlparse(viewer)
+    if (parsed.scheme != "https" or not parsed.netloc or parsed.username
+            or parsed.password or parsed.query or parsed.fragment):
+        raise HTTPException(status_code=503, detail="Full v6 report viewer not configured.")
+
+    tenant_id, token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, token)
+        scan = db.scalar(select(Scan).where(
+            Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id
+        ))
+        if scan is None:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        if not scan.bc_company_id or not scan.lcy_code:
+            raise HTTPException(status_code=409, detail="Scan company/LCY not bound.")
+        try:
+            company_id = canonical_company_id(scan.bc_company_id)
+        except ValueError:
+            raise HTTPException(status_code=409, detail="Invalid BC company binding.") from None
+        if str(tenant.bc_company_id or "").strip() and (
+            canonical_company_id(tenant.bc_company_id) != company_id
+        ):
+            raise HTTPException(status_code=404, detail="Report not found.")
+        return ExecutiveReportShareLinkResponse(
+            url=issue_full_link(db, tenant, scan, viewer)
+        )
+
+
 @router.get("/executive/{scan_id}/html", response_class=HTMLResponse)
 def render_executive_report_html(
     request: Request,
