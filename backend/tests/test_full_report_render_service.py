@@ -138,3 +138,28 @@ def test_invalid_or_missing_eur_currency_blocks(monkeypatch):
     with pytest.raises(HTTPException) as exc:
         svc.build_full_render_vm(FakeDb(), tenant, scan)
     assert exc.value.status_code == 409
+
+
+def test_captured_exceptions_without_verified_classification_fail_closed(monkeypatch):
+    """An exception reason alone does not prove accepted_risk, N/A or status."""
+    tenant, scan, scope, report = fixtures(2)
+    monkeypatch.setattr(svc, "get_latest_confirmed_scope", lambda *_: scope)
+    monkeypatch.setattr(svc, "build_executive_report", lambda *_: report)
+    capture = NS(tenant_id=tenant.tenant_id, exception_count=1)
+    captured = NS(company_id=COMPANY, issue_code="F-000", reason="Business note")
+    with pytest.raises(HTTPException) as exc:
+        svc.build_full_render_vm(FakeDb(captured=capture, rows=[captured]), tenant, scan)
+    assert exc.value.status_code == 409
+    assert "no verified type/status evidence" in str(exc.value.detail)
+
+
+def test_captured_exception_from_other_company_fails_closed(monkeypatch):
+    tenant, scan, scope, report = fixtures(2)
+    monkeypatch.setattr(svc, "get_latest_confirmed_scope", lambda *_: scope)
+    monkeypatch.setattr(svc, "build_executive_report", lambda *_: report)
+    capture = NS(tenant_id=tenant.tenant_id, exception_count=1)
+    captured = NS(company_id="99999999-2222-3333-4444-555555555555", issue_code="F-000", reason="Note")
+    with pytest.raises(HTTPException) as exc:
+        svc.build_full_render_vm(FakeDb(captured=capture, rows=[captured]), tenant, scan)
+    assert exc.value.status_code == 409
+    assert "another BC company" in str(exc.value.detail)
