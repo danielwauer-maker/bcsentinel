@@ -438,7 +438,7 @@ def create_full_v6_navigation_link(
     scan_id: str,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
-    """Return a NON-CREDENTIAL navigation URL for the account-authenticated v6 viewer.
+    """Mint a short-lived one-time BC-native report launch capability.
 
     The BC API token is verified server-side and never returned or embedded in the
     link. Opening this URL alone grants zero report privileges: the browser must
@@ -468,15 +468,12 @@ def create_full_v6_navigation_link(
         if not scan.bc_company_id or not scan.lcy_code:
             raise HTTPException(status_code=409, detail="Scan has no verified company/LCY binding.")
         company_id = canonical_company_id(scan.bc_company_id)
-        access = build_product_access_snapshot(db, tenant)
-        if not (
-            access["can_view_executive_report"]
-            and (access.get("assessment_access_active") or access.get("monitoring_active"))
-        ):
-            raise HTTPException(status_code=402, detail="Full Assessment access required.")
         if scan.lcy_code.upper() != "EUR":
             raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
 
+        # New Full reports require paid access; previously purchased and sealed
+        # reports remain available through history while retained by the tenant.
+        # issue_full_link/archive_full_report enforces this distinction.
         # The immutable archive is sealed at first paid access and remains
         # available on subsequent BC-authenticated history requests.
         from app.services.report_archive_service import issue_full_link
