@@ -17,6 +17,7 @@ from app.security.tenant import (
     load_authenticated_tenant,
     require_tenant_headers,
 )
+from app.services.scan_company_service import canonical_company_id, canonical_lcy_code
 from app.services.impact_service import (
     apply_commercials_to_scan,
     calculate_scan_commercials,
@@ -310,10 +311,11 @@ def sync_scan(
         # endpoints, but are not eligible for the new browser-rendering API.
         if bool(payload.bc_company_id) != bool(payload.lcy_code):
             raise HTTPException(status_code=422, detail="BC company ID and LCY code must be supplied together.")
-        normalized_company_id = (payload.bc_company_id or "").strip().lower()
-        normalized_lcy = (payload.lcy_code or "").strip().upper()
-        if normalized_lcy and (not normalized_lcy.isalpha() or not normalized_lcy.isascii()):
-            raise HTTPException(status_code=422, detail="Invalid ISO currency code.")
+        try:
+            normalized_company_id = canonical_company_id(payload.bc_company_id) if payload.bc_company_id else ""
+            normalized_lcy = canonical_lcy_code(payload.lcy_code) if payload.lcy_code else ""
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
         if existing_scan is not None and existing_scan.bc_company_id:
             if normalized_company_id and existing_scan.bc_company_id.lower() != normalized_company_id:
                 raise HTTPException(status_code=409, detail="Scan BC company binding cannot change.")
