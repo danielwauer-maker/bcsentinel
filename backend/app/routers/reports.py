@@ -25,6 +25,7 @@ from app.services.free_health_report_pdf_service import render_free_health_repor
 from app.services.free_health_report_service import build_free_health_report
 from app.services.product_license_service import build_product_access_snapshot
 from app.services.tenant_access_service import enforce_tenant_is_active
+from app.services.tenant_access_service import enforce_tenant_is_active
 from app.services.validation_report_pdf_service import render_validation_report_pdf
 from app.services.validation_report_service import build_validation_report
 
