@@ -7,6 +7,10 @@ on:
     paths:
       - 'bc-extension/**'
       - '.github/workflows/bc-extension-build-test.yml'
+  pull_request:
+    paths:
+      - 'bc-extension/**'
+      - '.github/workflows/bc-extension-build-test.yml'
   workflow_dispatch:
 
 permissions:
