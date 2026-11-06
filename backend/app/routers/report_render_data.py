@@ -69,10 +69,12 @@ def _require_company_scan(db, tenant_id: str, scan_id: str, company_id: str) -> 
     return scan
 
 
-def _assert_comparable_history(db, tenant_id: str, company_id: str, scan_ids: list[str]) -> None:
+def _assert_comparable_history(db, tenant_id: str, company_id: str, lcy_code: str, scan_ids: list[str]) -> None:
     for history_scan_id in set(scan_ids):
         if history_scan_id:
-            _require_company_scan(db, tenant_id, history_scan_id, company_id)
+            previous = _require_company_scan(db, tenant_id, history_scan_id, company_id)
+            if previous.lcy_code != lcy_code:
+                raise HTTPException(status_code=409, detail="Report historical company currency is not comparable.")
 
 
 def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVariant):
@@ -129,12 +131,12 @@ def read_report_for_renderer(
         report = _build_authorized_report(db, tenant, scan_id, variant)
         if variant == "validation":
             _assert_comparable_history(
-                db, tenant_id, company_id,
+                db, tenant_id, company_id, scan.lcy_code,
                 [report.baseline_scan_id, report.validation_scan_id],
             )
         if variant == "monitoring":
             _assert_comparable_history(
-                db, tenant_id, company_id,
+                db, tenant_id, company_id, scan.lcy_code,
                 [point.scan_id for point in report.trend_points] + [report.baseline_scan_id, report.current_scan_id],
             )
         data = report.model_dump(mode="json")
