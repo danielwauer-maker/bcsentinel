@@ -102,11 +102,27 @@ def _apply_confirmed_scope(db: Session, report: ExecutiveReport) -> ExecutiveRep
                 (f.severity for f in group), key=lambda x: severity_order.get(x, -1)
             ),
         }))
-    priorities = [
-        item.model_copy(update={"finding_codes": [code for code in item.finding_codes if code in finding_codes]})
-        for item in report.priority_matrix
-        if not item.finding_codes or any(code in finding_codes for code in item.finding_codes)
-    ]
+    # Do not carry a priority recommendation from an excluded extension
+    # finding into the confirmed standard BC report.
+    findings_by_code = {f.code: f for f in findings}
+    priorities = []
+    for item in report.priority_matrix:
+        scoped_codes = [code for code in item.finding_codes if code in finding_codes]
+        if not scoped_codes:
+            continue
+        scoped_items = [findings_by_code[code] for code in scoped_codes]
+        priority_impact = round(sum(max(0.0, f.estimated_impact_eur) for f in scoped_items), 2)
+        language = (report.language or "en").lower()
+        priority_summary = (
+            f"{len(scoped_codes)} Findings · {priority_impact:.2f} EUR modellierter Impact"
+            if language.startswith("de") else
+            f"{len(scoped_codes)} findings · EUR {priority_impact:.2f} modeled impact"
+        )
+        priorities.append(item.model_copy(update={
+            "finding_codes": scoped_codes,
+            "recommendation": scoped_items[0].recommendation,
+            "impact": priority_summary,
+        }))
 
     issues_count = len(findings)
     affected_records = sum(max(0, int(item.affected_count or 0)) for item in findings)
