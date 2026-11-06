@@ -1,4 +1,4 @@
-permissionset 53194 "BCSENTINEL PILOT"
+permissionset 53312 "BCSENTINEL PILOT"
 {
     Assignable = true;
     Caption = 'BCSentinel Pilot';
