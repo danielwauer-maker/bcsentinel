@@ -23,6 +23,7 @@ from app.services.product_license_service import build_product_access_snapshot
 from app.services.validation_report_service import build_validation_report
 from app.services.monitoring_report_service import build_monitoring_report
 from app.services.tenant_access_service import enforce_tenant_is_active
+from app.services.scan_company_service import canonical_company_id
 
 router = APIRouter(prefix="/account/reports", tags=["reports"])
 ReportVariant = Literal["free", "quick", "full", "validation", "monitoring"]
@@ -59,7 +60,11 @@ def _require_company_scan(db, tenant_id: str, scan_id: str, company_id: str) -> 
         raise HTTPException(status_code=404, detail="Report not found.")
     if not scan.bc_company_id or not scan.lcy_code:
         raise HTTPException(status_code=409, detail="Scan has no verified BC company and local currency binding.")
-    if scan.bc_company_id.lower() != company_id.lower():
+    try:
+        requested_company_id = canonical_company_id(company_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Report not found.") from None
+    if scan.bc_company_id != requested_company_id:
         raise HTTPException(status_code=404, detail="Report not found.")
     return scan
 
