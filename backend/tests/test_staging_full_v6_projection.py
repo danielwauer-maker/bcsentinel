@@ -11,6 +11,7 @@ from types import SimpleNamespace
 
 from app.db import SessionLocal
 from app.models import Scan, Tenant, TenantScanCredit
+from sqlalchemy import select
 from app.schemas.report import ExecutiveReport
 from app.services import executive_report_v2_service as full
 from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
@@ -43,7 +44,7 @@ def test_legacy_staging_builder_enrichment_reads_every_stored_finding(
         },
     )
     with SessionLocal() as db:
-        saved = db.get(Tenant, tenant["tenant_id"])
+        saved = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
         result = full._enrich_staging_report(db, saved, _legacy_report(saved.tenant_id, "legacy_to_full"))
         assert [x.code for x in result.all_findings] == ["ISSUE_1"]
         assert result.all_findings[0].title == "Catalog title ISSUE_1"
@@ -75,7 +76,7 @@ def test_validation_scan_is_not_mislabeled_full_baseline(
             created_at_utc=datetime.now(timezone.utc),
         ))
         db.commit()
-        saved = db.get(Tenant, tenant["tenant_id"])
+        saved = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
         result = full._enrich_staging_report(db, saved, _legacy_report(saved.tenant_id, "validation_as_full"))
         assert result.validation_baseline_eligible is False
         assert result.validation_baseline_scan_id == "validation_as_full"
