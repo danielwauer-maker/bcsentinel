@@ -56,14 +56,23 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install backend dependencies
         run: python -m pip install --quiet -r backend/requirements.txt
-      - name: Pin PostgreSQL client tools to server major version 16
+      - name: Pin PostgreSQL dump/restore clients to 16 via the server image
         shell: bash
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y postgresql-client-16
-          echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
-          /usr/lib/postgresql/16/bin/pg_dump --version
-          /usr/lib/postgresql/16/bin/pg_restore --version
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pg16-bin"
+          cat > "$RUNNER_TEMP/pg16-bin/pg_dump" <<'SH'
+          #!/bin/sh
+          exec docker run --rm --network host -v /tmp:/tmp postgres:16-alpine pg_dump "$@"
+          SH
+          cat > "$RUNNER_TEMP/pg16-bin/pg_restore" <<'SH'
+          #!/bin/sh
+          exec docker run --rm --network host -v /tmp:/tmp postgres:16-alpine pg_restore "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/pg16-bin/pg_dump" "$RUNNER_TEMP/pg16-bin/pg_restore"
+          echo "$RUNNER_TEMP/pg16-bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/pg16-bin/pg_dump" --version
+          "$RUNNER_TEMP/pg16-bin/pg_restore" --version
       - name: Validate P0-05 contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_p0_05_backup_restore_contract.py
