@@ -1,4 +1,4 @@
-codeunit 53194 "DH Remediation Mgt."
+codeunit 53341 "DH Remediation Mgt."
 {
     procedure ValidateStatusTransition(OldStatus: Enum "DH Remediation Status"; NewStatus: Enum "DH Remediation Status")
     begin

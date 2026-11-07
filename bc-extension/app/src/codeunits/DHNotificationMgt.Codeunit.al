@@ -1,4 +1,4 @@
-codeunit 53170 "DH Notification Mgt."
+codeunit 53340 "DH Notification Mgt."
 {
     Permissions =
         tabledata "DH Notification Setup" = RIM,
