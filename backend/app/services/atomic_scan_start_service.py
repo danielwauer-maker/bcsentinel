@@ -192,7 +192,9 @@ def _assert_recoverable_orphan_scan(
 
     ledger_entry = db.scalar(select(CreditLedgerEntry.id).where(CreditLedgerEntry.scan_id == scan.scan_id).limit(1))
     issue_record = db.scalar(select(ScanIssueRecord.id).where(ScanIssueRecord.scan_id == scan.scan_id).limit(1))
-    expected_scan_type = "data_health_score" if requested_mode == "data_health_score" else "deep"
+    # The scan artifact is always a full Deep Scan. The free/paid purpose is
+    # retained on ScanStartRequest and ScanRunStatus, not in Scan.scan_type.
+    expected_scan_type = "deep"
     if (
         ledger_entry is not None
         or issue_record is not None
@@ -421,7 +423,7 @@ def accept_scan_start(
         request.status = "accepted"
 
         if existing_scan is None:
-            stored_scan_type = "data_health_score" if requested_mode == "data_health_score" else "deep"
+            stored_scan_type = "deep"
             db.add(
                 Scan(
                     scan_id=normalized_run_id,
