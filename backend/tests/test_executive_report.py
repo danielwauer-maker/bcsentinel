@@ -85,7 +85,10 @@ def test_executive_report_json_html_and_pdf(client, tenant_factory, auth_header_
     assert payload["data_health_score"] == 67
     assert payload["estimated_loss_eur"] == 42000.0
     assert len(payload["top_risks"]) >= 3
-    assert payload["top_risks"][0]["title"] == "GL_LEDGER_SETUP_GAP"
+    # Unknown catalog checks retain the actual scan-provided finding title;
+    # the stable technical code remains available separately.
+    assert payload["top_risks"][0]["code"] == "GL_LEDGER_SETUP_GAP"
+    assert payload["top_risks"][0]["title"] == "Ledger setup gap"
     assert payload["critical_findings"][0]["title"] == "Customers without an email address"
     assert payload["scan_type"] == "Manual Scan"
     assert payload["checks_total"] == 165
@@ -343,12 +346,18 @@ def test_exception_disclosure_singular_and_plural_in_german_and_english(tenant_f
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):
     owner = tenant_factory()
     other = tenant_factory()
+    _grant_report_access(other["tenant_id"])
     scan_factory(tenant_id=owner["tenant_id"], scan_id="scan_exec_private")
 
-    response = client.get("/reports/executive/scan_exec_private", headers=auth_header_factory(other))
+    headers = auth_header_factory(other)
+    response = client.get("/reports/executive/scan_exec_private", headers=headers)
+    missing = client.get("/reports/executive/scan_exec_nonexistent", headers=headers)
 
-    # Both nonexistent and foreign-owned scans must be indistinguishable.
+    # With valid paid access, both nonexistent and foreign-owned scans must
+    # be indistinguishable, without disclosing ownership across tenants.
     assert response.status_code == 404
+    assert missing.status_code == 404
+    assert response.json()["detail"] == missing.json()["detail"]
 
 
 def test_executive_report_direct_html_requires_tenant_headers(client, tenant_factory, scan_factory):
