@@ -951,32 +951,6 @@
                     end;
                 }
 
-                action(OpenDashboard)
-                {
-                    Caption = 'Open Analytics Dashboard';
-                    ApplicationArea = All;
-                    Image = View;
-                    ToolTip = 'Opens the BCSentinel analytics dashboard for this tenant.';
-                    Enabled = CanOpenDashboard;
-                    Promoted = true;
-                    PromotedCategory = Process;
-
-                    trigger OnAction()
-                    var
-                        ApiClient: Codeunit "DH API Client";
-                        AccessGuard: Codeunit "DH Access Guard";
-                        Token: Text;
-                        AccessError: Text;
-                    begin
-                        if not AccessGuard.TryEnsureDashboardAccess(AccessError) then begin
-                            Message(AccessError);
-                            exit;
-                        end;
-                        Token := ApiClient.GetAnalyticsDashboardToken(Rec);
-                        Hyperlink(GetDashboardUrl(Rec, Token));
-                    end;
-                }
-
                 action(StartMonitoringScan)
                 {
                     Caption = 'Start Monitoring Scan';
