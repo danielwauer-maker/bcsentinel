@@ -231,18 +231,25 @@ def _finding(rank: int, issue: ScanIssueRecord, catalog_text: CheckText) -> Repo
     severity = str(issue.severity or "low").lower()
     if severity not in SEVERITY_WEIGHT:
         severity = "low"
+    # CheckText exposes language_code, not language. Lightweight catalog test
+    # doubles may omit it; only an explicit technical fallback authorizes
+    # replacing a catalog value with the BC-stored finding evidence.
+    technical_fallback = getattr(catalog_text, "language_code", None) == "technical"
+    title = catalog_text.title
+    recommendation = catalog_text.recommendation
+    if technical_fallback and title == issue.code:
+        title = issue.title or issue.code
+    if technical_fallback and recommendation == issue.code:
+        recommendation = issue.recommendation_preview or issue.code
     return ReportFinding(
         rank=rank,
         code=issue.code,
-        # Official translations override scan text; for unknown check IDs,
-        # preserve the actual BC-supplied title and guidance instead of
-        # rendering a bare technical check code as the finding title.
-        title=(issue.title or issue.code) if catalog_text.title == issue.code and catalog_text.language == "technical" else catalog_text.title,
+        title=title,
         category=_normalize_category(issue.category, issue.code),
         severity=severity,
         affected_count=max(0, _safe_int(issue.affected_count)),
         estimated_impact_eur=round(_safe_float(issue.estimated_impact_eur), 2),
-        recommendation=(issue.recommendation_preview or issue.code) if catalog_text.recommendation == issue.code and catalog_text.language == "technical" else catalog_text.recommendation,
+        recommendation=recommendation,
     )
 
 
