@@ -259,7 +259,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         query "DH Vendor Duplicate Email" = X;
 }
 
-permissionset 53194 "BCSENTINEL SCHEDULER"
+permissionset 53345 "BCSENTINEL SCHEDULER"
 {
     Assignable = true;
     Caption = 'BCSentinel Scheduler';
