@@ -197,12 +197,10 @@ def run(url: str, json_path: Path, markdown_path: Path, allow_unsafe: bool = Fal
         # Downgrade one revision, not a branch target: this specifically
         # removes the merge node and leaves BOTH independently applied
         # schema lineages intact. Alembic stores those as two version rows.
-        if head_revision == "0037_merge_staging_report":
-            command.downgrade(config, "-1")
-        else:
-            # Preserve historical P0-04 direct-parent rollback behavior for
-            # branches with a conventional single-parent revision.
-            command.downgrade(config, rollback_revision)
+        # An unqualified "-1" is ambiguous for an Alembic merge revision.
+        # The reviewed staging parent is an explicit, deterministic target.
+        # It may leave multiple version rows; both are checked below.
+        command.downgrade(config, rollback_revision)
         rollback_revisions = _current_revisions(engine)
         expected_rollback_revisions = (
             {"0031_public_contact_inbox", "0036_report_archives"}
