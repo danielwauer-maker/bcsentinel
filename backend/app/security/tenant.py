@@ -52,7 +52,7 @@ def require_tenant_headers(
     if not x_tenant_id or not x_api_token:
         raise HTTPException(
             status_code=401,
-            detail="Missing tenant authentication credentials.",
+            detail="Missing tenant authentication headers or credentials.",
         )
     return x_tenant_id.strip(), x_api_token
 
