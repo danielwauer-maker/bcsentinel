@@ -426,7 +426,9 @@ def sync_scan(
             scan = Scan(
                 scan_id=payload.scan_id,
                 tenant_id=payload.tenant_id,
-                scan_type=normalized_scan_type,
+                # Technical scan type is always deep; access tier is tracked
+                # independently by the scan-start entitlement/credit ledger.
+                scan_type="deep",
                 generated_at_utc=normalized_generated_at,
                 data_score=_safe_int(payload.data_score),
                 checks_count=_safe_int(payload.checks_count),
@@ -449,7 +451,7 @@ def sync_scan(
             )
         else:
             scan.tenant_id = payload.tenant_id
-            scan.scan_type = normalized_scan_type
+            scan.scan_type = "deep"
             scan.generated_at_utc = normalized_generated_at
             scan.data_score = _safe_int(payload.data_score)
             scan.checks_count = _safe_int(payload.checks_count)
