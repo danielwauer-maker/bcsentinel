@@ -14,8 +14,12 @@
 {% set urgent_pct = ((urgent / total * 100) | round | int) if total else 0 %}
 {% set score_offset = 339.292 * (100 - score) / 100 %}
 
+{% macro number(value) -%}
+{{ "{:,}".format(value | int).replace(",", ".") }}
+{%- endmacro %}
+
 {% macro money(amount) -%}
-{{ "{:,.2f}".format(amount | float).replace(",", "X").replace(".", ",").replace("X", ".") }} €
+{{ "{:,.2f}".format(amount | float).replace(",", "X").replace(".", ",").replace("X", ".") }} EUR
 {%- endmacro %}
 
 {% macro icon(name, extra='') %}
