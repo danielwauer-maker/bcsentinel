@@ -56,6 +56,23 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install backend dependencies
         run: python -m pip install --quiet -r backend/requirements.txt
+      - name: Pin PostgreSQL dump/restore clients to 16 via the server image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pg16-bin"
+          cat > "$RUNNER_TEMP/pg16-bin/pg_dump" <<'SH'
+          #!/bin/sh
+          exec docker run --rm --network host -v /tmp:/tmp postgres:16-alpine pg_dump "$@"
+          SH
+          cat > "$RUNNER_TEMP/pg16-bin/pg_restore" <<'SH'
+          #!/bin/sh
+          exec docker run --rm --network host -v /tmp:/tmp postgres:16-alpine pg_restore "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/pg16-bin/pg_dump" "$RUNNER_TEMP/pg16-bin/pg_restore"
+          echo "$RUNNER_TEMP/pg16-bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/pg16-bin/pg_dump" --version
+          "$RUNNER_TEMP/pg16-bin/pg_restore" --version
       - name: Validate P0-05 contract
         working-directory: backend
         run: python -m pytest -q --tb=short --noconftest tests/test_p0_05_backup_restore_contract.py
@@ -96,10 +113,14 @@ jobs:
           python scripts/verify_postgres_backup_restore.py \
             --json-out ../build/p0-05/backup-restore.json \
             --markdown-out ../build/p0-05/backup-restore.md
-      - name: Run restored database PostgreSQL smoke
+      - name: Prepare separate empty concurrency test database
+        env:
+          PGPASSWORD: bcsentinel_test_password
+        run: createdb -h localhost -U bcsentinel_test bcsentinel_p0_05_concurrency_test
+      - name: Run concurrency tests in isolated test database
         working-directory: backend
         env:
-          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_restore_test
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_05_concurrency_test
         run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py
       - name: Publish summary
         if: always()

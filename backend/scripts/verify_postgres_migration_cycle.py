@@ -54,7 +54,13 @@ def _revision_info(config: Config) -> tuple[str, str]:
     if head is None or head.down_revision is None:
         raise RuntimeError("The Alembic head has no downgrade target.")
     if isinstance(head.down_revision, tuple):
-        raise RuntimeError("The current head is a merge revision; P0-04 needs an explicit rollback target.")
+        # DEV v6 reconciliation has two historical lines. On a disposable
+        # PostgreSQL database, explicitly roll back to the existing staging
+        # parent, forcing the complete report-branch migrations to replay.
+        # Never infer an arbitrary parent for an unknown Alembic merge.
+        if head.revision != "0037_merge_staging_report" or "0031_public_contact_inbox" not in head.down_revision:
+            raise RuntimeError("An unrecognized Alembic merge head requires a reviewed rollback target.")
+        return head.revision, "0031_public_contact_inbox"
     return head.revision, str(head.down_revision)
 
 
@@ -93,9 +99,10 @@ def _schema_hash(snapshot: dict[str, Any]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def _current_revision(engine: Engine) -> str | None:
+def _current_revisions(engine: Engine) -> set[str]:
+    """Alembic may contain multiple rows after undoing a merge revision."""
     with engine.connect() as connection:
-        return connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one_or_none()
+        return set(connection.execute(text("SELECT version_num FROM alembic_version")).scalars().all())
 
 
 def _generic_value(column: Any) -> Any:
@@ -181,19 +188,35 @@ def run(url: str, json_path: Path, markdown_path: Path, allow_unsafe: bool = Fal
     sentinel_preserved = False
     try:
         command.upgrade(config, "head")
-        if _current_revision(engine) != head_revision:
+        if _current_revisions(engine) != {head_revision}:
             raise RuntimeError("Initial upgrade did not reach the expected Alembic head.")
         before = _schema_snapshot(engine)
         before_hash = _schema_hash(before)
         _insert_sentinel_tenant(engine)
 
+        # Downgrade one revision, not a branch target: this specifically
+        # removes the merge node and leaves BOTH independently applied
+        # schema lineages intact. Alembic stores those as two version rows.
+        # An unqualified "-1" is ambiguous for an Alembic merge revision.
+        # The reviewed staging parent is an explicit, deterministic target.
+        # It may leave multiple version rows; both are checked below.
         command.downgrade(config, rollback_revision)
-        if _current_revision(engine) != rollback_revision:
-            raise RuntimeError("Downgrade did not reach the expected rollback revision.")
+        rollback_revisions = _current_revisions(engine)
+        expected_rollback_revisions = (
+            {"0031_public_contact_inbox", "0036_report_archives"}
+            if head_revision == "0037_merge_staging_report"
+            else {rollback_revision}
+        )
+        if rollback_revisions != expected_rollback_revisions:
+            raise RuntimeError(
+                f"Downgrade revisions mismatch: {sorted(rollback_revisions)!r} "
+                f"!= {sorted(expected_rollback_revisions)!r}"
+            )
 
         command.upgrade(config, "head")
-        final_revision = _current_revision(engine)
-        if final_revision != head_revision:
+        final_revisions = _current_revisions(engine)
+        final_revision = next(iter(final_revisions)) if len(final_revisions) == 1 else None
+        if final_revisions != {head_revision}:
             raise RuntimeError("Final upgrade did not return to the expected Alembic head.")
         after = _schema_snapshot(engine)
         after_hash = _schema_hash(after)
@@ -207,6 +230,7 @@ def run(url: str, json_path: Path, markdown_path: Path, allow_unsafe: bool = Fal
             "started_at_utc": started_at,
             "head_revision": head_revision,
             "rollback_revision": rollback_revision,
+            "rollback_revisions": sorted(rollback_revisions),
             "final_revision": final_revision,
             "schema_hash_before": before_hash,
             "schema_hash_after": after_hash,

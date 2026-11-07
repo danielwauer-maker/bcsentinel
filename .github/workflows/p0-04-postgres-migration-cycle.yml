@@ -64,10 +64,14 @@ jobs:
           python scripts/verify_postgres_migration_cycle.py \
             --json-out ../build/p0-04/migration-cycle.json \
             --markdown-out ../build/p0-04/migration-cycle.md
-      - name: Run PostgreSQL transaction/concurrency smoke
+      - name: Prepare separate empty concurrency test database
+        env:
+          PGPASSWORD: bcsentinel_test_password
+        run: createdb -h localhost -U bcsentinel_test bcsentinel_p0_04_concurrency_test
+      - name: Run PostgreSQL concurrency tests on isolated test database
         working-directory: backend
         env:
-          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_test
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_concurrency_test
         run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py
       - name: Publish summary
         if: always()

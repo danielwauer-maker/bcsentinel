@@ -1,0 +1,49 @@
+name: DEV Report v6 - Isolated Merge Audit
+on:
+  push:
+    branches:
+      - integration/dev-report-v6-sync-20261106
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Attempt merge in disposable runner, record conflicts
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p audit
+          git config user.name 'BCSentinel Audit'
+          git config user.email 'audit@users.noreply.github.com'
+          git fetch origin staging feature/report-renderer-backend-bridge-20261106
+          {
+            echo "Integration HEAD=$(git rev-parse HEAD)"
+            echo "Staging HEAD=$(git rev-parse origin/staging)"
+            echo "PR149 HEAD=$(git rev-parse origin/feature/report-renderer-backend-bridge-20261106)"
+            echo "Merge base=$(git merge-base HEAD origin/feature/report-renderer-backend-bridge-20261106)"
+          } > audit/summary.txt
+          git merge --no-commit --no-ff origin/feature/report-renderer-backend-bridge-20261106 >audit/merge.log 2>&1
+          rc=$?
+          echo "Merge exit=$rc" >> audit/summary.txt
+          git diff --name-only --diff-filter=U >audit/conflicts.txt
+          echo "Conflicts=$(wc -l <audit/conflicts.txt)" >>audit/summary.txt
+          git status --short >audit/status.txt
+          cat audit/summary.txt
+          cat audit/conflicts.txt
+          {
+            echo "### Non-destructive staging merge audit"
+            cat audit/summary.txt
+            echo "### Conflicts"
+            cat audit/conflicts.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-report-v6-conflicts
+          path: audit/
+          retention-days: 7

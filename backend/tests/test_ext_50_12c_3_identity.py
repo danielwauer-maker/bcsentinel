@@ -106,7 +106,9 @@ def test_two_company_registrations_same_ids_and_cross_tenant_attack(client, tena
     response = client.post('/scan/sync', headers=auth_header_factory(second), json=attack)
     assert response.status_code == 409
     response = client.post('/scan/sync', headers=auth_header_factory(second), json=payload(first, 'RUN_A'))
-    assert response.status_code == 400
+    # Cross-company credentials are forbidden, not merely malformed.
+    # Preserve production's stronger 403 denial rather than downgrading it.
+    assert response.status_code == 403
     with SessionLocal() as db:
         assert db.query(ScanIssueRecord).count() == 4
         assert db.query(ScanIssueRecord).filter_by(scan_id='RUN_A').count() == 2

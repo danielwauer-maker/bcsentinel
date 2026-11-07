@@ -57,6 +57,15 @@ def test_upgrade_downgrade_upgrade_preserves_existing_findings(tmp_path, dialect
         assert db.execute(text('SELECT COUNT(*) FROM scan_issues')).scalar_one() == 2
         assert db.execute(text('SELECT SUM(affected_count) FROM scan_issues')).scalar_one() == 5
         assert db.execute(text('SELECT SUM(estimated_impact_eur) FROM scan_issues')).scalar_one() == 180
-        expected_revision = current_head if dialect == "postgresql" else "0029_finding_identity"
-        assert db.execute(text('SELECT version_num FROM alembic_version')).scalar_one() == expected_revision
+        # A guarded downgrade may stop after unmerging the report branch.
+        # Alembic then legitimately tracks both independent revision lines.
+        active_revisions = set(
+            db.execute(text('SELECT version_num FROM alembic_version')).scalars().all()
+        )
+        assert active_revisions, "Alembic revision tracking must not be empty"
+        if dialect == "postgresql":
+            assert current_head in active_revisions
+        else:
+            assert "0029_finding_identity" in active_revisions
+            assert active_revisions.issubset({"0029_finding_identity", "0031_public_contact_inbox", "0036_report_archives"})
     engine.dispose()

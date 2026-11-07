@@ -37,6 +37,23 @@ class Settings(BaseSettings):
     SMTP_FROM_NAME: str = "BCSentinel"
     CONTACT_INBOX_EMAIL: str = "support@bcsentinel.com"
 
+    # BC-native v6 report viewer origin; no second account login required.
+    REPORT_V6_VIEWER_BASE_URL: str | None = None
+    WAITLIST_ADMIN_EMAIL: str = "admin@bcsentinel.com"
+
+    # === CUSTOMER IDENTITY (OIDC) ===
+    # Passwords, MFA and credential recovery remain provider-owned. BCSentinel
+    # verifies the provider token and then resolves tenant membership itself.
+    OIDC_ENABLED: bool = False
+    OIDC_ISSUER: str | None = None
+    OIDC_AUDIENCE: str | None = None
+    OIDC_JWKS_URL: str | None = None
+    OIDC_PROVIDER_KEY: str = "oidc"
+    OIDC_EMAIL_CLAIM: str = "email"
+    OIDC_NAME_CLAIM: str = "name"
+    OIDC_HTTP_TIMEOUT_SECONDS: float = 5.0
+    ACCOUNT_SESSION_MINUTES: int = 60
+
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in
     # config/pricing_canonical.json or license_pricing_config change, create matching
