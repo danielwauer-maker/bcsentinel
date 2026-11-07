@@ -347,7 +347,8 @@ def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth
 
     response = client.get("/reports/executive/scan_exec_private", headers=auth_header_factory(other))
 
-    assert response.status_code == 403
+    # Both nonexistent and foreign-owned scans must be indistinguishable.
+    assert response.status_code == 404
 
 
 def test_executive_report_direct_html_requires_tenant_headers(client, tenant_factory, scan_factory):
