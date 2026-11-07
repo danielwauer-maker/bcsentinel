@@ -53,8 +53,19 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
-        require_capability(db, tenant, CAPABILITY_REPORT)
+        # A report must belong to the caller before revealing its paid-access
+        # state; never disclose cross-tenant resource existence.
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        from app.services.product_license_service import build_product_access_snapshot
+        access = build_product_access_snapshot(db, tenant)
+        if not access["can_view_executive_report"]:
+            raise HTTPException(
+                status_code=402,
+                detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.",
+            )
+        # Keep the newer authoritative capability gate in addition to the
+        # legacy product entitlement check; do not bypass security.
+        require_capability(db, tenant, CAPABILITY_REPORT)
         return build_executive_report(db, tenant, scan_id)
 
 
