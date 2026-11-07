@@ -110,6 +110,9 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
             raise HTTPException(status_code=403, detail="Invalid report share token.")
+        from app.services.tenant_access_service import enforce_tenant_is_active
+        enforce_tenant_is_active(db, tenant.tenant_id)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         if company_id.strip().strip("{}").lower() != str(tenant.bc_company_id or "").strip().strip("{}").lower():
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         require_capability(db, tenant, CAPABILITY_REPORT)
