@@ -1,6 +1,6 @@
 from app.db import SessionLocal
 from app.models import Scan
-from app.services.product_license_service import PRODUCT_ASSESSMENT, grant_product_entitlement
+from app.services.product_license_service import PRODUCT_ASSESSMENT, PRODUCT_MONITORING_MONTHLY, grant_product_entitlement
 
 
 def _grant_report_access(tenant_id: str) -> None:
@@ -41,9 +41,21 @@ def test_d10_monitoring_projection_uses_same_contract_and_values(client, tenant_
     scan_factory(tenant_id=tenant["tenant_id"], scan_id="scan_d10_monitoring")
 
     executive = client.get("/reports/executive/scan_d10_monitoring", headers=auth_header_factory(tenant))
-    monitoring = client.get("/reports/monitoring/scan_d10_monitoring", headers=auth_header_factory(tenant))
-
+    locked = client.get("/reports/monitoring/scan_d10_monitoring", headers=auth_header_factory(tenant))
     assert executive.status_code == 200
+    assert locked.status_code == 402, "Assessment alone must not unlock the Monitoring product"
+
+    # Once explicitly entitled to Monitoring, both reports must project the
+    # same scan metrics without weakening the separate commercial paywall.
+    with SessionLocal() as db:
+        grant_product_entitlement(
+            db,
+            tenant_id=tenant["tenant_id"],
+            product_code=PRODUCT_MONITORING_MONTHLY,
+            source="d10-monitoring-contract-test",
+        )
+        db.commit()
+    monitoring = client.get("/reports/monitoring/scan_d10_monitoring", headers=auth_header_factory(tenant))
     assert monitoring.status_code == 200
     executive_payload = executive.json()
     monitoring_payload = monitoring.json()
