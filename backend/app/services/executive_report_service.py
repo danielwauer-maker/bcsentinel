@@ -234,12 +234,15 @@ def _finding(rank: int, issue: ScanIssueRecord, catalog_text: CheckText) -> Repo
     return ReportFinding(
         rank=rank,
         code=issue.code,
-        title=catalog_text.title,
+        # Official translations override scan text; for unknown check IDs,
+        # preserve the actual BC-supplied title and guidance instead of
+        # rendering a bare technical check code as the finding title.
+        title=(issue.title or issue.code) if catalog_text.title == issue.code and catalog_text.language == "technical" else catalog_text.title,
         category=_normalize_category(issue.category, issue.code),
         severity=severity,
         affected_count=max(0, _safe_int(issue.affected_count)),
         estimated_impact_eur=round(_safe_float(issue.estimated_impact_eur), 2),
-        recommendation=catalog_text.recommendation,
+        recommendation=(issue.recommendation_preview or issue.code) if catalog_text.recommendation == issue.code and catalog_text.language == "technical" else catalog_text.recommendation,
     )
 
 
