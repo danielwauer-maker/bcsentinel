@@ -167,7 +167,7 @@ def test_authentication_never_implies_paid_entitlement(
 
     assert authenticated.status_code == 200
     assert authenticated.json()["product_access"]["can_view_executive_report"] is False
-    assert locked_report.status_code == 402
+    assert locked_report.status_code == 403
 
     _grant_assessment(tenant["tenant_id"])
     unlocked_report = client.get(
