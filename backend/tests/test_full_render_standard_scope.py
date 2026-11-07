@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord, Tenant
+from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.services.assessment_scope_service import confirm_scope
 from app.services.full_report_render_service import build_full_render_vm
 
@@ -19,6 +19,17 @@ def test_confirmed_standard_scope_excludes_custom_extension_and_unknown_areas(
         tenant = db.query(Tenant).filter(Tenant.tenant_id == tenant_info["tenant_id"]).one()
         scan.bc_company_id = COMPANY
         scan.lcy_code = "EUR"
+        # Full v6 intentionally requires an evidence-backed BC company label.
+        # Provide real scan-run provenance in this integration fixture rather
+        # than weakening the fail-closed production renderer.
+        db.add(ScanRunStatus(
+            run_id=scan.scan_id,
+            tenant_id=tenant.tenant_id,
+            company_name="Test BC Company",
+            environment_name="Sandbox",
+            status="completed",
+            updated_at_utc=scan.generated_at_utc,
+        ))
         scan.estimated_loss_eur = 55.0
         scan.potential_saving_eur = 10.0
         # The scan_factory existing legacy ISSUE_1 has no category and is
