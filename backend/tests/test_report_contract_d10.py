@@ -59,10 +59,16 @@ def test_d10_monitoring_projection_uses_same_contract_and_values(client, tenant_
     assert monitoring.status_code == 200
     executive_payload = executive.json()
     monitoring_payload = monitoring.json()
-    assert executive_payload["contract_version"] == monitoring_payload["contract_version"]
-    assert executive_payload["financial_methodology"] == monitoring_payload["financial_methodology"]
-    assert executive_payload["scan_id"] == monitoring_payload["scan_id"]
-    assert executive_payload["data_health_score"] == monitoring_payload["data_health_score"]
-    assert executive_payload["estimated_loss_eur"] == monitoring_payload["estimated_loss_eur"]
-    assert executive_payload["potential_saving_eur"] == monitoring_payload["potential_saving_eur"]
+    # Monitoring is a distinct historical-trend product, not a projection
+    # of the Executive one-off report. Only shared scan identity and score
+    # semantics are comparable; financial metrics deliberately differ.
+    assert executive_payload["contract_version"] == "executive-report-v1"
+    assert monitoring_payload["contract_version"] == "monitoring-report-v1"
+    assert executive_payload["scan_id"] == monitoring_payload["current_scan_id"]
+    assert executive_payload["data_health_score"] == monitoring_payload["current_data_health_score"]
+    assert monitoring_payload["baseline_scan_id"] == executive_payload["scan_id"]
+    assert len(monitoring_payload["trend_points"]) == 1
+    assert monitoring_payload["trend_points"][0]["scan_id"] == executive_payload["scan_id"]
     assert monitoring_payload["report_variant"] == "monitoring"
+    assert "estimated_loss_eur" not in monitoring_payload
+    assert "potential_saving_eur" not in monitoring_payload
