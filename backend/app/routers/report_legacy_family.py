@@ -334,13 +334,13 @@ def create_assessment_report_share_link(
 @router.get("/assessment/{scan_id}/html", response_class=HTMLResponse)
 def render_assessment_report_html(request: Request, scan_id: str, tenant_auth: tuple[str, str] = Depends(require_tenant_headers)):
     report = _load_assessment_report(scan_id, tenant_auth)
-    return templates.TemplateResponse(name="executive_report.html", context={"request": request, "report": report})
+    return templates.TemplateResponse(name="assessment_report.html", context={"request": request, "report": report})
 
 
 @router.get("/assessment/{scan_id}/html/shared", response_class=HTMLResponse)
 def render_shared_assessment_report_html(request: Request, scan_id: str, token: str):
     report = _load_shared_report(scan_id, "html", token).model_copy(update={"report_variant": "assessment"})
-    return templates.TemplateResponse(name="executive_report.html", context={"request": request, "report": report})
+    return templates.TemplateResponse(name="assessment_report.html", context={"request": request, "report": report})
 
 
 @router.get("/assessment/{scan_id}/pdf")
