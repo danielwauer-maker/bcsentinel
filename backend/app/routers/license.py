@@ -8,12 +8,14 @@ from app.services.entitlement_guard_service import get_tenant_features
 from app.services.localization_service import update_tenant_language
 from app.services.access_control_service import build_authoritative_access_snapshot
 from app.services.product_license_service import build_license_snapshot
+from app.services.tenant_access_service import get_tenant_status
 
 router = APIRouter(tags=["license"])
 
 
 class LicenseStatusResponse(BaseModel):
     tenant_id: str
+    tenant_status: str
     plan: str
     license_status: str
     legacy_plan: str | None = None
@@ -100,6 +102,7 @@ def get_license_status(
 
         response = LicenseStatusResponse(
             tenant_id=tenant.tenant_id,
+            tenant_status=get_tenant_status(db, tenant.tenant_id),
             plan=normalized_plan,
             license_status=normalized_license_status,
             legacy_plan=normalized_plan,
