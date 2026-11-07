@@ -345,7 +345,7 @@ def test_exception_disclosure_singular_and_plural_in_german_and_english(tenant_f
 
 def test_executive_report_enforces_tenant_isolation(client, tenant_factory, auth_header_factory, scan_factory):
     owner = tenant_factory()
-    other = tenant_factory()
+    other = tenant_factory(plan="premium", license_status="active")
     _grant_report_access(other["tenant_id"])
     scan_factory(tenant_id=owner["tenant_id"], scan_id="scan_exec_private")
 
