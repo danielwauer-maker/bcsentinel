@@ -40,6 +40,14 @@ from app.routers.reports import router as reports_router
 from app.routers.report_render_data import router as report_render_data_router
 from app.routers.report_native_access import router as report_native_access_router
 from app.routers.scans import router as scans_router
+from app.routers.auth import router as auth_router
+from app.routers.operator_admin import router as operator_admin_router
+from app.routers.quick_assessment_reports import router as quick_assessment_reports_router
+from app.routers.monitoring_reports import router as monitoring_reports_router
+from app.routers.remediation import router as remediation_router
+from app.routers.account_auth import router as account_auth_router
+from app.routers.membership_admin import router as membership_admin_router
+from app.routers.report_access import router as report_access_router
 from app.schemas.scan import (
     QuickScanRequest,
     QuickScanResponse,
@@ -193,6 +201,14 @@ app.include_router(public_router)
 app.include_router(reports_router)
 app.include_router(report_render_data_router)
 app.include_router(report_native_access_router)
+app.include_router(auth_router)
+app.include_router(operator_admin_router)
+app.include_router(quick_assessment_reports_router)
+app.include_router(monitoring_reports_router)
+app.include_router(remediation_router)
+app.include_router(account_auth_router)
+app.include_router(membership_admin_router)
+app.include_router(report_access_router)
 app.include_router(scans_router)
 app.include_router(license_router)
 
