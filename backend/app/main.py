@@ -39,6 +39,7 @@ from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
 from app.routers.report_render_data import router as report_render_data_router
 from app.routers.report_native_access import router as report_native_access_router
+from app.routers.report_legacy_family import router as report_legacy_family_router
 from app.routers.scans import router as scans_router
 from app.routers.auth import router as auth_router
 from app.routers.operator_admin import router as operator_admin_router
@@ -201,6 +202,7 @@ app.include_router(public_router)
 app.include_router(reports_router)
 app.include_router(report_render_data_router)
 app.include_router(report_native_access_router)
+app.include_router(report_legacy_family_router)
 app.include_router(auth_router)
 app.include_router(operator_admin_router)
 app.include_router(quick_assessment_reports_router)
