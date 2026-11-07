@@ -99,7 +99,7 @@ class ExecutiveReport(BaseModel):
     estimated_loss_eur: float = 0.0
     potential_saving_eur: float = 0.0
     estimated_premium_price_monthly: float = 0.0
-    roi_eur: float = 0.0
+    roi_eur: float = Field(default=0.0, exclude=True, description="Legacy internal metric; never part of public financial report contract.")
     validated_improvement_eur: float | None = None
     realized_saving_eur: float | None = None
     validation_baseline_eligible: bool = True
