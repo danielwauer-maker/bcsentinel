@@ -207,9 +207,13 @@ def _load_baseline_scan(
     validation_scan: Scan,
     validation_credit: TenantScanCredit,
 ) -> tuple[Scan, str]:
-    if validation_credit.baseline_scan_id:
+    # Earlier TenantScanCredit migrations did not persist baseline_scan_id.
+    # When present in newer schemas, treat the explicit binding as
+    # authoritative; otherwise use reviewed operator evidence/legacy fallback.
+    explicit_baseline_scan_id = getattr(validation_credit, "baseline_scan_id", None)
+    if explicit_baseline_scan_id:
         return (
-            _validate_baseline_scan(db, tenant, validation_scan, validation_credit.baseline_scan_id),
+            _validate_baseline_scan(db, tenant, validation_scan, explicit_baseline_scan_id),
             "validation_credit",
         )
 
