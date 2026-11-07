@@ -234,4 +234,4 @@ def test_paid_executive_report_remains_locked_for_free_tenant(
         headers=auth_header_factory(tenant),
     )
     assert free_response.status_code == 200
-    assert paid_response.status_code == 402
+    assert paid_response.status_code == 403
