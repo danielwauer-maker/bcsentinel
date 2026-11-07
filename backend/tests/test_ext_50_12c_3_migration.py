@@ -67,5 +67,5 @@ def test_upgrade_downgrade_upgrade_preserves_existing_findings(tmp_path, dialect
             assert current_head in active_revisions
         else:
             assert "0029_finding_identity" in active_revisions
-            assert active_revisions.issubset({"0029_finding_identity", "0031_public_contact_inbox"})
+            assert active_revisions.issubset({"0029_finding_identity", "0031_public_contact_inbox", "0036_report_archives"})
     engine.dispose()
