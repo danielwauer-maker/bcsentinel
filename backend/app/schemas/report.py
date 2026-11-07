@@ -98,7 +98,7 @@ class ExecutiveReport(BaseModel):
     applied_exception_count: int = Field(ge=0, default=0)
     estimated_loss_eur: float = 0.0
     potential_saving_eur: float = 0.0
-    estimated_premium_price_monthly: float = 0.0
+    estimated_premium_price_monthly: float = Field(default=0.0, exclude=True, description="Internal subscription estimate; not a customer report financial metric.")
     roi_eur: float = Field(default=0.0, exclude=True, description="Legacy internal metric; never part of public financial report contract.")
     validated_improvement_eur: float | None = None
     realized_saving_eur: float | None = None
