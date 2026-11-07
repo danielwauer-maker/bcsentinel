@@ -4,18 +4,6 @@ permissionset 53190 "BCSENTINEL VIEWER"
     Caption = 'BCSentinel Viewer';
 
     Permissions =
-        tabledata "DH Remediation Action" = R,
-        tabledata "DH Remediation Audit" = R,
-        tabledata "DH Notification Setup" = R,
-        tabledata "DH Notification Event" = R,
-        tabledata "DH Notification Rule" = R,
-        tabledata "DH Notification Recipient" = R,
-        tabledata "DH Notification Template" = R,
-        tabledata "DH Notification Delivery" = R,
-        tabledata "DH Notification Config Audit" = R,
-        tabledata "DH Scan Issue" = R,
-        tabledata "DH Deep Scan Finding" = R,
-        tabledata "DH Dashboard Issue" = R,
 
         tabledata "DH Setup" = R,
         tabledata "DH Scan Header" = R,
