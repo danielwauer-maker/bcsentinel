@@ -274,6 +274,12 @@ def _normalize_billing_interval(value: str | None) -> str:
 
 def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
     product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
+    # Existing customer frontends may still submit the previous checkout codes.
+    # Map only NEW checkouts; never reinterpret historical paid purchases.
+    if product_code == PRODUCT_FULL_ANALYSIS:
+        product_code = PRODUCT_FULL_ASSESSMENT_V2
+    elif product_code == PRODUCT_VALIDATION_CHECK:
+        product_code = PRODUCT_ACCESS_RENEWAL_VALIDATION
     if product_code not in {
         PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
