@@ -23,6 +23,11 @@ PRODUCT_FULL_ANALYSIS = "full_analysis"
 PRODUCT_ASSESSMENT = PRODUCT_FULL_ANALYSIS
 PRODUCT_ASSESSMENT_LEGACY = "assessment"
 PRODUCT_VALIDATION_CHECK = "validation_check"
+# v2 products are distinct from historical 7-day purchases.
+PRODUCT_FULL_ASSESSMENT_V2 = "full_assessment_v2"
+PRODUCT_ACCESS_RENEWAL = "access_renewal"
+PRODUCT_ACCESS_RENEWAL_VALIDATION = "access_renewal_validation"
+NEW_ACCESS_PRODUCTS = {PRODUCT_FULL_ASSESSMENT_V2, PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION}
 PRODUCT_MONITORING_MONTHLY = "monitoring_monthly"
 PRODUCT_MONITORING_ANNUAL = "monitoring_annual"
 
@@ -33,16 +38,22 @@ PRODUCT_ALIASES = {
     "data_health_score": PRODUCT_DATA_HEALTH_SCORE,
     "validation": PRODUCT_VALIDATION_CHECK,
     "validation_check": PRODUCT_VALIDATION_CHECK,
+    "full_assessment_v2": PRODUCT_FULL_ASSESSMENT_V2,
+    "access_renewal": PRODUCT_ACCESS_RENEWAL,
+    "access_renewal_validation": PRODUCT_ACCESS_RENEWAL_VALIDATION,
     "monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
     "monitoring_annual": PRODUCT_MONITORING_ANNUAL,
 }
 
-ONE_TIME_PRODUCTS = {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK}
+ONE_TIME_PRODUCTS = {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK} | NEW_ACCESS_PRODUCTS
 MONITORING_PRODUCTS = {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
 PRODUCT_CODES = {
     PRODUCT_DATA_HEALTH_SCORE,
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_MONITORING_ANNUAL,
 }
@@ -52,6 +63,9 @@ PRODUCT_DISPLAY_NAMES = {
     PRODUCT_DATA_HEALTH_SCORE: "BCSentinel Data Health Score",
     PRODUCT_FULL_ANALYSIS: "BCSentinel Full Analysis",
     PRODUCT_VALIDATION_CHECK: "BCSentinel Validation Check",
+    PRODUCT_FULL_ASSESSMENT_V2: "BCSentinel Full Assessment (14 days)",
+    PRODUCT_ACCESS_RENEWAL: "BCSentinel Access Renewal (14 days)",
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: "BCSentinel Renewal + Validation (14 days)",
     PRODUCT_MONITORING_MONTHLY: "BCSentinel Monitoring Monthly",
     PRODUCT_MONITORING_ANNUAL: "BCSentinel Monitoring Annual",
 }
@@ -84,7 +98,8 @@ MONITORING_FEATURES = PAID_SCAN_FEATURES | {
     "billing_portal",
 }
 
-ONE_TIME_ACCESS_DAYS = 7
+ONE_TIME_ACCESS_DAYS = 7  # Legacy grants retain their original contractual duration.
+NEW_ACCESS_DAYS = 14
 
 
 def utc_now() -> datetime:
@@ -118,6 +133,8 @@ def _add_months(value: datetime, months: int) -> datetime:
 def calculate_product_access_until(product_code: str, anchor: datetime | None = None) -> datetime | None:
     normalized_product = normalize_product_code(product_code)
     start = _as_utc(anchor) or utc_now()
+    if normalized_product in NEW_ACCESS_PRODUCTS:
+        return calculate_access_window_until(days=NEW_ACCESS_DAYS, anchor=start)
     if normalized_product in ONE_TIME_PRODUCTS:
         return calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=start)
     if normalized_product == PRODUCT_MONITORING_MONTHLY:
@@ -365,6 +382,76 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     return _max_datetime(access_until_values)
 
 
+def _v2_access_until(db, tenant_id: str) -> datetime | None:
+    """New 14-day grants use persisted expiry only, never purchase/credit age."""
+    rows = db.scalars(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == tenant_id,
+        TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+        TenantProductEntitlement.status == "active",
+        TenantProductEntitlement.valid_until_utc.is_not(None),
+    )).all()
+    return _max_datetime([row.valid_until_utc for row in rows])
+
+
+def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_id: int):
+    """Atomic idempotent new-purchase grant, called ONLY after verified payment.
+
+    Caller must own a transaction, authenticate payment/webhook, and commit it.
+    Existing legacy purchase grants are deliberately not rewritten.
+    """
+    normalized = normalize_product_code(product_code)
+    if normalized not in NEW_ACCESS_PRODUCTS:
+        raise ValueError("Not a v2 access product.")
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
+    if tenant is None:
+        raise ValueError("Tenant not found.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.id == purchase_id,
+        TenantProductPurchase.tenant_id == tenant_id,
+        TenantProductPurchase.product_code == normalized,
+    ))
+    if purchase is None or purchase.status not in {"paid", "complete", "completed"}:
+        raise ValueError("Verified paid purchase required.")
+    source_marker = f"purchase:{purchase.id}"
+    prior = db.scalar(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == tenant_id,
+        TenantProductEntitlement.product_code == normalized,
+        TenantProductEntitlement.source == source_marker,
+    ))
+    if prior is not None:
+        return prior
+    from app.services.access_renewal_policy import extend_access
+    now = utc_now()
+    effective = build_product_access_snapshot(db, tenant)
+    existing_until = _max_datetime([
+        _as_utc(tenant.premium_until_utc),
+        _parse_iso_utc(effective.get("premium_access_until")),
+    ])
+    expiry = extend_access(existing_until, now, duration_days=NEW_ACCESS_DAYS)
+    entitlement = TenantProductEntitlement(
+        tenant_id=tenant_id, product_code=normalized,
+        status="active", source=source_marker, valid_until_utc=expiry,
+        created_at_utc=now, updated_at_utc=now,
+    )
+    db.add(entitlement)
+    # The persisted premium expiry is the single stacking anchor.
+    tenant.premium_until_utc = expiry
+    if normalized == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        grant_scan_credit(
+            db, tenant_id=tenant_id, product_code=PRODUCT_VALIDATION_CHECK,
+            source="renewal_validation_purchase", source_purchase_id=purchase.id,
+            extend_access=False,
+        )
+    db.flush()
+    return entitlement
+
+
+def _parse_iso_utc(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return _as_utc(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+
 def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     values: list[datetime | None] = []
     subscriptions = db.scalars(
@@ -410,6 +497,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
     free_access_permanent = _has_permanent_free_result_access(db, tenant.tenant_id)
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
+    # v2 paid entitlements are issued once per purchase; never derive their
+    # lifespan a second time from purchases or unconsumed validation credits.
+    v2_access_until = _v2_access_until(db, tenant.tenant_id)
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     monitoring_until = _monitoring_access_until(db, tenant)
     monitoring_active = has_active_monitoring_subscription(db, tenant) or (
@@ -417,9 +507,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     )
 
     explicit_premium_until = _as_utc(tenant.premium_until_utc)
-    one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until])
+    one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until, v2_access_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
-    full_analysis_active = full_analysis_until is not None and full_analysis_until >= now
+    full_analysis_active = any(value is not None and value >= now for value in (full_analysis_until, v2_access_until))
     validation_active = validation_until is not None and validation_until >= now
     one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
@@ -489,7 +579,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "free_access_permanent": free_access_permanent,
         "free_access_until": None,
         "assessment_access_until": _iso(full_analysis_until),
-        "full_analysis_access_until": _iso(full_analysis_until),
+        "full_analysis_access_until": _iso(_max_datetime([full_analysis_until, v2_access_until])),
         "validation_access_until": _iso(validation_until),
         "validation_check_access_until": _iso(validation_until),
         "monitoring_access_until": _iso(monitoring_until),
@@ -564,6 +654,7 @@ def grant_scan_credit(
     product_code: str,
     source: str = "manual",
     source_purchase_id: int | None = None,
+    extend_access: bool = True,
 ) -> TenantScanCredit:
     normalized_product = normalize_product_code(product_code)
     if normalized_product != PRODUCT_VALIDATION_CHECK:
@@ -592,7 +683,8 @@ def grant_scan_credit(
             created_at_utc=utc_now(),
         )
     )
-    extend_tenant_premium_access(db, tenant_id=tenant_id)
+    if extend_access:
+        extend_tenant_premium_access(db, tenant_id=tenant_id)
     return credit
 
 
