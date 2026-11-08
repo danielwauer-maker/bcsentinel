@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str | None = None
     STRIPE_PRICE_ID_ASSESSMENT: str | None = None
     STRIPE_PRICE_ID_VALIDATION_CHECK: str | None = None
+    STRIPE_PRICE_ID_ACCESS_RENEWAL: str | None = None
     STRIPE_PRICE_ID_MONITORING_MONTHLY: str | None = None
     STRIPE_PRICE_ID_MONITORING_ANNUAL: str | None = None
     BILLING_SUCCESS_URL: str | None = None
