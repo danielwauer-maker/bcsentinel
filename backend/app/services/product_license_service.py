@@ -259,7 +259,11 @@ def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     ).all()
     product_codes = []
     for row in rows:
-        valid_until = _end_of_day_utc(row.valid_until_utc)
+        # New 14-day access passes expire at the exact UTC instant; the legacy
+        # product model historically used end-of-day semantics.
+        valid_until = (_as_utc(row.valid_until_utc)
+                       if row.product_code in NEW_ACCESS_PRODUCTS
+                       else _end_of_day_utc(row.valid_until_utc))
         if valid_until is not None and valid_until < now:
             continue
         product_codes.append(normalize_product_code(row.product_code))
@@ -607,8 +611,8 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "report_access_until": _iso(protected_access_until),
         "can_run_deep_scan": monitoring_active or validation_credits_available > 0,
         "can_view_dashboard": protected_access_active,
-        "can_view_issue_details": protected_access_active,
-        "can_view_executive_report": protected_access_active,
+        "can_view_issue_details": premium_access_active,
+        "can_view_executive_report": premium_access_active,
         "scan_credits_available": validation_credits_available,
         "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
