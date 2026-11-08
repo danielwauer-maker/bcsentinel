@@ -19,6 +19,10 @@ os.environ["SECRET_KEY"] = "test-secret-key-with-sufficient-length-123"
 os.environ["ADMIN_USERNAME"] = "admin-test"
 os.environ["ADMIN_PASSWORD"] = "admin-password-for-tests-123"
 os.environ["DATABASE_URL"] = POSTGRES_TEST_DATABASE_URL or f"sqlite:///{TEST_DB_PATH.as_posix()}"
+# Legacy route/security regressions exercise the optional features explicitly.
+# Go-live defaults remain disabled in real deployments.
+os.environ["CUSTOMER_DASHBOARD_ENABLED"] = "true"
+os.environ["QUICK_ASSESSMENT_ENABLED"] = "true"
 
 from app.core.settings import settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402
