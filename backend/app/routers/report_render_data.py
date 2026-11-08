@@ -95,15 +95,12 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
     access = build_product_access_snapshot(db, tenant)
     if variant == "full":
         # Validation-only rights must never unlock the initial Full Assessment.
-        if not (
-            access["can_view_executive_report"]
-            and (access.get("assessment_access_active") or access.get("monitoring_active"))
-        ):
+        if not access["premium_active"]:
             raise HTTPException(status_code=402, detail="Full Assessment access required.")
         return build_executive_report(db, tenant, scan_id)
     if variant == "validation":
-        if not access["validation_access_active"]:
-            raise HTTPException(status_code=402, detail="Validation access required.")
+        if not access["premium_active"]:
+            raise HTTPException(status_code=402, detail="Premium access required for Validation report.")
         return build_validation_report(db, tenant, scan_id)
     if variant == "monitoring":
         if not access["monitoring_active"]:
@@ -143,6 +140,8 @@ def read_report_for_renderer(
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
         if scoped_tenant_id is not None:
+            if not build_product_access_snapshot(db, tenant)["premium_active"]:
+                raise HTTPException(status_code=403, detail="Premium report access expired.")
             archived = db.scalar(select(ReportArchive).where(
                 ReportArchive.tenant_id == tenant_id,
                 ReportArchive.company_id == scan.bc_company_id,
