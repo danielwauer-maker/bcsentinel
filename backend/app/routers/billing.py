@@ -38,6 +38,11 @@ from app.services.product_license_service import (
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
+    NEW_ACCESS_PRODUCTS,
+    grant_v2_access_purchase,
     build_product_access_snapshot,
     calculate_access_window_until,
     calculate_product_access_until,
@@ -272,6 +277,9 @@ def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
     if product_code not in {
         PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
+        PRODUCT_FULL_ASSESSMENT_V2,
+        PRODUCT_ACCESS_RENEWAL,
+        PRODUCT_ACCESS_RENEWAL_VALIDATION,
         PRODUCT_MONITORING_MONTHLY,
         PRODUCT_MONITORING_ANNUAL,
     }:
@@ -288,8 +296,12 @@ def _billing_interval_for_product(product_code: str, requested_interval: str | N
 
 
 def _env_price_id_for_product(product_code: str) -> str | None:
-    if product_code == PRODUCT_FULL_ANALYSIS:
+    if product_code in {PRODUCT_FULL_ANALYSIS, PRODUCT_FULL_ASSESSMENT_V2}:
         return (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip() or None
+    if product_code == PRODUCT_ACCESS_RENEWAL:
+        return (settings.STRIPE_PRICE_ID_ACCESS_RENEWAL or "").strip() or None
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        return (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip() or None
     if product_code == PRODUCT_VALIDATION_CHECK:
         return (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip() or None
     if product_code == PRODUCT_MONITORING_ANNUAL:
@@ -303,8 +315,12 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
     price_id = _env_price_id_for_product(product_code)
     if price_id:
         return price_id
-    if product_code == PRODUCT_FULL_ANALYSIS:
-        raise HTTPException(status_code=400, detail="Full Analysis checkout is not configured.")
+    if product_code in {PRODUCT_FULL_ANALYSIS, PRODUCT_FULL_ASSESSMENT_V2}:
+        raise HTTPException(status_code=400, detail="Full Assessment checkout is not configured.")
+    if product_code == PRODUCT_ACCESS_RENEWAL:
+        raise HTTPException(status_code=400, detail="Access Renewal checkout is not configured.")
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        raise HTTPException(status_code=400, detail="Renewal + Validation checkout is not configured.")
     if product_code == PRODUCT_VALIDATION_CHECK:
         raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
     if product_code == PRODUCT_MONITORING_ANNUAL:
@@ -318,9 +334,31 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
     access = build_product_access_snapshot(db, tenant)
     if access["monitoring_active"]:
         return set()
-    if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
-        return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+    if not access["has_completed_data_health_score"]:
+        # A real completed Free Health Check is required to buy Full.
+        return set()
+    if access["premium_active"]:
+        return {PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+                PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+    if access["full_analysis_access_active"] or access["validation_check_access_active"]:
+        return {PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+                PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+    # A returning customer may renew after expiry, but only if they have
+    # previously purchased paid access. Never permit cheap renewals as Full.
+    prior_paid = db.scalar(select(TenantProductPurchase.id).where(
+        TenantProductPurchase.tenant_id == tenant.tenant_id,
+        TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+        TenantProductPurchase.product_code.in_(
+            [PRODUCT_FULL_ANALYSIS, "assessment", PRODUCT_FULL_ASSESSMENT_V2,
+             PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+             PRODUCT_VALIDATION_CHECK]
+        ),
+    )) is not None
+    return ({PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+             PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+            if prior_paid else
+            {PRODUCT_FULL_ASSESSMENT_V2,
+             PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL})
 
 
 def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
@@ -332,6 +370,9 @@ def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> N
 
 
 def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, source: str, purchase) -> None:
+    if product_code in NEW_ACCESS_PRODUCTS:
+        grant_v2_access_purchase(db, tenant_id=tenant_id, product_code=product_code, purchase_id=purchase.id)
+        return
     if product_code == PRODUCT_VALIDATION_CHECK:
         existing_credit = db.scalar(
             select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
