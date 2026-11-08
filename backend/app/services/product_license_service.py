@@ -309,24 +309,41 @@ def _completed_data_health_score_at(db, tenant_id: str) -> datetime | None:
 
 
 def is_original_free_scan(db, tenant_id: str, scan_id: str) -> bool:
-    """Only the original completed Free scan may remain visible after expiry."""
-    return db.scalar(
-        select(Scan.id)
-        .join(ScanStartRequest, ScanStartRequest.scan_id == Scan.scan_id)
-        .join(ScanRunStatus, ScanRunStatus.run_id == Scan.scan_id)
-        .where(
-            Scan.tenant_id == tenant_id,
-            Scan.scan_id == scan_id,
-            ScanStartRequest.tenant_id == tenant_id,
-            ScanStartRequest.resolved_product_code == PRODUCT_DATA_HEALTH_SCORE,
-            ScanStartRequest.free_scan_slot == PRODUCT_DATA_HEALTH_SCORE,
+    """Only the original completed Free scan remains visible after expiry.
+
+    The historical free_entry credit is accepted for already-registered
+    tenants whose older AL versions did not emit a canonical Free start slot.
+    """
+    completed = db.scalar(
+        select(ScanRunStatus.run_id).where(
             ScanRunStatus.tenant_id == tenant_id,
+            ScanRunStatus.run_id == scan_id,
             ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
             ScanRunStatus.result_persisted_at_utc.is_not(None),
-        )
-        .limit(1)
-    ) is not None
-
+        ).limit(1)
+    )
+    if completed is None:
+        return False
+    owned = db.scalar(select(Scan.id).where(
+        Scan.tenant_id == tenant_id, Scan.scan_id == scan_id,
+    ).limit(1))
+    if owned is None:
+        return False
+    canonical = db.scalar(select(ScanStartRequest.id).where(
+        ScanStartRequest.tenant_id == tenant_id,
+        ScanStartRequest.scan_id == scan_id,
+        ScanStartRequest.resolved_product_code == PRODUCT_DATA_HEALTH_SCORE,
+        ScanStartRequest.free_scan_slot == PRODUCT_DATA_HEALTH_SCORE,
+    ).limit(1))
+    if canonical is not None:
+        return True
+    legacy = db.scalar(select(TenantScanCredit.id).where(
+        TenantScanCredit.tenant_id == tenant_id,
+        TenantScanCredit.consumed_scan_id == scan_id,
+        TenantScanCredit.product_code.in_(["free_entry", PRODUCT_DATA_HEALTH_SCORE]),
+        TenantScanCredit.status == "consumed",
+    ).limit(1))
+    return legacy is not None
 
 def _has_permanent_free_result_access(db, tenant_id: str) -> bool:
     return _completed_data_health_score_at(db, tenant_id) is not None
