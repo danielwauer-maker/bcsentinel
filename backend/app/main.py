@@ -616,7 +616,8 @@ def register_tenant(
                 message_de="Die Registrierung konnte aufgrund eines internen Fehlers nicht abgeschlossen werden.",
             ) from exc
 
-    if registration.dashboard_user_created:
+    # Report-only launch: registration must not send dashboard invitations.
+    if settings.CUSTOMER_DASHBOARD_ENABLED and registration.dashboard_user_created:
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == registration.tenant_id))
             user = db.scalar(select(DashboardUser).where(DashboardUser.id == registration.dashboard_user_id))
