@@ -49,6 +49,8 @@ def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
 
 
 def _require_quick_access(db, tenant: Tenant, *, shared: bool = False) -> None:
+    if not settings.QUICK_ASSESSMENT_ENABLED:
+        raise HTTPException(status_code=404, detail="Quick Assessment is not available.")
     access = build_quick_assessment_access_snapshot(db, tenant)
     if not access["can_view_quick_assessment"]:
         raise HTTPException(
