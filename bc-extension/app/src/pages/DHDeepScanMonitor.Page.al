@@ -132,6 +132,7 @@
             group(OnlineDashboard)
             {
                 Caption = 'Online';
+                Visible = false; // Report-only launch: no customer dashboard.
 
                 field(OpenExternalDashboardLink; OpenDashboardLinkTxt)
                 {
@@ -408,6 +409,7 @@
 
             action(OpenExternalDashboard)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Open BCSentinel Dashboard';
                 ApplicationArea = All;
                 Image = View;
@@ -421,6 +423,7 @@
 
             action(OpenExecutiveReport)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Executive Report';
                 ApplicationArea = All;
                 Image = Report;
@@ -451,6 +454,7 @@
 
             action(OpenExecutivePdf)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Executive PDF';
                 ApplicationArea = All;
                 Image = Print;
