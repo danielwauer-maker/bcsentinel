@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
     CUSTOMER_DASHBOARD_ENABLED: bool = False  # Report-only launch; enable only after access audit.
+    QUICK_ASSESSMENT_ENABLED: bool = False  # Reserved for a later product release.
     DASHBOARD_LOGIN_MAX_FAILURES: int = 5
     DASHBOARD_LOGIN_LOCK_MINUTES: int = 15
     DASHBOARD_PASSWORD_RESET_EXPIRE_MINUTES: int = 30
