@@ -196,7 +196,9 @@ app.include_router(admin_router)
 app.include_router(analytics_router)
 app.include_router(billing_router)
 app.include_router(check_catalog_router)
-app.include_router(dashboard_router)
+# Keep customer-dashboard routes unavailable in the report-only launch.
+if settings.CUSTOMER_DASHBOARD_ENABLED:
+    app.include_router(dashboard_router)
 app.include_router(partners_router)
 app.include_router(public_router)
 app.include_router(reports_router)
