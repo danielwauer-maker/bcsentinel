@@ -86,6 +86,9 @@ def _assert_comparable_history(db, tenant_id: str, company_id: str, lcy_code: st
 
 def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVariant):
     if variant == "free":
+        from app.services.product_license_service import is_original_free_scan
+        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+            raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
     if variant == "quick":
         access = build_quick_assessment_access_snapshot(db, tenant)
