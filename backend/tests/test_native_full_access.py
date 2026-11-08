@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import Scan
+from app.models import Scan, Tenant
 from app.report_archive_models import ReportAccessGrant, ReportArchive
 from app.services.report_archive_service import issue_full_link, redeem_code, verify_scoped_session
 from app.routers.report_render_data import ReportRenderEnvelope
@@ -48,10 +48,18 @@ def _seed(tenant_factory, scan_factory):
     return t
 
 
-def test_archived_report_can_be_launched_after_entitlement_ends_and_code_is_one_use(
+def _activate_full(tenant_id: str, *, hours: int = 2) -> None:
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter(Tenant.tenant_id == tenant_id).one()
+        tenant.premium_until_utc = datetime.now(timezone.utc) + timedelta(hours=hours)
+        db.commit()
+
+
+def test_archived_report_requires_active_access_and_code_is_one_use(
     client, monkeypatch, tenant_factory, scan_factory, auth_header_factory
 ):
     t = _seed(tenant_factory, scan_factory)
+    _activate_full(t["tenant_id"])
     monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
     issued = client.post(f"/reports/executive/{SCAN}/v6-link", headers=auth_header_factory(t))
     assert issued.status_code == 200, issued.text
@@ -82,6 +90,25 @@ def test_archived_report_can_be_launched_after_entitlement_ends_and_code_is_one_
     assert report.headers["cache-control"].startswith("no-store")
     denied = client.get(f"/account/reports/full/{SCAN}?company_id={OTHER}", headers={"Authorization": "Bearer " + data["access_token"]})
     assert denied.status_code in (401, 403, 404)
+
+
+def test_expired_premium_cannot_issue_new_code_or_redeem_old_code(
+    client, monkeypatch, tenant_factory, scan_factory, auth_header_factory
+):
+    t = _seed(tenant_factory, scan_factory)
+    _activate_full(t["tenant_id"])
+    monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
+    from urllib.parse import urlparse, parse_qs
+    issued = client.post(f"/reports/executive/{SCAN}/v6-link", headers=auth_header_factory(t))
+    assert issued.status_code == 200, issued.text
+    code = parse_qs(urlparse(issued.json()["url"]).query)["code"][0]
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter(Tenant.tenant_id == t["tenant_id"]).one()
+        tenant.premium_until_utc = datetime.now(timezone.utc) - timedelta(days=1)
+        db.commit()
+    body = {"code": code, "scan_id": SCAN, "company_id": COMPANY, "report_variant": "full"}
+    assert client.post("/reports/access/exchange", json=body).status_code == 403
+    assert client.post(f"/reports/executive/{SCAN}/v6-link", headers=auth_header_factory(t)).status_code == 402
 
 
 def test_history_is_company_and_tenant_scoped(client, tenant_factory, scan_factory, auth_header_factory):
@@ -118,6 +145,7 @@ def test_bad_or_expired_access_code_never_grants_token(client, tenant_factory, s
 
 def test_context_mismatch_consumes_code_without_leaking_report(client, monkeypatch, tenant_factory, scan_factory, auth_header_factory):
     t = _seed(tenant_factory, scan_factory)
+    _activate_full(t["tenant_id"])
     monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
     from urllib.parse import urlparse, parse_qs
     link = client.post(f"/reports/executive/{SCAN}/v6-link", headers=auth_header_factory(t)).json()["url"]
