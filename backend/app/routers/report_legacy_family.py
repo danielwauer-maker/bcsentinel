@@ -87,6 +87,9 @@ def _load_free_report(scan_id: str, tenant_auth: tuple[str, str]) -> FreeHealthR
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        from app.services.product_license_service import is_original_free_scan
+        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+            raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
 
 
@@ -222,6 +225,9 @@ def _load_shared_free_report(scan_id: str, report_type: str, token: str) -> Free
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         enforce_tenant_is_active(db, tenant.tenant_id)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        from app.services.product_license_service import is_original_free_scan
+        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+            raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
 
 
@@ -279,6 +285,9 @@ def create_free_health_report_share_link(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        from app.services.product_license_service import is_original_free_scan
+        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+            raise HTTPException(status_code=404, detail="Free Report not found.")
         build_free_health_report(db, tenant, scan_id)
     token = _create_free_share_token(tenant_id=header_tenant_id, scan_id=scan_id, report_type=selected_type)
     return ExecutiveReportShareLinkResponse(url=_shared_free_report_url(request, scan_id, selected_type, token))
