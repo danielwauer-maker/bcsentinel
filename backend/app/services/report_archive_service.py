@@ -38,9 +38,7 @@ def _now() -> datetime:
 
 def _has_paid_full_access(db, tenant: Tenant) -> bool:
     access = build_product_access_snapshot(db, tenant)
-    return bool(access["can_view_executive_report"] and (
-        access.get("assessment_access_active") or access.get("monitoring_active")
-    ))
+    return bool(access["premium_active"])
 
 
 def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
@@ -136,6 +134,9 @@ def redeem_code(db, raw_code: str) -> dict:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
     enforce_tenant_is_active(db, tenant.tenant_id)
+    if not _has_paid_full_access(db, tenant):
+        db.rollback()
+        raise HTTPException(status_code=403, detail="Premium report access expired.")
     archive = db.scalar(select(ReportArchive).where(
         ReportArchive.tenant_id == grant.tenant_id,
         ReportArchive.company_id == grant.company_id,
