@@ -56,6 +56,9 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
         # The authoritative capability gate must not diverge between the
         # Executive JSON/HTML/PDF endpoints and v6 token issuance.
         require_capability(db, tenant, CAPABILITY_REPORT)
+        from app.services.product_license_service import build_product_access_snapshot
+        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=402, detail="Premium report access required.")
         # Both foreign and nonexistent scans get the same 404, so ownership
         # cannot be inferred by probing across tenant boundaries.
         _require_owned_scan(db, tenant.tenant_id, scan_id)
@@ -120,6 +123,9 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
         if company_id.strip().strip("{}").lower() != str(tenant.bc_company_id or "").strip().strip("{}").lower():
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         require_capability(db, tenant, CAPABILITY_REPORT)
+        from app.services.product_license_service import build_product_access_snapshot
+        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=403, detail="Premium report access expired.")
         return build_executive_report(db, tenant, scan_id)
 
 
@@ -152,6 +158,9 @@ def create_executive_report_share_link(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_capability(db, tenant, CAPABILITY_REPORT, denial_event="token_issuance_denied")
+        from app.services.product_license_service import build_product_access_snapshot
+        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=402, detail="Premium report access required.")
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         build_executive_report(db, tenant, scan_id)
         token = _create_share_token(tenant=tenant, scan_id=scan_id, report_type=selected_type)
