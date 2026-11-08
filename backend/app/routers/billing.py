@@ -16,7 +16,7 @@ from app.core.observability import log_event
 from app.core.product_model import product_contract_for_storage_code
 from app.core.settings import resolve_billing_url, settings
 from app.db import SessionLocal
-from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit, TenantProductPurchase
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
