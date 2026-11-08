@@ -95,6 +95,8 @@ def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
 
 def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
     enforce_tenant_is_active(db, tenant.tenant_id)
+    if not _has_paid_full_access(db, tenant):
+        raise HTTPException(status_code=402, detail="Active Full Access or Monitoring required.")
     if not scan.bc_company_id or not scan.lcy_code:
         raise HTTPException(status_code=409, detail="Scan requires verified BC company and LCY.")
     scan.bc_company_id = canonical_company_id(scan.bc_company_id)
