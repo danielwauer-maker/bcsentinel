@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.core.settings import settings
 from app.models import ProductPricingConfig, ProductPricingMatrixConfig
 from app.core.product_model import product_contract_for_storage_code
 from app.services.billing_service import utc_now
@@ -31,12 +32,21 @@ PRICING_TIER_STARTER = "starter"
 PRICING_TIER_PROFESSIONAL = "professional"
 PRICING_TIER_BUSINESS = "business"
 PRICING_TIER_ENTERPRISE = "enterprise"
+PRICING_TIER_CUSTOM = "custom"
 PRICING_TIER_ORDER = [
     PRICING_TIER_STARTER,
     PRICING_TIER_PROFESSIONAL,
     PRICING_TIER_BUSINESS,
     PRICING_TIER_ENTERPRISE,
 ]
+V2_TIER_ORDER = [*PRICING_TIER_ORDER, PRICING_TIER_CUSTOM]
+V2_TIER_MAX_RECORDS = {
+    PRICING_TIER_STARTER: 250_000,
+    PRICING_TIER_PROFESSIONAL: 1_000_000,
+    PRICING_TIER_BUSINESS: 5_000_000,
+    PRICING_TIER_ENTERPRISE: 20_000_000,
+    PRICING_TIER_CUSTOM: None,
+}
 PRICING_TIER_MAX_RECORDS = {
     PRICING_TIER_STARTER: 100_000,
     PRICING_TIER_PROFESSIONAL: 250_000,
@@ -104,15 +114,15 @@ PRODUCT_PRICING_MATRIX_DEFAULTS: dict[str, dict[str, dict[str, Any]]] = {
     },
     PRODUCT_FULL_ASSESSMENT_V2: {
         tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
-        for tier in PRICING_TIER_ORDER
+        for tier in V2_TIER_ORDER
     },
     PRODUCT_ACCESS_RENEWAL: {
         tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
-        for tier in PRICING_TIER_ORDER
+        for tier in V2_TIER_ORDER
     },
     PRODUCT_ACCESS_RENEWAL_VALIDATION: {
         tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
-        for tier in PRICING_TIER_ORDER
+        for tier in V2_TIER_ORDER
     },
     PRODUCT_MONITORING_MONTHLY: {
         PRICING_TIER_STARTER: {"amount_cents": 14900, "billing_interval": PRODUCT_BILLING_INTERVAL_MONTH},
@@ -202,7 +212,7 @@ def ensure_default_product_pricing(db) -> None:
 def ensure_default_product_pricing_matrix(db) -> None:
     now = utc_now()
     for product_key in PRODUCT_PRICING_MATRIX_PRODUCTS:
-        for pricing_tier in PRICING_TIER_ORDER:
+        for pricing_tier in (V2_TIER_ORDER if product_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER):
             if db.scalar(
                 select(ProductPricingMatrixConfig).where(
                     ProductPricingMatrixConfig.product_key == product_key,
@@ -218,7 +228,7 @@ def ensure_default_product_pricing_matrix(db) -> None:
                         ProductPricingMatrixConfig(
                             product_key=product_key,
                             pricing_tier=pricing_tier,
-                            max_records=PRICING_TIER_MAX_RECORDS[pricing_tier],
+                            max_records=(V2_TIER_MAX_RECORDS if product_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[pricing_tier],
                             amount_cents=config["amount_cents"],
                             currency="EUR",
                             billing_interval=config["billing_interval"],
@@ -362,7 +372,8 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
     ensure_default_product_pricing_matrix(db)
     normalized_product = normalize_product_code(product_key)
     normalized_tier = (pricing_tier or PRICING_TIER_STARTER).strip().lower()
-    if normalized_tier not in PRICING_TIER_ORDER:
+    allowed_tiers = V2_TIER_ORDER if normalized_product in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER
+    if normalized_tier not in allowed_tiers:
         normalized_tier = PRICING_TIER_STARTER
     row = db.scalar(
         select(ProductPricingMatrixConfig).where(
@@ -376,7 +387,7 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
         return MatrixPrice(
             product_key=normalized_product,
             pricing_tier=normalized_tier,
-            max_records=PRICING_TIER_MAX_RECORDS[normalized_tier],
+            max_records=(V2_TIER_MAX_RECORDS if normalized_product in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[normalized_tier],
             amount_cents=defaults["amount_cents"],
             currency="EUR",
             billing_interval=defaults["billing_interval"],
@@ -538,6 +549,10 @@ def resolve_checkout_matrix_price(
 ) -> MatrixPrice:
     pricing_tier = pricing_tier_for_record_count(record_count) or PRICING_TIER_STARTER
     price = get_matrix_price(db, product_key, pricing_tier)
+    # Explicit tier-specific Stripe Prices only for new products. Do not
+    # reuse a default/old product Price ID for a different v2 tier.
+    if normalize_product_code(product_key) in NEW_ACCESS_PRODUCTS:
+        return price
     if not price.stripe_price_id and env_price_id and not price.contact_sales:
         return MatrixPrice(
             product_key=price.product_key,
