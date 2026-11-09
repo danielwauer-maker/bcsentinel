@@ -378,6 +378,15 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
 
 
 def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
+    if settings.ACCESS_MODEL_V2_ENABLED and product_code in {
+        PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL,
+    }:
+        # Existing Stripe Monitoring prices are calibrated to LEGACY record
+        # limits. A 250k/1M/5M/20M tenant must never purchase at legacy rates.
+        raise HTTPException(
+            status_code=409,
+            detail="Monitoring v2 tier pricing is not configured; contact BCSentinel.",
+        )
     allowed_products = _allowed_checkout_product_codes(db, tenant)
     if product_code not in allowed_products:
         if not allowed_products:
