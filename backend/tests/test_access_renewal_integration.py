@@ -5,7 +5,7 @@ import pytest
 
 from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import Tenant, TenantProductEntitlement, TenantScanCredit, ScanRunStatus
 from app.services.product_license_service import (
     PRODUCT_FULL_ASSESSMENT_V2,
     PRODUCT_ACCESS_RENEWAL,
@@ -13,6 +13,7 @@ from app.services.product_license_service import (
     grant_v2_access_purchase,
     record_product_purchase,
     build_product_access_snapshot,
+    is_original_free_scan,
 )
 
 
@@ -128,4 +129,32 @@ def test_late_validation_credit_consumption_never_extends_expired_v2_pass(tenant
         access = build_product_access_snapshot(db, tenant)
         assert not access["premium_active"]
         assert not access["validation_access_active"]
+        db.commit()
+
+
+
+def test_legacy_free_entry_is_permanently_visible_to_v2_tenant(tenant_factory, scan_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    scan_factory(tenant_id=tenant_id, scan_id="historic-free-entry")
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.add(ScanRunStatus(
+            run_id="historic-free-entry", tenant_id=tenant_id,
+            scan_mode="deep", status="completed",
+            created_at_utc=now, updated_at_utc=now,
+            completed_at_utc=now, result_persisted_at_utc=now,
+        ))
+        db.add(TenantScanCredit(
+            tenant_id=tenant_id, product_code="free_entry",
+            status="consumed", source="historical",
+            consumed_scan_id="historic-free-entry",
+            created_at_utc=now, consumed_at_utc=now,
+        ))
+        db.flush()
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        snap = build_product_access_snapshot(db, tenant)
+        assert snap["free_access_permanent"]
+        assert snap["has_completed_data_health_score"]
+        assert is_original_free_scan(db, tenant_id, "historic-free-entry")
+        assert not is_original_free_scan(db, tenant_id, "some_other_scan")
         db.commit()
