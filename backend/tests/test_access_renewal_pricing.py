@@ -21,6 +21,8 @@ from app.services.product_pricing_service import (
     ensure_default_product_pricing_matrix,
     PRODUCT_PRICING_MATRIX_DEFAULTS,
     PRICING_TIER_ORDER,
+    V2_TIER_ORDER,
+    V2_TIER_MAX_RECORDS,
 )
 
 
@@ -31,12 +33,13 @@ NEW_CODES = (PRODUCT_FULL_ASSESSMENT_V2, PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_
 def test_new_products_are_not_priced_or_active_without_explicit_configuration(product_code):
     with SessionLocal() as db:
         ensure_default_product_pricing_matrix(db)
-        for tier in PRICING_TIER_ORDER:
+        for tier in V2_TIER_ORDER:
             price = get_matrix_price(db, product_code, tier)
             assert price.amount_cents is None
             assert price.stripe_price_id is None
             assert price.is_active is False
             assert price.product_key == product_code
+            assert price.max_records == V2_TIER_MAX_RECORDS[tier]
             assert product_code in PRODUCT_PRICING_MATRIX_DEFAULTS
 
 
@@ -91,7 +94,7 @@ def test_v2_checkout_price_is_tier_specific_and_never_inherited_from_legacy(prod
         assert configured.contact_sales is False
 
         other_tier = resolve_checkout_matrix_price(
-            db, product_key=product_code, record_count=200_000,
+            db, product_key=product_code, record_count=900_000,
             env_price_id="price_v2_explicit_starter",
         )
         assert other_tier.pricing_tier == "professional"
@@ -158,3 +161,28 @@ def test_v2_checkout_uses_its_own_stripe_price_and_product_metadata(
     assert sent["mode"] == "payment"
     assert sent["line_items"] == [{"price": "price_" + product_code, "quantity": 1}]
     assert sent["metadata"]["product_code"] == product_code
+
+
+@pytest.mark.parametrize("count,tier", [
+    (250_000, "starter"),
+    (250_001, "professional"),
+    (1_000_000, "professional"),
+    (1_000_001, "business"),
+    (5_000_000, "business"),
+    (5_000_001, "enterprise"),
+    (20_000_000, "enterprise"),
+    (20_000_001, "custom"),
+])
+def test_v2_record_tier_boundaries(monkeypatch, count, tier):
+    from app.services.product_license_service import pricing_tier_for_record_count
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    assert pricing_tier_for_record_count(count) == tier
+
+
+def test_legacy_tier_boundaries_are_unchanged(monkeypatch):
+    from app.services.product_license_service import pricing_tier_for_record_count
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", False)
+    assert pricing_tier_for_record_count(100_000) == "starter"
+    assert pricing_tier_for_record_count(100_001) == "professional"
+    assert pricing_tier_for_record_count(250_001) == "business"
+    assert pricing_tier_for_record_count(500_001) == "enterprise"
