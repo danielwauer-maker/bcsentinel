@@ -62,6 +62,12 @@ def list_full_report_history(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, tenant_id, token)
         enforce_tenant_is_active(db, tenant.tenant_id)
+        # v2 archives are retained on disk after expiry, but even historical
+        # report metadata must not leak through a Free account/API response.
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            from app.services.product_license_service import build_product_access_snapshot
+            if not build_product_access_snapshot(db, tenant)["premium_active"]:
+                raise HTTPException(status_code=403, detail="Premium report history requires active access.")
         rows = db.scalars(
             select(ReportArchive).where(
                 ReportArchive.tenant_id == tenant.tenant_id,
