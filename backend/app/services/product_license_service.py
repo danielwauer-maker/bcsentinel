@@ -622,6 +622,11 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     validation_active = validation_until is not None and validation_until >= now
     one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Renewal re-opens historical Validation reports even when no new
+        # Validation scan credit is purchased. Scan rights remain separate.
+        validation_active = premium_access_active
+        validation_until = premium_access_until
     protected_access_until = None if free_access_permanent else premium_access_until
     protected_access_active = premium_access_active or free_access_permanent
     credits_available = scan_credit_count(db, tenant.tenant_id)
