@@ -15,6 +15,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
+from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import Scan, Tenant
 from app.routers.membership_admin import _tenant_user_principal
@@ -91,7 +92,6 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
             raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
     if variant == "quick":
-        from app.core.settings import settings
         if settings.ACCESS_MODEL_V2_ENABLED and not settings.QUICK_ASSESSMENT_ENABLED:
             raise HTTPException(status_code=404, detail="Quick Assessment is not available.")
         access = build_quick_assessment_access_snapshot(db, tenant)
