@@ -437,8 +437,8 @@
 
             action(OpenFullReportV6)
             {
-                Caption = 'Full Assessment (v6)';
-                ToolTip = 'Opens the professional Full Assessment HTML report outside Business Central.';
+                Caption = 'Review Scope / Full Assessment';
+                ToolTip = 'Review and confirm the original Free scan scope before opening its Full Assessment report.';
                 ApplicationArea = All;
                 Image = Report;
 
@@ -448,7 +448,7 @@
                 begin
                     if Rec."Run ID" = '' then
                         Error('Select a completed scan.');
-                    Links.OpenArchivedFullV6(Rec."Run ID");
+                    Links.ReviewScopeAndOpenFullV6(Rec."Run ID");
                 end;
             }
 
