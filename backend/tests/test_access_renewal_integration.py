@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import Tenant, TenantProductEntitlement, TenantScanCredit
 from app.services.product_license_service import (
@@ -13,6 +14,11 @@ from app.services.product_license_service import (
     record_product_purchase,
     build_product_access_snapshot,
 )
+
+
+@pytest.fixture(autouse=True)
+def enable_v2_model(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
 
 
 def _purchase(db, tenant_id, code, session):
