@@ -133,6 +133,7 @@ def test_v2_checkout_uses_its_own_stripe_price_and_product_metadata(
         ))
         db.commit()
     monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    monkeypatch.setattr(settings, "ACCESS_V2_PAID_CHECKOUT_ENABLED", True)
     monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test")
     monkeypatch.setattr(settings, "APP_BASE_URL", "https://app.example.com")
     monkeypatch.setattr(
