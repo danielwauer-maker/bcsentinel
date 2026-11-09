@@ -57,7 +57,7 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
         # Executive JSON/HTML/PDF endpoints and v6 token issuance.
         require_capability(db, tenant, CAPABILITY_REPORT)
         from app.services.product_license_service import build_product_access_snapshot
-        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
             raise HTTPException(status_code=402, detail="Premium report access required.")
         # Both foreign and nonexistent scans get the same 404, so ownership
         # cannot be inferred by probing across tenant boundaries.
@@ -124,7 +124,7 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         require_capability(db, tenant, CAPABILITY_REPORT)
         from app.services.product_license_service import build_product_access_snapshot
-        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
             raise HTTPException(status_code=403, detail="Premium report access expired.")
         return build_executive_report(db, tenant, scan_id)
 
@@ -159,7 +159,7 @@ def create_executive_report_share_link(
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_capability(db, tenant, CAPABILITY_REPORT, denial_event="token_issuance_denied")
         from app.services.product_license_service import build_product_access_snapshot
-        if not build_product_access_snapshot(db, tenant)["premium_active"]:
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
             raise HTTPException(status_code=402, detail="Premium report access required.")
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         build_executive_report(db, tenant, scan_id)
