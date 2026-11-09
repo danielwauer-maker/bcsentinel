@@ -655,6 +655,11 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
         record_count = _deep_scan_record_count(latest_deep_scan)
+        if settings.ACCESS_MODEL_V2_ENABLED and product_code in NEW_ACCESS_PRODUCTS and record_count is None:
+            raise HTTPException(
+                status_code=409,
+                detail="Completed Deep Scan record count required before v2 checkout.",
+            )
         package_count = _additional_record_package_count(record_count)
         tenant_environment = str(getattr(tenant, "environment_name", "") or "").strip()
         referral_code = str(getattr(referral, "referral_code", "") or "").strip().lower() if referral is not None else ""
