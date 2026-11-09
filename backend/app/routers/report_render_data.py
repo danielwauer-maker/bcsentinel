@@ -87,12 +87,12 @@ def _assert_comparable_history(db, tenant_id: str, company_id: str, lcy_code: st
 def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVariant):
     if variant == "free":
         from app.services.product_license_service import is_original_free_scan
-        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+        if settings.ACCESS_MODEL_V2_ENABLED and not is_original_free_scan(db, tenant.tenant_id, scan_id):
             raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
     if variant == "quick":
         from app.core.settings import settings
-        if not settings.QUICK_ASSESSMENT_ENABLED:
+        if settings.ACCESS_MODEL_V2_ENABLED and not settings.QUICK_ASSESSMENT_ENABLED:
             raise HTTPException(status_code=404, detail="Quick Assessment is not available.")
         access = build_quick_assessment_access_snapshot(db, tenant)
         if not access["can_view_quick_assessment"]:
@@ -101,11 +101,11 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
     access = build_product_access_snapshot(db, tenant)
     if variant == "full":
         # Validation-only rights must never unlock the initial Full Assessment.
-        if not access["premium_active"]:
+        if not ((access["premium_active"]) if settings.ACCESS_MODEL_V2_ENABLED else (access["can_view_executive_report"] and (access.get("assessment_access_active") or access.get("monitoring_active")))):
             raise HTTPException(status_code=402, detail="Full Assessment access required.")
         return build_executive_report(db, tenant, scan_id)
     if variant == "validation":
-        if not access["premium_active"]:
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=402, detail="Premium access required for Validation report.")
         return build_validation_report(db, tenant, scan_id)
     if variant == "monitoring":
@@ -146,7 +146,7 @@ def read_report_for_renderer(
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
         if scoped_tenant_id is not None:
-            if not build_product_access_snapshot(db, tenant)["premium_active"]:
+            if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
                 raise HTTPException(status_code=403, detail="Premium report access expired.")
             archived = db.scalar(select(ReportArchive).where(
                 ReportArchive.tenant_id == tenant_id,
