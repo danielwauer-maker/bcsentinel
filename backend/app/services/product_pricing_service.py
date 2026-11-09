@@ -462,7 +462,9 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         PRODUCT_FULL_ASSESSMENT_V2 if settings.ACCESS_MODEL_V2_ENABLED else PRODUCT_FULL_ANALYSIS
     )
     validation = starting_price(PRODUCT_VALIDATION_CHECK)
-    monitoring = starting_price(PRODUCT_MONITORING_MONTHLY)
+    # Legacy Monitoring tiers and €149 Starter price MUST NOT be published
+    # as the new v2 Monitoring offer until a separate tariff migration exists.
+    monitoring = None if settings.ACCESS_MODEL_V2_ENABLED else starting_price(PRODUCT_MONITORING_MONTHLY)
     renewal = starting_price(PRODUCT_ACCESS_RENEWAL) if settings.ACCESS_MODEL_V2_ENABLED else None
     renewal_validation = (
         starting_price(PRODUCT_ACCESS_RENEWAL_VALIDATION)
@@ -559,7 +561,7 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
 
 def build_public_pricing_matrix(db) -> list[dict[str, Any]]:
     visible_codes = (
-        NEW_ACCESS_PRODUCTS | {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+        NEW_ACCESS_PRODUCTS
         if settings.ACCESS_MODEL_V2_ENABLED else None
     )
     return [
