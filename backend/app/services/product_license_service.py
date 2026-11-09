@@ -542,7 +542,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
     # v2 paid entitlements are issued once per purchase; never derive their
     # lifespan a second time from purchases or unconsumed validation credits.
-    v2_access_until = _v2_access_until(db, tenant.tenant_id)
+    v2_access_until = _v2_access_until(db, tenant.tenant_id) if settings.ACCESS_MODEL_V2_ENABLED else None
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     monitoring_until = _monitoring_access_until(db, tenant)
     monitoring_active = has_active_monitoring_subscription(db, tenant) or (
@@ -576,8 +576,8 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "monitoring_until": _iso(monitoring_until),
         "dataset_tier": pricing_tier,
         "capabilities": {
-            "free_dashboard": bool(settings.CUSTOMER_DASHBOARD_ENABLED and free_access_permanent),
-            "full_dashboard": bool(settings.CUSTOMER_DASHBOARD_ENABLED and premium_access_active),
+            "free_dashboard": bool((not settings.ACCESS_MODEL_V2_ENABLED or settings.CUSTOMER_DASHBOARD_ENABLED) and free_access_permanent),
+            "full_dashboard": bool((not settings.ACCESS_MODEL_V2_ENABLED or settings.CUSTOMER_DASHBOARD_ENABLED) and premium_access_active),
             "findings_full": premium_access_active,
             "issues": premium_access_active,
             "actions": premium_access_active,
@@ -588,7 +588,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "can_run_data_health_score": not free_assessment_used,
         "has_completed_data_health_score": has_completed_data_health_score,
         "can_view_free_insights": protected_access_active and has_scan_results,
-        "can_view_issues": premium_access_active,
+        "can_view_issues": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
         "can_view_actions": premium_access_active,
         "can_view_reports": protected_access_active,
         "can_view_record_details": premium_access_active,
@@ -612,9 +612,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "issue_access_until_bc": _bc_datetime(protected_access_until),
         "report_access_until": _iso(protected_access_until),
         "can_run_deep_scan": monitoring_active or validation_credits_available > 0,
-        "can_view_dashboard": bool(settings.CUSTOMER_DASHBOARD_ENABLED and premium_access_active),
-        "can_view_issue_details": premium_access_active,
-        "can_view_executive_report": premium_access_active,
+        "can_view_dashboard": bool(settings.CUSTOMER_DASHBOARD_ENABLED and premium_access_active) if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
+        "can_view_issue_details": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
+        "can_view_executive_report": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
         "scan_credits_available": validation_credits_available,
         "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
