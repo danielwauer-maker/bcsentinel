@@ -51,6 +51,10 @@ def fetch_preflight(base_url: str, tenant_id: str, token: str, scan_id: str) -> 
 
 def evaluate(result: dict, expected_company_id: str | None) -> tuple[bool, list[str]]:
     blockers: list[str] = []
+    # The original Free scan is the only acceptable Full-v2 baseline.
+    # A missing field means the deployed backend is too old for this acceptance.
+    if result.get("original_free_scan") is not True:
+        blockers.append("Original completed and persisted Free scan is not verified.")
     if not result.get("company_bound"):
         blockers.append("Verified BC company is missing.")
     if not result.get("eur_currency_verified"):
@@ -61,6 +65,13 @@ def evaluate(result: dict, expected_company_id: str | None) -> tuple[bool, list[
         blockers.append("Auto-detected scope snapshot is missing.")
     if result.get("scope_state") not in {"auto", "confirmed"}:
         blockers.append("Scope state is not an expected auto/confirmed state.")
+    # The one expected pre-confirmation prerequisite is the user action itself.
+    # Any other backend evidence blocker must stop the acceptance workflow.
+    missing = result.get("missing_prerequisites")
+    if not isinstance(missing, list) or any(not isinstance(item, str) for item in missing):
+        blockers.append("Backend prerequisite evidence is missing or malformed.")
+    elif set(missing) - {"confirmed_scope_missing"}:
+        blockers.append("Backend reports additional prerequisite blockers: " + ", ".join(sorted(set(missing) - {"confirmed_scope_missing"})))
     if expected_company_id and not result.get("company_bound"):
         blockers.append("Cannot verify requested company context from this preflight.")
     # This endpoint intentionally does not disclose company GUID, so a
@@ -90,6 +101,7 @@ def main() -> int:
     print("Scan ID:", args.scan_id)
     print("Scope state:", data.get("scope_state", "unknown"))
     print("Confirmed scope version:", data.get("confirmed_scope_version") or "not confirmed")
+    print("Original completed Free scan:", data.get("original_free_scan") is True)
     print("Company bound:", bool(data.get("company_bound")))
     print("EUR verified:", bool(data.get("eur_currency_verified")))
     print("Premium active:", bool(data.get("premium_active")))
