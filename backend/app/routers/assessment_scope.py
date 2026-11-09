@@ -102,7 +102,12 @@ def report_preflight(
             original_free_scan = is_original_free_scan(db, tenant.tenant_id, scan.scan_id)
             if not original_free_scan:
                 missing.append("original_completed_free_scan_missing")
-        if not scan.bc_company_id:
+        from app.services.scan_company_service import canonical_company_id
+        try:
+            verified_company_id = canonical_company_id(scan.bc_company_id)
+        except ValueError:
+            verified_company_id = None
+        if verified_company_id is None:
             missing.append("verified_company_missing")
         if str(scan.lcy_code or "").upper() != "EUR":
             missing.append("verified_eur_currency_missing")
@@ -136,7 +141,8 @@ def report_preflight(
             "premium_active": bool(access["premium_active"]),
             "scope_state": latest_scope.state if latest_scope is not None else "missing",
             "confirmed_scope_version": confirmed.version if confirmed is not None else None,
-            "company_bound": bool(scan.bc_company_id),
+            "company_bound": verified_company_id is not None,
+            "company_id": verified_company_id,
             "eur_currency_verified": str(scan.lcy_code or "").upper() == "EUR",
             "is_validation_credit_scan": validation_credit is not None,
             "missing_prerequisites": missing,
