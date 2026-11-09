@@ -128,12 +128,11 @@ def read_report_for_renderer(
     if response is not None:
         response.headers["Cache-Control"] = "no-store, private"
         response.headers["Pragma"] = "no-cache"
-    # A report-scoped bearer is accepted only for the exact Full scan/company
-    # for which BC previously obtained a one-time grant. Other variants still
-    # require the independent account membership authentication.
+    # Report-scoped bearers carry the exact variant/scan/BC-company scope.
+    # New variants are accepted only behind the v2 feature gate.
     scoped_tenant_id = verify_scoped_session(
         authorization, scan_id=scan_id, company_id=company_id, variant=variant
-    ) if variant == "full" else None
+    ) if (variant == "full" or (settings.ACCESS_MODEL_V2_ENABLED and variant in {"validation", "monitoring"})) else None
     if scoped_tenant_id is None:
         _, tenant_id, _ = _tenant_user_principal(authorization)
     else:
@@ -146,13 +145,17 @@ def read_report_for_renderer(
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
         if scoped_tenant_id is not None:
-            if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
-                raise HTTPException(status_code=403, detail="Premium report access expired.")
+            if settings.ACCESS_MODEL_V2_ENABLED:
+                access = build_product_access_snapshot(db, tenant)
+                if not access["premium_active"]:
+                    raise HTTPException(status_code=403, detail="Premium report access expired.")
+                if variant == "monitoring" and not access["monitoring_active"]:
+                    raise HTTPException(status_code=403, detail="Monitoring access expired.")
             archived = db.scalar(select(ReportArchive).where(
                 ReportArchive.tenant_id == tenant_id,
                 ReportArchive.company_id == scan.bc_company_id,
                 ReportArchive.scan_id == scan_id,
-                ReportArchive.variant == "full",
+                ReportArchive.variant == variant,
             ))
             if archived is None:
                 raise HTTPException(status_code=404, detail="Report not found.")
