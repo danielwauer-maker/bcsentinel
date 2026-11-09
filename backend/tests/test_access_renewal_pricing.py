@@ -1,6 +1,8 @@
 """V2 pricing must be explicitly configured before any paid checkout."""
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 from fastapi import HTTPException
 
@@ -96,3 +98,63 @@ def test_v2_checkout_price_is_tier_specific_and_never_inherited_from_legacy(prod
         assert other_tier.amount_cents is None
         assert other_tier.is_active is False
         assert other_tier.contact_sales is True
+
+
+
+@pytest.mark.parametrize("product_code,requires_prior_purchase", [
+    (PRODUCT_FULL_ASSESSMENT_V2, False),
+    (PRODUCT_ACCESS_RENEWAL, True),
+    (PRODUCT_ACCESS_RENEWAL_VALIDATION, True),
+])
+def test_v2_checkout_uses_its_own_stripe_price_and_product_metadata(
+    client, monkeypatch, tenant_factory, auth_header_factory, deep_scan_factory,
+    product_code, requires_prior_purchase,
+):
+    tenant = tenant_factory(plan="free", license_status="trial")
+    deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="v2-price-scan", total_records=8500)
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test")
+    monkeypatch.setattr(settings, "APP_BASE_URL", "https://app.example.com")
+    monkeypatch.setattr(
+        "app.routers.billing.build_product_access_snapshot",
+        lambda db, t: {
+            "monitoring_active": False,
+            "has_completed_data_health_score": True,
+            "premium_active": False,
+            "full_analysis_access_active": False,
+            "validation_check_access_active": False,
+        },
+    )
+    with SessionLocal() as db:
+        ensure_default_product_pricing_matrix(db)
+        row = db.query(ProductPricingMatrixConfig).filter_by(
+            product_key=product_code, pricing_tier="starter"
+        ).one()
+        row.amount_cents = 8900
+        row.stripe_price_id = "price_" + product_code
+        row.is_active = True
+        if requires_prior_purchase:
+            from app.services.product_license_service import record_product_purchase
+            record_product_purchase(
+                db, tenant_id=tenant["tenant_id"], product_code=PRODUCT_FULL_ASSESSMENT_V2,
+                provider="test", provider_checkout_session_id="old_full_purchase",
+                provider_payment_intent_id=None, status="paid", currency="EUR",
+                amount_total=249.0,
+            )
+        db.commit()
+
+    sent = {}
+    def mock_stripe_create(**kwargs):
+        sent.update(kwargs)
+        return SimpleNamespace(id="cs_test_v2_checkout", url="https://stripe.example/v2")
+
+    monkeypatch.setattr("app.routers.billing.stripe.checkout.Session.create", mock_stripe_create)
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={"tenant_id": tenant["tenant_id"], "product_code": product_code},
+    )
+    assert response.status_code == 200, response.text
+    assert sent["mode"] == "payment"
+    assert sent["line_items"] == [{"price": "price_" + product_code, "quantity": 1}]
+    assert sent["metadata"]["product_code"] == product_code
