@@ -351,7 +351,7 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
         if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
             return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
         return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    if access["monitoring_active"] or access.get("v2_payment_hold"):
+    if access["monitoring_active"]:
         return set()
     if not access["has_completed_data_health_score"]:
         # Paid Full is unlocked from the original completed Free scan.

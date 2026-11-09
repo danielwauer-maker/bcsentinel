@@ -495,7 +495,23 @@ def _v2_access_until(db, tenant_id: str) -> datetime | None:
         TenantProductEntitlement.status == "active",
         TenantProductEntitlement.valid_until_utc.is_not(None),
     )).all()
-    return _max_datetime([row.valid_until_utc for row in rows])
+    valid_until = []
+    for row in rows:
+        if (row.source or "").startswith("purchase:"):
+            try:
+                purchase_id = int(row.source.removeprefix("purchase:"))
+            except ValueError:
+                continue
+            purchase = db.scalar(select(TenantProductPurchase).where(
+                TenantProductPurchase.id == purchase_id,
+                TenantProductPurchase.tenant_id == tenant_id,
+                TenantProductPurchase.product_code == row.product_code,
+                TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+            ))
+            if purchase is None:
+                continue
+        valid_until.append(row.valid_until_utc)
+    return _max_datetime(valid_until)
 
 
 def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_id: int):
@@ -521,10 +537,16 @@ def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_
         raise ValueError("Verified paid purchase required.")
     if str(purchase.currency or "").upper() != "EUR" or float(purchase.amount_total or 0) <= 0:
         raise ValueError("V2 purchases require a positive verified EUR payment.")
+    return _grant_v2_verified_purchase(db, tenant=tenant, purchase=purchase, product_code=normalized)
+
+
+def _grant_v2_verified_purchase(db, *, tenant: Tenant, purchase: TenantProductPurchase, product_code: str):
+    """Apply a verified purchase while the caller holds the tenant row lock."""
+    tenant_id = tenant.tenant_id
     source_marker = f"purchase:{purchase.id}"
     prior = db.scalar(select(TenantProductEntitlement).where(
         TenantProductEntitlement.tenant_id == tenant_id,
-        TenantProductEntitlement.product_code == normalized,
+        TenantProductEntitlement.product_code == product_code,
         TenantProductEntitlement.source == source_marker,
     ))
     if prior is not None:
@@ -532,20 +554,18 @@ def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_
     from app.services.access_renewal_policy import extend_access
     now = utc_now()
     effective = build_product_access_snapshot(db, tenant)
-    existing_until = _max_datetime([
-        _as_utc(tenant.premium_until_utc),
-        _parse_iso_utc(effective.get("premium_access_until")),
-    ])
+    # Monitoring is a separate subscription and does not extend a one-time pass.
+    existing_until = _parse_iso_utc(effective.get("premium_until"))
     expiry = extend_access(existing_until, now, duration_days=NEW_ACCESS_DAYS)
     entitlement = TenantProductEntitlement(
-        tenant_id=tenant_id, product_code=normalized,
+        tenant_id=tenant_id, product_code=product_code,
         status="active", source=source_marker, valid_until_utc=expiry,
         created_at_utc=now, updated_at_utc=now,
     )
     db.add(entitlement)
     # The persisted premium expiry is the single stacking anchor.
     tenant.premium_until_utc = expiry
-    if normalized == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
         grant_scan_credit(
             db, tenant_id=tenant_id, product_code=PRODUCT_VALIDATION_CHECK,
             source="renewal_validation_purchase", source_purchase_id=purchase.id,
@@ -569,28 +589,84 @@ def hold_reversed_v2_purchase(db, *, payment_intent_id: str, event_type: str) ->
         TenantProductPurchase.provider == "stripe",
         TenantProductPurchase.provider_payment_intent_id == payment_intent_id.strip(),
         TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
-    ).with_for_update())
+    ))
     if purchase is None:
         return None
+    return reverse_v2_purchase(db, purchase_id=purchase.id, tenant_id=purchase.tenant_id, event_type=event_type)
+
+
+def reverse_v2_purchase(db, *, purchase_id: int, tenant_id: str, event_type: str) -> TenantProductPurchase:
+    """Reverse one purchase, preserving consumed credits and other purchases."""
+    if event_type not in {"charge.refunded", "charge.dispute.created"}:
+        raise ValueError("Unsupported payment reversal event.")
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
+    if tenant is None:
+        raise ValueError("Tenant not found.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.id == purchase_id,
+        TenantProductPurchase.tenant_id == tenant_id,
+        TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+    ).with_for_update())
+    if purchase is None:
+        raise ValueError("V2 purchase not found.")
     status = "disputed" if event_type == "charge.dispute.created" else "refunded"
+    already_reversed = purchase.status in {"refunded", "disputed", "chargeback"}
     # A later out-of-order refund may close a dispute, never restore access.
     if purchase.status not in {"refunded", "chargeback"}:
         purchase.status = status
         purchase.updated_at_utc = utc_now()
+    if already_reversed:
+        return purchase
     marker = f"purchase:{purchase.id}"
-    for entitlement in db.scalars(select(TenantProductEntitlement).where(
+    affected = db.scalars(select(TenantProductEntitlement).where(
         TenantProductEntitlement.tenant_id == purchase.tenant_id,
         TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
         TenantProductEntitlement.source == marker,
-    )).all():
+    )).all()
+    for entitlement in affected:
         entitlement.status = "revoked"
         entitlement.updated_at_utc = utc_now()
+    # Later passes were stacked on the refunded pass. Recalculate their
+    # boundaries while retaining each later pass's own 14-day duration.
+    if affected and affected[0].valid_until_utc is not None:
+        original_end = _as_utc(affected[0].valid_until_utc)
+        previous_old_end = original_end
+        # Time already enjoyed cannot be taken away from later paid passes.
+        original_start = original_end - timedelta(days=NEW_ACCESS_DAYS)
+        previous_new_end = max(original_start, min(utc_now(), original_end))
+        later = db.scalars(select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant_id,
+            TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductEntitlement.status == "active",
+            TenantProductEntitlement.id > affected[0].id,
+            TenantProductEntitlement.source.like("purchase:%"),
+            TenantProductEntitlement.valid_until_utc.is_not(None),
+        ).order_by(TenantProductEntitlement.id)).all()
+        old_expiries = [original_end] + [_as_utc(row.valid_until_utc) for row in later]
+        for row in later:
+            old_end = _as_utc(row.valid_until_utc)
+            old_start = old_end - timedelta(days=NEW_ACCESS_DAYS)
+            external_anchor = old_start if old_start > previous_old_end else None
+            start = _max_datetime([_as_utc(row.created_at_utc), previous_new_end, external_anchor])
+            row.valid_until_utc = start + timedelta(days=NEW_ACCESS_DAYS)
+            row.updated_at_utc = utc_now()
+            previous_old_end = old_end
+            previous_new_end = _as_utc(row.valid_until_utc)
+        if _as_utc(tenant.premium_until_utc) in old_expiries:
+            tenant.premium_until_utc = previous_new_end if later else original_end
     for credit in db.scalars(select(TenantScanCredit).where(
         TenantScanCredit.tenant_id == purchase.tenant_id,
         TenantScanCredit.source_purchase_id == purchase.id,
         TenantScanCredit.status == "available",
     )).all():
         credit.status = "revoked"
+        db.flush()
+        db.add(CreditLedgerEntry(
+            tenant_id=tenant_id, credit_id=credit.id, source_purchase_id=purchase.id,
+            product_code=credit.product_code, operation_type="PURCHASE_REVOKED", amount=-1,
+            balance_after=scan_credit_count(db, tenant_id), reason="Purchase reversal",
+            created_at_utc=utc_now(),
+        ))
     db.flush()
     return purchase
 
@@ -609,9 +685,14 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         product_code = normalize_product_code(subscription.plan_code)
         if product_code in MONITORING_PRODUCTS:
-            period_end = _end_of_day_utc(subscription.current_period_end_utc)
+            period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                          else _end_of_day_utc(subscription.current_period_end_utc))
+            if subscription.provider == "fiverr" and period_end is None:
+                continue
             if period_end is None:
                 anchor = (
                     _as_utc(subscription.current_period_start_utc)
@@ -655,10 +736,8 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         monitoring_until is not None and monitoring_until >= now
     )
 
-    # A refund/dispute is a durable safety hold. It cannot be cleared by
-    # replaying checkout completion, by stale tenant.premium_until_utc, or
-    # by another stacked v2 pass. Genuine legacy paid access/Monitoring
-    # remains separately evaluated.
+    # Reversals apply to their purchase. The tenant-wide flag remains a
+    # diagnostic indicator and must not suppress unrelated paid access.
     v2_payment_hold = False
     if settings.ACCESS_MODEL_V2_ENABLED:
         v2_payment_hold = db.scalar(select(TenantProductPurchase.id).where(
@@ -666,9 +745,15 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
             TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
             TenantProductPurchase.status.in_(["refunded", "disputed", "chargeback", "payment_hold"]),
         ).limit(1)) is not None
-    if v2_payment_hold:
-        v2_access_until = None
-    explicit_premium_until = _as_utc(tenant.premium_until_utc) if not v2_payment_hold else None
+    explicit_premium_until = _as_utc(tenant.premium_until_utc)
+    if settings.ACCESS_MODEL_V2_ENABLED and explicit_premium_until is not None:
+        v2_expiries = db.scalars(select(TenantProductEntitlement.valid_until_utc).where(
+            TenantProductEntitlement.tenant_id == tenant.tenant_id,
+            TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductEntitlement.valid_until_utc.is_not(None),
+        )).all()
+        if any(_as_utc(value) == explicit_premium_until for value in v2_expiries):
+            explicit_premium_until = None
     one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until, v2_access_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
     full_analysis_active = any(value is not None and value >= now for value in (full_analysis_until, v2_access_until))
@@ -764,9 +849,14 @@ def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
-            period_end = _end_of_day_utc(subscription.current_period_end_utc)
-            if period_end is not None and period_end < utc_now():
+            period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                          else _end_of_day_utc(subscription.current_period_end_utc))
+            if subscription.provider == "fiverr" and period_end is None:
+                continue
+            if period_end is not None and period_end <= utc_now():
                 continue
             return True
     return False
@@ -780,8 +870,13 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         product_code = normalize_product_code(subscription.plan_code)
-        period_end = _end_of_day_utc(subscription.current_period_end_utc)
+        period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                      else _end_of_day_utc(subscription.current_period_end_utc))
+        if subscription.provider == "fiverr" and period_end is None:
+            continue
         if product_code in MONITORING_PRODUCTS and (period_end is None or period_end >= utc_now()):
             product_codes.append(product_code)
     return sorted(set(product_codes))

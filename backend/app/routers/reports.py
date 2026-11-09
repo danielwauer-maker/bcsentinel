@@ -43,11 +43,20 @@ class ExecutiveReportShareLinkResponse(BaseModel):
 def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
     """Report access must never look up scans across tenants."""
     from app.models import Scan
-    owned = db.scalar(select(Scan.id).where(
+    owned = db.scalar(select(Scan).where(
         Scan.scan_id == scan_id, Scan.tenant_id == tenant_id
     ))
     if owned is None:
         raise HTTPException(status_code=404, detail="Report not found.")
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        from app.services.scan_company_service import canonical_company_id
+
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+        try:
+            if tenant is None or canonical_company_id(owned.bc_company_id) != canonical_company_id(tenant.bc_company_id):
+                raise ValueError("company mismatch")
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Report not found.") from None
 
 
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:

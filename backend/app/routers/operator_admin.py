@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import secrets
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request, status
@@ -9,6 +10,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.core.settings import settings
 from app.db import SessionLocal
@@ -20,6 +22,10 @@ from app.services.operator_commercial_service import (
     extend_assessment,
     grant_assessment,
     grant_validation,
+    grant_fiverr_v2,
+    grant_fiverr_monitoring,
+    cancel_fiverr_monitoring,
+    revoke_fiverr_v2,
     revoke_product,
 )
 from app.services.operator_quick_assessment_service import (
@@ -62,6 +68,89 @@ def _redirect(message: str, *, error: bool = False) -> RedirectResponse:
     return RedirectResponse(url=f"/admin/operator?{key}={quote_plus(message)}", status_code=303)
 
 
+@router.post("/admin/operator/{tenant_id}/v2/grant")
+def operator_grant_v2(
+    request: Request, tenant_id: str, csrf_token: str = Form(...),
+    product_code: str = Form(...), order_reference: str = Form(...),
+    order_position: str = Form(...), amount_eur: float = Form(...),
+    admin_username: str = Depends(require_operator),
+):
+    _check_csrf(request, csrf_token)
+    with SessionLocal() as db:
+        try:
+            action = grant_fiverr_v2(db, tenant_id=tenant_id, product_code=product_code,
+                                     order_reference=order_reference, order_position=order_position,
+                                     amount=amount_eur, actor=admin_username)
+            db.commit()
+            return {"status": "granted", "action_id": action.id, "entitlement_id": action.entitlement_id,
+                    "credit_id": action.credit_id, "baseline_scan_id": action.related_scan_id}
+        except (ValueError, IntegrityError) as exc:
+            db.rollback()
+            detail = str(exc) if isinstance(exc, ValueError) else "Order position already exists."
+            raise HTTPException(status_code=409, detail=detail) from exc
+
+
+@router.post("/admin/operator/{tenant_id}/v2/revoke")
+def operator_revoke_v2(
+    request: Request, tenant_id: str, csrf_token: str = Form(...),
+    order_reference: str = Form(...), order_position: str = Form(...),
+    reason: str = Form(...),
+    admin_username: str = Depends(require_operator),
+):
+    _check_csrf(request, csrf_token)
+    with SessionLocal() as db:
+        try:
+            action = revoke_fiverr_v2(db, tenant_id=tenant_id, order_reference=order_reference,
+                                      order_position=order_position, actor=admin_username, reason=reason)
+            db.commit()
+            return {"status": "revoked", "action_id": action.id}
+        except (ValueError, IntegrityError) as exc:
+            db.rollback()
+            detail = str(exc) if isinstance(exc, ValueError) else "Order position already exists."
+            raise HTTPException(status_code=409, detail=detail) from exc
+
+
+@router.post("/admin/operator/{tenant_id}/v2/monitoring")
+def operator_grant_monitoring(
+    request: Request, tenant_id: str, csrf_token: str = Form(...),
+    product_code: str = Form(...), order_reference: str = Form(...),
+    order_position: str = Form(...), amount_eur: float = Form(...),
+    period_start: datetime = Form(...), period_end: datetime = Form(...),
+    admin_username: str = Depends(require_operator),
+):
+    _check_csrf(request, csrf_token)
+    with SessionLocal() as db:
+        try:
+            action = grant_fiverr_monitoring(db, tenant_id=tenant_id, product_code=product_code,
+                                             order_reference=order_reference, order_position=order_position,
+                                             amount=amount_eur, period_start=period_start, period_end=period_end,
+                                             actor=admin_username)
+            db.commit()
+            return {"status": "granted", "action_id": action.id}
+        except (ValueError, IntegrityError) as exc:
+            db.rollback()
+            detail = str(exc) if isinstance(exc, ValueError) else "Order position already exists."
+            raise HTTPException(status_code=409, detail=detail) from exc
+
+
+@router.post("/admin/operator/{tenant_id}/v2/monitoring/cancel")
+def operator_cancel_monitoring(
+    request: Request, tenant_id: str, csrf_token: str = Form(...),
+    order_reference: str = Form(...), order_position: str = Form(...),
+    admin_username: str = Depends(require_operator),
+):
+    _check_csrf(request, csrf_token)
+    with SessionLocal() as db:
+        try:
+            action = cancel_fiverr_monitoring(db, tenant_id=tenant_id, order_reference=order_reference,
+                                              order_position=order_position, actor=admin_username)
+            db.commit()
+            return {"status": "cancel_at_period_end", "action_id": action.id}
+        except ValueError as exc:
+            db.rollback()
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
 def _operator_rows(db, query: str) -> list[dict]:
     tenants = db.scalars(select(Tenant).order_by(Tenant.created_at_utc.desc())).all()
     profiles = {row.tenant_id: row for row in db.scalars(select(TenantLifecycleProfile)).all()}
@@ -74,6 +163,8 @@ def _operator_rows(db, query: str) -> list[dict]:
         latest_action.setdefault(action.tenant_id, action)
         if action.external_order_reference:
             order_refs.setdefault(action.tenant_id, []).append(action.external_order_reference)
+        if action.note and action.sales_channel == "fiverr":
+            order_refs.setdefault(action.tenant_id, []).append(action.note)
 
     q = (query or "").strip().lower()
     rows: list[dict] = []
@@ -148,6 +239,7 @@ def operator_console(
             "error": error,
             "csrf_token": csrf_token,
             "admin_username": admin_username,
+            "access_model_v2_enabled": settings.ACCESS_MODEL_V2_ENABLED,
         },
     )
     response.set_cookie(
@@ -171,6 +263,8 @@ def operator_grant_quick_assessment(
     admin_username: str = Depends(require_operator),
 ):
     _check_csrf(request, csrf_token)
+    if settings.ACCESS_MODEL_V2_ENABLED and not settings.QUICK_ASSESSMENT_ENABLED:
+        raise HTTPException(status_code=409, detail="Quick Assessment is disabled.")
     with SessionLocal() as db:
         try:
             result = grant_quick_assessment(
@@ -200,6 +294,8 @@ def operator_grant_assessment(
     admin_username: str = Depends(require_operator),
 ):
     _check_csrf(request, csrf_token)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=409, detail="Use the v2 purchase grant.")
     with SessionLocal() as db:
         try:
             result = grant_assessment(
@@ -256,6 +352,8 @@ def operator_grant_validation(
     admin_username: str = Depends(require_operator),
 ):
     _check_csrf(request, csrf_token)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=409, detail="Use the v2 purchase grant.")
     with SessionLocal() as db:
         try:
             result = grant_validation(

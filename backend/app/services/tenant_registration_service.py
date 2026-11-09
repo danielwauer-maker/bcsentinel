@@ -173,6 +173,14 @@ def upsert_tenant_registration(
     status = "existing"
 
     tenant = db.scalar(select(Tenant).where(Tenant.registration_identity_key == identity.key))
+    if tenant is not None:
+        authenticated = _authenticated_legacy_tenant(
+            db, existing_tenant_id=existing_tenant_id,
+            header_tenant_id=header_tenant_id, header_api_token=header_api_token,
+        )
+        if authenticated is None or authenticated.tenant_id != tenant.tenant_id:
+            raise RegistrationAuthenticationError("Existing tenant credentials were rejected.")
+        stable_token = header_api_token.strip()
     if tenant is None:
         tenant = _authenticated_legacy_tenant(
             db,
@@ -182,6 +190,7 @@ def upsert_tenant_registration(
         )
         if tenant is not None:
             _bind_identity(tenant, identity)
+            stable_token = header_api_token.strip()
             status = "bound_legacy"
         else:
             now = datetime.now(timezone.utc)
@@ -249,7 +258,9 @@ def upsert_tenant_registration(
             db.flush()
             status = "created"
         else:
-            status = "existing"
+            # A concurrent request created this identity. Never return its token
+            # or change its contact details without authenticating the winner.
+            raise RegistrationAuthenticationError("Registration identity already exists.")
         _apply_mutable_fields(
             tenant,
             identity=identity,

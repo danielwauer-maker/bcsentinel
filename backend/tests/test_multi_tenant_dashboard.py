@@ -27,16 +27,16 @@ def _payload(*, company_id: str, environment_name: str = "Production", environme
     }
 
 
-def _register(client, *, company_id: str, environment_name: str = "Production", environment_type: str = "production", email: str = "shared@example.com"):
+def _register(client, *, company_id: str, environment_name: str = "Production", environment_type: str = "production", email: str = "shared@example.com", credentials=None):
+    headers = dict(INVITE_HEADERS)
+    payload = _payload(company_id=company_id, environment_name=environment_name, environment_type=environment_type, email=email)
+    if credentials:
+        headers.update({"X-Tenant-Id": credentials["tenant_id"], "X-Api-Token": credentials["api_token"]})
+        payload["existing_tenant_id"] = credentials["tenant_id"]
     response = client.post(
         "/tenant/register",
-        headers=INVITE_HEADERS,
-        json=_payload(
-            company_id=company_id,
-            environment_name=environment_name,
-            environment_type=environment_type,
-            email=email,
-        ),
+        headers=headers,
+        json=payload,
     )
     assert response.status_code == 200, response.text
     return response.json()
@@ -88,7 +88,7 @@ def test_same_user_can_access_production_sandbox_and_second_company(client, sett
 def test_registration_is_case_insensitive_and_idempotent_without_duplicate_membership(client, settings_state):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
     first = _register(client, company_id="22222222-2222-2222-2222-222222222222", email="Shared@Example.COM")
-    repeated = _register(client, company_id="22222222-2222-2222-2222-222222222222", email=" shared@example.com ")
+    repeated = _register(client, company_id="22222222-2222-2222-2222-222222222222", email=" shared@example.com ", credentials=first)
 
     assert repeated["tenant_id"] == first["tenant_id"]
     assert repeated["dashboard_user_id"] == first["dashboard_user_id"]
@@ -107,7 +107,9 @@ def test_disabled_user_and_membership_are_not_silently_reactivated(client, setti
         user = db.get(DashboardUser, registered["dashboard_user_id"])
         user.status = "disabled"
         db.commit()
-    disabled_user = client.post("/tenant/register", headers=INVITE_HEADERS, json=_payload(company_id="22222222-2222-2222-2222-222222222222"))
+    headers = {**INVITE_HEADERS, "X-Tenant-Id": registered["tenant_id"], "X-Api-Token": registered["api_token"]}
+    payload = {**_payload(company_id="22222222-2222-2222-2222-222222222222"), "existing_tenant_id": registered["tenant_id"]}
+    disabled_user = client.post("/tenant/register", headers=headers, json=payload)
     assert disabled_user.status_code == 403
     assert disabled_user.json()["code"] == "DASHBOARD_USER_DISABLED"
 
@@ -117,7 +119,7 @@ def test_disabled_user_and_membership_are_not_silently_reactivated(client, setti
         membership = db.get(DashboardUserTenantMembership, registered["membership_id"])
         membership.is_active = False
         db.commit()
-    disabled_membership = client.post("/tenant/register", headers=INVITE_HEADERS, json=_payload(company_id="22222222-2222-2222-2222-222222222222"))
+    disabled_membership = client.post("/tenant/register", headers=headers, json=payload)
     assert disabled_membership.status_code == 403
     assert disabled_membership.json()["code"] == "TENANT_MEMBERSHIP_DISABLED"
 

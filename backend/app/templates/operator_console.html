@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      {% if row.fiverr_pricing %}
+      {% if row.fiverr_pricing and not access_model_v2_enabled %}
       <div class="pricing">
         <div class="price"><strong>Analyzed records</strong><span>{{ '{:,}'.format(row.total_records).replace(',', '.') }}</span><div class="small">{{ row.record_class.display_name }} class</div></div>
         {% set quick_price = row.fiverr_pricing['quick_assessment'] %}
@@ -38,11 +38,49 @@
         <div class="price"><strong>Fiverr · Full Assessment</strong><span>{% if assessment_price.price is not none %}${{ '%.0f'|format(assessment_price.price) }}{% elif assessment_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
         <div class="price"><strong>Fiverr · Validation</strong><span>{% if validation_price.price is not none %}${{ '%.0f'|format(validation_price.price) }}{% elif validation_price.recommendation_type == 'custom_offer' %}Custom Offer{% else %}Individual Review{% endif %}</span></div>
       </div>
-      {% else %}
+      {% elif not access_model_v2_enabled %}
       <div class="small" style="margin-top:12px">No analyzed record-volume pricing yet. Quick can already be granted; the first completed Data Health Scan will then reveal the Quick layer automatically. Final Fiverr volume pricing is confirmed after analysis.</div>
       {% endif %}
 
       <div class="grid">
+        {% if access_model_v2_enabled %}
+        <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/v2/grant">
+          <h3>Confirmed Fiverr purchase</h3>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <select name="product_code"><option value="full_assessment_v2">Full Assessment</option><option value="access_renewal">Access Renewal</option><option value="access_renewal_validation">Renewal + Validation</option></select>
+          <input name="order_reference" required placeholder="Fiverr order">
+          <input name="order_position" required placeholder="Order position">
+          <input name="amount_eur" type="number" min="0.01" step="0.01" required placeholder="Confirmed amount in EUR">
+          <button type="submit">Grant confirmed purchase</button>
+        </form>
+        <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/v2/revoke">
+          <h3>Refund one Fiverr purchase</h3>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input name="order_reference" required placeholder="Fiverr order">
+          <input name="order_position" required placeholder="Order position">
+          <input name="reason" required placeholder="Refund reason">
+          <button class="danger" type="submit">Revoke purchase</button>
+        </form>
+        <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/v2/monitoring">
+          <h3>Confirmed monitoring period</h3>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <select name="product_code"><option value="monitoring_monthly">Monthly</option><option value="monitoring_annual">Annual</option></select>
+          <input name="order_reference" required placeholder="Fiverr order">
+          <input name="order_position" required placeholder="Order position">
+          <input name="amount_eur" type="number" min="0.01" step="0.01" required placeholder="Confirmed amount in EUR">
+          <input name="period_start" required placeholder="Start, e.g. 2026-11-09T12:00:00Z">
+          <input name="period_end" required placeholder="End, e.g. 2026-12-09T12:00:00Z">
+          <button type="submit">Grant confirmed period</button>
+        </form>
+        <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/v2/monitoring/cancel">
+          <h3>Cancel monitoring renewal</h3>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input name="order_reference" required placeholder="Fiverr order">
+          <input name="order_position" required placeholder="Order position">
+          <button type="submit">Cancel at period end</button>
+        </form>
+        {% endif %}
+        {% if not access_model_v2_enabled %}
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-quick-assessment">
           <h3>Grant Quick Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant permanent Quick Assessment</button><div class="small">Permanently unlocks the Quick layer without creating a scan credit. If no scan exists yet, the first completed Data Health Scan is revealed automatically. No Full Assessment access is granted.</div>
         </form>
@@ -52,6 +90,7 @@
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/grant-validation">
           <h3>Grant Validation</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="malt">Malt</option><option value="contra">Contra</option><option value="partner">Partner</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button type="submit">Grant Validation Scan</button><div class="small">Creates one Validation scan credit. The 7-day result window starts when that scan is consumed.</div>
         </form>
+        {% endif %}
         <form class="action" method="post" action="/admin/operator/{{ row.tenant_id }}/extend-assessment">
           <h3>Extend Assessment</h3><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="sales_channel"><option value="fiverr">Fiverr</option><option value="direct">Direct</option><option value="support">Support</option></select><input name="external_order_reference" placeholder="Order / external reference"><textarea name="note" placeholder="Internal note (optional)"></textarea><button class="secondary" type="submit">Extend +7 days</button><div class="small">Maximum one extension per Assessment entitlement.</div>
         </form>

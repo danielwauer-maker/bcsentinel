@@ -367,7 +367,7 @@ def test_v2_renewal_needs_prior_paid_full_not_just_validation(
         db.rollback()
 
 
-def test_reversed_purchase_stops_all_new_v2_checkout_until_review(monkeypatch, tenant_factory):
+def test_reversed_purchase_does_not_block_an_unrelated_new_checkout(monkeypatch, tenant_factory):
     from app.models import Tenant
     monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
     tenant_id = tenant_factory()["tenant_id"]
@@ -380,4 +380,6 @@ def test_reversed_purchase_stops_all_new_v2_checkout_until_review(monkeypatch, t
     )
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
-        assert _allowed_checkout_product_codes(db, tenant) == set()
+        allowed = _allowed_checkout_product_codes(db, tenant)
+        assert PRODUCT_FULL_ASSESSMENT_V2 in allowed
+        assert PRODUCT_ACCESS_RENEWAL not in allowed
