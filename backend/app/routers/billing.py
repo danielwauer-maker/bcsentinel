@@ -43,6 +43,7 @@ from app.services.product_license_service import (
     PRODUCT_ACCESS_RENEWAL_VALIDATION,
     NEW_ACCESS_PRODUCTS,
     grant_v2_access_purchase,
+    hold_reversed_v2_purchase,
     build_product_access_snapshot,
     verified_pricing_record_count,
     calculate_access_window_until,
@@ -74,6 +75,8 @@ logger = logging.getLogger(__name__)
 SUPPORTED_STRIPE_EVENTS = {
     "checkout.session.completed",
     "checkout.session.expired",
+    "charge.refunded",
+    "charge.dispute.created",
     "customer.subscription.created",
     "customer.subscription.updated",
     "customer.subscription.deleted",
@@ -1029,6 +1032,45 @@ async def process_billing_webhook(
         subscription_data: dict | None = None
         invoice_data: dict | None = None
         tenant_id = ""
+
+        if event_type in {"charge.refunded", "charge.dispute.created"}:
+            # Stripe webhook signature was verified above. The charge's
+            # PaymentIntent is the sole authoritative link to a purchase.
+            payment_intent = str(data_object.get("payment_intent") or "").strip()
+            if not payment_intent:
+                charge_id = str(
+                    data_object.get("charge") if event_type == "charge.dispute.created"
+                    else data_object.get("id") or ""
+                ).strip()
+                if not charge_id:
+                    raise HTTPException(status_code=503, detail="Reversal payment identity unavailable.")
+                try:
+                    charge = stripe.Charge.retrieve(charge_id)
+                    payment_intent = str(charge.get("payment_intent") or "").strip()
+                except Exception:
+                    raise HTTPException(status_code=503, detail="Reversal payment identity verification failed.") from None
+            if not payment_intent:
+                raise HTTPException(status_code=503, detail="Reversal payment intent unavailable.")
+            with SessionLocal() as db:
+                # Idempotency by event ID, plus the purchase's durable status;
+                # stripe retries must never re-enable a revoked v2 entitlement.
+                webhook_event, created = ensure_webhook_event_once(
+                    db, provider="stripe", event_id=event_id,
+                    event_type=event_type, payload_json=body_text,
+                )
+                if not created:
+                    return BillingWebhookResponse(status="duplicate", event_id=event_id, processed=False)
+                purchase = hold_reversed_v2_purchase(
+                    db, payment_intent_id=payment_intent, event_type=event_type,
+                )
+                if purchase is None:
+                    # Missing or unrelated purchase: do not mark this as
+                    # processed; Stripe may have sent refund before checkout.
+                    db.rollback()
+                    raise HTTPException(status_code=503, detail="Payment reversal pending purchase resolution.")
+                webhook_event.processed_at_utc = utc_now()
+                db.commit()
+            return BillingWebhookResponse(status="ok", event_id=event_id, processed=True)
 
         if event_type == "checkout.session.completed":
             tenant_id = str((data_object.get("metadata", {}) or {}).get("tenant_id") or "").strip()
