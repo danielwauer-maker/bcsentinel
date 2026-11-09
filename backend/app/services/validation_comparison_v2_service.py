@@ -16,6 +16,7 @@ from app.models import Scan, ScanRunStatus, Tenant
 from app.services.assessment_scope_service import (
     get_latest_confirmed_scope, get_latest_scope, included_module_codes,
 )
+from app.services.product_license_service import is_original_free_scan
 from app.services.scan_company_service import canonical_company_id
 
 
@@ -41,12 +42,11 @@ def _company(scan: Scan) -> str:
 
 
 def _same_company_currency(scan: Scan, current: Scan) -> bool:
-    return (
-        bool(scan.bc_company_id and current.bc_company_id)
-        and _company(scan) == _company(current)
-        and str(scan.lcy_code or "").strip().upper() == "EUR"
-        and str(current.lcy_code or "").strip().upper() == "EUR"
-    )
+    try:
+        same_company = canonical_company_id(scan.bc_company_id) == canonical_company_id(current.bc_company_id)
+    except ValueError:
+        return False
+    return same_company and str(scan.lcy_code or "").strip().upper() == "EUR"
 
 
 def _persisted_completed(db: Session, scan: Scan) -> bool:
@@ -112,23 +112,14 @@ def choose_validation_references(
 
     initial: Scan | None = None
     confirmed_version: int | None = None
-    # Chronologically first explicitly CONFIRMED comparable baseline,
-    # and never a Validation scan itself.
-    from app.services.product_license_service import PRODUCT_VALIDATION_CHECK
-    from app.models import TenantScanCredit
     for candidate in reversed(compatible):
         confirmed = get_latest_confirmed_scope(db, candidate.scan_id)
-        if confirmed is None or confirmed.tenant_id != tenant.tenant_id:
+        if (confirmed is None or confirmed.tenant_id != tenant.tenant_id
+                or confirmed.confirmed_at_utc is None or confirmed.included_modules_count < 1):
             continue
         if included_module_codes(confirmed) != current_modules:
             continue
-        validation_credit = db.scalar(select(TenantScanCredit.id).where(
-            TenantScanCredit.tenant_id == tenant.tenant_id,
-            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
-            TenantScanCredit.status == "consumed",
-            TenantScanCredit.consumed_scan_id == candidate.scan_id,
-        ).limit(1))
-        if validation_credit is not None:
+        if not is_original_free_scan(db, tenant.tenant_id, candidate.scan_id):
             continue
         initial = candidate
         confirmed_version = confirmed.version

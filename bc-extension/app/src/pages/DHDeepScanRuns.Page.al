@@ -195,14 +195,47 @@
                 ApplicationArea = All;
                 Image = Report;
                 Scope = Repeater;
+                Visible = ShowFullReport;
 
                 trigger OnAction()
                 var
                     Links: Codeunit "DH Report Link Mgt.";
                 begin
-                    if Rec."Scan Type" <> Rec."Scan Type"::Deep then
-                        Error('A Full Assessment is available for deep scans only.');
                     Links.OpenArchivedFullV6(GetBackendDeleteIdFor(Rec));
+                end;
+            }
+
+            action(OpenValidationReportV2)
+            {
+                Caption = 'Validation Report';
+                ToolTip = 'Opens the Validation Report for the selected completed scan.';
+                ApplicationArea = All;
+                Image = Report;
+                Scope = Repeater;
+                Visible = ShowValidationReport;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    Links.OpenReportVariantV2(GetBackendDeleteIdFor(Rec), 'validation');
+                end;
+            }
+
+            action(OpenMonitoringReportV2)
+            {
+                Caption = 'Monitoring Report';
+                ToolTip = 'Opens the Monitoring Report for the selected completed scan.';
+                ApplicationArea = All;
+                Image = Report;
+                Scope = Repeater;
+                Visible = ShowMonitoringReport;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    Links.OpenReportVariantV2(GetBackendDeleteIdFor(Rec), 'monitoring');
                 end;
             }
 
@@ -308,7 +341,25 @@
         RunIdStyle := 'Strong';
     end;
 
+    trigger OnAfterGetCurrRecord()
     var
+        DeepScanRun: Record "DH Deep Scan Run";
+        Links: Codeunit "DH Report Link Mgt.";
+        Variant: Text;
+    begin
+        if (Rec."Scan Type" = Rec."Scan Type"::Deep) and FindDeepScanRun(DeepScanRun) then
+            if GetBackendDeleteIdFor(Rec) <> '' then
+                Variant := Links.GetCompletedReportVariant(DeepScanRun);
+
+        ShowFullReport := Variant = 'full';
+        ShowValidationReport := Variant = 'validation';
+        ShowMonitoringReport := Variant = 'monitoring';
+    end;
+
+    var
+        ShowFullReport: Boolean;
+        ShowValidationReport: Boolean;
+        ShowMonitoringReport: Boolean;
         EmptyStateTxt: Text[100];
         EmptyStateVisible: Boolean;
         NoScanHistoryLbl: Label 'No scan history is available yet.';

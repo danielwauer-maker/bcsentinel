@@ -10,7 +10,7 @@ APP_MANIFEST = ROOT / "bc-extension" / "app.json"
 CLOUD_MANIFEST = ROOT / "bc-extension" / "app.cloud.json"
 RELEASE_MANIFEST = ROOT / "quality" / "release" / "ext-50-01-release-baseline.json"
 
-REQUIRED_VERSION = "1.0.2.54"
+REQUIRED_VERSION = "1.0.2.55"
 HISTORICAL_RELEASE_VERSION = "1.0.2.20"
 REQUIRED_PLATFORM = "27.0.0.0"
 REQUIRED_RUNTIME = "16.0"
@@ -42,7 +42,7 @@ def test_al_manifests_are_identical_for_release_critical_fields():
         assert app[key] == cloud[key], f"Manifest drift detected for {key}"
 
 
-def test_current_extension_target_is_bc27_and_version_1_0_2_54():
+def test_current_extension_target_is_bc27_and_has_the_required_version():
     app = _read_json(APP_MANIFEST)
     assert app["version"] == REQUIRED_VERSION
     assert app["platform"] == REQUIRED_PLATFORM

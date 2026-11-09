@@ -34,7 +34,7 @@ def _scan(db, tenant_id: str, scan_id: str, time: datetime, company: str = COMPA
 
 
 def _scope(db, scan: Scan, *, version: int = 1, confirmed: bool = False,
-           module: str = "system") -> AssessmentScopeSnapshot:
+           module: str = "system", original_free: bool = False) -> AssessmentScopeSnapshot:
     now = datetime.now(timezone.utc)
     scope = AssessmentScopeSnapshot(
         scan_id=scan.scan_id, tenant_id=scan.tenant_id, version=version,
@@ -47,6 +47,11 @@ def _scope(db, scan: Scan, *, version: int = 1, confirmed: bool = False,
         confirmed_at_utc=now if confirmed else None,
     )
     db.add(scope)
+    if original_free:
+        db.add(TenantScanCredit(
+            tenant_id=scan.tenant_id, product_code="free_entry", status="consumed",
+            consumed_scan_id=scan.scan_id, created_at_utc=now, consumed_at_utc=now,
+        ))
     db.flush()
     db.add(AssessmentScopeModule(
         snapshot_id=scope.id, module_code=module, display_name=module,
@@ -75,7 +80,7 @@ def test_previous_validation_is_default_but_initial_confirmed_baseline_preserved
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
         initial = _scan(db, tenant_id, "scope-v2-initial", start)
         _scope(db, initial)
-        _scope(db, initial, version=2, confirmed=True)
+        _scope(db, initial, version=2, confirmed=True, original_free=True)
         prior = _scan(db, tenant_id, "scope-v2-previous-validation", start + timedelta(days=7))
         _scope(db, prior)
         _validation_credit(db, tenant_id, prior.scan_id)
@@ -95,7 +100,9 @@ def test_cross_company_and_cross_currency_scans_never_become_comparators(tenant_
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
         initial = _scan(db, tenant_id, "scope-cross-initial", start)
-        _scope(db, initial, confirmed=True)
+        _scope(db, initial, confirmed=True, original_free=True)
+        malformed = _scan(db, tenant_id, "scope-malformed-company", start + timedelta(hours=1), "invalid")
+        _scope(db, malformed)
         wrong_company = _scan(db, tenant_id, "scope-cross-company", start + timedelta(days=1), COMPANY_B)
         _scope(db, wrong_company)
         wrong_currency = _scan(db, tenant_id, "scope-cross-currency", start + timedelta(days=2), lcy="USD")
@@ -106,6 +113,46 @@ def test_cross_company_and_cross_currency_scans_never_become_comparators(tenant_
         assert ref.previous.scan_id == initial.scan_id
         assert ref.initial.scan_id == initial.scan_id
         db.rollback()
+
+
+def test_validation_scan_issues_only_its_own_report_link(
+    client, monkeypatch, tenant_factory, auth_header_factory,
+):
+    from urllib.parse import parse_qs, urlsplit
+    from app.core.settings import settings
+
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
+    identity = tenant_factory(plan="free", license_status="active")
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter_by(tenant_id=identity["tenant_id"]).one()
+        tenant.bc_company_id = COMPANY_A
+        tenant.premium_until_utc = now + timedelta(days=1)
+        initial = _scan(db, tenant.tenant_id, "validation-route-baseline", now - timedelta(days=1))
+        _scope(db, initial, confirmed=True, original_free=True)
+        current = _scan(db, tenant.tenant_id, "validation-route-current", now)
+        _scope(db, current)
+        _validation_credit(db, tenant.tenant_id, current.scan_id)
+        db.commit()
+
+    headers = auth_header_factory(identity)
+    scan_id = "validation-route-current"
+    full = client.post(f"/reports/executive/{scan_id}/v6-link", headers=headers)
+    assert full.status_code == 409 and full.json()["detail"] == "WRONG_REPORT_VARIANT"
+    issued = client.post(f"/reports/live/validation/{scan_id}/link", headers=headers)
+    assert issued.status_code == 200, issued.text
+    link = parse_qs(urlsplit(issued.json()["url"]).query)
+    assert link["variant"] == ["validation"]
+    body = {"code": link["code"][0], "scan_id": scan_id, "company_id": COMPANY_A, "report_variant": "validation"}
+    exchanged = client.post("/reports/access/exchange", json=body)
+    assert exchanged.status_code == 200, exchanged.text
+    report = client.get(
+        f"/account/reports/validation/{scan_id}",
+        params={"company_id": COMPANY_A},
+        headers={"Authorization": "Bearer " + exchanged.json()["access_token"]},
+    )
+    assert report.status_code == 200 and report.json()["variant"] == "validation"
 
 
 def test_unconfirmed_baseline_is_rejected_not_autoconfirmed(tenant_factory):
@@ -188,7 +235,7 @@ def test_unfinished_historical_scan_is_never_chosen_as_previous(tenant_factory):
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
         initial = _scan(db, tenant_id, "compare-finished-baseline", start)
-        _scope(db, initial, confirmed=True)
+        _scope(db, initial, confirmed=True, original_free=True)
         incomplete = _scan(
             db, tenant_id, "compare-incomplete-history",
             start + timedelta(days=1), completed=False,

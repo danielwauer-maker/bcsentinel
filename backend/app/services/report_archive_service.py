@@ -17,10 +17,15 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 
 from app.core.settings import settings
-from app.models import Scan, Tenant
+from app.models import Scan, ScanRunStatus, Tenant, TenantScanCredit
 from app.report_archive_models import ReportAccessGrant, ReportArchive
 from app.security.token import create_token, verify_token
-from app.services.product_license_service import build_product_access_snapshot
+from app.services.product_license_service import (
+    PRODUCT_VALIDATION_CHECK,
+    build_product_access_snapshot,
+    is_original_free_scan,
+)
+from app.services.assessment_scope_service import get_latest_confirmed_scope
 from app.services.full_report_render_service import build_full_render_vm
 from app.services.executive_report_v2_service import build_executive_report
 from app.services.tenant_access_service import enforce_tenant_is_active
@@ -36,34 +41,80 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _has_paid_full_access(db, tenant: Tenant) -> bool:
+def has_paid_full_access(db, tenant: Tenant) -> bool:
     access = build_product_access_snapshot(db, tenant)
-    return bool(access["premium_active"]) if settings.ACCESS_MODEL_V2_ENABLED else bool(access["can_view_executive_report"] and (access.get("assessment_access_active") or access.get("monitoring_active")))
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        return bool(access["premium_active"])
+    return bool(access["can_view_executive_report"] and (access["assessment_access_active"] or access["monitoring_active"]))
 
 
-def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
+def require_report_company(tenant: Tenant, scan: Scan) -> str:
+    try:
+        company = canonical_company_id(scan.bc_company_id)
+        registered = canonical_company_id(tenant.bc_company_id) if (
+            settings.ACCESS_MODEL_V2_ENABLED or str(tenant.bc_company_id or "").strip()
+        ) else None
+    except ValueError:
+        raise HTTPException(status_code=409, detail="SCAN_COMPANY_NOT_VERIFIED") from None
+    if registered is not None and registered != company:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    return company
+
+
+def full_scan_blocker(db, tenant: Tenant, scan: Scan, *, require_baseline: bool = True) -> str | None:
+    run = db.scalar(select(ScanRunStatus).where(
+        ScanRunStatus.tenant_id == tenant.tenant_id, ScanRunStatus.run_id == scan.scan_id,
+    ))
+    validation = db.scalar(select(TenantScanCredit.id).where(
+        TenantScanCredit.tenant_id == tenant.tenant_id,
+        TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+        TenantScanCredit.status == "consumed",
+        TenantScanCredit.consumed_scan_id == scan.scan_id,
+    ))
+    if validation is not None or (run is not None and run.scan_mode == "monitoring"):
+        return "WRONG_REPORT_VARIANT"
+    if require_baseline and (
+        run is None or run.status not in {"completed", "completed_with_warnings"}
+        or run.result_persisted_at_utc is None
+    ):
+        return "SCAN_NOT_COMPLETED"
+    if require_baseline and not is_original_free_scan(db, tenant.tenant_id, scan.scan_id):
+        return "FULL_BASELINE_NOT_VERIFIED"
+    return None
+
+
+def archive_full_report(db, tenant: Tenant, scan: Scan, company_id: str) -> ReportArchive:
     """First authorized access seals the real scan evidence, never demo data."""
-    existing = db.scalar(select(ReportArchive).where(
+    archive_query = select(ReportArchive).where(
         ReportArchive.tenant_id == tenant.tenant_id,
-        ReportArchive.company_id == scan.bc_company_id,
+        ReportArchive.company_id == company_id,
         ReportArchive.scan_id == scan.scan_id,
         ReportArchive.variant == "full",
-    ))
+    )
+    existing = db.scalar(archive_query)
+    blocker = full_scan_blocker(db, tenant, scan, require_baseline=settings.ACCESS_MODEL_V2_ENABLED or existing is None)
+    if blocker is not None:
+        raise HTTPException(status_code=409, detail=blocker)
     if existing is not None:
         return existing
-    if not _has_paid_full_access(db, tenant):
-        raise HTTPException(status_code=402, detail="Full Assessment entitlement required.")
-    if scan.lcy_code != "EUR":
-        raise HTTPException(status_code=409, detail="Only verified EUR scan evidence is supported.")
-    raw = build_executive_report(db, tenant, scan.scan_id)
-    vm = build_full_render_vm(db, tenant, scan)
+    scope = get_latest_confirmed_scope(db, scan.scan_id)
+    if (scope is None or scope.tenant_id != tenant.tenant_id
+            or scope.confirmed_at_utc is None or scope.included_modules_count < 1):
+        raise HTTPException(status_code=409, detail="ASSESSMENT_SCOPE_NOT_CONFIRMED")
+    try:
+        raw = build_executive_report(db, tenant, scan.scan_id)
+        vm = build_full_render_vm(db, tenant, scan)
+    except HTTPException as exc:
+        if exc.status_code != 409:
+            raise
+        raise HTTPException(status_code=409, detail="REPORT_ARCHIVE_UNAVAILABLE") from exc
     envelope = {
         "contract_version": "bcsentinel-render-bridge-v1",
         "source": "live",
         "status": "ready",
         "variant": "full",
         "tenant_id": tenant.tenant_id,
-        "company_id": scan.bc_company_id,
+        "company_id": company_id,
         "scan_id": scan.scan_id,
         "language": raw.language,
         "currency": {
@@ -79,7 +130,7 @@ def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
     }
     payload = json.dumps(envelope, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     result = ReportArchive(
-        tenant_id=tenant.tenant_id, company_id=scan.bc_company_id,
+        tenant_id=tenant.tenant_id, company_id=company_id,
         scan_id=scan.scan_id, variant="full",
         contract_version=envelope["contract_version"],
         payload_json=payload,
@@ -88,8 +139,15 @@ def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
     )
     # A unique constraint prevents duplicate snapshots under concurrent requests.
     # Never modify an existing snapshot after creation.
-    db.add(result)
-    db.flush()
+    try:
+        with db.begin_nested():
+            db.add(result)
+            db.flush()
+    except IntegrityError:
+        existing = db.scalar(archive_query)
+        if existing is None:
+            raise
+        return existing
     return result
 
 
@@ -100,16 +158,13 @@ REPORT_VARIANT_SCOPES = {
 }
 
 
-def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> ReportArchive:
+def archive_variant_report(db, tenant: Tenant, scan: Scan, company_id: str, variant: str) -> ReportArchive:
     """V2 immutable evidence archive for non-Full report families."""
     if variant not in {"validation", "monitoring"} or not settings.ACCESS_MODEL_V2_ENABLED:
         raise HTTPException(status_code=404, detail="Report variant unavailable.")
     access = build_product_access_snapshot(db, tenant)
     if not access["premium_active"] or (variant == "monitoring" and not access["monitoring_active"]):
-        raise HTTPException(status_code=402, detail="Active report entitlement required.")
-    if not scan.bc_company_id or str(scan.lcy_code or "").upper() != "EUR":
-        raise HTTPException(status_code=409, detail="Verified company and EUR currency required.")
-    company_id = canonical_company_id(scan.bc_company_id)
+        raise HTTPException(status_code=402, detail="FULL_ACCESS_INACTIVE")
     existing = db.scalar(select(ReportArchive).where(
         ReportArchive.tenant_id == tenant.tenant_id,
         ReportArchive.company_id == company_id,
@@ -131,7 +186,7 @@ def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> Repo
         ).limit(1)) is not None
 
     if not completed_persisted(scan.scan_id):
-        raise HTTPException(status_code=409, detail="Report scan has not completed and persisted.")
+        raise HTTPException(status_code=409, detail="SCAN_NOT_COMPLETED")
     if variant == "validation":
         report = build_validation_report(db, tenant, scan.scan_id)
         referenced = [
@@ -149,15 +204,17 @@ def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> Repo
     # silently mixed into a Validation/Monitoring report.
     for scan_id in set(filter(None, referenced)):
         if not completed_persisted(scan_id):
-            raise HTTPException(status_code=409, detail="Historical scan is incomplete or not persisted.")
+            raise HTTPException(status_code=409, detail="REPORT_ARCHIVE_UNAVAILABLE")
         historical = db.scalar(select(ScanModel).where(
             ScanModel.tenant_id == tenant.tenant_id,
             ScanModel.scan_id == scan_id,
         ))
-        if historical is None or not historical.bc_company_id:
-            raise HTTPException(status_code=409, detail="Report reference scan has no verified company.")
-        if canonical_company_id(historical.bc_company_id) != company_id or str(historical.lcy_code or "").upper() != "EUR":
-            raise HTTPException(status_code=409, detail="Historical scan company/currency is not comparable.")
+        try:
+            historical_company = canonical_company_id(historical.bc_company_id) if historical else None
+        except ValueError:
+            historical_company = None
+        if historical_company != company_id or str(historical.lcy_code or "").upper() != "EUR":
+            raise HTTPException(status_code=409, detail="REPORT_ARCHIVE_UNAVAILABLE")
     envelope = {
         "contract_version": "bcsentinel-render-bridge-v1",
         "source": "live", "status": "ready", "variant": variant,
@@ -193,44 +250,46 @@ def issue_variant_link(db, tenant: Tenant, scan: Scan, viewer_url: str, variant:
     enforce_tenant_is_active(db, tenant.tenant_id)
     if variant not in {"validation", "monitoring"} or not settings.ACCESS_MODEL_V2_ENABLED:
         raise HTTPException(status_code=404, detail="Report variant unavailable.")
-    if not scan.bc_company_id or not scan.lcy_code:
-        raise HTTPException(status_code=409, detail="Verified scan company/LCY required.")
+    company_id = require_report_company(tenant, scan)
+    if str(scan.lcy_code or "").upper() != "EUR":
+        raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
     try:
-        scan.bc_company_id = canonical_company_id(scan.bc_company_id)
-    except ValueError:
-        raise HTTPException(status_code=409, detail="Invalid scan company GUID.") from None
-    archive_variant_report(db, tenant, scan, variant)
+        archive_variant_report(db, tenant, scan, company_id, variant)
+    except HTTPException as exc:
+        if exc.status_code != 409 or exc.detail in {"SCAN_NOT_COMPLETED", "REPORT_ARCHIVE_UNAVAILABLE"}:
+            raise
+        raise HTTPException(status_code=409, detail="REPORT_ARCHIVE_UNAVAILABLE") from exc
     raw_code = secrets.token_urlsafe(32)
     db.add(ReportAccessGrant(
         token_hash=hashlib.sha256(raw_code.encode()).hexdigest(),
-        tenant_id=tenant.tenant_id, company_id=scan.bc_company_id,
+        tenant_id=tenant.tenant_id, company_id=company_id,
         scan_id=scan.scan_id, variant=variant,
         created_at_utc=_now(),
         expires_at_utc=_now() + timedelta(seconds=CODE_TTL_SECONDS),
     ))
     db.commit()
-    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': scan.bc_company_id, 'variant': variant, 'code': raw_code, 'lang': 'de'})}"
+    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': company_id, 'variant': variant, 'code': raw_code, 'lang': 'de'})}"
 
 
 def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
     enforce_tenant_is_active(db, tenant.tenant_id)
-    if settings.ACCESS_MODEL_V2_ENABLED and not _has_paid_full_access(db, tenant):
-        raise HTTPException(status_code=402, detail="Active Full Access or Monitoring required.")
-    if not scan.bc_company_id or not scan.lcy_code:
-        raise HTTPException(status_code=409, detail="Scan requires verified BC company and LCY.")
-    scan.bc_company_id = canonical_company_id(scan.bc_company_id)
-    archive_full_report(db, tenant, scan)
+    if not has_paid_full_access(db, tenant):
+        raise HTTPException(status_code=402, detail="FULL_ACCESS_INACTIVE")
+    company_id = require_report_company(tenant, scan)
+    if scan.lcy_code != "EUR":
+        raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
+    archive_full_report(db, tenant, scan, company_id)
     raw_code = secrets.token_urlsafe(32)
     db.add(ReportAccessGrant(
         token_hash=hashlib.sha256(raw_code.encode()).hexdigest(),
-        tenant_id=tenant.tenant_id, company_id=scan.bc_company_id,
+        tenant_id=tenant.tenant_id, company_id=company_id,
         scan_id=scan.scan_id, variant="full",
         created_at_utc=_now(), expires_at_utc=_now() + timedelta(seconds=CODE_TTL_SECONDS),
     ))
     db.commit()
     # This one-use code is a sensitive capability. The viewer must strip it
     # immediately, before API fetches, and send Referrer-Policy: no-referrer.
-    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': scan.bc_company_id, 'code': raw_code, 'lang': 'de'})}"
+    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': company_id, 'code': raw_code, 'lang': 'de'})}"
 
 
 def redeem_code(db, raw_code: str) -> dict:
@@ -255,7 +314,7 @@ def redeem_code(db, raw_code: str) -> dict:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
     enforce_tenant_is_active(db, tenant.tenant_id)
-    if settings.ACCESS_MODEL_V2_ENABLED and not _has_paid_full_access(db, tenant):
+    if not has_paid_full_access(db, tenant):
         db.rollback()
         raise HTTPException(status_code=403, detail="Premium report access expired.")
     archive = db.scalar(select(ReportArchive).where(

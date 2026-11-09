@@ -5,7 +5,7 @@ import pytest
 
 from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import Scan, ScanRunStatus, TenantScanCredit
+from app.models import Scan, ScanRunStatus, Tenant, TenantScanCredit
 from app.assessment_scope_models import AssessmentScopeSnapshot
 
 
@@ -26,6 +26,7 @@ def _seed(client, tenant_factory, scan_factory, product_access_factory):
         scan = db.query(Scan).filter_by(scan_id="v2-original-free").one()
         scan.bc_company_id = COMPANY
         scan.lcy_code = "EUR"
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one().bc_company_id = COMPANY
         db.add(ScanRunStatus(
             run_id=scan.scan_id, tenant_id=tenant["tenant_id"], scan_mode="deep",
             status="completed", created_at_utc=now, updated_at_utc=now,

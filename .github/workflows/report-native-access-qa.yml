@@ -20,6 +20,18 @@ jobs:
   backend:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: bcsentinel_report_test
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: disposable_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_report_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     defaults:
       run:
         working-directory: backend
@@ -48,6 +60,10 @@ jobs:
           print("Archive and grant tables created")
           PY
       - name: Run one-use and archived report API tests
-        run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_staging_full_v6_projection.py tests/test_full_report_render_service.py tests/test_scan_company_identity.py tests/test_scan_company_sync_binding.py
+        run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_validation_comparison_v2.py tests/test_staging_full_v6_projection.py tests/test_full_report_render_service.py tests/test_scan_company_identity.py tests/test_scan_company_sync_binding.py tests/test_bc_pte0004_permissions_contract.py
+      - name: Run report API and concurrency tests on PostgreSQL
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/bcsentinel_report_test
+        run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_validation_comparison_v2.py tests/test_p0e_postgres_concurrency.py
       - name: Full backend regression suite
         run: python -m pytest -q -p no:warnings

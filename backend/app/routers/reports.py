@@ -174,21 +174,21 @@ def create_executive_report_share_link(
 def create_v2_variant_report_link(
     variant: Literal["full", "validation", "monitoring"],
     scan_id: str,
+    response: Response,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
     """BC-native report link, issued only against immutable authenticated evidence."""
     from urllib.parse import urlparse
     from app.models import Scan
     from app.services.report_archive_service import issue_variant_link
-    from app.services.scan_company_service import canonical_company_id
 
     if not settings.ACCESS_MODEL_V2_ENABLED:
-        raise HTTPException(status_code=404, detail="V2 report links not enabled.")
+        raise HTTPException(status_code=404, detail="REPORT_VARIANT_UNAVAILABLE")
     viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
     parsed = urlparse(viewer)
     if (parsed.scheme != "https" or not parsed.netloc or parsed.username or
             parsed.password or parsed.query or parsed.fragment):
-        raise HTTPException(status_code=503, detail="V2 report viewer not configured.")
+        raise HTTPException(status_code=503, detail="REPORT_VIEWER_UNAVAILABLE")
     tenant_id, token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, tenant_id, token)
@@ -197,18 +197,7 @@ def create_v2_variant_report_link(
         ))
         if scan is None:
             raise HTTPException(status_code=404, detail="Report not found.")
-        if not scan.bc_company_id or not scan.lcy_code:
-            raise HTTPException(status_code=409, detail="Verified scan company/LCY required.")
-        try:
-            company_id = canonical_company_id(scan.bc_company_id)
-            registered_company = (
-                canonical_company_id(tenant.bc_company_id)
-                if str(tenant.bc_company_id or "").strip() else None
-            )
-        except ValueError:
-            raise HTTPException(status_code=409, detail="Invalid BC company binding.") from None
-        if registered_company is not None and registered_company != company_id:
-            raise HTTPException(status_code=404, detail="Report not found.")
+        response.headers["Cache-Control"] = "no-store, private"
         return ExecutiveReportShareLinkResponse(
             url=issue_variant_link(db, tenant, scan, viewer, variant),
         )
@@ -217,6 +206,7 @@ def create_v2_variant_report_link(
 @router.post("/executive/{scan_id}/v6-link", response_model=ExecutiveReportShareLinkResponse)
 def create_full_v6_link(
     scan_id: str,
+    response: Response,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
     """Exchange existing BC tenant authorization for one-use v6 access.
@@ -228,13 +218,12 @@ def create_full_v6_link(
 
     from app.models import Scan
     from app.services.report_archive_service import issue_full_link
-    from app.services.scan_company_service import canonical_company_id
 
     viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
     parsed = urlparse(viewer)
     if (parsed.scheme != "https" or not parsed.netloc or parsed.username
             or parsed.password or parsed.query or parsed.fragment):
-        raise HTTPException(status_code=503, detail="Full v6 report viewer not configured.")
+        raise HTTPException(status_code=503, detail="REPORT_VIEWER_UNAVAILABLE")
 
     tenant_id, token = tenant_auth
     with SessionLocal() as db:
@@ -244,16 +233,7 @@ def create_full_v6_link(
         ))
         if scan is None:
             raise HTTPException(status_code=404, detail="Report not found.")
-        if not scan.bc_company_id or not scan.lcy_code:
-            raise HTTPException(status_code=409, detail="Scan company/LCY not bound.")
-        try:
-            company_id = canonical_company_id(scan.bc_company_id)
-        except ValueError:
-            raise HTTPException(status_code=409, detail="Invalid BC company binding.") from None
-        if str(tenant.bc_company_id or "").strip() and (
-            canonical_company_id(tenant.bc_company_id) != company_id
-        ):
-            raise HTTPException(status_code=404, detail="Report not found.")
+        response.headers["Cache-Control"] = "no-store, private"
         return ExecutiveReportShareLinkResponse(
             url=issue_full_link(db, tenant, scan, viewer)
         )

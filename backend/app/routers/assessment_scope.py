@@ -76,6 +76,7 @@ def report_preflight(
     from app.services.product_license_service import (
         PRODUCT_VALIDATION_CHECK, build_product_access_snapshot,
     )
+    from app.services.report_archive_service import full_scan_blocker, has_paid_full_access, require_report_company
     from app.services.validation_comparison_v2_service import choose_validation_references
     with SessionLocal() as db:
         tenant = _resolve_tenant(
@@ -102,10 +103,9 @@ def report_preflight(
             original_free_scan = is_original_free_scan(db, tenant.tenant_id, scan.scan_id)
             if not original_free_scan:
                 missing.append("original_completed_free_scan_missing")
-        from app.services.scan_company_service import canonical_company_id
         try:
-            verified_company_id = canonical_company_id(scan.bc_company_id)
-        except ValueError:
+            verified_company_id = require_report_company(tenant, scan)
+        except HTTPException:
             verified_company_id = None
         if verified_company_id is None:
             missing.append("verified_company_missing")
@@ -119,6 +119,16 @@ def report_preflight(
             missing.append("full_report_not_valid_for_validation_scan")
         if not access["premium_active"]:
             missing.append("premium_access_inactive")
+        full_reason = full_scan_blocker(db, tenant, scan)
+        if full_reason is None:
+            if not has_paid_full_access(db, tenant):
+                full_reason = "FULL_ACCESS_INACTIVE"
+            elif verified_company_id is None:
+                full_reason = "SCAN_COMPANY_NOT_VERIFIED"
+            elif scan.lcy_code != "EUR":
+                full_reason = "SCAN_CURRENCY_NOT_VERIFIED"
+            elif confirmed is None or confirmed.confirmed_at_utc is None or confirmed.included_modules_count < 1:
+                full_reason = "ASSESSMENT_SCOPE_NOT_CONFIRMED"
 
         comparison = None
         if settings.ACCESS_MODEL_V2_ENABLED and latest_scope is not None:
@@ -146,6 +156,7 @@ def report_preflight(
             "eur_currency_verified": str(scan.lcy_code or "").upper() == "EUR",
             "is_validation_credit_scan": validation_credit is not None,
             "missing_prerequisites": missing,
+            "full_report_reason": full_reason,
             "validation_comparison": comparison,
         }
 
@@ -190,6 +201,7 @@ def confirm_assessment_scope(
             raise HTTPException(status_code=403, detail="Scope confirmation requires an active Full Assessment.")
         scan = _load_scan(db, scan_id, tenant.tenant_id)
         from app.core.settings import settings
+        from app.services.report_archive_service import full_scan_blocker, require_report_company
         if settings.ACCESS_MODEL_V2_ENABLED:
             # Serialize competing confirmations for this scan on PostgreSQL;
             # otherwise concurrent requests could each create a new baseline.
@@ -203,18 +215,14 @@ def confirm_assessment_scope(
                 raise HTTPException(status_code=404, detail="Scan not found.")
             # The original completed Free scan is the Full Assessment baseline.
             # Validation/Monitoring scans must not be relabelled as baselines.
-            from app.services.product_license_service import is_original_free_scan
+        blocker = full_scan_blocker(db, tenant, scan, require_baseline=settings.ACCESS_MODEL_V2_ENABLED)
+        if blocker is not None:
+            raise HTTPException(status_code=409, detail=blocker)
+        if settings.ACCESS_MODEL_V2_ENABLED:
             from app.services.assessment_scope_service import get_latest_confirmed_scope
-            if not is_original_free_scan(db, tenant.tenant_id, scan.scan_id):
-                raise HTTPException(
-                    status_code=409,
-                    detail="Only the original completed Free scan can establish the Full baseline.",
-                )
-            if not scan.bc_company_id or str(scan.lcy_code or "").upper() != "EUR":
-                raise HTTPException(
-                    status_code=409,
-                    detail="Full baseline requires verified BC company and EUR local currency.",
-                )
+            require_report_company(tenant, scan)
+            if scan.lcy_code != "EUR":
+                raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
             confirmed = get_latest_confirmed_scope(db, scan.scan_id)
             if confirmed is not None:
                 # Do not allow later re-confirmations to rewrite the original

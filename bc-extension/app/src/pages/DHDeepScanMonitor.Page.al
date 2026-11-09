@@ -441,6 +441,7 @@
                 ToolTip = 'Review and confirm the original Free scan scope before opening its Full Assessment report.';
                 ApplicationArea = All;
                 Image = Report;
+                Visible = ShowFullReport;
 
                 trigger OnAction()
                 var
@@ -457,6 +458,7 @@
                 Caption = 'Validation Report';
                 ApplicationArea = All;
                 Image = Report;
+                Visible = ShowValidationReport;
                 ToolTip = 'Open the secure Validation comparison for this completed scan. Requires active paid access and validated baseline evidence.';
 
                 trigger OnAction()
@@ -474,6 +476,7 @@
                 Caption = 'Monitoring Report';
                 ApplicationArea = All;
                 Image = Report;
+                Visible = ShowMonitoringReport;
                 ToolTip = 'Open the secure Monitoring history report. Requires an active Monitoring subscription and completed scan history.';
 
                 trigger OnAction()
@@ -556,11 +559,21 @@
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        Links: Codeunit "DH Report Link Mgt.";
+        Variant: Text;
     begin
         ReloadDisplayValuesFromRec();
+        Variant := Links.GetCompletedReportVariant(Rec);
+        ShowFullReport := Variant = 'full';
+        ShowValidationReport := Variant = 'validation';
+        ShowMonitoringReport := Variant = 'monitoring';
     end;
 
     var
+        ShowFullReport: Boolean;
+        ShowValidationReport: Boolean;
+        ShowMonitoringReport: Boolean;
         BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;

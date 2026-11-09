@@ -30,7 +30,9 @@ from app.services.tenant_access_service import enforce_tenant_is_active
 from app.services.scan_company_service import canonical_company_id
 from app.services.full_report_render_service import build_full_render_vm
 from app.report_archive_models import ReportArchive
-from app.services.report_archive_service import verify_scoped_session
+from app.services.report_archive_service import (
+    full_scan_blocker, has_paid_full_access, require_report_company, verify_scoped_session,
+)
 
 router = APIRouter(prefix="/account/reports", tags=["reports"])
 ReportVariant = Literal["free", "quick", "full", "validation", "monitoring"]
@@ -70,9 +72,10 @@ def _require_company_scan(db, tenant_id: str, scan_id: str, company_id: str) -> 
         raise HTTPException(status_code=409, detail="Scan has no verified BC company and local currency binding.")
     try:
         requested_company_id = canonical_company_id(company_id)
+        stored_company_id = canonical_company_id(scan.bc_company_id)
     except ValueError:
         raise HTTPException(status_code=404, detail="Report not found.") from None
-    if scan.bc_company_id != requested_company_id:
+    if stored_company_id != requested_company_id:
         raise HTTPException(status_code=404, detail="Report not found.")
     return scan
 
@@ -101,7 +104,7 @@ def _build_authorized_report(db, tenant: Tenant, scan_id: str, variant: ReportVa
     access = build_product_access_snapshot(db, tenant)
     if variant == "full":
         # Validation-only rights must never unlock the initial Full Assessment.
-        if not ((access["premium_active"]) if settings.ACCESS_MODEL_V2_ENABLED else (access["can_view_executive_report"] and (access.get("assessment_access_active") or access.get("monitoring_active")))):
+        if not has_paid_full_access(db, tenant):
             raise HTTPException(status_code=402, detail="Full Assessment access required.")
         return build_executive_report(db, tenant, scan_id)
     if variant == "validation":
@@ -145,15 +148,16 @@ def read_report_for_renderer(
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
         if scoped_tenant_id is not None:
-            if settings.ACCESS_MODEL_V2_ENABLED:
-                access = build_product_access_snapshot(db, tenant)
-                if not access["premium_active"]:
-                    raise HTTPException(status_code=403, detail="Premium report access expired.")
-                if variant == "monitoring" and not access["monitoring_active"]:
-                    raise HTTPException(status_code=403, detail="Monitoring access expired.")
+            if not has_paid_full_access(db, tenant):
+                raise HTTPException(status_code=403, detail="Premium report access expired.")
+            if variant == "monitoring" and not build_product_access_snapshot(db, tenant)["monitoring_active"]:
+                raise HTTPException(status_code=403, detail="Monitoring access expired.")
+            verified_company = require_report_company(tenant, scan)
+            if scan.lcy_code.upper() != "EUR":
+                raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
             archived = db.scalar(select(ReportArchive).where(
                 ReportArchive.tenant_id == tenant_id,
-                ReportArchive.company_id == scan.bc_company_id,
+                ReportArchive.company_id == verified_company,
                 ReportArchive.scan_id == scan_id,
                 ReportArchive.variant == variant,
             ))
@@ -170,6 +174,11 @@ def read_report_for_renderer(
             raise HTTPException(status_code=409, detail="Verified financial currency conversion unavailable.")
 
         report = _build_authorized_report(db, tenant, scan_id, variant)
+        if settings.ACCESS_MODEL_V2_ENABLED and variant == "full":
+            require_report_company(tenant, scan)
+            blocker = full_scan_blocker(db, tenant, scan)
+            if blocker is not None:
+                raise HTTPException(status_code=409, detail=blocker)
         # Only Full currently has an evidenced v6 renderer projection. The
         # other report types retain their existing safe, raw stage contracts.
         render_vm = build_full_render_vm(db, tenant, scan) if variant == "full" else None
@@ -187,7 +196,7 @@ def read_report_for_renderer(
         return ReportRenderEnvelope(
             variant=variant,
             tenant_id=tenant_id,
-            company_id=scan.bc_company_id,
+            company_id=canonical_company_id(scan.bc_company_id),
             scan_id=scan_id,
             language=report.language,
             currency=ReportCurrencyContext(

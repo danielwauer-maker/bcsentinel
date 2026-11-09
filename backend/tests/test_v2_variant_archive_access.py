@@ -26,6 +26,7 @@ def _seed(tenant_factory, scan_factory):
     now = datetime.now(timezone.utc)
     with SessionLocal() as db:
         owner = db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one()
+        owner.bc_company_id = COMPANY
         owner.premium_until_utc = now + timedelta(days=14)
         scan = db.query(Scan).filter_by(scan_id=SCAN).one()
         scan.bc_company_id = COMPANY
