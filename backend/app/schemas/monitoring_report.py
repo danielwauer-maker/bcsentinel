@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic import BaseModel, Field
+from app.schemas.scan_comparison import ScanComparisonEvidence
 
 
 class MonitoringTrendPoint(BaseModel):
@@ -65,6 +66,7 @@ class MonitoringCoverage(BaseModel):
 class MonitoringReport(BaseModel):
     contract_version: str = "monitoring-report-v1"
     report_variant: str = "monitoring"
+    comparison_evidence: ScanComparisonEvidence | None = None
     tenant_id: str
     company_name: str
     environment_name: str

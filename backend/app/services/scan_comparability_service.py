@@ -203,3 +203,25 @@ def compare_scans(previous: ScanEvidence | None, current: ScanEvidence | None) -
     # A catalog match alone does not prove score weights or impact model versions.
     return ComparisonResult(ok, tuple(sorted(reasons, key=lambda reason: reason.value)),
                             tuple(sorted(comparable_checks)), False, False)
+
+
+def compare_persisted_scans(db, tenant_id: str, previous_scan_id: str | None, current_scan_id: str) -> ComparisonResult:
+    """Shared adapter; partial observations never assert complete provenance.
+
+    The currently supported source schema records only reached checks, without
+    the expected catalog, execution completeness or stable record identities.
+    It therefore cannot produce verified ScanEvidence. Both absent legacy rows
+    and partial rows fail closed until a complete trusted schema is introduced.
+    """
+    from app.models import ScanExecutionEvidence
+
+    for scan_id in (previous_scan_id, current_scan_id):
+        if not scan_id:
+            return compare_scans(None, None)
+        row = db.get(ScanExecutionEvidence, scan_id)
+        if row is None or row.tenant_id != tenant_id:
+            return compare_scans(None, None)
+        if hashlib.sha256(row.payload_json.encode("utf-8")).hexdigest() != row.payload_sha256:
+            return compare_scans(None, None)
+    # No full, verified provenance schema is implemented in this release.
+    return compare_scans(None, None)

@@ -19,7 +19,7 @@ def test_current_extension_candidate_keeps_bc27_upgrade_identity() -> None:
     assert app["id"] == "8c7f0f9c-0c1a-4a4e-9c6f-111111111111"
     assert app["name"] == "BCSentinel"
     assert app["publisher"] == "BCSentinel Analytics - Daniel Wauer"
-    assert app["version"] == "1.0.2.56"
+    assert app["version"] == "1.0.2.57"
     assert app["runtime"] == "16.0"
     assert app["platform"] == "27.0.0.0"
     assert app["application"] == "27.0.0.0"

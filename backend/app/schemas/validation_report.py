@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List
 
 from pydantic import BaseModel, Field
+from app.schemas.scan_comparison import ScanComparisonEvidence
 
 
 VALIDATION_REPORT_CONTRACT_VERSION = "validation-report-v1"
@@ -44,6 +45,7 @@ class ValidationReport(BaseModel):
     contract_version: str = VALIDATION_REPORT_CONTRACT_VERSION
     financial_methodology: str = "fin-v1"
     report_variant: str = "validation"
+    comparison_evidence: ScanComparisonEvidence | None = None
 
     report_id: str
     tenant_id: str

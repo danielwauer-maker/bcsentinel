@@ -509,6 +509,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
     validation_scan, validation_credit = _load_validation_scan(db, tenant, validation_scan_id)
     initial_baseline_scan = None
     initial_baseline_scope_version = None
+    comparison_evidence = None
     if settings.ACCESS_MODEL_V2_ENABLED:
         from app.services.validation_comparison_v2_service import choose_validation_references
         references = choose_validation_references(db, tenant, validation_scan)
@@ -516,6 +517,17 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         initial_baseline_scan = references.initial
         initial_baseline_scope_version = references.scope_version
         baseline_reference_source = "last_comparable_scan"
+        from app.services.scan_comparability_service import compare_persisted_scans
+        comparison = compare_persisted_scans(db, tenant.tenant_id, baseline_scan.scan_id, validation_scan.scan_id)
+        if not comparison.comparable:
+            baseline_reference_source = "last_scope_matching_unverified"
+        comparison_evidence = {
+            "comparable": comparison.comparable,
+            "reason_codes": [reason.value for reason in comparison.reasons],
+            "comparable_checks": list(comparison.comparable_checks),
+            "health_score_comparable": comparison.health_score_comparable,
+            "impact_comparable": comparison.impact_comparable,
+        }
     else:
         baseline_scan, baseline_reference_source = _load_baseline_scan(
             db,
@@ -591,6 +603,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         ]
 
     return ValidationReport(
+        comparison_evidence=comparison_evidence,
         report_id=f"validation-{validation_scan.scan_id}",
         tenant_id=tenant.tenant_id,
         language=language,

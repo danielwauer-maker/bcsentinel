@@ -1,19 +1,22 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import logging
-from typing import List, Optional
+from typing import List, Literal, Optional
+import hashlib
+import json
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_core import PydanticCustomError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
-from app.models import Scan, ScanIssueRecord, ScanRunStatus, ScanStartRequest
+from app.models import Scan, ScanExecutionEvidence, ScanIssueRecord, ScanRunStatus, ScanStartRequest
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -43,6 +46,7 @@ from app.services.scan_status_service import (
     create_or_get_scan_run,
     mark_scan_result_persisted,
     mark_stalled_scans,
+    normalize_execution_identity,
     serialize_scan_status,
     update_scan_progress,
 )
@@ -93,6 +97,34 @@ class ModuleScoresPayload(BaseModel):
     hr: int = 100
 
 
+class CheckExecutionObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    code: str = Field(min_length=1, max_length=50, pattern=r"^[A-Z0-9_]+$")
+    status: Literal["PASS", "FINDINGS", "SKIPPED"]
+    finding_count: int = Field(ge=0, le=100000)
+    observed_at_utc: datetime
+
+    @model_validator(mode="after")
+    def validate_observation(self):
+        if self.observed_at_utc.utcoffset() != timedelta(0):
+            raise PydanticCustomError("evidence_timezone", "observed_at_utc must be UTC")
+        if (self.status == "FINDINGS") != (self.finding_count > 0):
+            raise PydanticCustomError("evidence_count", "finding count does not match status")
+        return self
+
+
+class PartialCheckExecutionEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal["bc-check-execution-partial-v1"]
+    checks: list[CheckExecutionObservation] = Field(max_length=1500)
+
+    @model_validator(mode="after")
+    def unique_codes(self):
+        if len({item.code for item in self.checks}) != len(self.checks):
+            raise PydanticCustomError("evidence_duplicate", "duplicate check code")
+        return self
+
+
 class ScanSyncPayload(BaseModel):
     tenant_id: str
     bc_company_id: Optional[str] = None
@@ -119,6 +151,33 @@ class ScanSyncPayload(BaseModel):
     execution_token: Optional[str] = None
     worker_id: Optional[str] = None
     correlation_id: Optional[str] = None
+    check_execution_evidence: Optional[PartialCheckExecutionEvidence] = None
+
+
+def _canonical_execution_evidence(payload: ScanSyncPayload) -> tuple[str, str, str]:
+    # Validate reported outcomes against the submitted findings without using
+    # absence of a finding to infer that an unreported check executed.
+    finding_counts: dict[str, int] = {}
+    for issue in payload.issues:
+        code = issue.code.strip().upper()
+        finding_counts[code] = finding_counts.get(code, 0) + 1
+    for check in payload.check_execution_evidence.checks:
+        if finding_counts.get(check.code, 0) != check.finding_count:
+            raise HTTPException(status_code=422, detail="Check evidence contradicts submitted finding rows.")
+    evidence = payload.check_execution_evidence.model_dump(mode="json")
+    evidence["checks"].sort(key=lambda item: item["code"])
+    evidence_json = json.dumps(evidence, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    if len(evidence_json.encode("utf-8")) > 500_000:
+        raise HTTPException(status_code=413, detail="Check execution evidence is too large.")
+    sync = payload.model_dump(mode="json", exclude={"execution_token", "worker_id", "correlation_id"})
+    sync["check_execution_evidence"] = evidence
+    sync["enabled_modules"] = sorted(sync["enabled_modules"])
+    sync["issues"] = sorted(sync["issues"], key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
+    try:
+        sync_json = json.dumps(sync, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Scan sync contains non-finite values.") from None
+    return evidence_json, hashlib.sha256(evidence_json.encode()).hexdigest(), hashlib.sha256(sync_json.encode()).hexdigest()
 
 
 class ScanStartPayload(BaseModel):
@@ -395,6 +454,55 @@ def sync_scan(
 
         bc_company_id, lcy_code = _resolve_verified_scan_binding(payload, tenant, existing_scan)
 
+        # Partial observations are bound to an already leased scan. Never use
+        # this optional payload to retrofit historical completed scans.
+        evidence_values = None
+        existing_evidence = db.get(ScanExecutionEvidence, payload.scan_id)
+        if existing_evidence is not None or payload.check_execution_evidence is not None:
+            from app.services.scan_company_service import canonical_company_id
+            if payload.check_execution_evidence is None or not bc_company_id or not lcy_code:
+                raise HTTPException(status_code=409, detail="Scan execution evidence cannot be omitted or unbound.")
+            try:
+                if canonical_company_id(tenant.bc_company_id) != bc_company_id:
+                    raise ValueError("company mismatch")
+            except ValueError:
+                raise HTTPException(status_code=409, detail="Scan execution evidence requires the registered company.") from None
+            locked_run = db.scalar(select(ScanRunStatus).where(
+                ScanRunStatus.run_id == payload.scan_id, ScanRunStatus.tenant_id == tenant.tenant_id,
+            ).with_for_update())
+            if (locked_run is None or not normalize_execution_identity(payload.execution_token)
+                    or normalize_execution_identity(payload.execution_token) != normalize_execution_identity(locked_run.lease_token)):
+                raise HTTPException(status_code=409, detail="Scan execution evidence requires its original execution lease.")
+            evidence_values = _canonical_execution_evidence(payload)
+            if existing_evidence is not None:
+                if (existing_evidence.tenant_id != tenant.tenant_id or existing_evidence.company_id != bc_company_id
+                        or existing_evidence.payload_sha256 != evidence_values[1] or existing_evidence.sync_sha256 != evidence_values[2]):
+                    raise HTTPException(status_code=409, detail="Finalized scan execution evidence conflicts with this retry.")
+                original_request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == payload.scan_id))
+                if (locked_run.status not in {"completed", "completed_with_warnings"} or original_request is None
+                        or normalize_execution_identity(original_request.client_request_id) != normalize_execution_identity(payload.worker_id)):
+                    raise HTTPException(status_code=409, detail="Scan execution evidence retry does not match the original worker.")
+                stored_issues = db.scalars(select(ScanIssueRecord).where(
+                    ScanIssueRecord.scan_id == payload.scan_id,
+                ).order_by(ScanIssueRecord.id)).all()
+                return JSONResponse(content={
+                    "status": "ok", "scan_id": payload.scan_id, "tenant_id": payload.tenant_id,
+                    "scan_status": jsonable_encoder(serialize_scan_status(db, locked_run)),
+                    "commercials": normalize_stored_commercials(
+                        total_records=existing_scan.total_records,
+                        estimated_loss_eur=existing_scan.estimated_loss_eur,
+                        potential_saving_eur=existing_scan.potential_saving_eur,
+                        estimated_premium_price_monthly=existing_scan.estimated_premium_price_monthly,
+                    ),
+                    "issues": [{"finding_id": issue.finding_id, "code": issue.code,
+                                "category": issue.category, "title": issue.title, "severity": issue.severity,
+                                "affected_count": issue.affected_count, "premium_only": issue.premium_only,
+                                "recommendation_preview": issue.recommendation_preview,
+                                "estimated_impact_eur": issue.estimated_impact_eur} for issue in stored_issues],
+                })
+            elif locked_run.status in {"completed", "completed_with_warnings", "failed", "cancelled", "expired"}:
+                raise HTTPException(status_code=409, detail="Historical or finalized scans cannot acquire execution evidence.")
+
         normalized_scan_type = _normalize_scan_type(payload.scan_type)
         if existing_scan is None and normalized_scan_type in {"deep", "data_health_score"}:
             legacy_request_id = str(
@@ -606,6 +714,15 @@ def sync_scan(
         if settings.ACCESS_MODEL_V2_ENABLED:
             from app.services.assessment_scope_service import get_or_create_auto_scope
             get_or_create_auto_scope(db, scan, commit=False)
+
+        if evidence_values is not None and existing_evidence is None:
+            db.add(ScanExecutionEvidence(
+                scan_id=scan.scan_id, tenant_id=tenant.tenant_id, company_id=bc_company_id,
+                schema_version=payload.check_execution_evidence.schema_version,
+                payload_json=evidence_values[0], payload_sha256=evidence_values[1], sync_sha256=evidence_values[2],
+                created_at_utc=datetime.now(timezone.utc),
+            ))
+            db.flush()
 
         scan_status = serialize_scan_status(db, run)
         db.commit()

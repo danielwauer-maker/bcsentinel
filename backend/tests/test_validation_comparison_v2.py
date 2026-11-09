@@ -153,6 +153,8 @@ def test_validation_scan_issues_only_its_own_report_link(
         headers={"Authorization": "Bearer " + exchanged.json()["access_token"]},
     )
     assert report.status_code == 200 and report.json()["variant"] == "validation"
+    assert report.json()["report"]["comparison_evidence"]["reason_codes"] == ["MISSING_PROVENANCE"]
+    assert report.json()["report"]["comparison_evidence"]["comparable"] is False
 
 
 def test_unconfirmed_baseline_is_rejected_not_autoconfirmed(tenant_factory):

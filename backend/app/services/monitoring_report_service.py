@@ -476,6 +476,17 @@ def build_monitoring_report(
     current = scans[-1]
     previous = scans[-2] if len(scans) > 1 else current
     current_issues = list(issues_by_scan[current.scan_id].values())
+    comparison_evidence = None
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        from app.services.scan_comparability_service import compare_persisted_scans
+        comparison = compare_persisted_scans(db, tenant.tenant_id, previous.scan_id if len(scans) > 1 else None, current.scan_id)
+        comparison_evidence = {
+            "comparable": comparison.comparable,
+            "reason_codes": [reason.value for reason in comparison.reasons],
+            "comparable_checks": list(comparison.comparable_checks),
+            "health_score_comparable": comparison.health_score_comparable,
+            "impact_comparable": comparison.impact_comparable,
+        }
     previous_issues = list(issues_by_scan[previous.scan_id].values())
     baseline_issues = list(issues_by_scan[baseline.scan_id].values())
 
@@ -498,6 +509,7 @@ def build_monitoring_report(
     high = sum(1 for issue in current_issues if normalize_severity(issue.severity) == "high")
 
     return MonitoringReport(
+        comparison_evidence=comparison_evidence,
         tenant_id=tenant.tenant_id,
         company_name=tenant.tenant_id,
         environment_name=tenant.environment_name,

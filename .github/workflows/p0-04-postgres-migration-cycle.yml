@@ -8,6 +8,7 @@ on:
       - "backend/alembic.ini"
       - "backend/app/models.py"
       - "backend/scripts/verify_postgres_migration_cycle.py"
+      - "backend/scripts/verify_scan_evidence_immutability.py"
       - "backend/tests/test_p0_04_migration_cycle_contract.py"
       - ".github/workflows/p0-04-postgres-migration-cycle.yml"
       - "docs/P0_04_POSTGRES_MIGRATION_AUDIT.md"
@@ -64,6 +65,9 @@ jobs:
           python scripts/verify_postgres_migration_cycle.py \
             --json-out ../build/p0-04/migration-cycle.json \
             --markdown-out ../build/p0-04/migration-cycle.md
+      - name: Verify evidence binding and immutability
+        working-directory: backend
+        run: python scripts/verify_scan_evidence_immutability.py --database-url "$DATABASE_URL"
       - name: Prepare separate empty concurrency test database
         env:
           PGPASSWORD: bcsentinel_test_password
@@ -72,7 +76,7 @@ jobs:
         working-directory: backend
         env:
           BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_concurrency_test
-        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py
+        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py tests/test_partial_check_execution_sync.py
       - name: Publish summary
         if: always()
         run: |

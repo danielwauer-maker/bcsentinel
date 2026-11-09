@@ -312,9 +312,13 @@ table 53128 "DH Deep Scan Run"
     trigger OnDelete()
     var
         Finding: Record "DH Deep Scan Finding";
+        CheckExecution: Record "DH Check Execution";
     begin
         Finding.SetRange("Deep Scan Entry No.", "Entry No.");
         if not Finding.IsEmpty() then
             Finding.DeleteAll(true);
+        CheckExecution.SetRange("Run Entry No.", "Entry No.");
+        if not CheckExecution.IsEmpty() then
+            CheckExecution.DeleteAll(true);
     end;
 }

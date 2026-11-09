@@ -39,7 +39,8 @@ def _unique_constraint_names(table_name: str) -> set[str]:
 def test_gl02a_metadata_defaults_and_names_are_valid():
     # Integrated v6 report, auth and archive migrations expand the mapped schema.
     # Keep an explicit reviewed count; all table metadata is validated below.
-    assert len(Base.metadata.tables) == 50
+    assert len(Base.metadata.tables) == 51
+    assert "scan_execution_evidence" in Base.metadata.tables
     assert "public_contact_messages" in Base.metadata.tables
 
     names: set[tuple[str, str]] = set()

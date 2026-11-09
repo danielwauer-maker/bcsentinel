@@ -244,6 +244,20 @@ class Scan(Base):
     )
 
 
+class ScanExecutionEvidence(Base):
+    """Immutable source-attested partial observations, never inferred history."""
+    __tablename__ = "scan_execution_evidence"
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    sync_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class ScanIssueRecord(Base):
     __tablename__ = "scan_issues"
     __table_args__ = (
