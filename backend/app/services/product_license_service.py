@@ -519,6 +519,8 @@ def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_
     ))
     if purchase is None or purchase.status not in {"paid", "complete", "completed"}:
         raise ValueError("Verified paid purchase required.")
+    if str(purchase.currency or "").upper() != "EUR" or float(purchase.amount_total or 0) <= 0:
+        raise ValueError("V2 purchases require a positive verified EUR payment.")
     source_marker = f"purchase:{purchase.id}"
     prior = db.scalar(select(TenantProductEntitlement).where(
         TenantProductEntitlement.tenant_id == tenant_id,
