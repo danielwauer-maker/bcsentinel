@@ -210,6 +210,17 @@ def pricing_tier_for_record_count(record_count: int | None) -> str | None:
     if record_count is None:
         return None
     normalized_count = max(int(record_count or 0), 0)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Go-live data classes: <=250k / <=1m / <=5m / <=20m / Custom.
+        if normalized_count <= 250_000:
+            return "starter"
+        if normalized_count <= 1_000_000:
+            return "professional"
+        if normalized_count <= 5_000_000:
+            return "business"
+        if normalized_count <= 20_000_000:
+            return "enterprise"
+        return "custom"
     if normalized_count <= 100_000:
         return "starter"
     if normalized_count <= 250_000:
