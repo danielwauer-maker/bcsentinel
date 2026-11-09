@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from datetime import datetime, timezone
 
 import pytest
 from fastapi import HTTPException
 
 from app.core.settings import settings
 from app.db import SessionLocal
-from app.models import ProductPricingMatrixConfig
+from app.models import ProductPricingMatrixConfig, Scan, ScanRunStatus
 from app.routers.billing import _normalize_checkout_product_code, CheckoutSessionRequest
 from app.services.product_license_service import (
     PRODUCT_ACCESS_RENEWAL,
@@ -119,6 +120,18 @@ def test_v2_checkout_uses_its_own_stripe_price_and_product_metadata(
 ):
     tenant = tenant_factory(plan="free", license_status="trial")
     deep_scan_factory(tenant_id=tenant["tenant_id"], scan_id="v2-price-scan", total_records=8500)
+    with SessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        scan = db.query(Scan).filter_by(scan_id="v2-price-scan").one()
+        scan.bc_company_id = "11111111-2222-3333-4444-555555555555"
+        scan.lcy_code = "EUR"
+        db.add(ScanRunStatus(
+            tenant_id=tenant["tenant_id"], run_id=scan.scan_id,
+            scan_mode="deep", status="completed", created_at_utc=now,
+            updated_at_utc=now, completed_at_utc=now,
+            result_persisted_at_utc=now,
+        ))
+        db.commit()
     monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
     monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test")
     monkeypatch.setattr(settings, "APP_BASE_URL", "https://app.example.com")
@@ -240,3 +253,23 @@ def test_public_v2_pricing_shows_only_explicitly_activated_renewal_product(monke
         assert renewal[0]["price_cents"] == 7900
         assert PRODUCT_FULL_ASSESSMENT_V2 not in {item["product_key"] for item in summary}
         assert PRODUCT_ACCESS_RENEWAL_VALIDATION not in {item["product_key"] for item in summary}
+
+
+
+def test_verified_v2_record_count_ignores_pending_scan_and_uses_largest_persisted(tenant_factory, deep_scan_factory):
+    from app.services.product_license_service import verified_pricing_record_count
+    t = tenant_factory()
+    deep_scan_factory(tenant_id=t["tenant_id"], scan_id="pricing-complete", total_records=300_000)
+    deep_scan_factory(tenant_id=t["tenant_id"], scan_id="pricing-pending", total_records=10)
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        for scan in db.query(Scan).filter(Scan.tenant_id == t["tenant_id"]):
+            scan.bc_company_id = "11111111-2222-3333-4444-555555555555"
+        db.add(ScanRunStatus(
+            tenant_id=t["tenant_id"], run_id="pricing-complete", scan_mode="deep",
+            status="completed", created_at_utc=now, updated_at_utc=now,
+            completed_at_utc=now, result_persisted_at_utc=now,
+        ))
+        db.commit()
+        assert verified_pricing_record_count(db, t["tenant_id"]) == 300_000
+        assert verified_pricing_record_count(db, "unknown-tenant") is None
