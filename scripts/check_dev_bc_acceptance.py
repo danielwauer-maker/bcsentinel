@@ -20,6 +20,7 @@ import json
 import os
 import sys
 from urllib.error import HTTPError, URLError
+from uuid import UUID
 from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 
@@ -55,8 +56,15 @@ def evaluate(result: dict, expected_company_id: str | None) -> tuple[bool, list[
     # A missing field means the deployed backend is too old for this acceptance.
     if result.get("original_free_scan") is not True:
         blockers.append("Original completed and persisted Free scan is not verified.")
-    if not result.get("company_bound"):
-        blockers.append("Verified BC company is missing.")
+    actual_company_id = result.get("company_id")
+    try:
+        actual_company = UUID(str(actual_company_id))
+        if actual_company.int == 0:
+            raise ValueError("Zero company GUID")
+    except (ValueError, TypeError, AttributeError):
+        actual_company = None
+    if not result.get("company_bound") or actual_company is None:
+        blockers.append("Verified BC company GUID is missing or malformed.")
     if not result.get("eur_currency_verified"):
         blockers.append("Company EUR local currency is not verified.")
     if not result.get("premium_active"):
@@ -73,9 +81,15 @@ def evaluate(result: dict, expected_company_id: str | None) -> tuple[bool, list[
     elif set(missing) - {"confirmed_scope_missing"}:
         blockers.append("Backend reports additional prerequisite blockers: " + ", ".join(sorted(set(missing) - {"confirmed_scope_missing"})))
     if expected_company_id:
-        # This endpoint intentionally does not disclose company GUID; never
-        # claim a GUID match based only on company_bound=True.
-        blockers.append("Expected BC Company GUID cannot be matched by this read-only preflight; verify it in the authenticated BC report/link step.")
+        try:
+            expected = UUID(expected_company_id.strip().strip("{}"))
+            if expected.int == 0:
+                raise ValueError("Zero expected GUID")
+        except (ValueError, AttributeError, TypeError):
+            blockers.append("Expected BC Company GUID is malformed.")
+        else:
+            if actual_company is None or actual_company != expected:
+                blockers.append("BC Company GUID does not match the expected company.")
     return not blockers, blockers
 
 
@@ -103,6 +117,7 @@ def main() -> int:
     print("Confirmed scope version:", data.get("confirmed_scope_version") or "not confirmed")
     print("Original completed Free scan:", data.get("original_free_scan") is True)
     print("Company bound:", bool(data.get("company_bound")))
+    print("Company GUID:", data.get("company_id") or "unverified")
     print("EUR verified:", bool(data.get("eur_currency_verified")))
     print("Premium active:", bool(data.get("premium_active")))
     print("Missing evidence:", ", ".join(data.get("missing_prerequisites") or []) or "none")
