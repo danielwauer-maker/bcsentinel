@@ -195,3 +195,30 @@ def test_expired_v2_entitlement_does_not_resurrect_premium_features(tenant_facto
         features = resolve_product_features(db, tenant)
         assert "executive_report" not in features
         assert "analytics_single_scan" not in features
+
+
+
+def test_only_first_of_multiple_historical_free_scans_is_permanently_visible(
+    tenant_factory, scan_factory,
+):
+    tenant_id = tenant_factory()["tenant_id"]
+    first_id, later_id = "original-free-legacy", "later-free-legacy"
+    scan_factory(tenant_id=tenant_id, scan_id=first_id)
+    scan_factory(tenant_id=tenant_id, scan_id=later_id)
+    first_date = datetime(2026, 10, 1, tzinfo=timezone.utc)
+    with SessionLocal() as db:
+        for scan_id, date in ((first_id, first_date), (later_id, first_date + timedelta(days=2))):
+            db.add(ScanRunStatus(
+                run_id=scan_id, tenant_id=tenant_id, scan_mode="deep",
+                status="completed", created_at_utc=date, updated_at_utc=date,
+                completed_at_utc=date, result_persisted_at_utc=date,
+            ))
+            db.add(TenantScanCredit(
+                tenant_id=tenant_id, product_code="free_entry",
+                status="consumed", source="legacy",
+                consumed_scan_id=scan_id, created_at_utc=date,
+                consumed_at_utc=date,
+            ))
+        db.flush()
+        assert is_original_free_scan(db, tenant_id, first_id)
+        assert not is_original_free_scan(db, tenant_id, later_id)
