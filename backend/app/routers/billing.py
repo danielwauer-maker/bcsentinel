@@ -736,6 +736,10 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
             "cancel_url": cancel_url,
             "metadata": checkout_metadata,
         }
+        if settings.ACCESS_MODEL_V2_ENABLED and product_code in NEW_ACCESS_PRODUCTS:
+            # Only synchronous card payments until the async-payment
+            # settlement/refund lifecycle has its own approved webhook gate.
+            session_kwargs["payment_method_types"] = ["card"]
         if checkout_mode == "subscription":
             session_kwargs["subscription_data"] = {"metadata": checkout_metadata}
         session = stripe.checkout.Session.create(**session_kwargs)
