@@ -1063,10 +1063,19 @@ async def process_billing_webhook(
                     db, payment_intent_id=payment_intent, event_type=event_type,
                 )
                 if purchase is None:
-                    # Missing or unrelated purchase: do not mark this as
-                    # processed; Stripe may have sent refund before checkout.
-                    db.rollback()
-                    raise HTTPException(status_code=503, detail="Payment reversal pending purchase resolution.")
+                    # A legacy purchase is not governed by the v2 reversal
+                    # policy. A genuinely unknown payment may be an
+                    # out-of-order webhook: ask Stripe to retry it later.
+                    legacy = db.scalar(select(TenantProductPurchase.id).where(
+                        TenantProductPurchase.provider == "stripe",
+                        TenantProductPurchase.provider_payment_intent_id == payment_intent,
+                    ).limit(1))
+                    if legacy is None:
+                        db.rollback()
+                        raise HTTPException(status_code=503, detail="Payment reversal pending purchase resolution.")
+                    webhook_event.processed_at_utc = utc_now()
+                    db.commit()
+                    return BillingWebhookResponse(status="ignored", event_id=event_id, processed=False)
                 webhook_event.processed_at_utc = utc_now()
                 db.commit()
             return BillingWebhookResponse(status="ok", event_id=event_id, processed=True)
