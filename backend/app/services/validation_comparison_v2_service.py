@@ -12,7 +12,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.assessment_scope_models import AssessmentScopeSnapshot
-from app.models import Scan, Tenant
+from app.models import Scan, ScanRunStatus, Tenant
 from app.services.assessment_scope_service import (
     get_latest_confirmed_scope, get_latest_scope, included_module_codes,
 )
@@ -49,6 +49,15 @@ def _same_company_currency(scan: Scan, current: Scan) -> bool:
     )
 
 
+def _persisted_completed(db: Session, scan: Scan) -> bool:
+    return db.scalar(select(ScanRunStatus.id).where(
+        ScanRunStatus.run_id == scan.scan_id,
+        ScanRunStatus.tenant_id == scan.tenant_id,
+        ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+        ScanRunStatus.result_persisted_at_utc.is_not(None),
+    ).limit(1)) is not None
+
+
 def _earlier(scan: Scan, current: Scan) -> bool:
     return (
         scan.generated_at_utc < current.generated_at_utc
@@ -62,6 +71,8 @@ def choose_validation_references(
     if current.tenant_id != tenant.tenant_id:
         raise HTTPException(status_code=404, detail="Validation report not found.")
     _company(current)
+    if not _persisted_completed(db, current):
+        _unavailable("current scan not completed and persisted")
     if str(current.lcy_code or "").upper() != "EUR":
         _unavailable("verified EUR local currency missing")
     current_scope = get_latest_scope(db, current.scan_id)
@@ -87,6 +98,8 @@ def choose_validation_references(
     if not current_modules:
         _unavailable("current included modules missing")
     for candidate in prior:
+        if not _persisted_completed(db, candidate):
+            continue
         if not _earlier(candidate, current) or not _same_company_currency(candidate, current):
             continue
         scope = get_latest_scope(db, candidate.scan_id)
