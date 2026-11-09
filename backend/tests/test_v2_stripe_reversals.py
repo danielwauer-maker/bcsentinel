@@ -107,3 +107,34 @@ def test_unknown_reversal_retries_instead_of_misassigning_to_tenant(
         data={"id": "ch_unknown", "payment_intent": "pi_unknown"},
     )
     assert response.status_code == 503
+
+
+def test_legacy_refund_does_not_enter_v2_payment_hold_or_retry_forever(
+    client, tenant_factory, monkeypatch, settings_state,
+):
+    tenant_id = tenant_factory()["tenant_id"]
+    settings_state(STRIPE_SECRET_KEY="sk_test", STRIPE_WEBHOOK_SECRET="whsec_test")
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        record_product_purchase(
+            db, tenant_id=tenant_id, product_code="full_analysis",
+            provider="stripe", provider_checkout_session_id="cs_legacy_refund",
+            provider_payment_intent_id="pi_legacy_refund",
+            status="paid", currency="EUR", amount_total=249,
+        )
+        db.commit()
+    response = _signed(
+        client, monkeypatch, event_id="evt_legacy_refund",
+        event_type="charge.refunded",
+        data={"id": "ch_legacy_refund", "payment_intent": "pi_legacy_refund"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "ignored"
+    with SessionLocal() as db:
+        purchase = db.query(TenantProductPurchase).filter_by(
+            provider_payment_intent_id="pi_legacy_refund",
+        ).one()
+        assert purchase.status == "paid"
+        assert not build_product_access_snapshot(
+            db, db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        )["v2_payment_hold"]
