@@ -162,7 +162,7 @@ def get_scope_version(db: Session, scan_id: str, version: int) -> AssessmentScop
     )
 
 
-def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot:
+def get_or_create_auto_scope(db: Session, scan: Scan, *, commit: bool = True) -> AssessmentScopeSnapshot:
     existing = db.scalar(
         select(AssessmentScopeSnapshot)
         .where(AssessmentScopeSnapshot.scan_id == scan.scan_id, AssessmentScopeSnapshot.state == "auto")
@@ -223,8 +223,11 @@ def get_or_create_auto_scope(db: Session, scan: Scan) -> AssessmentScopeSnapshot
     snapshot.included_modules_count = sum(bool(row.included_in_score) for row in module_rows)
     snapshot.unknown_modules_count = sum(row.detection_status == "unknown" for row in module_rows)
     snapshot.score_value = fallback_score if legacy_mode else _weighted_score(module_rows, fallback_score)
-    db.commit()
-    db.refresh(snapshot)
+    if commit:
+        db.commit()
+        db.refresh(snapshot)
+    else:
+        db.flush()
     return snapshot
 
 
