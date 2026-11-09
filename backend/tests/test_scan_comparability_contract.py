@@ -16,12 +16,14 @@ NOW = datetime(2026, 11, 9, tzinfo=timezone.utc)
 
 def evidence(**overrides):
     value = ScanEvidence(
-        tenant_id="tenant-a", company_id=COMPANY, environment="sandbox", currency="EUR",
+        tenant_id="tenant-a", scan_id="scan-before", company_id=COMPANY, environment="sandbox", currency="EUR",
         methodology_version="method-v1", catalog_version="catalog-v1", catalog_fingerprint="a" * 64,
         modules=("sales", "finance"), expected_checks=("A", "B"),
         checks=(CheckEvidence("A", CheckStatus.PASS), CheckEvidence("B", CheckStatus.FINDINGS, True)),
         completed_at=NOW, result_persisted_at=NOW, scan_status="completed", source_verified=True,
     )
+    if "completed_at" in overrides and "scan_id" not in overrides:
+        overrides["scan_id"] = "scan-after"
     return replace(value, **overrides)
 
 
@@ -64,6 +66,7 @@ def test_complete_check_comparison_never_invents_score_or_impact_compatibility()
     ("modules", ("SALES",), Reason.SCOPE_MISMATCH),
     ("source_verified", False, Reason.MISSING_PROVENANCE),
     ("completed_at", NOW - timedelta(days=1), Reason.INVALID_SCAN_ORDER),
+    ("scan_id", "scan-before", Reason.SAME_SCAN),
     ("scan_status", "failed", Reason.INCOMPLETE_CHECK_COVERAGE),
     ("result_persisted_at", None, Reason.INCOMPLETE_CHECK_COVERAGE),
 ])
@@ -82,8 +85,16 @@ def test_partial_check_execution_never_proves_a_complete_comparison(status):
     assert result.comparable_checks == ("A",)
 
 
+def test_scope_mismatch_does_not_assume_check_scope_independence():
+    current = evidence(completed_at=NOW + timedelta(days=1), modules=("SALES",))
+    result = compare_scans(evidence(), current)
+    assert Reason.SCOPE_MISMATCH in result.reasons
+    assert result.comparable_checks == ()
+
+
 def test_missing_or_ambiguous_evidence_never_becomes_comparable():
     assert compare_scans(None, evidence()).reasons == (Reason.MISSING_PROVENANCE,)
+    assert compare_scans(evidence(), evidence(environment=None)).reasons == (Reason.MISSING_PROVENANCE,)
     duplicate = evidence(completed_at=NOW + timedelta(days=1), checks=(CheckEvidence("A", CheckStatus.PASS), CheckEvidence("a", CheckStatus.PASS)))
     assert Reason.MISSING_PROVENANCE in compare_scans(evidence(), duplicate).reasons
     unstable = evidence(completed_at=NOW + timedelta(days=1), checks=(CheckEvidence("A", CheckStatus.PASS), CheckEvidence("B", CheckStatus.FINDINGS)))

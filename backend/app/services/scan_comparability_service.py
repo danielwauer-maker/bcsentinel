@@ -37,6 +37,7 @@ class Reason(str, Enum):
     INCOMPLETE_CHECK_COVERAGE = "INCOMPLETE_CHECK_COVERAGE"
     UNSTABLE_FINDING_IDENTITY = "UNSTABLE_FINDING_IDENTITY"
     INVALID_SCAN_ORDER = "INVALID_SCAN_ORDER"
+    SAME_SCAN = "SAME_SCAN"
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,7 @@ class CheckEvidence:
 @dataclass(frozen=True)
 class ScanEvidence:
     tenant_id: str
+    scan_id: str
     company_id: str
     environment: str
     currency: str
@@ -124,10 +126,17 @@ def finding_comparison_identity(*, tenant_id: str, company_id: str, check_code: 
 def compare_scans(previous: ScanEvidence | None, current: ScanEvidence | None) -> ComparisonResult:
     reasons: set[Reason] = set()
     comparable_checks: set[str] = set()
-    if previous is None or current is None or not previous.source_verified or not current.source_verified:
+    if previous is None or current is None or previous.source_verified is not True or current.source_verified is not True:
+        return ComparisonResult(False, (Reason.MISSING_PROVENANCE,), (), False, False)
+    required_fields = ("tenant_id", "scan_id", "company_id", "environment", "currency", "methodology_version", "catalog_version", "catalog_fingerprint")
+    if any(not isinstance(getattr(scan, field, None), str) for scan in (previous, current) for field in required_fields):
         return ComparisonResult(False, (Reason.MISSING_PROVENANCE,), (), False, False)
     if not previous.tenant_id.strip() or previous.tenant_id != current.tenant_id:
         reasons.add(Reason.TENANT_MISMATCH)
+    if not previous.scan_id.strip() or not current.scan_id.strip():
+        reasons.add(Reason.MISSING_PROVENANCE)
+    elif previous.scan_id == current.scan_id:
+        reasons.add(Reason.SAME_SCAN)
     try:
         if canonical_company_id(previous.company_id) != canonical_company_id(current.company_id):
             reasons.add(Reason.COMPANY_MISMATCH)
@@ -178,7 +187,7 @@ def compare_scans(previous: ScanEvidence | None, current: ScanEvidence | None) -
             if a is None or b is None or a.status not in {CheckStatus.PASS, CheckStatus.FINDINGS} or b.status not in {CheckStatus.PASS, CheckStatus.FINDINGS}:
                 reasons.add(Reason.INCOMPLETE_CHECK_COVERAGE)
                 continue
-            if (a.status == CheckStatus.FINDINGS and not a.stable_finding_identities) or (b.status == CheckStatus.FINDINGS and not b.stable_finding_identities):
+            if (a.status == CheckStatus.FINDINGS and a.stable_finding_identities is not True) or (b.status == CheckStatus.FINDINGS and b.stable_finding_identities is not True):
                 reasons.add(Reason.UNSTABLE_FINDING_IDENTITY)
                 continue
             comparable_checks.add(code)
@@ -186,9 +195,9 @@ def compare_scans(previous: ScanEvidence | None, current: ScanEvidence | None) -
         reasons.add(Reason.MISSING_PROVENANCE)
     # Tenant/company/environment/methodology/catalog mismatches invalidate every
     # per-check comparison, even if an individual check name happens to match.
-    if not scan_complete or reasons & {Reason.TENANT_MISMATCH, Reason.COMPANY_MISMATCH, Reason.ENVIRONMENT_MISMATCH, Reason.CURRENCY_MISMATCH,
+    if not scan_complete or reasons & {Reason.TENANT_MISMATCH, Reason.COMPANY_MISMATCH, Reason.ENVIRONMENT_MISMATCH, Reason.CURRENCY_MISMATCH, Reason.SCOPE_MISMATCH,
                   Reason.METHODOLOGY_MISMATCH, Reason.CATALOG_MISMATCH, Reason.MISSING_PROVENANCE,
-                  Reason.INVALID_SCAN_ORDER}:
+                  Reason.INVALID_SCAN_ORDER, Reason.SAME_SCAN}:
         comparable_checks.clear()
     ok = not reasons
     # A catalog match alone does not prove score weights or impact model versions.
