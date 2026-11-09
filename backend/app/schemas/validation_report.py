@@ -50,6 +50,12 @@ class ValidationReport(BaseModel):
     language: str = "en"
     baseline_scan_id: str
     baseline_reference_source: str = "legacy_prior_assessment"
+    # V2: keep the permanent initial baseline separate from the previous
+    # comparable scan. In v2 baseline_scan_id is the *previous* comparator.
+    initial_baseline_scan_id: str | None = None
+    initial_baseline_score: int | None = Field(default=None, ge=0, le=100)
+    initial_baseline_score_delta: int | None = None
+    initial_baseline_scope_version: int | None = None
     validation_scan_id: str
     generated_at_utc: datetime
     baseline_generated_at_utc: datetime
