@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, Tenant
@@ -18,6 +18,8 @@ from app.schemas.monitoring_report import (
 from app.services.localization_service import tenant_language
 from app.services.product_license_service import build_product_access_snapshot
 from app.services.quick_finding_selection_service import normalize_severity
+from app.services.scan_company_service import canonical_company_id
+from app.core.settings import settings
 
 MAX_MONITORING_SCANS = 12
 SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -131,6 +133,14 @@ def _impact(issues: list[ScanIssueRecord]) -> float:
 
 def _load_scans(db: Session, tenant: Tenant, current_scan_id: str | None) -> list[Scan]:
     base_filters = [Scan.tenant_id == tenant.tenant_id, Scan.scan_type != "quick"]
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        try:
+            company_id = canonical_company_id(tenant.bc_company_id)
+        except ValueError:
+            raise HTTPException(status_code=409, detail="Monitoring requires a verified BC company.")
+        # Compare normalized UUIDs in SQL so filtering happens before LIMIT.
+        normalized_company = func.lower(func.replace(func.replace(func.replace(func.trim(Scan.bc_company_id), "{", ""), "}", ""), "-", ""))
+        base_filters.append(normalized_company == company_id.replace("-", ""))
     if current_scan_id:
         current = db.scalar(
             select(Scan).where(
@@ -140,6 +150,13 @@ def _load_scans(db: Session, tenant: Tenant, current_scan_id: str | None) -> lis
         )
         if current is None:
             raise HTTPException(status_code=404, detail="Monitoring report scan not found.")
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            try:
+                current_company = canonical_company_id(current.bc_company_id)
+            except ValueError:
+                raise HTTPException(status_code=409, detail="Monitoring scan requires a verified BC company.")
+            if current_company != company_id:
+                raise HTTPException(status_code=404, detail="Monitoring report scan not found.")
         if (current.scan_type or "").strip().lower() == "quick":
             raise HTTPException(status_code=409, detail="Monitoring reports use deep-scan history; Quick scans are excluded.")
         rows = db.scalars(
