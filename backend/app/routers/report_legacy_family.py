@@ -99,7 +99,7 @@ def _load_validation_report(scan_id: str, tenant_auth: tuple[str, str]) -> Valid
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         access = build_product_access_snapshot(db, tenant)
-        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["can_view_executive_report"]):
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=402, detail="Validation Report access requires an active Validation Check access window.")
         return build_validation_report(db, tenant, scan_id)
 
