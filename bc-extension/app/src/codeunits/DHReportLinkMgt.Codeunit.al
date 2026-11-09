@@ -125,6 +125,56 @@ codeunit 53303 "DH Report Link Mgt."
         OpenArchivedFullV6(ScanId);
     end;
 
+    procedure OpenReportVariantV2(ScanId: Code[50]; Variant: Text)
+    var
+        Setup: Record "DH Setup";
+        SecretMgt: Codeunit "DH Secret Mgt.";
+        ApiClient: Codeunit "DH API Client";
+        Client: HttpClient;
+        Headers: HttpHeaders;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        ResponseJson: JsonObject;
+        UrlToken: JsonToken;
+        ApiToken: Text;
+        ResponseText: Text;
+        Url: Text;
+    begin
+        if ScanId = '' then
+            Error('Select a completed BCSentinel scan.');
+        if (Variant <> 'validation') and (Variant <> 'monitoring') then
+            Error('Unsupported BCSentinel report type.');
+
+        LoadSetup(Setup);
+        ApiToken := SecretMgt.GetApiToken(Setup);
+        if (Setup."Tenant ID" = '') or (ApiToken = '') then
+            Error('BCSentinel tenant registration and token are required.');
+        Headers := Client.DefaultRequestHeaders();
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', ApiToken);
+
+        Content.WriteFrom('{}');
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+        Url := BuildUrl(Setup."API Base URL", '/reports/live/' + Variant + '/' + Format(ScanId) + '/link');
+        if not Client.Post(Url, Content, Response) then
+            Error('BCSentinel report link service is temporarily unavailable.');
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('BCSentinel report unavailable (HTTP %1). %2',
+                Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
+        if not ResponseJson.ReadFrom(ResponseText) then
+            Error('Invalid BCSentinel report link response.');
+        if not ResponseJson.Get('url', UrlToken) then
+            Error('BCSentinel report link missing.');
+        Url := UrlToken.AsValue().AsText();
+        if Url = '' then
+            Error('BCSentinel report link empty.');
+        Hyperlink(Url);
+    end;
+
     local procedure LoadSetup(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then begin
