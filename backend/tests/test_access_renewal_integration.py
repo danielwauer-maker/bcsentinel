@@ -103,3 +103,29 @@ def test_unpaid_purchase_cannot_grant_access(tenant_factory):
                 db, tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL,
                 purchase_id=purchase.id,
             )
+
+
+
+def test_late_validation_credit_consumption_never_extends_expired_v2_pass(tenant_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        purchase = _purchase(db, tenant_id, PRODUCT_ACCESS_RENEWAL_VALIDATION, "checkout-late-validation")
+        grant = grant_v2_access_purchase(
+            db, tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL_VALIDATION,
+            purchase_id=purchase.id,
+        )
+        now = datetime.now(timezone.utc)
+        expired = now - timedelta(days=1)
+        grant.valid_until_utc = expired
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        tenant.premium_until_utc = expired
+        credit = db.query(TenantScanCredit).filter_by(
+            tenant_id=tenant_id, source_purchase_id=purchase.id
+        ).one()
+        credit.status = "consumed"
+        credit.consumed_at_utc = now
+        db.flush()
+        access = build_product_access_snapshot(db, tenant)
+        assert not access["premium_active"]
+        assert not access["validation_access_active"]
+        db.commit()
