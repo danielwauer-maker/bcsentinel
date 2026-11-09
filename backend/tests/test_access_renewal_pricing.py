@@ -186,3 +186,16 @@ def test_legacy_tier_boundaries_are_unchanged(monkeypatch):
     assert pricing_tier_for_record_count(100_001) == "professional"
     assert pricing_tier_for_record_count(250_001) == "business"
     assert pricing_tier_for_record_count(500_001) == "enterprise"
+
+
+def test_large_custom_tenant_never_uses_legacy_monitoring_starter_price(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        price = resolve_checkout_matrix_price(
+            db, product_key="monitoring_monthly", record_count=20_000_001,
+            env_price_id="price_monitoring_starter",
+        )
+        assert price.pricing_tier == "custom"
+        assert price.contact_sales is True
+        assert price.stripe_price_id is None
+        assert price.is_active is False
