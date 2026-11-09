@@ -14,7 +14,7 @@ COMPANY_B = "99999999-2222-3333-4444-555555555555"
 
 
 def _scan(db, tenant_id: str, scan_id: str, time: datetime, company: str = COMPANY_A,
-          lcy: str = "EUR") -> Scan:
+          lcy: str = "EUR", *, completed: bool = True, mode: str = "deep") -> Scan:
     scan = Scan(
         tenant_id=tenant_id, scan_id=scan_id, scan_type="deep",
         generated_at_utc=time, data_score=60, checks_count=10, issues_count=0,
@@ -23,6 +23,13 @@ def _scan(db, tenant_id: str, scan_id: str, time: datetime, company: str = COMPA
     )
     db.add(scan)
     db.flush()
+    if completed:
+        db.add(ScanRunStatus(
+            run_id=scan_id, tenant_id=tenant_id, scan_mode=mode,
+            status="completed", created_at_utc=time, updated_at_utc=time,
+            completed_at_utc=time, result_persisted_at_utc=time,
+        ))
+        db.flush()
     return scan
 
 
@@ -149,13 +156,7 @@ def test_monitoring_scan_is_valid_validation_source_without_scan_credit(tenant_f
     now = datetime.now(timezone.utc)
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
-        scan = _scan(db, tenant_id, "monitoring-comparison-source", now)
-        db.add(ScanRunStatus(
-            run_id=scan.scan_id, tenant_id=tenant_id, scan_mode="monitoring",
-            status="completed", created_at_utc=now, updated_at_utc=now,
-            completed_at_utc=now, result_persisted_at_utc=now,
-        ))
-        db.flush()
+        scan = _scan(db, tenant_id, "monitoring-comparison-source", now, mode="monitoring")
         previous_flag = settings.ACCESS_MODEL_V2_ENABLED
         settings.ACCESS_MODEL_V2_ENABLED = True
         try:
@@ -174,8 +175,27 @@ def test_unfinished_monitoring_scan_cannot_be_a_validation_source(tenant_factory
     tenant_id = tenant_factory()["tenant_id"]
     with SessionLocal() as db:
         tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
-        scan = _scan(db, tenant_id, "monitoring-not-complete", datetime.now(timezone.utc))
+        scan = _scan(db, tenant_id, "monitoring-not-complete", datetime.now(timezone.utc), completed=False)
         with pytest.raises(HTTPException) as exc:
             _load_validation_scan(db, tenant, scan.scan_id)
         assert exc.value.status_code == 409
+        db.rollback()
+
+
+def test_unfinished_historical_scan_is_never_chosen_as_previous(tenant_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    start = datetime(2026, 11, 1, tzinfo=timezone.utc)
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        initial = _scan(db, tenant_id, "compare-finished-baseline", start)
+        _scope(db, initial, confirmed=True)
+        incomplete = _scan(
+            db, tenant_id, "compare-incomplete-history",
+            start + timedelta(days=1), completed=False,
+        )
+        _scope(db, incomplete)
+        current = _scan(db, tenant_id, "compare-current-finished", start + timedelta(days=2))
+        _scope(db, current)
+        result = choose_validation_references(db, tenant, current)
+        assert result.previous.scan_id == initial.scan_id
         db.rollback()
