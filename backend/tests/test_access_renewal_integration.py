@@ -222,3 +222,22 @@ def test_only_first_of_multiple_historical_free_scans_is_permanently_visible(
         db.flush()
         assert is_original_free_scan(db, tenant_id, first_id)
         assert not is_original_free_scan(db, tenant_id, later_id)
+
+
+
+@pytest.mark.parametrize("amount,currency", [(0.0, "EUR"), (99.0, "USD")])
+def test_v2_grants_reject_zero_or_wrong_currency_payment(tenant_factory, amount, currency):
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        purchase = _purchase(db, tenant_id, PRODUCT_ACCESS_RENEWAL, f"untrusted-payment-{amount}-{currency}")
+        purchase.amount_total = amount
+        purchase.currency = currency
+        db.flush()
+        with pytest.raises(ValueError, match="positive verified EUR payment"):
+            grant_v2_access_purchase(
+                db, tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL,
+                purchase_id=purchase.id,
+            )
+        assert db.query(TenantProductEntitlement).filter_by(
+            tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL,
+        ).count() == 0
