@@ -61,11 +61,20 @@ def test_probe_sends_tenant_credentials_in_headers_only(monkeypatch):
 
 
 def test_probe_requires_scope_and_active_premium():
-    ready = dict(preflight_only=True, scope_state="auto", company_bound=True,
-                 eur_currency_verified=True, premium_active=True)
-    assert probe.evaluate(ready, None)[0]
+    ready = dict(
+        preflight_only=True, original_free_scan=True,
+        scope_state="auto", company_bound=True,
+        company_id="11111111-2222-3333-4444-555555555555",
+        eur_currency_verified=True, premium_active=True,
+        missing_prerequisites=["confirmed_scope_missing"],
+    )
+    assert probe.evaluate(ready, "11111111-2222-3333-4444-555555555555")[0]
+    assert not probe.evaluate(ready, "aaaaaaaa-2222-3333-4444-555555555555")[0]
     ready["premium_active"] = False
     assert not probe.evaluate(ready, None)[0]
     ready["premium_active"] = True
     ready["scope_state"] = "missing"
+    assert not probe.evaluate(ready, None)[0]
+    ready["scope_state"] = "auto"
+    ready["original_free_scan"] = False
     assert not probe.evaluate(ready, None)[0]
