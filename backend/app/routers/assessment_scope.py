@@ -176,6 +176,16 @@ def confirm_assessment_scope(
         scan = _load_scan(db, scan_id, tenant.tenant_id)
         from app.core.settings import settings
         if settings.ACCESS_MODEL_V2_ENABLED:
+            # Serialize competing confirmations for this scan on PostgreSQL;
+            # otherwise concurrent requests could each create a new baseline.
+            scan = db.scalar(
+                select(Scan).where(
+                    Scan.tenant_id == tenant.tenant_id,
+                    Scan.scan_id == scan_id,
+                ).with_for_update()
+            )
+            if scan is None:
+                raise HTTPException(status_code=404, detail="Scan not found.")
             # The original completed Free scan is the Full Assessment baseline.
             # Validation/Monitoring scans must not be relabelled as baselines.
             from app.services.product_license_service import is_original_free_scan
