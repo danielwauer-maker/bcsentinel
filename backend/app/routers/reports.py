@@ -122,6 +122,8 @@ def _verify_share_token(token: str, *, scan_id: str, report_type: str) -> tuple[
 
 
 def _load_shared_report(scan_id: str, report_type: str, token: str) -> ExecutiveReport:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     tenant_id, _, company_id = _verify_share_token(token, scan_id=scan_id, report_type=report_type)
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -160,6 +162,8 @@ def create_executive_report_share_link(
     report_type: str | None = Query(default=None),
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     selected_type = (report_type or (payload.report_type if payload else "html") or "html").strip().lower()
     if selected_type not in {"html", "pdf"}:
         raise HTTPException(status_code=400, detail="report_type must be html or pdf.")

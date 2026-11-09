@@ -54,6 +54,14 @@ def test_v2_disables_replayable_legacy_monitoring_link(client, monkeypatch, tena
     assert client.get(path, params={"token": token}).status_code == 404
 
 
+def test_v2_disables_replayable_executive_share_flow(client, monkeypatch, tenant_factory, auth_header_factory):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    identity = tenant_factory(license_status="active")
+    path = "/reports/executive/s3a-executive"
+    assert client.post(path + "/share-link", headers=auth_header_factory(identity), json={"report_type": "pdf"}).status_code == 404
+    assert client.get(path + "/pdf/shared", params={"token": "test"}).status_code == 404
+
+
 @pytest.mark.parametrize("family", ["validation", "monitoring"])
 @pytest.mark.parametrize("format_name", ["html", "pdf"])
 def test_v2_legacy_comparison_export_fails_closed_without_provenance(
