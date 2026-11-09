@@ -11,6 +11,7 @@ from app.services.product_license_service import (
     PRODUCT_ACCESS_RENEWAL,
     PRODUCT_ACCESS_RENEWAL_VALIDATION,
     grant_v2_access_purchase,
+    hold_reversed_v2_purchase,
     record_product_purchase,
     build_product_access_snapshot,
     resolve_product_features,
@@ -244,3 +245,76 @@ def test_v2_grants_reject_zero_or_wrong_currency_payment(tenant_factory, amount,
         assert db.query(TenantProductEntitlement).filter_by(
             tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL,
         ).count() == 0
+
+
+def test_refund_revokes_paid_v2_pass_and_prevents_stale_expiry_resurrection(tenant_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        purchase = record_product_purchase(
+            db, tenant_id=tenant_id, product_code=PRODUCT_FULL_ASSESSMENT_V2,
+            provider="stripe", provider_checkout_session_id="cs_refund_1",
+            provider_payment_intent_id="pi_refund_1", status="paid",
+            currency="EUR", amount_total=249,
+        )
+        grant = grant_v2_access_purchase(db, tenant_id=tenant_id,
+            product_code=PRODUCT_FULL_ASSESSMENT_V2, purchase_id=purchase.id)
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        assert build_product_access_snapshot(db, tenant)["premium_active"]
+        reversed_purchase = hold_reversed_v2_purchase(
+            db, payment_intent_id="pi_refund_1", event_type="charge.refunded")
+        assert reversed_purchase.id == purchase.id
+        assert purchase.status == "refunded"
+        assert grant.status == "revoked"
+        assert not build_product_access_snapshot(db, tenant)["premium_active"]
+        assert build_product_access_snapshot(db, tenant)["v2_payment_hold"]
+        # Replay the earlier checkout event: must NOT restore rights.
+        replay = record_product_purchase(
+            db, tenant_id=tenant_id, product_code=PRODUCT_FULL_ASSESSMENT_V2,
+            provider="stripe", provider_checkout_session_id="cs_refund_1",
+            provider_payment_intent_id="pi_refund_1", status="paid",
+            currency="EUR", amount_total=249,
+        )
+        assert replay.status == "refunded"
+        assert not build_product_access_snapshot(db, tenant)["premium_active"]
+        with pytest.raises(ValueError, match="Verified paid purchase required"):
+            grant_v2_access_purchase(db, tenant_id=tenant_id,
+                product_code=PRODUCT_FULL_ASSESSMENT_V2, purchase_id=purchase.id)
+        db.rollback()
+
+
+def test_dispute_revokes_unused_validation_credit_without_deleting_scan_history(tenant_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        purchase = record_product_purchase(
+            db, tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL_VALIDATION,
+            provider="stripe", provider_checkout_session_id="cs_dispute_1",
+            provider_payment_intent_id="pi_dispute_1", status="paid",
+            currency="EUR", amount_total=129,
+        )
+        grant_v2_access_purchase(db, tenant_id=tenant_id,
+            product_code=PRODUCT_ACCESS_RENEWAL_VALIDATION, purchase_id=purchase.id)
+        credit = db.query(TenantScanCredit).filter_by(source_purchase_id=purchase.id).one()
+        assert credit.status == "available"
+        hold_reversed_v2_purchase(db, payment_intent_id="pi_dispute_1", event_type="charge.dispute.created")
+        assert credit.status == "revoked"
+        assert purchase.status == "disputed"
+        assert not build_product_access_snapshot(db, db.query(Tenant).filter_by(tenant_id=tenant_id).one())["premium_active"]
+        assert hold_reversed_v2_purchase(db, payment_intent_id="pi_dispute_1", event_type="charge.dispute.created").id == purchase.id
+        db.rollback()
+
+
+def test_reversal_fails_closed_on_unknown_stripe_payment_without_mutating_other_tenant(tenant_factory):
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        purchase = record_product_purchase(
+            db, tenant_id=tenant_id, product_code=PRODUCT_FULL_ASSESSMENT_V2,
+            provider="stripe", provider_checkout_session_id="cs_safe_1",
+            provider_payment_intent_id="pi_safe_1", status="paid",
+            currency="EUR", amount_total=249,
+        )
+        grant_v2_access_purchase(db, tenant_id=tenant_id,
+            product_code=PRODUCT_FULL_ASSESSMENT_V2, purchase_id=purchase.id)
+        assert hold_reversed_v2_purchase(db, payment_intent_id="pi_other_tenant", event_type="charge.refunded") is None
+        assert purchase.status == "paid"
+        assert build_product_access_snapshot(db, db.query(Tenant).filter_by(tenant_id=tenant_id).one())["premium_active"]
+        db.rollback()
