@@ -555,6 +555,46 @@ def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_
     return entitlement
 
 
+def hold_reversed_v2_purchase(db, *, payment_intent_id: str, event_type: str) -> TenantProductPurchase | None:
+    """Revoke v2 access at the payment-intent level; caller commits atomically.
+
+    Returns None for unrelated/unknown payments. A historical consumed scan
+    remains audit evidence, but unused Validation credits are revoked.
+    """
+    if event_type not in {"charge.refunded", "charge.dispute.created"}:
+        raise ValueError("Unsupported payment reversal event.")
+    if not payment_intent_id.strip():
+        raise ValueError("Verified payment intent required.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.provider == "stripe",
+        TenantProductPurchase.provider_payment_intent_id == payment_intent_id.strip(),
+        TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+    ).with_for_update())
+    if purchase is None:
+        return None
+    status = "disputed" if event_type == "charge.dispute.created" else "refunded"
+    # A later out-of-order refund may close a dispute, never restore access.
+    if purchase.status not in {"refunded", "chargeback"}:
+        purchase.status = status
+        purchase.updated_at_utc = utc_now()
+    marker = f"purchase:{purchase.id}"
+    for entitlement in db.scalars(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == purchase.tenant_id,
+        TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+        TenantProductEntitlement.source == marker,
+    )).all():
+        entitlement.status = "revoked"
+        entitlement.updated_at_utc = utc_now()
+    for credit in db.scalars(select(TenantScanCredit).where(
+        TenantScanCredit.tenant_id == purchase.tenant_id,
+        TenantScanCredit.source_purchase_id == purchase.id,
+        TenantScanCredit.status == "available",
+    )).all():
+        credit.status = "revoked"
+    db.flush()
+    return purchase
+
+
 def _parse_iso_utc(value: str | None) -> datetime | None:
     if not value:
         return None
