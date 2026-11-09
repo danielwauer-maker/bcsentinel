@@ -704,14 +704,26 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
 def resolve_product_features(db, tenant: Tenant) -> set[str]:
     features = set(BASE_FEATURES)
     access = build_product_access_snapshot(db, tenant)
-    if access["can_run_deep_scan"] or access["premium_active"]:
-        features.update(PAID_SCAN_FEATURES)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # A scan credit is permission to RUN one scan, not to VIEW premium
+        # findings or to manufacture a Full-Assessment baseline.
+        if access["can_run_deep_scan"] or access["can_run_data_health_score"]:
+            features.add("deep_scan")
+        if access["premium_active"]:
+            features.update(PAID_SCAN_FEATURES)
+        if access["monitoring_active"]:
+            features.update(MONITORING_FEATURES)
+        # Do not read historical entitlements here: an expired or revoked
+        # grant must never resurrect executive_report or recommendations.
+    else:
+        if access["can_run_deep_scan"] or access["premium_active"]:
+            features.update(PAID_SCAN_FEATURES)
 
-    product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))
-    if product_codes.intersection(MONITORING_PRODUCTS) or access["monitoring_active"]:
-        features.update(MONITORING_FEATURES)
-    elif product_codes.intersection(ONE_TIME_PRODUCTS):
-        features.update(PAID_SCAN_FEATURES)
+        product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))
+        if product_codes.intersection(MONITORING_PRODUCTS) or access["monitoring_active"]:
+            features.update(MONITORING_FEATURES)
+        elif product_codes.intersection(ONE_TIME_PRODUCTS):
+            features.update(PAID_SCAN_FEATURES)
 
     has_provider_subscription = (
         db.scalar(
