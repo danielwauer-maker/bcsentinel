@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
+from app.core.settings import settings
 from app.models import Scan, ScanIssueRecord, Tenant, TenantScanCredit
 from app.operator_models import TenantOperatorAction
 from app.schemas.validation_report import (
@@ -484,12 +485,22 @@ def _management_interpretation(
 def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str) -> ValidationReport:
     language = tenant_language(tenant)
     validation_scan, validation_credit = _load_validation_scan(db, tenant, validation_scan_id)
-    baseline_scan, baseline_reference_source = _load_baseline_scan(
-        db,
-        tenant,
-        validation_scan,
-        validation_credit,
-    )
+    initial_baseline_scan = None
+    initial_baseline_scope_version = None
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        from app.services.validation_comparison_v2_service import choose_validation_references
+        references = choose_validation_references(db, tenant, validation_scan)
+        baseline_scan = references.previous
+        initial_baseline_scan = references.initial
+        initial_baseline_scope_version = references.scope_version
+        baseline_reference_source = "last_comparable_scan"
+    else:
+        baseline_scan, baseline_reference_source = _load_baseline_scan(
+            db,
+            tenant,
+            validation_scan,
+            validation_credit,
+        )
 
     before_map = _issue_map(db, baseline_scan.scan_id)
     after_map = _issue_map(db, validation_scan.scan_id)
@@ -534,7 +545,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
 
     if language == "de":
         executive_summary = (
-            f"Die Validierung vergleicht den neuen Deep Scan {validation_scan.scan_id} mit der Full-Assessment-Baseline "
+            f"Die Validierung vergleicht den neuen Deep Scan {validation_scan.scan_id} mit der Referenz "
             f"{baseline_scan.scan_id}. Der Data Health Score verändert sich um {score_delta:+d} Punkte auf "
             f"{validation_score}/100. {len(buckets['resolved'])} Findings wurden behoben, "
             f"{len(buckets['improved'])} verbessert und {len(buckets['new'])} neu erkannt."
@@ -546,7 +557,7 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         ]
     else:
         executive_summary = (
-            f"This Validation compares the new Deep Scan {validation_scan.scan_id} with Full Assessment baseline "
+            f"This Validation compares the new Deep Scan {validation_scan.scan_id} with reference "
             f"{baseline_scan.scan_id}. The Data Health Score changed by {score_delta:+d} points to "
             f"{validation_score}/100. {len(buckets['resolved'])} findings were resolved, "
             f"{len(buckets['improved'])} improved, and {len(buckets['new'])} new findings were detected."
@@ -563,6 +574,10 @@ def build_validation_report(db: Session, tenant: Tenant, validation_scan_id: str
         language=language,
         baseline_scan_id=baseline_scan.scan_id,
         baseline_reference_source=baseline_reference_source,
+        initial_baseline_scan_id=initial_baseline_scan.scan_id if initial_baseline_scan else None,
+        initial_baseline_score=_bounded_score(initial_baseline_scan.data_score) if initial_baseline_scan else None,
+        initial_baseline_score_delta=(validation_score - _bounded_score(initial_baseline_scan.data_score)) if initial_baseline_scan else None,
+        initial_baseline_scope_version=initial_baseline_scope_version,
         validation_scan_id=validation_scan.scan_id,
         generated_at_utc=datetime.now(timezone.utc),
         baseline_generated_at_utc=baseline_scan.generated_at_utc,
