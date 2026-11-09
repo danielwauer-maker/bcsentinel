@@ -289,3 +289,27 @@ def test_public_v2_unpurchasable_product_requires_stripe_price_id(monkeypatch):
         db.commit()
         summary = build_public_pricing_summary(db)
         assert PRODUCT_FULL_ASSESSMENT_V2 not in {item["product_key"] for item in summary}
+
+
+
+def test_legacy_monitoring_price_never_advertised_in_v2(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        public = build_public_pricing_summary(db)
+        matrix = build_public_pricing_matrix(db)
+        assert not any(item["product_key"] in {"monitoring", "monitoring_monthly", "monitoring_annual"} for item in public)
+        assert not any(item["product_key"] in {"monitoring_monthly", "monitoring_annual"} for item in matrix)
+
+
+def test_old_monitoring_checkout_is_not_sold_under_v2_tier_limits(monkeypatch, tenant_factory):
+    from app.routers.billing import _ensure_checkout_product_allowed
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        from app.models import Tenant
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        for product in ("monitoring_monthly", "monitoring_annual"):
+            with pytest.raises(HTTPException) as exc:
+                _ensure_checkout_product_allowed(db, tenant, product)
+            assert exc.value.status_code == 409
+            assert "pricing" in exc.value.detail
