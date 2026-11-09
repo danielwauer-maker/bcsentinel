@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import ProductPricingMatrixConfig, Scan, ScanRunStatus
-from app.routers.billing import _normalize_checkout_product_code, CheckoutSessionRequest
+from app.routers.billing import _normalize_checkout_product_code, _allowed_checkout_product_codes, CheckoutSessionRequest
 from app.services.product_license_service import (
     PRODUCT_ACCESS_RENEWAL,
     PRODUCT_ACCESS_RENEWAL_VALIDATION,
@@ -329,3 +329,54 @@ def test_v2_checkout_not_released_even_if_access_model_flag_enabled(
     )
     assert response.status_code == 503
     assert "not released" in response.text.lower()
+
+
+@pytest.mark.parametrize("prior_product,can_renew", [
+    ("validation_check", False),
+    (PRODUCT_ACCESS_RENEWAL_VALIDATION, False),
+    ("full_analysis", True),
+    (PRODUCT_FULL_ASSESSMENT_V2, True),
+])
+def test_v2_renewal_needs_prior_paid_full_not_just_validation(
+    monkeypatch, tenant_factory, prior_product, can_renew,
+):
+    from app.models import Tenant
+    from app.services.product_license_service import record_product_purchase
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant_id = tenant_factory()["tenant_id"]
+    monkeypatch.setattr(
+        "app.routers.billing.build_product_access_snapshot",
+        lambda db, tenant: {
+            "monitoring_active": False, "v2_payment_hold": False,
+            "has_completed_data_health_score": True,
+            "premium_active": True,
+        },
+    )
+    with SessionLocal() as db:
+        record_product_purchase(
+            db, tenant_id=tenant_id, product_code=prior_product,
+            provider="test", provider_checkout_session_id=f"eligibility-{prior_product}",
+            provider_payment_intent_id=None, status="paid",
+            currency="EUR", amount_total=99,
+        )
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        allowed = _allowed_checkout_product_codes(db, tenant)
+        assert (PRODUCT_ACCESS_RENEWAL in allowed) is can_renew
+        assert (PRODUCT_FULL_ASSESSMENT_V2 in allowed) is (not can_renew)
+        db.rollback()
+
+
+def test_reversed_purchase_stops_all_new_v2_checkout_until_review(monkeypatch, tenant_factory):
+    from app.models import Tenant
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant_id = tenant_factory()["tenant_id"]
+    monkeypatch.setattr(
+        "app.routers.billing.build_product_access_snapshot",
+        lambda db, tenant: {
+            "monitoring_active": False, "v2_payment_hold": True,
+            "has_completed_data_health_score": True,
+        },
+    )
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        assert _allowed_checkout_product_codes(db, tenant) == set()
