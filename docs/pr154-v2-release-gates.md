@@ -24,10 +24,10 @@
 | G1 backend regression | All new + legacy tests green on PR head | Check GitHub Actions on current HEAD |
 | G2 BC AL build | AL build green, install+upgrade dry-run on existing DEV tenant | AL build run; installation still unverified |
 | G3 prices & checkout | Approved amounts for every v2 SKU and data class, correctly mapped Stripe Price IDs; finance/currency checked | **BLOCKED: final prices not approved** |
-| G4 webhook lifecycle | Paid, failed, replay, refund, dispute, chargeback, concurrency, out-of-order and delayed webhook events; no overgrant | **BLOCKED: refund/dispute reversal not implemented for v2** |
+| G4 webhook lifecycle | Paid, failed, replay, refund, dispute, chargeback, concurrency, out-of-order and delayed webhook events; no overgrant | Core refund/dispute revocation, unknown reversal retry and idempotency implemented; full real Stripe payment E2E pending |
 | G5 Free→Full real scan | Real Free scan has company GUID, EUR LCY, completed+persisted status; scope auto-created, explicit user confirmation and Full v6 report opens | **BLOCKED: end-to-end DEV real evidence not yet verified** |
 | G6 Validation history | Verified comparable initial and previous scan, immutable baseline, failed/incomplete/mixed-currency excluded, Monitoring trend | Unit regression exists; real DEV acceptance missing |
-| G7 browser live renderer | /report/live deployed, live flag and API URL intentionally configured, Full v6 renders; Validation & Monitoring live adapters use only verified source data | **BLOCKED: Validation/Monitoring render_vm not available; Lovable workspace out of credits** |
+| G7 browser live renderer | /report/live deployed, live flag and API URL intentionally configured, Full v6 renders; Validation & Monitoring live adapters use only verified source data | Validation/Monitoring factual limited-evidence browser views now exist and passed project tests; DEV deployment and real BC-token/API E2E still unverified |
 | G8 data isolation | Two tenants, two BC companies, cross-user attempts, guessed links, expired links, non-SUPER permissions, token expiry, browser caching | Unit coverage partial; full DEV acceptance missing |
 | G9 deployment | Database backup, migration dry-run, extension upgrade compatibility and rollback plan, DEV approval, then PROD promotion | Not started |
 
@@ -36,7 +36,7 @@
 1. Keep `ACCESS_MODEL_V2_ENABLED=False` and `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` until the designated DEV cutover. The latter stays disabled even during initial v2 DEV access testing; it must be enabled only after Stripe price, refund, dispute and concurrency acceptance. Verify last deployed DEV backend and original BC extension remain healthy.
 2. Backup DEV DB. Check existing original Free scan `Scan`, `ScanStartRequest`/`TenantScanCredit`, `ScanRunStatus`, company GUID and LCY.
 3. After approved DEV branch deployment, explicitly enable v2 on DEV only; never flip PROD by copying DEV env.
-4. Retrieve `GET /scans/{scan_id}/report-preflight` with authorized tenant headers. It MUST NOT write scope or grant any access.
+4. Retrieve `GET /scans/{scan_id}/report-preflight` with authorized tenant headers. It MUST NOT write scope or grant any access. Optional read-only helper: `BCSENTINEL_API_TOKEN=... python scripts/check_dev_bc_acceptance.py --base-url https://dev-api.bcsentinel.com --tenant-id YOUR_TENANT --scan-id YOUR_FREE_SCAN`. It returns exit 0 only if core report prerequisites are present, exit 2 for blockers, exit 3 for network/auth failures; it does not disclose tokens.
 5. Open BC Deep Scan Monitor > **Review Scope / Full Assessment** on the original Free scan with a verified test Full Access entitlement. Inspect actual detected modules; explicitly confirm.
 6. Confirm scope version remains immutable across repeated requests and that paid report can be opened with a single-use code. Check `GET /account/reports/full/{scan_id}?company_id=...` with report-scoped bearer. Verify no raw BC API token in browser, URL or PDF.
 7. Expire Premium and verify Full link issuance/exchange, report reader, history and exports fail closed. Reactivate via renewal with no additional scan.
@@ -47,7 +47,12 @@
 
 Lovable project ID: `2efa722e-a036-4e3e-a695-6cda46f88541`. The route `src/routes/report.live.tsx` already exists in project source, but live rendering is gated by build-time `VITE_BCSENTINEL_LIVE_REPORTS` and `VITE_BCSENTINEL_REPORT_API_BASE_URL`. Do **not** enable until verified backend and frontend are deployed.
 
-The current frontend `src/report-system/live/bridge.ts` intentionally blocks raw Validation and Monitoring because `render_vm` is null and baseline/methodology evidence is insufficient. **Do not infer values from fixtures or bypass validation to force a green screen.** As of Nov 9, 2026, the Lovable workspace has no remaining credits; the requested frontend changes could not be made.
+Lovable now implements evidence-limited read-only Validation and Monitoring screens from strictly validated raw backend fields. These **do not** claim confirmed comparability, missing baseline metrics or financial improvement. The frozen full ValidationGoldenVM / MonitoringVM remains dependent on stronger signed evidence. Lovable project validation on Nov 9: **345 frontend tests passed, typecheck clean**, without a production deployment. For ongoing credit-free editing, connect Lovable Settings → Git to the owner's GitHub account; Lovable creates a *new private repository* (suggest `bcsentinel-report-viewer`) and cannot automatically push into the backend repository. Optionally add that repository as a Git submodule under `report-viewer/`. The first GitHub authorization requires the user's account action; it cannot be silently granted from this PR.
+
+
+## Checkout safety at DEV acceptance
+
+Both `ACCESS_MODEL_V2_ENABLED` and `ACCESS_V2_PAID_CHECKOUT_ENABLED` default to `False`. For the first BC Full report acceptance test, **only** `ACCESS_MODEL_V2_ENABLED=True` may be enabled on backed-up DEV after updating its backend and verifying non-SUPER access; keep `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` throughout. All active Full rights for the acceptance scan must come from an explicitly documented **test/operator entitlement** or pre-existing paid grants, not an actual Stripe charge. V2 Stripe checkout uses card-only methods until async settlement is separately supported and verified. Real refunds/chargebacks must be tested against Stripe test mode before changing the paid-checkout switch.
 
 ## Commercial/Stripe signoff
 
