@@ -23,8 +23,10 @@ payment and tenant mapping before submitting the amount actually paid in EUR.
   `order_reference`, `order_position` and `amount_eur`. Supported products are
   `full_assessment_v2`, `access_renewal`, and
   `access_renewal_validation`. A completed original Free scan bound to the
-  registered company, EUR and a confirmed scope is mandatory. Renewal products
-  additionally require a paid Full v2 purchase for the tenant.
+  registered company, EUR and a persisted eligible scope is mandatory. Full can
+  be granted with an automatic scope so the customer can then confirm it.
+  Renewal products require a confirmed scope and a paid Full v2 purchase.
+  The report still requires an explicitly confirmed scope.
 - `POST /admin/operator/{tenant_id}/v2/monitoring` accepts the same order and
   payment fields, a monthly or annual monitoring SKU, and timezone-aware
   `period_start` and `period_end`. Each confirmed paid period has its own order

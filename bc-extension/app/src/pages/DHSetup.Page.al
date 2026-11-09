@@ -954,6 +954,7 @@
                 action(OpenDashboard)
                 {
                     Caption = 'Open Analytics Dashboard';
+                    Visible = false;
                     ApplicationArea = All;
                     Image = View;
                     ToolTip = 'Opens the BCSentinel analytics dashboard for this tenant.';

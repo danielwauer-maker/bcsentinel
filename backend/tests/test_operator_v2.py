@@ -42,6 +42,31 @@ def grant(db, tenant, product, position):
                            order_position=position, amount=249.0, actor="operator")
 
 
+def test_free_to_full_grant_allows_subsequent_scope_confirmation(client, v2_tenant):
+    from app.services.assessment_scope_service import get_or_create_auto_scope
+
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == v2_tenant))
+        headers = {"X-Tenant-Id": v2_tenant, "X-Api-Token": tenant.api_token}
+        old_scope = db.scalar(select(AssessmentScopeSnapshot).where(AssessmentScopeSnapshot.scan_id == "operator-v2-free"))
+        db.delete(old_scope)
+        db.flush()
+        scan = db.scalar(select(Scan).where(Scan.scan_id == "operator-v2-free"))
+        scope = get_or_create_auto_scope(db, scan)
+        assert scope.state == "auto"
+        assert scope.included_modules_count > 0
+        db.commit()
+    url = "/scans/operator-v2-free/assessment-scope/confirm"
+    assert client.post(url, headers=headers, json={"decisions": {}}).status_code == 403
+    with SessionLocal() as db:
+        action = grant(db, v2_tenant, "full_assessment_v2", "1")
+        assert action.credit_id is None
+        db.commit()
+    response = client.post(url, headers=headers, json={"decisions": {}})
+    assert response.status_code == 200, response.text
+    assert response.json()["state"] == "confirmed"
+
+
 def test_full_renewal_validation_idempotency_and_order_refund(v2_tenant):
     with SessionLocal() as db:
         before = datetime.now(timezone.utc)

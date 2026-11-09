@@ -10,7 +10,7 @@ APP_MANIFEST = ROOT / "bc-extension" / "app.json"
 CLOUD_MANIFEST = ROOT / "bc-extension" / "app.cloud.json"
 RELEASE_MANIFEST = ROOT / "quality" / "release" / "ext-50-01-release-baseline.json"
 
-REQUIRED_VERSION = "1.0.2.55"
+REQUIRED_VERSION = "1.0.2.56"
 HISTORICAL_RELEASE_VERSION = "1.0.2.20"
 REQUIRED_PLATFORM = "27.0.0.0"
 REQUIRED_RUNTIME = "16.0"
@@ -48,6 +48,13 @@ def test_current_extension_target_is_bc27_and_has_the_required_version():
     assert app["platform"] == REQUIRED_PLATFORM
     assert app["application"] == REQUIRED_PLATFORM
     assert app["runtime"] == REQUIRED_RUNTIME
+
+
+def test_setup_does_not_offer_the_legacy_analytics_dashboard():
+    setup = (ROOT / "bc-extension/app/src/pages/DHSetup.Page.al").read_text(encoding="utf-8-sig")
+    action = setup.split("action(OpenDashboard)", 1)[1].split("action(StartMonitoringScan)", 1)[0]
+    assert "Visible = false;" in action
+    assert 'Page.Run(Page::"DH Deep Scan Runs")' in setup
 
 
 def test_release_manifest_matches_al_manifest_and_final_artifact():

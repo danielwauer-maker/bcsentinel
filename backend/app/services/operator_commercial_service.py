@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import hashlib
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 
 from app.lifecycle_models import LifecycleEmailOutbox
 from app.models import Scan, Subscription, Tenant, TenantProductEntitlement, TenantProductPurchase, TenantScanCredit
@@ -100,18 +100,27 @@ def grant_fiverr_v2(db, *, tenant_id: str, product_code: str, order_reference: s
             company_matches = canonical_company_id(scan.bc_company_id) == canonical_company_id(tenant.bc_company_id)
         except ValueError:
             company_matches = False
-        scope = db.scalar(select(AssessmentScopeSnapshot).where(
+        scope_query = select(AssessmentScopeSnapshot).where(
             AssessmentScopeSnapshot.scan_id == scan.scan_id,
             AssessmentScopeSnapshot.tenant_id == tenant_id,
-            AssessmentScopeSnapshot.state == "confirmed",
-            AssessmentScopeSnapshot.confirmed_at_utc.is_not(None),
             AssessmentScopeSnapshot.included_modules_count > 0,
-        ).order_by(AssessmentScopeSnapshot.version.desc()))
+        )
+        if product_code == PRODUCT_FULL_ASSESSMENT_V2:
+            scope_query = scope_query.where(or_(
+                AssessmentScopeSnapshot.state == "auto",
+                and_(AssessmentScopeSnapshot.state == "confirmed", AssessmentScopeSnapshot.confirmed_at_utc.is_not(None)),
+            ))
+        else:
+            scope_query = scope_query.where(
+                AssessmentScopeSnapshot.state == "confirmed",
+                AssessmentScopeSnapshot.confirmed_at_utc.is_not(None),
+            )
+        scope = db.scalar(scope_query.order_by(AssessmentScopeSnapshot.version.desc()))
         if company_matches and str(scan.lcy_code or "").upper() == "EUR" and scope is not None:
             baseline = scan
             break
     if baseline is None:
-        raise ValueError("A verified original Free scan with confirmed company, EUR and scope is required.")
+        raise ValueError("A verified original Free scan with company, EUR and eligible scope is required.")
     if product_code != PRODUCT_FULL_ASSESSMENT_V2:
         full = db.scalar(select(TenantProductPurchase.id).where(
             TenantProductPurchase.tenant_id == tenant_id,
