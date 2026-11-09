@@ -169,5 +169,31 @@ def confirm_assessment_scope(
         if not _has_full_assessment(db, tenant):
             raise HTTPException(status_code=403, detail="Scope confirmation requires an active Full Assessment.")
         scan = _load_scan(db, scan_id, tenant.tenant_id)
+        from app.core.settings import settings
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            # The original completed Free scan is the Full Assessment baseline.
+            # Validation/Monitoring scans must not be relabelled as baselines.
+            from app.services.product_license_service import is_original_free_scan
+            from app.services.assessment_scope_service import get_latest_confirmed_scope
+            if not is_original_free_scan(db, tenant.tenant_id, scan.scan_id):
+                raise HTTPException(
+                    status_code=409,
+                    detail="Only the original completed Free scan can establish the Full baseline.",
+                )
+            if not scan.bc_company_id or str(scan.lcy_code or "").upper() != "EUR":
+                raise HTTPException(
+                    status_code=409,
+                    detail="Full baseline requires verified BC company and EUR local currency.",
+                )
+            confirmed = get_latest_confirmed_scope(db, scan.scan_id)
+            if confirmed is not None:
+                # Do not allow later re-confirmations to rewrite the original
+                # historical baseline used by Validation comparisons.
+                if payload.decisions:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Full Assessment baseline is already confirmed and immutable.",
+                    )
+                return serialize_scope(confirmed, include_modules=True)
         scope = confirm_scope(db, scan, payload.decisions)
         return serialize_scope(scope, include_modules=True)
