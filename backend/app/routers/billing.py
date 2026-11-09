@@ -276,10 +276,11 @@ def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
     product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
     # Existing customer frontends may still submit the previous checkout codes.
     # Map only NEW checkouts; never reinterpret historical paid purchases.
-    if product_code == PRODUCT_FULL_ANALYSIS:
-        product_code = PRODUCT_FULL_ASSESSMENT_V2
-    elif product_code == PRODUCT_VALIDATION_CHECK:
-        product_code = PRODUCT_ACCESS_RENEWAL_VALIDATION
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        if product_code == PRODUCT_FULL_ANALYSIS:
+            product_code = PRODUCT_FULL_ASSESSMENT_V2
+        elif product_code == PRODUCT_VALIDATION_CHECK:
+            product_code = PRODUCT_ACCESS_RENEWAL_VALIDATION
     if product_code not in {
         PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
@@ -338,6 +339,12 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
 
 def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
     access = build_product_access_snapshot(db, tenant)
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        if access["monitoring_active"]:
+            return set()
+        if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
+            return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+        return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
     if access["monitoring_active"]:
         return set()
     if not access["has_completed_data_health_score"]:
