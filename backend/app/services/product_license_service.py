@@ -412,6 +412,12 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         )
     ).all()
     for credit in credits:
+        # V2 Validation credits grant exactly one scan, NEVER another 7-day
+        # legacy access window when consumed later.
+        if (settings.ACCESS_MODEL_V2_ENABLED
+                and normalized_product == PRODUCT_VALIDATION_CHECK
+                and credit.source == "renewal_validation_purchase"):
+            continue
         anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
         anchor = _as_utc(anchor)
         if anchor is not None:
