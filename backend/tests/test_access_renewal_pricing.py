@@ -273,3 +273,19 @@ def test_verified_v2_record_count_ignores_pending_scan_and_uses_largest_persiste
         db.commit()
         assert verified_pricing_record_count(db, t["tenant_id"]) == 300_000
         assert verified_pricing_record_count(db, "unknown-tenant") is None
+
+
+
+def test_public_v2_unpurchasable_product_requires_stripe_price_id(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        ensure_default_product_pricing_matrix(db)
+        row = db.query(ProductPricingMatrixConfig).filter_by(
+            product_key=PRODUCT_FULL_ASSESSMENT_V2, pricing_tier="starter"
+        ).one()
+        row.amount_cents = 24900
+        row.is_active = True
+        row.stripe_price_id = None
+        db.commit()
+        summary = build_public_pricing_summary(db)
+        assert PRODUCT_FULL_ASSESSMENT_V2 not in {item["product_key"] for item in summary}
