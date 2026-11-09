@@ -206,6 +206,30 @@ def product_code_storage_aliases(product_code: str) -> set[str]:
     return aliases
 
 
+def verified_pricing_record_count(db, tenant_id: str) -> int | None:
+    """Use persisted completed deep scans; never trust a newer unpersisted row.
+
+    The maximum verified historical size prevents a customer from downgrading
+    to Starter by triggering a smaller, partial or unverified scan just before
+    buying access. Legitimate tier decreases require manual reconciliation.
+    """
+    rows = db.scalars(select(Scan).join(
+        ScanRunStatus,
+        (ScanRunStatus.run_id == Scan.scan_id) &
+        (ScanRunStatus.tenant_id == Scan.tenant_id),
+    ).where(
+        Scan.tenant_id == tenant_id,
+        Scan.scan_type != "quick",
+        Scan.bc_company_id.is_not(None),
+        ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+        ScanRunStatus.result_persisted_at_utc.is_not(None),
+    )).all()
+    if not rows:
+        return None
+    values = [max(int(scan.total_records or 0), 0) for scan in rows]
+    return max(values) if values else None
+
+
 def pricing_tier_for_record_count(record_count: int | None) -> str | None:
     if record_count is None:
         return None
