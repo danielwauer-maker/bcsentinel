@@ -95,3 +95,22 @@ def test_v2_confirm_rejects_unverified_currency(
         headers=auth_header_factory(tenant), json={"decisions": {}},
     )
     assert response.status_code == 409
+
+
+
+def test_free_tenant_cannot_confirm_or_read_scope_module_decisions(
+    client, tenant_factory, scan_factory, auth_header_factory,
+):
+    tenant = tenant_factory(plan="free", license_status="active")
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="v2-unpaid-scope")
+    headers = auth_header_factory(tenant)
+    response = client.get(
+        "/scans/v2-unpaid-scope/assessment-scope", headers=headers,
+    )
+    assert response.status_code == 200, response.text
+    assert "modules" not in response.json()
+    confirmed = client.post(
+        "/scans/v2-unpaid-scope/assessment-scope/confirm",
+        headers=headers, json={"decisions": {}},
+    )
+    assert confirmed.status_code == 403
