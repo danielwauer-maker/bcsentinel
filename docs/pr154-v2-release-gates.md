@@ -35,7 +35,7 @@
 
 The read-only `GET /scans/{scan_id}/report-preflight` now includes `original_free_scan` when v2 is enabled. This is verified server-side against the **first Free scan**, completed/with-warnings status and a persisted scan result; failed verification adds `original_completed_free_scan_missing` to `missing_prerequisites`. The CLI now fails closed if this field is missing (older DEV deployment), false, or if any backend prerequisite other than expected `confirmed_scope_missing` is present before first confirmation.
 
-The optional `--expected-company-id` **cannot be verified by this endpoint**, which exposes only a boolean company binding. Supplying it will intentionally return a blocker. The exact GUID must be inspected in the authenticated BC link/report step instead; do not interpret `company_bound=true` as a GUID match.
+The authenticated preflight now also returns a validated, canonical `company_id` GUID (or `null` when missing/invalid). `--expected-company-id` compares exact UUID identity, including safe handling of GUID casing and braces. An older DEV backend omitting `company_id` **fails closed**, even if `company_bound=true`. Preflight access remains tenant-authenticated and scan-owner scoped; it does not issue any report credential.
 
 Regression tests: `backend/tests/test_report_preflight_v2.py` and `backend/tests/test_dev_bc_acceptance_script.py`. **No CI result, DEV deployment, schema migration, real scan or BC acceptance is claimed by these commits.**
 
@@ -59,6 +59,7 @@ Microsoft's AL schema synchronization does not permit deleting persisted fields/
 
 1. Keep `ACCESS_MODEL_V2_ENABLED=False` and `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` until the designated DEV cutover. The latter stays disabled even during initial v2 DEV access testing; it must be enabled only after Stripe price, refund, dispute and concurrency acceptance. Verify last deployed DEV backend and original BC extension remain healthy.
 2. Backup DEV DB. Check existing original Free scan `Scan`, `ScanStartRequest`/`TenantScanCredit`, `ScanRunStatus`, company GUID and LCY.
+   Supply the known BC Company GUID through `--expected-company-id` to require exact company verification; the preflight never invents or changes scan bindings.
 3. After approved DEV branch deployment, explicitly enable v2 on DEV only; never flip PROD by copying DEV env.
 4. Retrieve `GET /scans/{scan_id}/report-preflight` with authorized tenant headers. It MUST NOT write scope or grant any access. Optional read-only helper: `BCSENTINEL_API_TOKEN=... python scripts/check_dev_bc_acceptance.py --base-url https://dev-api.bcsentinel.com --tenant-id YOUR_TENANT --scan-id YOUR_FREE_SCAN`. It returns exit 0 only if core report prerequisites are present, exit 2 for blockers, exit 3 for network/auth failures; it does not disclose tokens.
 5. Open BC Deep Scan Monitor > **Review Scope / Full Assessment** on the original Free scan with a verified test Full Access entitlement. Inspect actual detected modules; explicitly confirm.
