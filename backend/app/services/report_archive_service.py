@@ -38,7 +38,7 @@ def _now() -> datetime:
 
 def _has_paid_full_access(db, tenant: Tenant) -> bool:
     access = build_product_access_snapshot(db, tenant)
-    return bool(access["premium_active"])
+    return bool(access["premium_active"]) if settings.ACCESS_MODEL_V2_ENABLED else bool(access["can_view_executive_report"] and (access.get("assessment_access_active") or access.get("monitoring_active")))
 
 
 def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
@@ -95,7 +95,7 @@ def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
 
 def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
     enforce_tenant_is_active(db, tenant.tenant_id)
-    if not _has_paid_full_access(db, tenant):
+    if settings.ACCESS_MODEL_V2_ENABLED and not _has_paid_full_access(db, tenant):
         raise HTTPException(status_code=402, detail="Active Full Access or Monitoring required.")
     if not scan.bc_company_id or not scan.lcy_code:
         raise HTTPException(status_code=409, detail="Scan requires verified BC company and LCY.")
@@ -136,7 +136,7 @@ def redeem_code(db, raw_code: str) -> dict:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
     enforce_tenant_is_active(db, tenant.tenant_id)
-    if not _has_paid_full_access(db, tenant):
+    if settings.ACCESS_MODEL_V2_ENABLED and not _has_paid_full_access(db, tenant):
         db.rollback()
         raise HTTPException(status_code=403, detail="Premium report access expired.")
     archive = db.scalar(select(ReportArchive).where(
