@@ -55,6 +55,8 @@ from app.services.product_pricing_service import (
     PRODUCT_PRICING_MATRIX_DEFAULTS,
     PRICING_TIER_MAX_RECORDS,
     PRICING_TIER_ORDER,
+    V2_TIER_ORDER,
+    V2_TIER_MAX_RECORDS,
     ProductPricingValidationError,
     ensure_default_product_pricing,
     ensure_default_product_pricing_matrix,
@@ -1832,7 +1834,8 @@ def update_product_pricing_matrix(
     normalized_tier = (pricing_tier or "").strip().lower()
     if normalized_key not in PRODUCT_PRICING_MATRIX_DEFAULTS:
         raise HTTPException(status_code=400, detail="Unknown product key.")
-    if normalized_tier not in PRICING_TIER_ORDER:
+    allowed_tiers = V2_TIER_ORDER if normalized_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER
+    if normalized_tier not in allowed_tiers:
         raise HTTPException(status_code=400, detail="Unknown pricing tier.")
 
     normalized_currency = (currency or "").strip().upper()
@@ -1857,7 +1860,7 @@ def update_product_pricing_matrix(
         if not (stripe_price_id or "").strip():
             raise HTTPException(status_code=400, detail="Active v2 access products require a tier-specific Stripe Price ID.")
 
-    parsed_max_records: int | None = PRICING_TIER_MAX_RECORDS[normalized_tier]
+    parsed_max_records: int | None = (V2_TIER_MAX_RECORDS if normalized_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[normalized_tier]
     if str(max_records or "").strip():
         parsed_max_records = int(str(max_records).strip())
         if parsed_max_records < 0:
