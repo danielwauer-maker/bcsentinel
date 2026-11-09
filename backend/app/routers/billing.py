@@ -351,34 +351,29 @@ def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
         if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
             return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
         return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    if access["monitoring_active"]:
+    if access["monitoring_active"] or access.get("v2_payment_hold"):
         return set()
     if not access["has_completed_data_health_score"]:
-        # A real completed Free Health Check is required to buy Full.
+        # Paid Full is unlocked from the original completed Free scan.
         return set()
-    if access["premium_active"]:
-        return {PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
-                PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    if access["full_analysis_access_active"] or access["validation_check_access_active"]:
-        return {PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
-                PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    # A returning customer may renew after expiry, but only if they have
-    # previously purchased paid access. Never permit cheap renewals as Full.
-    prior_paid = db.scalar(select(TenantProductPurchase.id).where(
+    # Renewal is never a cheaper way to acquire an initial Full report:
+    # even a Validation-only purchase or legacy premium flag cannot qualify.
+    prior_full_paid = db.scalar(select(TenantProductPurchase.id).where(
         TenantProductPurchase.tenant_id == tenant.tenant_id,
         TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
         TenantProductPurchase.product_code.in_(
-            [PRODUCT_FULL_ANALYSIS, "assessment", PRODUCT_FULL_ASSESSMENT_V2,
-             PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
-             PRODUCT_VALIDATION_CHECK]
+            [PRODUCT_FULL_ANALYSIS, "assessment", PRODUCT_FULL_ASSESSMENT_V2]
         ),
-    )) is not None
-    return ({PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
-             PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-            if prior_paid else
-            {PRODUCT_FULL_ASSESSMENT_V2,
-             PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL})
-
+    ).limit(1)) is not None
+    if prior_full_paid:
+        return {
+            PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+            PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL,
+        }
+    return {
+        PRODUCT_FULL_ASSESSMENT_V2, PRODUCT_MONITORING_MONTHLY,
+        PRODUCT_MONITORING_ANNUAL,
+    }
 
 def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
     if settings.ACCESS_MODEL_V2_ENABLED and product_code in {
