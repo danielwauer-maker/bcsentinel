@@ -13,6 +13,7 @@ from app.services.product_license_service import (
     grant_v2_access_purchase,
     record_product_purchase,
     build_product_access_snapshot,
+    resolve_product_features,
     is_original_free_scan,
 )
 
@@ -158,3 +159,39 @@ def test_legacy_free_entry_is_permanently_visible_to_v2_tenant(tenant_factory, s
         assert is_original_free_scan(db, tenant_id, "historic-free-entry")
         assert not is_original_free_scan(db, tenant_id, "some_other_scan")
         db.commit()
+
+
+
+def test_scan_credit_is_not_full_report_permission(tenant_factory):
+    tenant_id = tenant_factory(plan="free", license_status="active")["tenant_id"]
+    with SessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        db.add(TenantScanCredit(
+            tenant_id=tenant_id, product_code="validation_check", status="available",
+            source="renewal_validation_purchase",
+            created_at_utc=now,
+        ))
+        db.flush()
+        features = resolve_product_features(db, tenant)
+        assert "deep_scan" in features
+        assert "executive_report" not in features
+        assert "recommendations" not in features
+        assert "analytics_single_scan" not in features
+
+
+def test_expired_v2_entitlement_does_not_resurrect_premium_features(tenant_factory):
+    tenant_id = tenant_factory(plan="free", license_status="active")["tenant_id"]
+    with SessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        db.add(TenantProductEntitlement(
+            tenant_id=tenant_id, product_code=PRODUCT_ACCESS_RENEWAL,
+            status="active", source="expired-test",
+            valid_until_utc=now - timedelta(days=1),
+            created_at_utc=now - timedelta(days=20), updated_at_utc=now,
+        ))
+        db.flush()
+        features = resolve_product_features(db, tenant)
+        assert "executive_report" not in features
+        assert "analytics_single_scan" not in features
