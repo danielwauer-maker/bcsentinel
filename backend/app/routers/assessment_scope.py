@@ -53,6 +53,83 @@ def _has_full_assessment(db, tenant: Tenant) -> bool:
     return "executive_report" in get_tenant_features(db, tenant)
 
 
+@router.get("/{scan_id}/report-preflight")
+def report_preflight(
+    scan_id: str,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+    tenant_id_header: str | None = Header(default=None, alias="X-Tenant-Id"),
+    api_token_header: str | None = Header(default=None, alias="X-Api-Token"),
+) -> dict:
+    """Read-only evidence checklist. Does not create scopes, archives or grants.
+
+    A successful preflight does NOT imply report rendering succeeded. The
+    report endpoint remains the final authority for entitlement and integrity.
+    """
+    from app.core.settings import settings
+    from app.models import TenantScanCredit
+    from app.services.assessment_scope_service import get_latest_confirmed_scope
+    from app.services.product_license_service import (
+        PRODUCT_VALIDATION_CHECK, build_product_access_snapshot,
+    )
+    from app.services.validation_comparison_v2_service import choose_validation_references
+    with SessionLocal() as db:
+        tenant = _resolve_tenant(
+            db, authorization=authorization,
+            tenant_id_header=tenant_id_header,
+            api_token_header=api_token_header,
+        )
+        scan = _load_scan(db, scan_id, tenant.tenant_id)
+        access = build_product_access_snapshot(db, tenant)
+        latest_scope = get_latest_scope(db, scan_id)
+        confirmed = get_latest_confirmed_scope(db, scan_id)
+        validation_credit = db.scalar(select(TenantScanCredit.id).where(
+            TenantScanCredit.tenant_id == tenant.tenant_id,
+            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+            TenantScanCredit.status == "consumed",
+            TenantScanCredit.consumed_scan_id == scan_id,
+        ).limit(1))
+        missing: list[str] = []
+        if not scan.bc_company_id:
+            missing.append("verified_company_missing")
+        if str(scan.lcy_code or "").upper() != "EUR":
+            missing.append("verified_eur_currency_missing")
+        if latest_scope is None:
+            missing.append("scope_snapshot_missing")
+        if confirmed is None:
+            missing.append("confirmed_scope_missing")
+        if validation_credit is not None and not settings.ACCESS_MODEL_V2_ENABLED:
+            missing.append("full_report_not_valid_for_validation_scan")
+        if not access["premium_active"]:
+            missing.append("premium_access_inactive")
+
+        comparison = None
+        if settings.ACCESS_MODEL_V2_ENABLED and latest_scope is not None:
+            try:
+                references = choose_validation_references(db, tenant, scan)
+                comparison = {
+                    "previous_scan_id": references.previous.scan_id,
+                    "initial_baseline_scan_id": references.initial.scan_id,
+                    "initial_baseline_scope_version": references.scope_version,
+                }
+            except HTTPException:
+                # No automatic confirmation or guessed baseline: detailed
+                # validation diagnostics belong to the report workflow.
+                comparison = None
+
+        return {
+            "scan_id": scan_id,
+            "preflight_only": True,
+            "premium_active": bool(access["premium_active"]),
+            "scope_state": latest_scope.state if latest_scope is not None else "missing",
+            "confirmed_scope_version": confirmed.version if confirmed is not None else None,
+            "company_bound": bool(scan.bc_company_id),
+            "eur_currency_verified": str(scan.lcy_code or "").upper() == "EUR",
+            "is_validation_credit_scan": validation_credit is not None,
+            "missing_prerequisites": missing,
+            "validation_comparison": comparison,
+        }
+
+
 @router.get("/{scan_id}/assessment-scope")
 def assessment_scope(
     scan_id: str,
