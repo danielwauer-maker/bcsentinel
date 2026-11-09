@@ -155,3 +155,18 @@ def test_context_mismatch_consumes_code_without_leaking_report(client, monkeypat
     assert client.post("/reports/access/exchange", json=bad).status_code == 403
     bad["company_id"] = COMPANY
     assert client.post("/reports/access/exchange", json=bad).status_code == 403
+
+
+def test_v2_full_archive_history_is_locked_after_premium_expiry(
+    client, monkeypatch, tenant_factory, scan_factory, auth_header_factory,
+):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant = _seed(tenant_factory, scan_factory)
+    headers = auth_header_factory(tenant)
+    url = f"/reports/access/history?company_id={COMPANY}"
+    expired = client.get(url, headers=headers)
+    assert expired.status_code == 403
+    _activate_full(tenant["tenant_id"])
+    active = client.get(url, headers=headers)
+    assert active.status_code == 200, active.text
+    assert any(row["scan_id"] == SCAN for row in active.json()["reports"])
