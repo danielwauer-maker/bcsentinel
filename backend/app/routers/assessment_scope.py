@@ -48,8 +48,13 @@ def _resolve_tenant(
 
 
 def _has_full_assessment(db, tenant: Tenant) -> bool:
-    # Channel-neutral feature resolution: direct purchase, Fiverr/operator grant
-    # and compatible paid access all expose the same Full Assessment capability.
+    from app.core.settings import settings
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # A free scan slot or an unused scan credit is NOT paid visibility.
+        # License feature flags alone must not unlock scope edit details.
+        from app.services.product_license_service import build_product_access_snapshot
+        return bool(build_product_access_snapshot(db, tenant)["premium_active"])
+    # Legacy entitlement behavior retained until the explicit v2 rollout.
     return "executive_report" in get_tenant_features(db, tenant)
 
 
