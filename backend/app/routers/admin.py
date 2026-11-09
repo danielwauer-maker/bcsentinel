@@ -95,6 +95,7 @@ from app.services.product_license_service import (
     PRODUCT_VALIDATION_CHECK,
     MONITORING_PRODUCTS,
     ONE_TIME_PRODUCTS,
+    NEW_ACCESS_PRODUCTS,
     active_entitlement_product_codes,
     calculate_access_window_until,
     calculate_product_access_until,
@@ -1848,6 +1849,13 @@ def update_product_pricing_matrix(
             raise HTTPException(status_code=400, detail="Price must not be negative.")
     if normalized_interval != "contact_sales" and parsed_amount_cents is None:
         raise HTTPException(status_code=400, detail="Price is required unless interval is contact_sales.")
+    # New paid one-time passes must never be activated at zero price, nor
+    # without a separately configured Stripe price for this exact tier.
+    if normalized_key in NEW_ACCESS_PRODUCTS and is_active == "on":
+        if normalized_interval != "one_time" or parsed_amount_cents is None or parsed_amount_cents <= 0:
+            raise HTTPException(status_code=400, detail="Active v2 access products require a positive one-time price.")
+        if not (stripe_price_id or "").strip():
+            raise HTTPException(status_code=400, detail="Active v2 access products require a tier-specific Stripe Price ID.")
 
     parsed_max_records: int | None = PRICING_TIER_MAX_RECORDS[normalized_tier]
     if str(max_records or "").strip():
