@@ -548,6 +548,18 @@ def resolve_checkout_matrix_price(
     env_price_id: str | None = None,
 ) -> MatrixPrice:
     pricing_tier = pricing_tier_for_record_count(record_count) or PRICING_TIER_STARTER
+    if settings.ACCESS_MODEL_V2_ENABLED and pricing_tier == PRICING_TIER_CUSTOM and normalize_product_code(product_key) not in NEW_ACCESS_PRODUCTS:
+        # Old Monitoring catalogue has no Custom row. Never default large
+        # tenants to the cheapest legacy price. Require a negotiated quote.
+        return MatrixPrice(
+            product_key=normalize_product_code(product_key),
+            pricing_tier=PRICING_TIER_CUSTOM,
+            max_records=None, amount_cents=None, currency="EUR",
+            billing_interval=PRODUCT_BILLING_INTERVAL_CONTACT_SALES,
+            display_name_de="Individuelles Angebot",
+            display_name_en="Custom quote required",
+            stripe_price_id=None, is_active=False,
+        )
     price = get_matrix_price(db, product_key, pricing_tier)
     # Explicit tier-specific Stripe Prices only for new products. Do not
     # reuse a default/old product Price ID for a different v2 tier.
