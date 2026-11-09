@@ -93,6 +93,107 @@ def archive_full_report(db, tenant: Tenant, scan: Scan) -> ReportArchive:
     return result
 
 
+REPORT_VARIANT_SCOPES = {
+    "full": REPORT_SCOPE,
+    "validation": "report:validation:read",
+    "monitoring": "report:monitoring:read",
+}
+
+
+def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> ReportArchive:
+    """V2 immutable evidence archive for non-Full report families."""
+    if variant not in {"validation", "monitoring"} or not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Report variant unavailable.")
+    access = build_product_access_snapshot(db, tenant)
+    if not access["premium_active"] or (variant == "monitoring" and not access["monitoring_active"]):
+        raise HTTPException(status_code=402, detail="Active report entitlement required.")
+    if not scan.bc_company_id or str(scan.lcy_code or "").upper() != "EUR":
+        raise HTTPException(status_code=409, detail="Verified company and EUR currency required.")
+    company_id = canonical_company_id(scan.bc_company_id)
+    existing = db.scalar(select(ReportArchive).where(
+        ReportArchive.tenant_id == tenant.tenant_id,
+        ReportArchive.company_id == company_id,
+        ReportArchive.scan_id == scan.scan_id,
+        ReportArchive.variant == variant,
+    ))
+    if existing is not None:
+        return existing
+    from app.services.validation_report_service import build_validation_report
+    from app.services.monitoring_report_service import build_monitoring_report
+    from app.models import Scan as ScanModel
+    if variant == "validation":
+        report = build_validation_report(db, tenant, scan.scan_id)
+        referenced = [
+            report.baseline_scan_id,
+            report.validation_scan_id,
+            report.initial_baseline_scan_id,
+        ]
+    else:
+        report = build_monitoring_report(db, tenant, scan.scan_id)
+        referenced = [
+            report.baseline_scan_id, report.current_scan_id,
+            *(point.scan_id for point in report.trend_points),
+        ]
+    # A historical scan from another company or currency must never be
+    # silently mixed into a Validation/Monitoring report.
+    for scan_id in set(filter(None, referenced)):
+        historical = db.scalar(select(ScanModel).where(
+            ScanModel.tenant_id == tenant.tenant_id,
+            ScanModel.scan_id == scan_id,
+        ))
+        if historical is None or not historical.bc_company_id:
+            raise HTTPException(status_code=409, detail="Report reference scan has no verified company.")
+        if canonical_company_id(historical.bc_company_id) != company_id or str(historical.lcy_code or "").upper() != "EUR":
+            raise HTTPException(status_code=409, detail="Historical scan company/currency is not comparable.")
+    envelope = {
+        "contract_version": "bcsentinel-render-bridge-v1",
+        "source": "live", "status": "ready", "variant": variant,
+        "tenant_id": tenant.tenant_id, "company_id": company_id,
+        "scan_id": scan.scan_id, "language": report.language,
+        "currency": {
+            "source_currency": "EUR", "company_lcy_code": "EUR",
+            "report_currency": "EUR", "model_currency_provenance": "eur_model",
+            "conversion_status": "not_required", "fx_snapshot_id": None,
+        },
+        "report": report.model_dump(mode="json"),
+        # Strict frontend adapters may deliberately reject raw evidence until
+        # the corresponding validated render_vm is available.
+        "render_vm": None,
+    }
+    payload = json.dumps(envelope, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    archive = ReportArchive(
+        tenant_id=tenant.tenant_id, company_id=company_id,
+        scan_id=scan.scan_id, variant=variant,
+        contract_version=envelope["contract_version"],
+        payload_json=payload,
+        sha256=hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+        created_at_utc=_now(),
+    )
+    db.add(archive)
+    db.flush()
+    return archive
+
+
+def issue_variant_link(db, tenant: Tenant, scan: Scan, viewer_url: str, variant: str) -> str:
+    if variant == "full":
+        return issue_full_link(db, tenant, scan, viewer_url)
+    enforce_tenant_is_active(db, tenant.tenant_id)
+    if variant not in {"validation", "monitoring"} or not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Report variant unavailable.")
+    scan.bc_company_id = canonical_company_id(scan.bc_company_id)
+    archive_variant_report(db, tenant, scan, variant)
+    raw_code = secrets.token_urlsafe(32)
+    db.add(ReportAccessGrant(
+        token_hash=hashlib.sha256(raw_code.encode()).hexdigest(),
+        tenant_id=tenant.tenant_id, company_id=scan.bc_company_id,
+        scan_id=scan.scan_id, variant=variant,
+        created_at_utc=_now(),
+        expires_at_utc=_now() + timedelta(seconds=CODE_TTL_SECONDS),
+    ))
+    db.commit()
+    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': scan.bc_company_id, 'variant': variant, 'code': raw_code, 'lang': 'de'})}"
+
+
 def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
     enforce_tenant_is_active(db, tenant.tenant_id)
     if settings.ACCESS_MODEL_V2_ENABLED and not _has_paid_full_access(db, tenant):
@@ -148,16 +249,25 @@ def redeem_code(db, raw_code: str) -> dict:
     if archive is None:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
+    if grant.variant not in REPORT_VARIANT_SCOPES or (
+        grant.variant != "full" and not settings.ACCESS_MODEL_V2_ENABLED
+    ):
+        db.rollback()
+        raise HTTPException(status_code=403, detail="Report variant unavailable.")
+    access = build_product_access_snapshot(db, tenant)
+    if grant.variant == "monitoring" and not access["monitoring_active"]:
+        db.rollback()
+        raise HTTPException(status_code=403, detail="Monitoring access expired.")
     session = create_token({
-        "type": REPORT_TOKEN_TYPE, "scope": REPORT_SCOPE,
+        "type": REPORT_TOKEN_TYPE, "scope": REPORT_VARIANT_SCOPES[grant.variant],
         "tenant_id": grant.tenant_id, "company_id": grant.company_id,
-        "scan_id": grant.scan_id, "variant": "full",
+        "scan_id": grant.scan_id, "variant": grant.variant,
     }, expires_delta=timedelta(minutes=SESSION_TTL_MINUTES))
     db.commit()
     return {
         "access_token": session, "token_type": "bearer",
         "tenant_id": grant.tenant_id, "company_id": grant.company_id,
-        "scan_id": grant.scan_id, "report_variant": "full",
+        "scan_id": grant.scan_id, "report_variant": grant.variant,
         "expires_at": (now + timedelta(minutes=SESSION_TTL_MINUTES)).isoformat(),
     }
 
@@ -167,7 +277,10 @@ def verify_scoped_session(authorization: str | None, *, scan_id: str, company_id
     if scheme.lower() != "bearer" or not sep:
         return None
     payload = verify_token(token.strip())
-    if not payload or payload.get("type") != REPORT_TOKEN_TYPE or payload.get("scope") != REPORT_SCOPE:
+    expected_scope = REPORT_VARIANT_SCOPES.get(variant)
+    if not expected_scope or (variant != "full" and not settings.ACCESS_MODEL_V2_ENABLED):
+        return None
+    if not payload or payload.get("type") != REPORT_TOKEN_TYPE or payload.get("scope") != expected_scope:
         return None
     if payload.get("scan_id") != scan_id or payload.get("variant") != variant:
         return None
