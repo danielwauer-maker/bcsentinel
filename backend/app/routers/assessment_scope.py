@@ -94,6 +94,14 @@ def report_preflight(
             TenantScanCredit.consumed_scan_id == scan_id,
         ).limit(1))
         missing: list[str] = []
+        original_free_scan = None
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            from app.services.product_license_service import is_original_free_scan
+            # Completion, persisted scan result and first-Free provenance are
+            # all required before accepting this scan as the immutable baseline.
+            original_free_scan = is_original_free_scan(db, tenant.tenant_id, scan.scan_id)
+            if not original_free_scan:
+                missing.append("original_completed_free_scan_missing")
         if not scan.bc_company_id:
             missing.append("verified_company_missing")
         if str(scan.lcy_code or "").upper() != "EUR":
@@ -124,6 +132,7 @@ def report_preflight(
         return {
             "scan_id": scan_id,
             "preflight_only": True,
+            "original_free_scan": original_free_scan,
             "premium_active": bool(access["premium_active"]),
             "scope_state": latest_scope.state if latest_scope is not None else "missing",
             "confirmed_scope_version": confirmed.version if confirmed is not None else None,
