@@ -22,7 +22,7 @@
 | Gate | Expected evidence | Status |
 | --- | --- | --- |
 | G1 backend regression | All new + legacy tests green on PR head | Check GitHub Actions on current HEAD |
-| G2 BC AL build | AL build green, install+upgrade dry-run on existing DEV tenant | AL build run; installation still unverified |
+| G2 BC AL build | AL build green; exact installed DEV .app schema diff (all fields/tables); successful non-destructive upgrade of a backed-up sandbox | **BLOCKED: two historically installed DH Setup fields are absent in PR source; baseline package metadata needed** |
 | G3 prices & checkout | Approved amounts for every v2 SKU and data class, correctly mapped Stripe Price IDs; finance/currency checked | **BLOCKED: final prices not approved** |
 | G4 webhook lifecycle | Paid, failed, replay, refund, dispute, chargeback, concurrency, out-of-order and delayed webhook events; no overgrant | Core refund/dispute revocation, unknown reversal retry and idempotency implemented; full real Stripe payment E2E pending |
 | G5 Free→Full real scan | Real Free scan has company GUID, EUR LCY, completed+persisted status; scope auto-created, explicit user confirmation and Full v6 report opens | **BLOCKED: end-to-end DEV real evidence not yet verified** |
@@ -38,6 +38,22 @@ The read-only `GET /scans/{scan_id}/report-preflight` now includes `original_fre
 The optional `--expected-company-id` **cannot be verified by this endpoint**, which exposes only a boolean company binding. Supplying it will intentionally return a blocker. The exact GUID must be inspected in the authenticated BC link/report step instead; do not interpret `company_bound=true` as a GUID match.
 
 Regression tests: `backend/tests/test_report_preflight_v2.py` and `backend/tests/test_dev_bc_acceptance_script.py`. **No CI result, DEV deployment, schema migration, real scan or BC acceptance is claimed by these commits.**
+
+## CRITICAL: BC SaaS extension upgrade schema must be compared to the *installed* DEV app
+
+**Do not install the current CI-produced .app yet.** AL compilation only validates source correctness and symbol references; it does not validate upgrading a populated BC tenant from its already installed extension schema.
+
+The historical BC upgrade error reported for `BCSentinel 1.0.2.51` named removed fields **DH Setup / Report Notification Email** and **DH Setup / Preferred Report Language** and omitted notification tables `DH Notification Event` (53170), `DH Notification Rule` (53171) and `DH Notification Recipient` (53172). The current PR branch contains the tables, but **neither named DH Setup field is present in `bc-extension/app/src/tables/DHSetup.Table.al`**. The source manifest also still shows `1.0.2.51` (CI can override package version). Do not assume the last installed DEV app has the same field IDs, types or schema as a GitHub branch.
+
+**Required before DEV BC extension upgrade:**
+
+1. Obtain the actual previously installed DEV app's `.app` or its exact `SymbolReference.json`/field metadata (including object ID, field IDs, names and types); do not make up field IDs.
+2. Compare each installed non-temporary table, key and field against the new build. Any missing persisted fields must be restored under their **original IDs and types**; mark obsolete as Pending if retired, rather than deleting.
+3. Retain all existing notification entities and their original IDs. Verify all previously installed enums referenced by the old schema still exist with compatible members.
+4. Run an automated schema-diff gate against this *installed* baseline. Compile an app with a version greater than the DEV-installed version, then run a true **BC SaaS DEV upgrade test on a backed-up sandbox**, with a non-SUPER user and existing records. Only an actual successful upgrade authorizes installing for the business acceptance.
+5. Under no circumstances use destructive Recreate/ForceSync, uninstall, or schema deletion to make the upgrade appear successful; historical customer data must survive.
+
+Microsoft's AL schema synchronization does not permit deleting persisted fields/tables in normal synchronize mode. See https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-retaining-data-after-publishing .
 
 ## DEV acceptance – no new paid scan required for first Full test
 
