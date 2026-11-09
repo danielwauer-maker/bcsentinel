@@ -53,3 +53,42 @@ def test_v2_preflight_requires_original_completed_free_scan(
     info = response.json()
     assert info["original_free_scan"] is False
     assert "original_completed_free_scan_missing" in info["missing_prerequisites"]
+
+
+def test_preflight_returns_canonical_company_guid_only_to_scan_owner(
+    client, tenant_factory, scan_factory, auth_header_factory,
+):
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="preflight-guid")
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter_by(scan_id="preflight-guid").one()
+        scan.bc_company_id = "{AAAAAAAA-2222-3333-4444-555555555555}"
+        db.commit()
+    response = client.get(
+        "/scans/preflight-guid/report-preflight",
+        headers=auth_header_factory(tenant),
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["company_bound"] is True
+    assert response.json()["company_id"] == "aaaaaaaa-2222-3333-4444-555555555555"
+
+
+def test_preflight_rejects_malformed_stored_company_guid(
+    client, tenant_factory, scan_factory, auth_header_factory,
+):
+    tenant = tenant_factory()
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="preflight-invalid-guid")
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter_by(scan_id="preflight-invalid-guid").one()
+        scan.bc_company_id = "invalid-guid"
+        db.commit()
+    response = client.get(
+        "/scans/preflight-invalid-guid/report-preflight",
+        headers=auth_header_factory(tenant),
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["company_bound"] is False
+    assert body["company_id"] is None
+    assert "verified_company_missing" in body["missing_prerequisites"]
+
