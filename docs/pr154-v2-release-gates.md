@@ -31,6 +31,14 @@
 | G8 data isolation | Two tenants, two BC companies, cross-user attempts, guessed links, expired links, non-SUPER permissions, token expiry, browser caching | Unit coverage partial; full DEV acceptance missing |
 | G9 deployment | Database backup, migration dry-run, extension upgrade compatibility and rollback plan, DEV approval, then PROD promotion | Not started |
 
+## 2026-11-09 preflight hardening — verification required
+
+The read-only `GET /scans/{scan_id}/report-preflight` now includes `original_free_scan` when v2 is enabled. This is verified server-side against the **first Free scan**, completed/with-warnings status and a persisted scan result; failed verification adds `original_completed_free_scan_missing` to `missing_prerequisites`. The CLI now fails closed if this field is missing (older DEV deployment), false, or if any backend prerequisite other than expected `confirmed_scope_missing` is present before first confirmation.
+
+The optional `--expected-company-id` **cannot be verified by this endpoint**, which exposes only a boolean company binding. Supplying it will intentionally return a blocker. The exact GUID must be inspected in the authenticated BC link/report step instead; do not interpret `company_bound=true` as a GUID match.
+
+Regression tests: `backend/tests/test_report_preflight_v2.py` and `backend/tests/test_dev_bc_acceptance_script.py`. **No CI result, DEV deployment, schema migration, real scan or BC acceptance is claimed by these commits.**
+
 ## DEV acceptance – no new paid scan required for first Full test
 
 1. Keep `ACCESS_MODEL_V2_ENABLED=False` and `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` until the designated DEV cutover. The latter stays disabled even during initial v2 DEV access testing; it must be enabled only after Stripe price, refund, dispute and concurrency acceptance. Verify last deployed DEV backend and original BC extension remain healthy.
