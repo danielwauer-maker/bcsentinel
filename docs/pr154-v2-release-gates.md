@@ -22,7 +22,7 @@
 | Gate | Expected evidence | Status |
 | --- | --- | --- |
 | G1 backend regression | All new + legacy tests green on PR head | Check GitHub Actions on current HEAD |
-| G2 BC AL build | AL build green; exact installed DEV .app schema diff (all fields/tables); successful non-destructive upgrade of a backed-up sandbox | **BLOCKED: two historically installed DH Setup fields are absent in PR source; baseline package metadata needed** |
+| G2 BC AL build | AL build green; exact installed DEV .app schema diff (all fields/tables); successful non-destructive upgrade of a backed-up sandbox | **SOURCE COMPATIBILITY VERIFIED against uploaded installed 1.0.2.52 .app (21/21 identical table/tableextension AL files); real non-destructive BC SaaS upgrade still pending** |
 | G3 prices & checkout | Approved amounts for every v2 SKU and data class, correctly mapped Stripe Price IDs; finance/currency checked | **BLOCKED: final prices not approved** |
 | G4 webhook lifecycle | Paid, failed, replay, refund, dispute, chargeback, concurrency, out-of-order and delayed webhook events; no overgrant | Core refund/dispute revocation, unknown reversal retry and idempotency implemented; full real Stripe payment E2E pending |
 | G5 Free→Full real scan | Real Free scan has company GUID, EUR LCY, completed+persisted status; scope auto-created, explicit user confirmation and Full v6 report opens | **BLOCKED: end-to-end DEV real evidence not yet verified** |
@@ -39,17 +39,31 @@ The authenticated preflight now also returns a validated, canonical `company_id`
 
 Regression tests: `backend/tests/test_report_preflight_v2.py` and `backend/tests/test_dev_bc_acceptance_script.py`. **No CI result, DEV deployment, schema migration, real scan or BC acceptance is claimed by these commits.**
 
+## Installed version 1.0.2.52 source compatibility — evidence 2026-11-09
+
+The sandbox operator supplied the **actual installed BCSentinel 1.0.2.52 .app** (also shown in the BC Extension Management screen). It was inspected read-only as a ZIP/AL package.
+
+- SHA-256 of supplied package: `50a85c0462a7a52d3dc141b827d5f4db977df7ac296be0a33bca332e76ffdfee`
+- `NavxManifest.xml`: App ID `8c7f0f9c-0c1a-4a4e-9c6f-111111111111`, publisher `BCSentinel Analytics - Daniel Wauer`, version `1.0.2.52`, BC 27 Cloud.
+- `SymbolReference.json` includes **20 Tables** and **1 TableExtension**. Original source contains exactly those 21 table/tableextension AL files.
+- All **21 of 21** installed package AL source files under `src/app/src/tables/` and `src/app/src/tableextensions/` were compared with matching paths under `bc-extension/app/src/` on the PR #154 branch using exact Git blob SHA-1 of original bytes; **all 21 SHA-1 values match**.
+- Previously suspected missing fields are in **tableextension 53201 `DH Setup Lifecycle Ext`** (not in the base `DH Setup` table): field **53136 `Report Notification Email` = `Text[250]`**, field **53137 `Preferred Report Language` = `Code[2]`**. Current PR branch contains this exact source file unmodified, Git blob SHA `5101f1104d34ddaf00ef12231310cd30906394a4`.
+- The previously alleged missing notification tables **53170–53176** also appear in the installed package and match the PR source byte-for-byte.
+- The branch release manifest `bc-extension/app.json` was bumped from `1.0.2.51` to **`1.0.2.53`** to be greater than the actual installed version.
+
+**G2 interpretation:** persisted AL table and tableextension source compatibility is established for the supplied installed v1.0.2.52 artifact. This is substantially stronger than comparing against an unrelated Git branch. **Do not claim actual BC SaaS upgrade success yet.** An installed sandbox backup, a successful non-destructive SaaS upgrade to the exact new .app, non-SUPER permissions and existing record integrity checks remain mandatory. Verify the artifact really is the package installed in the test tenant. Never ForceSync/recreate/uninstall to bypass errors.
+
 ## CRITICAL: BC SaaS extension upgrade schema must be compared to the *installed* DEV app
 
-**Do not install the current CI-produced .app yet.** AL compilation only validates source correctness and symbol references; it does not validate upgrading a populated BC tenant from its already installed extension schema.
+**Do not install the current CI-produced .app yet without backup and version verification.** The supplied installed 1.0.2.52 artifact matches all 21 persisted AL sources in PR #154, but AL compilation and source comparison still do not prove a successful upgrade in the populated sandbox.
 
-The historical BC upgrade error reported for `BCSentinel 1.0.2.51` named removed fields **DH Setup / Report Notification Email** and **DH Setup / Preferred Report Language** and omitted notification tables `DH Notification Event` (53170), `DH Notification Rule` (53171) and `DH Notification Recipient` (53172). The current PR branch contains the tables, but **neither named DH Setup field is present in `bc-extension/app/src/tables/DHSetup.Table.al`**. The source manifest also still shows `1.0.2.51` (CI can override package version). Do not assume the last installed DEV app has the same field IDs, types or schema as a GitHub branch.
+The historical BC upgrade error reported for `BCSentinel 1.0.2.51` named removed fields **DH Setup / Report Notification Email** and **DH Setup / Preferred Report Language** and omitted notification tables `DH Notification Event` (53170), `DH Notification Rule` (53171) and `DH Notification Recipient` (53172). The newly verified installed **1.0.2.52** package contains all of these. The two fields are declared in `bc-extension/app/src/tableextensions/DHSetupLifecycle.TableExt.al`, not in the base table. The corresponding PR sources match the package exactly. This supersedes the earlier assumption that the current PR is missing those fields.
 
 **Required before DEV BC extension upgrade:**
 
-1. Obtain the actual previously installed DEV app's `.app` or its exact `SymbolReference.json`/field metadata (including object ID, field IDs, names and types); do not make up field IDs.
-2. Compare each installed non-temporary table, key and field against the new build. Any missing persisted fields must be restored under their **original IDs and types**; mark obsolete as Pending if retired, rather than deleting.
-3. Retain all existing notification entities and their original IDs. Verify all previously installed enums referenced by the old schema still exist with compatible members.
+1. **DONE for operator-supplied 1.0.2.52 package:** actual `.app`, `SymbolReference.json` and source files inspected; verify this is the exact installed sandbox artifact before deploying.
+2. **DONE for persisted table/tableextension source files:** all 21 exact Git blob SHAs match. Recheck keys/enums and any packaging differences when building the upgrade artifact; do not silently delete objects.
+3. Notification tables are confirmed present and identical; verify existing enum and other object compatibility in the final build.
 4. Run an automated schema-diff gate against this *installed* baseline. Compile an app with a version greater than the DEV-installed version, then run a true **BC SaaS DEV upgrade test on a backed-up sandbox**, with a non-SUPER user and existing records. Only an actual successful upgrade authorizes installing for the business acceptance.
 5. Under no circumstances use destructive Recreate/ForceSync, uninstall, or schema deletion to make the upgrade appear successful; historical customer data must survive.
 
