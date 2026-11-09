@@ -36,3 +36,20 @@ def test_report_preflight_denies_foreign_tenant(
         headers=auth_header_factory(other),
     )
     assert response.status_code == 403
+
+
+def test_v2_preflight_requires_original_completed_free_scan(
+    client, tenant_factory, scan_factory, auth_header_factory, monkeypatch,
+):
+    from app.core.settings import settings
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant = tenant_factory(plan="free", license_status="active")
+    scan_factory(tenant_id=tenant["tenant_id"], scan_id="preflight-unverified-free")
+    response = client.get(
+        "/scans/preflight-unverified-free/report-preflight",
+        headers=auth_header_factory(tenant),
+    )
+    assert response.status_code == 200, response.text
+    info = response.json()
+    assert info["original_free_scan"] is False
+    assert "original_completed_free_scan_missing" in info["missing_prerequisites"]
