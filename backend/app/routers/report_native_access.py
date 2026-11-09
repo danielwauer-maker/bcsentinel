@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
+from app.core.settings import settings
 from app.db import SessionLocal
 from app.report_archive_models import ReportArchive
 from app.security.tenant import load_authenticated_tenant, require_tenant_headers
@@ -26,7 +27,10 @@ class ExchangeRequest(BaseModel):
 def exchange_report_code(request: ExchangeRequest, response: Response) -> dict:
     response.headers["Cache-Control"] = "no-store, private"
     response.headers["Pragma"] = "no-cache"
-    if request.report_variant != "full":
+    allowed = {"full"}
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        allowed.update({"validation", "monitoring"})
+    if request.report_variant not in allowed:
         raise HTTPException(status_code=403, detail="Report variant not available.")
     with SessionLocal() as db:
         # Atomic one-use exchange. The browser's advertised context must match
@@ -36,7 +40,8 @@ def exchange_report_code(request: ExchangeRequest, response: Response) -> dict:
             same_company = canonical_company_id(result["company_id"]) == canonical_company_id(request.company_id)
         except ValueError:
             same_company = False
-        if result["scan_id"] != request.scan_id or not same_company:
+        if (result["scan_id"] != request.scan_id or not same_company
+                or result["report_variant"] != request.report_variant):
             raise HTTPException(status_code=403, detail="Report context mismatch.")
         return result
 
