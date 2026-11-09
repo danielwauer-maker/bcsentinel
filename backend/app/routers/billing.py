@@ -44,6 +44,7 @@ from app.services.product_license_service import (
     NEW_ACCESS_PRODUCTS,
     grant_v2_access_purchase,
     build_product_access_snapshot,
+    verified_pricing_record_count,
     calculate_access_window_until,
     calculate_product_access_until,
     grant_product_entitlement,
@@ -654,8 +655,12 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         _ensure_checkout_product_allowed(db, tenant, product_code)
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
-        record_count = _deep_scan_record_count(latest_deep_scan)
-        if settings.ACCESS_MODEL_V2_ENABLED and product_code in NEW_ACCESS_PRODUCTS and record_count is None:
+        record_count = (
+            verified_pricing_record_count(db, tenant.tenant_id)
+            if settings.ACCESS_MODEL_V2_ENABLED
+            else _deep_scan_record_count(latest_deep_scan)
+        )
+        if settings.ACCESS_MODEL_V2_ENABLED and record_count is None:
             raise HTTPException(
                 status_code=409,
                 detail="Completed Deep Scan record count required before v2 checkout.",
