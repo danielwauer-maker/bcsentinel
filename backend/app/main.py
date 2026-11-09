@@ -197,7 +197,7 @@ app.include_router(analytics_router)
 app.include_router(billing_router)
 app.include_router(check_catalog_router)
 # Keep customer-dashboard routes unavailable in the report-only launch.
-if settings.CUSTOMER_DASHBOARD_ENABLED:
+if settings.CUSTOMER_DASHBOARD_ENABLED or not settings.ACCESS_MODEL_V2_ENABLED:
     app.include_router(dashboard_router)
 app.include_router(partners_router)
 app.include_router(public_router)
@@ -619,7 +619,7 @@ def register_tenant(
             ) from exc
 
     # Report-only launch: registration must not send dashboard invitations.
-    if settings.CUSTOMER_DASHBOARD_ENABLED and registration.dashboard_user_created:
+    if (settings.CUSTOMER_DASHBOARD_ENABLED or not settings.ACCESS_MODEL_V2_ENABLED) and registration.dashboard_user_created:
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == registration.tenant_id))
             user = db.scalar(select(DashboardUser).where(DashboardUser.id == registration.dashboard_user_id))
