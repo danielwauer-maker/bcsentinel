@@ -449,7 +449,10 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         candidates = [
             price
             for price in by_product.get(product_key, [])
-            if not price.contact_sales and price.amount_cents is not None
+            if (not price.contact_sales and price.amount_cents is not None
+                and (not settings.ACCESS_MODEL_V2_ENABLED
+                     or price.product_key not in NEW_ACCESS_PRODUCTS
+                     or bool(price.stripe_price_id)))
         ]
         if candidates:
             return sorted(candidates, key=lambda price: int(price.amount_cents or 0))[0]
