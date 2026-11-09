@@ -18,6 +18,9 @@ from app.services.product_license_service import (
 from app.services.product_pricing_service import (
     get_matrix_price,
     resolve_checkout_matrix_price,
+    build_public_pricing_summary,
+    build_public_pricing_matrix,
+    ProductPricingValidationError,
     ensure_default_product_pricing_matrix,
     PRODUCT_PRICING_MATRIX_DEFAULTS,
     PRICING_TIER_ORDER,
@@ -200,3 +203,40 @@ def test_large_custom_tenant_never_uses_legacy_monitoring_starter_price(monkeypa
         assert price.contact_sales is True
         assert price.stripe_price_id is None
         assert price.is_active is False
+
+
+@pytest.mark.parametrize("product_code", NEW_CODES)
+def test_unverified_record_count_is_rejected_for_new_paid_products(monkeypatch, product_code):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        with pytest.raises(ProductPricingValidationError, match="record count"):
+            resolve_checkout_matrix_price(db, product_key=product_code, record_count=None)
+
+
+def test_public_v2_pricing_does_not_advertise_legacy_one_time_products(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        summary = build_public_pricing_summary(db)
+        matrix = build_public_pricing_matrix(db)
+        published = {item["product_key"] for item in summary}
+        assert "full_analysis" not in published
+        assert "validation_check" not in published
+        assert not any(item["product_key"] in {"full_analysis", "validation_check"} for item in matrix)
+        assert not published.intersection(NEW_CODES)
+
+
+def test_public_v2_pricing_shows_only_explicitly_activated_renewal_product(monkeypatch):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    with SessionLocal() as db:
+        ensure_default_product_pricing_matrix(db)
+        row = db.query(ProductPricingMatrixConfig).filter_by(
+            product_key=PRODUCT_ACCESS_RENEWAL, pricing_tier="starter"
+        ).one()
+        row.amount_cents, row.stripe_price_id, row.is_active = 7900, "price_approved_renewal", True
+        db.commit()
+        summary = build_public_pricing_summary(db)
+        renewal = [item for item in summary if item["product_key"] == PRODUCT_ACCESS_RENEWAL]
+        assert len(renewal) == 1
+        assert renewal[0]["price_cents"] == 7900
+        assert PRODUCT_FULL_ASSESSMENT_V2 not in {item["product_key"] for item in summary}
+        assert PRODUCT_ACCESS_RENEWAL_VALIDATION not in {item["product_key"] for item in summary}
