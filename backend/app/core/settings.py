@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     TENANT_REGISTRATION_INVITE_CODE: str | None = None
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
+    ACCESS_MODEL_V2_ENABLED: bool = False  # Explicit rollout gate, old customer contracts unchanged.
     CUSTOMER_DASHBOARD_ENABLED: bool = False  # Report-only launch; enable only after access audit.
     QUICK_ASSESSMENT_ENABLED: bool = False  # Reserved for a later product release.
     DASHBOARD_LOGIN_MAX_FAILURES: int = 5
