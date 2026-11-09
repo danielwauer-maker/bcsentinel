@@ -69,7 +69,7 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         report = build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
-        if not access["premium_active"]:
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["can_view_executive_report"]):
             raise HTTPException(
                 status_code=402,
                 detail="Executive Report access requires an active Assessment, Validation Check, or Monitoring subscription.",
@@ -88,7 +88,7 @@ def _load_free_report(scan_id: str, tenant_auth: tuple[str, str]) -> FreeHealthR
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         from app.services.product_license_service import is_original_free_scan
-        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+        if settings.ACCESS_MODEL_V2_ENABLED and not is_original_free_scan(db, tenant.tenant_id, scan_id):
             raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
 
@@ -99,7 +99,7 @@ def _load_validation_report(scan_id: str, tenant_auth: tuple[str, str]) -> Valid
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         access = build_product_access_snapshot(db, tenant)
-        if not access["premium_active"]:
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["can_view_executive_report"]):
             raise HTTPException(status_code=402, detail="Validation Report access requires an active Validation Check access window.")
         return build_validation_report(db, tenant, scan_id)
 
@@ -226,7 +226,7 @@ def _load_shared_free_report(scan_id: str, report_type: str, token: str) -> Free
         enforce_tenant_is_active(db, tenant.tenant_id)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         from app.services.product_license_service import is_original_free_scan
-        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+        if settings.ACCESS_MODEL_V2_ENABLED and not is_original_free_scan(db, tenant.tenant_id, scan_id):
             raise HTTPException(status_code=404, detail="Free Report not found.")
         return build_free_health_report(db, tenant, scan_id)
 
@@ -286,7 +286,7 @@ def create_free_health_report_share_link(
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         from app.services.product_license_service import is_original_free_scan
-        if not is_original_free_scan(db, tenant.tenant_id, scan_id):
+        if settings.ACCESS_MODEL_V2_ENABLED and not is_original_free_scan(db, tenant.tenant_id, scan_id):
             raise HTTPException(status_code=404, detail="Free Report not found.")
         build_free_health_report(db, tenant, scan_id)
     token = _create_free_share_token(tenant_id=header_tenant_id, scan_id=scan_id, report_type=selected_type)
