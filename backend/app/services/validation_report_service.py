@@ -7,7 +7,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.settings import settings
-from app.models import Scan, ScanIssueRecord, Tenant, TenantScanCredit
+from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant, TenantScanCredit
 from app.operator_models import TenantOperatorAction
 from app.schemas.validation_report import (
     ValidationBusinessAreaDelta,
@@ -131,7 +131,7 @@ def _load_validation_credit(db: Session, tenant: Tenant, validation_scan_id: str
     return credit
 
 
-def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) -> tuple[Scan, TenantScanCredit]:
+def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) -> tuple[Scan, TenantScanCredit | None]:
     scan = db.scalar(
         select(Scan).where(
             Scan.scan_id == validation_scan_id,
@@ -140,6 +140,26 @@ def _load_validation_scan(db: Session, tenant: Tenant, validation_scan_id: str) 
     )
     if scan is None:
         raise HTTPException(status_code=404, detail="Validation report not found.")
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Monitoring scans have no validation_check credit by design, but can
+        # produce a Validation comparison once completed and persisted.
+        status = db.scalar(select(ScanRunStatus).where(
+            ScanRunStatus.tenant_id == tenant.tenant_id,
+            ScanRunStatus.run_id == scan.scan_id,
+            ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+            ScanRunStatus.result_persisted_at_utc.is_not(None),
+        ))
+        if status is None:
+            raise HTTPException(status_code=409, detail="Validation scan evidence not completed and persisted.")
+        credit = db.scalar(select(TenantScanCredit).where(
+            TenantScanCredit.tenant_id == tenant.tenant_id,
+            TenantScanCredit.product_code == PRODUCT_VALIDATION_CHECK,
+            TenantScanCredit.status == "consumed",
+            TenantScanCredit.consumed_scan_id == scan.scan_id,
+        ))
+        if credit is None and str(status.scan_mode or "").lower() != "monitoring":
+            raise HTTPException(status_code=409, detail="Scan has no Validation or Monitoring provenance.")
+        return scan, credit
     return scan, _load_validation_credit(db, tenant, validation_scan_id)
 
 
