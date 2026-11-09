@@ -281,6 +281,8 @@ def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
             product_code = PRODUCT_FULL_ASSESSMENT_V2
         elif product_code == PRODUCT_VALIDATION_CHECK:
             product_code = PRODUCT_ACCESS_RENEWAL_VALIDATION
+    if product_code in NEW_ACCESS_PRODUCTS and not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=400, detail="Access Renewal v2 is not enabled.")
     if product_code not in {
         PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
