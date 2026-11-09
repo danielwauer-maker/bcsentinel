@@ -18,6 +18,7 @@ def _ready_response():
         "scan_id": "test-original-free",
         "original_free_scan": True,
         "company_bound": True,
+        "company_id": "11111111-2222-3333-4444-555555555555",
         "eur_currency_verified": True,
         "premium_active": True,
         "scope_state": "auto",
@@ -49,9 +50,24 @@ def test_backend_missing_evidence_cannot_be_ignored():
     assert evaluate(info, None)[0] is False
 
 
-def test_requested_company_guid_is_not_falsely_verified():
-    ready, blockers = _load_script().evaluate(
-        _ready_response(), "11111111-2222-3333-4444-555555555555"
-    )
-    assert ready is False
+def test_expected_company_guid_is_verified_exactly():
+    evaluate = _load_script().evaluate
+    assert evaluate(_ready_response(), "11111111-2222-3333-4444-555555555555") == (True, [])
+    assert evaluate(_ready_response(), "{11111111-2222-3333-4444-555555555555}") == (True, [])
+    ready, blockers = evaluate(_ready_response(), "aaaaaaaa-2222-3333-4444-555555555555")
+    assert not ready
     assert any("GUID" in blocker for blocker in blockers)
+
+
+def test_missing_or_invalid_company_guid_fails_closed_even_if_bound():
+    evaluate = _load_script().evaluate
+    for raw in (None, "", "not-a-guid", "00000000-0000-0000-0000-000000000000"):
+        info = _ready_response()
+        info["company_id"] = raw
+        assert evaluate(info, None)[0] is False
+
+
+def test_malformed_expected_company_guid_is_rejected():
+    ready, blockers = _load_script().evaluate(_ready_response(), "not-a-guid")
+    assert not ready
+    assert any("malformed" in blocker for blocker in blockers)
