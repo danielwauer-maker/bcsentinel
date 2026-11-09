@@ -55,6 +55,20 @@ The historical BC upgrade error reported for `BCSentinel 1.0.2.51` named removed
 
 Microsoft's AL schema synchronization does not permit deleting persisted fields/tables in normal synchronize mode. See https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-retaining-data-after-publishing .
 
+## Installed AL schema audit tool (2026-11-09)
+
+The read-only `scripts/check_bc_installed_schema.py` now checks persisted table/field IDs, names, and AL types, including fields declared in tableextensions. It **requires** a verified, non-empty JSON baseline extracted and reviewed from the exact previously installed BC app (not from current GitHub main or staging). Command after obtaining that evidence:
+
+```bash
+python scripts/check_bc_installed_schema.py \
+  --installed-baseline /secure/reviewed-installed-dev-schema.json \
+  --source bc-extension/app/src
+```
+
+Baseline format: `{"tables":[{"id":53100,"name":"DH Setup","fields":[{"id":1,"name":"Primary Key","type":"Code[10]"}]}]}`. This is a format example **only**, not an asserted installed baseline. Include **all** persisted tables/fields from the installed app, not only DH Setup.
+
+Exit 0 means source matches the supplied declared baseline for table and field definitions; 2 means missing or altered persisted objects; 3 means input missing/invalid. This is a **precheck, not** a replacement for BC tenant in-place upgrade and full field/key/enum compatibility review. The exact old field IDs for `Report Notification Email` and `Preferred Report Language` remain unverified, so **do not install** on the customer sandbox yet.
+
 ## DEV acceptance – no new paid scan required for first Full test
 
 1. Keep `ACCESS_MODEL_V2_ENABLED=False` and `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` until the designated DEV cutover. The latter stays disabled even during initial v2 DEV access testing; it must be enabled only after Stripe price, refund, dispute and concurrency acceptance. Verify last deployed DEV backend and original BC extension remain healthy.
