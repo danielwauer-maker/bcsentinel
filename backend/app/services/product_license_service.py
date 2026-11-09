@@ -615,7 +615,20 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         monitoring_until is not None and monitoring_until >= now
     )
 
-    explicit_premium_until = _as_utc(tenant.premium_until_utc)
+    # A refund/dispute is a durable safety hold. It cannot be cleared by
+    # replaying checkout completion, by stale tenant.premium_until_utc, or
+    # by another stacked v2 pass. Genuine legacy paid access/Monitoring
+    # remains separately evaluated.
+    v2_payment_hold = False
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        v2_payment_hold = db.scalar(select(TenantProductPurchase.id).where(
+            TenantProductPurchase.tenant_id == tenant.tenant_id,
+            TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductPurchase.status.in_(["refunded", "disputed", "chargeback", "payment_hold"]),
+        ).limit(1)) is not None
+    if v2_payment_hold:
+        v2_access_until = None
+    explicit_premium_until = _as_utc(tenant.premium_until_utc) if not v2_payment_hold else None
     one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until, v2_access_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
     full_analysis_active = any(value is not None and value >= now for value in (full_analysis_until, v2_access_until))
@@ -642,6 +655,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "free_assessment_used": free_assessment_used,
         "free_assessment_available": not free_assessment_used,
         "premium_active": premium_access_active,
+        "v2_payment_hold": v2_payment_hold,
         "premium_until": _iso(one_time_until),
         "validation_credits": validation_credits_available,
         "monitoring_until": _iso(monitoring_until),
@@ -878,6 +892,14 @@ def record_product_purchase(
         db.flush()
         return existing
 
+    if (
+        settings.ACCESS_MODEL_V2_ENABLED
+        and existing.product_code in NEW_ACCESS_PRODUCTS
+        and existing.status in {"refunded", "disputed", "chargeback", "payment_hold"}
+    ):
+        # Out-of-order/replayed checkout.session.completed MUST NEVER restore
+        # a payment that has already been reversed or disputed.
+        return existing
     existing.product_code = normalize_product_code(product_code)
     existing.status = status
     existing.currency = (currency or "EUR").upper()
