@@ -117,6 +117,8 @@ def _load_validation_report(scan_id: str, tenant_auth: tuple[str, str]) -> Valid
         access = build_product_access_snapshot(db, tenant)
         if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=402, detail="Validation Report access requires an active Validation Check access window.")
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            raise HTTPException(status_code=409, detail="Validation comparison evidence is not available on this legacy report path.")
         return build_validation_report(db, tenant, scan_id)
 
 

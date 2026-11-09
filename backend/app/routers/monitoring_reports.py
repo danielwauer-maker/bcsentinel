@@ -46,6 +46,8 @@ def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> MonitoringReport
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, tenant_id, api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            raise HTTPException(status_code=409, detail="Monitoring comparison evidence is not available on this legacy report path.")
         return build_monitoring_report(db, tenant, scan_id)
 
 

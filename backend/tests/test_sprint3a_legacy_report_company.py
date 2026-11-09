@@ -52,3 +52,24 @@ def test_v2_disables_replayable_legacy_monitoring_link(client, monkeypatch, tena
     path = "/reports/monitoring/s3a-monitoring/pdf/shared"
     assert client.get(path, params={"token": token}).status_code == 404
     assert client.get(path, params={"token": token}).status_code == 404
+
+
+@pytest.mark.parametrize("family", ["validation", "monitoring"])
+@pytest.mark.parametrize("format_name", ["html", "pdf"])
+def test_v2_legacy_comparison_export_fails_closed_without_provenance(
+    client, monkeypatch, tenant_factory, scan_factory, auth_header_factory, family, format_name,
+):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    identity = tenant_factory(license_status="active")
+    scan_id = f"s3a-no-provenance-{family}-{format_name}"
+    scan_factory(tenant_id=identity["tenant_id"], scan_id=scan_id)
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == identity["tenant_id"]))
+        tenant.bc_company_id = "11111111-2222-3333-4444-555555555555"
+        tenant.premium_until_utc = datetime.now(timezone.utc) + timedelta(days=1)
+        scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id))
+        scan.bc_company_id = tenant.bc_company_id
+        db.commit()
+    response = client.get(f"/reports/{family}/{scan_id}/{format_name}", headers=auth_header_factory(identity))
+    assert response.status_code == 409
+    assert "comparison evidence" in response.json()["detail"]
