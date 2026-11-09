@@ -120,7 +120,18 @@ def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> Repo
         return existing
     from app.services.validation_report_service import build_validation_report
     from app.services.monitoring_report_service import build_monitoring_report
-    from app.models import Scan as ScanModel
+    from app.models import Scan as ScanModel, ScanRunStatus
+    # Only completed and persisted scans are admissible as report evidence.
+    def completed_persisted(scan_id: str) -> bool:
+        return db.scalar(select(ScanRunStatus.id).where(
+            ScanRunStatus.tenant_id == tenant.tenant_id,
+            ScanRunStatus.run_id == scan_id,
+            ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+            ScanRunStatus.result_persisted_at_utc.is_not(None),
+        ).limit(1)) is not None
+
+    if not completed_persisted(scan.scan_id):
+        raise HTTPException(status_code=409, detail="Report scan has not completed and persisted.")
     if variant == "validation":
         report = build_validation_report(db, tenant, scan.scan_id)
         referenced = [
@@ -137,6 +148,8 @@ def archive_variant_report(db, tenant: Tenant, scan: Scan, variant: str) -> Repo
     # A historical scan from another company or currency must never be
     # silently mixed into a Validation/Monitoring report.
     for scan_id in set(filter(None, referenced)):
+        if not completed_persisted(scan_id):
+            raise HTTPException(status_code=409, detail="Historical scan is incomplete or not persisted.")
         historical = db.scalar(select(ScanModel).where(
             ScanModel.tenant_id == tenant.tenant_id,
             ScanModel.scan_id == scan_id,
