@@ -72,10 +72,10 @@ def evaluate(result: dict, expected_company_id: str | None) -> tuple[bool, list[
         blockers.append("Backend prerequisite evidence is missing or malformed.")
     elif set(missing) - {"confirmed_scope_missing"}:
         blockers.append("Backend reports additional prerequisite blockers: " + ", ".join(sorted(set(missing) - {"confirmed_scope_missing"})))
-    if expected_company_id and not result.get("company_bound"):
-        blockers.append("Cannot verify requested company context from this preflight.")
-    # This endpoint intentionally does not disclose company GUID, so a
-    # company-id match requires the authenticated report/link step in BC.
+    if expected_company_id:
+        # This endpoint intentionally does not disclose company GUID; never
+        # claim a GUID match based only on company_bound=True.
+        blockers.append("Expected BC Company GUID cannot be matched by this read-only preflight; verify it in the authenticated BC report/link step.")
     return not blockers, blockers
 
 
