@@ -72,7 +72,8 @@ def test_legacy_checkout_still_uses_original_product_when_rollout_off(monkeypatc
 
 
 @pytest.mark.parametrize("product_code", NEW_CODES)
-def test_v2_checkout_price_is_tier_specific_and_never_inherited_from_legacy(product_code):
+def test_v2_checkout_price_is_tier_specific_and_never_inherited_from_legacy(monkeypatch, product_code):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
     with SessionLocal() as db:
         ensure_default_product_pricing_matrix(db)
         starter = db.query(ProductPricingMatrixConfig).filter_by(
