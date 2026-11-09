@@ -52,6 +52,79 @@ codeunit 53303 "DH Report Link Mgt."
         Hyperlink(Url);
     end;
 
+    procedure ReviewScopeAndOpenFullV6(ScanId: Code[50])
+    var
+        Setup: Record "DH Setup";
+        SecretMgt: Codeunit "DH Secret Mgt.";
+        ApiClient: Codeunit "DH API Client";
+        ScopeReview: Page "DH Assessment Scope Review";
+        Client: HttpClient;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        Payload: JsonObject;
+        RequestJson: JsonObject;
+        Token: JsonToken;
+        RequestText: Text;
+        ResponseText: Text;
+        ApiToken: Text;
+        ApiUrl: Text;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+    begin
+        if ScanId = '' then
+            Error('Select an original completed Free scan.');
+        LoadSetup(Setup);
+        ApiToken := SecretMgt.GetApiToken(Setup);
+        if (Setup."Tenant ID" = '') or (ApiToken = '') then
+            Error('BCSentinel registration and token are required.');
+
+        Headers := Client.DefaultRequestHeaders();
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', ApiToken);
+
+        ApiUrl := BuildUrl(Setup."API Base URL", '/scans/' + Format(ScanId) + '/assessment-scope');
+        if not Client.Get(ApiUrl, Response) then
+            Error('Could not load the BCSentinel assessment scope.');
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('Assessment scope unavailable (HTTP %1). %2',
+                Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
+        if not Payload.ReadFrom(ResponseText) then
+            Error('Invalid assessment scope response.');
+
+        if Payload.Get('state', Token) and (Token.AsValue().AsText() = 'confirmed') then begin
+            // Already confirmed: never rewrite the baseline.
+            OpenArchivedFullV6(ScanId);
+            exit;
+        end;
+        ScopeReview.LoadScope(ScanId, Payload);
+        if ScopeReview.RunModal() <> Action::OK then
+            exit;
+
+        RequestJson := ScopeReview.GetConfirmationPayload();
+        RequestJson.WriteTo(RequestText);
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+        ApiUrl := BuildUrl(Setup."API Base URL", '/scans/' + Format(ScanId) + '/assessment-scope/confirm');
+        Clear(Response);
+        if not Client.Post(ApiUrl, Content, Response) then
+            Error('Could not confirm the BCSentinel assessment scope.');
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('Assessment confirmation failed (HTTP %1). %2',
+                Response.HttpStatusCode(), ApiClient.GetSafeBackendErrorText(ResponseText));
+        if not Payload.ReadFrom(ResponseText) then
+            Error('Invalid assessment confirmation response.');
+        if not Payload.Get('state', Token) then
+            Error('Assessment confirmation state missing.');
+        if Token.AsValue().AsText() <> 'confirmed' then
+            Error('The BCSentinel assessment scope was not confirmed.');
+
+        OpenArchivedFullV6(ScanId);
+    end;
+
     local procedure LoadSetup(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then begin
