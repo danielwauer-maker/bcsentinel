@@ -95,6 +95,7 @@ def test_archived_report_requires_active_access_and_code_is_one_use(
 def test_expired_premium_cannot_issue_new_code_or_redeem_old_code(
     client, monkeypatch, tenant_factory, scan_factory, auth_header_factory
 ):
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
     t = _seed(tenant_factory, scan_factory)
     _activate_full(t["tenant_id"])
     monkeypatch.setattr(settings, "REPORT_V6_VIEWER_BASE_URL", "https://reports.example.test")
