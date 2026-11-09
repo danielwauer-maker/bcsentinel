@@ -240,7 +240,7 @@ def _load_shared_validation_report(scan_id: str, report_type: str, token: str) -
         enforce_tenant_is_active(db, tenant.tenant_id)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
         access = build_product_access_snapshot(db, tenant)
-        if not access["validation_access_active"]:
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=403, detail="Validation Report access is no longer active.")
         return build_validation_report(db, tenant, scan_id)
 
