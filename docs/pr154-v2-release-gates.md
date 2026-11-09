@@ -33,7 +33,7 @@
 
 ## DEV acceptance – no new paid scan required for first Full test
 
-1. Keep `ACCESS_MODEL_V2_ENABLED=False` until the designated DEV cutover. Verify last deployed DEV backend and original BC extension remain healthy.
+1. Keep `ACCESS_MODEL_V2_ENABLED=False` and `ACCESS_V2_PAID_CHECKOUT_ENABLED=False` until the designated DEV cutover. The latter stays disabled even during initial v2 DEV access testing; it must be enabled only after Stripe price, refund, dispute and concurrency acceptance. Verify last deployed DEV backend and original BC extension remain healthy.
 2. Backup DEV DB. Check existing original Free scan `Scan`, `ScanStartRequest`/`TenantScanCredit`, `ScanRunStatus`, company GUID and LCY.
 3. After approved DEV branch deployment, explicitly enable v2 on DEV only; never flip PROD by copying DEV env.
 4. Retrieve `GET /scans/{scan_id}/report-preflight` with authorized tenant headers. It MUST NOT write scope or grant any access.
