@@ -177,6 +177,7 @@ def test_v2_checkout_uses_its_own_stripe_price_and_product_metadata(
     )
     assert response.status_code == 200, response.text
     assert sent["mode"] == "payment"
+    assert sent["payment_method_types"] == ["card"]
     assert sent["line_items"] == [{"price": "price_" + product_code, "quantity": 1}]
     assert sent["metadata"]["product_code"] == product_code
 
