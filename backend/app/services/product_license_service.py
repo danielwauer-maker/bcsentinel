@@ -352,7 +352,27 @@ def is_original_free_scan(db, tenant_id: str, scan_id: str) -> bool:
     return legacy is not None
 
 def _has_permanent_free_result_access(db, tenant_id: str) -> bool:
-    return _completed_data_health_score_at(db, tenant_id) is not None
+    if _completed_data_health_score_at(db, tenant_id) is not None:
+        return True
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        return False
+    # Legacy installations stored the one-shot free scan as a consumed
+    # free_entry credit. Recognize it only when a completed owned scan exists.
+    legacy = db.scalar(
+        select(Scan.id)
+        .join(TenantScanCredit, TenantScanCredit.consumed_scan_id == Scan.scan_id)
+        .join(ScanRunStatus, ScanRunStatus.run_id == Scan.scan_id)
+        .where(
+            Scan.tenant_id == tenant_id,
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.product_code.in_(["free_entry", PRODUCT_DATA_HEALTH_SCORE]),
+            TenantScanCredit.status == "consumed",
+            ScanRunStatus.tenant_id == tenant_id,
+            ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+            ScanRunStatus.result_persisted_at_utc.is_not(None),
+        ).limit(1)
+    )
+    return legacy is not None
 
 
 def _has_legacy_premium_access(tenant: Tenant) -> bool:
@@ -445,6 +465,8 @@ def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_
     normalized = normalize_product_code(product_code)
     if normalized not in NEW_ACCESS_PRODUCTS:
         raise ValueError("Not a v2 access product.")
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        raise ValueError("V2 access grants are disabled.")
     tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
     if tenant is None:
         raise ValueError("Tenant not found.")
