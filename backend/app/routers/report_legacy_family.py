@@ -62,11 +62,26 @@ def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
         raise HTTPException(status_code=404, detail="Report not found.")
 
 
+def _require_v2_report_company(db, tenant: Tenant, scan_id: str) -> None:
+    """Legacy premium endpoints must enforce the v2 company boundary too."""
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        return
+    from app.services.scan_company_service import canonical_company_id
+
+    scan = db.scalar(select(Scan).where(Scan.tenant_id == tenant.tenant_id, Scan.scan_id == scan_id))
+    try:
+        if scan is None or canonical_company_id(scan.bc_company_id) != canonical_company_id(tenant.bc_company_id):
+            raise ValueError("company mismatch")
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Report not found.") from None
+
+
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        _require_v2_report_company(db, tenant, scan_id)
         report = build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["can_view_executive_report"]):
@@ -98,6 +113,7 @@ def _load_validation_report(scan_id: str, tenant_auth: tuple[str, str]) -> Valid
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        _require_v2_report_company(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=402, detail="Validation Report access requires an active Validation Check access window.")
@@ -203,6 +219,8 @@ def _verify_validation_share_token(token: str, *, scan_id: str, report_type: str
 
 
 def _load_shared_report(scan_id: str, report_type: str, token: str) -> ExecutiveReport:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     tenant_id, _ = _verify_share_token(token, scan_id=scan_id, report_type=report_type)
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -210,9 +228,10 @@ def _load_shared_report(scan_id: str, report_type: str, token: str) -> Executive
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         enforce_tenant_is_active(db, tenant.tenant_id)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        _require_v2_report_company(db, tenant, scan_id)
         report = build_executive_report(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
-        if not access["can_view_executive_report"]:
+        if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["can_view_executive_report"]):
             raise HTTPException(status_code=403, detail="Report access is no longer active.")
         return report
 
@@ -232,6 +251,8 @@ def _load_shared_free_report(scan_id: str, report_type: str, token: str) -> Free
 
 
 def _load_shared_validation_report(scan_id: str, report_type: str, token: str) -> ValidationReport:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     tenant_id, _ = _verify_validation_share_token(token, scan_id=scan_id, report_type=report_type)
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
@@ -239,6 +260,7 @@ def _load_shared_validation_report(scan_id: str, report_type: str, token: str) -
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         enforce_tenant_is_active(db, tenant.tenant_id)
         _require_owned_scan(db, tenant.tenant_id, scan_id)
+        _require_v2_report_company(db, tenant, scan_id)
         access = build_product_access_snapshot(db, tenant)
         if not (access["premium_active"] if settings.ACCESS_MODEL_V2_ENABLED else access["validation_access_active"]):
             raise HTTPException(status_code=403, detail="Validation Report access is no longer active.")
@@ -332,6 +354,8 @@ def create_assessment_report_share_link(
     report_type: str | None = Query(default=None),
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     selected_type = (report_type or (payload.report_type if payload else "html") or "html").strip().lower()
     if selected_type not in {"html", "pdf"}:
         raise HTTPException(status_code=400, detail="report_type must be html or pdf.")
@@ -379,6 +403,8 @@ def create_validation_report_share_link(
     report_type: str | None = Query(default=None),
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     selected_type = (report_type or (payload.report_type if payload else "html") or "html").strip().lower()
     if selected_type not in {"html", "pdf"}:
         raise HTTPException(status_code=400, detail="report_type must be html or pdf.")

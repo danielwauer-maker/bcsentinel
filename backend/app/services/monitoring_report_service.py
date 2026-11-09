@@ -193,6 +193,8 @@ def _issue_maps(db: Session, scan_ids: list[str]) -> dict[str, dict[str, ScanIss
         .order_by(ScanIssueRecord.scan_id.asc(), ScanIssueRecord.code.asc())
     ).all()
     for row in rows:
+        if settings.ACCESS_MODEL_V2_ENABLED and row.code in result.setdefault(row.scan_id, {}):
+            raise HTTPException(status_code=409, detail="Monitoring evidence unavailable: ambiguous finding identity")
         result.setdefault(row.scan_id, {})[row.code] = row
     return result
 

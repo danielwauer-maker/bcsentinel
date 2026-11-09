@@ -265,6 +265,8 @@ def _issue_map(db: Session, scan_id: str) -> dict[str, ScanIssueRecord]:
         .where(ScanIssueRecord.scan_id == scan_id)
         .order_by(ScanIssueRecord.code.asc())
     ).all()
+    if settings.ACCESS_MODEL_V2_ENABLED and len({row.code for row in rows}) != len(rows):
+        raise HTTPException(status_code=409, detail="Validation evidence unavailable: ambiguous finding identity")
     return {row.code: row for row in rows}
 
 
