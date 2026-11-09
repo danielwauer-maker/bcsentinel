@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from app.assessment_scope_models import AssessmentScopeModule, AssessmentScopeSnapshot
 from app.db import SessionLocal
-from app.models import Scan, Tenant, TenantScanCredit
+from app.models import Scan, ScanRunStatus, Tenant, TenantScanCredit
 from app.services.validation_comparison_v2_service import choose_validation_references
 
 COMPANY_A = "11111111-2222-3333-4444-555555555555"
@@ -138,4 +138,44 @@ def test_foreign_tenant_cannot_read_scan(tenant_factory):
         with pytest.raises(HTTPException) as exc:
             choose_validation_references(db, owner, current)
         assert exc.value.status_code == 404
+        db.rollback()
+
+
+
+def test_monitoring_scan_is_valid_validation_source_without_scan_credit(tenant_factory):
+    from app.core.settings import settings
+    from app.services.validation_report_service import _load_validation_scan
+    tenant_id = tenant_factory()["tenant_id"]
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        scan = _scan(db, tenant_id, "monitoring-comparison-source", now)
+        db.add(ScanRunStatus(
+            run_id=scan.scan_id, tenant_id=tenant_id, scan_mode="monitoring",
+            status="completed", created_at_utc=now, updated_at_utc=now,
+            completed_at_utc=now, result_persisted_at_utc=now,
+        ))
+        db.flush()
+        previous_flag = settings.ACCESS_MODEL_V2_ENABLED
+        settings.ACCESS_MODEL_V2_ENABLED = True
+        try:
+            result, credit = _load_validation_scan(db, tenant, scan.scan_id)
+            assert result.scan_id == scan.scan_id
+            assert credit is None
+        finally:
+            settings.ACCESS_MODEL_V2_ENABLED = previous_flag
+        db.rollback()
+
+
+def test_unfinished_monitoring_scan_cannot_be_a_validation_source(tenant_factory, monkeypatch):
+    from app.core.settings import settings
+    from app.services.validation_report_service import _load_validation_scan
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    tenant_id = tenant_factory()["tenant_id"]
+    with SessionLocal() as db:
+        tenant = db.query(Tenant).filter_by(tenant_id=tenant_id).one()
+        scan = _scan(db, tenant_id, "monitoring-not-complete", datetime.now(timezone.utc))
+        with pytest.raises(HTTPException) as exc:
+            _load_validation_scan(db, tenant, scan.scan_id)
+        assert exc.value.status_code == 409
         db.rollback()
