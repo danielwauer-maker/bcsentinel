@@ -314,3 +314,18 @@ def test_old_monitoring_checkout_is_not_sold_under_v2_tier_limits(monkeypatch, t
                 _ensure_checkout_product_allowed(db, tenant, product)
             assert exc.value.status_code == 409
             assert "pricing" in exc.value.detail
+
+
+def test_v2_checkout_not_released_even_if_access_model_flag_enabled(
+    client, monkeypatch, tenant_factory, auth_header_factory,
+):
+    tenant = tenant_factory()
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    monkeypatch.setattr(settings, "ACCESS_V2_PAID_CHECKOUT_ENABLED", False)
+    response = client.post(
+        "/billing/checkout/session",
+        headers=auth_header_factory(tenant),
+        json={"tenant_id": tenant["tenant_id"], "product_code": PRODUCT_FULL_ASSESSMENT_V2},
+    )
+    assert response.status_code == 503
+    assert "not released" in response.text.lower()
