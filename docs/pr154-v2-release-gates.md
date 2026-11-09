@@ -1,3 +1,11 @@
+## 2026-11-09 BC SaaS upload rejection: PTE0004 (v1.0.2.53)
+
+A real Business Central SaaS sandbox upload of the v1.0.2.53 build was rejected by Microsoft's package validator with **PTE0004** for nine existing tables: `DH Notification Config Audit`, `DH Notification Delivery`, `DH Notification Event`, `DH Notification Recipient`, `DH Notification Rule`, `DH Notification Setup`, `DH Notification Template`, `DH Remediation Action`, and `DH Remediation Audit`. This is **not** a successful installation; the pre-existing v1.0.2.52 remains the only confirmed installed version.
+
+The operator supplied both v1.0.2.52 and v1.0.2.53 packages. A source diff isolated the regression in `BCSentinelPermissionSets.al`: 1.0.2.53 removed all nine tables' `tabledata` entries from SCAN, SETUP and ADMIN roles. The scheduler permission set was also inadvertently renumbered from installed object ID **53345** to **53194**. In the repair commit, the previous least-privilege role-specific rights and stable scheduler ID from v1.0.2.52 were restored, without introducing SUPER or broad grants. New `backend/tests/test_bc_pte0004_permissions_contract.py` checks every persisted table has at least one explicit tabledata permission, confirms the nine restored entries across roles, and locks installed permission-set IDs.
+
+Candidate version is bumped to **1.0.2.54** in both AL manifests and the current-version contract tests. The historical release evidence keeps its original versions. A green CI AL compile/pytest is necessary but not sufficient: Microsoft's **actual SaaS upload validator** must accept v1.0.2.54 before the BC in-place upgrade gate can pass. Do not ForceSync, uninstall, or delete data to get past PTE0004.
+
 # PR #154 – V2 Release Gate and DEV Acceptance
 
 **Status: DRAFT / NOT PRODUCTION READY** (2026-11-09). Do not merge or install until the gates below have passed. This document is intentionally explicit about external dependencies and evidence that cannot be manufactured by unit tests.
