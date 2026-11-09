@@ -455,9 +455,16 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
             return sorted(candidates, key=lambda price: int(price.amount_cents or 0))[0]
         return None
 
-    full_analysis = starting_price(PRODUCT_FULL_ANALYSIS)
+    full_analysis = starting_price(
+        PRODUCT_FULL_ASSESSMENT_V2 if settings.ACCESS_MODEL_V2_ENABLED else PRODUCT_FULL_ANALYSIS
+    )
     validation = starting_price(PRODUCT_VALIDATION_CHECK)
     monitoring = starting_price(PRODUCT_MONITORING_MONTHLY)
+    renewal = starting_price(PRODUCT_ACCESS_RENEWAL) if settings.ACCESS_MODEL_V2_ENABLED else None
+    renewal_validation = (
+        starting_price(PRODUCT_ACCESS_RENEWAL_VALIDATION)
+        if settings.ACCESS_MODEL_V2_ENABLED else None
+    )
     products = [
         {
             "product_key": PRODUCT_DATA_HEALTH_SCORE,
@@ -473,10 +480,11 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         },
     ]
     if full_analysis is not None:
+        selected_full_code = PRODUCT_FULL_ASSESSMENT_V2 if settings.ACCESS_MODEL_V2_ENABLED else PRODUCT_FULL_ANALYSIS
         products.append(
             {
-                "product_key": PRODUCT_FULL_ANALYSIS,
-                "product_contract": product_contract_for_storage_code(PRODUCT_FULL_ANALYSIS),
+                "product_key": selected_full_code,
+                "product_contract": product_contract_for_storage_code(selected_full_code),
                 "display_name": full_analysis.display_name_en,
                 "price_cents": int(full_analysis.amount_cents or 0),
                 "price_eur": full_analysis.amount_eur or 0.0,
@@ -487,7 +495,25 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
                 "contact_sales": False,
             }
         )
-    if validation is not None:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Only explicitly activated and priced v2 products may be advertised.
+        # A historic validation_check price must not masquerade as Renewal.
+        for selected in (renewal, renewal_validation):
+            if selected is None:
+                continue
+            products.append({
+                "product_key": selected.product_key,
+                "product_contract": product_contract_for_storage_code(selected.product_key),
+                "display_name": selected.display_name_en,
+                "price_cents": int(selected.amount_cents or 0),
+                "price_eur": selected.amount_eur or 0.0,
+                "currency": selected.currency,
+                "billing_interval": selected.billing_interval,
+                "is_active": selected.is_active,
+                "starting_at": True,
+                "contact_sales": False,
+            })
+    if not settings.ACCESS_MODEL_V2_ENABLED and validation is not None:
         products.append(
             {
                 "product_key": PRODUCT_VALIDATION_CHECK,
@@ -529,6 +555,10 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
 
 
 def build_public_pricing_matrix(db) -> list[dict[str, Any]]:
+    visible_codes = (
+        NEW_ACCESS_PRODUCTS | {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+        if settings.ACCESS_MODEL_V2_ENABLED else None
+    )
     return [
         price_to_dashboard_item(_matrix_row_to_price(row))
         | {
@@ -537,6 +567,7 @@ def build_public_pricing_matrix(db) -> list[dict[str, Any]]:
             "stripe_price_configured": bool((row.stripe_price_id or "").strip()),
         }
         for row in list_product_pricing_matrix(db, active_only=True)
+        if visible_codes is None or row.product_key in visible_codes
     ]
 
 
@@ -547,6 +578,10 @@ def resolve_checkout_matrix_price(
     record_count: int | None,
     env_price_id: str | None = None,
 ) -> MatrixPrice:
+    if settings.ACCESS_MODEL_V2_ENABLED and normalize_product_code(product_key) in NEW_ACCESS_PRODUCTS and record_count is None:
+        raise ProductPricingValidationError(
+            "A verified scan record count is required before paid v2 checkout."
+        )
     pricing_tier = pricing_tier_for_record_count(record_count) or PRICING_TIER_STARTER
     if settings.ACCESS_MODEL_V2_ENABLED and pricing_tier == PRICING_TIER_CUSTOM and normalize_product_code(product_key) not in NEW_ACCESS_PRODUCTS:
         # Old Monitoring catalogue has no Custom row. Never default large
