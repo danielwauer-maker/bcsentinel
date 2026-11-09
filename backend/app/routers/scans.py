@@ -599,6 +599,14 @@ def sync_scan(
         except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
+        # v2: persist the observed (NOT customer-confirmed) module scope in
+        # the same transaction as the finalized scan. No background retry,
+        # synthetic baseline, or new scan is required for report preflight.
+        from app.core.settings import settings
+        if settings.ACCESS_MODEL_V2_ENABLED:
+            from app.services.assessment_scope_service import get_or_create_auto_scope
+            get_or_create_auto_scope(db, scan, commit=False)
+
         scan_status = serialize_scan_status(db, run)
         db.commit()
 
