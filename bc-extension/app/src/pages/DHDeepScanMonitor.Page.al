@@ -452,6 +452,40 @@
                 end;
             }
 
+            action(OpenValidationReportV2)
+            {
+                Caption = 'Validation Report';
+                ApplicationArea = All;
+                Image = Report;
+                ToolTip = 'Open the secure Validation comparison for this completed scan. Requires active paid access and validated baseline evidence.';
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenReportVariantV2(Rec."Run ID", 'validation');
+                end;
+            }
+
+            action(OpenMonitoringReportV2)
+            {
+                Caption = 'Monitoring Report';
+                ApplicationArea = All;
+                Image = Report;
+                ToolTip = 'Open the secure Monitoring history report. Requires an active Monitoring subscription and completed scan history.';
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenReportVariantV2(Rec."Run ID", 'monitoring');
+                end;
+            }
+
             action(OpenExecutivePdf)
             {
                 Visible = false; // Hidden legacy/dashboard route for report-only launch.
