@@ -655,6 +655,8 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
     """Create checkout for a tenant already authorized by the caller."""
 
     product_code = _normalize_checkout_product_code(payload)
+    if product_code in NEW_ACCESS_PRODUCTS and not settings.ACCESS_V2_PAID_CHECKOUT_ENABLED:
+        raise HTTPException(status_code=503, detail="V2 paid checkout is not released.")
     normalized_plan_code = product_code
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
