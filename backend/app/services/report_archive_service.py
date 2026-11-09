@@ -180,7 +180,12 @@ def issue_variant_link(db, tenant: Tenant, scan: Scan, viewer_url: str, variant:
     enforce_tenant_is_active(db, tenant.tenant_id)
     if variant not in {"validation", "monitoring"} or not settings.ACCESS_MODEL_V2_ENABLED:
         raise HTTPException(status_code=404, detail="Report variant unavailable.")
-    scan.bc_company_id = canonical_company_id(scan.bc_company_id)
+    if not scan.bc_company_id or not scan.lcy_code:
+        raise HTTPException(status_code=409, detail="Verified scan company/LCY required.")
+    try:
+        scan.bc_company_id = canonical_company_id(scan.bc_company_id)
+    except ValueError:
+        raise HTTPException(status_code=409, detail="Invalid scan company GUID.") from None
     archive_variant_report(db, tenant, scan, variant)
     raw_code = secrets.token_urlsafe(32)
     db.add(ReportAccessGrant(
