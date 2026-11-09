@@ -70,6 +70,9 @@ def test_renewal_stacks_active_days_and_payment_replay_is_idempotent(tenant_fact
         assert replay.id == renewal_grant.id
         assert db.query(TenantProductEntitlement).filter_by(tenant_id=tenant_id).count() == count
         assert db.query(TenantScanCredit).filter_by(tenant_id=tenant_id).count() == 0
+        snapshot = build_product_access_snapshot(db, db.query(Tenant).filter_by(tenant_id=tenant_id).one())
+        assert snapshot["validation_access_active"]
+        assert snapshot["validation_scan_credits_available"] == 0
         db.commit()
 
 
