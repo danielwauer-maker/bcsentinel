@@ -15,6 +15,10 @@ from app.services.product_license_service import (
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
+    NEW_ACCESS_PRODUCTS,
     normalize_product_code,
     pricing_tier_for_record_count,
 )
@@ -98,6 +102,18 @@ PRODUCT_PRICING_MATRIX_DEFAULTS: dict[str, dict[str, dict[str, Any]]] = {
         PRICING_TIER_BUSINESS: {"amount_cents": 9900, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME},
         PRICING_TIER_ENTERPRISE: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_CONTACT_SALES},
     },
+    PRODUCT_FULL_ASSESSMENT_V2: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in PRICING_TIER_ORDER
+    },
+    PRODUCT_ACCESS_RENEWAL: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in PRICING_TIER_ORDER
+    },
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in PRICING_TIER_ORDER
+    },
     PRODUCT_MONITORING_MONTHLY: {
         PRICING_TIER_STARTER: {"amount_cents": 14900, "billing_interval": PRODUCT_BILLING_INTERVAL_MONTH},
         PRICING_TIER_PROFESSIONAL: {"amount_cents": 19900, "billing_interval": PRODUCT_BILLING_INTERVAL_MONTH},
@@ -116,6 +132,9 @@ PRODUCT_PRICING_MATRIX_PRODUCTS = list(PRODUCT_PRICING_MATRIX_DEFAULTS.keys())
 PRODUCT_MATRIX_DISPLAY_NAMES = {
     PRODUCT_FULL_ANALYSIS: {"de": "Full Analysis", "en": "Full Analysis"},
     PRODUCT_VALIDATION_CHECK: {"de": "Validation Check", "en": "Validation Check"},
+    PRODUCT_FULL_ASSESSMENT_V2: {"de": "Full Assessment – 14 Tage", "en": "Full Assessment – 14 days"},
+    PRODUCT_ACCESS_RENEWAL: {"de": "Full Access verlängern – 14 Tage", "en": "Access Renewal – 14 days"},
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: {"de": "Verlängerung + Validation", "en": "Renewal + Validation"},
     PRODUCT_MONITORING_MONTHLY: {"de": "Monitoring Monthly", "en": "Monitoring Monthly"},
     PRODUCT_MONITORING_ANNUAL: {"de": "Monitoring Annual", "en": "Monitoring Annual"},
 }
@@ -206,7 +225,7 @@ def ensure_default_product_pricing_matrix(db) -> None:
                             display_name_de=names["de"],
                             display_name_en=names["en"],
                             stripe_price_id=None,
-                            is_active=True,
+                            is_active=bool(config.get("is_active", True)),
                             updated_at_utc=now,
                         )
                     )
@@ -364,7 +383,7 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
             display_name_de=names["de"],
             display_name_en=names["en"],
             stripe_price_id=None,
-            is_active=True,
+            is_active=bool(defaults.get("is_active", True)),
         )
     return _matrix_row_to_price(row)
 
@@ -385,6 +404,8 @@ def price_to_dashboard_item(price: MatrixPrice) -> dict[str, Any]:
     }
     if price.product_key in {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK}:
         payload["access_days"] = 7
+    elif price.product_key in NEW_ACCESS_PRODUCTS:
+        payload["access_days"] = 14
     if price.product_key == PRODUCT_MONITORING_MONTHLY:
         payload["interval"] = "month"
     if price.product_key == PRODUCT_MONITORING_ANNUAL:
