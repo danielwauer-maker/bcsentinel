@@ -2898,6 +2898,10 @@ codeunit 53128 "DH Deep Scan Runner"
                 until CheckExecution.Next() = 0;
             ExecutionEvidence.Add('checks', ExecutedChecks);
             Payload.Add('check_execution_evidence', ExecutionEvidence);
+            // Optional v1 record evidence exists only for the proven Customer VAT
+            // check; never infer identity from scan-scoped Finding.SystemId.
+            if DeepScanRun.GetStartExpectationText() <> '' then
+                AddCustomerVatSourceRecordEvidence(Payload, Setup, DeepScanRun, IdentityMgt);
         end;
 
         Payload.Add('headline', DeepScanRun."Headline");
@@ -2922,6 +2926,68 @@ codeunit 53128 "DH Deep Scan Runner"
         Payload.Add('issues', IssuesArray);
         Payload.WriteTo(RequestText);
         exit(RequestText);
+    end;
+
+    local procedure AddCustomerVatSourceRecordEvidence(var Payload: JsonObject; var Setup: Record "DH Setup"; var DeepScanRun: Record "DH Deep Scan Run"; var IdentityMgt: Codeunit "DH Tenant Identity Mgt.")
+    var
+        RecordEvidence: Record "DH Scan Record Evidence";
+        CheckExecution: Record "DH Check Execution";
+        Finding: Record "DH Deep Scan Finding";
+        IdentityEnvelope: JsonObject;
+        Member: JsonObject;
+        Members: JsonArray;
+        ExpectedMembers: Integer;
+        ObservedMembers: Integer;
+        MaxIdentityMembers: Integer;
+        IncompleteEvidenceErr: Label 'SCAN_RECORD_EVIDENCE_INCOMPLETE', Locked = true;
+    begin
+        if not CheckExecution.Get(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_VAT') then
+            exit;
+        if (CheckExecution."Execution Status" <> 'PASS') and (CheckExecution."Execution Status" <> 'FINDINGS') then
+            exit;
+
+        Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
+        Finding.SetRange("Issue Code", 'CUSTOMERS_DUPLICATE_VAT');
+        if Finding.FindSet() then
+            repeat
+                ExpectedMembers += Finding."Affected Count";
+            until Finding.Next() = 0;
+
+        RecordEvidence.SetRange("Run Entry No.", DeepScanRun."Entry No.");
+        RecordEvidence.SetRange("Check Code", 'CUSTOMERS_DUPLICATE_VAT');
+        RecordEvidence.SetRange("Source Table ID", Database::Customer);
+        ObservedMembers := RecordEvidence.Count();
+        if ExpectedMembers <> ObservedMembers then
+            Error(IncompleteEvidenceErr);
+        if (CheckExecution."Execution Status" = 'PASS') and (ExpectedMembers <> 0) then
+            Error(IncompleteEvidenceErr);
+        if (CheckExecution."Execution Status" = 'FINDINGS') and (ExpectedMembers < 2) then
+            Error(IncompleteEvidenceErr);
+
+        MaxIdentityMembers := 2000;
+        // Preserve ordinary sync for customers above the v1 transport cap.
+        // No verified record-level transitions are authorized for these runs.
+        if ObservedMembers > MaxIdentityMembers then
+            exit;
+
+        if RecordEvidence.FindSet() then
+            repeat
+                Clear(Member);
+                Member.Add('table_id', RecordEvidence."Source Table ID");
+                Member.Add('record_system_id', LowerCase(DelChr(Format(RecordEvidence."Source Record SystemId"), '=', '{}')));
+                Members.Add(Member);
+            until RecordEvidence.Next() = 0;
+
+        IdentityEnvelope.Add('schema_version', 'bc-record-evidence-v1');
+        IdentityEnvelope.Add('tenant_id', Setup."Tenant ID");
+        IdentityEnvelope.Add('scan_id', Format(DeepScanRun."Run ID"));
+        IdentityEnvelope.Add('company_id', IdentityMgt.GetCompanyId());
+        IdentityEnvelope.Add('check_code', 'CUSTOMERS_DUPLICATE_VAT');
+        IdentityEnvelope.Add('observed_at_utc', Format(CheckExecution."Observed At", 0, 9));
+        IdentityEnvelope.Add('completed', true);
+        IdentityEnvelope.Add('affected_records_count', ObservedMembers);
+        IdentityEnvelope.Add('records', Members);
+        Payload.Add('source_record_evidence', IdentityEnvelope);
     end;
 
     local procedure GetPreferredLanguage(): Text
