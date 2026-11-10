@@ -57,3 +57,13 @@ def test_snapshot_is_persisted_before_start_and_acknowledged_before_run():
     assert "ApplyFrozenModules(DeepScanRun, Setup)" in runner
     assert "GetExpectedChecksCountForRun(DeepScanRun, Setup)" in runner
     assert "DeepScanFailure.RetryFailedEvidence(DeepScanRun)" in management
+
+
+def test_frozen_exception_scope_has_deterministic_primary_key_order():
+    source = (ROOT / "bc-extension/app/src/codeunits/DHScanCheckMgt.Codeunit.al").read_text(encoding="utf-8-sig")
+    snapshot = source.split("procedure BuildStartExpectation", 1)[-1]
+    before_entries = snapshot.split("ExceptionObject.Add('entry_no'", 1)[0]
+    # Stable ordering is required before enumerating the exception snapshot.
+    assert 'IssueException.SetCurrentKey("Entry No.");' in before_entries
+    assert before_entries.index('IssueException.Reset();') < before_entries.index('IssueException.SetCurrentKey("Entry No.");')
+    assert before_entries.index('IssueException.SetCurrentKey("Entry No.");') < before_entries.index('IssueException.FindSet()')
