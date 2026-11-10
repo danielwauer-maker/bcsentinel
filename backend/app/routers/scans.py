@@ -177,6 +177,9 @@ def _canonical_execution_evidence(payload: ScanSyncPayload) -> tuple[str, str, s
         # Preserve the same retry identity even when BC enumeration order differs.
         records = sync["source_record_evidence"]["records"]
         records.sort(key=lambda item: (item["table_id"], item["record_system_id"]))
+    else:
+        # Exact legacy canonical form: old completed scans never had this key.
+        sync.pop("source_record_evidence", None)
     sync["enabled_modules"] = sorted(sync["enabled_modules"])
     sync["issues"] = sorted(sync["issues"], key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
     try:
