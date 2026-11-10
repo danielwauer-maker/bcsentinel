@@ -183,7 +183,25 @@ def _readback_diagnostics(db, tenant_id, scan_id):
                   if t.tzinfo is None else t.astimezone(_timezone.utc)) for t in times]
     issues = db.scalars(select(ScanIssueRecord).where(
         ScanIssueRecord.scan_id == scan_id, ScanIssueRecord.code == CHECK)).all()
-    return {
+    from app.services.source_record_evidence_contract import (
+        SourceRecordEvidenceV1, validate_record_evidence_contract,
+    )
+    try:
+        envelope = SourceRecordEvidenceV1.model_validate_json(stored.payload_json)
+        normalized, digest = validate_record_evidence_contract(
+            envelope, tenant_id=tenant_id, scan_id=scan_id,
+            company_id=stored.company_id,
+            check_status=check["status"],
+            group_finding_count=len(issues),
+            affected_records_count=sum(issue.affected_count for issue in issues),
+        )
+        canonical_results = {
+            "canon_matches": normalized == stored.payload_json,
+            "digest_matches": digest == stored.payload_sha256,
+        }
+    except Exception as exc:
+        canonical_results = {"contract_error_type": type(exc).__name__}
+    return {**canonical_results,
         "hashes": [hashlib.sha256(row.payload_json.encode()).hexdigest() == row.payload_sha256
                    for row in (stored, start, executed)],
         "status": run.status, "scan_type": scan.scan_type,
