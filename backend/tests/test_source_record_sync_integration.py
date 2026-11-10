@@ -188,7 +188,7 @@ def _readback_diagnostics(db, tenant_id, scan_id):
     )
     try:
         envelope = SourceRecordEvidenceV1.model_validate_json(stored.payload_json)
-        normalized, digest = validate_record_evidence_contract(
+        canonical_json, digest = validate_record_evidence_contract(
             envelope, tenant_id=tenant_id, scan_id=scan_id,
             company_id=stored.company_id,
             check_status=check["status"],
@@ -196,7 +196,7 @@ def _readback_diagnostics(db, tenant_id, scan_id):
             affected_records_count=sum(issue.affected_count for issue in issues),
         )
         canonical_results = {
-            "canon_matches": normalized == stored.payload_json,
+            "canon_matches": canonical_json == stored.payload_json,
             "digest_matches": digest == stored.payload_sha256,
         }
     except Exception as exc:
