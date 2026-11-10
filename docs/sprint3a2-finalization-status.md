@@ -47,3 +47,11 @@ This establishes **check-level presence and zero-finding comparability only**. N
 The first full-regression attempt on `a8360f9041d058165534e678ec160098aaa1f0fb` produced **908 passed, 1 failed, 16 skipped, 2 xfailed**. The single failure was an overly narrow test expectation: comparing the same scan correctly returns both `SAME_SCAN` and `INVALID_SCAN_ORDER`. The assertion was corrected without changing comparison policy.
 
 The verified clean-scan adapter now additionally demands `Scan.checks_count == len(enabled snapshot checks)`. An ORM negative case deliberately stores a mismatched scan count and asserts fail-closed `MISSING_PROVENANCE`. Full CI for the final SHA and actual BC27-generated scan pairs must still be checked. All finding transition / score / impact comparisons and Validation/Monitoring PDF unlocks remain explicitly blocked.
+
+## Finding transitions prototype — 2026-11-10
+
+A new pure helper compares preverified canonical SHA-256 finding identities for one check and returns resolved, persistent and new identities. Invalid statuses, duplicate IDs, missing IDs, legacy IDs and unmatched checks fail closed. Tests include positive, empty-result and negative cases.
+
+This is not yet a source-verified BC data flow. The AL finding-row SystemId is not the affected business-record SystemId; its current Group Key is tied to the run SystemId. Aggregate findings cannot be interpreted as per-record identities. Report export guards must remain in place until versioned source-bound record identity evidence is implemented and verified in a real BC27 environment.
+
+The full regression on bf764184 failed during Python test collection because a literal newline escape entered a test assertion. The syntax error was fixed in commit 0ad8430; final CI results remain to be checked.
