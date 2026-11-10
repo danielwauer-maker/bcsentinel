@@ -575,17 +575,17 @@ codeunit 53196 "DH Scan Check Mgt."
             Item := Token.AsObject();
             if not Item.Get('enabled', Value) then
                 Error(ExpectationInvalidErr);
-            if not Value.AsValue().AsBoolean() then
-                continue;
-            if not Item.Get('code', CodeToken) then
-                Error(ExpectationInvalidErr);
-            IssueCode := CopyStr(CodeToken.AsValue().AsText(), 1, MaxStrLen(IssueCode));
-            if not CheckExecution.Get(DeepScanRun."Entry No.", IssueCode) then
-                Error(CheckMissingErr, IssueCode);
-            if (CheckExecution."Execution Status" <> 'PASS') and
-               (CheckExecution."Execution Status" <> 'FINDINGS')
-            then
-                Error(CheckMissingErr, IssueCode);
+            if Value.AsValue().AsBoolean() then begin
+                if not Item.Get('code', CodeToken) then
+                    Error(ExpectationInvalidErr);
+                IssueCode := CopyStr(CodeToken.AsValue().AsText(), 1, MaxStrLen(IssueCode));
+                if not CheckExecution.Get(DeepScanRun."Entry No.", IssueCode) then
+                    Error(CheckMissingErr, IssueCode);
+                if (CheckExecution."Execution Status" <> 'PASS') and
+                   (CheckExecution."Execution Status" <> 'FINDINGS')
+                then
+                    Error(CheckMissingErr, IssueCode);
+            end;
         end;
     end;
 
