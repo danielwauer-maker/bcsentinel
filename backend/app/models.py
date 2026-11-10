@@ -270,6 +270,31 @@ class ScanExecutionEvidence(Base):
     created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+
+
+class ScanRecordIdentityEvidence(Base):
+    """Immutable, verified-scan-bound record identity membership.
+
+    Schema and persistence alone are not source attestation. Only a future
+    authenticated scan-sync handler may populate the table.
+    """
+    __tablename__ = "scan_record_identity_evidence"
+    __table_args__ = (
+        CheckConstraint("length(payload_sha256) = 64", name="ck_record_evidence_sha256_length"),
+        CheckConstraint("schema_version = 'bc-record-evidence-v1'", name="ck_record_evidence_schema"),
+        CheckConstraint("check_code = 'CUSTOMERS_DUPLICATE_VAT'", name="ck_record_evidence_check"),
+    )
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    check_code: Mapped[str] = mapped_column(String(50), primary_key=True)
+    schema_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class ScanIssueRecord(Base):
     __tablename__ = "scan_issues"
     __table_args__ = (
