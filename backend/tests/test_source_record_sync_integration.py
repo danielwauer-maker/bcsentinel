@@ -204,6 +204,13 @@ def _readback_diagnostics(db, tenant_id, scan_id):
     return {**canonical_results,
         "hashes": [hashlib.sha256(row.payload_json.encode()).hexdigest() == row.payload_sha256
                    for row in (stored, start, executed)],
+        "binding_tenants": all(row.tenant_id == tenant_id for row in (scan, run, stored, start, executed)),
+        "schemas": [stored.schema_version, executed.schema_version, frozen.get("schema_version")],
+        "source_check_status": check["status"] if check else None,
+        "frozen_check_source_id": frozen.get("company_id") == COMPANY,
+        "scope_exists": isinstance(frozen.get("exception_scope"), list),
+        "time_window": normalized[4] <= normalized[6] <= normalized[5] + __import__("datetime").timedelta(minutes=5),
+
         "status": run.status, "scan_type": scan.scan_type,
         "company_match": scan.bc_company_id == stored.company_id == start.company_id == executed.company_id,
         "env_match": frozen.get("environment") == "production",
