@@ -11,7 +11,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import CreditLedgerEntry, Scan, ScanIssueRecord, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
+from app.models import CreditLedgerEntry, Scan, ScanExpectationSnapshot, ScanIssueRecord, ScanRunStatus, ScanStartRequest, Tenant, TenantScanCredit
 from app.services.product_license_service import (
     PRODUCT_DATA_HEALTH_SCORE,
     PRODUCT_VALIDATION_CHECK,
@@ -79,7 +79,7 @@ def normalize_requested_scan_mode(value: str | None) -> str:
     return "validation" if normalized == "validation_check" else normalized
 
 
-def build_payload_hash(*, run_id: str, scan_mode: str, total_modules: int, company_name: str | None, environment_name: str | None) -> str:
+def build_payload_hash(*, run_id: str, scan_mode: str, total_modules: int, company_name: str | None, environment_name: str | None, expectation_json: str | None = None) -> str:
     canonical = json.dumps(
         {
             "run_id": (run_id or "").strip(),
@@ -92,6 +92,10 @@ def build_payload_hash(*, run_id: str, scan_mode: str, total_modules: int, compa
         sort_keys=True,
         separators=(",", ":"),
     )
+    # Preserve legacy request hashes exactly. Bind new starts to the entire
+    # canonical expectation without changing older idempotency contracts.
+    if expectation_json is not None:
+        canonical += "\nexpectation-sha256:" + hashlib.sha256(expectation_json.encode("utf-8")).hexdigest()
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
@@ -327,6 +331,8 @@ def accept_scan_start(
     total_modules: int,
     company_name: str | None,
     environment_name: str | None,
+    expectation_json: str | None = None,
+    expectation_company: str | None = None,
 ) -> ScanStartResult:
     tenant_id = tenant.tenant_id
     request_id = normalize_client_request_id(client_request_id)
@@ -340,6 +346,7 @@ def accept_scan_start(
         total_modules=total_modules,
         company_name=company_name,
         environment_name=environment_name,
+        expectation_json=expectation_json,
     )
     replay = _existing_result(
         db, tenant_id=tenant_id, client_request_id=request_id, payload_hash=payload_hash
@@ -358,6 +365,14 @@ def accept_scan_start(
         )
         if replay is not None:
             return replay
+        if expectation_json is not None:
+            # An orphan may be recoverable by the legacy path, but its true
+            # pre-execution configuration cannot be established after the fact.
+            raise ScanStartConflictError(
+                "An existing scan cannot acquire a new expectation snapshot.",
+                code="SCAN_EXPECTATION_REQUIRES_NEW_SCAN",
+                message_de="Ein bestehender Scan kann keinen neuen Erwartungs-Snapshot erhalten.",
+            )
         existing_scan = db.scalar(select(Scan).where(Scan.scan_id == normalized_run_id))
         if existing_scan is None:
             raise RuntimeError("The existing scan disappeared while its start request was being reconciled.")
@@ -450,6 +465,17 @@ def accept_scan_start(
             total_modules=max(int(total_modules or 0), 0),
             worker_id=request_id,
         )
+        if expectation_json is not None:
+            if not expectation_company:
+                raise ValueError("A registered company is required for scan expectations.")
+            # Flush the parent before its FK/tenant binding trigger is checked.
+            db.flush()
+            db.add(ScanExpectationSnapshot(
+                scan_id=normalized_run_id, tenant_id=tenant_id, company_id=expectation_company,
+                payload_json=expectation_json,
+                payload_sha256=hashlib.sha256(expectation_json.encode("utf-8")).hexdigest(),
+                created_at_utc=now,
+            ))
         if credit is not None:
             db.add(
                 CreditLedgerEntry(

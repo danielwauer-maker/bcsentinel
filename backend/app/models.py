@@ -244,6 +244,18 @@ class Scan(Base):
     )
 
 
+class ScanExpectationSnapshot(Base):
+    """Source-declared expectations sealed atomically with scan acceptance."""
+    __tablename__ = "scan_expectation_snapshots"
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class ScanExecutionEvidence(Base):
     """Immutable source-attested partial observations, never inferred history."""
     __tablename__ = "scan_execution_evidence"

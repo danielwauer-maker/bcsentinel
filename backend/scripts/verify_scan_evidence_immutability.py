@@ -13,7 +13,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from app.models import Scan, ScanExecutionEvidence, Tenant  # noqa: E402
+from app.models import Scan, ScanExecutionEvidence, ScanExpectationSnapshot, Tenant  # noqa: E402
 
 
 def main() -> None:
@@ -29,7 +29,7 @@ def main() -> None:
     tenant_id, scan_id = f"evidence-{uuid4().hex}", f"evidence-{uuid4().hex}"
     company = "11111111-2222-3333-4444-555555555555"
     with Session(engine) as db:
-        tenant = Tenant(tenant_id=tenant_id, environment_name="synthetic-test", app_version="test", created_at_utc=now)
+        tenant = Tenant(tenant_id=tenant_id, environment_name="synthetic-test", app_version="test", created_at_utc=now, bc_company_id=company)
         foreign_tenant_id = f"foreign-{uuid4().hex}"
         foreign_tenant = Tenant(tenant_id=foreign_tenant_id, environment_name="synthetic-test", app_version="test", created_at_utc=now)
         scan = Scan(scan_id=scan_id, tenant_id=tenant_id, scan_type="deep", generated_at_utc=now,
@@ -37,6 +37,29 @@ def main() -> None:
                     summary_rating="test", bc_company_id=company, lcy_code="EUR")
         db.add_all([tenant, foreign_tenant, scan])
         db.flush()
+        for bad_tenant, bad_company in ((tenant_id, "wrong"), (foreign_tenant_id, company)):
+            bad = ScanExpectationSnapshot(scan_id=scan_id, tenant_id=bad_tenant, company_id=bad_company,
+                                          payload_json="{}", payload_sha256="a" * 64, created_at_utc=now)
+            try:
+                with db.begin_nested():
+                    db.add(bad)
+                    db.flush()
+            except DBAPIError:
+                pass
+            else:
+                raise AssertionError("Tenant/company binding trigger did not reject invalid expectation")
+        db.add(ScanExpectationSnapshot(scan_id=scan_id, tenant_id=tenant_id, company_id=company,
+                                       payload_json="{}", payload_sha256="a" * 64, created_at_utc=now))
+        db.flush()
+        for statement in ("UPDATE scan_expectation_snapshots SET payload_json='changed' WHERE scan_id=:id",
+                          "DELETE FROM scan_expectation_snapshots WHERE scan_id=:id"):
+            try:
+                with db.begin_nested():
+                    db.execute(text(statement), {"id": scan_id})
+            except DBAPIError:
+                pass
+            else:
+                raise AssertionError("Immutable expectation trigger did not reject mutation")
         for bad_tenant, bad_company in ((tenant_id, "wrong"), (foreign_tenant_id, company)):
             bad = ScanExecutionEvidence(scan_id=scan_id, tenant_id=bad_tenant, company_id=bad_company,
                                         schema_version="partial", payload_json="{}", payload_sha256="a" * 64,
@@ -66,6 +89,7 @@ def main() -> None:
         # rolled back at session exit, leaving no synthetic rows behind.
         db.execute(text("DELETE FROM scans WHERE scan_id=:id"), {"id": scan_id})
         assert db.execute(text("SELECT 1 FROM scan_execution_evidence WHERE scan_id=:id"), {"id": scan_id}).first() is None
+        assert db.execute(text("SELECT 1 FROM scan_expectation_snapshots WHERE scan_id=:id"), {"id": scan_id}).first() is None
         db.rollback()
     print("PASS: tenant/company binding, update/delete guards and parent-retention cascade")
 

@@ -57,6 +57,7 @@ def test_leased_sync_stores_partial_evidence_and_rejects_changed_retry(client, t
         assert not verdict.comparable and not verdict.health_score_comparable and not verdict.impact_comparable
     replay = client.post("/scan/sync", headers=headers, json=payload)
     assert replay.status_code == 200, replay.text
+    assert replay.json()["execution_evidence_status"] == "partial_stored"
     reordered = dict(payload)
     reordered["check_execution_evidence"] = dict(payload["check_execution_evidence"], checks=list(reversed(payload["check_execution_evidence"]["checks"])))
     assert client.post("/scan/sync", headers=headers, json=reordered).status_code == 200
@@ -84,6 +85,24 @@ def test_invalid_or_foreign_evidence_cannot_persist(client, tenant_factory, auth
     assert response.status_code == 409
     with SessionLocal() as db:
         assert db.get(ScanExecutionEvidence, scan_id) is None
+
+
+def test_unbound_legacy_tenant_can_sync_without_inventing_evidence(client, tenant_factory, auth_header_factory):
+    tenant = tenant_factory(plan="free", license_status="active")
+    headers = auth_header_factory(tenant)
+    scan_id, payload = _start(client, tenant, headers)
+    with SessionLocal() as db:
+        row = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
+        row.bc_company_id = None
+        db.commit()
+    response = client.post("/scan/sync", headers=headers, json=payload)
+    assert response.status_code == 200, response.text
+    assert response.json()["execution_evidence_status"] == "unavailable_company_binding"
+    with SessionLocal() as db:
+        row = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
+        assert row.bc_company_id is None
+        assert db.get(ScanExecutionEvidence, scan_id) is None
+        assert compare_persisted_scans(db, tenant["tenant_id"], scan_id, scan_id).reasons == (Reason.MISSING_PROVENANCE,)
 
 
 def test_duplicate_or_inconsistent_observations_are_rejected(client, tenant_factory, auth_header_factory):

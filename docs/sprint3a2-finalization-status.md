@@ -1,0 +1,15 @@
+# Sprint 3A.2 finalization — work in progress
+
+**Not complete. Do not release or claim verified comparability.**
+
+The scan-start endpoint can accept a versioned declared expectation and seals it together with scan acceptance and credit consumption. The declaration includes tenant, scan, registered company, environment, currency, selected modules, methodology and catalog versions and the expected check entries; server-side canonicalization and a deterministic catalog fingerprint make order-independent retries possible. Contradictory retries, late backfills and contradictory final syncs are rejected. Revision `0039_scan_expectation_snapshot` adds guarded storage without modifying revision 0038 or historical scans. Its downgrade refuses to discard nonempty snapshots.
+
+No BC client currently sends the declaration. The server checks its inventory against the pinned 199 code/module pairs from AL 1.0.2.57, but does not establish that the declared version describes actual execution. Stored declarations are not trusted as proof and the shared Validation/Monitoring adapter still returns `MISSING_PROVENANCE`. Score and impact deltas are not proven by this work.
+
+For authenticated legacy tenants lacking a registered company, scan sync now continues without storing execution observations; the response says `unavailable_company_binding`. It does not set a company or invent a snapshot or credit. The existing authenticated legacy registration path now serializes concurrent binding claims, rejects claims contradicting already recorded company, Entra tenant or BC environment details, and audits the winning claim without storing credentials. That path proves possession of the tenant credential, not independent BC company identity; secure, independently established future company binding is not implemented by this fallback.
+
+Remaining implementation gates: capture and freeze the actual AL selection before execution, preserve it across resume and configuration changes, identify/record all terminal check outcomes including errors and aborts, authenticate and finalize complete execution evidence, establish stable per-record identity only where BC supplies it, and connect verified snapshots to the existing comparison service. Aggregate findings remain noncomparable. Prove these flows in AL runtime and PostgreSQL including negative and positive end-to-end comparisons. Existing report export guards remain in force.
+
+The current `DHDeepScanRunner.Codeunit.al` creates count findings with an aggregated affected count; the six duplicate-check paths create grouped findings based on a value marker. `InsertFinding` does not retain each affected BC record's SystemId. A per-record identity therefore requires changing the actual record-enumeration and persistence paths, not reusing the generated finding SystemId or falsely assigning one record to an aggregate.
+
+BC27 sandbox runtime and real in-place upgrade require separate approval and evidence; tests or CI must not be described as that acceptance.

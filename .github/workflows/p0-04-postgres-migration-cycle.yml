@@ -76,7 +76,7 @@ jobs:
         working-directory: backend
         env:
           BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:bcsentinel_test_password@localhost:5432/bcsentinel_p0_04_concurrency_test
-        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py tests/test_partial_check_execution_sync.py
+        run: python -m pytest -q --tb=short tests/test_p0e_postgres_concurrency.py tests/test_partial_check_execution_sync.py tests/test_scan_expectation_start.py tests/test_p0a_transport_registration.py
       - name: Publish summary
         if: always()
         run: |

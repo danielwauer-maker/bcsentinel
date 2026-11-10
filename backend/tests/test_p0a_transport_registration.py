@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from threading import Barrier
 
 import pytest
 from sqlalchemy import func, select
 
-from app.db import SessionLocal
-from app.models import DashboardUser, DashboardUserTenantMembership, Tenant
+from app.db import SessionLocal, engine
+from app.models import AdminAuditEvent, DashboardUser, DashboardUserTenantMembership, Tenant
 from app.security.token_hash import hash_api_token
 from app.security.url_policy import UnsafeUrlError, normalize_service_base_url
 
@@ -269,3 +270,56 @@ def test_legacy_tenant_can_be_authenticated_and_bound_without_new_tenant(client,
     assert response.json()["registration_status"] == "bound_legacy"
     with SessionLocal() as db:
         assert db.scalar(select(func.count(Tenant.id))) == 1
+        audit = db.scalar(select(AdminAuditEvent).where(AdminAuditEvent.target_id == legacy_id, AdminAuditEvent.action == "tenant_bc_identity_claim_bound"))
+        assert audit is not None and '"proof": "authenticated_tenant_claim"' in audit.details_json
+        assert legacy_token not in audit.details_json
+    replay = register(client, registration_payload(existing_tenant_id=legacy_id), headers=headers)
+    assert replay.status_code == 200 and replay.json()["registration_status"] == "existing"
+    with SessionLocal() as db:
+        assert db.scalar(select(func.count(AdminAuditEvent.id)).where(AdminAuditEvent.target_id == legacy_id, AdminAuditEvent.action == "tenant_bc_identity_claim_bound")) == 1
+        assert db.scalar(select(Tenant).where(Tenant.tenant_id == legacy_id)).free_assessment_used is False
+
+
+def test_legacy_registration_cannot_replace_an_existing_company(client, settings_state):
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
+    tenant_id, token = "ten_legacy_existing_company", "tok_legacy_existing_company"
+    existing_company = "33333333-3333-3333-3333-333333333333"
+    with SessionLocal() as db:
+        db.add(Tenant(tenant_id=tenant_id, api_token_hash=hash_api_token(token),
+                      bc_company_id=existing_company, environment_name="legacy", app_version="1.0.0",
+                      created_at_utc=datetime.now(timezone.utc), current_plan="free", license_status="trial"))
+        db.commit()
+    headers = {**INVITE_HEADERS, "X-Tenant-Id": tenant_id, "X-Api-Token": token}
+    response = register(client, registration_payload(existing_tenant_id=tenant_id), headers=headers)
+    assert response.status_code == 409
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+        assert tenant.bc_company_id == existing_company and tenant.registration_identity_key is None
+        assert tenant.free_assessment_used is False
+
+
+@pytest.mark.skipif(engine.dialect.name != "postgresql", reason="requires PostgreSQL row locking")
+def test_concurrent_legacy_company_claims_do_not_overwrite_each_other(client, settings_state):
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret", TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS=20)
+    legacy_id, legacy_token = "ten_legacy_claim_race", "tok_legacy_claim_race"
+    with SessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        db.add(Tenant(tenant_id=legacy_id, api_token_hash=hash_api_token(legacy_token),
+                      environment_name="legacy", app_version="1.0.0", created_at_utc=now,
+                      current_plan="free", license_status="trial"))
+        db.commit()
+    headers = {**INVITE_HEADERS, "X-Tenant-Id": legacy_id, "X-Api-Token": legacy_token}
+    payloads = [registration_payload(existing_tenant_id=legacy_id),
+                registration_payload(existing_tenant_id=legacy_id, company_id="33333333-3333-3333-3333-333333333333")]
+    barrier = Barrier(2)
+    def submit(payload):
+        barrier.wait()
+        return register(client, payload, headers)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        responses = list(executor.map(submit, payloads))
+    assert sorted(response.status_code for response in responses) == [200, 409]
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == legacy_id))
+        assert tenant.bc_company_id in {payload["company_id"] for payload in payloads}
+        assert tenant.free_assessment_used is False
+        assert db.scalar(select(func.count(AdminAuditEvent.id)).where(AdminAuditEvent.target_id == legacy_id, AdminAuditEvent.action == "tenant_bc_identity_claim_bound")) == 1
