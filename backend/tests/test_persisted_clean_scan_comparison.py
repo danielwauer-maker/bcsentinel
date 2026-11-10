@@ -96,7 +96,7 @@ def test_two_persisted_clean_scans_have_verified_check_comparison(tenant_factory
 
 def test_tampered_payload_or_changed_exception_scope_fail_closed(tenant_factory):
     tenant = tenant_factory(plan="free", license_status="active")
-    a, b, c = (str(uuid4()) for _ in range(3))
+    a, b, c, d = (str(uuid4()) for _ in range(4))
     with SessionLocal() as db:
         row = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant["tenant_id"]))
         row.bc_company_id = COMPANY
@@ -108,6 +108,10 @@ def test_tampered_payload_or_changed_exception_scope_fail_closed(tenant_factory)
                           exception_scope=[{"entry_no": 1, "table_id": 18,
                                             "record_system_id": str(uuid4()),
                                             "issue_code": "CUSTOMERS_MISSING_NAME"}])
+        _saved_clean_scan(db, tenant["tenant_id"], d, BASE + timedelta(days=3))
+        wrong_count = db.scalar(select(Scan).where(Scan.scan_id == d))
+        wrong_count.checks_count = 199  # Snapshot deliberately enabled exactly one check.
         db.commit()
         assert compare_persisted_scans(db, tenant["tenant_id"], a, b).reasons == (Reason.MISSING_PROVENANCE,)
         assert compare_persisted_scans(db, tenant["tenant_id"], a, c).reasons == (Reason.SCOPE_MISMATCH,)
+        assert compare_persisted_scans(db, tenant["tenant_id"], a, d).reasons == (Reason.MISSING_PROVENANCE,)
