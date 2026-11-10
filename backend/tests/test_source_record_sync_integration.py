@@ -44,6 +44,16 @@ def _prepare(client, tenant_factory, auth_header_factory):
     }
     response = client.post("/scan/start", headers=headers, json=start)
     assert response.status_code == 200, response.text
+    # An actual BC worker starts the run *before* capturing check evidence.
+    # Skipping this step makes the synthetic observation precede started_at.
+    claimed = client.post("/scan/status/update", headers=headers, json={
+        "tenant_id": tenant["tenant_id"], "run_id": run_id,
+        "scan_mode": "data_health_score", "status": "running",
+        "progress_percent": 1, "total_modules": 1,
+        "execution_token": response.json()["execution_token"],
+        "worker_id": client_request,
+    })
+    assert claimed.status_code == 200, claimed.text
     now = datetime.now(timezone.utc).isoformat()
     payload = _deep_scan_payload(tenant["tenant_id"], run_id)
     payload.update(
