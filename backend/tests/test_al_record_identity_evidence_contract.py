@@ -68,3 +68,26 @@ def test_no_other_check_claims_record_membership_completeness():
     runner = RUNNER.read_text(encoding="utf-8-sig")
     assert runner.count("AssertCustomerVatRecordEvidenceComplete(DeepScanRun.") == 1
     assert "AssertVendorVatRecordEvidenceComplete" not in runner
+
+
+def test_customer_vat_source_envelope_requires_terminal_check_and_frozen_start():
+    runner = RUNNER.read_text(encoding="utf-8-sig")
+    builder = runner.split("local procedure BuildSyncPayload(", 1)[1].split(
+        "local procedure AddCustomerVatSourceRecordEvidence(", 1
+    )[0]
+    assert "if DeepScanRun.GetStartExpectationText() <> '' then" in builder
+    assert "AddCustomerVatSourceRecordEvidence(Payload, Setup, DeepScanRun, IdentityMgt)" in builder
+    helper = runner.split("local procedure AddCustomerVatSourceRecordEvidence(", 1)[1].split(
+        "local procedure GetPreferredLanguage(", 1
+    )[0]
+    assert "CheckExecution.Get(DeepScanRun.\"Entry No.\", 'CUSTOMERS_DUPLICATE_VAT')" in helper
+    assert 'CheckExecution."Execution Status" <> \'PASS\'' in helper
+    assert 'CheckExecution."Execution Status" <> \'FINDINGS\'' in helper
+    assert "if ExpectedMembers <> ObservedMembers then" in helper
+    assert "if ObservedMembers > MaxIdentityMembers then" in helper
+    assert "MaxIdentityMembers := 2000;" in helper
+    assert "Member.Add('record_system_id', LowerCase(DelChr(Format(RecordEvidence.\"Source Record SystemId\")" in helper
+    for key in ("schema_version", "tenant_id", "scan_id", "company_id", "check_code", "observed_at_utc", "completed", "affected_records_count", "records"):
+        assert "IdentityEnvelope.Add('" + key + "'" in helper
+    assert "Payload.Add('source_record_evidence', IdentityEnvelope);" in helper
+    assert "Finding.SystemId" not in helper
