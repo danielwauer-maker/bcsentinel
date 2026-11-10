@@ -340,6 +340,8 @@ codeunit 53196 "DH Scan Check Mgt."
                 end;
             until ScanCheck.Next() = 0;
 
+        IssueException.Reset();
+        IssueException.SetCurrentKey("Entry No.");
         IssueException.SetRange(Active, true);
         if IssueException.FindSet() then
             repeat
