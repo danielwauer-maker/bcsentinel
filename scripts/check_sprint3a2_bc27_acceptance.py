@@ -78,7 +78,7 @@ def evaluate(record: dict) -> list[str]:
     if not isinstance(scenarios, list):
         scenarios = []
         errors.append("Missing scenarios.")
-    ids = [case.get("id") for case in scenarios if isinstance(case, dict)]
+    ids = [str(case.get("id")) for case in scenarios if isinstance(case, dict)]
     if sorted(ids) != list(EXPECTED_IDS):
         errors.append("Exactly eight distinct BC27-01..08 scenarios are required.")
     for case in scenarios:
