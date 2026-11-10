@@ -55,3 +55,11 @@ A new pure helper compares preverified canonical SHA-256 finding identities for 
 This is not yet a source-verified BC data flow. The AL finding-row SystemId is not the affected business-record SystemId; its current Group Key is tied to the run SystemId. Aggregate findings cannot be interpreted as per-record identities. Report export guards must remain in place until versioned source-bound record identity evidence is implemented and verified in a real BC27 environment.
 
 The full regression on bf764184 failed during Python test collection because a literal newline escape entered a test assertion. The syntax error was fixed in commit 0ad8430; final CI results remain to be checked.
+
+## 2026-11-10 scan-bound finding transition guard
+
+The standalone transition helper is now wrapped by `compare_verified_scan_finding_sets`. It requires a fully comparable pair of source-verified scan evidences, consistent tenant/company/environment/currency/methodology/catalog and complete terminal check coverage before calculating `resolved`, `persistent` and `new` for a named check. Regression cases cover positive transitions, unverified source, cross-company scope, module mismatch, untrusted finding identities and unknown checks.
+
+**This is an internal verified-evidence API, not production Finding-Evidence ingestion.** Present BC AL `DH Deep Scan Finding.SystemId` is a finding-row identity, and `Group Key` incorporates the run SystemId. No proven record-level Business Central SystemId is yet submitted with the six duplicate groups or 193 aggregate routes. These routes must not be marked row-comparable.
+
+Next: define versioned, source-originating, bounded per-record evidence only for check types that actually enumerate business records, with explicit table ID, affected record SystemId, check code, origin scan, and a mandatory completeness contract. Compare only after persistence, company binding, lifecycle checks and a real BC27 two-scan test. Existing export guards remain unchanged. Deployment remains NO-GO.
