@@ -77,3 +77,14 @@ def test_backend_normalizes_frozen_exception_scope_in_same_order():
 def test_exception_entry_number_is_primary_key_for_snapshot_order():
     source = (ROOT / "bc-extension/app/src/tables/DHIssueException.Table.al").read_text(encoding="utf-8-sig")
     assert 'key(PK; "Entry No.")' in source
+
+
+
+def test_individual_completion_requires_persisted_started_evidence():
+    runner = (ROOT / "bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al").read_text(encoding="utf-8-sig")
+    body = runner.split("local procedure RecordCompletedCheck", 1)[1].split("local procedure RecordCheckExecution", 1)[0]
+    assert 'CheckExecution: Record "DH Check Execution";' in body
+    assert "if not CheckExecution.Get(RunEntryNo, IssueCode) then" in body
+    assert 'if CheckExecution."Execution Status" <> \'STARTED\' then' in body
+    assert body.index("if not CheckExecution.Get(RunEntryNo, IssueCode) then") < body.index("Finding.Count()")
+    assert body.index("if CheckExecution.\\"Execution Status\\" <> 'STARTED' then") < body.index("RecordCheckExecution(RunEntryNo, IssueCode, 'PASS', 0)")
