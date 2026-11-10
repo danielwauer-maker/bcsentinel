@@ -148,3 +148,33 @@ def test_unverified_or_inconsistent_finding_transition_inputs_fail_closed(before
             previous_identities=before, current_identities=after,
             previous_check=old, current_check=new,
         )
+
+
+def test_scan_bound_finding_transitions_require_verified_full_scan_evidence():
+    from app.services.scan_comparability_service import compare_verified_scan_finding_sets
+
+    current = evidence(
+        scan_id="scan-after", completed_at=NOW + timedelta(days=1),
+        checks=(CheckEvidence("A", CheckStatus.PASS), CheckEvidence("B", CheckStatus.FINDINGS, True)),
+    )
+    args = {
+        "previous": evidence(),
+        "current": current,
+        "check_code": "B",
+        "previous_identities": ("a" * 64, "b" * 64),
+        "current_identities": ("b" * 64, "c" * 64),
+    }
+    changed = compare_verified_scan_finding_sets(**args)
+    assert changed.resolved == ("a" * 64,)
+    assert changed.persistent == ("b" * 64,)
+    assert changed.new == ("c" * 64,)
+    with pytest.raises(ValueError):
+        compare_verified_scan_finding_sets(**(args | {"current": replace(current, source_verified=False)}))
+    with pytest.raises(ValueError):
+        compare_verified_scan_finding_sets(**(args | {"current": replace(current, company_id="99999999-2222-3333-4444-555555555555")}))
+    with pytest.raises(ValueError):
+        compare_verified_scan_finding_sets(**(args | {"current": replace(current, modules=("SALES",))}))
+    with pytest.raises(ValueError):
+        compare_verified_scan_finding_sets(**(args | {"current": replace(current, checks=(CheckEvidence("A", CheckStatus.PASS), CheckEvidence("B", CheckStatus.FINDINGS)))}))
+    with pytest.raises(ValueError):
+        compare_verified_scan_finding_sets(**(args | {"check_code": "UNKNOWN"}))
