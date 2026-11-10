@@ -1,6 +1,7 @@
 codeunit 53196 "DH Scan Check Mgt."
 {
     var
+        DefaultCatalogCodes: Dictionary of [Code[50], Boolean];
         MonitoringRequiredErr: Label 'Selecting individual checks is only available with active Monitoring.';
         NoChecksEnabledErr: Label 'At least one scan check must be enabled before starting a Monitoring scan.';
 
@@ -23,6 +24,7 @@ codeunit 53196 "DH Scan Check Mgt."
 
     procedure EnsureDefaultChecks()
     begin
+        Clear(DefaultCatalogCodes);
         AddCheck('CUSTOMERS_DUPLICATE_EMAIL', 'CUSTOMER', 'high', 10);
         AddCheck('VENDORS_DUPLICATE_EMAIL', 'VENDOR', 'high', 20);
         AddCheck('CUSTOMERS_DUPLICATE_VAT', 'CUSTOMER', 'high', 30);
@@ -285,6 +287,88 @@ codeunit 53196 "DH Scan Check Mgt."
         exit(Count);
     end;
 
+    procedure BuildStartExpectation(var Setup: Record "DH Setup"): Text
+    var
+        ScanCheck: Record "DH Scan Check Selection";
+        IssueException: Record "DH Issue Exception";
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+        Expectation: JsonObject;
+        CheckObject: JsonObject;
+        ExceptionObject: JsonObject;
+        Checks: JsonArray;
+        Modules: JsonArray;
+        Exceptions: JsonArray;
+        Result: Text;
+        EnabledForRun: Boolean;
+        ExceptionCount: Integer;
+        ExceptionScopeTooLargeErr: Label 'SCAN_EXCEPTION_SCOPE_TOO_LARGE', Locked = true;
+    begin
+        EnsureDefaultChecks();
+        if Setup."Scan System Module" then
+            Modules.Add('SYSTEM');
+        if Setup."Scan Finance Module" then
+            Modules.Add('FINANCE');
+        if Setup."Scan Sales Module" then
+            Modules.Add('SALES');
+        if Setup."Scan Purchasing Module" then
+            Modules.Add('PURCHASING');
+        if Setup."Scan Inventory Module" then
+            Modules.Add('INVENTORY');
+        if Setup."Scan CRM Module" then
+            Modules.Add('CRM');
+        if Setup."Scan Manufacturing Module" then
+            Modules.Add('MANUFACTURING');
+        if Setup."Scan Service Module" then
+            Modules.Add('SERVICE');
+        if Setup."Scan Jobs Module" then
+            Modules.Add('JOBS');
+        if Setup."Scan HR Module" then
+            Modules.Add('HR');
+
+        ScanCheck.SetCurrentKey("Check Code");
+        if ScanCheck.FindSet() then
+            repeat
+                if DefaultCatalogCodes.ContainsKey(ScanCheck."Check Code") then begin
+                    Clear(CheckObject);
+                    EnabledForRun := IsModuleIncluded(Setup, ScanCheck."Module") and
+                        ((not Setup."Monitoring Active") or ScanCheck.Enabled);
+                    CheckObject.Add('code', Format(ScanCheck."Check Code"));
+                    CheckObject.Add('module', UpperCase(ScanCheck."Module"));
+                    CheckObject.Add('enabled', EnabledForRun);
+                    Checks.Add(CheckObject);
+                end;
+            until ScanCheck.Next() = 0;
+
+        IssueException.SetRange(Active, true);
+        if IssueException.FindSet() then
+            repeat
+                if DefaultCatalogCodes.ContainsKey(IssueException."Issue Code") then begin
+                    ExceptionCount += 1;
+                    if ExceptionCount > 2000 then
+                        Error(ExceptionScopeTooLargeErr);
+                    Clear(ExceptionObject);
+                    ExceptionObject.Add('entry_no', IssueException."Entry No.");
+                    ExceptionObject.Add('table_id', IssueException."Table ID");
+                    ExceptionObject.Add('record_system_id', Format(IssueException."Record SystemId"));
+                    ExceptionObject.Add('issue_code', Format(IssueException."Issue Code"));
+                    Exceptions.Add(ExceptionObject);
+                end;
+            until IssueException.Next() = 0;
+
+        Expectation.Add('schema_version', 'bc-scan-expectation-v2');
+        Expectation.Add('methodology_version', 'bc-deep-scan-1.0.2.58');
+        Expectation.Add('catalog_version', 'bc-check-catalog-1.0.2.57');
+        Expectation.Add('company_id', IdentityMgt.GetCompanyId());
+        Expectation.Add('environment', IdentityMgt.GetEnvironmentName());
+        Expectation.Add('currency', CurrencyMgt.GetLocalCurrencyCode());
+        Expectation.Add('modules', Modules);
+        Expectation.Add('checks', Checks);
+        Expectation.Add('exception_scope', Exceptions);
+        Expectation.WriteTo(Result);
+        exit(Result);
+    end;
+
     procedure GetTotalModuleChecksCount(var Setup: Record "DH Setup"): Integer
     var
         ScanCheck: Record "DH Scan Check Selection";
@@ -349,6 +433,143 @@ codeunit 53196 "DH Scan Check Mgt."
             exit(true);
 
         exit(ScanCheck.Enabled);
+    end;
+
+    procedure IsCheckEnabledForRun(var DeepScanRun: Record "DH Deep Scan Run"; CheckCode: Code[50]): Boolean
+    var
+        Expectation: JsonObject;
+        Item: JsonObject;
+        Checks: JsonArray;
+        Token: JsonToken;
+        Value: JsonToken;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+    begin
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit(IsCheckEnabled(CheckCode));
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('checks', Token) then
+            Error(ExpectationInvalidErr);
+        if not Token.IsArray() then
+            Error(ExpectationInvalidErr);
+        Checks := Token.AsArray();
+        foreach Token in Checks do begin
+            if not Token.IsObject() then
+                Error(ExpectationInvalidErr);
+            Item := Token.AsObject();
+            if not Item.Get('code', Value) then
+                Error(ExpectationInvalidErr);
+            if Value.AsValue().AsText() = Format(CheckCode) then begin
+                if not Item.Get('enabled', Value) then
+                    Error(ExpectationInvalidErr);
+                exit(Value.AsValue().AsBoolean());
+            end;
+        end;
+        Error(ExpectationInvalidErr);
+    end;
+
+    procedure AssertStartExpectationContext(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        CurrencyMgt: Codeunit "DH Currency Mgt.";
+        Expectation: JsonObject;
+        Value: JsonToken;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_CONTEXT_MISMATCH', Locked = true;
+    begin
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('company_id', Value) then
+            Error(ExpectationInvalidErr);
+        if Value.AsValue().AsText() <> IdentityMgt.GetCompanyId() then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('environment', Value) then
+            Error(ExpectationInvalidErr);
+        if Value.AsValue().AsText() <> IdentityMgt.GetEnvironmentName() then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('currency', Value) then
+            Error(ExpectationInvalidErr);
+        if Value.AsValue().AsText() <> CurrencyMgt.GetLocalCurrencyCode() then
+            Error(ExpectationInvalidErr);
+    end;
+
+    procedure ApplyFrozenModules(var DeepScanRun: Record "DH Deep Scan Run"; var Setup: Record "DH Setup")
+    var
+        Expectation: JsonObject;
+        Modules: JsonArray;
+        Token: JsonToken;
+        Item: JsonToken;
+        ModuleName: Text;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+    begin
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit;
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('modules', Token) then
+            Error(ExpectationInvalidErr);
+        if not Token.IsArray() then
+            Error(ExpectationInvalidErr);
+        Modules := Token.AsArray();
+        Setup."Scan System Module" := false;
+        Setup."Scan Finance Module" := false;
+        Setup."Scan Sales Module" := false;
+        Setup."Scan Purchasing Module" := false;
+        Setup."Scan Inventory Module" := false;
+        Setup."Scan CRM Module" := false;
+        Setup."Scan Manufacturing Module" := false;
+        Setup."Scan Service Module" := false;
+        Setup."Scan Jobs Module" := false;
+        Setup."Scan HR Module" := false;
+        foreach Item in Modules do begin
+            if not Item.IsValue() then
+                Error(ExpectationInvalidErr);
+            ModuleName := Item.AsValue().AsText();
+            case ModuleName of
+                'SYSTEM': Setup."Scan System Module" := true;
+                'FINANCE': Setup."Scan Finance Module" := true;
+                'SALES': Setup."Scan Sales Module" := true;
+                'PURCHASING': Setup."Scan Purchasing Module" := true;
+                'INVENTORY': Setup."Scan Inventory Module" := true;
+                'CRM': Setup."Scan CRM Module" := true;
+                'MANUFACTURING': Setup."Scan Manufacturing Module" := true;
+                'SERVICE': Setup."Scan Service Module" := true;
+                'JOBS': Setup."Scan Jobs Module" := true;
+                'HR': Setup."Scan HR Module" := true;
+                else
+                    Error(ExpectationInvalidErr);
+            end;
+        end;
+    end;
+
+    procedure GetExpectedChecksCountForRun(var DeepScanRun: Record "DH Deep Scan Run"; var Setup: Record "DH Setup"): Integer
+    var
+        Expectation: JsonObject;
+        Item: JsonObject;
+        Checks: JsonArray;
+        Token: JsonToken;
+        Value: JsonToken;
+        Result: Integer;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+    begin
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit(GetExpectedChecksCount(Setup));
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('checks', Token) then
+            Error(ExpectationInvalidErr);
+        if not Token.IsArray() then
+            Error(ExpectationInvalidErr);
+        Checks := Token.AsArray();
+        foreach Token in Checks do begin
+            if not Token.IsObject() then
+                Error(ExpectationInvalidErr);
+            Item := Token.AsObject();
+            if not Item.Get('enabled', Value) then
+                Error(ExpectationInvalidErr);
+            if Value.AsValue().AsBoolean() then
+                Result += 1;
+        end;
+        exit(Result);
     end;
 
     procedure UpdateLastRun(CheckCode: Code[50]; FindingCount: Integer)
@@ -466,6 +687,7 @@ codeunit 53196 "DH Scan Check Mgt."
         ExpectedName: Text[150];
         ExpectedDescription: Text[250];
     begin
+        DefaultCatalogCodes.Add(CheckCode, true);
         ExpectedName := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Name));
         ExpectedDescription := CopyStr(CheckCode, 1, MaxStrLen(ScanCheck.Description));
 

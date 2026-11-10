@@ -288,6 +288,11 @@ table 53128 "DH Deep Scan Run"
             Caption = 'Applied Exception Count';
             MinValue = 0;
         }
+        field(67; "Start Expectation"; Blob)
+        {
+            Caption = 'Start Expectation';
+            DataClassification = CustomerContent;
+        }
     }
     keys
     {
@@ -320,5 +325,30 @@ table 53128 "DH Deep Scan Run"
         CheckExecution.SetRange("Run Entry No.", "Entry No.");
         if not CheckExecution.IsEmpty() then
             CheckExecution.DeleteAll(true);
+    end;
+
+    procedure GetStartExpectationText(): Text
+    var
+        Input: InStream;
+        Result: Text;
+    begin
+        CalcFields("Start Expectation");
+        if not "Start Expectation".HasValue() then
+            exit('');
+        "Start Expectation".CreateInStream(Input, TextEncoding::UTF8);
+        Input.ReadText(Result);
+        exit(Result);
+    end;
+
+    procedure SetStartExpectationOnce(Value: Text)
+    var
+        Output: OutStream;
+        ExpectationAlreadySetErr: Label 'SCAN_EXPECTATION_ALREADY_SET', Locked = true;
+    begin
+        CalcFields("Start Expectation");
+        if "Start Expectation".HasValue() then
+            Error(ExpectationAlreadySetErr);
+        "Start Expectation".CreateOutStream(Output, TextEncoding::UTF8);
+        Output.WriteText(Value);
     end;
 }

@@ -452,6 +452,8 @@ def accept_scan_start(
                     summary_headline="Data Health Score queued" if requested_mode == "data_health_score" else "Deep scan queued",
                     summary_rating="Pending",
                     enabled_modules=None,
+                    bc_company_id=expectation_company if expectation_json is not None else None,
+                    lcy_code=json.loads(expectation_json)["currency"] if expectation_json is not None else None,
                 )
             )
         create_or_get_scan_run(

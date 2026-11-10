@@ -21,6 +21,16 @@ codeunit 53152 "DH Exception Mgt."
     var
         IssueException: Record "DH Issue Exception";
     begin
+        if FrozenScopeActive then begin
+            FrozenExceptions.Reset();
+            FrozenExceptions.SetRange("Table ID", TableId);
+            FrozenExceptions.SetRange("Record SystemId", RecordSystemId);
+            FrozenExceptions.SetRange("Issue Code", IssueCode);
+            if not FrozenExceptions.FindFirst() then
+                exit(false);
+            RegisterAppliedException(FrozenExceptions."Entry No.");
+            exit(true);
+        end;
         IssueException.SetRange("Table ID", TableId);
         IssueException.SetRange("Record SystemId", RecordSystemId);
         IssueException.SetRange("Issue Code", IssueCode);
@@ -178,6 +188,67 @@ codeunit 53152 "DH Exception Mgt."
     procedure BeginExceptionTracking()
     begin
         Clear(AppliedExceptionEntries);
+        EndFrozenExceptionScope();
+    end;
+
+    procedure BeginExceptionTrackingForRun(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        Expectation: JsonObject;
+        Item: JsonObject;
+        Token: JsonToken;
+        Value: JsonToken;
+        Entries: JsonArray;
+        RecordId: Guid;
+        InvalidScopeErr: Label 'SCAN_EXCEPTION_SCOPE_INVALID', Locked = true;
+    begin
+        BeginExceptionTracking();
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit;
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(InvalidScopeErr);
+        if not Expectation.Get('schema_version', Value) then
+            Error(InvalidScopeErr);
+        if Value.AsValue().AsText() <> 'bc-scan-expectation-v2' then
+            exit; // Historical v1 has no reconstructible exception scope.
+        if not Expectation.Get('exception_scope', Token) then
+            Error(InvalidScopeErr);
+        if not Token.IsArray() then
+            Error(InvalidScopeErr);
+        Entries := Token.AsArray();
+        if Entries.Count() > 2000 then
+            Error(InvalidScopeErr);
+        foreach Token in Entries do begin
+            if not Token.IsObject() then
+                Error(InvalidScopeErr);
+            Item := Token.AsObject();
+            FrozenExceptions.Init();
+            if not Item.Get('entry_no', Value) then
+                Error(InvalidScopeErr);
+            FrozenExceptions."Entry No." := Value.AsValue().AsInteger();
+            if not Item.Get('table_id', Value) then
+                Error(InvalidScopeErr);
+            FrozenExceptions."Table ID" := Value.AsValue().AsInteger();
+            if not Item.Get('record_system_id', Value) then
+                Error(InvalidScopeErr);
+            if not Evaluate(RecordId, Value.AsValue().AsText()) then
+                Error(InvalidScopeErr);
+            if IsNullGuid(RecordId) then
+                Error(InvalidScopeErr);
+            FrozenExceptions."Record SystemId" := RecordId;
+            if not Item.Get('issue_code', Value) then
+                Error(InvalidScopeErr);
+            FrozenExceptions."Issue Code" := CopyStr(Value.AsValue().AsText(), 1, MaxStrLen(FrozenExceptions."Issue Code"));
+            FrozenExceptions.Active := true;
+            FrozenExceptions.Insert(false);
+        end;
+        FrozenScopeActive := true;
+    end;
+
+    procedure EndFrozenExceptionScope()
+    begin
+        FrozenScopeActive := false;
+        FrozenExceptions.Reset();
+        FrozenExceptions.DeleteAll(false);
     end;
 
     procedure GetAppliedExceptionCount(): Integer
@@ -258,6 +329,8 @@ codeunit 53152 "DH Exception Mgt."
     end;
 
     var
+        FrozenExceptions: Record "DH Issue Exception" temporary;
+        FrozenScopeActive: Boolean;
         AppliedExceptionEntries: Dictionary of [Integer, Boolean];
         ReasonRequiredErr: Label 'A reason is required for a DH exception.';
         ExceptionAlreadyActiveErr: Label 'An active DH exception already exists for record %1 and issue %2.', Comment = '%1 = record number, %2 = issue code';

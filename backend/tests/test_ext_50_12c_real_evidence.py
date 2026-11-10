@@ -78,7 +78,9 @@ def test_score_source_formula_and_final_counter_correction_are_explicit():
     source = (ROOT / 'bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al').read_text()
     assert 'exit(100 - ((PenaltyTotal * 100) div (PenaltyTotal + 40)));' in source
     assert 'Score := (WeightedScoreTotal + (EnabledWeightTotal div 2)) div EnabledWeightTotal' in source
-    assert 'ChecksCount := ScanCheckMgt.GetExpectedChecksCount(Setup);' in source
+    assert 'ChecksCount := ScanCheckMgt.GetExpectedChecksCountForRun(DeepScanRun, Setup);' in source
+    check_source = (ROOT / 'bc-extension/app/src/codeunits/DHScanCheckMgt.Codeunit.al').read_text()
+    assert 'exit(GetExpectedChecksCount(Setup));' in check_source
     result = audit.reconcile_runtime_export(evidence())
     assert list(result['penalties'].values()) == [45, 215, 46, 51, 218, 14, 26, 0, 0, 0]
     assert list(result['module_scores'].values()) == [48, 16, 47, 44, 16, 75, 61, 100, 100, 100]

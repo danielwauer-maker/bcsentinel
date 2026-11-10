@@ -38,6 +38,9 @@ codeunit 53128 "DH Deep Scan Runner"
         SyncFailureMessage: Text;
         SyncSucceeded: Boolean;
         LeaseRejected: Boolean;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+        ExpectationChangedErr: Label 'SCAN_EXPECTATION_CHANGED', Locked = true;
+        UnsafeResumeErr: Label 'SCAN_RESUME_REQUIRES_MANUAL_RECOVERY', Locked = true;
     begin
         DeepScanRun.LockTable();
         if not DeepScanRun.Get(DeepScanRun."Entry No.") then
@@ -45,6 +48,23 @@ codeunit 53128 "DH Deep Scan Runner"
 
         if DeepScanRun.Status <> DeepScanRun.Status::Queued then
             exit;
+
+        // Existing queued runs without this field remain legacy runs. For a
+        // new run, do not execute checks against a changed local selection.
+        if DeepScanRun.GetStartExpectationText() <> '' then begin
+            // A requeued run may contain partly committed check work. Until a
+            // per-check resume protocol exists, do not reset progress and
+            // pretend already-started modules were never executed.
+            if DeepScanRun."Started At" <> 0DT then
+                Error(UnsafeResumeErr);
+            if not Setup.Get('SETUP') then
+                Error(SetupMissingForPersistenceErr);
+            if (DeepScanRun."Start Request Status" <> DeepScanRun."Start Request Status"::Accepted) or
+               IsNullGuid(DeepScanRun."Execution Token")
+            then
+                Error(ExpectationChangedErr);
+            ScanCheckMgt.AssertStartExpectationContext(DeepScanRun);
+        end;
 
         DeepScanRun.Status := DeepScanRun.Status::Running;
         DeepScanRun."Started At" := CurrentDateTime();
@@ -59,8 +79,9 @@ codeunit 53128 "DH Deep Scan Runner"
         Commit();
         TryUpdateBackendProgress(DeepScanRun, 'running', 'Preparing scan checks', GetStartedEventMessage(DeepScanRun));
 
-        ExceptionMgt.BeginExceptionTracking();
+        ExceptionMgt.BeginExceptionTrackingForRun(DeepScanRun);
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
+        ExceptionMgt.EndFrozenExceptionScope();
 
         DeepScanRun.Get(DeepScanRun."Entry No.");
         RecalculateScoreMetrics(DeepScanRun, Score);
@@ -213,7 +234,9 @@ codeunit 53128 "DH Deep Scan Runner"
             Setup."Scan HR Module" := true;
         end;
 
-        ScanCheckMgt.RequireEnabledChecksForMonitoring();
+        ScanCheckMgt.ApplyFrozenModules(DeepScanRun, Setup);
+        if DeepScanRun.GetStartExpectationText() = '' then
+            ScanCheckMgt.RequireEnabledChecksForMonitoring();
 
         TotalModules := GetEnabledModuleCount(Setup);
         InitializeProgress(DeepScanRun, TotalModules);
@@ -300,7 +323,7 @@ codeunit 53128 "DH Deep Scan Runner"
             CompleteModule(DeepScanRun, 'HR', ModuleNo);
         end;
 
-        ChecksCount := ScanCheckMgt.GetExpectedChecksCount(Setup);
+        ChecksCount := ScanCheckMgt.GetExpectedChecksCountForRun(DeepScanRun, Setup);
 
         if Score < 0 then
             Score := 0;
@@ -474,10 +497,11 @@ codeunit 53128 "DH Deep Scan Runner"
         LastFindingCount: Integer;
         Email: Text[100];
     begin
-        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_EMAIL') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'CUSTOMERS_DUPLICATE_EMAIL') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_EMAIL', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_EMAIL');
 
         ChecksCount += 1;
 
@@ -516,10 +540,11 @@ codeunit 53128 "DH Deep Scan Runner"
         LastFindingCount: Integer;
         Email: Text[100];
     begin
-        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_EMAIL') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'VENDORS_DUPLICATE_EMAIL') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_EMAIL', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_EMAIL');
 
         ChecksCount += 1;
 
@@ -557,10 +582,11 @@ codeunit 53128 "DH Deep Scan Runner"
         DuplicateCount: Integer;
         LastFindingCount: Integer;
     begin
-        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_VAT') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'CUSTOMERS_DUPLICATE_VAT') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_VAT', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_VAT');
 
         ChecksCount += 1;
 
@@ -600,10 +626,11 @@ codeunit 53128 "DH Deep Scan Runner"
         DuplicateCount: Integer;
         LastFindingCount: Integer;
     begin
-        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_VAT') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'VENDORS_DUPLICATE_VAT') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_VAT', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_VAT');
 
         ChecksCount += 1;
 
@@ -644,10 +671,11 @@ codeunit 53128 "DH Deep Scan Runner"
         LastFindingCount: Integer;
         Marker: Text;
     begin
-        if not ScanCheckMgt.IsCheckEnabled('CUSTOMERS_DUPLICATE_NAME_POST_CITY') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'CUSTOMERS_DUPLICATE_NAME_POST_CITY') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_NAME_POST_CITY', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_NAME_POST_CITY');
 
         ChecksCount += 1;
 
@@ -692,10 +720,11 @@ codeunit 53128 "DH Deep Scan Runner"
         LastFindingCount: Integer;
         Marker: Text;
     begin
-        if not ScanCheckMgt.IsCheckEnabled('VENDORS_DUPLICATE_NAME_POST_CITY') then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, 'VENDORS_DUPLICATE_NAME_POST_CITY') then begin
             RecordCheckExecution(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_NAME_POST_CITY', 'SKIPPED', 0);
             exit;
         end;
+        RecordCheckStarted(DeepScanRun."Entry No.", 'VENDORS_DUPLICATE_NAME_POST_CITY');
 
         ChecksCount += 1;
 
@@ -2061,7 +2090,7 @@ codeunit 53128 "DH Deep Scan Runner"
     var
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
-        if not ScanCheckMgt.IsCheckEnabled(IssueCode) then begin
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, IssueCode) then begin
             RecordCheckExecution(DeepScanRun."Entry No.", IssueCode, 'SKIPPED', 0);
             exit;
         end;
@@ -2088,6 +2117,23 @@ codeunit 53128 "DH Deep Scan Runner"
         ApplyPenalty(Score, PenaltyPoints);
     end;
 
+    local procedure RecordCheckStarted(RunEntryNo: Integer; IssueCode: Code[50])
+    var
+        CheckExecution: Record "DH Check Execution";
+    begin
+        if CheckExecution.Get(RunEntryNo, IssueCode) then
+            Error(CheckExecutionConflictErr);
+        CheckExecution.Init();
+        CheckExecution."Run Entry No." := RunEntryNo;
+        CheckExecution."Check Code" := IssueCode;
+        CheckExecution."Execution Status" := 'STARTED';
+        CheckExecution."Observed At" := CurrentDateTime();
+        CheckExecution.Insert(true);
+        // Preserve which individual check actually started across the outer
+        // TryFunction failure path. Do not guess failures for grouped checks.
+        Commit();
+    end;
+
     local procedure RecordCompletedCheck(RunEntryNo: Integer; IssueCode: Code[50])
     var
         Finding: Record "DH Deep Scan Finding";
@@ -2107,6 +2153,15 @@ codeunit 53128 "DH Deep Scan Runner"
         CheckExecution: Record "DH Check Execution";
     begin
         if CheckExecution.Get(RunEntryNo, IssueCode) then begin
+            if (CheckExecution."Execution Status" = 'STARTED') and
+               ((ExecutionStatus = 'PASS') or (ExecutionStatus = 'FINDINGS'))
+            then begin
+                CheckExecution."Execution Status" := ExecutionStatus;
+                CheckExecution."Finding Count" := FindingCount;
+                CheckExecution."Observed At" := CurrentDateTime();
+                CheckExecution.Modify(true);
+                exit;
+            end;
             if (CheckExecution."Execution Status" <> ExecutionStatus) or (CheckExecution."Finding Count" <> FindingCount) then
                 Error(CheckExecutionConflictErr);
             exit;
@@ -2722,6 +2777,9 @@ codeunit 53128 "DH Deep Scan Runner"
         CurrencyMgt: Codeunit "DH Currency Mgt.";
         ModuleScores: JsonObject;
         EnabledModules: JsonArray;
+        StartExpectation: JsonObject;
+        ModulesToken: JsonToken;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
     begin
         if DeepScanRun."Finished At" <> 0DT then
             ScanDateTime := DeepScanRun."Finished At"
@@ -2758,7 +2816,16 @@ codeunit 53128 "DH Deep Scan Runner"
         ModuleScores.Add('hr', DeepScanRun."HR Score");
         Payload.Add('module_scores', ModuleScores);
 
-        AddEnabledModules(Setup, EnabledModules);
+        if DeepScanRun.GetStartExpectationText() <> '' then begin
+            if not StartExpectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+                Error(ExpectationInvalidErr);
+            if not StartExpectation.Get('modules', ModulesToken) then
+                Error(ExpectationInvalidErr);
+            if not ModulesToken.IsArray() then
+                Error(ExpectationInvalidErr);
+            EnabledModules := ModulesToken.AsArray();
+        end else
+            AddEnabledModules(Setup, EnabledModules);
         Payload.Add('enabled_modules', EnabledModules);
 
         // This is intentionally partial: only checks recorded at the actual

@@ -8,9 +8,29 @@ codeunit 53129 "DH Deep Scan Failure"
     end;
 
     procedure MarkRunAsFailed(var DeepScanRun: Record "DH Deep Scan Run"; FailureText: Text)
+    var
+        CheckExecution: Record "DH Check Execution";
+        Finding: Record "DH Deep Scan Finding";
+        ExceptionMgt: Codeunit "DH Exception Mgt.";
     begin
+        ExceptionMgt.EndFrozenExceptionScope();
         if not DeepScanRun.Get(DeepScanRun."Entry No.") then
             exit;
+
+        // Only explicit individual STARTED markers can be finalized as FAILED.
+        // Missing observations from grouped checks remain unknown.
+        CheckExecution.SetRange("Run Entry No.", DeepScanRun."Entry No.");
+        CheckExecution.SetRange("Execution Status", 'STARTED');
+        if CheckExecution.FindSet(true) then
+            repeat
+                Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
+                Finding.SetRange("Issue Code", CheckExecution."Check Code");
+                CheckExecution."Finding Count" := Finding.Count();
+                CheckExecution."Execution Status" := 'FAILED';
+                CheckExecution."Observed At" := CurrentDateTime();
+                CheckExecution.Modify(true);
+            until CheckExecution.Next() = 0;
+        if not RecordUnreachedChecks(DeepScanRun) then;
 
         DeepScanRun.Status := DeepScanRun.Status::Failed;
         DeepScanRun."Finished At" := CurrentDateTime();
@@ -24,11 +44,112 @@ codeunit 53129 "DH Deep Scan Failure"
         DeepScanRun.Modify(true);
         CreateOrUpdateFailedScanHeader(DeepScanRun);
         Commit();
-        TryUpdateBackendFailure(DeepScanRun);
+        if DeepScanRun.GetStartExpectationText() <> '' then begin
+            if not SendBackendFailure(DeepScanRun) then begin
+                DeepScanRun.Get(DeepScanRun."Entry No.");
+                DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::RetryRequired;
+                DeepScanRun.Modify(true);
+                Commit();
+                exit;
+            end;
+        end else
+            TryUpdateBackendFailure(DeepScanRun);
 
         if not DeepScanRun.Get(DeepScanRun."Entry No.") then
             exit;
 
+        Clear(DeepScanRun."Lease Expires At");
+        Clear(DeepScanRun."Execution Token");
+        DeepScanRun.Modify(true);
+        Commit();
+    end;
+
+    [TryFunction]
+    local procedure RecordUnreachedChecks(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        Expectation: JsonObject;
+        Entry: JsonObject;
+        Checks: JsonArray;
+        Token: JsonToken;
+        Value: JsonToken;
+        CheckExecution: Record "DH Check Execution";
+        CheckCode: Code[50];
+        CheckModule: Text;
+        Enabled: Boolean;
+        StartState: Code[20];
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+    begin
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit;
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('checks', Token) then
+            Error(ExpectationInvalidErr);
+        if not Token.IsArray() then
+            Error(ExpectationInvalidErr);
+        Checks := Token.AsArray();
+        foreach Token in Checks do begin
+            if not Token.IsObject() then
+                Error(ExpectationInvalidErr);
+            Entry := Token.AsObject();
+            if not Entry.Get('code', Value) then
+                Error(ExpectationInvalidErr);
+            CheckCode := CopyStr(Value.AsValue().AsText(), 1, MaxStrLen(CheckCode));
+            if not Entry.Get('module', Value) then
+                Error(ExpectationInvalidErr);
+            CheckModule := Value.AsValue().AsText();
+            if not Entry.Get('enabled', Value) then
+                Error(ExpectationInvalidErr);
+            Enabled := Value.AsValue().AsBoolean();
+            if not CheckExecution.Get(DeepScanRun."Entry No.", CheckCode) then begin
+                Clear(StartState);
+                if not Enabled then
+                    StartState := 'SKIPPED'
+                else
+                    if ModuleDefinitelyNotStarted(DeepScanRun, CheckModule) then
+                        StartState := 'NOT_EXECUTED';
+                if StartState <> '' then begin
+                    CheckExecution.Init();
+                    CheckExecution."Run Entry No." := DeepScanRun."Entry No.";
+                    CheckExecution."Check Code" := CheckCode;
+                    CheckExecution."Execution Status" := StartState;
+                    CheckExecution."Finding Count" := 0;
+                    CheckExecution."Observed At" := CurrentDateTime();
+                    CheckExecution.Insert(true);
+                end;
+            end;
+        end;
+    end;
+
+    local procedure ModuleDefinitelyNotStarted(var DeepScanRun: Record "DH Deep Scan Run"; CheckModule: Text): Boolean
+    begin
+        case UpperCase(CheckModule) of
+            'SYSTEM': exit(DeepScanRun."System Progress %" = 0);
+            'CUSTOMER', 'VENDOR', 'LEDGER', 'FINANCE': exit(DeepScanRun."Finance Progress %" = 0);
+            'SALES': exit(DeepScanRun."Sales Progress %" = 0);
+            'PURCHASE': exit(DeepScanRun."Purchasing Progress %" = 0);
+            'ITEM', 'INVENTORY': exit(DeepScanRun."Inventory Progress %" = 0);
+            'CRM': exit(DeepScanRun."CRM Progress %" = 0);
+            'MANUFACTURING': exit(DeepScanRun."Manufacturing Progress %" = 0);
+            'SERVICE': exit(DeepScanRun."Service Progress %" = 0);
+            'JOB': exit(DeepScanRun."Jobs Progress %" = 0);
+            'HR': exit(DeepScanRun."HR Progress %" = 0);
+        end;
+        exit(false);
+    end;
+
+    procedure RetryFailedEvidence(var DeepScanRun: Record "DH Deep Scan Run")
+    begin
+        if (DeepScanRun.Status <> DeepScanRun.Status::Failed) or
+           (DeepScanRun."Backend Sync Status" <> DeepScanRun."Backend Sync Status"::RetryRequired) or
+           (DeepScanRun.GetStartExpectationText() = '') or IsNullGuid(DeepScanRun."Execution Token")
+        then
+            exit;
+        if not SendBackendFailure(DeepScanRun) then
+            exit;
+        if not DeepScanRun.Get(DeepScanRun."Entry No.") then
+            exit;
+        DeepScanRun."Backend Sync Status" := DeepScanRun."Backend Sync Status"::Synchronized;
         Clear(DeepScanRun."Lease Expires At");
         Clear(DeepScanRun."Execution Token");
         DeepScanRun.Modify(true);
@@ -45,12 +166,19 @@ codeunit 53129 "DH Deep Scan Failure"
     var
         Setup: Record "DH Setup";
         ApiClient: Codeunit "DH API Client";
+        FailureSyncUnavailableErr: Label 'SCAN_FAILURE_SYNC_UNAVAILABLE', Locked = true;
     begin
-        if not Setup.Get('SETUP') then
+        if not Setup.Get('SETUP') then begin
+            if DeepScanRun.GetStartExpectationText() <> '' then
+                Error(FailureSyncUnavailableErr);
             exit;
+        end;
 
-        if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') or (Setup."API Base URL" = '') then
+        if (Setup."Tenant ID" = '') or (GetApiToken(Setup) = '') or (Setup."API Base URL" = '') then begin
+            if DeepScanRun.GetStartExpectationText() <> '' then
+                Error(FailureSyncUnavailableErr);
             exit;
+        end;
 
         ApiClient.UpdateScanProgress(Setup, DeepScanRun, 'failed', 'Scan failed', 'Scan failed');
 

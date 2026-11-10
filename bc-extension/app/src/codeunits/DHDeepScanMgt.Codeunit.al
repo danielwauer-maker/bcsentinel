@@ -214,7 +214,15 @@ codeunit 53124 "DH Deep Scan Mgt."
     local procedure RefreshActiveRunsFromBackend(var Setup: Record "DH Setup")
     var
         DeepScanRun: Record "DH Deep Scan Run";
+        DeepScanFailure: Codeunit "DH Deep Scan Failure";
     begin
+        DeepScanRun.SetRange(Status, DeepScanRun.Status::Failed);
+        DeepScanRun.SetRange("Backend Sync Status", DeepScanRun."Backend Sync Status"::RetryRequired);
+        if DeepScanRun.FindSet(true) then
+            repeat
+                DeepScanFailure.RetryFailedEvidence(DeepScanRun);
+            until DeepScanRun.Next() = 0;
+        DeepScanRun.Reset();
         DeepScanRun.SetFilter(Status, '%1|%2', DeepScanRun.Status::Queued, DeepScanRun.Status::Running);
         if not DeepScanRun.FindSet(true) then
             exit;
@@ -248,7 +256,12 @@ codeunit 53124 "DH Deep Scan Mgt."
         ErrorText: Text;
         StartAccepted: Boolean;
         TerminalFailure: Boolean;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
+        // Persist before the network request: a timeout or client restart must
+        // reuse the original declaration rather than current mutable settings.
+        if DeepScanRun.GetStartExpectationText() = '' then
+            DeepScanRun.SetStartExpectationOnce(ScanCheckMgt.BuildStartExpectation(Setup));
         DeepScanRun."Start Attempt Count" += 1;
         DeepScanRun."Last Start Attempt" := CurrentDateTime();
         DeepScanRun."Start Request Status" := DeepScanRun."Start Request Status"::Pending;

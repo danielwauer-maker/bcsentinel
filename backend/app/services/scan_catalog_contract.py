@@ -11,6 +11,10 @@ CHECK_MODULE_TO_RUN_MODULE = {
     "JOB": "JOBS", "HR": "HR",
 }
 
+# The catalog is unchanged in 1.0.2.58, but frozen selection changes the
+# execution contract and must not compare as the earlier methodology.
+SUPPORTED_METHODOLOGIES = frozenset({"bc-deep-scan-1.0.2.57", "bc-deep-scan-1.0.2.58"})
+
 
 @lru_cache(maxsize=1)
 def catalog_1_0_2_57() -> tuple[str, str, frozenset[tuple[str, str]]]:

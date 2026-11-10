@@ -187,9 +187,23 @@ class ExpectedCheck(BaseModel):
     enabled: bool
 
 
+class ExpectedException(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    entry_no: int = Field(gt=0)
+    table_id: int = Field(gt=0)
+    record_system_id: UUID
+    issue_code: str = Field(min_length=1, max_length=50, pattern=r"^[A-Z0-9_]+$")
+
+    @model_validator(mode="after")
+    def valid_record(self):
+        if self.record_system_id.int == 0:
+            raise PydanticCustomError("scope_record", "record SystemId must be nonzero")
+        return self
+
+
 class ScanStartExpectation(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    schema_version: Literal["bc-scan-expectation-v1"]
+    schema_version: Literal["bc-scan-expectation-v1", "bc-scan-expectation-v2"]
     methodology_version: str = Field(min_length=1, max_length=80)
     catalog_version: str = Field(min_length=1, max_length=80)
     company_id: str = Field(min_length=1, max_length=64)
@@ -197,6 +211,7 @@ class ScanStartExpectation(BaseModel):
     currency: str = Field(min_length=1, max_length=10)
     modules: list[str] = Field(min_length=1, max_length=100)
     checks: list[ExpectedCheck] = Field(min_length=1, max_length=1500)
+    exception_scope: Optional[list[ExpectedException]] = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def validate_sets(self):
@@ -206,6 +221,12 @@ class ScanStartExpectation(BaseModel):
             raise PydanticCustomError("expectation_modules", "invalid or duplicate module")
         if not self.methodology_version.strip() or not self.catalog_version.strip() or not self.environment.strip():
             raise PydanticCustomError("expectation_metadata", "expectation metadata must be nonempty")
+        if self.schema_version == "bc-scan-expectation-v2" and self.exception_scope is None:
+            raise PydanticCustomError("expectation_scope", "exception scope is required for v2")
+        if self.schema_version == "bc-scan-expectation-v1" and self.exception_scope is not None:
+            raise PydanticCustomError("expectation_scope", "exception scope requires v2")
+        if self.exception_scope is not None and len({item.entry_no for item in self.exception_scope}) != len(self.exception_scope):
+            raise PydanticCustomError("expectation_scope", "duplicate exception entry")
         return self
 
 
@@ -224,6 +245,36 @@ class ScanStartPayload(BaseModel):
 class ScanReconcilePayload(BaseModel):
     tenant_id: str
     scan_ids: List[str] = Field(default_factory=list)
+
+
+class FailedCheckObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    code: str = Field(min_length=1, max_length=50, pattern=r"^[A-Z0-9_]+$")
+    status: Literal["PASS", "FINDINGS", "SKIPPED", "FAILED", "NOT_EXECUTED"]
+    finding_count: int = Field(ge=0, le=100000)
+    observed_at_utc: datetime
+
+    @model_validator(mode="after")
+    def validate_observation(self):
+        if self.observed_at_utc.utcoffset() != timedelta(0):
+            raise PydanticCustomError("evidence_timezone", "observed_at_utc must be UTC")
+        if self.status in {"PASS", "SKIPPED", "NOT_EXECUTED"} and self.finding_count != 0:
+            raise PydanticCustomError("evidence_count", "finding count does not match status")
+        if self.status == "FINDINGS" and self.finding_count == 0:
+            raise PydanticCustomError("evidence_count", "finding count does not match status")
+        return self
+
+
+class FailedScanEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal["bc-check-failure-partial-v1"]
+    checks: list[FailedCheckObservation] = Field(max_length=1500)
+
+    @model_validator(mode="after")
+    def unique_codes(self):
+        if len({item.code for item in self.checks}) != len(self.checks):
+            raise PydanticCustomError("evidence_duplicate", "duplicate check code")
+        return self
 
 
 class ScanStatusUpdatePayload(BaseModel):
@@ -246,6 +297,7 @@ class ScanStatusUpdatePayload(BaseModel):
     execution_token: Optional[str] = None
     worker_id: Optional[str] = None
     correlation_id: Optional[str] = None
+    failure_evidence: Optional[FailedScanEvidence] = None
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -385,6 +437,18 @@ def _calculate_commercials(payload: ScanSyncPayload, db) -> dict[str, object]:
     }
 
 
+@router.get("/scan/expectation-capabilities")
+def scan_expectation_capabilities(tenant_auth: tuple[str, str] = Depends(require_tenant_headers)):
+    """Read-only preflight prevents a new BC client spending a credit on an old server."""
+    tenant_id, api_token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, api_token)
+        require_tenant_feature(db, tenant, "scan_sync")
+        if not str(tenant.bc_company_id or "").strip():
+            return {"expectation_status": "unavailable_company_binding"}
+        return {"expectation_status": "supported"}
+
+
 @router.post("/scan/start")
 def start_scan(
     payload: ScanStartPayload,
@@ -402,16 +466,17 @@ def start_scan(
         if payload.expectation is not None:
             from app.services.scan_company_service import canonical_company_id, canonical_lcy_code
             from app.services.scan_comparability_service import catalog_fingerprint
-            from app.services.scan_catalog_contract import CHECK_MODULE_TO_RUN_MODULE, catalog_1_0_2_57
-            catalog_version, methodology_version, catalog = catalog_1_0_2_57()
+            from app.services.scan_catalog_contract import CHECK_MODULE_TO_RUN_MODULE, SUPPORTED_METHODOLOGIES, catalog_1_0_2_57
+            catalog_version, _, catalog = catalog_1_0_2_57()
             declared_pairs = frozenset((check.code, check.module) for check in payload.expectation.checks)
             if (payload.expectation.catalog_version != catalog_version
-                    or payload.expectation.methodology_version != methodology_version
+                    or payload.expectation.methodology_version not in SUPPORTED_METHODOLOGIES
                     or declared_pairs != catalog):
                 raise HTTPException(status_code=422, detail="Unsupported or incomplete scan check catalog.")
             modules = set(payload.expectation.modules)
             if (len(modules) != payload.total_modules
                     or not modules.issubset(set(CHECK_MODULE_TO_RUN_MODULE.values()))
+                    or not any(check.enabled for check in payload.expectation.checks)
                     or any(check.enabled and CHECK_MODULE_TO_RUN_MODULE[check.module] not in modules
                            for check in payload.expectation.checks)):
                 raise HTTPException(status_code=422, detail="Enabled checks conflict with selected scan modules.")
@@ -426,12 +491,15 @@ def start_scan(
                 raise HTTPException(status_code=409, detail="Scan expectation environment differs from registered tenant.")
             if (payload.environment_name or "").strip() != payload.expectation.environment.strip():
                 raise HTTPException(status_code=409, detail="Scan expectation environment differs from scan start.")
-            expected = payload.expectation.model_dump(mode="json")
+            # Keep v1 hashes stable for starts accepted before v2 existed.
+            expected = payload.expectation.model_dump(mode="json", exclude_unset=True)
             expected["company_id"] = expectation_company
             expected["currency"] = currency
             expected["environment"] = payload.expectation.environment.strip()
             expected["modules"] = sorted(expected["modules"])
             expected["checks"] = sorted(expected["checks"], key=lambda check: check["code"])
+            if payload.expectation.exception_scope is not None:
+                expected["exception_scope"] = sorted(expected["exception_scope"], key=lambda item: item["entry_no"])
             expected["tenant_id"] = tenant.tenant_id
             expected["scan_id"] = payload.run_id
             expected["catalog_fingerprint"] = catalog_fingerprint(
@@ -498,6 +566,7 @@ def start_scan(
             "credit_consumed": result.credit_consumed,
             "free_data_health_score": result.scan_mode == "data_health_score",
             "idempotent_replay": result.idempotent_replay,
+            "expectation_status": "accepted" if expectation_json is not None else "not_supplied",
             "execution_token": result.execution_token,
             "worker_id": result.worker_id,
             "correlation_id": result.correlation_id,
@@ -555,6 +624,8 @@ def sync_scan(
                         raise ValueError("check execution contradicts expectation")
                     if observation.observed_at_utc < accepted_at:
                         raise ValueError("check execution precedes accepted expectation")
+                if any(enabled and code not in observations for code, enabled in expected_checks.items()):
+                    raise ValueError("expected check execution is incomplete")
                 if any(issue.code.strip().upper() not in observations for issue in payload.issues):
                     raise ValueError("finding lacks an observed check")
             except (ValueError, TypeError, KeyError, json.JSONDecodeError):
@@ -592,6 +663,7 @@ def sync_scan(
             evidence_values = _canonical_execution_evidence(payload)
             if existing_evidence is not None:
                 if (existing_evidence.tenant_id != tenant.tenant_id or existing_evidence.company_id != bc_company_id
+                        or hashlib.sha256(existing_evidence.payload_json.encode("utf-8")).hexdigest() != existing_evidence.payload_sha256
                         or existing_evidence.payload_sha256 != evidence_values[1] or existing_evidence.sync_sha256 != evidence_values[2]):
                     raise HTTPException(status_code=409, detail="Finalized scan execution evidence conflicts with this retry.")
                 original_request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == payload.scan_id))
@@ -957,6 +1029,61 @@ def update_status(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_tenant_feature(db, tenant, "scan_sync")
+        # Use the same scan-first lock order as final sync so a heartbeat
+        # cannot race a terminal failure or a committed result.
+        scan = db.scalar(select(Scan).where(Scan.scan_id == payload.run_id).with_for_update())
+        failure_values = None
+        if payload.failure_evidence is not None:
+            if payload.status.strip().lower() != "failed":
+                raise HTTPException(status_code=422, detail="Failure evidence requires a failed status.")
+            expectation = db.get(ScanExpectationSnapshot, payload.run_id)
+            if (scan is None or scan.tenant_id != tenant.tenant_id or expectation is None
+                    or expectation.tenant_id != tenant.tenant_id or scan.bc_company_id != expectation.company_id
+                    or hashlib.sha256(expectation.payload_json.encode("utf-8")).hexdigest() != expectation.payload_sha256):
+                raise HTTPException(status_code=409, detail="Failure evidence requires the original scan expectation.")
+            try:
+                from app.services.scan_company_service import canonical_company_id
+                if canonical_company_id(tenant.bc_company_id) != expectation.company_id:
+                    raise ValueError("registered company changed")
+                frozen = json.loads(expectation.payload_json)
+                if frozen["environment"] != (tenant.environment_name or "").strip():
+                    raise ValueError("registered environment changed")
+                expected_checks = {item["code"]: item["enabled"] for item in frozen["checks"]}
+                accepted_at = expectation.created_at_utc
+                if accepted_at.tzinfo is None:
+                    accepted_at = accepted_at.replace(tzinfo=timezone.utc)
+                for observation in payload.failure_evidence.checks:
+                    if (observation.code not in expected_checks
+                            or (observation.status == "SKIPPED") == expected_checks[observation.code]
+                            or observation.observed_at_utc < accepted_at):
+                        raise ValueError("failure evidence conflicts with expectation")
+                evidence = payload.failure_evidence.model_dump(mode="json")
+                evidence["checks"].sort(key=lambda item: item["code"])
+                evidence_json = json.dumps(evidence, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+                if len(evidence_json.encode("utf-8")) > 500_000:
+                    raise HTTPException(status_code=413, detail="Failure evidence is too large.")
+                request = payload.model_dump(mode="json", exclude={"execution_token", "worker_id", "correlation_id"})
+                request["failure_evidence"] = evidence
+                request_json = json.dumps(request, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+                failure_values = (evidence_json, hashlib.sha256(evidence_json.encode()).hexdigest(),
+                                  hashlib.sha256(request_json.encode()).hexdigest())
+            except (ValueError, TypeError, KeyError, json.JSONDecodeError):
+                raise HTTPException(status_code=409, detail="Failure evidence conflicts with its start expectation.") from None
+            stored = db.get(ScanExecutionEvidence, payload.run_id)
+            if stored is not None:
+                run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == payload.run_id))
+                original = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == payload.run_id))
+                if (stored.schema_version != payload.failure_evidence.schema_version or stored.tenant_id != tenant.tenant_id
+                        or hashlib.sha256(stored.payload_json.encode("utf-8")).hexdigest() != stored.payload_sha256
+                        or stored.payload_sha256 != failure_values[1] or stored.sync_sha256 != failure_values[2]
+                        or run is None or run.status != "failed" or original is None
+                        or not normalize_execution_identity(payload.execution_token)
+                        or normalize_execution_identity(payload.execution_token) != normalize_execution_identity(run.lease_token)
+                        or normalize_execution_identity(payload.worker_id) != normalize_execution_identity(original.client_request_id)):
+                    raise HTTPException(status_code=409, detail="Finalized failure evidence conflicts with this retry.")
+                return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run, include_execution_token=True)))
+        elif payload.status.strip().lower() == "failed" and db.get(ScanExpectationSnapshot, payload.run_id) is not None:
+            raise HTTPException(status_code=409, detail="Failure evidence is required for this scan.")
         try:
             run = update_scan_progress(
                 db,
@@ -993,6 +1120,13 @@ def update_status(
             return _lease_conflict_response(exc)
         except (InvalidScanTransitionError, ScanResultIncompleteError) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
+        if failure_values is not None:
+            db.add(ScanExecutionEvidence(
+                scan_id=payload.run_id, tenant_id=tenant.tenant_id, company_id=expectation.company_id,
+                schema_version=payload.failure_evidence.schema_version, payload_json=failure_values[0],
+                payload_sha256=failure_values[1], sync_sha256=failure_values[2], created_at_utc=datetime.now(timezone.utc),
+            ))
+            db.flush()
         db.commit()
         return JSONResponse(content=jsonable_encoder(serialize_scan_status(db, run, include_execution_token=True)))
 
