@@ -602,7 +602,7 @@ codeunit 53128 "DH Deep Scan Runner"
             repeat
                 if not IsCustomerDuplicateExcluded(Customer, 'CUSTOMERS_DUPLICATE_VAT') then
                     if not FindingExists(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_VAT', Customer."VAT Registration No.") then begin
-                        DuplicateCount := CountCustomersByVat(Customer."VAT Registration No.", 'CUSTOMERS_DUPLICATE_VAT');
+                        DuplicateCount := CountCustomersByVat(DeepScanRun."Entry No.", Customer."VAT Registration No.", 'CUSTOMERS_DUPLICATE_VAT');
                         if DuplicateCount > LastFindingCount then
                             LastFindingCount := DuplicateCount;
 
@@ -2017,9 +2017,10 @@ codeunit 53128 "DH Deep Scan Runner"
         exit(Count);
     end;
 
-    local procedure CountCustomersByVat(VatRegNo: Code[20]; IssueCode: Code[50]): Integer
+    local procedure CountCustomersByVat(RunEntryNo: Integer; VatRegNo: Code[20]; IssueCode: Code[50]): Integer
     var
         Customer: Record Customer;
+        RecordEvidence: Record "DH Scan Record Evidence";
         Count: Integer;
     begin
         Customer.SetRange("VAT Registration No.", VatRegNo);
@@ -2028,6 +2029,17 @@ codeunit 53128 "DH Deep Scan Runner"
                 if not IsCustomerDuplicateExcluded(Customer, IssueCode) then
                     Count += 1;
             until Customer.Next() = 0;
+
+        // Only actual affected Customer records form identity evidence.
+        // This check is a multi-record group; no individual remediation claim
+        // is made until the group and its member set are verified.
+        if Count > 1 then begin
+            Customer.FindSet();
+            repeat
+                if not IsCustomerDuplicateExcluded(Customer, IssueCode) then
+                    RecordEvidence.RecordObserved(RunEntryNo, IssueCode, Database::Customer, Customer.SystemId);
+            until Customer.Next() = 0;
+        end;
 
         exit(Count);
     end;
