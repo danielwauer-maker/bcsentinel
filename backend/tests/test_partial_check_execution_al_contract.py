@@ -87,3 +87,20 @@ def test_individual_completion_requires_persisted_started_evidence():
     assert "if not CheckExecution.Get(RunEntryNo, IssueCode) then" in body
     assert 'if CheckExecution."Execution Status" <> \'STARTED\' then' in body
     assert body.index("if not CheckExecution.Get(RunEntryNo, IssueCode) then") < body.index("Finding.Count()")
+
+
+def test_snapshot_completion_requires_each_enabled_check_terminal_status():
+    manager = (ROOT / "bc-extension/app/src/codeunits/DHScanCheckMgt.Codeunit.al").read_text(encoding="utf-8-sig")
+    runner = (ROOT / "bc-extension/app/src/codeunits/DHDeepScanRunner.Codeunit.al").read_text(encoding="utf-8-sig")
+    body = manager.split("procedure AssertCompletedCheckEvidenceForRun", 1)[1].split("procedure GetExpectedChecksCountForRun", 1)[0]
+    assert "if DeepScanRun.GetStartExpectationText() = '' then" in body
+    assert "foreach Token in Checks do begin" in body
+    assert "if Value.AsValue().AsBoolean() then begin" in body
+    assert 'CheckExecution.Get(DeepScanRun."Entry No.", IssueCode)' in body
+    assert 'CheckExecution."Execution Status" <> \'PASS\'' in body
+    assert 'CheckExecution."Execution Status" <> \'FINDINGS\'' in body
+    assert "SCAN_CHECK_EVIDENCE_INCOMPLETE" in body
+    run_body = runner.split("local procedure ProcessRun", 1)[1].split("local procedure TrySynchronizeScan", 1)[0]
+    assert run_body.index("ExceptionMgt.EndFrozenExceptionScope()") < run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)")
+    assert run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)") < run_body.index("RecalculateScoreMetrics(DeepScanRun, Score)")
+    assert run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)") < run_body.index("BuildSyncPayload(Setup, DeepScanRun)")
