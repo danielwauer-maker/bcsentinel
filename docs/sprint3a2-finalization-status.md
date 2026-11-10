@@ -29,3 +29,9 @@ Consolidated Draft PR #162 includes the WIP 1.0.2.58 checkpoint and replaces the
 The six explicit duplicate-check routes still call `RecordCheckStarted` before their individual work. `RecordCompletedCheck` now requires a persisted `DH Check Execution` row in `STARTED` state before it can derive `PASS` or `FINDINGS` from the finding count. Missing or already terminal observations fail closed with `CHECK_EVIDENCE_CONFLICT`. This prevents a future call path from treating absence of findings as evidence of successful execution.
 
 The focused source-contract test passed against the corresponding local 1.0.2.58 source copy (5 passed). The exact GitHub commit passed the BC Extension AL Build CI gate; real BC27 execution and complete grouped-check provenance remain unverified. In particular, the 193 aggregated output routes do **not** have a separately proven `STARTED` boundary. This is a narrow defensive correction, not a positive comparison or report release.
+
+## 2026-11-10 AL pre-finalization terminal coverage guard
+
+Before score and result persistence, the scan runner now invokes `DH Scan Check Mgt.AssertCompletedCheckEvidenceForRun` on scans with a persisted start declaration. The check iterates enabled entries of the frozen catalog snapshot and requires each to have local `DH Check Execution` with a terminal `PASS` or `FINDINGS` observation. Missing, `STARTED`, `FAILED`, `SKIPPED`, or `NOT_EXECUTED` enabled checks fail closed with `SCAN_CHECK_EVIDENCE_INCOMPLETE`. Historical runs without a declaration retain their existing legacy flow.
+
+This is a **defensive finalization gate**, not proof that grouped work is independently instrumented, not a per-record identity migration, and not authorization to enable Validation/Monitoring exports. Real BC27 runtime and positive comparison evidence remain mandatory. Focused source-contract tests added; CI and sandbox results must be verified against the exact final SHA.
