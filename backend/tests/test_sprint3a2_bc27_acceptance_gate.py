@@ -38,8 +38,10 @@ def _synthetic_complete():
     for case in evidence["scenarios"]:
         case["status"] = "PASS"
         case["evidence_refs"] = ["SYNTHETIC-NO-RUNTIME-EVIDENCE"]
-        if case["id"] in ("BC27-03", "BC27-04"):
-            case["scan_id"] = "synthetic-" + case["id"]
+        if case["id"] == "BC27-03":
+            case["scan_id"] = "11111111-1111-4111-8111-111111111111"
+        elif case["id"] == "BC27-04":
+            case["scan_id"] = "22222222-2222-4222-8222-222222222222"
     return evidence
 
 
@@ -88,6 +90,12 @@ def test_gate_rejects_duplicate_scenario_and_secrets_even_with_pass():
     data = _synthetic_complete()
     data["scenarios"][0]["id"] = None
     assert checker.evaluate(data)
+    data = _synthetic_complete()
+    data["scenarios"][3]["scan_id"] = data["scenarios"][2]["scan_id"]
+    assert any("different runs" in reason for reason in checker.evaluate(data))
+    data = _synthetic_complete()
+    data["run_context"]["utc_finished_at"] = "2026-11-09T11:00:00Z"
+    assert any("chronologically" in reason for reason in checker.evaluate(data))
 
 
 def test_runbook_and_build_artifact_are_pinned_to_current_facts():
