@@ -373,6 +373,35 @@ def compare_verified_finding_sets(
     )
 
 
+
+def compare_verified_scan_finding_sets(
+    *,
+    previous: ScanEvidence,
+    current: ScanEvidence,
+    check_code: str,
+    previous_identities: tuple[str, ...],
+    current_identities: tuple[str, ...],
+) -> FindingTransitions:
+    """Gate record-level set transitions behind complete verified scan scope.
+
+    This does not turn source-reported identities into trusted ones. The caller
+    must construct ScanEvidence from independently verified, immutable sources
+    and must obtain record identities bound to those exact scan/check pairs.
+    """
+    result = compare_scans(previous, current)
+    code = check_code.strip().upper() if isinstance(check_code, str) else ""
+    if not result.comparable or code not in result.comparable_checks:
+        raise ValueError("scan provenance or check comparability is incomplete")
+    old = {check.code.strip().upper(): check for check in previous.checks}
+    new = {check.code.strip().upper(): check for check in current.checks}
+    return compare_verified_finding_sets(
+        previous_identities=previous_identities,
+        current_identities=current_identities,
+        previous_check=old[code],
+        current_check=new[code],
+    )
+
+
 def compare_persisted_scans(db, tenant_id: str, previous_scan_id: str | None, current_scan_id: str) -> ComparisonResult:
     """Narrow positive path for fully evidenced clean checks, fail-closed otherwise.
 
