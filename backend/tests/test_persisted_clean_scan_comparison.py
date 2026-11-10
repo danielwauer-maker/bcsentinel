@@ -90,7 +90,7 @@ def test_two_persisted_clean_scans_have_verified_check_comparison(tenant_factory
         assert result.comparable and result.comparable_checks == (selected,)
         assert not result.health_score_comparable and not result.impact_comparable
         assert compare_persisted_scans(db, tenant["tenant_id"], b, a).reasons == (Reason.INVALID_SCAN_ORDER,)
-        assert compare_persisted_scans(db, tenant["tenant_id"], a, a).reasons == (Reason.SAME_SCAN,)
+        assert compare_persisted_scans(db, tenant["tenant_id"], a, a).reasons == (\n            Reason.INVALID_SCAN_ORDER, Reason.SAME_SCAN,\n        )
         assert compare_persisted_scans(db, "other-tenant", a, b).reasons == (Reason.MISSING_PROVENANCE,)
 
 
