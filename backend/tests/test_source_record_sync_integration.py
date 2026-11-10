@@ -209,7 +209,7 @@ def test_persisted_evidence_reader_validates_real_http_sync_and_rejects_tamperin
 
     with SessionLocal() as db:
         verified = read_verified_record_membership(db, tenant["tenant_id"], run_id)
-        assert verified is not None, _readback_diagnostics(db, tenant["tenant_id"], run_id)
+        assert verified is not None, json.dumps(_readback_diagnostics(db, tenant["tenant_id"], run_id), sort_keys=True)
         assert verified.check_code == CHECK
         assert {str(member.record_system_id) for member in verified.records} == {A, B}
         assert read_verified_record_membership(db, "foreign-tenant", run_id) is None
@@ -237,7 +237,7 @@ def test_persisted_reader_rejects_inconsistent_finding_membership(client, tenant
             ScanIssueRecord.code == CHECK,
         ))
         assert issue is not None
-        assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is not None, _readback_diagnostics(db, tenant["tenant_id"], payload["scan_id"])
+        assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is not None, json.dumps(_readback_diagnostics(db, tenant["tenant_id"], payload["scan_id"]), sort_keys=True)
         issue.affected_count += 1
         with db.no_autoflush:
             assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is None
