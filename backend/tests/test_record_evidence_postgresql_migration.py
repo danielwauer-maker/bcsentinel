@@ -33,7 +33,7 @@ TABLES = (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def migrated_postgresql():
     if not PG_TEST_URL or not PG_TEST_URL.startswith("postgresql"):
         pytest.skip("Dedicated PostgreSQL CI service not provided.")
