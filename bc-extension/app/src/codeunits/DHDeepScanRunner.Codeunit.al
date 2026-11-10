@@ -83,6 +83,11 @@ codeunit 53128 "DH Deep Scan Runner"
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
         ExceptionMgt.EndFrozenExceptionScope();
 
+        // Fail before persisting final results if the authenticated start
+        // expectation contains enabled checks without terminal observations.
+        // Backend finalization also checks this independently.
+        ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun);
+
         DeepScanRun.Get(DeepScanRun."Entry No.");
         RecalculateScoreMetrics(DeepScanRun, Score);
         ClearDeepScanCommercials(DeepScanRun);
