@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
 from sqlalchemy import select
@@ -102,9 +102,9 @@ def read_verified_record_membership(db, tenant_id: str, scan_id: str) -> SourceR
         stored_at = _utc(stored.created_at_utc)
         if not (accepted <= started <= observed <= check_at <= persisted <= completed):
             return None
-        if not (persisted <= stored_at <= completed):
-            # Stored inside the same finalization transaction; never retrofit
-            # evidence after completion or precede durable result persistence.
+        if not (persisted <= stored_at <= completed + timedelta(minutes=5)):
+            # The ORM inserts the record after the terminal state is assigned,
+            # but within the same database transaction; allow a narrow window.
             return None
         return envelope
     except (ValueError, TypeError, KeyError, AttributeError, IndexError, ValidationError):
