@@ -16,13 +16,14 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
-from app.models import Scan, ScanExecutionEvidence, ScanExpectationSnapshot, ScanIssueRecord, ScanRunStatus, ScanStartRequest
+from app.models import Scan, ScanExecutionEvidence, ScanExpectationSnapshot, ScanRecordIdentityEvidence, ScanIssueRecord, ScanRunStatus, ScanStartRequest
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
     require_tenant_headers,
 )
 from app.services.finding_identity_service import resolve_finding_ids
+from app.services.source_record_evidence_contract import SourceRecordEvidenceV1, validate_record_evidence_contract
 from app.services.impact_service import (
     apply_commercials_to_scan,
     calculate_scan_commercials,
@@ -152,6 +153,7 @@ class ScanSyncPayload(BaseModel):
     worker_id: Optional[str] = None
     correlation_id: Optional[str] = None
     check_execution_evidence: Optional[PartialCheckExecutionEvidence] = None
+    source_record_evidence: Optional[SourceRecordEvidenceV1] = None
 
 
 def _canonical_execution_evidence(payload: ScanSyncPayload) -> tuple[str, str, str]:
@@ -171,6 +173,10 @@ def _canonical_execution_evidence(payload: ScanSyncPayload) -> tuple[str, str, s
         raise HTTPException(status_code=413, detail="Check execution evidence is too large.")
     sync = payload.model_dump(mode="json", exclude={"execution_token", "worker_id", "correlation_id"})
     sync["check_execution_evidence"] = evidence
+    if payload.source_record_evidence is not None:
+        # Preserve the same retry identity even when BC enumeration order differs.
+        records = sync["source_record_evidence"]["records"]
+        records.sort(key=lambda item: (item["table_id"], item["record_system_id"]))
     sync["enabled_modules"] = sorted(sync["enabled_modules"])
     sync["issues"] = sorted(sync["issues"], key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
     try:
@@ -631,9 +637,16 @@ def sync_scan(
             except (ValueError, TypeError, KeyError, json.JSONDecodeError):
                 raise HTTPException(status_code=409, detail="Scan sync conflicts with its start expectation.") from None
 
+        # The record envelope requires a frozen start expectation and is never
+        # available for legacy, unleased or historically finalized scans.
+        if payload.source_record_evidence is not None and expectation is None:
+            raise HTTPException(status_code=409, detail="Record identity evidence requires a sealed scan start.")
+
         # Partial observations are bound to an already leased scan. Never use
         # this optional payload to retrofit historical completed scans.
         evidence_values = None
+        record_values = None
+        existing_record = db.get(ScanRecordIdentityEvidence, (payload.scan_id, 'CUSTOMERS_DUPLICATE_VAT'))
         existing_evidence = db.get(ScanExecutionEvidence, payload.scan_id)
         # Legacy tenants may not have a verifiable registered company. Keep
         # their existing scan path working, but never persist the submitted
@@ -661,11 +674,49 @@ def sync_scan(
                     or normalize_execution_identity(payload.execution_token) != normalize_execution_identity(locked_run.lease_token)):
                 raise HTTPException(status_code=409, detail="Scan execution evidence requires its original execution lease.")
             evidence_values = _canonical_execution_evidence(payload)
+            if payload.source_record_evidence is not None:
+                if expectation is None or payload.check_execution_evidence is None:
+                    raise HTTPException(status_code=409, detail="Record identity evidence requires frozen scope and check evidence.")
+                observations = {item.code: item for item in payload.check_execution_evidence.checks}
+                check = observations.get("CUSTOMERS_DUPLICATE_VAT")
+                declared_checks = {item["code"]: item for item in frozen["checks"]}
+                if (check is None or not declared_checks.get("CUSTOMERS_DUPLICATE_VAT", {}).get("enabled")
+                        or locked_run.status in {"completed", "completed_with_warnings", "failed", "cancelled", "expired"} and existing_record is None):
+                    raise HTTPException(status_code=409, detail="Record identity evidence is unobserved or cannot be retrofitted.")
+                group_issues = [issue for issue in payload.issues if issue.code.strip().upper() == "CUSTOMERS_DUPLICATE_VAT"]
+                # Findings are groups; sum affected_count, not the number of group rows.
+                expected_members = sum(int(issue.affected_count) for issue in group_issues)
+                try:
+                    record_values = validate_record_evidence_contract(
+                        payload.source_record_evidence,
+                        tenant_id=tenant.tenant_id, scan_id=payload.scan_id,
+                        company_id=bc_company_id, check_status=check.status,
+                        group_finding_count=len(group_issues), affected_records_count=expected_members,
+                    )
+                    check_at = check.observed_at_utc
+                    observed_at = payload.source_record_evidence.observed_at_utc
+                    accepted_at = expectation.created_at_utc
+                    if accepted_at.tzinfo is None:
+                        accepted_at = accepted_at.replace(tzinfo=timezone.utc)
+                    if not accepted_at <= observed_at <= check_at:
+                        raise ValueError("source record observation not within check execution")
+                except (ValueError, TypeError, KeyError):
+                    raise HTTPException(status_code=409, detail="Record identity evidence conflicts with the completed check.") from None
+            elif existing_record is not None:
+                raise HTTPException(status_code=409, detail="Finalized record evidence cannot be omitted on retry.")
             if existing_evidence is not None:
                 if (existing_evidence.tenant_id != tenant.tenant_id or existing_evidence.company_id != bc_company_id
                         or hashlib.sha256(existing_evidence.payload_json.encode("utf-8")).hexdigest() != existing_evidence.payload_sha256
                         or existing_evidence.payload_sha256 != evidence_values[1] or existing_evidence.sync_sha256 != evidence_values[2]):
                     raise HTTPException(status_code=409, detail="Finalized scan execution evidence conflicts with this retry.")
+                if (existing_record is None) != (record_values is None):
+                    raise HTTPException(status_code=409, detail="Record identity evidence cannot be retrofitted.")
+                if existing_record is not None:
+                    if (existing_record.tenant_id != tenant.tenant_id or existing_record.company_id != bc_company_id
+                            or existing_record.schema_version != payload.source_record_evidence.schema_version
+                            or existing_record.payload_sha256 != record_values[1]
+                            or hashlib.sha256(existing_record.payload_json.encode("utf-8")).hexdigest() != existing_record.payload_sha256):
+                        raise HTTPException(status_code=409, detail="Finalized record identity evidence conflicts with retry.")
                 original_request = db.scalar(select(ScanStartRequest).where(ScanStartRequest.scan_id == payload.scan_id))
                 if (locked_run.status not in {"completed", "completed_with_warnings"} or original_request is None
                         or normalize_execution_identity(original_request.client_request_id) != normalize_execution_identity(payload.worker_id)):
@@ -909,6 +960,20 @@ def sync_scan(
                 scan_id=scan.scan_id, tenant_id=tenant.tenant_id, company_id=bc_company_id,
                 schema_version=payload.check_execution_evidence.schema_version,
                 payload_json=evidence_values[0], payload_sha256=evidence_values[1], sync_sha256=evidence_values[2],
+                created_at_utc=datetime.now(timezone.utc),
+            ))
+            db.flush()
+
+        # Insert only after this same transaction has both completed the run
+        # and durably prepared its canonical check execution evidence.
+        if record_values is not None:
+            if existing_record is not None:
+                raise HTTPException(status_code=409, detail="Unexpected finalized record evidence in new scan sync.")
+            db.add(ScanRecordIdentityEvidence(
+                scan_id=scan.scan_id, tenant_id=tenant.tenant_id, company_id=bc_company_id,
+                check_code="CUSTOMERS_DUPLICATE_VAT",
+                schema_version=payload.source_record_evidence.schema_version,
+                payload_json=record_values[0], payload_sha256=record_values[1],
                 created_at_utc=datetime.now(timezone.utc),
             ))
             db.flush()
