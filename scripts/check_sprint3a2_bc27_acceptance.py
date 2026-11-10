@@ -12,6 +12,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from datetime import datetime, timezone
 from uuid import UUID
 
 EXPECTED_IDS = tuple(f"BC27-{n:02d}" for n in range(1, 9))
@@ -81,6 +82,7 @@ def evaluate(record: dict) -> list[str]:
     ids = [str(case.get("id")) for case in scenarios if isinstance(case, dict)]
     if sorted(ids) != list(EXPECTED_IDS):
         errors.append("Exactly eight distinct BC27-01..08 scenarios are required.")
+    scan_ids = []
     for case in scenarios:
         if not isinstance(case, dict):
             errors.append("Scenario is not an object.")
@@ -95,10 +97,29 @@ def evaluate(record: dict) -> list[str]:
             not isinstance(item, str) or not item.strip() for item in refs
         ):
             errors.append(f"{sid}: missing redacted artifact reference.")
-        if sid in {"BC27-03", "BC27-04"} and not isinstance(case.get("scan_id"), str):
-            errors.append(f"{sid}: missing real scan ID.")
+        if sid in {"BC27-03", "BC27-04"}:
+            try:
+                scan_uuid = UUID(str(case.get("scan_id") or ""))
+                if scan_uuid.int == 0:
+                    raise ValueError("empty scan")
+                scan_ids.append(str(scan_uuid))
+            except (ValueError, TypeError, AttributeError):
+                errors.append(f"{sid}: missing real nonzero scan UUID.")
         if not isinstance(case.get("expected"), str) or not case["expected"].strip():
             errors.append(f"{sid}: missing expected behavior.")
+    if len(scan_ids) == 2 and len(set(scan_ids)) != 2:
+        errors.append("Baseline and remediation scans must be different runs.")
+    try:
+        started = datetime.fromisoformat(str(context.get("utc_started_at")).replace("Z", "+00:00"))
+        ended = datetime.fromisoformat(str(context.get("utc_finished_at")).replace("Z", "+00:00"))
+        decided = datetime.fromisoformat(str(record.get("decision_utc")).replace("Z", "+00:00"))
+        if (started.utcoffset() != timezone.utc.utcoffset(started)
+                or ended.utcoffset() != timezone.utc.utcoffset(ended)
+                or decided.utcoffset() != timezone.utc.utcoffset(decided)
+                or not started <= ended <= decided):
+            raise ValueError("invalid chronology")
+    except (TypeError, ValueError, AttributeError):
+        errors.append("UTC start, finish and review timestamps must be chronologically valid.")
     if record.get("reviewer") is None or not str(record.get("reviewer")).strip():
         errors.append("Missing reviewer.")
     if not isinstance(record.get("decision_utc"), str) or not record["decision_utc"].strip():
