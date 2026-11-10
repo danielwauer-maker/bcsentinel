@@ -543,6 +543,52 @@ codeunit 53196 "DH Scan Check Mgt."
         end;
     end;
 
+    procedure AssertCompletedCheckEvidenceForRun(var DeepScanRun: Record "DH Deep Scan Run")
+    var
+        CheckExecution: Record "DH Check Execution";
+        Expectation: JsonObject;
+        Item: JsonObject;
+        Checks: JsonArray;
+        Token: JsonToken;
+        Value: JsonToken;
+        CodeToken: JsonToken;
+        IssueCode: Code[50];
+        CheckMissingErr: Label 'SCAN_CHECK_EVIDENCE_INCOMPLETE: %1', Comment = '%1 = check code', Locked = true;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+    begin
+        // The new snapshot lifecycle must not mark a run as completed if an
+        // enabled check never emitted a terminal result. Do not infer PASS from
+        // missing findings or from successful completion of its parent group.
+        if DeepScanRun.GetStartExpectationText() = '' then
+            exit; // Preserve the historical legacy scan path.
+
+        if not Expectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        if not Expectation.Get('checks', Token) then
+            Error(ExpectationInvalidErr);
+        if not Token.IsArray() then
+            Error(ExpectationInvalidErr);
+        Checks := Token.AsArray();
+        foreach Token in Checks do begin
+            if not Token.IsObject() then
+                Error(ExpectationInvalidErr);
+            Item := Token.AsObject();
+            if not Item.Get('enabled', Value) then
+                Error(ExpectationInvalidErr);
+            if not Value.AsValue().AsBoolean() then
+                continue;
+            if not Item.Get('code', CodeToken) then
+                Error(ExpectationInvalidErr);
+            IssueCode := CopyStr(CodeToken.AsValue().AsText(), 1, MaxStrLen(IssueCode));
+            if not CheckExecution.Get(DeepScanRun."Entry No.", IssueCode) then
+                Error(CheckMissingErr, IssueCode);
+            if (CheckExecution."Execution Status" <> 'PASS') and
+               (CheckExecution."Execution Status" <> 'FINDINGS')
+            then
+                Error(CheckMissingErr, IssueCode);
+        end;
+    end;
+
     procedure GetExpectedChecksCountForRun(var DeepScanRun: Record "DH Deep Scan Run"; var Setup: Record "DH Setup"): Integer
     var
         Expectation: JsonObject;
