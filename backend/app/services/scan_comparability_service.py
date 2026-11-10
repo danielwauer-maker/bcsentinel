@@ -205,23 +205,131 @@ def compare_scans(previous: ScanEvidence | None, current: ScanEvidence | None) -
                             tuple(sorted(comparable_checks)), False, False)
 
 
-def compare_persisted_scans(db, tenant_id: str, previous_scan_id: str | None, current_scan_id: str) -> ComparisonResult:
-    """Shared adapter; partial observations never assert complete provenance.
+def _verified_clean_scan(db, tenant_id: str, scan_id: str) -> tuple[ScanEvidence, str] | None:
+    """Read only genuinely completed *zero-finding* runs from sealed v2 evidence.
 
-    The currently supported source schema records only reached checks, without
-    the expected catalog, execution completeness or stable record identities.
-    It therefore cannot produce verified ScanEvidence. Both absent legacy rows
-    and partial rows fail closed until a complete trusted schema is introduced.
+    This intentionally does not attest row-level finding identities, aggregate
+    changes, health scores, impact or historical/partial evidence.
     """
-    from app.models import ScanExecutionEvidence
+    from datetime import timezone
+    from sqlalchemy import select
+    from app.models import (
+        Scan, ScanExecutionEvidence, ScanExpectationSnapshot, ScanIssueRecord,
+        ScanRunStatus, Tenant,
+    )
+    from app.services.scan_catalog_contract import (
+        CHECK_MODULE_TO_RUN_MODULE, SUPPORTED_METHODOLOGIES, catalog_1_0_2_57,
+    )
 
-    for scan_id in (previous_scan_id, current_scan_id):
-        if not scan_id:
-            return compare_scans(None, None)
-        row = db.get(ScanExecutionEvidence, scan_id)
-        if row is None or row.tenant_id != tenant_id:
-            return compare_scans(None, None)
-        if hashlib.sha256(row.payload_json.encode("utf-8")).hexdigest() != row.payload_sha256:
-            return compare_scans(None, None)
-    # No full, verified provenance schema is implemented in this release.
-    return compare_scans(None, None)
+    def utc(value):
+        if not isinstance(value, datetime):
+            raise ValueError("missing timestamp")
+        return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+    scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id, Scan.tenant_id == tenant_id))
+    run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan_id, ScanRunStatus.tenant_id == tenant_id))
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+    expectation = db.get(ScanExpectationSnapshot, scan_id)
+    observed = db.get(ScanExecutionEvidence, scan_id)
+    if any(value is None for value in (scan, run, tenant, expectation, observed)):
+        return None
+    try:
+        company = canonical_company_id(tenant.bc_company_id)
+        if (scan.scan_type != "deep" or run.status != "completed"
+                or scan.issues_count != 0
+                or canonical_company_id(scan.bc_company_id) != company
+                or canonical_company_id(expectation.company_id) != company
+                or canonical_company_id(observed.company_id) != company
+                or any(row.tenant_id != tenant_id for row in (scan, run, expectation, observed))
+                or not scan.lcy_code
+                or db.scalar(select(ScanIssueRecord.id).where(ScanIssueRecord.scan_id == scan_id).limit(1)) is not None):
+            return None
+        if (hashlib.sha256(expectation.payload_json.encode("utf-8")).hexdigest() != expectation.payload_sha256
+                or hashlib.sha256(observed.payload_json.encode("utf-8")).hexdigest() != observed.payload_sha256
+                or observed.schema_version != "bc-check-execution-partial-v1"):
+            return None
+        frozen = json.loads(expectation.payload_json)
+        executed = json.loads(observed.payload_json)
+        if (frozen.get("schema_version") != "bc-scan-expectation-v2"
+                or frozen.get("scan_id") != scan_id or frozen.get("tenant_id") != tenant_id
+                or canonical_company_id(frozen.get("company_id")) != company
+                or frozen.get("environment") != (tenant.environment_name or "").strip()
+                or frozen.get("currency") != scan.lcy_code
+                or not isinstance(frozen.get("exception_scope"), list)
+                or executed.get("schema_version") != observed.schema_version):
+            return None
+
+        catalog_version, _, catalog = catalog_1_0_2_57()
+        declared = frozen["checks"]
+        declared_pairs = tuple((item["code"], item["module"]) for item in declared)
+        if (len(declared_pairs) != len(catalog)
+                or frozenset(declared_pairs) != catalog
+                or frozen["catalog_version"] != catalog_version
+                or frozen["methodology_version"] not in SUPPORTED_METHODOLOGIES
+                or frozen["catalog_fingerprint"] != catalog_fingerprint(
+                    frozen["catalog_version"], frozen["methodology_version"], declared_pairs)):
+            return None
+        modules = _canonical_names(tuple(frozen["modules"]))
+        expected = _canonical_names(tuple(item["code"] for item in declared if item["enabled"]))
+        if (not modules or not expected
+                or any(item["enabled"] and CHECK_MODULE_TO_RUN_MODULE[item["module"]] not in modules for item in declared)):
+            return None
+
+        observations = executed["checks"]
+        codes = _canonical_names(tuple(item["code"] for item in observations))
+        if len(codes) != len(observations):
+            return None
+        statuses = {item["code"]: item for item in observations}
+        if not set(expected).issubset(statuses):
+            return None
+
+        accepted_at = utc(expectation.created_at_utc)
+        started_at, stored_at, completed_at = (
+            utc(run.started_at_utc), utc(run.result_persisted_at_utc), utc(run.completed_at_utc)
+        )
+        if not (accepted_at <= started_at <= stored_at <= completed_at):
+            return None
+        for code, item in statuses.items():
+            if not (accepted_at <= utc(datetime.fromisoformat(item["observed_at_utc"].replace("Z", "+00:00"))) <= completed_at):
+                return None
+            if code in expected:
+                if item["status"] != "PASS" or item["finding_count"] != 0:
+                    return None
+            elif item["status"] != "SKIPPED" or item["finding_count"] != 0:
+                return None
+        if set(statuses) - {item["code"] for item in declared}:
+            return None
+        if scan.generated_at_utc is None:
+            return None
+        # Frozen exception scope is independently compared across both scans.
+        scope_key = json.dumps(frozen["exception_scope"], sort_keys=True, separators=(",", ":"))
+        return ScanEvidence(
+            tenant_id=tenant_id, scan_id=scan_id, company_id=company,
+            environment=frozen["environment"], currency=frozen["currency"],
+            methodology_version=frozen["methodology_version"],
+            catalog_version=frozen["catalog_version"],
+            catalog_fingerprint=frozen["catalog_fingerprint"],
+            modules=modules, expected_checks=expected,
+            checks=tuple(CheckEvidence(code, CheckStatus.PASS) for code in expected),
+            completed_at=completed_at, result_persisted_at=stored_at,
+            scan_status="completed", source_verified=True,
+        ), scope_key
+    except (KeyError, ValueError, TypeError, AttributeError, IndexError):
+        return None
+
+
+def compare_persisted_scans(db, tenant_id: str, previous_scan_id: str | None, current_scan_id: str) -> ComparisonResult:
+    """Narrow positive path for fully evidenced clean checks, fail-closed otherwise.
+
+    No finding transitions, score deltas or impact deltas are authorized here.
+    Do not remove Validation/Monitoring export guards on this basis.
+    """
+    if not previous_scan_id or not current_scan_id:
+        return compare_scans(None, None)
+    previous = _verified_clean_scan(db, tenant_id, previous_scan_id)
+    current = _verified_clean_scan(db, tenant_id, current_scan_id)
+    if previous is None or current is None:
+        return compare_scans(None, None)
+    if previous[1] != current[1]:
+        return ComparisonResult(False, (Reason.SCOPE_MISMATCH,), (), False, False)
+    return compare_scans(previous[0], current[0])
