@@ -620,6 +620,10 @@ codeunit 53128 "DH Deep Scan Runner"
                     end;
             until Customer.Next() = 0;
 
+        // A terminal check must have a complete local record-identity set.
+        // Every counted VAT-group member must have exactly one source SystemId.
+        AssertCustomerVatRecordEvidenceComplete(DeepScanRun."Entry No.");
+
         ScanCheckMgt.UpdateLastRun('CUSTOMERS_DUPLICATE_VAT', LastFindingCount);
         RecordCompletedCheck(DeepScanRun."Entry No.", 'CUSTOMERS_DUPLICATE_VAT');
     end;
@@ -2042,6 +2046,31 @@ codeunit 53128 "DH Deep Scan Runner"
         end;
 
         exit(Count);
+    end;
+
+    local procedure AssertCustomerVatRecordEvidenceComplete(RunEntryNo: Integer)
+    var
+        RecordEvidence: Record "DH Scan Record Evidence";
+        Finding: Record "DH Deep Scan Finding";
+        ExpectedMembers: Integer;
+        ObservedMembers: Integer;
+        RecordEvidenceIncompleteErr: Label 'SCAN_RECORD_EVIDENCE_INCOMPLETE: %1 (%2 observed, %3 expected)', Comment = '%1 = check code, %2 = observed members, %3 = expected members', Locked = true;
+    begin
+        // Do not interpret a partial group as completed evidence.
+        Finding.SetRange("Deep Scan Entry No.", RunEntryNo);
+        Finding.SetRange("Issue Code", 'CUSTOMERS_DUPLICATE_VAT');
+        if Finding.FindSet() then
+            repeat
+                ExpectedMembers += Finding."Affected Count";
+            until Finding.Next() = 0;
+
+        RecordEvidence.SetRange("Run Entry No.", RunEntryNo);
+        RecordEvidence.SetRange("Check Code", 'CUSTOMERS_DUPLICATE_VAT');
+        RecordEvidence.SetRange("Source Table ID", Database::Customer);
+        ObservedMembers := RecordEvidence.Count();
+
+        if ObservedMembers <> ExpectedMembers then
+            Error(RecordEvidenceIncompleteErr, 'CUSTOMERS_DUPLICATE_VAT', ObservedMembers, ExpectedMembers);
     end;
 
     local procedure CountVendorsByVat(VatRegNo: Code[20]; IssueCode: Code[50]): Integer
