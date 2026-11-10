@@ -1,8 +1,8 @@
-"""Versioned source-record identity envelope, not yet enabled for ingestion.
+"""Versioned source-record identity envelope for gated scan-sync ingestion.
 
-This validates the source-declared shape and deterministic digest. It is NOT an
-authentication, execution lease, persistence or completeness attestation. The
-sync endpoint must not accept this evidence until those bindings are enforced.
+This module validates client-declared shape, canonical bytes and exact scope
+values passed by the leased scan-sync adapter. It cannot by itself prove BC
+source provenance or a stable source snapshot under concurrent data changes.
 """
 from __future__ import annotations
 
@@ -89,8 +89,8 @@ def validate_record_evidence_contract(
 ) -> tuple[str, str]:
     """Require exact trusted binding values provided by a future sync adapter.
 
-    This deliberately does not attest the binding source: callers must verify
-    registered company, sealed expectation, lease and immutable scan lifecycle.
+    The caller must separately verify registered company, sealed expectation,
+    original lease and immutable scan lifecycle before trusting these values.
     """
     try:
         verified_company = UUID(company_id)
