@@ -122,7 +122,21 @@ codeunit 53129 "DH Deep Scan Failure"
     end;
 
     local procedure ModuleDefinitelyNotStarted(var DeepScanRun: Record "DH Deep Scan Run"; CheckModule: Text): Boolean
+    var
+        RuntimeModule: Text;
     begin
+        // A stale 0% progress counter must never override the observed module
+        // start marker. An active group's unobserved checks remain unknown.
+        case UpperCase(CheckModule) of
+            'CUSTOMER', 'VENDOR', 'LEDGER', 'FINANCE': RuntimeModule := 'Finance';
+            'PURCHASE': RuntimeModule := 'Purchasing';
+            'ITEM', 'INVENTORY': RuntimeModule := 'Inventory';
+            'JOB': RuntimeModule := 'Jobs';
+            else
+                RuntimeModule := CheckModule;
+        end;
+        if UpperCase(DeepScanRun."Current Module") = UpperCase(RuntimeModule) then
+            exit(false);
         case UpperCase(CheckModule) of
             'SYSTEM': exit(DeepScanRun."System Progress %" = 0);
             'CUSTOMER', 'VENDOR', 'LEDGER', 'FINANCE': exit(DeepScanRun."Finance Progress %" = 0);
