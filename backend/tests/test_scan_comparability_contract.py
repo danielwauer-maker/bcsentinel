@@ -101,3 +101,50 @@ def test_missing_or_ambiguous_evidence_never_becomes_comparable():
     assert Reason.UNSTABLE_FINDING_IDENTITY in compare_scans(evidence(), unstable).reasons
     failed = evidence(completed_at=NOW + timedelta(days=1), scan_status="failed")
     assert compare_scans(evidence(), failed).comparable_checks == ()
+
+
+def test_verified_record_finding_transitions_are_set_based_and_order_independent():
+    from app.services.scan_comparability_service import compare_verified_finding_sets
+
+    a, b, c = ("a" * 64, "b" * 64, "c" * 64)
+    result = compare_verified_finding_sets(
+        previous_identities=(b, a),
+        current_identities=(c, b),
+        previous_check=CheckEvidence("CHK", CheckStatus.FINDINGS, True),
+        current_check=CheckEvidence("CHK", CheckStatus.FINDINGS, True),
+    )
+    assert result.resolved == (a,)
+    assert result.persistent == (b,)
+    assert result.new == (c,)
+
+
+def test_verified_record_finding_transitions_support_empty_healthy_scans():
+    from app.services.scan_comparability_service import compare_verified_finding_sets
+
+    a = "a" * 64
+    result = compare_verified_finding_sets(
+        previous_identities=(a,),
+        current_identities=(),
+        previous_check=CheckEvidence("CHK", CheckStatus.FINDINGS, True),
+        current_check=CheckEvidence("CHK", CheckStatus.PASS),
+    )
+    assert result.resolved == (a,) and not result.persistent and not result.new
+
+
+@pytest.mark.parametrize(("before", "after", "old", "new"), [
+    (("a" * 64,), (), CheckEvidence("CHK", CheckStatus.FINDINGS), CheckEvidence("CHK", CheckStatus.PASS)),
+    (("a" * 64,), (), CheckEvidence("CHK", CheckStatus.FAILED, True), CheckEvidence("CHK", CheckStatus.PASS)),
+    (("a" * 64,), (), CheckEvidence("CHK", CheckStatus.FINDINGS, True), CheckEvidence("OTHER", CheckStatus.PASS)),
+    (("a" * 64, "a" * 64), (), CheckEvidence("CHK", CheckStatus.FINDINGS, True), CheckEvidence("CHK", CheckStatus.PASS)),
+    (("legacy:CHK",), (), CheckEvidence("CHK", CheckStatus.FINDINGS, True), CheckEvidence("CHK", CheckStatus.PASS)),
+    ((), (), CheckEvidence("CHK", CheckStatus.FINDINGS, True), CheckEvidence("CHK", CheckStatus.PASS)),
+    (("a" * 64,), ("b" * 64,), CheckEvidence("CHK", CheckStatus.FINDINGS, True), CheckEvidence("CHK", CheckStatus.PASS)),
+])
+def test_unverified_or_inconsistent_finding_transition_inputs_fail_closed(before, after, old, new):
+    from app.services.scan_comparability_service import compare_verified_finding_sets
+
+    with pytest.raises(ValueError):
+        compare_verified_finding_sets(
+            previous_identities=before, current_identities=after,
+            previous_check=old, current_check=new,
+        )
