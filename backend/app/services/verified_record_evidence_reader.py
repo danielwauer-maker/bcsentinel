@@ -49,7 +49,8 @@ def read_verified_record_membership(db, tenant_id: str, scan_id: str) -> SourceR
         company = canonical_company_id(tenant.bc_company_id)
         if (scan.scan_type != "deep" or run.status != "completed"
                 or not scan.lcy_code
-                or any(canonical_company_id(row.company_id) != company for row in (scan, stored, start, executed))
+                or canonical_company_id(scan.bc_company_id) != company
+                or any(canonical_company_id(row.company_id) != company for row in (stored, start, executed))
                 or any(row.tenant_id != tenant_id for row in (scan, run, stored, start, executed))
                 or stored.schema_version != "bc-record-evidence-v1"
                 or stored.check_code != SUPPORTED_CHECK
