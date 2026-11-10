@@ -104,3 +104,29 @@ def test_snapshot_completion_requires_each_enabled_check_terminal_status():
     assert run_body.index("ExceptionMgt.EndFrozenExceptionScope()") < run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)")
     assert run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)") < run_body.index("RecalculateScoreMetrics(DeepScanRun, Score)")
     assert run_body.index("ScanCheckMgt.AssertCompletedCheckEvidenceForRun(DeepScanRun)") < run_body.index("BuildSyncPayload(Setup, DeepScanRun)")
+
+
+def test_not_executed_requires_absence_of_observed_module_start():
+    failure = (ROOT / "bc-extension/app/src/codeunits/DHDeepScanFailure.Codeunit.al").read_text(encoding="utf-8-sig")
+    body = failure.split("local procedure ModuleDefinitelyNotStarted", 1)[1].split("procedure RetryFailedEvidence", 1)[0]
+    # Module-level progress alone must not override an observed active module.
+    assert 'if UpperCase(DeepScanRun."Current Module") = UpperCase(RuntimeModule) then' in body
+    assert "exit(false);" in body
+    assert body.index('DeepScanRun."Current Module"') < body.index("DeepScanRun.\"System Progress %\" = 0")
+    for normalized in (
+        "'CUSTOMER', 'VENDOR', 'LEDGER', 'FINANCE': RuntimeModule := 'Finance'",
+        "'PURCHASE': RuntimeModule := 'Purchasing'",
+        "'ITEM', 'INVENTORY': RuntimeModule := 'Inventory'",
+        "'JOB': RuntimeModule := 'Jobs'",
+    ):
+        assert normalized in body
+    # Unknown module names must never be optimistically classified as unstarted.
+    assert body.rstrip().endswith("exit(false);\n    end;")
+
+
+def test_failure_evidence_only_marks_started_checks_failed():
+    failure = (ROOT / "bc-extension/app/src/codeunits/DHDeepScanFailure.Codeunit.al").read_text(encoding="utf-8-sig")
+    body = failure.split("procedure MarkRunAsFailed", 1)[1].split("local procedure RecordUnreachedChecks", 1)[0]
+    assert 'CheckExecution.SetRange("Execution Status", \'STARTED\')' in body
+    assert "CheckExecution.\"Execution Status\" := 'FAILED';" in body
+    assert "RecordUnreachedChecks(DeepScanRun)" in body
