@@ -2137,8 +2137,16 @@ codeunit 53128 "DH Deep Scan Runner"
     local procedure RecordCompletedCheck(RunEntryNo: Integer; IssueCode: Code[50])
     var
         Finding: Record "DH Deep Scan Finding";
+        CheckExecution: Record "DH Check Execution";
         FindingCount: Integer;
     begin
+        // Only an individually observed STARTED check may transition to PASS or
+        // FINDINGS. Absence of findings is never evidence that a check ran.
+        if not CheckExecution.Get(RunEntryNo, IssueCode) then
+            Error(CheckExecutionConflictErr);
+        if CheckExecution."Execution Status" <> 'STARTED' then
+            Error(CheckExecutionConflictErr);
+
         Finding.SetRange("Deep Scan Entry No.", RunEntryNo);
         Finding.SetRange("Issue Code", IssueCode);
         FindingCount := Finding.Count();
