@@ -17,3 +17,9 @@ The current `DHDeepScanRunner.Codeunit.al` creates count findings with an aggreg
 Lifecycle ordering must preserve the existing backend semantics: `mark_scan_result_persisted` records the stored result before the run transitions to `completed` and receives `completed_at_utc`. A future provenance adapter must distinguish check completion, result persistence and lifecycle completion; requiring persistence to occur after the lifecycle's completion timestamp would incorrectly reject valid scans.
 
 BC27 sandbox runtime and real in-place upgrade require separate approval and evidence; tests or CI must not be described as that acceptance.
+
+## 2026-11-10 consolidation: AL source-routing inventory (NOT runtime acceptance)
+
+Consolidated Draft PR #162 includes the WIP 1.0.2.58 checkpoint and replaces the two short-lived review PRs #160 and #161. The isolated source-contract test `backend/tests/test_scan_runtime_catalog_routing.py` verifies that all 199 declared AL catalog codes are covered by exactly one syntactic reporting route: 193 `AddCountFinding` calls and six individually instrumented duplicate-check starts. This check passed against the matching locally uploaded source snapshot and runs again in GitHub CI on the integrated branch.
+
+**This is a static inventory only.** It does not prove that each check executed, that a group failure can be attributed to its constituent checks, or that an aggregate finding has per-record identity. Existing `MISSING_PROVENANCE` blocks and Validation/Monitoring export guards remain mandatory. The next engineering work is real per-check terminal evidence for interrupted/grouped execution and a demonstrably positive verified comparison for the subset with stable identities. No BC sandbox or real DEV runtime evidence has been obtained.
