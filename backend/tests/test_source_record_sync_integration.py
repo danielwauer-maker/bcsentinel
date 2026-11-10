@@ -146,3 +146,50 @@ def test_optional_record_field_preserves_preexisting_sync_fingerprint():
     legacy["issues"].sort(key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
     canonical = json.dumps(legacy, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
     assert actual_hash == hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def test_persisted_evidence_reader_validates_real_http_sync_and_rejects_tampering(client, tenant_factory, auth_header_factory):
+    from app.services.verified_record_evidence_reader import read_verified_record_membership
+
+    tenant, headers, payload = _prepare(client, tenant_factory, auth_header_factory)
+    run_id = payload["scan_id"]
+    with SessionLocal() as db:
+        assert read_verified_record_membership(db, tenant["tenant_id"], run_id) is None
+    synced = client.post("/scan/sync", headers=headers, json=payload)
+    assert synced.status_code == 200, synced.text
+
+    with SessionLocal() as db:
+        verified = read_verified_record_membership(db, tenant["tenant_id"], run_id)
+        assert verified is not None
+        assert verified.check_code == CHECK
+        assert {str(member.record_system_id) for member in verified.records} == {A, B}
+        assert read_verified_record_membership(db, "foreign-tenant", run_id) is None
+
+        stored = db.get(ScanRecordIdentityEvidence, (run_id, CHECK))
+        original = stored.payload_json
+        # No UPDATE is committed: the DB trigger remains immutable. This
+        # verifies that even a tampered in-memory ORM row is not trusted.
+        stored.payload_json = original.replace(A, str(uuid4()))
+        with db.no_autoflush:
+            assert read_verified_record_membership(db, tenant["tenant_id"], run_id) is None
+        db.rollback()
+
+
+def test_persisted_reader_rejects_inconsistent_finding_membership(client, tenant_factory, auth_header_factory):
+    from app.models import ScanIssueRecord
+    from app.services.verified_record_evidence_reader import read_verified_record_membership
+
+    tenant, headers, payload = _prepare(client, tenant_factory, auth_header_factory)
+    synced = client.post("/scan/sync", headers=headers, json=payload)
+    assert synced.status_code == 200, synced.text
+    with SessionLocal() as db:
+        issue = db.scalar(select(ScanIssueRecord).where(
+            ScanIssueRecord.scan_id == payload["scan_id"],
+            ScanIssueRecord.code == CHECK,
+        ))
+        assert issue is not None
+        assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is not None
+        issue.affected_count += 1
+        with db.no_autoflush:
+            assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is None
+        db.rollback()
