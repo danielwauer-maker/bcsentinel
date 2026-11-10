@@ -123,3 +123,26 @@ def test_wrong_lease_cannot_store_record_evidence(client, tenant_factory, auth_h
     assert client.post("/scan/sync", json=wrong, headers=headers).status_code == 409
     with SessionLocal() as db:
         assert db.get(ScanRecordIdentityEvidence, (payload["scan_id"], CHECK)) is None
+
+
+def test_optional_record_field_preserves_preexisting_sync_fingerprint():
+    import hashlib
+    import json
+    from app.routers.scans import ScanSyncPayload, _canonical_execution_evidence
+
+    old = _deep_scan_payload("legacy-tenant", "legacy-scan")
+    old["check_execution_evidence"] = {
+        "schema_version": "bc-check-execution-partial-v1",
+        "checks": [{"code": "SMOKE_ISSUE", "status": "FINDINGS",
+                    "finding_count": 1, "observed_at_utc": datetime.now(timezone.utc).isoformat()}],
+    }
+    parsed = ScanSyncPayload.model_validate(old)
+    actual_hash = _canonical_execution_evidence(parsed)[2]
+    legacy = parsed.model_dump(
+        mode="json", exclude={"execution_token", "worker_id", "correlation_id", "source_record_evidence"}
+    )
+    legacy["check_execution_evidence"]["checks"].sort(key=lambda item: item["code"])
+    legacy["enabled_modules"].sort()
+    legacy["issues"].sort(key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
+    canonical = json.dumps(legacy, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    assert actual_hash == hashlib.sha256(canonical.encode()).hexdigest()
