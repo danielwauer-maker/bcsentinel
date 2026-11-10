@@ -321,6 +321,58 @@ def _verified_clean_scan(db, tenant_id: str, scan_id: str) -> tuple[ScanEvidence
         return None
 
 
+
+@dataclass(frozen=True)
+class FindingTransitions:
+    """Set transitions for already verified per-record comparison identities.
+
+    This helper does not establish provenance. Callers must verify both scan
+    sources, complete check coverage and the record SystemIds separately.
+    """
+    resolved: tuple[str, ...]
+    persistent: tuple[str, ...]
+    new: tuple[str, ...]
+
+
+def compare_verified_finding_sets(
+    *,
+    previous_identities: tuple[str, ...],
+    current_identities: tuple[str, ...],
+    previous_check: CheckEvidence,
+    current_check: CheckEvidence,
+) -> FindingTransitions:
+    """Compare only explicitly verified row identities; never aggregate counts.
+
+    Fail closed on incomplete check execution, missing record identities and
+    duplicate entries. This is intentionally not wired to report exports.
+    """
+    if (previous_check.code.strip().upper() != current_check.code.strip().upper()
+            or previous_check.status not in (CheckStatus.PASS, CheckStatus.FINDINGS)
+            or current_check.status not in (CheckStatus.PASS, CheckStatus.FINDINGS)):
+        raise ValueError("incompatible or incomplete check evidence")
+
+    def normalized(values: tuple[str, ...], check: CheckEvidence) -> set[str]:
+        if not isinstance(values, tuple):
+            raise ValueError("finding identities must be an explicit tuple")
+        if (check.status == CheckStatus.PASS and values
+                or check.status == CheckStatus.FINDINGS and not values
+                or check.status == CheckStatus.FINDINGS and check.stable_finding_identities is not True):
+            raise ValueError("finding statuses require complete verified identities")
+        if any(not isinstance(v, str) or not re.fullmatch(r"[0-9a-f]{64}", v) for v in values):
+            raise ValueError("finding identity must be a canonical SHA-256 digest")
+        if len(values) != len(set(values)):
+            raise ValueError("duplicate finding identity")
+        return set(values)
+
+    before = normalized(previous_identities, previous_check)
+    after = normalized(current_identities, current_check)
+    return FindingTransitions(
+        resolved=tuple(sorted(before - after)),
+        persistent=tuple(sorted(before & after)),
+        new=tuple(sorted(after - before)),
+    )
+
+
 def compare_persisted_scans(db, tenant_id: str, previous_scan_id: str | None, current_scan_id: str) -> ComparisonResult:
     """Narrow positive path for fully evidenced clean checks, fail-closed otherwise.
 
