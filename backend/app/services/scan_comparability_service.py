@@ -289,8 +289,10 @@ def _verified_clean_scan(db, tenant_id: str, scan_id: str) -> tuple[ScanEvidence
         )
         if not (accepted_at <= started_at <= stored_at <= completed_at):
             return None
+        if not (started_at <= utc(observed.created_at_utc) <= completed_at):
+            return None
         for code, item in statuses.items():
-            if not (accepted_at <= utc(datetime.fromisoformat(item["observed_at_utc"].replace("Z", "+00:00"))) <= completed_at):
+            if not (started_at <= utc(datetime.fromisoformat(item["observed_at_utc"].replace("Z", "+00:00"))) <= stored_at):
                 return None
             if code in expected:
                 if item["status"] != "PASS" or item["finding_count"] != 0:
