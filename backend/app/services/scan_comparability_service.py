@@ -272,7 +272,8 @@ def _verified_clean_scan(db, tenant_id: str, scan_id: str) -> tuple[ScanEvidence
         modules = _canonical_names(tuple(frozen["modules"]))
         expected = _canonical_names(tuple(item["code"] for item in declared if item["enabled"]))
         if (not modules or not expected
-                or any(item["enabled"] and CHECK_MODULE_TO_RUN_MODULE[item["module"]] not in modules for item in declared)):
+                or any(item["enabled"] and CHECK_MODULE_TO_RUN_MODULE[item["module"]] not in modules for item in declared)
+                or scan.checks_count != len(expected)):
             return None
 
         observations = executed["checks"]
