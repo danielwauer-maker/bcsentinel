@@ -17,12 +17,12 @@ def test_all_catalog_checks_have_exactly_one_output_route():
     catalog = CATALOG.read_text(encoding="utf-8-sig")
     runner = RUNNER.read_text(encoding="utf-8-sig")
 
-    declared = re.findall(r"\\bAddCheck\\('([A-Z0-9_]+)'", catalog)
+    declared = re.findall(r"\bAddCheck\('([A-Z0-9_]+)'", catalog)
     aggregate = re.findall(
-        r"\\bAddCountFinding\\([^;]*?'([A-Z0-9_]+)'\\s*,\\s*'(?:high|medium|low|critical)'",
+        r"\bAddCountFinding\([^;]*?'([A-Z0-9_]+)'\s*,\s*'(?:high|medium|low|critical)'",
         runner,
     )
-    individual = re.findall(r"\\bRecordCheckStarted\\([^;]*?'([A-Z0-9_]+)'", runner)
+    individual = re.findall(r"\bRecordCheckStarted\([^;]*?'([A-Z0-9_]+)'", runner)
 
     assert len(declared) == len(set(declared)) == 199, "catalog inventory requires explicit versioned review"
     assert len(aggregate) == 193 and len(individual) == 6, "routing inventory changed; review instrumentation"
@@ -37,7 +37,7 @@ def test_all_catalog_checks_have_exactly_one_output_route():
 def test_aggregated_count_findings_do_not_provide_per_record_comparison_identity():
     runner = RUNNER.read_text(encoding="utf-8-sig")
     helper = runner.split("local procedure AddCountFinding", 1)[1].split("local procedure RecordCheckStarted", 1)[0]
-    assert "RecordCheckExecution(DeepScanRun.\\\"Entry No.\\\", IssueCode, 'PASS', 0)" in helper
-    assert "RecordCheckExecution(DeepScanRun.\\\"Entry No.\\\", IssueCode, 'FINDINGS', 1)" in helper
+    assert "RecordCheckExecution(DeepScanRun.\\"Entry No.\\", IssueCode, 'PASS', 0)" in helper
+    assert "RecordCheckExecution(DeepScanRun.\\"Entry No.\\", IssueCode, 'FINDINGS', 1)" in helper
     assert "AffectedCount" in helper
     assert "Record SystemId" not in helper
