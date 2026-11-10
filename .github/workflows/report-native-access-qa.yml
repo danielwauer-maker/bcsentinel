@@ -69,5 +69,9 @@ jobs:
         env:
           BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/bcsentinel_report_test
         run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_validation_comparison_v2.py tests/test_p0e_postgres_concurrency.py tests/test_operator_v2.py tests/test_registration_identity_auth.py
+      - name: Verify PostgreSQL 0040 binding, CHECK and immutable evidence triggers
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/bcsentinel_report_test
+        run: python -m pytest -q -p no:warnings tests/test_record_evidence_postgresql_migration.py
       - name: Full backend regression suite
         run: python -m pytest -q -p no:warnings
