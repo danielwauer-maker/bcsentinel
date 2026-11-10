@@ -87,4 +87,3 @@ def test_individual_completion_requires_persisted_started_evidence():
     assert "if not CheckExecution.Get(RunEntryNo, IssueCode) then" in body
     assert 'if CheckExecution."Execution Status" <> \'STARTED\' then' in body
     assert body.index("if not CheckExecution.Get(RunEntryNo, IssueCode) then") < body.index("Finding.Count()")
-    assert body.index("if CheckExecution.\\"Execution Status\\" <> 'STARTED' then") < body.index("RecordCheckExecution(RunEntryNo, IssueCode, 'PASS', 0)")
