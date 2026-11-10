@@ -1,8 +1,6 @@
 """HTTP/ORM coverage for the guarded source-record identity sync path."""
 from copy import deepcopy
 from datetime import datetime, timezone
-import hashlib
-import json
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -161,67 +159,6 @@ def test_optional_record_field_preserves_preexisting_sync_fingerprint():
 
 
 
-def _readback_diagnostics(db, tenant_id, scan_id):
-    """Only boolean guard results, no customer data or secrets in CI logs."""
-    stored = db.get(ScanRecordIdentityEvidence, (scan_id, CHECK))
-    start = db.get(ScanExpectationSnapshot, scan_id)
-    executed = db.get(ScanExecutionEvidence, scan_id)
-    run = db.scalar(select(ScanRunStatus).where(ScanRunStatus.run_id == scan_id))
-    scan = db.scalar(select(Scan).where(Scan.scan_id == scan_id))
-    if any(row is None for row in (stored, start, executed, run, scan)):
-        return "missing persisted row"
-    parsed = json.loads(stored.payload_json)
-    check = next((v for v in json.loads(executed.payload_json)["checks"] if v["code"] == CHECK), None)
-    frozen = json.loads(start.payload_json)
-    times = [start.created_at_utc, run.started_at_utc,
-             datetime.fromisoformat(parsed["observed_at_utc"]),
-             datetime.fromisoformat(check["observed_at_utc"]) if check else None,
-             run.result_persisted_at_utc, run.completed_at_utc,
-             stored.created_at_utc]
-    from datetime import timezone as _timezone
-    normalized = [None if t is None else (t.replace(tzinfo=_timezone.utc)
-                  if t.tzinfo is None else t.astimezone(_timezone.utc)) for t in times]
-    issues = db.scalars(select(ScanIssueRecord).where(
-        ScanIssueRecord.scan_id == scan_id, ScanIssueRecord.code == CHECK)).all()
-    from app.services.source_record_evidence_contract import (
-        SourceRecordEvidenceV1, validate_record_evidence_contract,
-    )
-    try:
-        envelope = SourceRecordEvidenceV1.model_validate_json(stored.payload_json)
-        canonical_json, digest = validate_record_evidence_contract(
-            envelope, tenant_id=tenant_id, scan_id=scan_id,
-            company_id=stored.company_id,
-            check_status=check["status"],
-            group_finding_count=len(issues),
-            affected_records_count=sum(issue.affected_count for issue in issues),
-        )
-        canonical_results = {
-            "canon_matches": canonical_json == stored.payload_json,
-            "digest_matches": digest == stored.payload_sha256,
-        }
-    except Exception as exc:
-        canonical_results = {"contract_error_type": type(exc).__name__}
-    return {**canonical_results,
-        "hashes": [hashlib.sha256(row.payload_json.encode()).hexdigest() == row.payload_sha256
-                   for row in (stored, start, executed)],
-        "binding_tenants": all(row.tenant_id == tenant_id for row in (scan, run, stored, start, executed)),
-        "schemas": [stored.schema_version, executed.schema_version, frozen.get("schema_version")],
-        "source_check_status": check["status"] if check else None,
-        "frozen_check_source_id": frozen.get("company_id") == COMPANY,
-        "scope_exists": isinstance(frozen.get("exception_scope"), list),
-        "time_window": normalized[4] <= normalized[6] <= normalized[5] + __import__("datetime").timedelta(minutes=5),
-
-        "status": run.status, "scan_type": scan.scan_type,
-        "company_match": scan.bc_company_id == stored.company_id == start.company_id == executed.company_id,
-        "env_match": frozen.get("environment") == "production",
-        "currency_match": scan.lcy_code == frozen.get("currency"),
-        "enabled_check": [(c["code"], c["module"], c["enabled"]) for c in frozen["checks"] if c["code"] == CHECK],
-        "finding_count_matches": check is not None and check["finding_count"] == len(issues),
-        "affected_count_matches": sum(i.affected_count for i in issues) == parsed["affected_records_count"],
-        "chronology": [normalized[i] is not None and normalized[i+1] is not None
-                       and normalized[i] <= normalized[i+1] for i in range(len(normalized)-1)],
-    }
-
 def test_persisted_evidence_reader_validates_real_http_sync_and_rejects_tampering(client, tenant_factory, auth_header_factory):
     from app.services.verified_record_evidence_reader import read_verified_record_membership
 
@@ -234,7 +171,7 @@ def test_persisted_evidence_reader_validates_real_http_sync_and_rejects_tamperin
 
     with SessionLocal() as db:
         verified = read_verified_record_membership(db, tenant["tenant_id"], run_id)
-        assert verified is not None, json.dumps(_readback_diagnostics(db, tenant["tenant_id"], run_id), sort_keys=True)
+        assert verified is not None
         assert verified.check_code == CHECK
         assert {str(member.record_system_id) for member in verified.records} == {A, B}
         assert read_verified_record_membership(db, "foreign-tenant", run_id) is None
@@ -262,7 +199,7 @@ def test_persisted_reader_rejects_inconsistent_finding_membership(client, tenant
             ScanIssueRecord.code == CHECK,
         ))
         assert issue is not None
-        assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is not None, json.dumps(_readback_diagnostics(db, tenant["tenant_id"], payload["scan_id"]), sort_keys=True)
+        assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is not None
         issue.affected_count += 1
         with db.no_autoflush:
             assert read_verified_record_membership(db, tenant["tenant_id"], payload["scan_id"]) is None
