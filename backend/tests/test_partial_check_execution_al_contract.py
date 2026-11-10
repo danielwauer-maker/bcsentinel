@@ -67,3 +67,13 @@ def test_frozen_exception_scope_has_deterministic_primary_key_order():
     assert 'IssueException.SetCurrentKey("Entry No.");' in before_entries
     assert before_entries.index('IssueException.Reset();') < before_entries.index('IssueException.SetCurrentKey("Entry No.");')
     assert before_entries.index('IssueException.SetCurrentKey("Entry No.");') < before_entries.index('IssueException.FindSet()')
+
+
+def test_backend_normalizes_frozen_exception_scope_in_same_order():
+    source = (ROOT / "backend/app/routers/scans.py").read_text(encoding="utf-8")
+    assert 'sorted(expected["exception_scope"], key=lambda item: item["entry_no"])' in source
+
+
+def test_exception_entry_number_is_primary_key_for_snapshot_order():
+    source = (ROOT / "bc-extension/app/src/tables/DHIssueException.Table.al").read_text(encoding="utf-8-sig")
+    assert 'key(PK; "Entry No.")' in source
