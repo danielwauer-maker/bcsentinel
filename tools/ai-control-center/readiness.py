@@ -29,7 +29,7 @@ def workdays_since(start: dt.date, end: dt.date) -> int:
 
 def planning_anchor(value):
     """Read the planning issue date from Dashboard!A3, not from server clock."""
-    found = re.search(r"(?<!\\d)(\\d{2})\\.(\\d{2})\\.(\\d{4})(?!\\d)", str(value or ""))
+    found = re.search(r"(?<!\d)(\d{2})\.(\d{2})\.(\d{4})(?!\d)", str(value or ""))
     if not found:
         raise ValueError("Missing baseline date in workbook Dashboard!A3")
     day, month, year = map(int, found.groups())
