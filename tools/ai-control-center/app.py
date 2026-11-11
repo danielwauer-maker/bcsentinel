@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import datetime as dt
 import hmac
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -43,47 +44,72 @@ def github(path):
         return {"state": "unavailable", "reason": str(exc)[:150]}
 
 
+def mark(value):
+    return str(value or "").strip() == "✓"
+
+
 def tracker():
+    """Exact DEV-first v2 workbook layout; spreadsheet checkboxes remain authoritative."""
     if not TRACKER.is_file():
         return {"state": "missing", "filename": TRACKER.name, "rows": [], "sheets": [],
-                "reason": "Master-Excel noch nicht eingebunden; keine Fortschrittszahlen ableitbar"}
+                "reason": "Aktuelle Excel noch nicht als read-only Datei auf dem Server eingebunden"}
     try:
+        digest = hashlib.sha256(TRACKER.read_bytes()).hexdigest()
+        expected = evidence().get("master_tracker", {}).get("sha256", "")
+        if expected and digest != expected:
+            return {"state": "version_mismatch", "filename": TRACKER.name, "sha256": digest,
+                    "expected_sha256": expected, "rows": [], "sheets": [],
+                    "reason": "Anderer Excel-Stand als verifiziert. Zuerst Version und Schema abgleichen."}
         wb = load_workbook(TRACKER, read_only=True, data_only=True)
-        sheets, items = [], []
-        for sheet in wb:
-            values = sheet.iter_rows(values_only=True)
-            preview = []
-            for idx, row in enumerate(values):
-                if idx >= 2500:
-                    break
-                preview.append([str(v).strip() if v is not None else "" for v in row])
-            header_idx, headers = None, []
-            for i, row in enumerate(preview[:20]):
-                nonempty = [s.lower() for s in row if s]
-                if any(any(key in s for key in STATUS_HEADINGS) for s in nonempty) and any(any(key in s for key in ID_HEADINGS) for s in nonempty):
-                    header_idx, headers = i, [s.lower() for s in row]
-                    break
-            sheets.append({"name": sheet.title, "rows_examined": len(preview),
-                           "mapped": header_idx is not None})
-            if header_idx is None:
-                continue
-            def col(names):
-                return next((i for i, h in enumerate(headers) if any(n in h for n in names)), None)
-            id_col, title_col, status_col = col(ID_HEADINGS), col(TITLE_HEADINGS), col(STATUS_HEADINGS)
-            for line_no, row in enumerate(preview[header_idx + 1:], start=header_idx + 2):
-                ident = row[id_col] if id_col is not None and id_col < len(row) else ""
-                title = row[title_col] if title_col is not None and title_col < len(row) else ""
-                status = row[status_col] if status_col is not None and status_col < len(row) else ""
-                if ident and (title or status):
-                    items.append({"sheet": sheet.title, "row": line_no, "id": ident, "title": title,
-                                  "status_raw": status, "source": "excel"})
+        required = {"Sprint-Tracker", "SaaS-Stripe Roadmap"}
+        if not required.issubset(set(wb.sheetnames)):
+            wb.close()
+            return {"state": "schema_mismatch", "filename": TRACKER.name, "rows": [], "sheets": [],
+                    "reason": "Pflichtblätter der DEV-first v2 Masterdatei fehlen"}
+        def rows_for(name, start, cols, tech_idx, live_idx, title_idx):
+            sheet = wb[name]
+            result = []
+            for line, values in enumerate(sheet.iter_rows(min_row=start, max_col=cols, values_only=True),start=start):
+                v = list(values)
+                identifier = str(v[0] or "").strip()
+                if not identifier or identifier.lower() == "id":
+                    continue
+                result.append({"id": identifier, "sheet": name, "row": line,
+                               "title": str(v[title_idx] or ""), "sprint": str(v[1] or ""),
+                               "technical_checked": mark(v[tech_idx]),
+                               "live_checked": mark(v[live_idx]),
+                               "status_raw": str(v[tech_idx] or "") + " / " + str(v[live_idx] or ""),
+                               "source": "excel", "area": "fiverr" if name == "Sprint-Tracker" else "saas",
+                               "notes": str(v[11] or "") if name == "Sprint-Tracker" else ""})
+            return result
+        main_rows = rows_for("Sprint-Tracker", 3, 24, 20, 21, 3)
+        saas_rows = rows_for("SaaS-Stripe Roadmap", 9, 13, 9, 10, 2)
         wb.close()
-        return {"state": "loaded", "filename": TRACKER.name, "sheets": sheets,
-                "rows": items[:500], "mapped_rows": len(items),
-                "warning": "Rohstatus aus Excel; keine automatischen Go-Live-Freigaben"}
+        if len(main_rows) != 61 or len(saas_rows) != 24:
+            return {"state": "schema_mismatch", "filename": TRACKER.name, "rows": [],
+                    "sheets": [], "reason": "Aufgabenanzahl anders als verifiziert: "
+                    + str(len(main_rows)) + " Fiverr / " + str(len(saas_rows)) + " SaaS"}
+        items = main_rows + saas_rows
+        return {"state": "loaded", "filename": TRACKER.name, "sha256": digest,
+                "rows": items, "mapped_rows": len(items),
+                "fiverr_count": len(main_rows), "saas_count": len(saas_rows),
+                "fiverr_technical": sum(x["technical_checked"] for x in main_rows),
+                "fiverr_live": sum(x["live_checked"] for x in main_rows),
+                "saas_technical": sum(x["technical_checked"] for x in saas_rows),
+                "saas_live": sum(x["live_checked"] for x in saas_rows),
+                "sheets": [{"name": x, "mapped": True} for x in sorted(required)],
+                "warning": "Häkchen aus Excel unverändert. PR-Evidence separat; kein automatischer Freigabetransfer."}
     except Exception as exc:
         return {"state": "error", "filename": TRACKER.name, "rows": [],
                 "reason": type(exc).__name__ + ": " + str(exc)[:140]}
+
+
+def evidence():
+    """Curated, versioned review findings are separate from spreadsheet checkboxes."""
+    try:
+        return json.loads((ROOT / "data" / "evidence-status.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"state": "unavailable", "work_items": [], "cross_cutting": []}
 
 
 def dev_health():
@@ -115,7 +141,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracker(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracker(), "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": {"state": "not_implemented", "running": 0},
