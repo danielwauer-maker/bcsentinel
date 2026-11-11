@@ -11,6 +11,7 @@ from pathlib import Path
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 
 from openpyxl import load_workbook
 from project_store import read_summary
