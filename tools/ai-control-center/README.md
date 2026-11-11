@@ -107,6 +107,24 @@ Allowed ordinary stages: `planned`, `in_progress`, `implementation_candidate`, `
 - The separate SQLite database carries project metadata, not customer ERP data. Protect the operator dashboard accordingly.
 - This is an **operator-run import**, not a startup auto-import; no autonomous changes to repository or project gates occur.
 
+## Isolated installation handoff
+
+The project contains `install-on-server.sh`. It verifies the exact uploaded Excel SHA, clones the current feature branch into a **new separate** `~/bcsentinel-ai-control-center` directory and stages a minimal local `.env`. It **does not** deploy, change DNS, alter existing Docker services, or initialize the database automatically.
+
+For operator use after transferring the Excel file to the server:
+
+```bash
+bash install-on-server.sh /path/to/BCSentinel_GoLive_Master_Tracker_DEV_First_v2\(1\).xlsx
+cd ~/bcsentinel-ai-control-center/repo/tools/ai-control-center
+nano .env  # replace placeholder with a strong password; set read-only GitHub token
+docker compose -f compose.example.yml up -d --build
+docker compose -f compose.example.yml exec ai-control-center python project_store.py import
+docker compose -f compose.example.yml exec ai-control-center python project_store.py status
+```
+
+To inspect the UI without exposing it publicly, from your laptop establish an SSH tunnel:
+`ssh -L 8090:127.0.0.1:8090 <ssh-user>@<server>`, then open `http://127.0.0.1:8090` locally. Avoid adding a public proxy until private HTTPS authentication, identity, and rate limiting are reviewed.
+
 ## MVP boundaries / next milestones
 
 1. Copy the verified, uploaded XLSX to the private server as `data/master-tracker.xlsx` (read-only). Confirm hash and verify UI with live workbook loaded.
