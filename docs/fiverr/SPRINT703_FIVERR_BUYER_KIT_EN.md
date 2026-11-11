@@ -220,6 +220,10 @@ Separate *Renewal +14d without scan* is an eligible custom offer/follow-up only 
 
 **Editorial status of this document:** COMPLETE draft; **technical acceptance of wording** only after review against the final approved contract. **Fiverr GO-LIVE:** NO-GO until mandatory gates pass.
 
+## Supplement — support, payment and refund exceptions
+
+Use the bilingual failed-scan, expired-link, disputed-payment, refund, scope-mismatch and cancellation templates in [`SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md`](SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md). Never promise a refund automatically, delete consumed scan history, grant rights on an unverified payment, or bypass expired access. All Fiverr commercial resolution stays on Fiverr. **Current core main still advertises legacy permanent Quick / 7-day Full; the 14-day copy in this kit is the unapproved v2 target, not presently live contractual truth.**
+
 ## References
 
 - Core `docs/FIVERR_GIG_LAUNCH_KIT.md` on old `main` – *historical 7-day / paid Quick offer; not launch truth for v2*.
