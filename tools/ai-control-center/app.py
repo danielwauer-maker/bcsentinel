@@ -51,6 +51,15 @@ def mark(value):
 def tracker():
     """Exact DEV-first v2 workbook layout; spreadsheet checkboxes remain authoritative."""
     if not TRACKER.is_file():
+        reference = evidence().get("master_tracker", {})
+        if reference:
+            return {"state": "snapshot_only", "filename": reference.get("filename", TRACKER.name),
+                    "reference_sha256": reference.get("sha256"), "rows": [],
+                    "sheets": [], "mapped_rows": None,
+                    "fiverr_count": reference.get("fiverr_tasks"), "saas_count": reference.get("saas_tasks"),
+                    "fiverr_technical": reference.get("checked_technical"),
+                    "fiverr_live": reference.get("checked_live"), "saas_technical": 0, "saas_live": 0,
+                    "reason": "Verifizierte Momentaufnahme vom 11.11.2026; Excel auf Server noch nicht eingebunden. Keine Live-Synchronisierung."}
         return {"state": "missing", "filename": TRACKER.name, "rows": [], "sheets": [],
                 "reason": "Aktuelle Excel noch nicht als read-only Datei auf dem Server eingebunden"}
     try:
