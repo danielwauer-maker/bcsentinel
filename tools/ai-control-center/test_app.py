@@ -54,6 +54,9 @@ class TrackerTests(unittest.TestCase):
                 row[2] = "SaaS Aufgabe"
                 row[9] = row[10] = "☐"
                 saas.append(row)
+            dashboard = wb.create_sheet("Dashboard")
+            dashboard["B5"] = 0.65
+            dashboard["B7"] = 20
             wb.save(path)
             import hashlib
             actual_sha = hashlib.sha256(path.read_bytes()).hexdigest()
