@@ -160,6 +160,30 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.3 – priorisierte evidenzbasierte Abnahmeprüfung (read-only)
+
+Der neue `acceptance_review.py`-Dienst erzeugt eine **read-only Prüfliste** aus `data/evidence-status.json`, den tatsächlich importierten Fiverr-Aufgaben und vorhandenen `pr_task_link`-Verknüpfungen. Die Liste enthält **15 dokumentierte Aufgaben** und weist die übrigen **46/61 ausdrücklich als ohne Detailreview** aus. Es sind keine 61/61 Vollreviews oder Laufzeitabnahmen.
+
+Die Prüfliste unterscheidet:
+- **P0**: Release-Hashes/BC27-Upgrade, 199 Check-Lifecycle, Scanprovenance und Full/Validation/Monitoring, normative Access-v2-Verträge und Operator-Grants;
+- **P1**: Website-/Fiverr-Redaktion und echte UI/Customer-Journey-Abnahme;
+- **historisch abgehakt** bedeutet nur Excel-Ausgangsstand, kein neuer Nachweis;
+- **editorial** bedeutet Textdokumentation vorhanden, jedoch keine Website-/Fiverr-Live-Abnahme;
+- **blocked / candidate** basieren auf versioniertem Reviewtext, nicht auf aktuellen BC-/CI-Tests.
+- Alle Prüfkriterien werden bewusst als **offen** dargestellt. Selbst ein verlinkter PR, grüner CI-Lauf oder GitHub-Merge setzt kein Häkchen.
+
+Die Datenquelle `docs/fiverr/SPRINT703_EDITORIAL_QA_AND_RELEASE_GATES.md` in PR #165 benennt die noch ausstehende Preis-/Vertragsentscheidung, Fiverr-Editor-Validierung, Recht/Datenschutz und BC27 E2E. PR #166 (`FRONTEND_DESIGN_AUDIT.md`) benennt unverifizierte DSGVO-/Trust-Claims, beispielhafte Euro-Werte und ausstehende Mobile/Visual-QA. PR #164 dokumentiert acht Access-v2-Vertragsdrifts. PR #162 dokumentiert begrenzte Scanvergleichs-Evidence, aber keine positive freigegebene BC27 Runtime-/Validation-/Monitoring-E2E. Diese source-basierten Befunde rechtfertigen Prüfaufgaben, **keine pauschalen PASS-Klassifikationen**.
+
+Der Review ist bewusst reproduzierbar und ohne Modellaufrufe. Bei fehlendem oder geänderten Source-Schema, unvollständiger Fiverr-Datenbank oder unbekannten Task-IDs werden keine zusätzlichen Fortschrittsprozente erzeugt. Geprüfte Unterlagen sind vom **11.11.2026**; die Quelle kann seitdem veraltet sein. Pull-Request-Status aus der SQLite-Sync-Tabelle ist lediglich beobachtete Metadaten und kein aktueller CI-/BC-Sandbox-PASS. Der neue Abschnitt im Dashboard zeigt P0/P1, offene Kriterien, alter der Quelle und relevante GitHub-Links. Er verändert weder task stages noch `approval`, `progress_event` oder `go_live`.
+
+Prüfbefehl ohne Mutation:
+
+```bash
+docker compose -f compose.example.yml exec -T ai-control-center python acceptance_review.py review
+```
+
+**Wichtig:** Evidence-Review ist eine Vorstufe. Eine technische/DEV-Aufgabenabnahme wird weiterhin separat im unabhängigen `progress_history.py record --confirm` dokumentiert, erst **nach** realen Prüfungen. Es gibt weiterhin keine automatische Fiverr-Publikation, PROD-/DEV-Deployment oder globale Release-Freigabe.
+
 ## AI-PM 1.2 – auditable historical progress (explicit operator actions)
 
 **This phase is code in Draft PR #167 until independently deployed and tested on the operator VPS.** The current spreadsheet remains a locked historical planning snapshot; it is never rewritten by this feature.
