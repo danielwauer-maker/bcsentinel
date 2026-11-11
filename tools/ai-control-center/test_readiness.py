@@ -12,7 +12,7 @@ def planning():
     rows.extend({"area":"saas","id":f"S{i}","plan_hours":999,
                  "technical_checked":True,"live_checked":True} for i in range(24))
     return {"state":"loaded","sha256":"test","hours_per_week":20,
-            "legacy_start_fraction":0.65,"rows":rows}
+            "legacy_start_fraction":0.65,"planning_issue_date":"Stand 11.11.2026  •  Fortschritt", "rows":rows}
 
 class ReadinessTests(unittest.TestCase):
     def test_real_master_planning_arithmetic(self):
