@@ -35,9 +35,9 @@
     {
       "id": "2.01",
       "status": "code_candidate",
-      "detail": "Sprint 3B.01 branch feature/sprint3b01-check-coverage; 199-check coverage matrix and lifecycle report reportedly produced. Developer reports 960 passed/22 skipped/2 xfailed; this is not independently reproduced here. No linked Draft-PR or real BC acceptance confirmed.",
+      "detail": "Sprint 3B.01 im Branch feature/sprint3b01-check-coverage: 199-Check-Matrix und Lifecycle-Report vorhanden. Lokale Backend-Tests laut Report: 961 passed, 22 skipped, 2 xfailed; Fokus 50 passed, 5 skipped. Status im Report: TECHNISCH FERTIG BLOCKED bis CI am finalen SHA und AL-Compiler-Evidence; realer BC27-Test ebenfalls offen.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/tree/feature/sprint3b01-check-coverage"
+        "https://github.com/danielwauer-maker/bcsentinel/blob/feature/sprint3b01-check-coverage/docs/checks/SPRINT3B01_EXECUTION_LIFECYCLE_REPORT.md"
       ]
     },
     {
@@ -168,7 +168,7 @@
     {
       "title": "Sprint 3B.01 · Coverage lifecycle",
       "status": "code_candidate",
-      "detail": "Branch candidate exists; independent PR/CI/BC tests still need verification.",
+      "detail": "199 Checks inventarisiert; lokale Tests erfolgreich, aber technischer Abschluss durch fehlendes final-SHA-CI/AL und BC27-Nachweis blockiert.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/tree/feature/sprint3b01-check-coverage"
       ]
