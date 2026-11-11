@@ -125,6 +125,32 @@ docker compose -f compose.example.yml exec ai-control-center python project_stor
 To inspect the UI without exposing it publicly, from your laptop establish an SSH tunnel:
 `ssh -L 8090:127.0.0.1:8090 <ssh-user>@<server>`, then open `http://127.0.0.1:8090` locally. Avoid adding a public proxy until private HTTPS authentication, identity, and rate limiting are reviewed.
 
+## Sprint AI-PM 1.0: GitHub evidence sync + morning briefing
+
+A separate low-resource `ai-pm-sync` container fetches GitHub pull requests every 30 minutes. It stores observed PR state and audit events in the **existing** `state/projects.sqlite3`, never in the BCSentinel customer database. GitHub data is evidence, **never task stage changes or approvals**. No paid AI model, API spend, GitHub writes, or additional server required.
+
+Sprint matching is conservative: an explicit `Sprint 6.02` or `S6.02` marker from a PR title/body/branch must uniquely correspond to **one** imported task. Ambiguous, unmatched, and duplicate identifiers never auto-match. If GitHub is unavailable the last successful observations remain, while the briefing explicitly marks the source partial. The sync examines up to 500 recently updated PRs per repo, not full historical coverage. PRs with no explicit sprint marker are left unmatched for human triage; documentation completion is not an acceptance gate.
+
+The dashboard includes a 24h **rule-based briefing**, searchable area/status task register, and clickable evidence per matched task. This is **not yet an LLM/agent-generated morning recommendation**. Daily use simply opens the dashboard or presses refresh, with no user edit to Excel. For manual sync/diagnostics:
+
+```bash
+docker compose -f compose.example.yml exec -T ai-pm-sync python pm_sync.py sync
+docker compose -f compose.example.yml exec -T ai-control-center python pm_sync.py briefing
+```
+
+**Update an already running DEV VPS checkout safely** (review the local diff before pulling; server compose port 8092 is a local uncommitted modification):
+
+```bash
+cd ~/bcsentinel-ai-control-center/repo/tools/ai-control-center
+docker compose -f compose.example.yml ps
+git status --short
+# Back up project DB OFF-BOX using encrypted backup after this local verification.
+# Preserve 8092 port override as compose.override.yml or restore it after fast-forward update.
+# Do not use git reset --hard or prune volumes.
+```
+
+Deployment must use the existing verified feature branch via a reviewed fast-forward-only update, preserve the local `.env` secret, bind to 127.0.0.1:8092, back up SQLite before recreation, and verify 85 persisted tasks afterwards. Do not merge into staging as a shortcut: this repo's deployment workflows might trigger.
+
 ## MVP boundaries / next milestones
 
 1. Copy the verified, uploaded XLSX to the private server as `data/master-tracker.xlsx` (read-only). Confirm hash and verify UI with live workbook loaded.
