@@ -15,6 +15,7 @@ services:
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       TRACKER_PATH: /data/master-tracker.xlsx
+      PROJECT_DB_PATH: /state/projects.sqlite3
       DEV_HEALTH_URL: https://dev-api.bcsentinel.com/health/ready
     volumes:
       - ./data:/data:ro
