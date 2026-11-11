@@ -55,6 +55,7 @@ class TrackerTests(unittest.TestCase):
                 row[9] = row[10] = "☐"
                 saas.append(row)
             dashboard = wb.create_sheet("Dashboard")
+            dashboard["A3"] = "Stand 11.11.2026"
             dashboard["B5"] = 0.65
             dashboard["B7"] = 20
             wb.save(path)
