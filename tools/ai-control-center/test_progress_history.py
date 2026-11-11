@@ -11,8 +11,9 @@ from test_project_store import source as fixture
 
 def plan():
     s=fixture()
-    for i,r in enumerate([x for x in s["rows"] if x["area"]=="fiverr"]):
-        r["plan_hours"]=[2,3]+[4]*58+[50] if False else ([2,3]+[4]*58+[50])[i]
+    planned_hours=[2,3]+[4]*58+[50]
+    for i,r in enumerate(x for x in s["rows"] if x["area"]=="fiverr"):
+        r["plan_hours"]=planned_hours[i]
     s["planning_issue_date"]="Stand 11.11.2026"
     s["legacy_start_fraction"]=0.65
     s["hours_per_week"]=20
