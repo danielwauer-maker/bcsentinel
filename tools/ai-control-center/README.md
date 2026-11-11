@@ -160,6 +160,49 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.2 – auditable historical progress (explicit operator actions)
+
+**This phase is code in Draft PR #167 until independently deployed and tested on the operator VPS.** The current spreadsheet remains a locked historical planning snapshot; it is never rewritten by this feature.
+
+### Immutable baseline, run exactly once
+
+Use the **same** SHA-verified Excel (61 Fiverr tasks, 287 Fiverr hours, two historical technical and two historical gate ticks). The baseline module checks the workbook SHA against the already imported task database and validates all 61 task keys and imported flags. Initializing it inserts no approvals and does not change any task stage or release gate:
+
+```bash
+cd ~/bcsentinel-ai-control-center/repo/tools/ai-control-center
+docker compose -f compose.example.yml exec -T ai-control-center python progress_history.py init
+docker compose -f compose.example.yml exec -T ai-control-center python progress_history.py history
+```
+
+Idempotent reinitialization with the same workbook is a no-op. Source SHA or date changes fail closed; manual reconciliation is necessary. Backup the SQLite DB with its online-backup API *before* the first initialization, and retain an encrypted off-host backup.
+
+### Explicit independently reviewed gate history
+
+No browser API, GitHub PR, agent, CI or scheduler can create events. A trusted operator must run the CLI **deliberately** with `--confirm`, actor, independent reviewer, a concrete HTTPS evidence link and a meaningful written reason. Reviewer and actor must be distinct for technical, DEV and task Go-Live gates. The software checks that gate order is respected (DEV follows technical; task Go-Live follows DEV), and duplicate gates are rejected:
+
+```bash
+# Example only. DO NOT execute until a real review of task 3.02 has happened:
+docker compose -f compose.example.yml exec -T ai-control-center \
+  python progress_history.py record --task fiverr:3.02 --gate technical \
+  --actor 'implementer' --reviewer 'independent-reviewer' \
+  --evidence 'https://github.com/danielwauer-maker/bcsentinel/pull/155' \
+  --reason 'Independent evidence review and BC sandbox acceptance documented' \
+  --confirm
+```
+
+`implementation` is an optional observation and does **not** count as an approval; `technical`, `dev`, and `go_live` create explicit audit and approval records. Actor/reviewer fields are operator-attested strings, **not an identity-provider signature**. The evidence URI is syntactically checked, **not automatically proven to satisfy BC27 acceptance**. The operator must verify identities, test reports, evidence quality, scope and dependencies outside the tool. Only use this after a real review. Recordings are immutable; corrections and revocation workflows are a future sprint. Because that workflow is not yet present, do not record uncertain approvals.
+
+### What readiness actually measures
+
+- Excel planning baseline: 65% legacy prior work + weighted 5/287 confirmed historical hours = about 65.61%, with imported checkboxes preserved.
+- The technical readiness percentage increases only for newly explicitly technical-attested Fiverr task hours; DEV percentage reflects explicitly DEV-attested hours (Excel contains no separate historic DEV approvals).
+- Fiverr gate readiness and overall legacy score rise only for *task Go-Live gate events* that have passed a separate DEV gate and have an independent reviewer. They are **not** global launch authorization.
+- Actual timeline records **one baseline point + one point per new dated attested event/day**. It never retrospectively invents a historic trend. Linear plan trajectory stays fixed to 11 November 2026 baseline; the dynamic remaining-hours scenario adapts to new approved task gates.
+- The dashboard displays the number and evidence links for the most recent events, with current overall/technical/DEV/gate fractions. A GitHub PR merge alone never changes these figures.
+- Even 61/61 task gates do not authorize Fiverr, BC PROD, or deployment. Global Go-Live remains `NO_GO`, requiring a distinct later release workflow.
+
+New database tables are isolated inside `state/projects.sqlite3` (`progress_baseline`, `progress_meta`, `progress_event`). Nothing is migrated in BCSentinel customer databases.
+
 ## AI-PM 1.1 – evidence mapping and review queue
 
 Versioned `data/evidence-status.json` references are used as **reviewed source-level attribution**, not as gate approvals. A PR may legitimately support multiple Fiverr tasks; the link table `pr_task_link` stores all independently reviewable PR-to-task links with provenance (`reviewed_reference` or `explicit_sprint_marker`). Exact direct sprint tokens are accepted only from PR titles/branch names; incidental body mentions, duplicate identifiers, conflicting codes, unrelated historical PRs and missing tasks do not acquire automatic links. No semantic/LLM guessing is used.
