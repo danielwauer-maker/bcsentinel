@@ -4,6 +4,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && useradd -r -u 10001 control
 COPY app.py index.html ./
+COPY data/evidence-status.json ./data/evidence-status.json
 USER control
 EXPOSE 8090
 CMD ["python", "app.py"]
