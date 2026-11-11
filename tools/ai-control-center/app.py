@@ -17,6 +17,7 @@ from openpyxl import load_workbook
 from project_store import read_summary
 from pm_sync import briefing
 from readiness import fiverr_readiness
+from progress_history import history, apply_to_readiness
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
@@ -146,6 +147,8 @@ def dev_health():
 
 def snapshot():
     tracked = tracker()
+    attested = history()
+    ready = apply_to_readiness(fiverr_readiness(tracked), attested)
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
@@ -161,7 +164,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": fiverr_readiness(tracked), "project_store": read_summary(), "pm_briefing": briefing(), "sprint_evidence": evidence(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "project_store": read_summary(), "pm_briefing": briefing(), "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": {"state": "not_implemented", "running": 0},
