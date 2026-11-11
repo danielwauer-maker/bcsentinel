@@ -64,6 +64,7 @@ def reconcile(pulls, errors, db_path=None):
           id INTEGER PRIMARY KEY AUTOINCREMENT, checked_at TEXT NOT NULL,
           received INTEGER NOT NULL, matched INTEGER NOT NULL,
           changed INTEGER NOT NULL, errors_json TEXT NOT NULL)""")
+        has_baseline = con.execute("SELECT 1 FROM sync_run LIMIT 1").fetchone() is not None
         for p in pulls:
             if p["repo"] not in REPOS or not re.fullmatch(r"https://github\.com/danielwauer-maker/[\w-]+/pull/\d+",p["url"]):
                 continue
@@ -74,7 +75,7 @@ def reconcile(pulls, errors, db_path=None):
             previous=con.execute("SELECT title,pr_state,updated_at,task_key,match_state FROM pr_observation WHERE repo=? AND number=?",
                                   (p["repo"],p["number"])).fetchone()
             current=(p["title"],p["state"],p["updated_at"],key,result["state"])
-            if previous is None or tuple(previous)!=current:
+            if has_baseline and (previous is None or tuple(previous)!=current):
                 changes+=1
                 con.execute("INSERT INTO audit_event(event_type,task_key,detail_json,created_at) VALUES(?,?,?,?)",
                             ("github.pr_observed",key,json.dumps({"repo":p["repo"],"number":p["number"],
