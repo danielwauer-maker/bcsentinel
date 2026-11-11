@@ -1,0 +1,43 @@
+page,section,content_key,de_DE,en,ui_slot,authority,approval_state,implementation_reference,open_gate
+home,hero,H1,Schlechte Daten kosten Zeit. BCSentinel macht Risiken sichtbar.,Poor data costs time. BCSentinel makes risks visible.,h1,BC Online; controlled pilot,draft,src/routes/index.tsx: landing hero,P0: existing hero uses stronger financial assertion
+home,hero,lead,Data Health und modellierter Business Impact für Business Central Online.,Data health and modeled business impact for Business Central Online.,text,Financial fin-v1,draft,src/routes/index.tsx,No guaranteed savings
+home,hero,primary_cta,Kostenlosen Erstscan anfragen,Request a free initial scan,cta,approved flow only,conditional,src/routes/index.tsx,No dead destination
+home,benefits,title,Datenqualität verstehen. Prioritäten setzen.,Understand data health. Set priorities.,h2,B6 page contract,draft,src/routes/index.tsx,
+home,workflow,title,So funktioniert BCSentinel,How BCSentinel works,h2,BC reads; no autonomous mutation,draft,src/routes/index.tsx,
+home,workflow,step_install,Extension installieren und Tenant registrieren,Install the extension and register the tenant,step,valid extension evidence,draft,src/routes/index.tsx,
+home,workflow,step_scan,Einen vollständigen Initialscan ausführen,Run one complete initial scan,step,one Free scan credit,draft,src/routes/index.tsx,
+home,workflow,step_review,Risikobereiche und Prioritäten prüfen,Review risk areas and priorities,step,Free aggregation boundary,draft,src/routes/index.tsx,
+home,workflow,step_remediate,Korrekturen fachlich in BC durchführen,Make approved corrections in BC,step,no web write,draft,src/routes/index.tsx,
+home,workflow,step_validate,Verbesserungen optional validieren,Optionally validate improvements,step,Full baseline required,conditional,src/routes/index.tsx,Provenance comparison gate
+home,report,title,Von Findings zu Prioritäten,Turn findings into priorities,h2,synthetic examples only,draft,REPORT_EXAMPLES_DE.md,
+home,faq,title,Häufige Fragen,Frequently asked questions,h2,parity required,draft,WEBSITE_CONTENT_DE.md,
+pricing,overview,title,Vom Überblick zur fundierten Entscheidung,From a clear overview to informed decisions,h1,dynamic pricing authority,draft,Product System CURRENT_STATUS,No duplicated static prices
+pricing,free,card,Kostenloser Erstscan; aggregierter Bericht,Free initial scan; aggregate report,plan,one initial scan,draft,Product System CURRENT_STATUS,Not paid Fiverr tier
+pricing,quick,card,Bis zu fünf priorisierte Findings,Up to five prioritized findings,plan,same baseline; no scan credit,draft,Quick Golden Master,No exact EUR
+pricing,full,card,Vertiefte Analyse mit modelliertem Impact,Detailed analysis with modeled impact,plan,release access freeze,conditional,Core master,Access-v2 conflict
+pricing,validation,card,Folgeprüfung nach bezahltem Assessment,Follow-up scan after paid Assessment,plan,paid baseline; new credit,conditional,Current status,Real provenance gate
+pricing,monitoring,card,Wiederkehrende Prüfung; spätere Phase,Recurring review; later phase,plan,not initial Fiverr pilot,conditional,Current status,Do not enable checkout
+pilot,intro,title,BCSentinel im kontrollierten Pilot kennenlernen,Explore BCSentinel through a controlled pilot,h1,no GA promises,draft,src/routes/index.tsx,
+pilot,form,submit,Pilotinteresse senden,Register pilot interest,cta,backend and consent verification,conditional,src/routes/index.tsx,Endpoint /public/pilot-interest
+pilot,form,error,Anfrage konnte nicht übertragen werden,Your request could not be submitted,error,real submission state,draft,src/routes/index.tsx,
+security,intro,title,Datenqualität braucht Vertrauen,Data health starts with trust,h1,evidence-based claims,draft,src/routes/index.tsx trust,P0 GDPR badge unsupported
+security,tenant,text,Mandanten- und Company-Isolation ist Abnahmekriterium,Tenant and company isolation requires acceptance,text,A/B verification,conditional,src/routes/index.tsx trust,No unconditional claim
+security,privacy,text,Datenflüsse und Auftragsverarbeitung transparent prüfen,Review data flows and processing obligations,text,DPA/TOM/provider evidence,conditional,src/routes/index.tsx trust,No 'never leaves environment'
+contact,intro,title,Sprechen wir über Ihre Datenqualität,Let's talk about data quality,h1,approved contact,draft,WEBSITE_CONTENT_DE.md,
+contact,form,submit,Nachricht senden,Send message,cta,form route not evidenced,conditional,WEBSITE_CONTENT_DE.md,
+support,intro,title,Hilfe zu BCSentinel,BCSentinel support,h1,no SLA promise,draft,WEBSITE_CONTENT_DE.md,
+support,security,note,Keine Passwörter oder API-Schlüssel senden,Never send passwords or API keys,note,sensitive-data reduction,draft,WEBSITE_CONTENT_DE.md,
+help,intro,title,BCSentinel verstehen und nutzen,Learn and use BCSentinel,h1,actual feature fidelity,draft,WEBSITE_CONTENT_DE.md,
+legal,imprint,title,Impressum,Legal notice,h1,real legal identity,needs_legal,WEBSITE_CONTENT_DE.md,Unknown statutory details
+legal,privacy,title,Datenschutzhinweise,Privacy notice,h1,lawful bases/processors,needs_legal,WEBSITE_CONTENT_DE.md,Processor inventory missing
+legal,terms,title,Nutzungsbedingungen,Terms of service,h1,contract review,needs_legal,WEBSITE_CONTENT_DE.md,No final terms
+legal,dpa,title,Auftragsverarbeitung (AVV),Data processing agreement,h1,TOM/subprocessors,needs_legal,WEBSITE_CONTENT_DE.md,Not signature-ready
+global,footer,claim,Clean Data – Higher Impact,Clean Data – Higher Impact,text,brand contract,draft,src/routes/index.tsx,
+global,footer,copyright,© [Jahr] BCSentinel,© [year] BCSentinel,text,owner verification,conditional,src/routes/index.tsx,
+global,error,404,Diese Seite ist nicht verfügbar,This page is not available,error,localization,draft,src/routes/__root.tsx,Currently English-only
+global,loading,label,Inhalte werden geladen …,Loading content…,state,form/render,draft,WEBSITE_CONTENT_DE.md,
+report,free,headline,Ihr Datenqualitätsüberblick,Your data health at a glance,h1,aggregate-only,demo,REPORT_EXAMPLES_DE.md,Synthetic only
+report,quick,headline,Executive Priorities,Executive Priorities,h1,Quick frozen 2 pages,demo,REPORT_EXAMPLES_DE.md,No exact EUR
+report,assessment,headline,Datenqualität und modellierte Geschäftswirkung,Data quality and modeled business impact,h1,fin-v1,demo,REPORT_EXAMPLES_DE.md,No realized ROI
+report,validation,headline,Was hat sich nach der Prüfung verändert?,What changed after your review?,h1,provenance and comparable scope,demo,REPORT_EXAMPLES_DE.md,Not runtime evidence
+report,monitoring,headline,Datenqualität über Zeit beobachten,Track data health over time,h1,later phase,demo,REPORT_EXAMPLES_DE.md,Not initial pilot
