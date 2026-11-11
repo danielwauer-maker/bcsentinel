@@ -74,7 +74,7 @@ def tracker():
                     "expected_sha256": expected, "rows": [], "sheets": [],
                     "reason": "Anderer Excel-Stand als verifiziert. Zuerst Version und Schema abgleichen."}
         wb = load_workbook(TRACKER, read_only=True, data_only=True)
-        required = {"Sprint-Tracker", "SaaS-Stripe Roadmap"}
+        required = {"Sprint-Tracker", "SaaS-Stripe Roadmap", "Dashboard"}
         if not required.issubset(set(wb.sheetnames)):
             wb.close()
             return {"state": "schema_mismatch", "filename": TRACKER.name, "rows": [], "sheets": [],
@@ -98,13 +98,13 @@ def tracker():
             return result
         main_rows = rows_for("Sprint-Tracker", 3, 24, 20, 21, 3)
         saas_rows = rows_for("SaaS-Stripe Roadmap", 9, 13, 9, 10, 2)
+        hours_per_week = wb["Dashboard"]["B7"].value
+        legacy_start_fraction = wb["Dashboard"]["B5"].value
         wb.close()
         if len(main_rows) != 61 or len(saas_rows) != 24:
             return {"state": "schema_mismatch", "filename": TRACKER.name, "rows": [],
                     "sheets": [], "reason": "Aufgabenanzahl anders als verifiziert: "
                     + str(len(main_rows)) + " Fiverr / " + str(len(saas_rows)) + " SaaS"}
-        hours_per_week = wb["Dashboard"]["B7"].value
-        legacy_start_fraction = wb["Dashboard"]["B5"].value
         items = main_rows + saas_rows
         return {"state": "loaded", "filename": TRACKER.name, "sha256": digest,
                 "rows": items, "mapped_rows": len(items),
