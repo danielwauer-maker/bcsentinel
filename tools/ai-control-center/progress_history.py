@@ -69,7 +69,7 @@ def init_baseline(source, path=None):
     except (KeyError,ValueError,TypeError) as exc:
         raise ValueError("Missing numeric plan input") from exc
     if (len(hours)!=61 or not 0<=start_fraction<=1 or
-        any(not math.isfinite(v) or v<0 for v in hours.values()) or sum(hours)<=0):
+        any(not math.isfinite(v) or v<0 for v in hours.values()) or sum(hours.values())<=0):
         raise ValueError("Invalid baseline plan")
     path=db_path(path)
     if not path.is_file():
