@@ -5,6 +5,9 @@
 **Geltungsbereich:** Fiverr-Go-Live (Pflicht) plus separater Self-Service-SaaS-/Stripe-Launch (nicht in Fiverr-Fortschritt enthalten)  
 **Führendes Arbeitsdokument:** `BCSentinel_GoLive_Master_Tracker_Fiverr_und_SaaS.xlsx` (vom Nutzer gepflegte jeweils neueste Fassung)
 
+
+> **DEV-first Revision 2026-11-11:** Die maßgebliche Entwicklungs-/Release-Regel ist zusätzlich in [BCSENTINEL_DEV_FIRST_RELEASE_POLICY.md](BCSENTINEL_DEV_FIRST_RELEASE_POLICY.md) dokumentiert. DEV-Laufzeit + neueste offene Integrationsbranches vor historischer `main`-Codebasis prüfen. Neueste XLSX heißt `BCSentinel_GoLive_Master_Tracker_DEV_First_v2.xlsx` und enthält das Blatt `DEV-Release-Regeln`. Die ursprüngliche SHA-256 unten gilt ausschließlich für die erste XLSX-Version; nicht als Prüfsumme der aktuellen v2 verwenden.
+
 ## 1. Wiederaufnahme in einem neuen Chat
 
 Wenn der Nutzer eine aktuelle Fassung der Excel-Arbeitsmappe hochlädt und „weitermachen“ sagt:
