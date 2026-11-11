@@ -1,5 +1,4 @@
-"""MVP contract tests: no silent success on missing evidence."""
-import base64
+"""Contract tests for DEV-first master tracker and evidence isolation."""
 import os
 from pathlib import Path
 import tempfile
@@ -17,27 +16,52 @@ class TrackerTests(unittest.TestCase):
         self.assertEqual(result["state"], "missing")
         self.assertEqual(result["rows"], [])
 
-    def test_workbook_reads_unmodified_raw_status(self):
+    def test_exact_workbook_layout_separates_fiverr_and_saas(self):
         with tempfile.TemporaryDirectory() as folder:
-            path = Path(folder) / "tracker.xlsx"
+            path = Path(folder) / "master-tracker.xlsx"
             wb = Workbook()
-            sheet = wb.active
-            sheet.title = "Fiverr"
-            sheet.append(["Sprint", "Titel", "Status"])
-            sheet.append(["6.02", "Website-Inhalte", "IN PRÜFUNG"])
-            wb.create_sheet("SaaS").append(["Nicht zugeordnet", "Info"])
+            sprint = wb.active
+            sprint.title = "Sprint-Tracker"
+            sprint.append(["Title"])
+            sprint.append(["ID"])
+            for i in range(61):
+                row = [""] * 24
+                row[0] = f"{i + 1}.01"
+                row[1] = "Sprints"
+                row[3] = "Aufgabe"
+                row[20] = "✓" if i < 2 else "☐"
+                row[21] = "✓" if i < 2 else "☐"
+                sprint.append(row)
+            saas = wb.create_sheet("SaaS-Stripe Roadmap")
+            for _ in range(8):
+                saas.append(["Title"])
+            for i in range(24):
+                row = [""] * 13
+                row[0] = f"S{i + 1}.01"
+                row[2] = "SaaS Aufgabe"
+                row[9] = row[10] = "☐"
+                saas.append(row)
             wb.save(path)
-            with mock.patch.object(app, "TRACKER", path):
+            import hashlib
+            actual_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+            with mock.patch.object(app, "TRACKER", path), mock.patch.object(
+                app, "evidence", return_value={"master_tracker": {"sha256": actual_sha}}
+            ):
                 result = app.tracker()
-        self.assertEqual(result["state"], "loaded")
-        self.assertEqual(result["mapped_rows"], 1)
-        self.assertEqual(result["rows"][0]["status_raw"], "IN PRÜFUNG")
-        self.assertFalse(result["sheets"][1]["mapped"])
+                self.assertEqual(result["state"], "loaded")
+                self.assertEqual(result["mapped_rows"], 85)
+                self.assertEqual((result["fiverr_count"], result["saas_count"]), (61, 24))
+                self.assertEqual((result["fiverr_technical"], result["fiverr_live"]), (2, 2))
+                self.assertEqual(result["saas_live"], 0)
+                self.assertEqual(result["rows"][0]["source"], "excel")
+            with mock.patch.object(app, "TRACKER", path), mock.patch.object(
+                app, "evidence", return_value={"master_tracker": {"sha256": "bad"}}
+            ):
+                self.assertEqual(app.tracker()["state"], "version_mismatch")
 
     def test_github_token_missing_fails_closed(self):
         with mock.patch.dict(os.environ, {}, clear=True):
-            result = app.github("repos/danielwauer-maker/bcsentinel")
-        self.assertEqual(result["state"], "unconfigured")
+            self.assertEqual(app.github("repos/danielwauer-maker/bcsentinel")["state"], "unconfigured")
 
     def test_snapshot_never_assumes_approvals(self):
         with mock.patch.object(app, "github", return_value={"state": "unavailable"}), \
