@@ -29,6 +29,26 @@ class ReadinessTests(unittest.TestCase):
         self.assertEqual(r["gate_count"],2)
         self.assertEqual(r["go_live"],"NO_GO")
 
+    def test_fixed_baseline_schedule_vs_actual(self):
+        start=dt.date(2026,11,11)
+        baseline=fiverr_readiness(planning(),as_of=start)["timeline"]
+        self.assertEqual(baseline["baseline_date"],"2026-11-11")
+        self.assertEqual(baseline["target_date"],"2027-02-18")
+        self.assertEqual(baseline["gap_percentage_points"],0.0)
+        next_day=fiverr_readiness(planning(),as_of=dt.date(2026,11,12))["timeline"]
+        self.assertGreater(next_day["planned_fraction"],next_day["actual_fraction"])
+        self.assertEqual(next_day["schedule_status"],"behind")
+        self.assertEqual(next_day["target_date"],"2027-02-18")
+        future=fiverr_readiness(planning(),as_of=dt.date(2027,3,1))["timeline"]
+        self.assertEqual(future["planned_fraction"],1.0)
+
+    def test_missing_plan_start_makes_timeline_unavailable_not_fake(self):
+        p=planning()
+        p["planning_issue_date"]="unknown"
+        r=fiverr_readiness(p,as_of=dt.date(2026,11,12))
+        self.assertEqual(r["state"],"loaded")
+        self.assertEqual(r["timeline"]["state"],"unavailable")
+
     def test_saas_is_never_in_fiverr_readiness(self):
         r=fiverr_readiness(planning(),as_of=dt.date(2026,11,11))
         self.assertEqual(r["gate_total"],61)
