@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-11  
 **Excel:** 7.03 / Fiverr Sprint 8  
-**Artifacts:** `docs/fiverr/SPRINT703_FIVERR_BUYER_KIT_EN.md`, `docs/fiverr/SPRINT703_FIVERR_BUYER_KIT_DE.md`  
+**Artifacts:** `docs/fiverr/SPRINT703_FIVERR_BUYER_KIT_EN.md`, `docs/fiverr/SPRINT703_FIVERR_BUYER_KIT_DE.md`, `docs/fiverr/SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md`  
 **Intended state:** **Editorial production candidate**, **NOT live/publication approved**.
 
 ## 1. Self-review scorecard
@@ -22,9 +22,9 @@
 | Actual Fiverr UI category/char limits/packaging | BLOCKED | Must validate in live seller form before publishing |
 | Legal/privacy/provider/data-flow approval | BLOCKED | External actual data processing and contractual review |
 | Live BC27 + reports + order lifecycle E2E | BLOCKED | PR #162 BC acceptance, comparator and monitoring gates |
-| GitHub PR / branch record | Pending PR creation | Pure documentation branch |
+| GitHub PR / branch record | PASS | Draft PR #165, documentation-only branch |
 
-**Editorial pass is not Product Contract PASS.** In the Master XLSX, mark `7.03 technically finished` only after the owner reviews the final copy against the approved v2 offer contract; `7.03 go-live approved` only after real Fiverr publication readiness and E2E evidence. For now leave both open, and note the editorial draft PR as task Evidence.
+**Editorial pass is not Product Contract PASS.** Buyer documentation deliverables for tracker 7.03 are complete as a conditional technical copy candidate. Owner/product contract review is required before any copy is published. Keep Go-Live acceptance OPEN; note Draft PR #165 as technical documentation evidence. The uploaded tracker is not modified by this PR.
 
 ## 2. Fiverr UI content checks
 
@@ -82,6 +82,8 @@ Fiverr's Help Center (checked 2026-11-11) documents: mandatory English Gig descr
 
 ## 6. Completion status
 
-- Editorial scope **complete**: EN/DE copy, FAQs, buyer requirements, communication templates, operational playbook, risk/hold matrix, handoff.
+- Editorial/documentation scope **complete (conditional copy)**: EN/DE copy, FAQs, buyer requirements, communication templates, operational playbook, refund/dispute and report-access exception templates, acceptance matrix and handoff. Full details: `SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md`.
+- Legacy/current vs target model explicitly distinguished: `release/current-product-state.json` is still permanent Quick/Full7; proposed PR #154 is Full14, no public Quick, unpriced/disabled. The normative Product System has **not yet approved** the v2 amendment. This is a **P0 contract gap**, not an editorial typo.
+- Technical status refers **only** to these documentation deliverables. No technical certification of runtime, pricing, Marketplace or BC27 is implied.
 - Public release **NO-GO**, pending approved price/product contract, report/BC/Monitoring runtime evidence, legal and Fiverr publication.
 - Do not claim the entire Sprint 7.03 Go-Live Gate passes from editorial documentation alone.
