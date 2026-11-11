@@ -81,7 +81,8 @@ def match_evidence(pr, tasks, reviewed):
 
 
 def review_summary(rows, limit=30):
-    pending = sorted((r for r in rows if r["match_state"] in ("review","unmatched")),\n                     key=lambda r: (0 if r["match_state"]=="review" else 1, r["repo"], -r["number"]))
+    pending = sorted((r for r in rows if r["match_state"] in ("review","unmatched")),
+                     key=lambda r: (0 if r["match_state"]=="review" else 1, r["repo"], -r["number"]))
     return {"pending_count": len(pending),
             "items": [{"repo": r["repo"], "number": r["number"],
                        "title": r["title"], "url": r["url"],
