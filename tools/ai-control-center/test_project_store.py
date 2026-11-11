@@ -57,6 +57,20 @@ class ImportTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 project_store.import_rows(s,db)
 
+    def test_manual_stage_is_audited_but_acceptance_is_blocked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db=Path(directory)/"tasks.sqlite3"
+            project_store.import_rows(source(),db)
+            result=project_store.set_stage("fiverr:3.01","in_progress","operator",
+                                           "Sprint implementation started",db)
+            self.assertEqual(result["stage"],"in_progress")
+            state=project_store.read_summary(db)
+            self.assertEqual(state["recent_events"][0]["event_type"],"task.stage_changed")
+            with self.assertRaises(ValueError):
+                project_store.set_stage("fiverr:3.01","dev_accepted","operator",
+                                        "This should never work",db)
+            self.assertEqual(project_store.read_summary(db)["approvals"],[])
+
     def test_no_automatic_approvals(self):
         with tempfile.TemporaryDirectory() as directory:
             db=Path(directory)/"tasks.sqlite3"
