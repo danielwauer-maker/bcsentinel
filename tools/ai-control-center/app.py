@@ -16,6 +16,7 @@ from urllib.parse import urlsplit
 from openpyxl import load_workbook
 from project_store import read_summary
 from pm_sync import briefing
+from readiness import fiverr_readiness
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
@@ -92,7 +93,8 @@ def tracker():
                                "live_checked": mark(v[live_idx]),
                                "status_raw": str(v[tech_idx] or "") + " / " + str(v[live_idx] or ""),
                                "source": "excel", "area": "fiverr" if name == "Sprint-Tracker" else "saas",
-                               "notes": str(v[11] or "") if name == "Sprint-Tracker" else ""})
+                               "notes": str(v[11] or "") if name == "Sprint-Tracker" else "",
+                               "plan_hours": v[5] if name == "Sprint-Tracker" else None})
             return result
         main_rows = rows_for("Sprint-Tracker", 3, 24, 20, 21, 3)
         saas_rows = rows_for("SaaS-Stripe Roadmap", 9, 13, 9, 10, 2)
@@ -101,9 +103,12 @@ def tracker():
             return {"state": "schema_mismatch", "filename": TRACKER.name, "rows": [],
                     "sheets": [], "reason": "Aufgabenanzahl anders als verifiziert: "
                     + str(len(main_rows)) + " Fiverr / " + str(len(saas_rows)) + " SaaS"}
+        hours_per_week = wb["Dashboard"]["B7"].value
+        legacy_start_fraction = wb["Dashboard"]["B5"].value
         items = main_rows + saas_rows
         return {"state": "loaded", "filename": TRACKER.name, "sha256": digest,
                 "rows": items, "mapped_rows": len(items),
+                "hours_per_week": hours_per_week, "legacy_start_fraction": legacy_start_fraction,
                 "fiverr_count": len(main_rows), "saas_count": len(saas_rows),
                 "fiverr_technical": sum(x["technical_checked"] for x in main_rows),
                 "fiverr_live": sum(x["live_checked"] for x in main_rows),
@@ -138,6 +143,7 @@ def dev_health():
 
 
 def snapshot():
+    tracked = tracker()
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
@@ -153,7 +159,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracker(), "project_store": read_summary(), "pm_briefing": briefing(), "sprint_evidence": evidence(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": fiverr_readiness(tracked), "project_store": read_summary(), "pm_briefing": briefing(), "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": {"state": "not_implemented", "running": 0},
