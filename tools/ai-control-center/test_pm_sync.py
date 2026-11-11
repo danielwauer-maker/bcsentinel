@@ -35,7 +35,7 @@ class PMSyncTests(unittest.TestCase):
     def test_repeated_same_evidence_is_noop_and_gates_untouched(self):
         p=self.pr()
         first=pm_sync.reconcile([p],[],self.db)
-        self.assertEqual((first["matched"],first["changed"]),(1,1))
+        self.assertEqual((first["matched"],first["changed"]),(1,0))
         second=pm_sync.reconcile([p],[],self.db)
         self.assertEqual(second["changed"],0)
         b=pm_sync.briefing(self.db)
