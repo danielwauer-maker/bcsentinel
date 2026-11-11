@@ -161,3 +161,8 @@
 - [ ] Finales PROD-GO und Freigabe zur Aktivierung der Gigs dokumentiert.
 
 **Ergebnis:** Redaktionelles DE/EN-Arbeitspaket vollständig; **Go-Live-Freigabe noch offen**. Alte Quick-/7-Tage-Fiverr-Texte aus dem historischen `main` nicht live übernehmen.
+
+
+## 6. Ergänzende Käuferreise und Sonderfälle
+
+Die zweisprachigen Vorlagen zu Scanfehlern, abgelaufenen Berichtslinks, strittigen Zahlungen, Erstattungen, Stornierung und eingeschränkter Vergleichbarkeit sowie die detaillierte Acceptance-Matrix stehen in [`SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md`](SPRINT703_BUYER_JOURNEY_AND_ACCEPTANCE.md). **Wichtig:** Auf Core `main` gilt noch das historische Quick-/7-Tage-Modell als dokumentierter Altstand; das hier beschriebene 14-Tage-Zielmodell von PR #154 ist nicht genehmigt oder live abgenommen. Eine Erstattung wird nicht automatisch zugesagt. Bereits verbrauchte Scanrechte und historische Ergebnisse dürfen nicht ohne genehmigte Regeln verändert werden.
