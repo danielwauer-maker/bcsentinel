@@ -145,6 +145,21 @@ The legacy project score starts at 65%, because it includes prior historic devel
 
 **Source limitation:** The Excel checkboxes are frozen historic evidence at initial import, and GitHub sync currently tracks evidence only. Task DB stage updates and PRs do NOT increment the Excel-derived readiness yet. Future audited gate approvals must replace historical Excel-only checkboxes as the authoritative readiness input. If the Excel is missing, changed, or invalid, the UI must show unavailable metrics instead of stale or invented percentages.
 
+## Fixed-baseline Soll/Ist timeline and legacy overall score
+
+The top section also shows the historical Excel overall score (**65.6098%**) and the derived remainder (**34.3902%**) as a **qualitative total-project estimate, not release readiness**.
+
+The schedule comparison is explicitly a **provisional linear capacity scenario**:
+- Plan baseline date is read from the verified Excel `Dashboard!A3`: **11 November 2026**, not the current date and not an externally approved milestone.
+- Initial overall score is `Dashboard!B5 + (1 - Dashboard!B5) * 5/287`, about 65.61%.
+- The baseline target is **18 February 2027** (282 remaining plan hours at 20 productive hours/week, 5 working days/week, rounded up to 71 working days), **fixed** rather than moved daily.
+- The planned overall score advances linearly toward 100% on working days; actual is the latest verified Excel model snapshot (currently static). Comparison in percentage points is **indicative only** while the Excel gate marks are frozen.
+- The timeline intentionally shows **one actual observation point**, not a fabricated historic actual trend or fictitious future progress. Public holidays, dependencies, new scope and manual BC/Fiverr gates are not modeled.
+- `remaining capacity scenario date` in the separate KPI can still move forward as the viewer date advances; the Soll/Ist baseline target **does not** move. Treat neither as a committed Go-Live date.
+- If the Excel issue date is absent or invalid, the Soll/Ist timeline fails closed and shows unavailable instead of inventing a date.
+
+Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
+
 ## Sprint AI-PM 1.0: GitHub evidence sync + morning briefing
 
 A separate low-resource `ai-pm-sync` container fetches GitHub pull requests every 30 minutes. It stores observed PR state and audit events in the **existing** `state/projects.sqlite3`, never in the BCSentinel customer database. GitHub data is evidence, **never task stage changes or approvals**. No paid AI model, API spend, GitHub writes, or additional server required.
