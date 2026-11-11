@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "master_tracker": {
+    "filename": "BCSentinel_GoLive_Master_Tracker_DEV_First_v2(1).xlsx",
+    "sha256": "c1978141c8ee70f52be07ba64df765364a56cb16fe51dea4b084951ade60142a",
+    "fiverr_tasks": 61,
+    "saas_tasks": 24,
+    "checked_technical": 2,
+    "checked_live": 2,
+    "verified_at": "2026-11-11",
+    "note": "Uploaded XLSX remains authoritative. GitHub evidence never silently changes workbook checkboxes."
+  },
+  "reviewed_at": "2026-11-11",
+  "work_items": [
+    {
+      "id": "1.01",
+      "status": "tracker_checked",
+      "detail": "Excel marked technical and Go-Live checked. Artifact/SHA relation must be reconfirmed before BC upload.",
+      "refs": []
+    },
+    {
+      "id": "1.02",
+      "status": "tracker_checked",
+      "detail": "Excel marked technical and Go-Live checked. Current deployed image/migration must be rechecked.",
+      "refs": []
+    },
+    {
+      "id": "1.03",
+      "status": "manual_gate",
+      "detail": "BC27 real upgrade from 1.0.2.52 to 1.0.2.58 not evidenced.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "2.01",
+      "status": "code_candidate",
+      "detail": "Sprint 3B.01 branch feature/sprint3b01-check-coverage; 199-check coverage matrix and lifecycle report reportedly produced. Developer reports 960 passed/22 skipped/2 xfailed; this is not independently reproduced here. No linked Draft-PR or real BC acceptance confirmed.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/tree/feature/sprint3b01-check-coverage"
+      ]
+    },
+    {
+      "id": "2.02",
+      "status": "partial",
+      "detail": "Provenance/check source work in PRs #159/#162; source-record evidence and real BC E2E remain incomplete.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/159",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "3.02",
+      "status": "partial",
+      "detail": "Full v6 report work exists in PRs #154/#155 and viewer work; DEV integration and BC E2E not accepted.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/155"
+      ]
+    },
+    {
+      "id": "3.03",
+      "status": "partial",
+      "detail": "Validation report/comparison remain blocked by verified comparable provenance and BC E2E.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "3.04",
+      "status": "partial",
+      "detail": "Monitoring report work depends on scan history/provenance; no live gate acceptance.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/158"
+      ]
+    },
+    {
+      "id": "4.01",
+      "status": "audit_draft",
+      "detail": "Cross-repo Access-v2 product contract audit documented; 8 drift/risks; normative contract decision and compatibility regression still required.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+      ]
+    },
+    {
+      "id": "4.02",
+      "status": "implementation_draft",
+      "detail": "Free→Full 14d implementation candidate, not contractual/release approval. Legacy Quick/7d rights must be reconciled.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154"
+      ]
+    },
+    {
+      "id": "4.03",
+      "status": "implementation_draft",
+      "detail": "Renewal +14d present in Access-v2 draft; no real customer E2E.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154"
+      ]
+    },
+    {
+      "id": "4.04",
+      "status": "implementation_draft",
+      "detail": "Renewal+Validation logic candidate; evidence-qualified real scan still open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "4.06",
+      "status": "implementation_draft",
+      "detail": "Operator grant and refund/idempotency work in #156; integrated release evidence still open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/156"
+      ]
+    },
+    {
+      "id": "6.02",
+      "status": "editorial_complete",
+      "detail": "DE/EN site and report-example content, bilingual content matrix, frontend design audit documented. No website implementation, staging visual/mobile QA, legal approval or Go-Live.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "id": "7.03",
+      "status": "editorial_complete",
+      "detail": "DE/EN Fiverr Buyer Kit, 13-step journey, 15 acceptance items, FAQ and exception templates documented. Draft; actual Fiverr editor/contract/customer E2E still blocked.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/165"
+      ]
+    }
+  ],
+  "cross_cutting": [
+    {
+      "title": "Sprint 3A.2 · Runtime / Evidence",
+      "status": "integration_draft",
+      "detail": "Consolidation PR #162; AL 1.0.2.58 source/compile is not a completed BC sandbox upgrade.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "title": "Sprint 6.02 · Website editorial",
+      "status": "editorial_complete",
+      "detail": "Content complete as Draft PR; frontend implementation not accepted.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "title": "Sprint 7.03 · Buyer Kit",
+      "status": "editorial_complete",
+      "detail": "Buyer kit documentation complete as Draft PR; launch blocked.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/165"
+      ]
+    },
+    {
+      "title": "Sprint 4.01 · Access-v2 audit",
+      "status": "audit_draft",
+      "detail": "Audit drafted; v2 product freeze not approved.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+      ]
+    },
+    {
+      "title": "Sprint 3B.01 · Coverage lifecycle",
+      "status": "code_candidate",
+      "detail": "Branch candidate exists; independent PR/CI/BC tests still need verification.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/tree/feature/sprint3b01-check-coverage"
+      ]
+    }
+  ]
+}
