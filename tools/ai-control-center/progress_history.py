@@ -167,6 +167,11 @@ def record(task_key, gate, actor, reviewer, evidence_uri, reason, path=None,
                            VALUES(?,?,?,?,?,?,?)""",
                         (task_key,gate,actor.strip(),reviewer.strip(),evidence_uri,reason.strip(),
                          instant.astimezone(dt.timezone.utc).isoformat(timespec="seconds")))
+            if gate in ACCEPTED:
+                con.execute("""INSERT INTO approval(task_key,gate,approved_by,evidence_uri,reason,approved_at)
+                               VALUES(?,?,?,?,?,?)""",
+                            (task_key,gate,reviewer.strip(),evidence_uri,reason.strip(),
+                             instant.astimezone(dt.timezone.utc).isoformat(timespec="seconds")))
             # task stages remain separate; no global release authorization.
             con.execute("INSERT INTO audit_event(event_type,task_key,detail_json,created_at) VALUES(?,?,?,?)",
                         ("progress.gate_recorded",task_key,
