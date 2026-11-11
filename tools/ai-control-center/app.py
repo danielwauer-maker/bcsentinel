@@ -164,7 +164,7 @@ class Handler(BaseHTTPRequestHandler):
     def authorized(self):
         user = os.getenv("DASHBOARD_USER", "")
         password = os.getenv("DASHBOARD_PASSWORD", "")
-        if not user or not password:
+        if not user or not password or password == "REPLACE_ME_WITH_RANDOM_PASSWORD":
             return False
         supplied = self.headers.get("Authorization", "")
         expected = "Basic " + base64.b64encode((user + ":" + password).encode()).decode()
