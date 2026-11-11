@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import re
 from zoneinfo import ZoneInfo
 
 
@@ -17,6 +18,53 @@ def estimate_work_date(start: dt.date, workdays: int) -> dt.date:
         if day.weekday() < 5:
             count += 1
     return day
+
+
+def workdays_since(start: dt.date, end: dt.date) -> int:
+    """Workdays after start through end, excluding weekends, capped by callers."""
+    if end <= start:
+        return 0
+    return sum((start + dt.timedelta(days=i)).weekday() < 5 for i in range(1, (end - start).days + 1))
+
+
+def planning_anchor(value):
+    """Read the planning issue date from Dashboard!A3, not from server clock."""
+    found = re.search(r"(?<!\\d)(\\d{2})\\.(\\d{2})\\.(\\d{4})(?!\\d)", str(value or ""))
+    if not found:
+        raise ValueError("Missing baseline date in workbook Dashboard!A3")
+    day, month, year = map(int, found.groups())
+    return dt.date(year, month, day)
+
+
+def timeline_model(start: dt.date, as_of: dt.date, target: dt.date,
+                   base_fraction: float, actual_fraction: float):
+    total_days = workdays_since(start, target)
+    if total_days <= 0:
+        raise ValueError("Invalid planning timeline")
+    used = min(total_days, workdays_since(start, as_of))
+    target_fraction = min(1.0, base_fraction + (1.0 - base_fraction) * used / total_days)
+    delta = (actual_fraction - target_fraction) * 100
+    def point(day):
+        elapsed = min(total_days, workdays_since(start, day))
+        return {"date": day.isoformat(),
+                "planned": round(base_fraction + (1.0 - base_fraction) * elapsed / total_days, 6)}
+    series = [point(start)]
+    cursor = start
+    while cursor < target:
+        cursor = min(cursor + dt.timedelta(days=7), target)
+        if cursor > start:
+            series.append(point(cursor))
+    return {"state": "loaded", "baseline_date": start.isoformat(),
+            "target_date": target.isoformat(), "current_date": as_of.isoformat(),
+            "planned_fraction": round(target_fraction, 6),
+            "actual_fraction": round(actual_fraction, 6),
+            "gap_percentage_points": round(delta, 2),
+            "schedule_status": ("ahead" if delta > 0.15 else "behind" if delta < -0.15 else "on_track"),
+            "total_workdays": total_days, "elapsed_workdays": used,
+            "series": series,
+            "actual_point": {"date": as_of.isoformat(), "value": round(actual_fraction, 6)},
+            "provisional": True,
+            "assumptions": "Linearer Planaufbau an Werktagen aus eingefrorener Excel-Baseline, nicht ursprünglicher Meilensteinplan. Ist-Wert aus historischen Excel-Häkchen, keine laufende BC-/DEV-Abnahme. Keine Feiertage, Abhängigkeiten oder Risikopuffer."}
 
 
 def fiverr_readiness(tracker_result: dict, *, as_of: dt.date | None = None):
@@ -60,6 +108,17 @@ def fiverr_readiness(tracker_result: dict, *, as_of: dt.date | None = None):
             entry["gate_hours"] += hour
             entry["approved"] += 1
 
+    try:
+        anchor = planning_anchor(tracker_result["planning_issue_date"])
+        if anchor > current:
+            raise ValueError("Planungsbeginn liegt in der Zukunft")
+        planned_target = estimate_work_date(anchor, math.ceil(remaining / hours_day) if remaining else 0)
+        time_model = timeline_model(anchor, current, planned_target,
+                                   baseline + (1 - baseline) * gate_hours / total,
+                                   baseline + (1 - baseline) * gate_hours / total)
+    except (ValueError, KeyError, TypeError, OverflowError):
+        time_model = {"state": "unavailable", "reason": "Kein verifizierter fester Planungsstart für Soll-Ist-Zeitleiste."}
+
     result = {
         "state": "loaded",
         "source": "verified_excel_v2_readonly",
@@ -78,6 +137,8 @@ def fiverr_readiness(tracker_result: dict, *, as_of: dt.date | None = None):
         "capacity_scenario_note": "Reine Kapazitätsrechnung: 5 Arbeitstage/Woche, keine Feiertage, Risiken, Abhängigkeiten oder BC/Fiverr-Abnahmeverzögerung berücksichtigt.",
         "legacy_estimate_fraction": round(baseline + (1 - baseline) * gate_hours / total, 6),
         "legacy_start_fraction": baseline,
+        "legacy_remaining_fraction": round(1 - (baseline + (1 - baseline) * gate_hours / total), 6),
+        "timeline": time_model,
         "technical_count": tech_count,
         "gate_count": gate_count,
         "gate_total": len(rows),
