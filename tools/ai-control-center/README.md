@@ -4,7 +4,7 @@ Read-only dashboard for the DEV-first BCSentinel project. It is **not** a custom
 
 ## Sources and authority
 
-- Master-Tracker Excel: primary planning/task authority (mounted read-only from `./data/master-tracker.xlsx`).
+- Master-Tracker Excel: authoritative historical import source; after the verified one-time import, the durable project task register is the operational task authority (mounted workbook remains read-only).
 - GitHub: live technical PR state from `danielwauer-maker/bcsentinel` and `danielwauer-maker/bcsentinel-frontend`.
 - DEV API: configured `/health/ready` endpoint, connectivity only.
 - `docs/BCSENTINEL_MASTER_STATE.md` and `release/current-product-state.json` on reviewed `main`: versioned product baseline, **not necessarily current Sprint or deployed DEV truth**.
@@ -85,9 +85,20 @@ docker compose -f compose.example.yml exec ai-control-center python project_stor
 
 Database is at `state/projects.sqlite3` and is **not in Git**; include it in encrypted/off-host backups. The import is transactional, checks 61+24 distinct IDs and refuses re-import from a changed SHA. A repeated identical import is a no-op. The source workbook stays unchanged and may be archived after the initial verified import. An updated workbook is **not** silently synchronized; reconcile it explicitly with the durable register.
 
-Imported checkbox states are historical source metadata, **not newly granted approvals**. Human approval records are a separate table. No authenticated write API or automatic stage/approval actions exist in this phase. GitHub PRs and workflow results are shown as observed evidence, not written to task completion gates.
+Imported checkbox states are historical source metadata, **not newly granted approvals**. Human approval records are a separate table. There is **no public write API**. An operator can change ordinary task stages with the audited CLI below, but cannot mark technical acceptance, DEV acceptance or Go-Live through it. No AI agent can approve itself. GitHub PRs and workflow results are shown as observed evidence, not written to task completion gates.
 
 The dashboard now returns a separate `project_store` object containing tasks, import provenance, immutable import audit event and approval records. The HTML shows the current database state when initialized, or a clearly labeled not-yet-imported state.
+
+### Audited manual task update (no Excel edits)
+
+```bash
+docker compose -f compose.example.yml exec ai-control-center \
+  python project_store.py set-stage \
+  --task fiverr:6.02 --stage review --actor operator \
+  --reason "Editorial PR complete; implementation and acceptance still pending"
+```
+
+Allowed ordinary stages: `planned`, `in_progress`, `implementation_candidate`, `review`, `blocked`. This operation appends an audit event. It **cannot** set `technical_complete`, `dev_accepted` or any Go-Live approval. The project register retains every historical Excel checkbox without treating it as a new approval.
 
 ### Access and safety before deployment
 
