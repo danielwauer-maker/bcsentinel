@@ -11,9 +11,22 @@ import app
 
 class TrackerTests(unittest.TestCase):
     def test_missing_workbook_does_not_invent_progress(self):
-        with mock.patch.object(app, "TRACKER", Path("/not-a-real-tracker-9173.xlsx")):
+        with mock.patch.object(app, "TRACKER", Path("/not-a-real-tracker-9173.xlsx")), \
+             mock.patch.object(app, "evidence", return_value={}):
             result = app.tracker()
         self.assertEqual(result["state"], "missing")
+        self.assertEqual(result["rows"], [])
+
+    def test_verified_snapshot_without_mount_is_not_live(self):
+        with mock.patch.object(app, "TRACKER", Path("/not-a-real-tracker-9173.xlsx")), \
+             mock.patch.object(app, "evidence", return_value={"master_tracker": {
+                 "filename": "tracker.xlsx", "sha256": "knownhash",
+                 "fiverr_tasks": 61, "saas_tasks": 24,
+                 "checked_technical": 2, "checked_live": 2
+             }}):
+            result = app.tracker()
+        self.assertEqual(result["state"], "snapshot_only")
+        self.assertEqual(result["fiverr_count"], 61)
         self.assertEqual(result["rows"], [])
 
     def test_exact_workbook_layout_separates_fiverr_and_saas(self):
