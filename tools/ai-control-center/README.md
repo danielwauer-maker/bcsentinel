@@ -125,6 +125,26 @@ docker compose -f compose.example.yml exec ai-control-center python project_stor
 To inspect the UI without exposing it publicly, from your laptop establish an SSH tunnel:
 `ssh -L 8090:127.0.0.1:8090 <ssh-user>@<server>`, then open `http://127.0.0.1:8090` locally. Avoid adding a public proxy until private HTTPS authentication, identity, and rate limiting are reviewed.
 
+## Fiverr Go-Live Readiness / Zeitplanung (from Excel Dashboard)
+
+The pinned top section follows the **verified DEV-first Excel dashboard formulas** rather than counting PRs as completed work:
+
+| KPI | Excel source and calculation | Source value on 2026-11-11 |
+| --- | --- | --- |
+| Technical readiness | SUM(F for U=✓) / SUM(F), only `Sprint-Tracker` rows 3–63 | 5 / 287 h = 1.74% |
+| Fiverr acceptance-gate readiness | SUM(F for BOTH U=✓ and V=✓) / SUM(F); equivalent to spreadsheet H completed | 5 / 287 h = 1.74% |
+| Gate count | Tasks with BOTH U and V checked / 61 | 2 / 61 |
+| Outstanding planned effort | 287h minus completed gate-plan-hours | 282 h |
+| Weekly capacity | `Dashboard!B7` | 20 productive h / week |
+| Capacity-only scenario | 282h / 20h/wk = 14.1 weeks; 5 workdays / week, rounded up | 71 working days, ~2027-02-18 as of 2026-11-11 |
+| Legacy total-project estimate | `Dashboard!B5` + (1 - `Dashboard!B5`) × accepted hours / total hours | 65.61% (NOT Fiverr launch readiness) |
+
+The actual widget reads these from the mounted, SHA-verified workbook (including individual hours and sprint groups). It recalculates the capacity date from the **current Europe/Berlin date**, so this is a moving capacity scenario, **not a committed release date**. Assumes 5 workdays/week; public holidays, blockers, deployment and manual BC/partner checks are *not* included. Do not present the date as a reliable forecast.
+
+The legacy project score starts at 65%, because it includes prior historic development and must NOT be used as a launch gate. All 24 SaaS/Stripe tasks and 217 SaaS hours are excluded. At 61/61 checked tasks, the display STILL says revalidation required; a human explicitly approves Go-Live via a separate release process.
+
+**Source limitation:** The Excel checkboxes are frozen historic evidence at initial import, and GitHub sync currently tracks evidence only. Task DB stage updates and PRs do NOT increment the Excel-derived readiness yet. Future audited gate approvals must replace historical Excel-only checkboxes as the authoritative readiness input. If the Excel is missing, changed, or invalid, the UI must show unavailable metrics instead of stale or invented percentages.
+
 ## Sprint AI-PM 1.0: GitHub evidence sync + morning briefing
 
 A separate low-resource `ai-pm-sync` container fetches GitHub pull requests every 30 minutes. It stores observed PR state and audit events in the **existing** `state/projects.sqlite3`, never in the BCSentinel customer database. GitHub data is evidence, **never task stage changes or approvals**. No paid AI model, API spend, GitHub writes, or additional server required.
