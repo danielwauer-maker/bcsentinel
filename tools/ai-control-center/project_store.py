@@ -84,13 +84,13 @@ def import_rows(source, db_path=None):
         raise ValueError("Unexpected planning split")
     con = connect(db_path)
     now = timestamp()
-    with con:
-        previous = con.execute("SELECT sha256 FROM imports LIMIT 1").fetchone()
-        if previous and previous["sha256"] != source["sha256"]:
+    previous = con.execute("SELECT sha256 FROM imports LIMIT 1").fetchone()
+    if previous:
+        con.close()
+        if previous["sha256"] != source["sha256"]:
             raise ValueError("Different workbook version: explicit reconciliation/migration required")
-        if previous:
-            con.close()
-            return {"state": "already_imported", "tasks": 85, "sha256": source["sha256"]}
+        return {"state": "already_imported", "tasks": 85, "sha256": source["sha256"]}
+    with con:
         if con.execute("SELECT count(*) FROM task").fetchone()[0]:
             raise ValueError("Existing tasks: refusing implicit overwrite")
         for r in rows:
