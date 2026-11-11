@@ -160,6 +160,16 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.1 – evidence mapping and review queue
+
+Versioned `data/evidence-status.json` references are used as **reviewed source-level attribution**, not as gate approvals. A PR may legitimately support multiple Fiverr tasks; the link table `pr_task_link` stores all independently reviewable PR-to-task links with provenance (`reviewed_reference` or `explicit_sprint_marker`). Exact direct sprint tokens are accepted only from PR titles/branch names; incidental body mentions, duplicate identifiers, conflicting codes, unrelated historical PRs and missing tasks do not acquire automatic links. No semantic/LLM guessing is used.
+
+The separate `pr_match_review` records reasons for conflict/unmatched PRs. The dashboard shows a compact reviewed-reference count and a collapsible triage list; actual conflicting markers are prioritized before historical unmatched PRs. The existing 30-minute read-only sync is idempotent, retains past evidence if GitHub is down, and does not promote task stages, CI status, approvals, pricing, product contracts or release gates.
+
+The old `pr_observation.task_key` is retained for backward compatibility when exactly one link exists; multi-task links live in `pr_task_link`. This is a migration-in-place of *only* the separate project SQLite store, with `CREATE TABLE IF NOT EXISTS`; no customer DB migrations. During the first new sync, the mapping tables are initialized. Back up your database before container recreation. The first enriched sync can update evidence mapping without being misreported as fresh PR code changes.
+
+The timeline chart now suppresses the middle date tick if today's label would overlap the baseline/target date. This is UI-only; the fixed date and historical readines model are unchanged.
+
 ## Sprint AI-PM 1.0: GitHub evidence sync + morning briefing
 
 A separate low-resource `ai-pm-sync` container fetches GitHub pull requests every 30 minutes. It stores observed PR state and audit events in the **existing** `state/projects.sqlite3`, never in the BCSentinel customer database. GitHub data is evidence, **never task stage changes or approvals**. No paid AI model, API spend, GitHub writes, or additional server required.
