@@ -1,4 +1,5 @@
 data/
+state/
 .env
 *.xlsx
 __pycache__/
