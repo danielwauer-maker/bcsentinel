@@ -2,7 +2,7 @@
 
 ## Status
 
-- **TECHNISCH FERTIG:** PASS (source contract and backend regression scope)
+- **TECHNISCH FERTIG:** BLOCKED — implementation and focused regression scope pass, but final-SHA GitHub CI and AL compilation evidence are unavailable.
 - **GO-LIVE-ABNAHME:** OPEN
 - **Base commit:** `a8b870eb41d29913cc0837a558c30637be8c57f2` (`integration/sprint3a2-consolidated-20261110`, also the verified PR #162 ref retrieved during preflight)
 - **Final feature commit / CI:** recorded in the Draft PR after push; do not treat this document as GitHub CI evidence.
@@ -29,7 +29,7 @@ The existing backend contract remains fail-closed: completed scans with a sealed
 
 ## Tests
 
-Focused execution-lifecycle and coverage tests passed locally: **49 passed, 5 skipped**. The skips are PostgreSQL-concurrency tests and were not disabled or weakened. The full backend suite was also started against the existing Linux virtual environment; its final process exit output was not recoverable from the execution harness, so this report does not claim a full-suite PASS. Verify the exact final commit in GitHub Actions before integration.
+Focused execution-lifecycle and coverage tests passed locally: **49 passed, 5 skipped**. The skips are PostgreSQL-concurrency tests and were not disabled or weakened. The complete backend suite also passed locally: **960 passed, 22 skipped, 2 xfailed** in 150.29 seconds. This is local evidence only; verify the exact final commit in GitHub Actions before integration.
 
 The local BC27 AL compiler run could not start because the compiler package download from NuGet returned HTTP 403 in this environment. No compiler result is claimed; the existing `BC Extension AL Build (Sandbox Test)` GitHub Actions workflow remains the required compiler gate.
 
@@ -45,6 +45,8 @@ Relevant test files include:
 
 No authenticated DEV runtime, Docker image digest, migration database, or BC sandbox connection was available from this environment. No values have been invented. GitHub REST/GraphQL access was denied (HTTP 403), so PR state and Actions runs cannot be verified here after push.
 
+The feature branch was pushed successfully, but GitHub's API permission denial also prevented automated Draft PR creation. The feature branch can be opened for a Draft PR from the repository's branch comparison page once credentials with pull-request write access are available.
+
 The BC27 runbook remains `PREPARED / NOT EXECUTED / NO-GO`. Required manual acceptance remains: exact extension artifact/hash, installed version 1.0.2.58, real in-place upgrade, non-SUPER roles, completed clean scan, findings scan, interrupted aggregate group, retry, and backend persistence verification at the same SHA.
 
 ## Sprint 3B.02 interface
@@ -53,4 +55,4 @@ This change does not modify tenant/company/scan/lease provenance schema, source 
 
 ## Recommendation for tracker item 2.01
 
-Mark **technisch fertig: PASS** only after this feature branch's exact final SHA is green in GitHub Actions. Keep **Go-Live-Abnahme: OPEN** until the BC27 runtime scenarios above have real, sanitized evidence. The next required step is a controlled review and CI verification, followed by the BC27 sandbox acceptance runbook—not deployment or merge.
+Keep **technisch fertig: BLOCKED** until this feature branch's exact final SHA is green in GitHub Actions, including the AL build. Keep **Go-Live-Abnahme: OPEN** until the BC27 runtime scenarios above have real, sanitized evidence. The next required step is a controlled review and CI verification, followed by the BC27 sandbox acceptance runbook—not deployment or merge.

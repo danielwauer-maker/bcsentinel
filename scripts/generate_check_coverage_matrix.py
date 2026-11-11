@@ -63,7 +63,7 @@ def main() -> None:
             "check_code", "bc_module", "execution_route", "check_type",
             "started_capture", "terminal_status", "error_exception_handling",
             "backend_evidence", "test_coverage", "runtime_evidence",
-        ))
+        ), lineterminator="\n")
         writer.writeheader()
         for code, module in declared:
             if code in aggregate_routes:
