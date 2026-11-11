@@ -133,6 +133,10 @@ def briefing(db_path=None):
     if not con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sync_run'").fetchone():
         con.close()
         return {"state":"not_synced"}
+    tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if not {"pr_task_link","pr_match_review"}.issubset(tables):
+        con.close()
+        return {"state":"upgrade_pending", "reason":"Mapping wird beim nächsten GitHub-Abgleich initialisiert."}
     latest=con.execute("SELECT * FROM sync_run ORDER BY id DESC LIMIT 1").fetchone()
     since=(dt.datetime.now(dt.timezone.utc)-dt.timedelta(hours=24)).isoformat(timespec="seconds")
     observations=[dict(x) for x in con.execute("""SELECT p.repo,p.number,p.url,p.title,p.pr_state,
