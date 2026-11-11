@@ -19,6 +19,7 @@ services:
       DEV_HEALTH_URL: https://dev-api.bcsentinel.com/health/ready
     volumes:
       - ./data:/data:ro
+      - ./state:/state:rw
     ports:
       - "127.0.0.1:8090:8090"
     mem_limit: 512m
