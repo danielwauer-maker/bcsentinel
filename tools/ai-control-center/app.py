@@ -98,6 +98,7 @@ def tracker():
             return result
         main_rows = rows_for("Sprint-Tracker", 3, 24, 20, 21, 3)
         saas_rows = rows_for("SaaS-Stripe Roadmap", 9, 13, 9, 10, 2)
+        planning_issue_date = wb["Dashboard"]["A3"].value
         hours_per_week = wb["Dashboard"]["B7"].value
         legacy_start_fraction = wb["Dashboard"]["B5"].value
         wb.close()
@@ -109,6 +110,7 @@ def tracker():
         return {"state": "loaded", "filename": TRACKER.name, "sha256": digest,
                 "rows": items, "mapped_rows": len(items),
                 "hours_per_week": hours_per_week, "legacy_start_fraction": legacy_start_fraction,
+                "planning_issue_date": planning_issue_date,
                 "fiverr_count": len(main_rows), "saas_count": len(saas_rows),
                 "fiverr_technical": sum(x["technical_checked"] for x in main_rows),
                 "fiverr_live": sum(x["live_checked"] for x in main_rows),
