@@ -65,10 +65,41 @@ Canonical counts: **61 Fiverr tasks**, with **2 technical and 2 separate accepta
 
 The dashboard **never converts GitHub progress into Excel checkmarks** and never equates documentation readiness with technical or Go-Live readiness.
 
+## Phase 2: durable task register (implemented in Draft PR, NOT deployed)
+
+The same uploaded SHA-256-verified master is imported **once** into a separate SQLite database. This does not require PostgreSQL, new server costs, any OpenAI calls, or a write connection to the BCSentinel customer DB.
+
+Before starting Docker, create a state directory writable by the unprivileged container UID 10001 and put the *exact* uploaded XLSX under the private `data/` mount:
+
+```bash
+cd tools/ai-control-center
+mkdir -p data state
+sudo chown 10001:10001 state
+sha256sum data/master-tracker.xlsx
+# MUST match c1978141c8ee70f52be07ba64df765364a56cb16fe51dea4b084951ade60142a
+# Set credentials in an uncommitted .env with chmod 600; use a read-only GitHub token
+docker compose -f compose.example.yml up -d --build
+docker compose -f compose.example.yml exec ai-control-center python project_store.py import
+docker compose -f compose.example.yml exec ai-control-center python project_store.py status
+```
+
+Database is at `state/projects.sqlite3` and is **not in Git**; include it in encrypted/off-host backups. The import is transactional, checks 61+24 distinct IDs and refuses re-import from a changed SHA. A repeated identical import is a no-op. The source workbook stays unchanged and may be archived after the initial verified import. An updated workbook is **not** silently synchronized; reconcile it explicitly with the durable register.
+
+Imported checkbox states are historical source metadata, **not newly granted approvals**. Human approval records are a separate table. No authenticated write API or automatic stage/approval actions exist in this phase. GitHub PRs and workflow results are shown as observed evidence, not written to task completion gates.
+
+The dashboard now returns a separate `project_store` object containing tasks, import provenance, immutable import audit event and approval records. The HTML shows the current database state when initialized, or a clearly labeled not-yet-imported state.
+
+### Access and safety before deployment
+
+- The container has a read-only filesystem except for the isolated `/state` volume and `/tmp` tmpfs; the `/data` Excel mount is read-only.
+- Only the reverse proxy/VPN may access loopback port 8090. Basic auth requires HTTPS; no public raw port exposure.
+- The separate SQLite database carries project metadata, not customer ERP data. Protect the operator dashboard accordingly.
+- This is an **operator-run import**, not a startup auto-import; no autonomous changes to repository or project gates occur.
+
 ## MVP boundaries / next milestones
 
 1. Copy the verified, uploaded XLSX to the private server as `data/master-tracker.xlsx` (read-only). Confirm hash and verify UI with live workbook loaded.
-2. Implement evidence-linked lifecycle states (work completed ≠ accepted ≠ production release), SHA/CI checks and master tracker synchronization rules.
+2. Add controlled, audited operator stage transitions and independent gate approvals, with evidence-specific SHA/CI and BC runtime validation.
 3. Add time-window change report (since yesterday), branch health, release snapshot, and authenticated operator approvals.
 4. Add agent-job queue with only one concurrent worker, explicit cost cap, audit logging, and no automatic production operations.
 5. Add test fixtures for adapter, mocked GitHub API, auth, error states, and accessibility/UI/browser QA.
