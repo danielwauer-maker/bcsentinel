@@ -78,7 +78,7 @@ def reconcile(pulls, errors, db_path=None):
           PRIMARY KEY(repo,number))""")
         has_baseline = con.execute("SELECT 1 FROM sync_run LIMIT 1").fetchone() is not None
         for p in pulls:
-            if p["repo"] not in REPOS or not re.fullmatch(r"https://github\.com/danielwauer-maker/[\w-]+/pull/\d+",p["url"]):
+            if p["repo"] not in REPOS or p["url"] != f"https://github.com/{p['repo']}/pull/{p['number']}":
                 continue
             result = pm_mapping.match_evidence(p,tasks,curated)
             links = result["links"]
