@@ -22,7 +22,7 @@ This PR contains **documentation only**: complete editorial DE/EN candidates for
 | Normative Product System | `00-core/CURRENT_STATUS.md` (2026-11-03), `00-core/PRODUCT_MODEL.md` | Free → Quick → Full → Validation → Monitoring; Fiverr pilot excludes Monitoring and paid Free. Avoid divergent product tiers/prices. |
 | Financial semantics | `00-core/FINANCIAL_OUTCOME_CONTRACT.md` | Estimated Loss and Potential Saving are modeled; Realized Saving is not granted by scan deltas. |
 | Design and marketing | `02-design-system/DESIGN_TOKEN_AUTHORITY.md`, `05-pages/landingpage/README.md`, `05-pages/EXISTING_PAGES_PRODUCT_TRUTH_SWEEP.md` | Normative semantic tokens, orange CTA distinct from blue actions / amber warnings; controlled pilot and truthful claims; B6 target design is not deployment evidence. |
-| Frontend | `danielwauer-maker/bcsentinel-frontend/main/README.md` | Lovable-origin frontend; GitHub connector searches for `LandingPage` / `Pricing` and assumed `src/App.tsx`, `src/pages/Index.tsx`, `src/index.css` did **not** identify current runtime source. Exact rendered route inventory / responsive behavior cannot be certified from this review. |
+| Frontend | `danielwauer-maker/bcsentinel-frontend/main/src/routes/index.tsx`, `src/routes/__root.tsx`, `src/styles.css`, `package.json` | Actual TanStack landing source located and audited. German-only main copy, modeled-financial examples without sufficient fictional labeling, strong GDPR trust badge and English root language identified. See `FRONTEND_DESIGN_AUDIT.md`; runtime browser QA still not performed. |
 
 ## Design implementation handoff
 
@@ -42,7 +42,7 @@ This PR contains **documentation only**: complete editorial DE/EN candidates for
 | W602-02 P0 | Older Core main access semantics vs newer open PR #154 / draft access-v2 | Freeze one reviewed entitlement/access contract for public copy and current runtime |
 | W602-03 P0 | Older Core main extension evidence vs BC 1.0.2.58 acceptance candidate | Real non-SUPER and tenant A/B runtime evidence; no automatic claim upgrades |
 | W602-04 P0 | Legal operator identity, contact data, privacy flows, DPA/TOM, subprocessors unknown | Legal/DSB review before publication |
-| W602-05 P0 | Frontend route/UI code and actual responsive rendering not verified | Inspect frontend branch and perform real visual/manual QA |
+| W602-05 P0 | Actual frontend route source now verified; browser rendering / responsive behavior not tested | Run DEV browser visual, navigation, localization and accessibility acceptance |
 | W602-06 P0 | Pilot, pricing, Fiverr and direct CTAs are channel-dependent | Verify live destinations and channel compliance; no premature payment/GO |
 | W602-07 P1 | Financial illustration, trust badges and demo reports can mislead | Label synthetic examples, financial estimates and limit claims |
 | W602-08 P1 | Mailing/consent/cookie and support workflows unverified | Verify endpoints, policies, security and delivery evidence |
@@ -56,6 +56,9 @@ This PR contains **documentation only**: complete editorial DE/EN candidates for
 - [x] Review of canonical product and design contracts; drift/risk register
 - [x] Documentation-only isolated branch; draft PR targeting DEV integration branch
 - [ ] Verify exact Sprint 6.02 workbook row(s), dependencies, DoD and status
+- [x] Source-audit actual landing/root/styles and map visible copy/design gaps (no visual PASS)
+- [x] Deliver fictional Free/Quick/Full/Validation/Monitoring sample-report copy in DE/EN
+- [x] Deliver 42-key structured DE/EN content matrix with implementation references and approval states
 - [ ] Confirm live website routes and design fidelity across devices
 - [ ] Check legally complete business particulars/privacy/DPA with responsible reviewer
 - [ ] Approve actual security and hosting claims against runtime evidence
@@ -68,6 +71,14 @@ This PR contains **documentation only**: complete editorial DE/EN candidates for
 
 - [German content](WEBSITE_CONTENT_DE.md)
 - [English content](WEBSITE_CONTENT_EN.md)
+- [German synthetic report examples](REPORT_EXAMPLES_DE.md)
+- [English synthetic report examples](REPORT_EXAMPLES_EN.md)
+- [42-key structured bilingual content matrix](CONTENT_MATRIX_DE_EN.csv)
+- [Source-based frontend design audit](FRONTEND_DESIGN_AUDIT.md)
+
+## Editorial delivery conclusion (2026-11-11)
+
+**The automatic document/content portion of Sprint 6.02 is complete**: full DE/EN copy, bilingual content matrix, fictional report examples and documented real frontend source/design gaps. **The sprint as a whole must not be marked fully accepted** without the exact current XLSX task DoD and human/runtime acceptance where required. For the workbook: mark the editorial deliverable technically done only if its 6.02 row scope matches these files; list visual, legal, runtime and access-contract approval as follow-up gates. All files remain in Draft PR #166.
 
 ## Change control
 
