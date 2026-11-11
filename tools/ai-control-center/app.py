@@ -14,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from openpyxl import load_workbook
 from project_store import read_summary
+from pm_sync import briefing
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
