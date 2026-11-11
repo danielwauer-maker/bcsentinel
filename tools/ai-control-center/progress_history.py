@@ -248,7 +248,7 @@ def apply_to_readiness(readiness, hist, *, as_of=None):
     if (readiness.get("state")!="loaded" or hist.get("state")!="loaded" or
         hist["source_sha256"]!=readiness.get("source_sha256")):
         result=copy.deepcopy(readiness)
-        result["history_status"]=hist.get("state","unavailable")
+        result["history_status"]=("source_mismatch" if hist.get("state")=="loaded" else hist.get("state","unavailable"))
         return result
     result=copy.deepcopy(readiness)
     result["history_status"]="loaded"
