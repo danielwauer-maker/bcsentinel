@@ -29,9 +29,9 @@ The existing backend contract remains fail-closed: completed scans with a sealed
 
 ## Tests
 
-Focused execution-lifecycle and coverage tests passed locally: **49 passed, 5 skipped**. The skips are PostgreSQL-concurrency tests and were not disabled or weakened. The complete backend suite also passed locally: **960 passed, 22 skipped, 2 xfailed** in 150.29 seconds. This is local evidence only; verify the exact final commit in GitHub Actions before integration.
+Focused execution-lifecycle and coverage tests passed locally: **50 passed, 5 skipped**. The skips are PostgreSQL-concurrency tests and were not disabled or weakened. The complete backend suite also passed locally: **961 passed, 22 skipped, 2 xfailed** in 154.88 seconds. This is local evidence only; verify the exact final commit in GitHub Actions before integration.
 
-The local BC27 AL compiler run could not start because the compiler package download from NuGet returned HTTP 403 in this environment. No compiler result is claimed; the existing `BC Extension AL Build (Sandbox Test)` GitHub Actions workflow remains the required compiler gate.
+The NuGet diagnosis was repeated: the public Microsoft AL compiler URL for the pinned `16.2.28.57946` package returns HTTP 200, but the CI's pinned BC27 Azure DevOps symbol feed (`dynamicssmb2.pkgs.visualstudio.com`) returns HTTP 403 for both Platform and Application symbols. No cached compiler or symbol packages exist in this checkout. No compiler result is claimed; the existing `BC Extension AL Build (Sandbox Test)` GitHub Actions workflow remains the required compiler gate.
 
 Relevant test files include:
 
@@ -47,7 +47,9 @@ No authenticated DEV runtime, Docker image digest, migration database, or BC san
 
 The feature branch was pushed successfully, but GitHub's API permission denial also prevented automated Draft PR creation. The feature branch can be opened for a Draft PR from the repository's branch comparison page once credentials with pull-request write access are available.
 
-The BC27 runbook remains `PREPARED / NOT EXECUTED / NO-GO`. Required manual acceptance remains: exact extension artifact/hash, installed version 1.0.2.58, real in-place upgrade, non-SUPER roles, completed clean scan, findings scan, interrupted aggregate group, retry, and backend persistence verification at the same SHA.
+The exact comparison page was verified in a browser and is available at [GitHub comparison](https://github.com/danielwauer-maker/bcsentinel/compare/integration%2Fsprint3a2-consolidated-20261110...feature%2Fsprint3b01-check-coverage?expand=1). The current browser session is signed out; the available `GH_TOKEN` is invalid and no alternate `gh` login is configured. Creating a Draft PR and observing pull-request CI therefore remain externally blocked.
+
+The BC27 runbook remains `PREPARED / NOT EXECUTED / NO-GO`. Required manual acceptance remains: exact extension artifact/hash, installed version 1.0.2.58, real in-place upgrade, non-SUPER roles, completed clean scan, findings scan, interrupted aggregate group, retry, and backend persistence verification at the same SHA. The executable scenario checklist is [SPRINT3B01_BC27_EXECUTION_LIFECYCLE_ACCEPTANCE.md](SPRINT3B01_BC27_EXECUTION_LIFECYCLE_ACCEPTANCE.md).
 
 ## Sprint 3B.02 interface
 
