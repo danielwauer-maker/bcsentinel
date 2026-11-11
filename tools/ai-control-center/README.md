@@ -45,13 +45,29 @@ Use an **operator-protected HTTPS reverse proxy or VPN**; HTTP Basic auth must n
 
 ## Excel handling
 
-The workbook is not modified. The loader reads every worksheet, finds probable header rows in the first 20 rows, and maps only recognizable task/status columns. It reports skipped sheets as `mapped: false`. Original status text is shown unmodified. Sheet mapping is a **provisional parser**, not a validated interpretation of the authoritative workbook. Once the exact latest workbook is attached/mounted, inspect its sheet names, headers, formulas, and task-ID mapping, and add fixture-based tests before treating aggregates as reliable.
+The workbook is not modified. The parser uses the verified DEV-first v2 tabs and exact ranges: `Sprint-Tracker!A3:X63` (IDs in A, technical mark U, acceptance mark V) and `SaaS-Stripe Roadmap!A9:M32` (technical mark J, acceptance mark K). It requires 61/24 tasks and exact SHA-256. Future workbook revisions must be reconciled and their hash updated deliberately. Evidence overlays provide **review notes**, never spreadsheet writes.
 
-The currently reported newest named file is `BCSentinel_GoLive_Master_Tracker_DEV_11112026_Sprint3B01_Update.xlsx`. The source workbook was **not accessible during implementation**; no unverified/older copy was committed. The documented planning scope from recent work contains 61 Fiverr tasks and 24 separate SaaS tasks, but these are **not** live dashboard totals until reconciled against the Excel.
+The actual latest uploaded Excel was inspected on **2026-11-11**:
+`BCSentinel_GoLive_Master_Tracker_DEV_First_v2(1).xlsx`.
+SHA-256: `c1978141c8ee70f52be07ba64df765364a56cb16fe51dea4b084951ade60142a`.
+Verified tabs: Dashboard, Sprint-Tracker, Anleitung & Gates, Parallelplan, SaaS-Stripe Roadmap, DEV-Release-Regeln.
+Canonical counts: **61 Fiverr tasks**, with **2 technical and 2 separate acceptance checkmarks**; **24 SaaS tasks**, with zero checkmarks. The Excel is the authoritative planning source. To avoid committing an internal binary workbook, the exact source file is mounted read-only as `data/master-tracker.xlsx` on the operator server. The repo includes a **clearly labeled immutable review snapshot** and curated GitHub evidence in `data/evidence-status.json`. Without the mounted Excel the dashboard displays snapshot counts rather than claiming live synchronization.
+
+## Evidence reconciliation (11 November 2026)
+
+- `6.02`: PR #166 documents DE/EN website content, report samples, 42-row content mapping and design audit. **Editorial complete; implementation, visual QA and release open**.
+- `7.03`: PR #165 documents complete DE/EN Fiverr Buyer Kit and buyer journey. **Editorial complete; Fiverr/editor/customer E2E and launch open**.
+- `4.01`: PR #164 documents Access-v2 contract audit. **Audit Draft; contract approval and regression open**.
+- `2.01` / 3B.01: feature branch includes 199-check coverage matrix, lifecycle report and reported local backend suite (961 passed, 22 skipped, 2 xfailed); **final-SHA CI/AL and BC27 tests still block technical completion**.
+- `2.02` and 3A.2: PRs #159/#162 provide partial evidence/Provenance architecture; real BC upgrade and scan comparison open.
+- `4.02–4.04,4.06`: Access-v2/operator implementation drafts #154/#156; no release contract/BC E2E acceptance.
+- `1.01/1.02`: Excel already contains checked technical and acceptance cells; they remain verbatim, with documented need to recheck artifacts and current DEV deployment before the next BC step.
+
+The dashboard **never converts GitHub progress into Excel checkmarks** and never equates documentation readiness with technical or Go-Live readiness.
 
 ## MVP boundaries / next milestones
 
-1. Obtain and hash-verify current XLSX; map exact workbook schema and separate Fiverr vs SaaS.
+1. Copy the verified, uploaded XLSX to the private server as `data/master-tracker.xlsx` (read-only). Confirm hash and verify UI with live workbook loaded.
 2. Implement evidence-linked lifecycle states (work completed ≠ accepted ≠ production release), SHA/CI checks and master tracker synchronization rules.
 3. Add time-window change report (since yesterday), branch health, release snapshot, and authenticated operator approvals.
 4. Add agent-job queue with only one concurrent worker, explicit cost cap, audit logging, and no automatic production operations.
