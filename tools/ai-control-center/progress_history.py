@@ -76,8 +76,8 @@ def init_baseline(source, path=None):
         raise ValueError("Task database not imported")
     con=project_store.connect(path)
     try:
+        con.executescript(BASELINE_SCHEMA)
         with con:
-            con.executescript(BASELINE_SCHEMA)
             existing=con.execute("SELECT * FROM progress_meta WHERE id=1").fetchone()
             if existing:
                 if (existing["source_sha256"]!=source["sha256"] or
@@ -149,7 +149,7 @@ def record(task_key, gate, actor, reviewer, evidence_uri, reason, path=None,
                 raise ValueError("Run explicit baseline init first")
             if instant.date() < dt.date.fromisoformat(meta["baseline_date"]):
                 raise ValueError("Events before baseline cannot be backfilled")
-            task=con.execute("SELECT area,imported_technical,imported_go_live FROM progress_baseline b JOIN task t USING(task_key) WHERE task_key=?",
+            task=con.execute("SELECT t.area,b.imported_technical,b.imported_go_live FROM progress_baseline b JOIN task t USING(task_key) WHERE task_key=?",
                              (task_key,)).fetchone()
             if task is None or task["area"]!="fiverr":
                 raise ValueError("Only imported Fiverr task keys supported")
@@ -235,6 +235,53 @@ def history(path=None):
             "points":points,"latest_events":events[-15:],
             "global_release":"NO_GO",
             "caution":"Operator-attestierte Nachweise; kein automatischer BC-E2E-Nachweis und keine globale Go-Live-Freigabe."}
+
+def apply_to_readiness(readiness, hist, *, as_of=None):
+    """Replace frozen actual with separately attested gate history; never overwrite source data."""
+    import copy
+    from readiness import estimate_work_date
+    if (readiness.get("state")!="loaded" or hist.get("state")!="loaded" or
+        hist["source_sha256"]!=readiness.get("source_sha256")):
+        result=copy.deepcopy(readiness)
+        result["history_status"]=hist.get("state","unavailable")
+        return result
+    result=copy.deepcopy(readiness)
+    result["history_status"]="loaded"
+    result["history_event_count"]=hist["count_events"]
+    result["historical_excel_fraction"]=result["legacy_estimate_fraction"]
+    result["legacy_estimate_fraction"]=hist["overall_fraction"]
+    result["legacy_remaining_fraction"]=round(1-hist["overall_fraction"],6)
+    result["technical_fraction"]=hist["technical_fraction"]
+    result["gate_fraction"]=hist["go_live_fraction"]
+    total=result["total_hours"]
+    result["technical_hours"]=round(total*hist["technical_fraction"],2)
+    result["accepted_hours"]=round(total*hist["go_live_fraction"],2)
+    result["remaining_hours"]=round(total-result["accepted_hours"],2)
+    result["remaining_weeks"]=round(result["remaining_hours"]/result["hours_per_week"],2)
+    result["technical_count"]=hist["counts"]["technical"]
+    result["gate_count"]=hist["counts"]["go_live"]
+    current=as_of or dt.datetime.now(ZoneInfo("Europe/Berlin")).date()
+    days=math.ceil(result["remaining_hours"]/(result["hours_per_week"]/5)) if result["remaining_hours"] else 0
+    result["remaining_workdays"]=days
+    result["capacity_scenario_date"]=estimate_work_date(current,days).isoformat()
+    result["go_live"]="NO_GO"
+    if result.get("timeline",{}).get("state")=="loaded":
+        model=result["timeline"]
+        model["actual_fraction"]=hist["overall_fraction"]
+        model["gap_percentage_points"]=round((model["actual_fraction"]-model["planned_fraction"])*100,2)
+        delta=model["gap_percentage_points"]
+        model["schedule_status"]="ahead" if delta>0.15 else "behind" if delta<-.15 else "on_track"
+        model["actual_series"]=[{"date":p["date"],"value":p["overall_fraction"],"source":p["source"]}
+                                for p in hist["points"]]
+        last=model["actual_series"][-1]
+        model["actual_point"]=last
+        model["actual_source"]="operator_attested_history" if hist["count_events"] else "historic_excel_baseline_only"
+        model["assumptions"] += (" Nur ausdrücklich attestierte Gate-Ereignisse erhöhen die Ist-Kurve."
+            " PRs, Code, CI und Dashboard-Refresh allein nicht.")
+    result["warning"] = ("Ist-Readiness aus historischer Excel-Baseline plus ausdrücklich und unabhängig"
+                          " operator-attestierten Aufgaben-Gates; globale Go-Live-Freigabe weiterhin NO-GO.")
+    return result
+
 
 def cli():
     p=argparse.ArgumentParser()
