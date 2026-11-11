@@ -1,0 +1,56 @@
+# Sprint 3B.01 — Check Coverage & Execution Lifecycle Report
+
+## Status
+
+- **TECHNISCH FERTIG:** PASS (source contract and backend regression scope)
+- **GO-LIVE-ABNAHME:** OPEN
+- **Base commit:** `a8b870eb41d29913cc0837a558c30637be8c57f2` (`integration/sprint3a2-consolidated-20261110`, also the verified PR #162 ref retrieved during preflight)
+- **Final feature commit / CI:** recorded in the Draft PR after push; do not treat this document as GitHub CI evidence.
+
+## Executive summary
+
+The current AL catalog contains exactly 199 distinct checks. The generated [CSV matrix](sprint3b01-check-coverage.csv) inventories all of them directly from the catalog and runner: 193 aggregate-count checks and six duplicate-group checks. This change persists an enabled aggregate group's `STARTED` observations before its traversal begins. A group exception can therefore turn those observations into `FAILED`; it cannot silently convert them to `PASS` or `FINDINGS`.
+
+The existing backend contract remains fail-closed: completed scans with a sealed start expectation require a `PASS` or `FINDINGS` observation for every enabled check, observed findings must match submitted finding rows, and execution evidence is canonicalized, lease-bound and retry-immutable. Failed scans use the distinct failure-evidence contract, preserve `FAILED` / `NOT_EXECUTED` / `SKIPPED` where proven, and cannot be completed as a successful scan.
+
+## Lifecycle rules verified in source and backend tests
+
+| Situation | Outcome |
+| --- | --- |
+| Enabled check completes cleanly | `PASS` with zero findings |
+| Enabled check completes with findings | `FINDINGS` with a matching positive finding count |
+| Aggregate or duplicate-group exception after start | `FAILED` on persisted `STARTED` observations; scan is failed |
+| Disabled check | `SKIPPED` only at its output route |
+| Check provably not reached | `NOT_EXECUTED` only in failed-scan evidence |
+| Unobserved check in an indeterminate group | Left unobserved; never fabricated as `PASS`, `FINDINGS`, or `NOT_EXECUTED` |
+| Incomplete successful evidence | Sync/finalization rejects it |
+| Historical completed scan | Cannot be retrofitted with execution evidence |
+| Retry | Must retain the original lease, worker, and canonical evidence payload |
+
+## Tests
+
+Focused execution-lifecycle and coverage tests passed locally: **49 passed, 5 skipped**. The skips are PostgreSQL-concurrency tests and were not disabled or weakened. The full backend suite was also started against the existing Linux virtual environment; its final process exit output was not recoverable from the execution harness, so this report does not claim a full-suite PASS. Verify the exact final commit in GitHub Actions before integration.
+
+The local BC27 AL compiler run could not start because the compiler package download from NuGet returned HTTP 403 in this environment. No compiler result is claimed; the existing `BC Extension AL Build (Sandbox Test)` GitHub Actions workflow remains the required compiler gate.
+
+Relevant test files include:
+
+- `backend/tests/test_sprint3b01_check_coverage.py`
+- `backend/tests/test_scan_runtime_catalog_routing.py`
+- `backend/tests/test_partial_check_execution_al_contract.py`
+- `backend/tests/test_scan_expectation_start.py`
+- `backend/tests/test_partial_check_execution_sync.py`
+
+## Runtime, DEV, and CI limits
+
+No authenticated DEV runtime, Docker image digest, migration database, or BC sandbox connection was available from this environment. No values have been invented. GitHub REST/GraphQL access was denied (HTTP 403), so PR state and Actions runs cannot be verified here after push.
+
+The BC27 runbook remains `PREPARED / NOT EXECUTED / NO-GO`. Required manual acceptance remains: exact extension artifact/hash, installed version 1.0.2.58, real in-place upgrade, non-SUPER roles, completed clean scan, findings scan, interrupted aggregate group, retry, and backend persistence verification at the same SHA.
+
+## Sprint 3B.02 interface
+
+This change does not modify tenant/company/scan/lease provenance schema, source record identity, or record-comparison logic. It relies on the existing expectation and execution-evidence envelope; Sprint 3B.02 can consume the status observations without treating them as per-record identity evidence.
+
+## Recommendation for tracker item 2.01
+
+Mark **technisch fertig: PASS** only after this feature branch's exact final SHA is green in GitHub Actions. Keep **Go-Live-Abnahme: OPEN** until the BC27 runtime scenarios above have real, sanitized evidence. The next required step is a controlled review and CI verification, followed by the BC27 sandbox acceptance runbook—not deployment or merge.

@@ -354,6 +354,7 @@ codeunit 53128 "DH Deep Scan Runner"
         BlockedWithOpenSalesDocs: Integer;
         BlockedWithOpenLedgerEntries: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'CUSTOMERS_MISSING_NAME|CUSTOMERS_MISSING_SEARCH_NAME|CUSTOMERS_MISSING_ADDRESS|CUSTOMERS_MISSING_CITY|CUSTOMERS_MISSING_POST_CODE|CUSTOMERS_MISSING_COUNTRY|CUSTOMERS_MISSING_EMAIL|CUSTOMERS_MISSING_PHONE|CUSTOMERS_MISSING_PAYMENT_TERMS|CUSTOMERS_MISSING_PAYMENT_METHOD|CUSTOMERS_MISSING_POSTING_GROUP|CUSTOMERS_MISSING_GEN_BUS_POSTING|CUSTOMERS_MISSING_VAT_BUS_POSTING|CUSTOMERS_MISSING_CREDIT_LIMIT|BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS|BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER');
         ChecksCount += 16;
 
         Customer.Reset();
@@ -434,6 +435,7 @@ codeunit 53128 "DH Deep Scan Runner"
         BlockedWithOpenPurchaseDocs: Integer;
         BlockedWithOpenLedgerEntries: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'VENDORS_MISSING_NAME|VENDORS_MISSING_SEARCH_NAME|VENDORS_MISSING_ADDRESS|VENDORS_MISSING_CITY|VENDORS_MISSING_POST_CODE|VENDORS_MISSING_COUNTRY|VENDORS_MISSING_EMAIL|VENDORS_MISSING_PHONE|VENDORS_MISSING_PAYMENT_TERMS|VENDORS_MISSING_PAYMENT_METHOD|VENDORS_MISSING_POSTING_GROUP|VENDORS_MISSING_GEN_BUS_POSTING|VENDORS_MISSING_VAT_BUS_POSTING|VENDORS_MISSING_BANK_ACCOUNT|BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS|BLOCKED_VENDORS_WITH_OPEN_LEDGER');
         ChecksCount += 16;
 
         Vendor.Reset();
@@ -784,6 +786,7 @@ codeunit 53128 "DH Deep Scan Runner"
         NegativeInventory: Integer;
         BlockedWithInventory: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'ITEMS_MISSING_DESCRIPTION|ITEMS_MISSING_BASE_UOM|ITEMS_MISSING_CATEGORY|ITEMS_MISSING_GEN_PROD_POSTING|ITEMS_MISSING_INVENTORY_POSTING|ITEMS_WITHOUT_VENDOR_NO|ITEMS_WITHOUT_UNIT_COST|ITEMS_WITHOUT_UNIT_PRICE|ITEMS_NEGATIVE_INVENTORY|BLOCKED_ITEMS_WITH_INVENTORY');
         ChecksCount += 10;
 
         Item.Reset();
@@ -841,6 +844,7 @@ codeunit 53128 "DH Deep Scan Runner"
         BlockedItemsOnDocs: Integer;
         ThresholdDate: Date;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'SALES_ORDERS_MISSING_SHIPMENT_DATE|SALES_ORDERS_OLD_OPEN|SALES_LINES_MISSING_NO|SALES_LINES_ZERO_QUANTITY|SALES_LINES_ZERO_PRICE|SALES_LINES_MISSING_DIMENSIONS|SALES_DOCS_WITH_BLOCKED_CUSTOMERS|SALES_LINES_WITH_BLOCKED_ITEMS');
         ChecksCount += 8;
 
         ThresholdDate := CalcDate('<-30D>', Today());
@@ -913,6 +917,7 @@ codeunit 53128 "DH Deep Scan Runner"
         BlockedItemsOnDocs: Integer;
         ThresholdDate: Date;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'PURCHASE_ORDERS_MISSING_EXPECTED_DATE|PURCHASE_ORDERS_OLD_OPEN|PURCHASE_LINES_MISSING_NO|PURCHASE_LINES_ZERO_QUANTITY|PURCHASE_LINES_ZERO_COST|PURCHASE_LINES_MISSING_DIMENSIONS|PURCHASE_DOCS_WITH_BLOCKED_VENDORS|PURCHASE_LINES_WITH_BLOCKED_ITEMS');
         ChecksCount += 8;
 
         ThresholdDate := CalcDate('<-30D>', Today());
@@ -977,6 +982,7 @@ codeunit 53128 "DH Deep Scan Runner"
         OverdueVendorEntries: Integer;
         ThresholdDate: Date;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'CUSTOMER_LEDGER_OVERDUE_30|VENDOR_LEDGER_OVERDUE_30');
         ChecksCount += 2;
 
         ThresholdDate := CalcDate('<-30D>', Today());
@@ -1018,6 +1024,7 @@ codeunit 53128 "DH Deep Scan Runner"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
+        RecordCountChecksStarted(DeepScanRun, 'GL_ENTRIES_MISSING_DIM1|GL_ENTRIES_MISSING_DIM2|GL_ENTRIES_MISSING_BOTH_DIMS|GL_ACCOUNTS_BLOCKED_BUT_USED|GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED|SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING|SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING|SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING|SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING|SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING|SYSTEM_ITEMS_MISSING_INVENTORY_POSTING|CUSTOMER_LEDGER_MISSING_DUE_DATE|VENDOR_LEDGER_MISSING_DUE_DATE');
         ChecksCount += 14;
 
         GLEntry.Reset();
@@ -1113,6 +1120,7 @@ codeunit 53128 "DH Deep Scan Runner"
         VendorOverdue60: Integer;
         VendorOverdue90: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'CUSTOMERS_MISSING_VAT_REG_NO|CUSTOMERS_MISSING_SALESPERSON|CUSTOMERS_MISSING_PRICE_GROUP|CUSTOMERS_MISSING_DISC_GROUP|CUSTOMERS_MISSING_REMINDER_TERMS|CUSTOMERS_MISSING_FIN_CHARGE_TERMS|CUSTOMERS_MISSING_CONTACT|CUSTOMERS_MISSING_HOME_PAGE|VENDORS_MISSING_VAT_REG_NO|VENDORS_MISSING_PURCHASER|VENDORS_MISSING_CONTACT|VENDORS_MISSING_HOME_PAGE|CUSTOMER_LEDGER_OVERDUE_60|CUSTOMER_LEDGER_OVERDUE_90|VENDOR_LEDGER_OVERDUE_60|VENDOR_LEDGER_OVERDUE_90');
         ChecksCount += 16;
 
         if Customer.FindSet() then
@@ -1198,6 +1206,7 @@ codeunit 53128 "DH Deep Scan Runner"
         MissingDescription: Integer;
         MissingLocationCode: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'SALES_HEADERS_MISSING_PAYMENT_TERMS|SALES_HEADERS_MISSING_PAYMENT_METHOD|SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE|SALES_HEADERS_MISSING_SHIPMENT_METHOD|SALES_HEADERS_MISSING_EXTERNAL_DOC_NO|SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE|SALES_LINES_DISCOUNT_OVER_25|SALES_LINES_DISCOUNT_OVER_50|SALES_LINES_PRICE_BELOW_UNIT_COST|SALES_LINES_SHIPPED_NOT_INVOICED|SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE|SALES_LINES_MISSING_DESCRIPTION|SALES_LINES_MISSING_LOCATION');
         ChecksCount += 13;
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
@@ -1272,6 +1281,7 @@ codeunit 53128 "DH Deep Scan Runner"
         MissingLocationCode: Integer;
         CostBelowItemCost: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'PURCHASE_HEADERS_MISSING_PAYMENT_TERMS|PURCHASE_HEADERS_MISSING_PAYMENT_METHOD|PURCHASE_HEADERS_MISSING_PURCHASER|PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO|PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE|PURCHASE_LINES_DISCOUNT_OVER_25|PURCHASE_LINES_DISCOUNT_OVER_50|PURCHASE_LINES_RECEIVED_NOT_INVOICED|PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE|PURCHASE_LINES_MISSING_DESCRIPTION|PURCHASE_LINES_MISSING_LOCATION|PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST');
         ChecksCount += 12;
 
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
@@ -1348,6 +1358,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeadStock365: Integer;
         InventoryWithoutUnitCost: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'ITEMS_PRICE_BELOW_UNIT_COST|ITEMS_PRICE_BELOW_STANDARD_COST|ITEMS_STANDARD_COST_ZERO|ITEMS_LAST_DIRECT_COST_ZERO|ITEMS_MISSING_LEAD_TIME|ITEMS_SAFETY_STOCK_ZERO|ITEMS_REORDER_POINT_ZERO|ITEMS_MAX_INVENTORY_ZERO|ITEMS_MIN_ORDER_QTY_ZERO|ITEMS_ORDER_MULTIPLE_ZERO|ITEMS_MISSING_SHELF_NO|ITEMS_MISSING_TARIFF_NO|ITEMS_GROSS_WEIGHT_ZERO|ITEMS_NET_WEIGHT_ZERO|ITEMS_UNIT_VOLUME_ZERO|DEAD_STOCK_90|DEAD_STOCK_180|DEAD_STOCK_365|INVENTORY_WITHOUT_UNIT_COST');
         ChecksCount += 21;
 
         if Item.FindSet() then
@@ -1429,6 +1440,7 @@ codeunit 53128 "DH Deep Scan Runner"
         MissingPostCode: Integer;
         MissingCountryCode: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'CONTACTS_MISSING_NAME|CONTACTS_MISSING_EMAIL|CONTACTS_MISSING_PHONE|CONTACTS_MISSING_MOBILE_PHONE|CONTACTS_PERSONS_MISSING_COMPANY|CONTACTS_MISSING_ADDRESS|CONTACTS_MISSING_CITY|CONTACTS_MISSING_POST_CODE|CONTACTS_MISSING_COUNTRY');
         ChecksCount += 9;
 
         if Contact.FindSet() then
@@ -1492,6 +1504,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ItemsMissingProdBomNo: Integer;
         ItemsMissingRoutingNo: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'MFG_BOM_MISSING_DESCRIPTION|MFG_BOM_NOT_CERTIFIED|MFG_BOM_LINES_MISSING_NO|MFG_BOM_LINES_ZERO_QTY|MFG_ROUTING_MISSING_DESCRIPTION|MFG_ROUTING_NOT_CERTIFIED|MFG_ROUTING_LINES_MISSING_NO|MFG_ROUTING_LINES_ZERO_SETUP|MFG_ROUTING_LINES_ZERO_RUN|MFG_WORK_CENTERS_BLOCKED|MFG_WORK_CENTERS_MISSING_NAME|MFG_WORK_CENTERS_ZERO_COST|MFG_MACHINE_CENTERS_BLOCKED|MFG_MACHINE_CENTERS_MISSING_NAME|MFG_MACHINE_CENTERS_ZERO_COST|MFG_ITEMS_MISSING_PROD_BOM_NO|MFG_ITEMS_MISSING_ROUTING_NO');
         ChecksCount += 17;
 
         if ProdBOMHeader.FindSet() then
@@ -1593,6 +1606,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ZeroLineQuantity: Integer;
         ZeroLineUnitPrice: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'SERVICE_ITEMS_MISSING_DESCRIPTION|SERVICE_ITEMS_MISSING_CUSTOMER|SERVICE_ITEMS_MISSING_ITEM_NO|SERVICE_ITEMS_MISSING_SERIAL_NO|SERVICE_ORDERS_MISSING_CUSTOMER|SERVICE_ORDERS_MISSING_BILL_TO|SERVICE_ORDERS_MISSING_DESCRIPTION|SERVICE_ORDERS_MISSING_ASSIGNED_USER|SERVICE_LINES_MISSING_NO|SERVICE_LINES_MISSING_DESCRIPTION|SERVICE_LINES_ZERO_QTY|SERVICE_LINES_ZERO_UNIT_PRICE');
         ChecksCount += 12;
 
         if ServiceItem.FindSet() then
@@ -1661,6 +1675,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ZeroUnitCost: Integer;
         ZeroUnitPrice: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'JOBS_MISSING_DESCRIPTION|JOBS_MISSING_BILL_TO_CUSTOMER|JOBS_MISSING_RESPONSIBLE|JOBS_MISSING_POSTING_GROUP|JOB_TASKS_MISSING_DESCRIPTION|JOB_PLANNING_LINES_MISSING_NO|JOB_PLANNING_LINES_MISSING_DESCRIPTION|JOB_PLANNING_LINES_ZERO_QTY|JOB_PLANNING_LINES_ZERO_UNIT_COST|JOB_PLANNING_LINES_ZERO_UNIT_PRICE');
         ChecksCount += 10;
 
         if JobRec.FindSet() then
@@ -1724,6 +1739,7 @@ codeunit 53128 "DH Deep Scan Runner"
         ResourcesZeroUnitPrice: Integer;
         ResourcesMissingBaseUOM: Integer;
     begin
+        RecordCountChecksStarted(DeepScanRun, 'EMPLOYEES_MISSING_FIRST_NAME|EMPLOYEES_MISSING_LAST_NAME|EMPLOYEES_MISSING_SEARCH_NAME|EMPLOYEES_MISSING_EMAIL|EMPLOYEES_MISSING_PHONE|EMPLOYEES_MISSING_COUNTRY|EMPLOYEES_MISSING_RESOURCE_NO|EMPLOYEES_MISSING_JOB_TITLE|RESOURCES_MISSING_NAME|RESOURCES_ZERO_UNIT_COST|RESOURCES_ZERO_UNIT_PRICE|RESOURCES_MISSING_BASE_UOM');
         ChecksCount += 12;
 
         if Employee.FindSet() then
@@ -2178,6 +2194,41 @@ codeunit 53128 "DH Deep Scan Runner"
         // Preserve which individual check actually started across the outer
         // TryFunction failure path. Do not guess failures for grouped checks.
         Commit();
+    end;
+
+    local procedure RecordCountChecksStarted(var DeepScanRun: Record "DH Deep Scan Run"; CheckCodes: Text)
+    var
+        RemainingCodes: Text;
+        SeparatorPosition: Integer;
+        IssueCode: Code[50];
+    begin
+        // Aggregate routes evaluate several counters while traversing one data
+        // set. Persist every enabled counter's STARTED boundary before that
+        // traversal so an exception finalizes the affected checks as FAILED
+        // instead of silently losing their execution state.
+        RemainingCodes := CheckCodes;
+        while RemainingCodes <> '' do begin
+            SeparatorPosition := StrPos(RemainingCodes, '|');
+            if SeparatorPosition = 0 then begin
+                IssueCode := CopyStr(RemainingCodes, 1, MaxStrLen(IssueCode));
+                Clear(RemainingCodes);
+            end else begin
+                IssueCode := CopyStr(RemainingCodes, 1, SeparatorPosition - 1);
+                RemainingCodes := CopyStr(RemainingCodes, SeparatorPosition + 1);
+            end;
+            RecordCountCheckStarted(DeepScanRun, IssueCode);
+        end;
+    end;
+
+    local procedure RecordCountCheckStarted(var DeepScanRun: Record "DH Deep Scan Run"; IssueCode: Code[50])
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+    begin
+        // Disabled checks remain SKIPPED at their output route. They must not
+        // receive a STARTED marker merely because their aggregate group ran.
+        if not ScanCheckMgt.IsCheckEnabledForRun(DeepScanRun, IssueCode) then
+            exit;
+        RecordCheckStarted(DeepScanRun."Entry No.", IssueCode);
     end;
 
     local procedure RecordCompletedCheck(RunEntryNo: Integer; IssueCode: Code[50])
