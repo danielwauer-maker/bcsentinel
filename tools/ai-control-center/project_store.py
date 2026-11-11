@@ -124,14 +124,50 @@ def read_summary(db_path=None):
                                           "saas":sum(r["area"]=="saas" for r in task_rows)},
             "approvals": approvals, "recent_events": events}
 
+EDITABLE_STAGES = {"planned", "in_progress", "implementation_candidate", "review", "blocked"}
+
+
+def set_stage(task_key, new_stage, actor, reason, db_path=None):
+    """Manual operator maintenance; acceptance stages cannot be set by this method."""
+    if new_stage not in EDITABLE_STAGES:
+        raise ValueError("Acceptance stages need separate explicit gate approval")
+    if not actor.strip() or len(actor.strip()) > 100:
+        raise ValueError("Operator identity required")
+    if len(reason.strip()) < 10 or len(reason) > 2000:
+        raise ValueError("An explanation of at least 10 characters is required")
+    if not Path(db_path or DB_PATH).exists():
+        raise ValueError("Task store not initialized")
+    con = connect(db_path)
+    now = timestamp()
+    with con:
+        row = con.execute("SELECT stage FROM task WHERE task_key=?", (task_key,)).fetchone()
+        if not row:
+            raise ValueError("Unknown task key")
+        if row["stage"] in ("technical_complete", "dev_accepted"):
+            raise ValueError("Accepted task cannot be modified by ordinary stage editor")
+        con.execute("UPDATE task SET stage=?,manually_edited=1,updated_at=? WHERE task_key=?",
+                    (new_stage, now, task_key))
+        con.execute("INSERT INTO audit_event(event_type,task_key,detail_json,created_at) VALUES(?,?,?,?)",
+                    ("task.stage_changed", task_key, json.dumps({"from": row["stage"], "to":new_stage,
+                     "actor":actor.strip(), "reason":reason.strip()}), now))
+    con.close()
+    return {"task_key":task_key,"stage":new_stage,"state":"updated"}
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=["import", "status"])
+    parser.add_argument("operation", choices=["import", "status", "set-stage"])
     parser.add_argument("--db", default=str(DB_PATH))
+    parser.add_argument("--task")
+    parser.add_argument("--stage")
+    parser.add_argument("--actor")
+    parser.add_argument("--reason")
     args = parser.parse_args()
     if args.operation == "import":
         import app
         result = import_rows(app.tracker(), args.db)
+    elif args.operation == "set-stage":
+        result = set_stage(args.task or "", args.stage or "", args.actor or "", args.reason or "", args.db)
     else:
         result = read_summary(args.db)
     print(json.dumps(result, ensure_ascii=False, indent=2))
