@@ -99,7 +99,7 @@ def assess(coverage, review, plan, readiness, history, *, as_of=None):
 
     risks=[
         {"code":"COVERAGE_GAP","level":"unknown_scope",
-         "label":"46 Aufgaben ohne kuratiertes Review",
+         "label":str(unknown)+" Aufgaben ohne kuratiertes Review",
          "affected_tasks":unknown,
          "reason":"Priorität und echte Abhängigkeiten bei unreviewten Aufgaben unbekannt."},
         {"code":"MODEL_LIMIT","level":"uncertain",
@@ -154,7 +154,7 @@ def assess(coverage, review, plan, readiness, history, *, as_of=None):
                        "requires_human_review":True},
         "fiverr_go_live_fraction":readiness["gate_fraction"],
         "legacy_total_project_estimate":readiness["legacy_estimate_fraction"],
-        "warning":"Bisher nur 15/61 Detailreviews; keine Status- oder Freigabeautomation. "
+        "warning":"Bisher nur "+str(known)+"/61 Detailreviews; keine Status- oder Freigabeautomation. "
                   "Soll-Ist-Projektion ist Kapazitätsarithmetik, kein Liefertermin."
     }
 
