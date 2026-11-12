@@ -1,7 +1,7 @@
-"""The new commercial checkout route stays dark until separately approved.
+"""Unreleased commercial-session route is fail-closed regardless of settings.
 
-Legacy checkout and existing entitlements are intentionally not changed by
-this flag; that path has distinct contractual and refund lifecycle tests.
+This reserved API must not perform DB/Stripe IO until its pricing and payment
+contract has been implemented and separately approved. Legacy billing is intact.
 """
 from types import SimpleNamespace
 
@@ -12,19 +12,31 @@ from app.core.settings import settings
 from app.routers.commercial_billing import create_commercial_checkout_session
 
 
-def test_commercial_checkout_is_default_disabled(monkeypatch):
-    monkeypatch.setattr(settings, "COMMERCIAL_CHECKOUT_ENABLED", False)
-    # The gate must run before database, authentication or Stripe side effects.
+@pytest.mark.parametrize("enabled", [False, True])
+def test_commercial_checkout_fails_closed_regardless_of_flag(monkeypatch, enabled):
+    monkeypatch.setattr(settings, "COMMERCIAL_CHECKOUT_ENABLED", enabled)
     with pytest.raises(HTTPException) as err:
         create_commercial_checkout_session(
             SimpleNamespace(tenant_id="pilot-tenant", product_code="full_analysis"),
             tenant_auth=("pilot-tenant", "unused-test-token"),
         )
     assert err.value.status_code == 503
-    assert "not released" in str(err.value.detail)
+    assert err.value.detail == "Commercial checkout is not released."
 
 
 def test_commercial_checkout_flag_default_is_false():
     from app.core.settings import Settings
 
     assert Settings.model_fields["COMMERCIAL_CHECKOUT_ENABLED"].default is False
+
+
+def test_commercial_checkout_endpoint_refuses_stripe_even_when_flag_enabled(client, monkeypatch):
+    monkeypatch.setattr(settings, "COMMERCIAL_CHECKOUT_ENABLED", True)
+    response = client.post(
+        "/billing/checkout/commercial-session",
+        json={"tenant_id": "pilot-tenant", "product_code": "full_analysis"},
+        headers={"X-Tenant-Id": "pilot-tenant", "X-Api-Token": "unused-test-token"},
+    )
+    # Authentication may reject the fake token first; must never return a checkout session.
+    assert response.status_code in (401, 403, 422, 503)
+    assert "checkout_url" not in response.text
