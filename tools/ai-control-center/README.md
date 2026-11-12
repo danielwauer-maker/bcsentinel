@@ -160,6 +160,24 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.0.1 – Team & Agent Overview
+
+Unter `/team.html` steht eine **zweite, hinter derselben Basic-Auth geschützte** und rein lesende Team-Seite mit Navigation `Dashboard | Team` bereit. Sie zeigt ein responsives Organigramm mit acht festen Designrollen: AI Project Manager (Leitung), Solution Architect (mit BC, Backend und Frontend als Fachteam), QA, DevOps und Data & Reporting. Eigene, offline gerenderte Inline-SVG-Vektorillustrationen je Kategorie, ohne externe Bilder/CDNs/Fonts oder neue Abhängigkeiten. Ein Bild wird **nicht** als reale Person oder laufende KI ausgegeben.
+
+Backend `team_roster.py` erstellt bei jedem bestehenden `/api/snapshot`-Abruf einen vollständig abgeleiteten Roster aus `agent_control.read_status()` und dem unveränderten AI-PM-1.7-Tagesbriefing. Die Team-Seite lädt den Snapshot bei Initialisierung, manueller Aktualisierung, Tab-Rückkehr und automatisch alle 30 Sekunden (solange sichtbar). Es gibt **keine** weiteren Timer/Server-Worker oder API-Kosten. Kein neuer HTTP-Schreibendpunkt. Fehlende Daten oder unerwartete Ausführungs-/Release-Status führen zu `state=unavailable`.
+
+**Wahrheitsgarantie und UI-Semantik:**
+
+- Alle acht Teamrollen sind zunächst nur **vorbereitete Rollen**: `runtime_state=disabled`, `active_agents=0`, `progress_percent=null`, `last_activity_at=null`.
+- Ein `claimed`-Eintrag aus dem separaten `agent_control`-Register bezeichnet lediglich einen manuell reservierten Slot. Da bisher weder ausführbarer Agenten-Provider noch explizites `agent_id`-Assignment gespeichert werden, erscheinen offene Aufträge als **unassigned**, nicht als Agentenarbeit oder automatisch als abgeschlossen.
+- Die AI-PM-Empfehlung Sprint 4.01 darf **nur als Empfehlung (nicht zugewiesen)** auf der Manager-Karte erscheinen. Kein Sprint wird durch die Anzeige automatisch zugeteilt.
+- Aktivitätsbereiche bleiben mit `Nicht verfügbar`/keine Live-Telemetrie gekennzeichnet, solange kein vertrauenswürdiger Laufzeit-Adapter Statusmeldungen liefert. Keine erfundenen Tokenkosten, Durchlaufzeiten oder Prozentbalken.
+- Das globale Produkt-Release bleibt `NO_GO`. Team-Karten und Organigramm erlauben keinerlei Steueraktion.
+
+**Tests:** `test_team_roster.py` kontrolliert acht Rollen, Reporting-Linien, nicht zugewiesene Reservierungen, deaktivierten Runtime-Status, Fail-closed-Fälle, fehlende Vorschläge sowie die statische Team-Seite. GitHub-CI prüft zusätzlich die JavaScript-Syntax beider HTML-Seiten.
+
+**Betrieb:** Nur den vorhandenen Dashboard-Container neu bauen, nachdem `projects.sqlite3` und `agent-control.sqlite3` online gesichert wurden. Bestehendes lokales Mapping `127.0.0.1:8092:8090`, `.env`, Excel und `state/` erhalten. `ai-pm-sync`, staging, PROD und echte BC-Systeme bleiben unberührt. Nach Aktualisierung unter `http://127.0.0.1:8092/team.html` per vorhandenen SSH-Tunnel öffnen.
+
 ## AI-PM 2.0 – Agenten-Control-Plane mit hartem Budget und CLI-Freigaben
 
 **Implementiert:** Ein vom eigentlichen 85-Aufgaben-SQLite-Register getrenntes, **lokales** Agenten-Auftragsregister `agent_control.py` mit Audit, Budgetreservierung, Proposal-SHA, unabhängiger Freigabe und maximal einem aktiv reservierten manuellen Review-Slot. Das Dashboard zeigt diese Daten nur lesend an. **Nicht implementiert/ausdrücklich deaktiviert:** echte LLM-Aufrufe, automatische Tool- oder GitHub-Schreibausführung, Codex-Auftrag, Background-Worker, Modellabrechnung, externe Zahlungsbuchungen oder automatische technische/DEV-/Go-Live-Abnahme. Ein "claimed" Slot beschreibt ausschließlich eine **manuelle Reservierung**, keinen gestarteten KI-Prozess.
