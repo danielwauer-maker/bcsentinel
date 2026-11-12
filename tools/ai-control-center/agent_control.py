@@ -141,6 +141,14 @@ def propose(task_id, purpose, tracker_sha, request, estimated_cents, *,
         raise ValueError("UTC-aware date required")
     month=now.astimezone(dt.timezone.utc).strftime("%Y-%m")
     digest=hashlib.sha256(request.encode()).hexdigest()
+    project_db=Path(os.environ.get('PROJECT_DB_PATH', '/state/projects.sqlite3'))
+    if not project_db.is_file():
+        raise ValueError('Verified project register unavailable')
+    with sqlite3.connect('file:'+str(project_db)+'?mode=ro', uri=True, timeout=10) as project:
+        imported=project.execute('SELECT sha256 FROM imports ORDER BY imported_at LIMIT 1').fetchone()
+        target=project.execute("SELECT task_key FROM task WHERE area='fiverr' AND source_id=?",(task_id,)).fetchone()
+        if not imported or imported[0]!=tracker_sha or not target:
+            raise ValueError('Task or source SHA not present in verified project register')
     def operation(con):
         con.execute("""INSERT INTO agent_job(task_id,purpose,tracker_sha256,
                   request_sha256,request_text,estimated_cost_cents,cost_month,status,
