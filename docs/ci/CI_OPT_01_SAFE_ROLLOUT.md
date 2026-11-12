@@ -14,11 +14,11 @@ Status: **Draft / integration review only.** Base: `staging`. Do **not** merge a
 On supported workflows use:
 ```yaml
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-{1}-{2}', github.workflow, github.event_name, github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 ```
 
-A new commit to the *same PR* cancels obsolete invocations of the *same workflow*, including costly BC27 Windows jobs. Only PR-triggered runs are cancelled. Neither `push` on staging nor a manually dispatched release run is subject to cancellation. Separate workflows retain distinct concurrency groups; different PR numbers do not interfere.
+A new commit to the *same PR* cancels obsolete invocations of the *same workflow*, including costly BC27 Windows jobs. Only PR-triggered runs are cancelled. Every push or manually dispatched release run uses its unique run ID as its concurrency group; this avoids GitHub replacing a pending release run with another event in the same group, even when `cancel-in-progress` is false. Neither `push` on staging nor a manually dispatched release run is subject to cancellation. Separate workflows retain distinct concurrency groups; different PR numbers do not interfere.
 
 **Important limits:** this does not reduce the duration of the **final** BC27 test; it prevents spending 45+ minutes on outdated versions while new commits arrive. It does not disable any current tests, skip required jobs, or falsely claim final CI PASS.
 
