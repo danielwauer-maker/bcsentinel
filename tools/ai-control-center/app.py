@@ -11,7 +11,8 @@ from pathlib import Path
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
+from media_library import MediaError, catalog as media_catalog, get_asset as media_asset, preview_table as media_preview, content_type as media_content_type
 
 from openpyxl import load_workbook
 from project_store import read_summary
@@ -220,7 +221,35 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(401, b"Authentication required", "text/plain; charset=utf-8")
             return
         request_path = urlsplit(self.path).path
-        if request_path == "/api/snapshot":
+        if request_path == "/api/media":
+            try:
+                data = media_catalog()
+                self.reply(200, json.dumps(data, ensure_ascii=False).encode(), "application/json; charset=utf-8")
+            except MediaError as exc:
+                self.reply(exc.status, json.dumps({"state": "unavailable", "reason": str(exc)}).encode(), "application/json; charset=utf-8")
+        elif request_path in ("/api/media/asset", "/api/media/table"):
+            args = parse_qs(urlsplit(self.path).query, keep_blank_values=True)
+            # Reject duplicate query values to prevent ambiguous identity resolution.
+            if set(args) != {"repo", "ref", "path"} or any(len(v) != 1 for v in args.values()):
+                self.reply(400, b"Invalid media identity", "text/plain; charset=utf-8")
+                return
+            repo, ref, path = (args[k][0] for k in ("repo", "ref", "path"))
+            try:
+                if request_path == "/api/media/table":
+                    payload = json.dumps(media_preview(repo, ref, path), ensure_ascii=False).encode()
+                    self.reply(200, payload, "application/json; charset=utf-8")
+                else:
+                    payload, ext = media_asset(repo, ref, path)
+                    if ext not in (".png", ".jpg", ".jpeg", ".svg", ".webp", ".gif", ".pdf"):
+                        raise MediaError(404, "Keine Binärvorschau für dieses Format")
+                    self.reply(200, payload, media_content_type(ext))
+            except MediaError as exc:
+                self.reply(exc.status, str(exc).encode(), "text/plain; charset=utf-8")
+        elif request_path == "/media.html":
+            self.reply(200, (ROOT / "media.html").read_bytes(), "text/html; charset=utf-8")
+        elif request_path == "/media.js":
+            self.reply(200, (ROOT / "media.js").read_bytes(), "application/javascript; charset=utf-8")
+        elif request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
         elif request_path == "/triage.js":
             self.reply(200, (ROOT / "triage.js").read_bytes(), "application/javascript; charset=utf-8")
