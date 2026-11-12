@@ -4,7 +4,7 @@
 
 Die vom Betreiber am 12.11.2026 übermittelte Bildschirmaufnahme zeigt ein umfangreiches AI-PM-2.1-Dashboard mit viel scrollbarer Evidenz und mehreren nicht direkt vergleichbaren Fortschrittszahlen. Der gewählte erste AI-PM-2.2-Inkrement ist **rein frontendseitig** und **read-only**:
 
-- **Executive-Überblick „above the fold“**: vier explizit getrennte Kennzahlen (technische Planstunden, bestätigte Aufgaben-Gates, historische qualitative Gesamtprojektschätzung, offene kuratierte P0-Kriterien); globaler NO-GO-Hinweis.
+- **Executive-Überblick „above the fold“**: vier explizit getrennte Kennzahlen (technische Planstunden, historische Aufgaben-Gates (Excel-Markierungen, keine unabhängige Abnahme), historische qualitative Gesamtprojektschätzung, offene kuratierte P0-Kriterien); globaler NO-GO-Hinweis.
 - **Manueller nächster Review** aus `ai_pm_brief.recommendation` (kein Agentenauftrag) und maximal fünf kuratierte P0-Aufgaben aus `blocker_plan.items`; fehlende Daten ergeben „Nicht verfügbar“, keine 0-%-Erfindung.
 - **Zeitstempel/Quellstatus** und eindeutige Hinweise, dass GitHub-PR-Metadaten und Excel-Häkchen keine CI-/BC-Laufzeit-/Go-Live-Abnahmen ersetzen.
 - **Vollständige bisherige Detailansichten** unter nativer, zugänglicher `<details>`-Disclosure: Readiness/Grafiken, Arbeits- und Evidence-Tabellen, Agenten-Kontrollbereich und GitHub-PRs bleiben im HTML und werden weiter durch den unveränderten Snapshot-Reload gerendert.
