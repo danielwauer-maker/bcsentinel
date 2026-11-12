@@ -80,9 +80,10 @@
     {
       "id": "4.01",
       "status": "audit_draft",
-      "detail": "PR #164 dokumentiert acht Produktvertragsdrifts: Legacy Quick dauerhaft und Full 7d auf Core main versus v2 Full14/Renewal/Validation Draft #154. Normative Produkt-/Preisentscheidung und Bestandsschutz offen; diese Abhängigkeit blockiert externe Fiverr-Zusagen.",
+      "detail": "Audit/Entscheidungsvorlage ACV2-2026-11-12-r1 in PR #164 am Commit 584931420791: acht PC-01..PC-08-Konflikte erneut gegen main und Product System v2.1 dokumentiert; aktuelle 7d/Quick-Rechte vs. vorgeschlagene 14d/3-Gig-v2-Regeln, Legacy-, Preis-, Monitoring- und Renewal-Beschlüsse offen. Dokumentation aktualisiert, Produktvertrag NICHT genehmigt, keine technische oder DEV-E2E-Abnahme; NO_GO. PR #164 CI am vorherigen HEAD: E5 Recovery FAILED bei PostgreSQL-client-Installation (Restore-Schritte nicht gelaufen); weitere beobachtete Workflows PASS. Neue CI nach Commit separat prüfen.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
       ]
     },
     {
@@ -163,9 +164,10 @@
     {
       "title": "Sprint 4.01 · Access-v2 audit",
       "status": "audit_draft",
-      "detail": "Audit drafted; v2 product freeze not approved.",
+      "detail": "PC-01..PC-08 per 12.11.2026 in PR #164 durch ACV2-2026-11-12-r1 mit Zielmatrix, offenen Entscheidungen D1-D6, Legacy- und Sprint-Abhängigkeiten erneut dokumentiert; nur Dokumentation, Vertrag/DEV/Go-Live offen. Core main c1d9fccf3976; PR #154 ad7f570c21c3. E5-CI am alten #164 HEAD fehlgeschlagen (Install PostgreSQL client).",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
       ]
     },
     {
@@ -232,5 +234,19 @@
       "host_8092": "preserved"
     },
     "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe."
+  },
+  "sprint401_sync": {
+    "record_version": "2026-11-12-r1",
+    "recorded_at": "2026-11-12",
+    "contract_approval": "pending",
+    "technical_implementation": "open",
+    "dev_acceptance": "open",
+    "go_live": "NO_GO",
+    "documentation": "updated_in_draft_pr_164",
+    "core_main_sha": "c1d9fccf39767048bceabe93e7b8676df180868f",
+    "audit_commit": "5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+    "dashboard_deployment": "not_deployed",
+    "ci_note": "At preceding #164 head: E5 recovery workflow failed at Install PostgreSQL client; other observed workflows passed. Fresh workflow checks on audit and evidence commits pending.",
+    "tracker_changes": 0
   }
 }
