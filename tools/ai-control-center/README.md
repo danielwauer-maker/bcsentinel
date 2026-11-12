@@ -160,6 +160,35 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.7 – Kostenfreier projektmanagerähnlicher Tagesbericht (offline, nur beratend)
+
+Der neue Dienst `ai_pm_brief.py` erzeugt aus den **bestehenden, verifizierten** Quellen ein Tagesbriefing in deutscher Sprache, ohne eine generative KI-API aufzurufen und ohne neue laufende Kosten. Die Bezeichnung „AI-PM“ beschreibt hier die Produktroadmap; die **konkret implementierte Funktion in 1.7 ist ein deterministisches Regelwerk**, **kein LLM**, keine selbstlernende Empfehlung, kein Chat-Dialog und keine Agentenausführung.
+
+### Bestandteile
+
+- Tagesheadline aus globalem `NO_GO`, offenem P0-Prüfstatus und Anzahl der Aufgaben ohne kuratiertes Detailreview.
+- Separater Sync-Freshness-Check: GitHub-Metadaten nur innerhalb von 90 Minuten nach einem fehlerfreien Poll als `fresh` bezeichnen. Bei Quellenteilfehlern, unbekannten oder zukünftigen Sync-Zeitpunkten und bei veralteten Daten **keine scheinbar aktuelle Änderungszahl** angeben. Ein frischer Sync beweist weiterhin keinen CI-/BC-/PROD-Zustand.
+- Maximal acht neu beobachtete GitHub-PR-Events aus den letzten 24 Stunden als kanonische, fest validierte GitHub-URLs. **Fremde PR-Titel, Bodies und Branchinhalte werden nie in die Review-Anweisung übernommen.** Neue PR-Beobachtungen sind keine bestandenen Abnahmen.
+- Bestehende Risikohinweise, P0-Voraussetzungen und die nachvollziehbar ausgewählte nächste **manuelle** Prüfung aus AI-PM 1.6.
+- Eine kopierbare, begrenzte **manuelle Review-Anweisung** mit Source-SHA-Nachweiserfordernis, ausdrücklich offenen Kriterien, PASS/FAIL/UNKNOWN-Format, Verbot von PROD/DEV-Deployments, GitHub-Merges, Rechteänderungen, Abrechnungsänderungen und Datenverarbeitung. Das UI bietet ausschließlich „Kopieren“, **keinen Ausführen-Button**.
+
+### Trust / Rollout
+
+- **Fail-closed** bei fehlenden 1.6-Insights, SHA-Mismatch, einem nicht kuratierten empfohlenen Sprint, fehlenden Kriterien oder inkonsistentem globalem Release-Gate.
+- Keine neue Datenbanktabelle, kein geänderter Datensatz, kein versteckter Scheduler, keine KI-Credentials, keine Schreibrechte oder Hintergrundprozesse.
+- Dashboard, 30-minütiger PR-Beobachtungs-Sidecar und alle bisherigen Task-Gates bleiben unabhängig. Der Sidecar macht ausschließlich den existierenden GitHub-Leseabgleich; das neue Briefing wird bei Dashboardabfrage frisch aus den vorhandenen Daten berechnet.
+- **Grenzen:** Dieses Feature kann keine tatsächlichen BC27-E2E-Ergebnisse, CI-Abnahme oder Vertragsfreigabe selbst prüfen. Die nächsten Sprints können erst nach ausdrücklicher Entscheidung generative KI und Agenten mit Budgetlimits, Ausführungsgenehmigungen und Auditierung integrieren.
+
+Read-only-Abnahme im Dashboardcontainer:
+
+```bash
+docker compose -f compose.example.yml exec -T ai-control-center python ai_pm_brief.py brief
+```
+
+Erwartet: `state=loaded`, `mode=offline_rule_based`, `recommendation.task_id=4.01` bei unverändertem Basisstand, `review_request.execution=disabled`, `agent_execution=disabled`, `llm_execution=not_configured`, `global_release=NO_GO`. GitHub-Sync-Freshness und Anzahl jüngster PR-Beobachtungen sind zeitabhängig und dürfen NICHT als feste Werte erwartet werden.
+
+Vor Update des Hetzners SQLite-Onlinebackup, Host-only-Port `127.0.0.1:8092:8090` und unversionierte `.env` bewahren, nur Dashboardservice rebuild, kein GitHub-Merge, keine Änderung an DEV/PROD.
+
 ## AI-PM 1.6 – Source-aware Projektbewertung (nur Lesezugriff)
 
 `pm_insights.py` berechnet eine **qualitative Dashboard-Bewertung** aus den gleichen bereits vorhandenen, unabhängigen Daten: SHA-verifiziertes Excel/SQLite-Aufgabeninventar (61 Fiverr), 15 kuratierte Detailreviews, 22 Planungskanten (nur 15 Aufgaben), separat attestierte Fortschrittshistorie und die bisherige unveränderte lineare Kapazitätsplanung. Es ist **keine globale Fertigstellungsquote und kein neuer Release-Score**.
