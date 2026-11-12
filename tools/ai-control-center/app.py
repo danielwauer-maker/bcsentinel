@@ -222,6 +222,8 @@ class Handler(BaseHTTPRequestHandler):
         request_path = urlsplit(self.path).path
         if request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        elif request_path == "/executive.js":
+            self.reply(200, (ROOT / "executive.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/light-theme.css":
             self.reply(200, (ROOT / "light-theme.css").read_bytes(), "text/css; charset=utf-8")
         elif request_path in ("/", "/index.html", "/team.html"):
