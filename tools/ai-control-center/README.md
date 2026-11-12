@@ -160,6 +160,19 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.1 – Sicherheits- und End-to-End-Abnahmevorbereitung
+
+Die zentrale, verbindliche Checkliste mit **CI-vs.-Live-Evidence-Trennung** liegt in [AI_PM21_DEV_ACCEPTANCE.md](AI_PM21_DEV_ACCEPTANCE.md).
+
+Technisch umgesetzt:
+- `backup_verify.py` zur ausdrücklich gestarteten SQLite-Online-Sicherung von **beiden** lokalen Datenbanken `projects.sqlite3` und `agent-control.sqlite3`, danach **nichtdestruktiver Restore in ein temporäres Verzeichnis**, Schema- und `PRAGMA integrity_check`-Prüfung, Master-Import 61+24 und Agentenbudget/Audit-Integrität. Kein automatischer Restore ins Live-Volume, kein Überschreiben vorhandener Sicherungen.
+- `test_backup_verify.py` für konsistente Online-Backups einschließlich committeter WAL-Ereignisse, beschädigte/fehlende Sicherungen, No-Overwrite, Restore-Idempotenz und Nichtveränderung von Original und Archiv.
+- `test_http_security.py` testet einen **echten 127.0.0.1-HTTP-Testserver**, Authentifizierung auf Dashboard/Team/API/CSS, alle unsupported Schreibmethoden, nicht freigegebene Pfade und die Isolation des Compose-Beispiels.
+- Sicherheitsheader `Referrer-Policy`, `Permissions-Policy` und restriktive `Content-Security-Policy` zusätzlich zu `nosniff`, `DENY` und `no-store`; die bestehenden Inline-Skripte und Styles sind für die MVP-Oberfläche ausdrücklich erlaubt, daher ist dies **kein** strenger Nonce-basiertener CSP-Schutz vor beliebigem Inline-JavaScript.
+- Bestehende Tests für Agentenbudget, unabhängige Operator-Freigaben, einen maximalen reservierten Auftrag, 85 Aufgaben, unveränderte DEV-/Go-Live-Gates und das Lighttheme bleiben Bestandteil des vollständigen CI-Laufs.
+
+**Nicht automatisch abgeschlossen:** Restore/Backup vom echten Hetzner-Datenstand; tatsächlich private Port-/Firewall-Bindings, Token-Scopes, Container-Mounts, offsite Backup, Endnutzer-Browserprüfung. Diese echten Operator-Gates benötigen vor `TECHNICAL_ACCEPTED` eine manuelle Evidence-Zusammenstellung. Ohne diesen Nachweis nur `CI_PASS / OPERATOR_ACCEPTANCE_PENDING`. Keine Freigabe für BCSentinel-DEV/PROD, Fiverr oder echte KI-Executor-Laufzeit.
+
 ## AI-PM 2.0.2 – Light-only Theme (Dashboard und Team)
 
 **Entscheidung:** Variante A. Das BCSentinel AI Control Center besitzt ausschließlich ein helles Erscheinungsbild, ohne Theme-Toggle und ohne automatische Darkmode-Anpassung. Beide Seiten `/index.html` und `/team.html` laden die gemeinsame, **lokal unter Basic Auth** bereitgestellte `/light-theme.css` **nach** dem bisherigen Inline-CSS. Dadurch sind die tokenisierten Werte für beide Seiten einheitlich; alte dunkle Hintergrund- und Textvorgaben verlieren durch die spezifischen Light-Overrides ihre Wirkung. Eine spätere vollständige Umstellung des Legacy-CSS auf Tokens ist rein kosmetische Wartung, nicht Bestandteil dieses Sprints.
