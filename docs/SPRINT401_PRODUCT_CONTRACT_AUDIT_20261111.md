@@ -129,3 +129,49 @@ Reviewed on 2026-11-12 against Core main `c1d9fccf39767048bceabe93e7b8676df18086
 **CI observation on PR #164 previous head `a1a6fe139b135bf2ea9280180b14f0cdb3bacf91`:** E5 Recovery Automation Quality Gate FAILED at *Install PostgreSQL client*; downstream restore steps were skipped. This is not a passing recovery acceptance and is unrelated to this documentation contract approval. Other observed workflows passed; no new complete CI PASS inferred.
 
 **Release disposition:** Sprint 4.01 audit/documentation candidate updated; technical contract implementation OPEN, real DEV acceptance OPEN, commercial signoff OPEN, Fiverr Go-Live NO_GO. No runtime, environments, entitlements, tracker flags, or pricing changed.
+
+
+## 8. Product-owner clarification ACV2-2026-11-12-r2 — DIRECTION CONFIRMED, NOT RUNTIME APPROVAL
+
+**Source:** product-owner statements on 2026-11-12. This section supersedes the *proposed target* portions of §§2, 3, and 7 where they disagree; historical `main` evidence remains intact. No version change in normative Product System has occurred, and no live entitlement/price publication is implied.
+
+| ID | Clarified direction | Remaining technical/commercial gate |
+|---|---|---|
+| PC-01 | **No Quick Assessment in the new launch catalog.** There is one real full-depth DeepScan engine across products; Free versus Full access is an entitlement/report boundary, not scan depth. | Remove Quick from new-channel offers/marketing after reviewed migration. Inspect legacy `quick_assessment` storage/entitlements and preserve any genuinely granted historical rights; do not delete compatibility code without evidence. |
+| PC-02 | **14 days is the chosen v2 access duration** for new Full and new renewal grants, replacing the proposed old 7-day offering for new sales. | Preserve existing contractual 7-day grants; define overlap, start clock, expiry, refunds, validation-specific windows, and verify by regression and DEV E2E. |
+| PC-03 | Pricing has been previously discussed and source tables exist; user invites fresh fit-for-product reconciliation. | No current single approved v2 Fiverr USD price matrix has been identified. Compare historical references, then sign off final record tiers, currency, packages and monitoring pricing. |
+| PC-04 | Owner requests technical explanation/review rather than taking a product decision. | Reconcile historic F0–F8 completion language with actual BC27 in-place upgrade, non-SUPER roles, immutable comparable scans, Validation/Monitoring E2E. Do not change measured task gates without evidence. |
+| PC-05 | **Monitoring is mandatory in the first Fiverr Go-Live**, not deferred. | P0 real recurring lifecycle: cadence, included scans, payment/renewal, company-isolated history, cancellation, security and reports; cannot launch merely because wording is ready. |
+| PC-06 | Professionally reconcile public website and claims to approved product contract. | Review source and deployed revision/landing, DE/EN CTA and prices after contract freeze; real visual, legal, and functional QA. |
+| PC-07 | Improve protective controls. | Permanent scoped Free archive, independent share-token TTL, server-side entitlements, replay/revoke, company isolation, expired paid fallback and refund compatibility; fail-closed negative tests. |
+| PC-08 | Freeze one real authoritative pricing table. | Versioned single-price authority, derived channel views, tested parity; no historical price value arbitrarily promoted. |
+
+### Proposed v2 target offer/entitlement design (owner direction, not released)
+
+- **Free:** one qualifying initial full-depth DeepScan per newly registered tenant; aggregate-only persistent Free report.
+- **Full Assessment:** open *the same first completed scan* at full report scope for **14 days**; zero additional scans.
+- **Renewal:** **14 more days** of access, zero scans; start/stacking policy remains an explicit commercial detail.
+- **Renewal + Validation:** a 14-day access extension and exactly one additional full-depth Validation scan credit; only authenticated comparable immutable scan evidence permits a comparison report.
+- **Monitoring:** first-wave Fiverr Gig, separately entitled recurring subscription, with fresh governed DeepScans, periodic/history scope and cancellation semantics requiring P0 E2E.
+- **Quick:** excluded from **new** offer catalog. Historic records/codes are a compatibility problem, not proof that the new launch includes a Quick SKU.
+
+### Price discrepancy evidence, not approved v2 offers
+
+- Core `main` Master State (2026-11-01) has Fiverr Micro Quick **$129**, Full **$299**, Validation **$149**.
+- Core `main` release JSON (generated 2026-11-03) has Fiverr Micro Quick **$149**, Full **$349**, Validation **$179**.
+- Product System `bcs-product-model-v2.1` is EUR-focused with Assessment/Validation/Monitoring, and does **not** approve new Fiverr v2 price tiers.
+- **Do not use either historic price table as v2 customer truth**, and do not advertise new Quick. A real Monitoring Fiverr USD price and monthly/annual billing/cadence policy must be specified.
+
+### Updated gate impact
+
+- **Sprint 4.02:** implement new Full14 same-scan grant only, protect legacy rights; no new Quick sale.
+- **Sprint 4.03:** Renewal14 test clock/overlap and no scan credit; pending overlap policy.
+- **Sprint 4.04 / 3.03:** one extra Validation DeepScan; baseline and comparisons fail closed; define standalone Validation versus bundled offer in actual Fiverr packaging.
+- **Sprint 4.05 / 3.04:** Monitoring upgraded to **mandatory Fiverr P0**, not a deferrable SaaS enhancement.
+- **Sprint 4.06:** secure operator purchase grants, refunds and consumption preservation, separate payment evidence.
+- **Sprint 3.02:** Full-v6 report opens same baseline; verify token/report/tenant/BC27 and access expires after 14d.
+- **Sprint 6.02 / 7.03:** replace historic Quick and 7-day copy in *future reviewed* launch assets, align to three Gigs Full/Validation/Monitoring; do not publish while price/Monitoring runtime are unverified.
+
+### Organizational truth
+
+Product direction for PC-01/PC-02/PC-05 is clarified by the owner. **Normative implementation, contractual price freeze, compatibility regression, BC27 DEV acceptance and Go-Live remain OPEN.** Do not check off tracker 4.01. Dashboard evidence must reflect the clarified decisions without incrementing gates, and must be prepared in a separate draft PR before any controlled deployment.
