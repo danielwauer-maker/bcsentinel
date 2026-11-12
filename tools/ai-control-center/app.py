@@ -206,11 +206,16 @@ class Handler(BaseHTTPRequestHandler):
         expected = "Basic " + base64.b64encode((user + ":" + password).encode()).decode()
         return hmac.compare_digest(supplied, expected)
 
-    def reply(self, status, body, content_type):
+    def reply(self, status, body, content_type, *, media_svg=False):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         for key, value in NO_CACHE.items():
+            if key == "Content-Security-Policy" and media_svg:
+                # SVG is active content if navigated directly; sandbox removes origin/scripts.
+                value = "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'"
             self.send_header(key, value)
+        if media_svg:
+            self.send_header("Content-Disposition", "inline")
         if status == 401:
             self.send_header("WWW-Authenticate", 'Basic realm="BCSentinel AI Control Center"')
         self.end_headers()
@@ -242,7 +247,7 @@ class Handler(BaseHTTPRequestHandler):
                     payload, ext = media_asset(repo, ref, path)
                     if ext not in (".png", ".jpg", ".jpeg", ".svg", ".webp", ".gif", ".pdf"):
                         raise MediaError(404, "Keine Binärvorschau für dieses Format")
-                    self.reply(200, payload, media_content_type(ext))
+                    self.reply(200, payload, media_content_type(ext), media_svg=(ext == ".svg"))
             except MediaError as exc:
                 self.reply(exc.status, str(exc).encode(), "text/plain; charset=utf-8")
         elif request_path == "/media.html":
