@@ -6,10 +6,11 @@ No uploads, external URLs, writes, speculative deployment claims, or GitHub toke
 from __future__ import annotations
 
 import base64
+import concurrent.futures
+import posixpath
 import datetime as dt
 import io
 import json
-import mimetypes
 import os
 import re
 import threading
@@ -33,18 +34,24 @@ IMAGE_EXT = frozenset({".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"})
 PREVIEW_EXT = IMAGE_EXT | {".pdf", ".xlsx", ".csv"}
 MAX_BLOB = 6_000_000
 CACHE_SECONDS = 600
+MAX_SOURCE_FILES = 72
+MAX_SOURCE_BYTES = 100_000
+SOURCE_SUFFIXES = frozenset({".ts", ".tsx", ".js", ".jsx", ".css", ".scss",
+                             ".html", ".htm", ".py", ".al", ".json", ".vue", ".svelte"})
+SOURCE_PREFIXES = ("src/", "public/", "backend/app/", "landingpage/", "landingpage_neu/", "frontend/")
+_refs_cache = {}
 _lock = threading.Lock()
 _cache = {}
 
-# Verified source imports; no inferred release or deployed usage.
-VERIFIED_USAGES = {
-    ("danielwauer-maker/bcsentinel-frontend",
-     "fix/dev-v6-main-safe-integration-20261112", "src/assets/hero-mountains.jpg"): [
-        "src/components/landing-preview.tsx",
-        "src/components/bc/shell.tsx",
-        "src/components/bc/assessment-overview.tsx",
-    ],
-}
+# Verwendungen werden aus Quellcode-Dateien des konkreten Git-Trees ermittelt.
+# Kein Deployment- oder Produktionsnachweis, auch wenn der Git-Branch 'main' heißt.
+REFERENCE_EXTRACT = re.compile(
+    r"""(?:import\s+(?:[^;\n]*?\s+from\s+)?|require\s*\(|url\s*\(|src\s*=\s*|href\s*=\s*)"""
+    r"""\s*['\"\x60]([^'\"\x60\n]{1,350})['\"\x60]""", re.I
+)
+# In CSS and JSX, paths sometimes appear as string literals without an import statement.
+# In that case the reference must resolve exactly to a known file in this Git tree.
+LITERAL_EXTRACT = re.compile(r"""['\"\x60]([^'\"\x60\n]{1,350})['\"\x60]""")
 
 
 class MediaError(Exception):
@@ -94,6 +101,101 @@ def _tree(repo, ref):
     return result
 
 
+
+def _source_candidates(files):
+    candidates = [(path, node) for path, node in files.items()
+                  if path.startswith(SOURCE_PREFIXES)
+                  and PurePosixPath(path).suffix.lower() in SOURCE_SUFFIXES
+                  and isinstance(node.get("size"), int)
+                  and 0 < node["size"] <= MAX_SOURCE_BYTES
+                  and re.fullmatch(r"[0-9a-f]{40}", str(node.get("sha", "")))]
+    # Prioritize probable brand and report references over unrelated application code.
+    def priority(path):
+        name = path.casefold()
+        words = ("logo", "asset", "landing", "report", "template", "layout",
+                 "viewer", "branding", "pdf", "hero", "index", "shell")
+        return (0 if any(w in name for w in words) else 1, len(path), path)
+    return sorted(candidates, key=lambda x: priority(x[0]))
+
+
+def _resolve_literal(source_path, literal, assets):
+    """Only an exact repository path is evidence; basename-only guesses are forbidden."""
+    value = literal.split("?", 1)[0].split("#", 1)[0].strip()
+    if not value or "://" in value or "\\" in value or value.startswith("data:"):
+        return None
+    if value.startswith("@/"):
+        path = posixpath.normpath("src/" + value[2:])
+    elif value.startswith("./") or value.startswith("../"):
+        path = posixpath.normpath(posixpath.join(posixpath.dirname(source_path), value))
+    elif value.startswith("/"):
+        path = posixpath.normpath("public/" + value.lstrip("/"))
+        if path not in assets:
+            return None
+    else:
+        # No basename heuristics: only explicit repository-root paths count.
+        path = posixpath.normpath(value)
+    return path if path in assets else None
+
+
+def _scan_references(repo, ref, tree):
+    """Bounded GitHub-blob code scan; reports incomplete coverage rather than invented use."""
+    key = (repo, ref, tree["tree_sha"])
+    now = time.monotonic()
+    with _lock:
+        old = _refs_cache.get(key)
+        if old and now - old[0] < CACHE_SECONDS:
+            return old[1]
+
+    assets = {p for p in tree["files"] if _allow_path(p)}
+    candidates = _source_candidates(tree["files"])
+    selected = candidates[:MAX_SOURCE_FILES]
+    incomplete = len(candidates) > len(selected)
+    usages = {}
+    unavailable = 0
+
+    def check_one(pair):
+        source_path, entry = pair
+        raw = _request("https://api.github.com/repos/" + repo + "/git/blobs/" + entry["sha"])
+        if raw.get("encoding") != "base64":
+            raise MediaError(502, "Nicht lesbarer Source-Blob")
+        data = base64.b64decode(raw["content"], validate=True)
+        if len(data) != entry["size"]:
+            raise MediaError(502, "Abweichende Source-Blobgröße")
+        text = data.decode("utf-8", errors="replace")
+        # Patterns are deliberately literal-only, not a claim of runtime rendering.
+        references = set(REFERENCE_EXTRACT.findall(text))
+        references.update(LITERAL_EXTRACT.findall(text))
+        matches = set()
+        for value in references:
+            dest = _resolve_literal(source_path, value, assets)
+            if dest:
+                matches.add(dest)
+        return source_path, matches
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        futures = [pool.submit(check_one, pair) for pair in selected]
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                source, matches = future.result()
+            except (MediaError, ValueError, KeyError, UnicodeError):
+                unavailable += 1
+                continue
+            for path in matches:
+                usages.setdefault(path, set()).add(source)
+
+    result = {
+        "usages": {key: sorted(value) for key, value in usages.items()},
+        "coverage": {"source_candidates": len(candidates),
+                     "source_scanned": len(selected) - unavailable,
+                     "source_failed": unavailable,
+                     "limited": incomplete or unavailable > 0,
+                     "method": "literal_static_references; no runtime or deployment inspection"}
+    }
+    with _lock:
+        _refs_cache[key] = (now, result)
+    return result
+
+
 def _allow_path(path):
     if not path or len(path) > 350 or "\\" in path or "\x00" in path:
         return False
@@ -127,22 +229,24 @@ def catalog():
         except MediaError as exc:
             errors.append({"source": label, "reason": str(exc)})
             continue
+        scan = _scan_references(repo, ref, tree)
         sources.append({"source": label, "repo": repo, "ref": ref,
-                        "tree_sha": tree["tree_sha"], "observed_at": tree["reviewed_at"]})
+                        "tree_sha": tree["tree_sha"], "observed_at": tree["reviewed_at"],
+                        "coverage": scan["coverage"]})
         for path, node in tree["files"].items():
             if not _allow_path(path):
                 continue
-            uses = VERIFIED_USAGES.get((repo, ref, path), ())
+            uses = scan["usages"].get(path, ())
             # A usage reference is a source-code location, not proof of a live deployment.
             usage = [{"path": p, "url": _url(repo, ref, p),
-                      "scope": "Quellcode-Import (nicht Deployment)"} for p in uses]
+                      "scope": "Statische Dateireferenz (nicht Deployment)"} for p in uses]
             items.append({
                 "repo": repo, "ref": ref, "source": label,
                 "path": path, "filename": PurePosixPath(path).name,
                 "category": _type(path), "extension": PurePosixPath(path).suffix.lower(),
                 "size": node.get("size"), "sha": node.get("sha"),
                 "url": _url(repo, ref, path), "usage": usage,
-                "usage_state": "verified_source" if usage else "not_verified",
+                "usage_state": "verified_source" if usage else ("scan_incomplete" if scan["coverage"]["limited"] else "not_detected"),
                 "version_state": "branch_candidate" if ref != "main" else "repository_main",
                 "preview": "image" if PurePosixPath(path).suffix.lower() in IMAGE_EXT else
                            ("pdf" if path.lower().endswith(".pdf") else
@@ -151,7 +255,7 @@ def catalog():
     items.sort(key=lambda x: (x["filename"].casefold(), x["source"], x["path"]))
     return {"state": "partial" if errors else "loaded", "assets": items,
             "sources": sources, "errors": errors, "count": len(items),
-            "message": "Dateiinventar aus GitHub-Refs; nur belegte Code-Imports gelten als Verwendungsnachweis. Keine Aussage über laufende DEV-/PROD-Assets."}
+            "message": "GitHub-Dateiinventar mit begrenzter statischer Referenzanalyse: Keine Live-Einbindung oder Vollständigkeit behauptet."}
 
 
 def get_asset(repo, ref, path):
