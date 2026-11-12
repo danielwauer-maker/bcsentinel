@@ -85,6 +85,29 @@ jobs:
           echo "❌ PROD health check failed"
           exit 1
 
+      - name: DEV pre-deploy database snapshot and verifiable restore inventory
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -euo pipefail
+            cd /home/daniel/data-health-management-dev
+            echo "=== Current DEV release before deployment ==="
+            git rev-parse HEAD
+            docker inspect --format 'backend_image={{.Image}} status={{.State.Status}}' dhm-dev-backend
+            docker inspect --format 'postgres_image={{.Image}} status={{.State.Status}}' dhm-dev-postgres
+            test -f .env.dev
+            echo "=== Back up DEV database before checkout, migration, nginx and service changes ==="
+            BACKUP_DIR="$HOME/bcsentinel-dev-backups"
+            install -d -m 0700 "$BACKUP_DIR"
+            BACKUP_FILE="$BACKUP_DIR/$(date -u +%Y%m%dT%H%M%SZ)-${{ github.sha }}.dump"
+            umask 077
+            docker exec dhm-dev-postgres sh -c 'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > "$BACKUP_FILE"
+            test -s "$BACKUP_FILE"
+            docker exec -i dhm-dev-postgres pg_restore --list < "$BACKUP_FILE" > /dev/null
+            sha256sum "$BACKUP_FILE"
+            echo "DEV database dump is non-empty and pg_restore can inspect its table of contents."
+            echo "NOTE: An isolated full restore and recovery rehearsal are still separate gates."
+          EOF
       - name: Deploy to DEV
         if: github.ref == 'refs/heads/staging'
         run: |
