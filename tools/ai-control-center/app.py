@@ -162,6 +162,8 @@ def snapshot():
     insights = pm_assess(coverage, assessed, blockers, ready, attested)
     gh_data = briefing()
     pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
+    agent_info = agent_status()
+    team_info = team_roster(agent_info, pm_daily)
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
