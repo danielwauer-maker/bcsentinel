@@ -67,3 +67,44 @@ Preserve the original DEV checkout `594112ea161b` and prior backend image identi
 ## Post-release smoke and evidence
 
 Check the staging Actions four DEV steps are executed (not skipped), then on DEV: `git rev-parse HEAD`, `git status --short`, `docker compose -f docker-compose.dev.yml --env-file .env.dev ps`, `docker inspect --format '{{.Image}}' dhm-dev-backend`, `docker exec dhm-dev-backend alembic current`, `curl -fsS http://127.0.0.1:8001/health/ready`, `curl -4 -fsS https://dev-api.bcsentinel.com/health`. Check public DEV website smoke. Record redacted synthetic tenant E2E evidence, BC27 sandbox package version and non-SUPER results separately.
+
+## 2026-11-12 final pre-merge P0/P1 follow-up: explicit commercial opt-in and release checks
+
+### Paid checkout security and backwards compatibility
+- **Live DEV evidence (before deploying this PR):** effective backend flags verified by operator via read-only `docker exec`: `ACCESS_MODEL_V2_ENABLED=False`, `ACCESS_V2_PAID_CHECKOUT_ENABLED=False`, `CUSTOMER_DASHBOARD_ENABLED=False`, `QUICK_ASSESSMENT_ENABLED=False`. These are actual live container values, not merely source defaults. Recheck the newly built container after release.
+- **NEW candidate flag** `COMMERCIAL_CHECKOUT_ENABLED=False` is introduced for the **new** `POST /billing/checkout/commercial-session` surface. The endpoint now fails HTTP 503 at entry, before DB/Stripe IO, unless explicitly enabled. A focused negative regression proves the reject path. This is a source-only change pending exact-HEAD CI.
+- `POST /billing/checkout/session` retains its historical product behavior. New v2 products fail closed when `ACCESS_V2_PAID_CHECKOUT_ENABLED=False`; existing legacy products are not silently broken by the new flag. **Do not claim global checkout shutdown:** old entitlements and contractual purchases may remain enabled. Whether legacy checkout should be frozen for the first Fiverr launch requires explicit product/commercial approval, with tenant-level and refund regressions.
+- Existing signed Stripe webhook/refund handlers continue to process legitimate historical events: do not disable webhooks or purge existing customer grants as a substitute for checkout gating.
+- No Stripe transaction, purchase or payment mutation was made in this review. Do not switch on `COMMERCIAL_CHECKOUT_ENABLED` or either Access-v2 flag before price, refund/chargeback, permissions and synthetic tenant end-to-end acceptance.
+
+### Pipeline source assertions and runtime acceptance
+- Four DEV release steps require *both* `DEV_STAGING_DEPLOY_ENABLED=true` and `DEV_STAGING_RELEASE_SHA == github.sha`. Never infer deployment happened from a green but skipped GitHub workflow.
+- The revised DEV health step now verifies the on-host checkout equals the authorized SHA and requires both localhost `/health/ready` and public DEV API `/health/ready`; a failed localhost readiness blocks public-only false positives. Contract assertions were added to `backend/tests/test_deployment_readiness.py`.
+- These are source-level tests; no staging push or real new-image rollout has been exercised yet. Verify GH workflow syntax and step statuses on final exact HEAD.
+- **Documented release baseline:** Before roll out, DEV checkout `594112ea161b8255e7a8911031166f5a24c2a5d1`; backend image tag `bcsentinel-dev-s3a2:a8b870eb41d2`, image digest `sha256:f85bb8a030049a01e95adf4e713531ebd3de58a0999dc1ce07eeddac5f3fba88`, DB Alembic 0040, preflight dump file and SHA in earlier section. Keep this immutable identity in any release ticket, without claiming old image works against altered schema.
+- **Rollback restriction:** after a migration or any new writes, do not simply move the code back and assume backwards schema compatibility. Confirm tested schema compatibility or run a separately approved recovery with stopped writers and a fresh snapshot; manual BC SaaS extension upgrade is never reversed by backend rollback.
+
+### Risk-based diff review record
+- The compared integration commit graph is hundreds of commits ahead of `staging`, and change inventory contains ~270 paths, including 25 Alembic migration paths, extensive new tenant security and billing code, AL app version 1.0.2.59 (from staging 1.0.2.25), new object ID range 53300–53349, and release workflow changes.
+- High-risk source-level patches reviewed: `.github/workflows/deploy.yml`, `backend/app/core/settings.py`, `backend/app/routers/billing.py`, `backend/app/routers/commercial_billing.py`, `backend/app/security/tenant.py`, `backend/app/routers/scans.py`, `backend/app/services/product_license_service.py`, `bc-extension/app.json`.
+- Inventory does not show mass deletions; it does not prove all security/business flows. Accept the complete integration only after exact-HEAD automated tests, BC27 fresh+upgrade Finding-Identity jobs, controlled runtime smoke and manual BC sandbox/non-SUPER checks.
+- The previously failing independent push-only Finding-Identity AL workflow had a malformed duplicated 128-line tail. Repair `9cd0b33887db075f8c8fe55258f23016d7f2f957` allowed actual separate Windows `fresh` and `upgrade` jobs to run. Do **not** count those runs PASS before checking their completed conclusions.
+- Last open release gates: exact-final-HEAD CI, BC AL fresh+upgrade results, actual post-deploy effective runtime flags, source/DB/BC sandbox E2E and commercial approvals. Never merge while they are open without an explicitly justified DEV-only exception approved by operator.
+
+## Release operator record template
+
+- Reviewed PR HEAD / staging merge SHA:
+- GitHub CI completed: PASS/FAIL, workflow run URL:
+- Independent Finding AL fresh job: run ID, result, artifact:
+- Independent Finding AL upgrade job: run ID, result, artifact:
+- DEV_STAGING_DEPLOY_ENABLED / DEV_STAGING_RELEASE_SHA: set/removed by owner; authorized SHA:
+- Actual workflow deploy steps: executed/skipped:
+- Pre-migration dump filename, size, sha256:
+- Source checkout SHA / backend container image ID:
+- DB Alembic current / localhost and public ready responses:
+- New runtime flags (booleans only), including COMMERCIAL_CHECKOUT_ENABLED:
+- BC27 in-place sandbox acceptance, non-SUPER/tenant audit (separately approved):
+- Validation / Monitoring / viewer and archive E2E results:
+- Failure/rollback decision (if any):
+- PROD and dashboard 8092: explicitly unchanged:
+- GO/NO_GO signoff and owner:
