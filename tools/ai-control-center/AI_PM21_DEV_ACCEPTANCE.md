@@ -90,6 +90,21 @@ Mit bestehender Anmeldung über deinen SSH-Tunnel den Browser prüfen. **Kein** 
 - Kontrolliere vor/nach passiver Dashboardnutzung Projektfreigaben, Agentenbudget, `claimed`-Slots und Aufgabenanzahl. Es darf durch bloßes Öffnen oder Aktualisieren nichts freigegeben werden.
 - Prüfe, dass die Produktionsseite `bcsentinel.com` und produktive BC-Daten NICHT zur Dashboard-Route weitergeleitet werden.
 
+## Zusätzliche Betreiber-Evidence (12.11.2026)
+
+Vom Betreiber am Hetzner-Server bereits nachgewiesen:
+- Wiederherstellung beider echten SQLite-Backups: `RESTORE_TEST_PASS`, 61 Fiverr + 24 SaaS-Aufgaben, 0 formelle Projektfreigaben, Agentenbudget 0 Cent, 0 Jobs, 0 claimed Slots.
+- Dashboard und Poller: unprivileged, read-only root, ohne Container-Neustarts; `/data` nur lesbar, `/state` beschreibbar; Dashboardbindung `127.0.0.1:8092`.
+- HTTP GET ohne Login liefert auf Dashboard, Team, CSS und API jeweils `401`; Header enthalten CSP, `no-store`, `nosniff`, `DENY`, `Referrer-Policy` und `Permissions-Policy`.
+- Fine-Grained-GitHub-PAT-Berechtigungen vom Betreiber auf notwendige Read-only-Rechte reduziert; `Workflows` (nur Read-and-write verfügbar) entfernt; Repositoryauswahl auf beide BCSentinel-Repos beschränkt. Authentifizierter Dashboard-GitHub-GET und Poller nach Änderung funktionsfähig: `loaded`, `errors=[]`, Poller zuletzt `2026-11-12T10:58:01+00:00` mit 171 PR-Einträgen, 9 Matches.
+- Docker-Netzmitgliedschaften des Control Centers separat von DEV und PROD bestätigt.
+
+Noch offen:
+- **Echter verschlüsselter Offsite-Upload und isolierter Restore von einem externen Standort:** nur lokale Wiederherstellung bestanden; eine operationelle Restic-Lösung wurde in `offsite_backup.sh` vorbereitet, aber **nicht** aktiviert oder ausgeführt. Details: [AI_PM21_OFFSITE_NETWORK.md](AI_PM21_OFFSITE_NETWORK.md).
+- **Host-Netzwerk-/Egress-Restrisiko:** getrennte Docker-Netze sind nachgewiesen, vollständige Host-Firewall- und Routing-Sperren dagegen nicht; siehe dieselbe Risk-Matrix.
+
+**Entscheidung:** `AI_PM21_CODE_CI_PASS + HOST_CORE_PASS / FINAL_GATES_PENDING`. Keine globale BCSentinel-Produkt-/Fiverr-Freigabe, kein Merge und keine Agentenaktivierung.
+
 ## Ergebnis- und Freigabematrix
 
 | Gate | CI-Ergebnis | Operator-Evidence erforderlich |
