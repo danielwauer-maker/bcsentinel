@@ -160,6 +160,27 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.4 – P0 Dependency Review & Next Actions (read-only)
+
+The `blocker_plan.py` module models a **strictly curated subset of 15 Fiverr tasks** using 22 explicitly documented, acyclic prerequisite relationships. These relations are **engineering planning hypotheses** from the versioned reviews, not a complete release critical path, actual blocker durations, an approved technical architecture, or permission to promote a gate. The **other 46 Fiverr tasks are explicitly unmodeled**; the graph is not a global schedule estimate.
+
+Three independent initial P0 review threads are suggested:
+- `1.01`: Reconfirm immutable release commit/image/CI matches and deployed evidence.
+- `1.02`: Reconfirm DEV backend/image, database migrations, backup/restore evidence.
+- `4.01`: Prepare normative, versioned approval of Access-v2 contract, duration, pricing and legacy rights.
+
+The graph ranks **review preparation**, not implementation prohibitions. Later nodes (BC27 upgrade, check coverage and provenance, Full/Validation/Monitoring E2E, Fiverr sales and landing copy) show direct prerequisites and unique downstream tasks. A reviewer may run independent development tasks in parallel. Only independent, explicit technical + DEV attestations change a *review signal* for prerequisites; **they do not prove commercial contract signoff or release**, and the graph never inserts such attestations. Historical Excel checkmarks, PR links, CI green and merges do not automatically clear edges.
+
+Dashboard shows three initial review streams, a searchable 15-task dependency table with the number of affected downstream tasks and suggested next evidence. If the review source changes, tasks disappear or model cycles appear, the graph **fails closed** and shows unavailable. It does not write project SQLite, change the 65.6% historical estimate, task stages, approvals or PROD. No AI model/API fees. Review suggestions are not the legal/commercial final authority.
+
+Operator check (read-only):
+
+```bash
+docker compose -f compose.example.yml exec -T ai-control-center python blocker_plan.py plan
+```
+
+Expected: `state=loaded`, `modeled_tasks=15`, `unmodeled_fiverr_tasks=46`, `global_release=NO_GO`, and three initial `upstream_p0_reviews`. Before VPS rollout, use SQLite online backup and preserve the host-only compose mapping `127.0.0.1:8092:8090`. Restart **only** `ai-control-center` service after fast-forward update; no merge/deploy to customer-facing DEV/PROD.
+
 ## AI-PM 1.3 – priorisierte evidenzbasierte Abnahmeprüfung (read-only)
 
 Der neue `acceptance_review.py`-Dienst erzeugt eine **read-only Prüfliste** aus `data/evidence-status.json`, den tatsächlich importierten Fiverr-Aufgaben und vorhandenen `pr_task_link`-Verknüpfungen. Die Liste enthält **15 dokumentierte Aufgaben** und weist die übrigen **46/61 ausdrücklich als ohne Detailreview** aus. Es sind keine 61/61 Vollreviews oder Laufzeitabnahmen.
