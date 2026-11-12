@@ -29,6 +29,13 @@
     set("exec-asof", date && !Number.isNaN(date.getTime())
       ? "Snapshot: "+date.toLocaleString("de-DE")
       : "Snapshotzeit unbekannt");
+    // Source review date is not a runtime observation timestamp or a release approval.
+    const reviewed = snapshot?.sprint_evidence?.reviewed_at;
+    const known = typeof reviewed==="string" && /^\d{4}-\d{2}-\d{2}$/.test(reviewed);
+    set("exec-evidence-asof", known
+      ? "Sprint-Evidence: Reviewstand "+reviewed+" · kein aktueller Server-Snapshot"
+      : "Sprint-Evidence: Reviewstand nicht verfügbar");
+
     set("exec-source-state", repos.length===2 && repos.every(r=>r.state==="loaded" && r.pr_state==="loaded")
       ? "GitHub-Metadaten verfügbar · kein CI-/BC-Abnahmenachweis"
       : "GitHub-Daten unvollständig oder nicht verfügbar");
