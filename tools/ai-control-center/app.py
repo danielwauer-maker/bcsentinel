@@ -151,6 +151,8 @@ def snapshot():
     tracked = tracker()
     attested = history()
     ready = apply_to_readiness(fiverr_readiness(tracked), attested)
+    assessed = acceptance_review(evidence())
+    blockers = blocker_plan(assessed)
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
