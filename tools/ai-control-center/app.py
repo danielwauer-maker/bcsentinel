@@ -179,7 +179,7 @@ def snapshot():
     return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
-            "agent_queue": {"state": "not_implemented", "running": 0},
+            "agent_queue": agent_status(),
             "ai_cost": {"state": "not_configured", "amount": None, "currency": "EUR"},
             "warnings": ["PRs und Excel-Rohstatus sind keine BC-Runtime- oder Go-Live-Abnahme.",
                          "Datenquellenfehler werden als unbekannt angezeigt, nie als erfolgreich."]}
