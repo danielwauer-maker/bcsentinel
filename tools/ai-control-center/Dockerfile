@@ -3,7 +3,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=8090
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && useradd -r -u 10001 control
-COPY app.py project_store.py pm_sync.py pm_mapping.py readiness.py progress_history.py acceptance_review.py blocker_plan.py task_coverage.py index.html ./
+COPY app.py project_store.py pm_sync.py pm_mapping.py readiness.py progress_history.py acceptance_review.py blocker_plan.py task_coverage.py pm_insights.py index.html ./
 COPY data/evidence-status.json ./data/evidence-status.json
 USER control
 EXPOSE 8090
