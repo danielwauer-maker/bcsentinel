@@ -160,6 +160,29 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.5 – Alle 61 Fiverr-Aufgaben: Inventar und Evidenzlücken
+
+`task_coverage.py` verknüpft den **SHA-verifizierten, schreibgeschützten Mastertracker** mit den ursprünglichen 61 Fiverr-Aufgaben in der separaten SQLite-Datenbank. Die Integration verweigert falsche Excel-Versionen, veränderte IDs, abweichende Titel, nachträglich veränderte historische Häkchen, fehlende Daten und widersprüchliche Review-/Abhängigkeitsmodelle.
+
+**Wichtige Ehrlichkeitsregel:**
+- **Inventarabdeckung 61/61**: Alle Aufgaben sind aus der verifizierten Exceldatei im Dashboard sichtbar. Das ist keine Abnahmequote.
+- **Detailreviews 15/61**: Ausschließlich diese Aufgaben besitzen bisher kuratierte, quellenbasierte Abnahmeprüfungen.
+- **Review-/Dependency-Status für 46/61 unbekannt**: Das System setzt für diese Aufgaben ausdrücklich *keine* Priorität, Gate-Erfüllung, Voraussetzungen oder kritischen Pfad voraus.
+- Ein beobachteter PR-Link bleibt eine **Beobachtung**, nie geprüfte Evidence oder automatisch abgenommene Implementierung.
+- Die bestehenden historischen Excel-Häkchen, manuelle Task-Stages und unabhängig attestierte Gates bleiben separat sichtbar; sie werden nicht durch das Inventar überschrieben.
+
+Die neue 61-Zeilen-Ansicht bietet Aufgaben-/Sprintsuchen, Filter (alle, kuratiert, ungeprüft), verknüpfte PRs und die nächste sinnvolle Prüfung. Die bestehende 15-Knoten-Abhängigkeitsgrafik bleibt bewusst begrenzt, bis die anderen Aufgaben einzeln überprüft werden. Automatisches Inferieren nicht nachgewiesener Kanten und jede neue Freigabe sind untersagt.
+
+Prüfbefehl (read-only):
+
+```bash
+docker compose -f compose.example.yml exec -T ai-control-center python task_coverage.py inventory
+```
+
+Erwartung bei unverändertem SHA-geprüftem Master: `state=loaded`, `total=61`, `reviewed=15`, `needs_review=46`, `dependency_modeled=15`, `dependency_unknown=46`, `global_release=NO_GO`.
+
+Sicherer Betrieb: Vor Serverupdate SQLite online sichern; `.env`, Workbook und SQLite nicht überschreiben; nur den dedizierten Dashboard-Container neu bauen; lokalen Port `127.0.0.1:8092:8090` bewahren. Kein Merge, kein DEV/PROD-Betriebseingriff, keine künstliche Readiness-Erhöhung.
+
 ## AI-PM 1.4 – P0 Dependency Review & Next Actions (read-only)
 
 The `blocker_plan.py` module models a **strictly curated subset of 15 Fiverr tasks** using 22 explicitly documented, acyclic prerequisite relationships. These relations are **engineering planning hypotheses** from the versioned reviews, not a complete release critical path, actual blocker durations, an approved technical architecture, or permission to promote a gate. The **other 46 Fiverr tasks are explicitly unmodeled**; the graph is not a global schedule estimate.
