@@ -215,8 +215,9 @@ class Handler(BaseHTTPRequestHandler):
         request_path = urlsplit(self.path).path
         if request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
-        elif request_path in ("/", "/index.html"):
-            self.reply(200, (ROOT / "index.html").read_bytes(), "text/html; charset=utf-8")
+        elif request_path in ("/", "/index.html", "/team.html"):
+            filename="team.html" if request_path=="/team.html" else "index.html"
+            self.reply(200, (ROOT / filename).read_bytes(), "text/html; charset=utf-8")
         else:
             self.reply(404, b"Not found", "text/plain; charset=utf-8")
 
