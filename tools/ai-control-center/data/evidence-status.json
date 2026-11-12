@@ -213,9 +213,18 @@
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
       ]
+    },
+    {
+      "title": "DEV-first · konsolidierter Staging-Integrationskandidat (12.11.2026)",
+      "status": "integration_review_open",
+      "detail": "Draft PR #172: staging-targeted Core candidate from BC27 #168 head, encompasses linear ancestry of #154–#159 and #162. 341 commits / 263 files vs current staging; PR/diff and CI must be reviewed before merge because staging push triggers DEV DB migration, nginx replacement and Docker recreation. No stage merge/deploy, no BC upgrade, no running dashboard 8092 change. Preflight runbook in candidate branch. Product #33 / docs #164–#166 and frontend #13 separate; global NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/172",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/integration/dev-first-fiverr-core-20261112/docs/release/DEV_FIRST_STAGING_INTEGRATION_GATE_20261112.md"
+      ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence; Product System draft #33 candidate contract and source-only Sprint 4.02 audit 2026-11-12; Product System #33 candidate invariant validator revision 4d99f21 (CI on exact SHA to verify)",
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence; Product System draft #33 candidate contract and source-only Sprint 4.02 audit 2026-11-12; Product System #33 candidate invariant validator revision 4d99f21 (CI on exact SHA to verify); 2026-11-12 candidate staging integration PR #172 and staging deployment workflow reviewed read-only; not a real DEV deployment",
   "observed_gates": {
     "source_date": "2026-11-12",
     "source_kind": "operator_logs_plus_github_ci",
