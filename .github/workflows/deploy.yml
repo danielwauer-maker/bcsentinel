@@ -157,27 +157,38 @@ jobs:
       - name: Health check DEV
         if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
-          echo "🔎 Waiting for DEV backend (local on server)..."
+          echo "🔎 Verify exact deployed DEV checkout SHA"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "test \"\$(git -C /home/daniel/data-health-management-dev rev-parse HEAD)\" = '${{ github.sha }}'"
+          echo "🔎 Waiting for DEV database-backed readiness (local on server)..."
+          local_ready=false
           for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -fsS http://127.0.0.1:8001/health"; then
-              echo "✅ DEV backend is running locally"
+            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "curl --max-time 8 -fsS http://127.0.0.1:8001/health/ready"; then
+              echo "✅ DEV backend database-backed readiness passed"
+              local_ready=true
               break
             fi
-            echo "⏳ DEV local backend not ready yet... attempt $i/20"
+            echo "⏳ DEV local readiness not ready yet... attempt $i/20"
             sleep 3
           done
+          if [ "$local_ready" != true ]; then
+            echo "❌ DEV local database-backed readiness failed"
+            exit 1
+          fi
 
-          echo "🌍 Waiting for DEV public endpoint (from server via IPv4 GET)..."
+          echo "🌍 Waiting for DEV public API readiness (from server via IPv4 GET)..."
           for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -4 -fsS https://dev-api.bcsentinel.com/health"; then
-              echo "✅ DEV public health check passed"
+            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "curl --max-time 8 -4 -fsS https://dev-api.bcsentinel.com/health/ready"; then
+              echo "✅ DEV public API readiness passed"
               exit 0
             fi
-            echo "⏳ DEV public endpoint not ready yet... attempt $i/20"
+            echo "⏳ DEV public readiness not ready yet... attempt $i/20"
             sleep 5
           done
 
-          echo "❌ DEV health check failed"
+          echo "❌ DEV public readiness check failed"
           exit 1
 
       - name: Smoke check DEV Core web surface
