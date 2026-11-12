@@ -103,8 +103,19 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     assert "proxy_pass http://127.0.0.1:8001;" in nginx
     assert "root /var/www/bcsentinel/landingpage;" in nginx
 
-    assert "landingpage_neu/." in deploy
-    assert "/var/www/bcsentinel/landingpage-dev" in deploy
-    assert "nginx -t" in deploy
-    assert "restoring previous config" in deploy
+    # The live DEV site and nginx routing are operator-managed until a
+    # separately reviewed, reversible site deployment has been accepted.
+    dev_section = deploy.split('      - name: Deploy to DEV', 1)[1].split(
+        '      - name: Health check DEV', 1
+    )[0]
+    assert "Fail-closed DEV checkout safety preflight" in dev_section
+    assert "git status --porcelain --untracked-files=all" in dev_section
+    assert "git clean -fd" not in dev_section.replace(
+        "# Never run git clean: untracked operator files are not deployment artifacts.", ""
+    )
+    assert "cp config/nginx/bcsentinel.conf" not in dev_section
+    assert "rm -rf /var/www/bcsentinel/landingpage-dev" not in dev_section
+    assert "sudo -n nginx -t" in dev_section
+    assert "nginx_status=validated_unchanged" in dev_section
+    assert "landingpage_status=preserved_unchanged" in dev_section
     assert "Smoke check DEV Core web surface" in deploy
