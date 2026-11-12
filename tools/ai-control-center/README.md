@@ -160,6 +160,30 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 1.6 – Source-aware Projektbewertung (nur Lesezugriff)
+
+`pm_insights.py` berechnet eine **qualitative Dashboard-Bewertung** aus den gleichen bereits vorhandenen, unabhängigen Daten: SHA-verifiziertes Excel/SQLite-Aufgabeninventar (61 Fiverr), 15 kuratierte Detailreviews, 22 Planungskanten (nur 15 Aufgaben), separat attestierte Fortschrittshistorie und die bisherige unveränderte lineare Kapazitätsplanung. Es ist **keine globale Fertigstellungsquote und kein neuer Release-Score**.
+
+Die neue Rubrik trennt strikt:
+- **Manueller Arbeitsstatus**: sieben unterschiedliche Registerstufen (`planned`, `in_progress`, `implementation_candidate`, `review`, `blocked`, `technical_complete`, `dev_accepted`). Diese Felder zeigen manuelle Projektpflege, **keine automatisch verifizierten Gates**.
+- **Technische/Historische/DEV-Gates**: Importierte Excel-Häkchen und separat unabhängige `approval`-/`progress_event`-Attestierungen werden als andere Kategorien ausgewiesen. Gleichnamige manuelle Stages werden **nicht** als Abnahmen gezählt.
+- **Evidence-Qualität**: 15 kuratierte Reviews, 46 ungeprüfte Aufgaben; beobachtete PR-Links bei bislang ungeprüften Aufgaben werden separat gezählt, nie zu „verifiziert“ hochgestuft. Ein 30-Tage-Alterssignal beschreibt ausdrücklich **nur das Datum des kuratierten Reviewdokuments**, nicht das Alter oder die Gültigkeit des jeweiligen PR-CI-Status.
+- **P0-/Planrisiken**: offene, noch unabhängig zu überprüfende P0-Prüfkriterien, nicht modellierte Aufgaben und Abhängigkeiten. Keine erfundene Zusatzkante, kein automatischer Hotfix oder Gate-Wechsel.
+- **Zeitvergleich**: Der rechnerische Soll-Ist-Abstand in Prozentpunkten bleibt nachvollziehbar. Bei nur historischer Excel-Baseline ist der Status `baseline_only`. Selbst bei späteren Gate-Attestierungen nennt die Bewertung **keine sichere Terminabweichung in Tagen** und keinen verlässlichen Release-Termin, weil ein freigegebener milestone-/dependency-basierter Plan und vollständige Reviews fehlen.
+- **Nächste Aktion**: unter den *vorgelagerten kuratierten P0-Prüfsträngen* wird nachvollziehbar derjenige mit der größten Zahl bekannter Folgeknoten vorgeschlagen. Die übrigen Startprüfstränge sind weiterhin unabhängig parallel vorbereitbar. Das ist eine **Review-Heuristik**, keine Anordnung und keine Freigabe.
+
+Die Bewertung wird ausschließlich angezeigt, wenn alle fünf Quellen `loaded` melden, die SHA übereinstimmt, 61 IDs eindeutig vorhanden sind, die Review-/Kantenzählungen konsistent sind und ein separat initialisiertes Gate-History-Modell verfügbar ist. Bei fehlenden Daten steht **„unavailable“**, statt alte Zahlen als aktuelle Projektwahrheit auszugeben.
+
+Technische Abnahme in isoliertem Container:
+
+```bash
+docker compose -f compose.example.yml exec -T ai-control-center python pm_insights.py assess
+```
+
+Erwartet: `state=loaded`, `work_status.total=61`, `evidence_quality.curated_review_tasks=15`, `evidence_quality.unreviewed_tasks=46`, `risk_summary.p0_review_tasks=13`, `risk_summary.p0_open_criteria=39`, `schedule.delay_days=null`, `global_release=NO_GO`. Neue Werte entstehen nur nach tatsächlicher, auditierbarer Eingabe; PR-/CI-Beobachtungen ändern die Readiness nicht.
+
+**Betrieb:** nur separaten Dashboard-Container auf dem Hetzner aktualisieren; SQLite zuvor online sichern; lokalen Port `127.0.0.1:8092:8090`, `.env`, Read-only-Excel und state/ bewahren. Kein Merge/Deployment nach DEV/staging/PROD, keine zusätzliche KI-API-Kosten.
+
 ## AI-PM 1.5 – Alle 61 Fiverr-Aufgaben: Inventar und Evidenzlücken
 
 `task_coverage.py` verknüpft den **SHA-verifizierten, schreibgeschützten Mastertracker** mit den ursprünglichen 61 Fiverr-Aufgaben in der separaten SQLite-Datenbank. Die Integration verweigert falsche Excel-Versionen, veränderte IDs, abweichende Titel, nachträglich veränderte historische Häkchen, fehlende Daten und widersprüchliche Review-/Abhängigkeitsmodelle.
