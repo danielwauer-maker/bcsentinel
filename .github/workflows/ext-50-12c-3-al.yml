@@ -184,7 +184,7 @@ jobs:
             # fail closed if any declared test did not run or was skipped.
             $qaTestSource = Join-Path $env:GITHUB_WORKSPACE 'bc-finding-tests/src/BCSFindingIdentityTests.Codeunit.al'
             $qaTestContent = Get-Content -LiteralPath $qaTestSource -Raw
-            $expectedCount = ([regex]::Matches($qaTestContent, '\[Test\]')).Count
+            $expectedCount = ([regex]::Matches($qaTestContent, '(?m)^\s*\[Test\]\s*$')).Count
             if ($expectedCount -lt 5) { throw 'Missing mandatory QA source cases.' }
             if ($cases.Count -ne $expectedCount -or $results.SelectNodes('//testcase/failure|//testcase/error|//testcase/skipped').Count -ne 0) {
               throw "Expected $expectedCount QA tests to execute without failures or skips; found $($cases.Count)."
