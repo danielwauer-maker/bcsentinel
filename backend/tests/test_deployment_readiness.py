@@ -119,3 +119,14 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     assert "nginx_status=validated_unchanged" in dev_section
     assert "landingpage_status=preserved_unchanged" in dev_section
     assert "Smoke check DEV Core web surface" in deploy
+    # A staging push must not deploy while branch CI is still running.
+    # Only an exact, separately approved commit can execute DEV-mutating steps.
+    approved_push = (
+        "github.event_name == 'push' && github.ref == 'refs/heads/staging' "
+        "&& vars.DEV_STAGING_DEPLOY_ENABLED == 'true' "
+        "&& vars.DEV_STAGING_RELEASE_SHA == github.sha"
+    )
+    assert deploy.count("if: " + approved_push) == 4
+    assert "git fetch origin" in dev_section
+    assert 'git reset --hard "${{ github.sha }}"' in dev_section
+
