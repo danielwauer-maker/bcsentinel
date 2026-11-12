@@ -156,6 +156,7 @@ def snapshot():
     assessed = acceptance_review(evidence())
     blockers = blocker_plan(assessed)
     coverage = task_coverage(tracked, assessed, blockers)
+    insights = pm_assess(coverage, assessed, blockers, ready, attested)
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
