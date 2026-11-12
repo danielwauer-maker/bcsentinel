@@ -36,9 +36,9 @@ class HttpIsolationTests(unittest.TestCase):
         self.addCleanup(self.http.shutdown)
         self.port=self.http.server_address[1]
 
-    def request(self,path,*,auth=False,method="GET"):
+    def request(self,path,*,auth=False,method="GET",extra_headers=None):
         conn=http.client.HTTPConnection("127.0.0.1",self.port,timeout=5)
-        headers={}
+        headers=dict(extra_headers or {})
         if auth:
             encoded=base64.b64encode(b"testoperator:a-long-test-password").decode("ascii")
             headers["Authorization"]="Basic "+encoded
@@ -103,6 +103,29 @@ class HttpIsolationTests(unittest.TestCase):
         with mock.patch.dict(os.environ,{"DASHBOARD_PASSWORD":"REPLACE_ME_WITH_RANDOM_PASSWORD"}):
             s,_,_=self.request("/api/snapshot",auth=True)
             self.assertEqual(s,401)
+
+    def test_reverse_proxy_token_replaces_legacy_basic_auth_and_rebases_paths(self):
+        proxy_headers={"X-AI-Control-Center-Proxy-Auth":"proxy-test-secret"}
+        with mock.patch.dict(os.environ,{"PROXY_AUTH_TOKEN":"proxy-test-secret",
+                                         "URL_PREFIX":"/admin/ai-control-center"}):
+            status,_,_=self.request("/index.html",auth=True)
+            self.assertEqual(status,401)
+            status,_,body=self.request("/index.html",extra_headers=proxy_headers)
+            self.assertEqual(status,200)
+            page=body.decode("utf-8")
+            self.assertIn('<base href="/admin/ai-control-center/">',page)
+            self.assertIn('href="/admin/ai-control-center/team.html"',page)
+            self.assertIn('src="/admin/ai-control-center/executive.js"',page)
+            self.assertIn("fetch('/admin/ai-control-center/api/snapshot'",page)
+            status,_,team=self.request("/team.html",extra_headers=proxy_headers)
+            self.assertEqual(status,200)
+            self.assertIn("fetch('/admin/ai-control-center/api/snapshot'",team.decode("utf-8"))
+            status,_,media=self.request("/media.html",extra_headers=proxy_headers)
+            self.assertEqual(status,200)
+            self.assertIn('src="/admin/ai-control-center/media.js"',media.decode("utf-8"))
+            status,_,script=self.request("/media.js",extra_headers=proxy_headers)
+            self.assertEqual(status,200)
+            self.assertIn('fetch("/admin/ai-control-center/api/media"',script.decode("utf-8"))
 
     def test_no_write_routes_or_file_traversal(self):
         for path in ("/api/agent/execute","/api/approve","/../../etc/passwd",

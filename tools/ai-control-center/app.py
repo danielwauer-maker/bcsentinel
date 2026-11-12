@@ -7,6 +7,7 @@ import hmac
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import urllib.error
 import urllib.request
@@ -42,6 +43,30 @@ STATUS_HEADINGS = ("status", "stand", "bearbeitungsstand", "fortschritt", "state
 ID_HEADINGS = ("sprint", "arbeitspaket", "aufgabe", "task", "id", "nummer")
 TITLE_HEADINGS = ("titel", "aufgabe", "beschreibung", "task", "sprint", "name")
 SEPARATE_GATES = ("technisch_fertig", "dev_abgenommen", "go_live_freigegeben")
+PROXY_AUTH_HEADER = "X-AI-Control-Center-Proxy-Auth"
+
+
+def url_prefix() -> str:
+    """Return a deployment-controlled absolute mount prefix, or the root mount."""
+    raw = os.getenv("URL_PREFIX", "").strip().rstrip("/")
+    if not raw:
+        return ""
+    if not raw.startswith("/") or "//" in raw or "." in raw.split("/"):
+        raise ValueError("URL_PREFIX must be an absolute path without dot segments")
+    return raw
+
+
+def _prefix_document(body: bytes, content_type: str) -> bytes:
+    """Rebase existing static navigation, assets and fetches behind an admin prefix."""
+    prefix = url_prefix()
+    if not prefix or not (content_type.startswith("text/html") or content_type.startswith("application/javascript")):
+        return body
+    text = body.decode("utf-8")
+    if content_type.startswith("text/html"):
+        text = re.sub(r"((?:href|src)\s*=\s*[\"'])/(?!/)", rf"\1{prefix}/", text, flags=re.IGNORECASE)
+        text = re.sub(r"(<head(?:\s[^>]*)?>)", rf'\1<base href="{prefix}/">', text, count=1, flags=re.IGNORECASE)
+    text = re.sub(r"(fetch\(\s*[\"'])/(?!/)", rf"\1{prefix}/", text)
+    return text.encode("utf-8")
 
 
 def utc_now():
@@ -198,6 +223,11 @@ def snapshot():
 
 class Handler(BaseHTTPRequestHandler):
     def authorized(self):
+        proxy_token = os.getenv("PROXY_AUTH_TOKEN", "")
+        if proxy_token:
+            # Only nginx receives this token. Its proxy configuration overwrites
+            # any client-supplied header after successful admin auth_request.
+            return hmac.compare_digest(self.headers.get(PROXY_AUTH_HEADER, ""), proxy_token)
         user = os.getenv("DASHBOARD_USER", "")
         password = os.getenv("DASHBOARD_PASSWORD", "")
         if not user or not password or password == "REPLACE_ME_WITH_RANDOM_PASSWORD":
@@ -219,7 +249,7 @@ class Handler(BaseHTTPRequestHandler):
         if status == 401:
             self.send_header("WWW-Authenticate", 'Basic realm="BCSentinel AI Control Center"')
         self.end_headers()
-        self.wfile.write(body)
+        self.wfile.write(_prefix_document(body, content_type))
 
     def do_GET(self):
         if not self.authorized():

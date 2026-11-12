@@ -11,8 +11,12 @@ services:
     cap_drop:
       - ALL
     environment:
-      DASHBOARD_USER: ${DASHBOARD_USER:?Set DASHBOARD_USER}
-      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD}
+      # Legacy local Basic auth remains available when PROXY_AUTH_TOKEN is empty.
+      # Reverse-proxy mode receives an opaque token only from authenticated nginx.
+      DASHBOARD_USER: ${DASHBOARD_USER:-}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
+      PROXY_AUTH_TOKEN: ${PROXY_AUTH_TOKEN:-}
+      URL_PREFIX: ${URL_PREFIX:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       TRACKER_PATH: /data/master-tracker.xlsx
       PROJECT_DB_PATH: /state/projects.sqlite3

@@ -196,6 +196,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/landingpage-pages",
         "subtitle": "Phase-1-Seiten der neuen Landingpage ein- und ausblenden",
     },
+    "ai_control_center": {
+        "label": "AI Control Center",
+        "href": "/admin/ai-control-center",
+        "subtitle": "geschuetzte, schreibgeschuetzte Projekt- und Evidence-Ansicht",
+    },
 }
 ADMIN_NAV_ORDER = [
     "tenants",
@@ -212,6 +217,7 @@ ADMIN_NAV_ORDER = [
     "site_translations",
     "dashboard_translations",
     "landingpage_visibility",
+    "ai_control_center",
 ]
 
 
@@ -230,6 +236,12 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)) -> str:
         )
 
     return credentials.username
+
+
+@router.get("/_internal/admin-auth", include_in_schema=False, status_code=status.HTTP_204_NO_CONTENT)
+def verify_reverse_proxy_admin_auth(_: str = Depends(require_admin)) -> Response:
+    """Authenticate an nginx ``auth_request`` subrequest without exposing data."""
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def _fmt_dt(value) -> str:
