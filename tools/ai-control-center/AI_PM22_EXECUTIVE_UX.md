@@ -40,3 +40,32 @@ Nur der bereits geladene API-Snapshot wird dargestellt; alle dynamischen Strings
 **Betreiberentscheidung:** ausschließlich Desktop-Abnahme; Mobile-/Tablet-QA ist N/A. Die bestehende responsive CSS-Basis bleibt erhalten. Die letzte Dashboard-Korrektur heißt „Historische Aufgaben-Gates“; Excel-Markierungen sind keine unabhängige DEV-/Go-Live-Abnahme.
 
 **Noch offen:** aktualisiertes Preview-Image ausschließlich für Port 8093 bauen, visuelle Desktop-Prüfung mit authentifiziertem Zugriff und echter Filtereingabe; danach Betreiberabnahme. Bestehendes Dashboard 8092, Host-Backups und Produktumgebungen nicht ändern.
+
+## Evidence-Synchronisierung 12.11.2026 – AI-PM 2.2
+
+**Scope:** Reviewstatus der bestehenden 15 kuratierten Fiverr-Aufgaben auf den Stand vom 12.11.2026 gebracht. Die ursprünglichen 61 Fiverr- und 24 SaaS-Excel-Aufgaben, importierten 2/2-Häkchen und die unveränderliche Excel-SHA bleiben unangetastet. Das ist keine neue Excel-/SQLite-Importversion, keine manuelle Gate-Abnahme und keine Fiverr-Freigabe.
+
+### Sichtbare Änderungen im Dashboard
+
+- Der Executive-Header zeigt jetzt neben dem Live-Snapshot-Zeitpunkt einen ausdrücklich eigenständigen Sprint-Evidence-Reviewstand: 2026-11-12; ein neuer Live-Snapshot behauptet keinen neuen fachlichen Review.
+- Die filterbaren Sprint-Evidence-Karten zeigen die aktualisierten Kuratierungen zu 1.03, 2.01, 3.02, 3.03, 3.04, 4.01, 6.02 und 7.03. Die GitHub-PR-Liste bleibt eine separat live geladene Datenquelle und zeigt eine Warnung bei unvollständigen Quellen.
+- **3.02:** Full-v6 auf echtem Hetzner-Host als isolierter 127.0.0.1:3001-Container erfolgreich geprüft: HTTP 200 für fünf Routen, HTML-Assets/PNG 200, alte Website/Overview im Alt-/Neu-Vergleich unverändert. Operator-Log: tatsächlicher Container-Commit 01b15b9ab6dc. Neuerer PR #13 CI-Stand 60af4902a294 mit 243 Tests und isolierter Asset-Byteprüfung erfolgreich – nicht als auf dem Host deployed markieren.
+- **1.03:** BC Extension 1.0.2.59 in Draft PR #168 hat AL-Compile bestanden. In-place-Upgrade/Non-SUPER und reale BC27-Runtime bleiben ausstehend.
+- **2.01/2.02:** 199-Check-Lifecycle und Provenienz bleiben Code-/Teilkandidaten, reale BC27-Check-/Datensatz-Evidence weiter offen.
+- **4.01:** Freigabe des Access-v2-Vertrags blockiert durch Legacy Quick/7-Tage-Verträge gegenüber Full14/Renewal-Target.
+- **6.02/7.03:** redaktionell fertig, aber kein Website-/Fiverr-Editor-/Kunden-E2E-GO. Finale Fiverr-Landingpage fehlt.
+- **AI-PM 2.2:** Source/CI ist kein Nachweis für ein laufendes Preview auf Port 8093 oder ein aktualisiertes bestehendes Control Center auf Port 8092.
+- **Fiverr Scope:** Tenant-basiertes kundenseitiges Overview-Dashboard bleibt erhalten, gehört aber nicht zum ersten Fiverr-Go-Live.
+
+### CI-/Governance-Schutz
+
+test_ai_pm22_evidence_sync.py prüft ursprüngliche SHA, 61+24 Aufgaben, 2/2 historische Häkchen, den separaten Reviewzeitpunkt, 15 unverändert kuratierte Aufgaben, Full-v6-Teilstadium, den Unterschied zwischen Host- und CI-Commit, und dass keine Deployment-/Go-Live-/Agenten-Gates automatisch geändert werden. Der alte Staleness-Test berechnet jetzt das tatsächliche Alter ab reviewed_at statt einer fest eingebauten Anzahl Tage.
+
+Die Felder observed_gates dokumentieren geprüfte/berichtete Fakten, werden aber nicht als Berechtigungen oder Release-Abnahmen verwendet. Operator-Daten sind mit source_kind=operator_logs_plus_github_ci versehen; ein aktueller lokaler Server-API-Abruf von 8092/8093 wurde in dieser Sitzung nicht ausgeführt.
+
+### Offen für isolierten Browser-Preview auf 8093
+
+1. Existierende Host-Compose-Umgebung und Zustand der zwei SQLite-Datenbanken read-only prüfen; keine Reimporte, keine DB-Datei per cp aus laufender WAL-DB kopieren.
+2. Separaten Preview-Container mit eigenem Namen/Loopback-Port und separater Sicherung oder read-only DB-Kopie starten. Nie bestehenden 8092-Container, ai-pm-sync, .env, systemd-Backup-Timer, produktive Container/Netzwerke oder Datenbankvolumes ändern.
+3. Port-8093-Smoketest mit 401 ohne Auth, Login über SSH-Tunnel, /api/snapshot mit sprint_evidence.reviewed_at=2026-11-12, 15 kuratierten Aufgaben, originalen Excel-Gates, NO_GO und 0 aktiven Agenten. Filter für 3.02, 6.02, 7.03 und PR #13/#168 manuell prüfen.
+4. Danach Betreiberfreigabe für späteres 8092-Update gesondert einholen. Weiterhin kein Merge, kein PROD, kein Go-Live.
