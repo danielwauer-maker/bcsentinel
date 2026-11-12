@@ -8,6 +8,12 @@ on:
       - ".github/workflows/ext-50-12b-bc27-runtime-gate.yml"
   workflow_dispatch:
 
+# CI-OPT-01: Cancel only superseded pull-request runs of this workflow.
+# Never cancel staging push runs or manually approved release evidence runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
