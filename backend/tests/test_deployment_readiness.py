@@ -129,4 +129,15 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     assert deploy.count("if: " + approved_push) == 4
     assert "git fetch origin" in dev_section
     assert 'git reset --hard "${{ github.sha }}"' in dev_section
+    # Fail the rollout if the new app is not ready with its database, even
+    # when an old /health endpoint or site happens to return HTTP 200.
+    health_section = deploy.split('      - name: Health check DEV', 1)[1].split(
+        '      - name: Smoke check DEV Core web surface', 1
+    )[0]
+    assert "git -C /home/daniel/data-health-management-dev rev-parse HEAD" in health_section
+    assert "local_ready=false" in health_section
+    assert 'if [ "$local_ready" != true ]; then' in health_section
+    assert "http://127.0.0.1:8001/health/ready" in health_section
+    assert "https://dev-api.bcsentinel.com/health/ready" in health_section
+    assert "exit 1" in health_section
 
