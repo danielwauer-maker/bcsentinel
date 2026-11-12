@@ -49,7 +49,10 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=read-only
 ProtectSystem=strict
-ReadWritePaths=/var/lib/bcsentinel-ai-backup /var/tmp /tmp /run/lock
+ReadWritePaths=/var/lib/bcsentinel-ai-backup /var/cache/bcsentinel-ai-backup /etc/bcsentinel-ai-backup /var/tmp /tmp /run/lock
+CacheDirectory=bcsentinel-ai-backup
+Environment=RESTIC_CACHE_DIR=/var/cache/bcsentinel-ai-backup/restic
+Environment=RCLONE_CACHE_DIR=/var/cache/bcsentinel-ai-backup/rclone
 StateDirectory=bcsentinel-ai-backup
 UMask=0077
 UNIT
