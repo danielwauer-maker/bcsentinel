@@ -75,3 +75,57 @@ The following is **the user's chosen product direction and PR #154 design**, **n
 Documentation-only Draft PR. No data/database changes, no schema changes, no branch promotion, no deployment, no product activation, no Fiverr pricing publication.
 
 Associated parallel technical work: Sprint 3B.01 and 3B.02 in independent Codex feature branches; the PR #162 BC27 sandbox acceptance is independent and still required.
+
+## 7. Access-v2 decision record ACV2-2026-11-12-r1 — PROPOSED / NOT APPROVED
+
+Reviewed on 2026-11-12 against Core main `c1d9fccf39767048bceabe93e7b8676df180868f`, approved Product System `bcs-product-model-v2.1` (`00-core/product-model.yaml` blob `79efa719bb6311f8cb20e30e667e617355fdeadf`), Core Draft PRs #154/#156/#157/#165. The Product System is the normative commercial authority. This document is an approval proposal, **not** a new runtime or released contract.
+
+| Dimension | Current approved / main | Proposed future Access-v2 | Compatibility and proof required |
+|---|---|---|---|
+| Initial Free | One initial full-depth scan, aggregate-only | Same, permanently reopenable Free report | One original scan ID, no re-registration credit, no findings/EUR leak, scoped archive |
+| Quick | Permanent paid disclosure, <=5 findings, no scan credit, Fiverr BASIC | No new Quick package in proposed three-Gig lineup | Never revoke/shorten existing Quick entitlements; decide whether new Quick sales stop |
+| Full | Same baseline, 7d, optional one +7d extension | Same baseline, 14d, zero scan credits | New grants versioned; old windows unchanged; paid baseline preserved |
+| Renewal | Limited +7d extension | +14d, no scan | Explicit timing / stacking / overlap / refund rules; no duplicate grants |
+| Validation | Prior paid Full; +1 scan; 7d from credit consumption | Renewal + Validation gives +14d access and +1 scan | Independent Validation offer decision; immutable comparable BC27 scan pair required |
+| Monitoring | Separate recurring product, deferred from initial Fiverr pilot | Separate subscription Gig | Cadence, limits, billing periods, cancellation, refund, access/history and evidence required |
+| Report access | Backend scan-aware variant resolver, expiry and token TTL distinct | Perpetual Free archive; scoped 14d Full; evidence-only Validation | Tenant/company/scan/variant scope; fail closed on missing evidence; tokens may expire |
+| Prices | Main Fiverr USD price snapshots conflict internally; direct EUR tiers distinct | No new v2 SKU prices approved | Owner signs channel/tier matrix; no fabricated or hard-coded launch price |
+
+### Decision requests — require explicit product-owner sign-off
+
+- **D1 (P0):** Confirm three launch Gigs Assessment, Validation, Monitoring; determine whether legacy Quick remains orderable for new buyers or is retired for new sales only. Existing Quick purchases remain protected.
+- **D2 (P0):** Approve new Full=14 days and Renewal=14 days for *new* v2 grants; select clock policy for pre-expiry overlapping renewals, late renewal, cancellation/refund and repeated purchases; never alter historical 7-day terms silently.
+- **D3 (P0):** Approve whether Validation is sold standalone after an earlier paid Full, or only bundled with Renewal+Validation; specify one validation credit and failed/incomparable scan treatment.
+- **D4 (P0):** Approve per-Gig Fiverr USD prices, record-volume tiers, overage/custom-offer process and the separate existing direct EUR price policy.
+- **D5 (P0):** Specify Monitoring interval, entitled scans/history, suspension, renewals, cancellation/refund and support/SLA terms; don't publish until real subscription E2E.
+- **D6 (P0):** Approve legacy migration mapping including Quick permanent rights, original 7d Assessment/Validation, consumed credits, purchased archives, and independently purchased subscriptions.
+
+### Downstream sprint gate matrix
+
+| Sprint | Contract dependency | Allowed before approval | Blocked until approval / runtime E2E |
+|---|---|---|---|
+| 4.02 | Free to Full 14d, baseline, scope, legacy | Isolated tests, fail-closed feature-flag candidate | Customer-facing 14d activation, paid launch |
+| 4.03 | Renewal timing and idempotency | Draft integration tests | Selling/issuing unapproved +14d |
+| 4.04 | Renewal+Validation credit and provenance | Contract fixtures / negative tests | Comparable report and commercial grant |
+| 4.05 | Monitoring subscription boundaries | Design and negative tests | Subscription Gig / recurring scan claims |
+| 4.06 | Operator grant and reversals #156 | Test-mode, strict authorization regression | Real Fiverr purchase-to-grant until signoff |
+| 3.02 | Full-v6 report/token/role | Isolated viewer smoke | Authenticated BC27 E2E and live Full14 promise |
+| 3.03 | Validation baseline and immutable check evidence | Fail-closed negative tests | Before/after claims until real comparable pair |
+| 3.04 | Monitoring cadence/history/company isolation | Contract-level tests | Live monitoring report/subscription |
+| 6.02 | DE/EN public copy, price/CTA | Editorial Draft #166 | Publishing pricing, expiry and Monitoring claims |
+| 7.03 | Buyer offer, FAQ, support and refund | Editorial Draft #165 | Fiverr offer publication / buyer acceptance |
+
+### Regression and acceptance checklist (no PASS implied)
+
+1. Permanent old Quick access survives new grants, expiry and refund of unrelated purchase; entitled detail constrained to Quick layer.
+2. Historical 7d purchase/extension/Validation remains at originally granted terms; no retroactive blanket 14d migration.
+3. First Free scan ID is unchanged on Full upgrade; Free re-registration blocked; initial scan grants zero extra Full credits.
+4. Paid access respects tenant/company/scan/variant and token revocation, expiry and replay resistance.
+5. Concurrent/repeated operator order positions are idempotent; refund/dispute removes unused credits only and rebases later paid windows without deleting consumed scan history.
+6. Validation before/after requires original paid Full baseline, real distinct second scan and immutable comparable source identities; absent evidence yields fail-closed result.
+7. Monitoring rejects foreign-company history, missing company identity and inactive subscription; cancellation and renewal covered.
+8. Approved offer-price projection matches Fiverr DE/EN copy, operator console, website, report links and canonical Product System after contract version bump.
+
+**CI observation on PR #164 previous head `a1a6fe139b135bf2ea9280180b14f0cdb3bacf91`:** E5 Recovery Automation Quality Gate FAILED at *Install PostgreSQL client*; downstream restore steps were skipped. This is not a passing recovery acceptance and is unrelated to this documentation contract approval. Other observed workflows passed; no new complete CI PASS inferred.
+
+**Release disposition:** Sprint 4.01 audit/documentation candidate updated; technical contract implementation OPEN, real DEV acceptance OPEN, commercial signoff OPEN, Fiverr Go-Live NO_GO. No runtime, environments, entitlements, tracker flags, or pricing changed.
