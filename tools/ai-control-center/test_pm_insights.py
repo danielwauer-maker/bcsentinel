@@ -87,7 +87,8 @@ class InsightsTests(unittest.TestCase):
     def test_age_of_review_is_not_age_of_pr(self):
         r=pm_insights.assess(*self.parts(dt.date(2027,1,12)),as_of=dt.date(2027,1,12))
         self.assertTrue(r["evidence_quality"]["review_source_stale"])
-        self.assertEqual(r["evidence_quality"]["review_source_age_days"],62)
+        expected=(dt.date(2027,1,12)-dt.date.fromisoformat(self.master["reviewed_at"])).days
+        self.assertEqual(r["evidence_quality"]["review_source_age_days"],expected)
         self.assertIn("OLD_REVIEW_SOURCE",[x["code"] for x in r["risk_summary"]["risks"]])
 
     def test_refuse_mismatched_sources_and_missing_history(self):
