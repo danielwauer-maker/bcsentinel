@@ -1,3 +1,8 @@
+# DEV push-to-deploy is explicitly gated by two repository Actions variables:
+#   DEV_STAGING_DEPLOY_ENABLED=true AND DEV_STAGING_RELEASE_SHA=<exact staging push SHA>.
+# Without both exact matches, every DEV-mutating step is skipped; rerun the same
+# workflow after deliberate approval to deploy that single reviewed SHA.
+# PROD deployment behavior remains unchanged.
 name: Deploy to Hetzner
 
 on:
@@ -86,7 +91,7 @@ jobs:
           exit 1
 
       - name: DEV pre-deploy database snapshot and verifiable restore inventory
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -euo pipefail
@@ -109,7 +114,7 @@ jobs:
             echo "NOTE: An isolated full restore and recovery rehearsal are still separate gates."
           EOF
       - name: Deploy to DEV
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
@@ -150,7 +155,7 @@ jobs:
           EOF
 
       - name: Health check DEV
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           echo "🔎 Waiting for DEV backend (local on server)..."
           for i in {1..20}; do
@@ -176,7 +181,7 @@ jobs:
           exit 1
 
       - name: Smoke check DEV Core web surface
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
             echo "Checking https://dev.bcsentinel.com$path"
