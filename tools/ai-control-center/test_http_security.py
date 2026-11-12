@@ -85,6 +85,18 @@ class HttpIsolationTests(unittest.TestCase):
             status,_,_=self.request("/api/media",auth=True,method=method)
             self.assertEqual(status,501)
 
+    def test_svg_preview_is_sandboxed(self):
+        with mock.patch.object(app, "media_asset", return_value=(b"<svg/>", ".svg")):
+            status, headers, data = self.request(
+                "/api/media/asset?repo=danielwauer-maker%2Fbcsentinel&ref=main&path=src%2Fassets%2Flogo.svg",
+                auth=True
+            )
+        self.assertEqual(status, 200)
+        self.assertEqual(data, b"<svg/>")
+        self.assertIn("sandbox", headers["Content-Security-Policy"])
+        self.assertIn("default-src 'none'", headers["Content-Security-Policy"])
+        self.assertNotIn("script-src 'self'", headers["Content-Security-Policy"])
+
     def test_unauthorized_correct_password_required(self):
         s,_,_=self.request("/api/snapshot",auth=False)
         self.assertEqual(s,401)
