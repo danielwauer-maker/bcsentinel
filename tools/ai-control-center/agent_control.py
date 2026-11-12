@@ -113,6 +113,9 @@ def set_budget(cents, *, path=STATE_PATH, actor, confirm=False):
         settings=con.execute("SELECT * FROM control_settings WHERE id=1").fetchone()
         if not settings:
             raise ValueError("Control store missing settings")
+        months=[r[0] for r in con.execute("SELECT DISTINCT cost_month FROM agent_job WHERE status IN ('approved','claimed','completed')")]
+        if any(_spend(con,month)>cents for month in months):
+            raise ValueError("Budget reduction below existing reserved/actual costs denied")
         con.execute("UPDATE control_settings SET monthly_budget_cents=?,updated_at=?,updated_by=? WHERE id=1",
                     (cents,utc_now(),actor))
         _audit(con,None,"budget.set",actor,{"old_cents":settings["monthly_budget_cents"],"new_cents":cents})
