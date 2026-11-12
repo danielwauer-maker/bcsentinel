@@ -92,7 +92,7 @@ class MediaLibraryTests(unittest.TestCase):
         tree={"tree_sha": "f"*40,"files": images}
         def fetch(url):
             if url.endswith("c"*40):
-                return {"encoding":"base64","content":base64.b64encode(content).decode()}
+                return {"encoding":"base64","content":base64.b64encode(content).decode()[:12]+"\\n"+base64.b64encode(content).decode()[12:]}
             raise m.MediaError(503,"source unavailable")
         with mock.patch.object(m,"_request",side_effect=fetch), mock.patch.object(m,"MAX_SOURCE_FILES",3):
             result=m._scan_references(CORE,"main",tree)
