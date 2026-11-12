@@ -15,7 +15,7 @@ timer="/etc/systemd/system/bcsentinel-ai-offsite-backup.timer"
 
 command -v systemctl >/dev/null || die "systemctl missing"
 command -v flock >/dev/null || die "flock missing"
-for f in offsite_backup.sh scheduled_backup.sh backup_verify.py; do
+for f in offsite_backup.sh scheduled_backup.sh backup_verify.py backup_health.sh; do
   [[ -f "$source_dir/$f" ]] || die "Missing $f"
 done
 [[ -f "$config" && ! -L "$config" ]] || die "Create root-only backup.env first (see guide)"
@@ -29,6 +29,7 @@ install -d -o root -g root -m 0755 "$destination"
 install -o root -g root -m 0700 "$source_dir/offsite_backup.sh" "$destination/offsite_backup.sh"
 install -o root -g root -m 0700 "$source_dir/scheduled_backup.sh" "$destination/scheduled_backup.sh"
 install -o root -g root -m 0600 "$source_dir/backup_verify.py" "$destination/backup_verify.py"
+install -o root -g root -m 0700 "$source_dir/backup_health.sh" "$destination/backup_health.sh"
 
 cat > "$unit" <<'UNIT'
 [Unit]
