@@ -1,0 +1,64 @@
+name: CI OPT 01 Exact SHA Release Evidence (informational)
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - "scripts/ci_release_attestation.py"
+      - ".github/workflows/ci-opt-01-release-evidence.yml"
+      - "docs/ci/CI_OPT_01_RELEASE_EVIDENCE.md"
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: "Reviewed integration PR number"
+        required: true
+        type: string
+      expected_pr_head_sha:
+        description: "Exact 40-character reviewed PR head SHA"
+        required: true
+        type: string
+      expected_staging_base_sha:
+        description: "Exact 40-character reviewed staging base SHA"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+jobs:
+  self-test:
+    name: Validate release evidence guard contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exercise pass and fail-closed test cases without API calls
+        run: python3 scripts/ci_release_attestation.py --self-test
+
+  premerge-evidence:
+    name: Verify immutable PR release evidence (not deployment authorization)
+    if: github.event_name == 'workflow_dispatch'
+    needs: self-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required workflows and independent BC27 matrix for exact SHA
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/ci_release_attestation.py \
+            --pr "${{ inputs.pull_request_number }}" \
+            --head "${{ inputs.expected_pr_head_sha }}" \
+            --base "${{ inputs.expected_staging_base_sha }}" \
+            --output release-attestation.json
+      - name: Retain redacted evidence JSON even on NO_GO
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-premerge-evidence-${{ github.run_id }}
+          path: release-attestation.json
+          if-no-files-found: warn
+          retention-days: 30
