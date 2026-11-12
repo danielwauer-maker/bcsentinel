@@ -11,7 +11,7 @@ on:
 # CI-OPT-01: Cancel only superseded pull-request runs of this workflow.
 # Never cancel staging push runs or manually approved release evidence runs.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-{1}-{2}', github.workflow, github.event_name, github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
