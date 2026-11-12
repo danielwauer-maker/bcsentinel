@@ -133,3 +133,19 @@ footer{color:var(--text-muted)}
 .exec-deep-dive[open]>summary{margin-bottom:20px}
 @media(max-width:980px){.exec-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.exec-columns{grid-template-columns:1fr}}
 @media(max-width:540px){.exec-metrics{grid-template-columns:1fr 1fr}.exec-metric{padding:13px;min-height:170px}.exec-metric strong{font-size:1.5rem}.exec-focus{padding:14px}}
+
+/* AI-PM 2.2 desktop triage: compact source-oriented workbench. */
+.exec-triage{border-top:1px solid var(--border);padding-top:18px;display:grid;gap:13px}
+.exec-triage .exec-heading h2{margin-bottom:6px}
+.exec-triage-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-surface-subtle);border:1px solid var(--border);border-radius:12px;padding:12px 15px}
+.exec-triage-controls label{font-size:.78rem;color:var(--text-muted);font-weight:650}
+.exec-triage-controls input{flex:1;min-width:170px;max-width:390px}
+.exec-triage-controls select{max-width:230px}
+.exec-triage-title{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap}
+.exec-triage-title h3{margin:0 0 5px}
+.exec-triage-list{max-height:410px;overflow-y:auto;display:grid;gap:8px;padding-right:5px}
+.exec-triage-item{background:var(--bg-surface-subtle);border:1px solid var(--border);border-radius:9px;padding:11px 13px}
+.exec-triage-item strong{font-size:.85rem;display:block;overflow-wrap:anywhere}
+.exec-triage-item p{font-size:.76rem;margin:5px 0;color:var(--text-muted);overflow-wrap:anywhere;line-height:1.4}
+.exec-triage-links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:7px;font-size:.75rem}
+.exec-triage [hidden]{display:none!important}
