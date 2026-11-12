@@ -116,32 +116,28 @@ jobs:
 
             cd /home/daniel/data-health-management-dev
 
-            echo "📥 Clean sync DEV"
-            git fetch origin
-            # Pin deployment to the immutable SHA that passed the push checks.
+            echo "🔐 Fail-closed DEV checkout safety preflight"
+            # Never reset an operator-owned checkout with local tracked or untracked changes.
+            # This intentionally blocks deployment until landingpage_neu is preserved.
+            if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+              echo "DEV checkout has local tracked/untracked files; refusing destructive reset."
+              git status --short
+              exit 1
+            fi
+
+            echo "📥 Fetch immutable DEV release"
+            git fetch origin "${{ github.sha }}"
             git cat-file -e "${{ github.sha }}^{commit}"
             git reset --hard "${{ github.sha }}"
             test "$(git rev-parse HEAD)" = "${{ github.sha }}"
-            git clean -fd
+            # Never run git clean: untracked operator files are not deployment artifacts.
 
-            echo "🌐 Sync DEV landingpage_neu and nginx configuration"
-            sudo -n rm -rf /var/www/bcsentinel/landingpage-dev
-            sudo -n install -d -m 0755 /var/www/bcsentinel/landingpage-dev
-            sudo -n cp -a landingpage_neu/. /var/www/bcsentinel/landingpage-dev/
-            ACTIVE_NGINX_CONFIG="$(sudo -n grep -Rl 'server_name.*dev\.bcsentinel\.com' /etc/nginx/sites-enabled 2>/dev/null | head -n 1)"
-            if [ -z "$ACTIVE_NGINX_CONFIG" ]; then
-              echo "No active nginx config for dev.bcsentinel.com found."
-              exit 1
-            fi
-            sudo -n cp "$ACTIVE_NGINX_CONFIG" /tmp/bcsentinel-nginx-before-deploy.conf
-            sudo -n cp config/nginx/bcsentinel.conf "$ACTIVE_NGINX_CONFIG"
-            if ! sudo -n nginx -t; then
-              echo "nginx validation failed; restoring previous config"
-              sudo -n cp /tmp/bcsentinel-nginx-before-deploy.conf "$ACTIVE_NGINX_CONFIG"
-              sudo -n nginx -t
-              exit 1
-            fi
-            sudo -n systemctl reload nginx
+            echo "🔐 Preserve live nginx and landing page routing"
+            # Any nginx or landingpage change requires a separate approved,
+            # reversible deployment procedure. Do not alter either automatically.
+            sudo -n nginx -t
+            echo "nginx_status=validated_unchanged"
+            echo "landingpage_status=preserved_unchanged"
 
             echo "🐳 Start database only (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
