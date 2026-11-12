@@ -88,7 +88,7 @@ function renderCard(a) {
   const detail=node("details"),summary=node("summary",null,"Verwendungsstellen & Status");
   detail.appendChild(summary);
   if(a.usage_state==="verified_source"&&Array.isArray(a.usage)&&a.usage.length){
-    detail.appendChild(node("p","tiny","Quellcode-Referenz nachgewiesen, nicht Deployment:"));
+    detail.appendChild(node("p","tiny","Statische Quellcode-Dateireferenz nachgewiesen, nicht Deployment:"));
     const ul=node("ul","usage");
     for(const use of a.usage){
       const li=node("li");
@@ -97,7 +97,7 @@ function renderCard(a) {
       ul.appendChild(li);
     }
     detail.appendChild(ul);
-  }else detail.appendChild(node("p","tiny","Keine belastbare Verwendungsstelle nachgewiesen. Das bedeutet nicht, dass die Datei unbenutzt ist."));
+  }else detail.appendChild(node("p","tiny",a.usage_state==="scan_incomplete"?"Referenzsuche unvollständig; Verwendung unbekannt.":"Keine direkte statische Dateireferenz erkannt; dynamische Einbindungen bleiben möglich."));
   detail.appendChild(node("p","tiny","Blob-SHA: "+(a.sha||"nicht verfügbar")));
   body.appendChild(detail);
   article.appendChild(body);
@@ -136,6 +136,8 @@ async function load() {
       const div=node("div","source-state");
       div.appendChild(node("strong",null,s.source+" · "+s.ref));
       div.appendChild(node("span","tiny"," · GitHub tree "+s.tree_sha.slice(0,12)+" · abgefragt "+s.observed_at));
+      const c=s.coverage||{};
+      div.appendChild(node("div","tiny","Statische Referenzsuche: "+(c.source_scanned??0)+"/"+(c.source_candidates??0)+" Quellcodedateien geprüft"+(c.limited?" · TEILABDECKUNG":"")+" · kein Nachweis eines Live-Deployments"));
       sources.appendChild(div);
     }
     for(const e of data.errors) sources.appendChild(node("p","error",e.source+": "+e.reason));
