@@ -160,6 +160,12 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.1 – Tägliche OneDrive-Sicherung (nur nach expliziter Aktivierung)
+
+Nach erfolgreichem echtem OneDrive-Offsite-Upload und isoliertem Restore (Snapshot `4d9c5dd3`, 12.11.2026) sind `scheduled_backup.sh`, `install_backup_timer.sh`, `backup_health.sh` und `test_backup_schedule.py` ergänzt. Installation und Aktivierung sind getrennt; der systemd-Timer ist **nicht automatisch aktiviert**. Die root-owned Systemd-Skripte liegen außerhalb des editierbaren Git-Checkouts; `backup.env` enthält nur Pfade. Zeitplan 03:20 UTC täglich, `Persistent=true`, `flock`, lokale Erfolgs-/Fehlerstatusdatei und Journal; keine Retention-/Prune-Regel oder externe Alarmierung.
+
+**Anleitung und Sicherheitsgrenzen:** [AI_PM21_DAILY_BACKUP.md](AI_PM21_DAILY_BACKUP.md). Zwei Zeitpunkte nachweisbar verifizierter Offsite-Backups, Konfigurationsreview und überprüfter Recoverability-Plan sind vor Freigabe von Retention/Automatisierung ausdrücklich zu beachten. Der globale BCSentinel-Produkt-Go-Live bleibt NO_GO.
+
 ## AI-PM 2.1 – Offsite-Backup & Netzwerkrestrisiko (optionale Betreiber-Abnahme)
 
 Verbindliche Betriebsanleitung: [AI_PM21_OFFSITE_NETWORK.md](AI_PM21_OFFSITE_NETWORK.md).
