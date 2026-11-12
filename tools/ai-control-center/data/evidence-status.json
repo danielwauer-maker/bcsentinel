@@ -217,13 +217,16 @@
     {
       "title": "DEV-first · konsolidierter Staging-Integrationskandidat (12.11.2026)",
       "status": "integration_review_open",
-      "detail": "Draft staging integration PR #172: BC finding identity CI on 0cff18b failed in fresh/upgrade not on compilation but stale hardcoded three-test assertion; 1.0.2.59 AL compilation/upgrade and five real AL tests succeeded in Windows disposable CI. Workflow count fixed to derive from actual [Test] declarations; strict no fail/error/skip retained. Fix exact commit 49faf455dcec18c55825444e9d1d56b159629bbd. New current-head CI must pass. DEV database/BC SaaS staging deploy and dashboard 8092 untouched; commercial and Fiverr gates remain OPEN.",
+      "detail": "New DEV-first candidate PR #172 now also includes pre-deploy non-empty pg_dump custom snapshot and pg_restore listing verification (before any destructive DEV checkout/migration/nginx actions), immutable SHA reset for staging deployment, and finding identity fresh/upgrade push CI trigger for integration/dev-first-* (new branch head 2ff54ba3). Prior 49faf455 had 19/19 PR-triggered checks PASS, but missing finding AL workflow. Exact final HEAD checks including push-trigger finding AL still OPEN; no real server backup/restore or pipeline rollout executed. Staging/PROD/dashboard 8092 unchanged; global Fiverr NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/172",
         "https://github.com/danielwauer-maker/bcsentinel/blob/integration/dev-first-fiverr-core-20261112/docs/release/DEV_FIRST_STAGING_INTEGRATION_GATE_20261112.md",
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43288173641",
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43289722500",
-        "https://github.com/danielwauer-maker/bcsentinel/commit/49faf455dcec18c55825444e9d1d56b159629bbd"
+        "https://github.com/danielwauer-maker/bcsentinel/commit/49faf455dcec18c55825444e9d1d56b159629bbd",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/aba220b0797604fc75878ee3ac9cc57418861f04",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/326f9086f3f4f5cf6d2e95ed52e4ed25b763b709",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/2ff54ba3e5cd2c992e47c35c986e0d4b5efd5e8c"
       ]
     }
   ],
