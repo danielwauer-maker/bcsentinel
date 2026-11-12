@@ -1,6 +1,7 @@
 """Team view never confuses proposed roles and real agent execution."""
 import unittest
 import copy
+from pathlib import Path
 import datetime as dt
 import team_roster as t
 
@@ -63,6 +64,17 @@ class TeamRosterTests(unittest.TestCase):
         result=self.view()
         self.assertTrue(all(r["suggested_review"] is None for r in result["members"]))
         self.assertEqual(result["active_agents"],0)
+
+    def test_team_page_has_protected_navigation_and_no_execute_controls(self):
+        html=(Path(__file__).resolve().parent/'team.html').read_text(encoding='utf-8')
+        self.assertIn('href="/index.html"',html)
+        self.assertIn('href="/team.html"',html)
+        self.assertIn("fetch('/api/snapshot'",html)
+        self.assertIn('setInterval(',html)
+        self.assertIn('org-specialists',html)
+        self.assertIn('Keine Live-Telemetrie',html)
+        self.assertNotIn('api/agent/execute',html)
+        self.assertNotIn('innerHTML',html)
 
     def test_deterministic_and_read_only(self):
         before=copy.deepcopy((self.control,self.daily))
