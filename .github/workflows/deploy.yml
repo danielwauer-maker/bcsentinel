@@ -118,7 +118,10 @@ jobs:
 
             echo "📥 Clean sync DEV"
             git fetch origin
-            git reset --hard origin/staging
+            # Pin deployment to the immutable SHA that passed the push checks.
+            git cat-file -e "${{ github.sha }}^{commit}"
+            git reset --hard "${{ github.sha }}"
+            test "$(git rev-parse HEAD)" = "${{ github.sha }}"
             git clean -fd
 
             echo "🌐 Sync DEV landingpage_neu and nginx configuration"
