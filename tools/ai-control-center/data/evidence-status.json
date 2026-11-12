@@ -217,7 +217,7 @@
     {
       "title": "DEV-first · konsolidierter Staging-Integrationskandidat (12.11.2026)",
       "status": "integration_review_open",
-      "detail": "Core Draft PR #172: prior 2ff54ba3 HEAD had all 19/19 PR workflows PASS, but separate AL finding identity push-check not verified. Next integration HEAD a263782 adds isolated DEV host read-only inventory GitHub workflow scoped to this exact branch; no SSH run confirmed yet. No real DEV deployed SHA/images/Alembic/flags collected; no on-host backup or restore verified. CI at new head pending. Staging auto-deploy pre-migration pg_dump and immutable SHA changes remain unmerged. Global NO_GO; preserve PROD/main and live dashboard 8092.",
+      "detail": "Real operator read-only DEV inventory 2026-11-12: checkout 594112ea161b8255e7a8911031166f5a24c2a5d1 (diverged from candidate source), running backend image bcsentinel-dev-s3a2:a8b870eb41d2 (digest sha256:f85bb8a030049a01e95adf4e713531ebd3de58a0999dc1ce07eeddac5f3fba88), backend 47h healthy, PG15 8d healthy, Alembic 0040_scan_record_identity_evidence head, /health/ready DB OK. Candidate a263782eb883 descends from a8b870eb41d2 with 17 commits; includes same migration 0040 (no newer migration files shown), but deployed checkout and image are different refs. No real DB backup/restore, nginx safety or staging deploy confirmed. Latest PR CI 16/19 PASS 3 in progress at observation; separate finding-identity push CI not independently confirmed. No staging merge, no deploy; dashboard 8092 preserved. Fiverr NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/172",
         "https://github.com/danielwauer-maker/bcsentinel/blob/integration/dev-first-fiverr-core-20261112/docs/release/DEV_FIRST_STAGING_INTEGRATION_GATE_20261112.md",
@@ -231,7 +231,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence; Product System draft #33 candidate contract and source-only Sprint 4.02 audit 2026-11-12; Product System #33 candidate invariant validator revision 4d99f21 (CI on exact SHA to verify); 2026-11-12 candidate staging integration PR #172 and staging deployment workflow reviewed read-only; not a real DEV deployment; staging candidate PR #172 initial EXT-50-12A version-lock failure at 1.0.2.59 corrected at 2142dcf6; next-head CI pending, no stage merge; read-only DEV host inventory helper in #172, not executed or deployment evidence; verified BC27 finding identity failure is CI expected-count mismatch, fix 49faf455; no staging/DEV deployment; DEV host inventory workflow added to staging candidate, real SSH results pending",
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence; Product System draft #33 candidate contract and source-only Sprint 4.02 audit 2026-11-12; Product System #33 candidate invariant validator revision 4d99f21 (CI on exact SHA to verify); 2026-11-12 candidate staging integration PR #172 and staging deployment workflow reviewed read-only; not a real DEV deployment; staging candidate PR #172 initial EXT-50-12A version-lock failure at 1.0.2.59 corrected at 2142dcf6; next-head CI pending, no stage merge; read-only DEV host inventory helper in #172, not executed or deployment evidence; verified BC27 finding identity failure is CI expected-count mismatch, fix 49faf455; no staging/DEV deployment; DEV host inventory workflow added to staging candidate, real SSH results pending; DEV live operator inventory confirmed healthy backend and Alembic 0040, checkout/image SHA mismatch, predeploy gates open",
   "observed_gates": {
     "source_date": "2026-11-12",
     "source_kind": "operator_logs_plus_github_ci",
@@ -253,7 +253,7 @@
       "host_8093": "not_verified",
       "host_8092": "preserved"
     },
-    "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe."
+    "uncertainty": "Operator-provided read-only host snapshot confirms backend/PG health and Alembic 0040, but no verified backup/restore or actual CI push workflow output; no hosted SSH intervention."
   },
   "sprint401_sync": {
     "record_version": "2026-11-12-r1",
