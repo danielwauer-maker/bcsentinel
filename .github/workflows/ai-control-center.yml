@@ -22,7 +22,7 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -v -p 'test_*.py'
       - name: Python syntax
-        run: python -m compileall -q app.py project_store.py pm_sync.py pm_mapping.py readiness.py progress_history.py acceptance_review.py blocker_plan.py task_coverage.py pm_insights.py ai_pm_brief.py agent_control.py team_roster.py test_app.py test_project_store.py test_pm_sync.py test_pm_mapping.py test_readiness.py test_progress_history.py test_acceptance_review.py test_blocker_plan.py test_task_coverage.py test_pm_insights.py test_ai_pm_brief.py test_agent_control.py test_team_roster.py test_light_theme.py
+        run: python -m compileall -q app.py project_store.py pm_sync.py pm_mapping.py readiness.py progress_history.py acceptance_review.py blocker_plan.py task_coverage.py pm_insights.py ai_pm_brief.py agent_control.py team_roster.py backup_verify.py test_app.py test_project_store.py test_pm_sync.py test_pm_mapping.py test_readiness.py test_progress_history.py test_acceptance_review.py test_blocker_plan.py test_task_coverage.py test_pm_insights.py test_ai_pm_brief.py test_agent_control.py test_team_roster.py test_light_theme.py
       - name: Dashboard JavaScript syntax
         run: |
           python -c 'from pathlib import Path; x=Path("index.html").read_text(); Path("/tmp/ai-control-center.js").write_text(x.split("<script>",1)[1].split("</script>",1)[0])'
