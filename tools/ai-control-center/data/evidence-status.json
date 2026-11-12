@@ -80,18 +80,19 @@
     {
       "id": "4.01",
       "status": "audit_draft",
-      "detail": "2026-11-12 owner APPROVED the proposed Fiverr USD six-tier standard LIST prices for Full Assessment, Validation, Monitoring (see PR #164 pricing document P2), and requested separate introductory/personal discounts controlled later via Admin Backend with landing/Fiverr-visible promotions where provider eligible. This is commercial direction only: discount model implementation, Product System normative version, Fiverr account promotion eligibility, Monitoring terms, BC27 E2E and release still OPEN. No discount/promotion activated, no checkout changes. Global NO_GO and task checkboxes unchanged.",
+      "detail": "Owner-approved six-tier USD Fiverr LIST prices and flexible early-customer discount requirements documented in Core #164; non-active normative replacement candidate opened in Product System Draft PR #33 at 79fb7da8fb51. Approved Product System v2.1 remains authoritative; renewal overlap, Validation bundling, Monitoring cadence/provider billing, legacy compatibility, DEV E2E and Go-Live OPEN.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
         "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025",
         "https://github.com/danielwauer-maker/bcsentinel/blob/docs/sprint401-product-contract-audit-20261111/docs/SPRINT401_FIVERR_PRICING_PROPOSAL_20261112.md",
-        "https://github.com/danielwauer-maker/bcsentinel/commit/e62b10772477ecbfd568ec7cc4856b3d88d9d998"
+        "https://github.com/danielwauer-maker/bcsentinel/commit/e62b10772477ecbfd568ec7cc4856b3d88d9d998",
+        "https://github.com/danielwauer-maker/bcsentinel-product-system/pull/33"
       ]
     },
     {
       "id": "4.02",
       "status": "implementation_draft",
-      "detail": "Free→Full 14d implementation candidate, not contractual/release approval. Legacy Quick/7d rights must be reconciled.",
+      "detail": "PR #154 source inspected 2026-11-12: ACCESS_DAYS=14, Free one original scan, Full 0 new scans, 14d access and focused policy tests present. extend_access stacks during active window (policy approval pending); no new test execution in this audit. Real BC27 non-destructive upgrade, Non-SUPER, tenant/company Full-v6 E2E and legacy access compatibility still OPEN. Code candidate only.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/154"
       ]
@@ -166,10 +167,11 @@
     {
       "title": "Sprint 4.01 · Access-v2 audit",
       "status": "audit_draft",
-      "detail": "Owner-approved list prices for Full/Validation/Monitoring on six Fiverr USD volume tiers; early-customer optional discount intent documented 2026-11-12 in PR #164. Normative versioning, secure Admin discounts, Fiverr provider eligible promotion/manual Custom Offer, website parity, refunds, Monitoring E2E and GO-LIVE remain OPEN.",
+      "detail": "Owner-approved standard Fiverr USD list pricing, proposed Admin-controlled discounts; non-active Product System Draft PR #33 created. Legacy rights, Monitoring/Validation detailed rules, normative migration and BC27 acceptance open.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
-        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+        "https://github.com/danielwauer-maker/bcsentinel-product-system/pull/33"
       ]
     },
     {
@@ -213,7 +215,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence",
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence; 2026-11-12 owner commercial list-price adoption and proposed controlled discount model, NOT deployed offer/discount evidence; Product System draft #33 candidate contract and source-only Sprint 4.02 audit 2026-11-12",
   "observed_gates": {
     "source_date": "2026-11-12",
     "source_kind": "operator_logs_plus_github_ci",
