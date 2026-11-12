@@ -80,10 +80,11 @@
     {
       "id": "4.01",
       "status": "audit_draft",
-      "detail": "Product owner clarified 2026-11-12: no Quick offer for NEW Fiverr sales (same full-depth DeepScan engine), new v2 Full/Renewal 14 days, Monitoring mandatory for first Fiverr Go-Live. Legacy Quick/7d historic entitlements need compatibility check; no canonical v2 Fiverr pricing freeze yet. PC-04 BC27/provenance evidence, PC-06 website and PC-07 security remain P0. Normative product contract/DEV/runtime/launch not approved. Audit PR #164 updated.",
+      "detail": "Owner v2 direction clarified (no new Quick; Full/Renewal 14 days; Monitoring first-wave Fiverr). Proposed Fiverr USD six-tier pricing for Full/Validation/Monitoring documented as ACV2-2026-11-12-P1 in PR #164 commit 193ada62f63b; NOT approved/published; pricing, Validation renewal bundle, Monitoring recurring eligibility/cadence, legacy and BC27 E2E still open. Source 2026-11-12, no tracker gate updates.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
-        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/docs/sprint401-product-contract-audit-20261111/docs/SPRINT401_FIVERR_PRICING_PROPOSAL_20261112.md"
       ]
     },
     {
@@ -164,7 +165,7 @@
     {
       "title": "Sprint 4.01 · Access-v2 audit",
       "status": "audit_draft",
-      "detail": "Owner direction clarified 2026-11-12: no new Quick, Full/Renewal 14d, Monitoring in Fiverr initial launch. Price authority, legacy protection, normative update and runtime/DEV tests remain open. See Draft PR #164.",
+      "detail": "Owner direction and six-tier Fiverr USD commercial price proposal documented in PR #164; not a price freeze. Full/Validation/Monitoring USD projected; native subscription eligibility, Monitoring cadence, Validation renewal bundle and legacy rights still open. No normative product-system update, DEV approval or launch.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
         "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
@@ -211,7 +212,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence",
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence; draft unit-economic and Fiverr USD pricing proposal dated 2026-11-12, not approved price evidence",
   "observed_gates": {
     "source_date": "2026-11-12",
     "source_kind": "operator_logs_plus_github_ci",
