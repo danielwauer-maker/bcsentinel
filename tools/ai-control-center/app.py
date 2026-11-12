@@ -23,6 +23,7 @@ from blocker_plan import analyze as blocker_plan
 from task_coverage import catalog as task_coverage
 from pm_insights import assess as pm_assess
 from ai_pm_brief import compose as compose_ai_brief
+from agent_control import read_status as agent_status
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
