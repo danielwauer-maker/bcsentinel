@@ -18,7 +18,30 @@
   <div class="exec-focus"><div class="eyebrow">Nächste prüfbare Handlung</div><h3 id="exec-primary-title">Manueller Review</h3><p id="exec-primary">Empfehlung wird geladen …</p><p class="exec-caution">Prüfempfehlung – kein Arbeitsauftrag an aktive KI-Agenten und keine automatisch erteilte Freigabe.</p></div>
   <div class="exec-focus"><div class="eyebrow">P0-Review-Warteschlange</div><h3>Jetzt prüfen</h3><ol id="exec-next" class="exec-next"><li>Wird geladen …</li></ol><p id="exec-scope" class="sub">Nur kuratierte, nachvollziehbare Teilpriorisierung</p></div>
  </div>
- <div class="exec-meta"><span id="exec-asof">Snapshot wird geladen</span><span id="exec-source-state">GitHub-Quellenstand wird geladen</span><a href="/team.html">KI-Team ansehen</a></div>
+ <section class="exec-triage" aria-label="Evidence-Triage und Aufgabenfokus">
+  <div class="exec-heading"><div><div class="eyebrow">Desktop-Arbeitsbereich · read-only</div><h2>Evidence &amp; Aufgabenfokus</h2><p class="sub">Kuratierten Arbeitsstand und offene GitHub-PRs getrennt prüfen. Keine automatische Zuordnung oder Abnahme.</p></div></div>
+  <div class="exec-triage-controls">
+    <label for="exec-triage-search">Suche nach Sprint, Aufgabe oder PR</label>
+    <input id="exec-triage-search" type="search" placeholder="z. B. 3.02, Validation oder #169">
+    <label for="exec-triage-kind">Anzeigen</label>
+    <select id="exec-triage-kind"><option value="all">Aufgaben und Pull Requests</option><option value="work">Nur kuratierte Aufgaben</option><option value="prs">Nur offene PRs</option></select>
+    <label for="exec-triage-limit">Einträge pro Bereich</label>
+    <select id="exec-triage-limit"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="all">Alle</option></select>
+  </div>
+  <div class="exec-columns">
+    <section class="exec-focus" id="exec-work-panel" aria-label="Kuratierte Sprint-Evidence">
+      <div class="exec-triage-title"><h3>Prüfbare Sprint-Arbeiten</h3><span class="sub" id="exec-work-count">–</span></div>
+      <div id="exec-work-list" class="exec-triage-list" aria-live="polite"><p class="sub">Lade Evidence …</p></div>
+      <p class="sub">Kuratiertes Evidence-Inventar; Status ist kein unabhängiger Abschluss.</p>
+    </section>
+    <section class="exec-focus" id="exec-pr-panel" aria-label="Offene GitHub Pull Requests">
+      <div class="exec-triage-title"><h3>Offene GitHub-PRs</h3><span class="sub" id="exec-pr-count">–</span></div>
+      <div id="exec-pr-items" class="exec-triage-list" aria-live="polite"><p class="sub">Lade GitHub-Metadaten …</p></div>
+      <p id="exec-pr-freshness" class="sub">Quellenstatus unbekannt · keine CI-/Laufzeitfreigabe</p>
+    </section>
+  </div>
+</section>
+<div class="exec-meta"><span id="exec-asof">Snapshot wird geladen</span><span id="exec-source-state">GitHub-Quellenstand wird geladen</span><a href="/team.html">KI-Team ansehen</a></div>
 </section>
 <details class="exec-deep-dive" id="executive-details"><summary>Alle Detailansichten öffnen <span>Readiness · Evidence · Projektbewertung · Agenten · GitHub-PRs</span></summary>
 <section class="readiness-shell" aria-label="Fiverr Go-Live Readiness">
@@ -142,6 +165,7 @@
 <section class="panel full"><h2>Datenqualität &amp; Hinweise</h2><ul id="warnings"></ul></section>
 </div></details></main>
 <script src="/executive.js"></script>
+<script src="/triage.js"></script>
 <script>
 const el=id=>document.getElementById(id);
 function cell(row,value){const td=document.createElement('td');td.textContent=String(value??'–');row.appendChild(td);return td}
@@ -167,6 +191,7 @@ for(const item of filtered){element('text',{x:x(item.date),y:bottom+24,'text-anc
 async function reload(){el('refresh').disabled=true;el('timestamp').textContent='Aktualisiere…';try{
 const response=await fetch('/api/snapshot',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();
 if(typeof window.renderExecutive==="function") window.renderExecutive(data);
+if(typeof window.renderTriage==="function") window.renderTriage(data);
 el('timestamp').textContent='Stand: '+new Date(data.generated_at_utc).toLocaleString('de-DE');el('go-live').textContent='Go-Live: NICHT FREIGEGEBEN';
 const hist=data.progress_history||{state:'not_initialized'};
 el('history-count').textContent=hist.state==='loaded'?('Attestierte Ereignisse: '+hist.count_events):'Historie nicht initialisiert · Excel-Baseline aktiv';
