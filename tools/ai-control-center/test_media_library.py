@@ -48,7 +48,7 @@ class MediaLibraryTests(unittest.TestCase):
         self.assertEqual(found[0]["usage_state"], "verified_source")
         self.assertEqual(len(found[0]["usage"]), 3)
         self.assertEqual(found[0]["version_state"], "branch_candidate")
-        self.assertEqual(next(x for x in result["assets"] if x["repo"] == CORE)["usage_state"],
+        self.assertEqual(next(x for x in result["assets"] if x["repo"] == CORE and x["filename"] == "report.pdf")["usage_state"],
                          "not_detected")
 
     def test_partial_source_not_misrepresented_as_complete(self):
