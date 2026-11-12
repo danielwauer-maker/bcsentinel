@@ -31,11 +31,28 @@ class ExecutiveViewTests(unittest.TestCase):
                           "POST","/api/approve","/api/agent/execute","eval("):
             self.assertNotIn(forbidden,js)
 
+    def test_desktop_triage_has_filterable_readonly_sources(self):
+        html=(ROOT/"index.html").read_text()
+        for value in ('id="exec-triage-search"', 'id="exec-triage-kind"',
+                      'id="exec-triage-limit"', 'id="exec-pr-items"',
+                      'id="exec-work-list"', '<script src="/triage.js"></script>',
+                      'window.renderTriage(data)'):
+            self.assertIn(value,html)
+        js=(ROOT/"triage.js").read_text()
+        for expected in ("new Map()", "new Set(", "githubUrl(", "textContent",
+                         "Keine passenden", "Quellen unvollständig"):
+            self.assertIn(expected,js)
+        for forbidden in ("innerHTML", "fetch(", "XMLHttpRequest", "localStorage",
+                          "eval(", "POST", "/api/approve", "/api/agent/execute"):
+            self.assertNotIn(forbidden,js)
+
     def test_js_packaged_inside_authenticated_image(self):
         dockerfile=(ROOT/"Dockerfile").read_text()
         self.assertIn("executive.js",dockerfile)
+        self.assertIn("triage.js",dockerfile)
         app=(ROOT/"app.py").read_text()
         self.assertIn('request_path == "/executive.js"',app)
+        self.assertIn('request_path == "/triage.js"',app)
         self.assertIn('"application/javascript; charset=utf-8"',app)
 
 if __name__=="__main__":unittest.main()
