@@ -19,7 +19,7 @@
     set("exec-progress", ready.state==="loaded" ? pct(ready.technical_fraction) : "Nicht verfügbar");
     set("exec-progress-source", "Fiverr · technisch markierte Planstunden, keine unabhängige Abnahme");
     set("exec-gates", ready.state==="loaded" ? pct(ready.gate_fraction) : "Nicht verfügbar");
-    set("exec-gates-source", "Fiverr · bestätigte Aufgaben-Gates, kein Gesamt-Go-Live");
+    set("exec-gates-source", "Fiverr · historische Excel-Häkchen, keine unabhängige Abnahme");
     set("exec-estimate", ready.state==="loaded" ? pct(ready.legacy_estimate_fraction) : "Nicht verfügbar");
     set("exec-estimate-source", "Historische qualitative Gesamtprojektschätzung · kein technischer Fortschritt");
     set("exec-p0", insights.state==="loaded" ? count(insights.risk_summary?.p0_open_criteria) : "–");
