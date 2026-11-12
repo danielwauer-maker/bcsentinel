@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 
+from app.core.settings import settings
 from app.db import SessionLocal
 from app.models import PartnerReferral
 from app.routers.billing import (
@@ -53,6 +54,10 @@ def create_commercial_checkout_session(
     payload: CheckoutSessionRequest,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> CommercialCheckoutResponse:
+    # This separate commercial checkout surface must never become active merely
+    # because legacy Stripe checkout is configured. Check before any DB/Stripe IO.
+    if not settings.COMMERCIAL_CHECKOUT_ENABLED:
+        raise HTTPException(status_code=503, detail="Commercial checkout is not released.")
     header_tenant_id, credential = tenant_auth
     enforce_tenant_match(payload.tenant_id, header_tenant_id, "Payload tenant_id")
     product_code = _normalize_checkout_product_code(payload)
