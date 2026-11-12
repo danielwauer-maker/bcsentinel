@@ -120,6 +120,20 @@ class ControlTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             a.propose("4.01","evidence_review",SHA,"short",1,path=self.db,actor="owner",confirm=True)
 
+    def test_only_verified_task_and_sha_can_be_proposed(self):
+        with self.assertRaises(ValueError):
+            a.propose('77.07','evidence_review',SHA,TEXT,100,
+                      path=self.db,actor='author',confirm=True)
+        with self.assertRaises(ValueError):
+            a.propose('4.01','evidence_review','0'*64,TEXT,100,
+                      path=self.db,actor='author',confirm=True)
+
+    def test_budget_cannot_be_reduced_below_reserved_costs(self):
+        self.funded()
+        with self.assertRaises(ValueError):
+            a.set_budget(99,path=self.db,actor='owner',confirm=True)
+        self.assertEqual(a.read_status(self.db)['budget']['monthly_cap_cents'],500)
+
     def test_audit_is_only_local_metadata_no_secret_request_leaks(self):
         self.funded()
         s=a.read_status(self.db)
