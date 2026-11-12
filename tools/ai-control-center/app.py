@@ -158,6 +158,8 @@ def snapshot():
     blockers = blocker_plan(assessed)
     coverage = task_coverage(tracked, assessed, blockers)
     insights = pm_assess(coverage, assessed, blockers, ready, attested)
+    gh_data = briefing()
+    pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
     repos = []
     for repo in GITHUB_REPOS:
         info = github("repos/" + repo)
