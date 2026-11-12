@@ -50,7 +50,7 @@ class HttpIsolationTests(unittest.TestCase):
         return out
 
     def test_all_assets_are_auth_protected(self):
-        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/api/snapshot"):
+        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/api/snapshot","/media.html","/media.js","/api/media","/api/media/asset?repo=bad&ref=main&path=foo.png"):
             with self.subTest(path=path):
                 status,headers,data=self.request(path)
                 self.assertEqual(status,401)
@@ -64,6 +64,26 @@ class HttpIsolationTests(unittest.TestCase):
                 status,headers,data=self.request(path,auth=True)
                 self.assertEqual(status,200)
                 self.assertTrue(data)
+
+    def test_media_api_is_read_only_and_auth_protected(self):
+        import json
+        with mock.patch.object(app, "media_catalog", return_value={
+            "state":"loaded", "assets":[], "sources":[], "errors":[], "count":0
+        }):
+            status,headers,body=self.request("/api/media",auth=True)
+            self.assertEqual(status,200)
+            self.assertEqual(json.loads(body)["count"],0)
+        for path in (
+            "/api/media/asset?repo=bad&ref=main&path=x.png",
+            "/api/media/asset?repo=x&ref=x&path=y.png&path=z.png",
+            "/api/media/table?repo=x&ref=y",
+        ):
+            with self.subTest(path=path):
+                status,_,_=self.request(path,auth=True)
+                self.assertIn(status,(400,404,503))
+        for method in ("POST","PUT","PATCH","DELETE"):
+            status,_,_=self.request("/api/media",auth=True,method=method)
+            self.assertEqual(status,501)
 
     def test_unauthorized_correct_password_required(self):
         s,_,_=self.request("/api/snapshot",auth=False)
