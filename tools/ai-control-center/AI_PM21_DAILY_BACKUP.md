@@ -24,11 +24,15 @@
 
 Voraussetzung: Das geprüfte Branch-Skript-Set (mindestens `offsite_backup.sh`, `scheduled_backup.sh`, `install_backup_timer.sh`, `backup_health.sh`, `backup_verify.py`) liegt vor Ort. **Kein pauschales `git pull`**, da lokale Compose-Port-Overrides erhalten bleiben sollen.
 
-Folgende Kommandozeilen gelten für den bestätigten Standardcheckout unter dem Benutzer `daniel`. Den `AI_PM_STATE_DIR`-Pfad unbedingt vor Aktivierung gegen die tatsächlich laufenden Datenbanken prüfen.
+Folgende Kommandozeilen gelten für den bestätigten Standardcheckout unter dem Benutzer `daniel`. Den `AI_PM_STATE_DIR`-Pfad unbedingt vor Aktivierung gegen die tatsächlich laufenden Datenbanken prüfen. **Bestehende `backup.env` niemals versehentlich überschreiben:** Erst die Existenz prüfen und bei Bedarf die bestehende Datei bearbeiten.
 
 ```bash
 sudo install -d -o root -g root -m 0700 /etc/bcsentinel-ai-backup
 
+if sudo test -e /etc/bcsentinel-ai-backup/backup.env; then
+  echo 'backup.env existiert bereits: bitte vor Änderung manuell prüfen'
+  exit 1
+fi
 sudo install -o root -g root -m 0600 /dev/null /etc/bcsentinel-ai-backup/backup.env
 sudo tee /etc/bcsentinel-ai-backup/backup.env >/dev/null <<'EOF'
 AI_PM_STATE_DIR=/home/daniel/bcsentinel-ai-control-center/repo/tools/ai-control-center/state
@@ -72,7 +76,7 @@ sudo journalctl -u bcsentinel-ai-offsite-backup.service -n 50 --no-pager
 sudo bash /usr/local/libexec/bcsentinel-ai-backup/backup_health.sh
 ```
 
-**Achtung:** `backup_health.sh` muss separat in das root-owned Verzeichnis kopiert werden, da der Installer derzeit nur die drei Ausführungsdateien installiert. Alternativ `sudo bash ./backup_health.sh` im Checkout verwenden (rein lesend). Ein erfolgreicher Journal-Marker lautet `AI_PM_OFFSITE_DAILY_PASS`; in OneDrive entsteht ein weiterer Restic-Snapshot. Fehler erscheinen als `AI_PM_OFFSITE_DAILY_FAIL`, der systemd-Dienst wird nicht als dauerhaft laufend erwartet (`Type=oneshot`).
+Der Installer kopiert `backup_health.sh` ebenfalls in das root-owned Verzeichnis; der Checker ist rein lesend. Ein erfolgreicher Journal-Marker lautet `AI_PM_OFFSITE_DAILY_PASS`; in OneDrive entsteht ein weiterer Restic-Snapshot. Fehler erscheinen als `AI_PM_OFFSITE_DAILY_FAIL`, der systemd-Dienst wird nicht als dauerhaft laufend erwartet (`Type=oneshot`).
 
 Prüfung des Repositorys anhand aktueller Credentials:
 ```bash
