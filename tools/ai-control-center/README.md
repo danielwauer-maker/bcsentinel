@@ -160,6 +160,63 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.0 – Agenten-Control-Plane mit hartem Budget und CLI-Freigaben
+
+**Implementiert:** Ein vom eigentlichen 85-Aufgaben-SQLite-Register getrenntes, **lokales** Agenten-Auftragsregister `agent_control.py` mit Audit, Budgetreservierung, Proposal-SHA, unabhängiger Freigabe und maximal einem aktiv reservierten manuellen Review-Slot. Das Dashboard zeigt diese Daten nur lesend an. **Nicht implementiert/ausdrücklich deaktiviert:** echte LLM-Aufrufe, automatische Tool- oder GitHub-Schreibausführung, Codex-Auftrag, Background-Worker, Modellabrechnung, externe Zahlungsbuchungen oder automatische technische/DEV-/Go-Live-Abnahme. Ein "claimed" Slot beschreibt ausschließlich eine **manuelle Reservierung**, keinen gestarteten KI-Prozess.
+
+### Sicherheits- und Kostengrenzen
+
+- **Zero-by-default**: `/state/agent-control.sqlite3` existiert vor `init` nicht; Dashboard meldet `not_initialized`, Budget 0 Cent, `execution=disabled`. Kein Auto-Init/Auto-Start durch HTTP-GET.
+- **Read-only HTTP**: `/api/snapshot` kann nur `agent_control.read_status()` anzeigen. Kein POST-/PATCH-/DELETE-Endpunkt für Agentenaufträge. Das Loopback-Dashboard mit Basic Auth darf nicht als sicheres allgemeines Multiuser-Schreibinterface verstanden werden.
+- **Mutierende Befehle nur über Server-/Container-CLI mit `--actor` und `--confirm`**, Audit-Tabelle und SQLite `BEGIN IMMEDIATE` für konkurrierende Nutzer. Der vorgeschlagene Sprint muss im initialen 61-Fiverr-Register existieren und die Master-Tracker-SHA muss exakt übereinstimmen.
+- **Unabhängige Freigabe**: Antragsteller und freigebender Operator müssen unterschiedliche angegebene Identitäten haben; die Freigabe benötigt außerdem den SHA256-Fingerprint des unveränderten Auftragstexts. *Diese Textidentitäten sind kein kryptografisch überprüfter Identitätsnachweis; nur vertrauenswürdige Server-Administratoren dürfen die CLI nutzen.*
+- **Geld**: Beträge sind ganze Euro-Cent, maximale konfigurierbare Monatsobergrenze 1.000 € (`100000` Cent). Das Budget ist anfangs 0. Für genehmigte/reservierte Jobs wird die Schätzung und für manuell abgeschlossene Jobs der dokumentierte Ist-Wert gezählt; eine Überschreitung der Reservierung wird verweigert. Budgetsenkungen unter bereits reservierte/Ist-Kosten werden abgewiesen. **Dies sind interne Plan-/Buchungswerte, keine vom Anbieter bestätigten API-Kosten**. Ohne Provider können reale Ausgaben nicht auftreten.
+- **Ein Slot gleichzeitig**: ein partieller SQLite UNIQUE-Index verhindert zwei `claimed` Jobs auch bei konkurrierenden Befehlen. Kein Agent-/Prozessstart, keine Background-Tasks. Ein abschließender manueller `completed`-Status bestätigt nicht, dass ein externer Agent ausgeführt wurde oder Ergebnisse richtig sind.
+- **Trennung vom Produkt**: Es werden keine bestehenden `task`-, `approval`-, `progress_event`- oder Release-Daten verändert. `NO_GO` ist konstant. GitHub-Token bleibt read-only. Keine Änderung von PROD, staging, DEV oder Fiverr-Listings.
+
+### Bedienung (zunächst nur initialisieren und ansehen)
+
+Nach **Online-Backup der vorhandenen `projects.sqlite3`** und gesichertem 1.7-Dashboard-Code:
+
+```bash
+cd ~/bcsentinel-ai-control-center/repo/tools/ai-control-center
+docker compose -f compose.example.yml exec -T ai-control-center \
+  python agent_control.py init --actor admin --confirm
+
+docker compose -f compose.example.yml exec -T ai-control-center \
+  python agent_control.py status
+```
+
+Erwartung: `state=loaded`, `budget.monthly_cap_cents=0`, `claimed_slots=0`, `execution=disabled`, `global_release=NO_GO`. Über die im Dashboard gerenderte Queue kann nichts gestartet werden. Das Register liegt neben der ursprünglichen Datenbank in `/state/agent-control.sqlite3`. Vor künftigen Änderungen beide Datenbanken mittels SQLite-Onlinebackup sichern, vorzugsweise verschlüsselt auch off-host.
+
+### Optionale CLI-Beispiele – NICHT automatisch ausführen
+
+```bash
+# Monatslimit beispielhaft auf 500 Cent festlegen (nur nach bewusstem Entschluss)
+python agent_control.py budget --cents 500 --actor admin --confirm
+
+# Ein bereits fachlich geprüfter und nachweislich zur Tracker-SHA gehörender
+# Review-Auftrag muss zunächst als UTF-8-Datei vorliegen.
+python agent_control.py propose --task-id 4.01 --purpose evidence_review \
+  --tracker-sha <EXAKTE_64_STELLIGE_TRACKER_SHA> \
+  --request-file /tmp/review-request.txt --cents 100 \
+  --actor implementer --confirm
+
+# Fingerprint aus PROPOSE-Antwort wörtlich verwenden; anderer Operator nötig.
+python agent_control.py approve --job-id <JOB_ID> \
+  --request-sha <REQUEST_SHA256> --actor independent-reviewer --confirm
+
+# Nur manuelle Bearbeitung reservieren; KEIN echter Modell-/Agentenaufruf.
+python agent_control.py claim --job-id <JOB_ID> \
+  --actor independent-reviewer --confirm
+
+# Manuell dokumentiertes Ende; keine automatische DEV-/Go-Live-Freigabe.
+python agent_control.py complete --job-id <JOB_ID> \
+  --actor independent-reviewer --cents 0 --confirm
+```
+
+**Weiterer Gate:** Eine echte generative KI-/Codex-Ausführung erfordert erst eine explizite Provider-Auswahl, anbieterbestätigte Kostenmessung, isolierte Laufzeit, begrenzte Tool-Rechte, starke Identitäts-/Freigabenachweise, einen Kill-Switch und End-to-End-Sicherheitsabnahme. Dieser Schritt ist nicht stillschweigend in Sprint 2.0 enthalten.
+
 ## AI-PM 1.7 – Kostenfreier projektmanagerähnlicher Tagesbericht (offline, nur beratend)
 
 Der neue Dienst `ai_pm_brief.py` erzeugt aus den **bestehenden, verifizierten** Quellen ein Tagesbriefing in deutscher Sprache, ohne eine generative KI-API aufzurufen und ohne neue laufende Kosten. Die Bezeichnung „AI-PM“ beschreibt hier die Produktroadmap; die **konkret implementierte Funktion in 1.7 ist ein deterministisches Regelwerk**, **kein LLM**, keine selbstlernende Empfehlung, kein Chat-Dialog und keine Agentenausführung.
