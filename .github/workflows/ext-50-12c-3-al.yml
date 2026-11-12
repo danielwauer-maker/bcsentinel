@@ -15,6 +15,7 @@ on:
   push:
     branches:
       - staging
+      - 'integration/dev-first-*'
   workflow_dispatch:
 
 permissions:
