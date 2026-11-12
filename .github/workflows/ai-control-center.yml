@@ -34,5 +34,6 @@ jobs:
           python -c 'from pathlib import Path; x=Path("index.html").read_text(); Path("/tmp/ai-control-center.js").write_text(x.split("<script>",1)[1].split("</script>",1)[0])'
           node --check /tmp/ai-control-center.js
           node --check executive.js
+          node --check triage.js
           python -c 'from pathlib import Path; x=Path("team.html").read_text(); Path("/tmp/ai-control-center-team.js").write_text(x.split("<script>",1)[1].split("</script>",1)[0])'
           node --check /tmp/ai-control-center-team.js
