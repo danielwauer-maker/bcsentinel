@@ -30,3 +30,13 @@ Bei fehlender oder fehlerhafter Quelle wird kein Success-Badge oder erfundener P
 4. Feedback zum Executive-Layout einarbeiten, anschließend weitere 2.2-Abschnitte: eigene Evidence-Filter/Detailansichten, PR-Deduplikation, Agenda-Status und Team-Aufgabenplanung (ohne Ausführung).
 
 **Status:** Erster UI-Codekandidat, nicht abgenommen. Die BCSentinel-/Fiverr-Produktfreigabe bleibt global NO_GO.
+
+## Desktop-Triage – Folgeinkrement
+
+Das Executive-Dashboard enthält zwei getrennte, filterbare Listen: **kuratierte Sprint-Evidence** und **offene GitHub-Pull-Requests**. Suche nach Sprint/PR/Titel, Filter für Aufgaben oder PRs, Begrenzung auf 5/10/25/alle Einträge. Wiederholte Sprint-IDs werden mit deduplizierten Quellen gesammelt; PRs werden ausschließlich pro Repository und PR-Nummer dedupliziert. Keine heuristische oder automatische Zuordnung von PRs zu Aufgaben und keine Freigaben.
+
+Nur der bereits geladene API-Snapshot wird dargestellt; alle dynamischen Strings werden über `textContent` gesetzt. Externe Links werden auf HTTPS-GitHub-Pull-Requests oder Issues der beiden BCSentinel-Repositories eingeschränkt. Fehlende oder unvollständige GitHub-Daten werden gekennzeichnet und nicht als „keine offenen PRs“ ausgegeben. Die ursprünglichen vollständigen Tabellen und Detaildaten bleiben unverändert erreichbar.
+
+**Betreiberentscheidung:** ausschließlich Desktop-Abnahme; Mobile-/Tablet-QA ist N/A. Die bestehende responsive CSS-Basis bleibt erhalten. Die letzte Dashboard-Korrektur heißt „Historische Aufgaben-Gates“; Excel-Markierungen sind keine unabhängige DEV-/Go-Live-Abnahme.
+
+**Noch offen:** aktualisiertes Preview-Image ausschließlich für Port 8093 bauen, visuelle Desktop-Prüfung mit authentifiziertem Zugriff und echter Filtereingabe; danach Betreiberabnahme. Bestehendes Dashboard 8092, Host-Backups und Produktumgebungen nicht ändern.
