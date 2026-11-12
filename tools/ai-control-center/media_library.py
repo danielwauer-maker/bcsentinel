@@ -194,8 +194,9 @@ def preview_table(repo, ref, path):
             raise MediaError(422, "Excel-Vorschau konnte nicht sicher gelesen werden") from exc
     if ext == ".csv":
         import csv
+        import itertools
         text = data.decode("utf-8-sig", errors="replace")
-        rows = [[v[:120] for v in row[:8]] for row in list(csv.reader(io.StringIO(text)))[:8]]
+        rows = [[v[:120] for v in row[:8]] for row in itertools.islice(csv.reader(io.StringIO(text)), 8)]
         return {"sheets": [{"name": "CSV", "rows": rows}], "truncated": True}
     raise MediaError(404, "Keine tabellarische Vorschau verfügbar")
 
