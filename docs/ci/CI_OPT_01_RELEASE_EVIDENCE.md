@@ -13,6 +13,10 @@ Before the final staging integration, prove that the **exact reviewed PR head SH
 - Explicit failure on missing, skipped, cancelled, failed or pending workflow; changed PR head/base; API errors; malformed inputs; missing matrix jobs; pagination truncation. Persist a compact evidence JSON artifact with names and run IDs, not secrets.
 - The GitHub API `actions/runs?head_sha=<SHA>` filter was checked against an actual BCSentinel commit and returned both PR and push runs at that exact SHA.
 
+## Dispatch availability caveat (verified repository default branch)
+
+The repository's default branch is **`main`**, not `staging`. GitHub Actions `workflow_dispatch` typically requires the workflow file to exist on the default branch to be accessible from the Actions UI/API. Therefore **merging this draft only to staging does not guarantee that the manual action can actually be launched**. Do not merge the workflow to `main` merely to enable dispatch: the existing main-push deployment policy can deploy PROD. An explicit, separately reviewed workflow-only installation on the default branch (with a verified no-PROD-deploy window) or an authorized external read-only invocation of `scripts/ci_release_attestation.py` is necessary before claiming the manual control operational.
+
 ## Safe usage (after this workflow is merged and available)
 
 From GitHub → Actions → **CI OPT 01 Exact SHA Release Evidence (informational)** → Run workflow, supply the three mandatory fields:
