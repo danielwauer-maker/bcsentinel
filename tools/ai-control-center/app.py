@@ -29,7 +29,14 @@ from team_roster import roster as team_roster
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
 GITHUB_REPOS = ["danielwauer-maker/bcsentinel", "danielwauer-maker/bcsentinel-frontend"]
-NO_CACHE = {"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY"}
+NO_CACHE = {"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer",
+            "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+            "Content-Security-Policy": ("default-src 'none'; script-src 'self' 'unsafe-inline'; "
+                                        "style-src 'self' 'unsafe-inline'; "
+                                        "connect-src 'self'; img-src 'self' data:; "
+                                        "font-src 'self'; base-uri 'none'; "
+                                        "form-action 'none'; frame-ancestors 'none'")}
 STATUS_HEADINGS = ("status", "stand", "bearbeitungsstand", "fortschritt", "state")
 ID_HEADINGS = ("sprint", "arbeitspaket", "aufgabe", "task", "id", "nummer")
 TITLE_HEADINGS = ("titel", "aufgabe", "beschreibung", "task", "sprint", "name")
