@@ -35,10 +35,10 @@ main{max-width:1370px;margin:auto;padding:38px 30px 90px}.eyebrow{font-size:.7re
 @media(max-width:640px){.specialist-grid{grid-template-columns:1fr}.topbar{padding:15px 17px}.brand{font-size:.95rem}main{padding:29px 15px 55px}.summary{gap:9px}.metric{padding:13px}.metric strong{font-size:1.55rem}.cards,.org-grid{grid-template-columns:1fr}.org{padding:19px}.org-node{min-height:70px}.portrait{height:140px}.leader{width:100%}.sectionbar{align-items:flex-start}.topbar{gap:10px}.org-grid{padding-top:12px}.connector{height:13px}}
 @media(prefers-reduced-motion:reduce){.agent-card{transition:none}.agent-card:hover{transform:none}}
 </style><link rel="stylesheet" href="/light-theme.css"></head>
-<body><header><div class="topbar"><div class="brand"><span class="symbol">◈</span>BCSentinel <span style="color:#92b8ce;font-weight:500">/ AI Control Center</span></div>
+<body><header><div class="topbar"><div class="brand"><span class="symbol">◈</span>BCSentinel <span style="color:#536c80;font-weight:500">/ AI Control Center</span></div>
 <nav class="nav" aria-label="Hauptnavigation"><a href="/index.html">Dashboard</a><a href="/team.html" class="active" aria-current="page">Team</a></nav></div></header>
 <main><div class="eyebrow">AI CONTROL CENTER / ORGANISATION</div>
-<div class="headline"><div><h1>Meet the AI Team<span style="color:#79d3ef">.</span></h1><p class="subtitle">Spezialisierte Rollen für Entwicklung, Architektur und Qualitätssicherung – zentral koordiniert und mit klaren Zuständigkeiten. Live-Status aus der lokalen Agentensteuerung, ohne simulierte Aktivität.</p></div><button id="refresh" class="refresh" type="button">↻ Aktualisieren</button></div>
+<div class="headline"><div><h1>Meet the AI Team<span style="color:#16618b">.</span></h1><p class="subtitle">Spezialisierte Rollen für Entwicklung, Architektur und Qualitätssicherung – zentral koordiniert und mit klaren Zuständigkeiten. Live-Status aus der lokalen Agentensteuerung, ohne simulierte Aktivität.</p></div><button id="refresh" class="refresh" type="button">↻ Aktualisieren</button></div>
 <div class="summary"><div class="metric"><small>Definierte Teamrollen</small><strong id="metric-roles">–</strong><span>Organisatorisch vorbereitet</span></div><div class="metric"><small>Aktiv laufende KI-Agenten</small><strong id="metric-active">–</strong><span>Echte Ausführung, nicht Reservierungen</span></div><div class="metric"><small>Auf Zuweisung wartend</small><strong id="metric-wait">–</strong><span>Rollen ohne Arbeitsauftrag</span></div><div class="metric"><small>Unzugeordnete Aufträge</small><strong id="metric-pending">–</strong><span>Aus dem lokalen Auftragsregister</span></div></div>
 <div class="sectionbar"><h2>Teamstruktur</h2><span class="pill">Geplantes Organigramm · keine Agentenlaufzeit</span></div>
 <section class="org" aria-label="Organigramm"><div class="leader-wrap" id="team-leader"></div><div class="connector"></div><div class="org-grid" id="org-nodes"></div><div class="specialist-branch"><div class="branch-caption">Architecture / Engineering · Fachteam unter Solution Architect</div><div class="specialist-grid" id="org-specialists"></div></div></section>
@@ -50,21 +50,21 @@ main{max-width:1370px;margin:auto;padding:38px 30px 90px}.eyebrow{font-size:.7re
 const el=id=>document.getElementById(id);
 const NS='http://www.w3.org/2000/svg';
 const PALETTE={
- pm:['#71d9f0','#0b3048','#194968'],architect:['#a3a7ff','#302b59','#6355ab'],
- bc:['#d6ae76','#42321d','#70542e'],backend:['#6cc5ff','#123852','#235b85'],
- frontend:['#e8a0d3','#4b2447','#833e6d'],qa:['#8ce2ac','#183c38','#266f5d'],
- devops:['#78afd5','#17334b','#2c5975'],data:['#f0bb85','#4b3324','#815331']
+ pm:['#146a91','#d9eef9','#95d1ea'],architect:['#5e50a1','#eae7fb','#b9b0e9'],
+ bc:['#80561c','#f8efdf','#e8ce9c'],backend:['#17669c','#e1eff9','#aad4ee'],
+ frontend:['#914673','#f7e8f3','#eabbd9'],qa:['#206849','#e2f4eb','#aedbc0'],
+ devops:['#275d81','#e0eef8','#b3d1e6'],data:['#875922','#f8ecda','#efd0a7']
 };
 function art(id,colors){
  const [tone,deep]=colors;const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 96 96');s.setAttribute('aria-hidden','true');s.setAttribute('focusable','false');
  const add=(type,attrs)=>{const n=document.createElementNS(NS,type);for(const [key,value] of Object.entries(attrs))n.setAttribute(key,String(value));s.appendChild(n);return n};
- add('circle',{cx:48,cy:48,r:39,stroke: '#ffffff22','stroke-width':1});
+ add('circle',{cx:48,cy:48,r:39,stroke: '#8199ac','stroke-width':1});
  if(id==='pm'){add('circle',{cx:48,cy:28,r:11});[[22,69],[48,72],[74,69]].forEach(([x,y])=>add('rect',{x:x-9,y:y-9,width:18,height:18,rx:5}));[[48,40,48,56],[48,56,22,56],[48,56,74,56],[22,56,22,60],[74,56,74,60]].forEach(p=>add('path',{d:'M'+p[0]+' '+p[1]+' L'+p[2]+' '+p[3]}))}
  else if(id==='architect'){add('path',{d:'M16 66 L48 15 L80 66 Z'});add('path',{d:'M29 66 V80 H67 V66'});add('path',{d:'M48 15 V79 M32 41 H64 M24 53 H72'});add('circle',{cx:48,cy:28,r:4})}
  else if(id==='bc'){add('rect',{x:17,y:23,width:62,height:49,rx:6});add('path',{d:'M17 39 H79 M38 39 V72 M57 39 V72'});[27,48,68].forEach(x=>add('circle',{cx:x,cy:31,r:2}));add('path',{d:'M26 55 H30 M46 55 H51 M64 55 H70'})}
  else if(id==='backend'){add('rect',{x:18,y:20,width:60,height:57,rx:7});add('path',{d:'M18 37 H78 M18 56 H78'});[29,48,66].forEach(y=>{add('circle',{cx:28,cy:y,r:3});add('path',{d:'M42 '+y+' H68'})})}
  else if(id==='frontend'){add('rect',{x:14,y:19,width:68,height:56,rx:7});add('path',{d:'M14 34 H82'});add('rect',{x:24,y:43,width:20,height:20,rx:3});add('path',{d:'M52 47 H71 M52 55 H65 M28 72 H67'});[23,30,37].forEach(x=>add('circle',{cx:x,cy:27,r:1.4}))}
- else if(id==='qa'){add('path',{d:'M48 11 L77 24 V51 Q76 71 48 84 Q20 71 19 51 V24 Z'});add('path',{d:'M31 47 L43 59 L66 35'});add('circle',{cx:48,cy:48,r:26,stroke:'#ffffff16'})}
+ else if(id==='qa'){add('path',{d:'M48 11 L77 24 V51 Q76 71 48 84 Q20 71 19 51 V24 Z'});add('path',{d:'M31 47 L43 59 L66 35'});add('circle',{cx:48,cy:48,r:26,stroke:'#93aabd'})}
  else if(id==='devops'){add('path',{d:'M27 65 H70 Q83 65 83 51 Q83 37 70 37 Q66 16 47 16 Q31 16 27 36 Q12 39 12 53 Q12 65 27 65 Z'});add('path',{d:'M48 39 V76 M36 63 L48 76 L60 63'});add('circle',{cx:48,cy:76,r:3})}
  else if(id==='data'){add('path',{d:'M22 79 V17 M22 79 H81'});add('rect',{x:32,y:53,width:12,height:26,rx:2});add('rect',{x:49,y:39,width:12,height:40,rx:2});add('rect',{x:66,y:24,width:12,height:55,rx:2});add('path',{d:'M31 39 L51 25 L72 13'});}
  return s;
