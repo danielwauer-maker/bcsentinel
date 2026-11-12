@@ -175,3 +175,24 @@ Reviewed on 2026-11-12 against Core main `c1d9fccf39767048bceabe93e7b8676df18086
 ### Organizational truth
 
 Product direction for PC-01/PC-02/PC-05 is clarified by the owner. **Normative implementation, contractual price freeze, compatibility regression, BC27 DEV acceptance and Go-Live remain OPEN.** Do not check off tracker 4.01. Dashboard evidence must reflect the clarified decisions without incrementing gates, and must be prepared in a separate draft PR before any controlled deployment.
+
+
+## 9. Cross-repo normative candidate and Sprint 4.02 evidence review — 2026-11-12
+
+**New Product System Draft PR:** [#33](https://github.com/danielwauer-maker/bcsentinel-product-system/pull/33), candidate commit `79fb7da8fb513c2359be25eaeb90062d275edc83`, file `00-core/fiverr-access-v2-candidate.yaml`. This is **non-active** and preserves the approved Product System `product-model.yaml`, `fiverr-channel-contract.yaml` and separate direct/EUR prices. Standard six-tier Fiverr USD list prices are owner approved; this does **not** approve the final migration, actual Fiverr checkout implementation or operational monitoring cadence.
+
+### Sprint 4.02 (Free → Full14) source inspection
+
+- PR #154 HEAD `ad7f570c21c37fbb6b0cce04e8c462a76c604947` remains Draft, based on `integration/dev-report-v6-sync-20261106`, **not** Core main; dependent PR #156 and #157 are separate stacked branches.
+- `backend/app/services/access_renewal_policy.py` defines `ACCESS_DAYS=14`, Free one initial scan/persistent Free access, Full Assessment zero additional scans and 14 days; the renewal without scan and renewal+Validation with one scan are represented as distinct grants.
+- `backend/tests/test_access_renewal_policy.py` asserts the 14-day constant, one original Free credit, zero extra Full/renewal credits, 14d renewal, expiration protections and Monitoring report restriction.
+- Policy `extend_access` **stacks from the later of existing access expiry or activation timestamp**. This is *implemented policy behavior*, NOT an independently approved timing policy. Separate owner acceptance and refund/overlap tests remain required.
+- `GRANTS[MONITORING].additional_scans = None` delegates to fair-use controls. This **does not prove** the proposed one scan per 30-day paid period; current Monitoring scope must be aligned with the mandatory Fiverr-launch Gig before activation.
+- `docs/pr154-v2-release-gates.md` documents matching installed BC 1.0.2.52 persisted AL schema sources and prior PTE0004 permission regression; a real successful BC27 non-destructive upgrade, Non-SUPER runtime, tenant/company isolation and authenticated Full-v6 E2E are still missing.
+- Core and newer BC extension artifact refs must be reconciled with #162/#168 prior to deploying any candidate. No blanket replacement of old 7-day or permanent-Quick historical rights.
+
+**4.02 status:** Code candidate present; source reviewed here but **no new tests executed against a checked-out branch in this audit**. Technical integration not marked complete; DEV acceptance NOT PASSED; Go-Live NO_GO. Next safe engineering work is branch-aware test/provenance + BC schema/role migration verification, not a PROD toggle.
+
+**Contract change sequencing:** Product System #33 Draft review → resolve specifically renewal overlap, Monitoring monthly scan allowance and Validation bundle → controlled versioned normative contract approval → stacked Core #154/#156/#157 integration/regression → real BC27/DEV End-to-End → buyer/web copy/offer parity → release signoff. Pricing approval alone does not authorize a launch.
+
+**No main/staging merge, PROD/DEV deploy, provider discount creation, Excel or dashboard gate upgrade.** Dashboard evidence for this progress is tracked separately via Core PR #170.
