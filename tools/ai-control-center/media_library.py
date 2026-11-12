@@ -158,7 +158,7 @@ def _scan_references(repo, ref, tree):
         raw = _request("https://api.github.com/repos/" + repo + "/git/blobs/" + entry["sha"])
         if raw.get("encoding") != "base64":
             raise MediaError(502, "Nicht lesbarer Source-Blob")
-        data = base64.b64decode(re.sub(r"\\s+", "", raw["content"]), validate=True)
+        data = base64.b64decode(re.sub(r"\s+", "", raw["content"]), validate=True)
         if len(data) != entry["size"]:
             raise MediaError(502, "Abweichende Source-Blobgröße")
         text = data.decode("utf-8", errors="replace")
