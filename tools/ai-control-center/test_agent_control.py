@@ -1,5 +1,8 @@
 """AI-PM 2.0: control plane never executes external models or writes to GitHub."""
 import hashlib
+import os
+from unittest import mock
+import project_store
 import sqlite3
 import tempfile
 import threading
@@ -16,6 +19,17 @@ class ControlTests(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.db=Path(self.temp.name)/"control.sqlite3"
+        project_db=Path(self.temp.name)/'projects.sqlite3'
+        rows=[{'id':f'{i+1}.01','title':'Task','area':'fiverr','sprint':'T',
+               'technical_checked':False,'live_checked':False} for i in range(60)]
+        rows[0]['id']='4.01'
+        rows.append({'id':'99.01','title':'Task','area':'fiverr','sprint':'T','technical_checked':False,'live_checked':False})
+        rows.extend({'id':f'S{i}.01','title':'Task','area':'saas','sprint':'S',
+                    'technical_checked':False,'live_checked':False} for i in range(24))
+        project_store.import_rows({'state':'loaded','sha256':SHA,'filename':'test.xlsx','rows':rows},project_db)
+        env=mock.patch.dict(os.environ,{'PROJECT_DB_PATH':str(project_db)})
+        env.start()
+        self.addCleanup(env.stop)
         self.assertEqual(a.read_status(self.db)["state"],"not_initialized")
         a.init(self.db,actor="owner",confirm=True)
     def proposal(self):
