@@ -3,7 +3,7 @@ name: DEV-first read-only host inventory
 on:
   push:
     branches:
-      - 'integration/dev-first-*'
+      - 'integration/dev-first-fiverr-core-20261112'
     paths:
       - 'scripts/dev_readonly_inventory.sh'
       - '.github/workflows/dev-first-readonly-inventory.yml'
