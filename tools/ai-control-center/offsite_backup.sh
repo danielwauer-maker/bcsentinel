@@ -10,6 +10,19 @@ command -v restic >/dev/null || die "restic missing; install from your trusted O
 command -v python3 >/dev/null || die "python3 missing"
 : "${RESTIC_REPOSITORY:?Configure a dedicated encrypted off-host restic repository}"
 : "${RESTIC_PASSWORD_FILE:?Configure a root-only restic password file}"
+# Rclone credentials must be a separate, root-owned config. Never silently
+# fall back to root's default home or the unprivileged dashboard account.
+if [[ "$RESTIC_REPOSITORY" == rclone:* ]]; then
+  : "${RCLONE_CONFIG:?Set RCLONE_CONFIG to an explicit root-only config file}"
+  [[ -f "$RCLONE_CONFIG" && ! -L "$RCLONE_CONFIG" ]] ||
+    die "Rclone config missing or symlinked"
+  [[ "$(stat -c %u "$RCLONE_CONFIG")" == 0 ]] ||
+    die "Rclone config must be owned by root"
+  [[ "$(stat -c %a "$RCLONE_CONFIG")" == 600 ||
+     "$(stat -c %a "$RCLONE_CONFIG")" == 400 ]] ||
+    die "Rclone config permissions must be 0600 or 0400"
+  command -v rclone >/dev/null || die "rclone executable missing"
+fi
 case "$RESTIC_REPOSITORY" in
   sftp:*|s3:*|b2:*|rclone:*|rest:https://*) ;;
   *) die "Remote-only repository required: sftp:, s3:, b2:, rclone:, rest:https:// (no local/file/http)" ;;
