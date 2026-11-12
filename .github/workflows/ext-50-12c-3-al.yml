@@ -182,10 +182,13 @@ jobs:
             # Count tests declared in the QA source instead of a stale hard-coded 3.
             # Require at least the five reviewed identity/provenance cases, and
             # fail closed if any declared test did not run or was skipped.
-            $qaTestSource = Join-Path $env:GITHUB_WORKSPACE "bc-finding-tests/src/BCSFindingIdentityTests.Codeunit.al"
-            $expectedCount = [regex]::Matches(
-              (Get-Content -LiteralPath $qaTestSource -Raw),
-              '(?m)^\s*\[Test\]\s*
+            $qaTestSource = Join-Path $env:GITHUB_WORKSPACE 'bc-finding-tests/src/BCSFindingIdentityTests.Codeunit.al'
+            $qaTestContent = Get-Content -LiteralPath $qaTestSource -Raw
+            $expectedCount = ([regex]::Matches($qaTestContent, '\[Test\]')).Count
+            if ($expectedCount -lt 5) { throw 'Missing mandatory QA source cases.' }
+            if ($cases.Count -ne $expectedCount -or $results.SelectNodes('//testcase/failure|//testcase/error|//testcase/skipped').Count -ne 0) {
+              throw "Expected $expectedCount QA tests to execute without failures or skips; found $($cases.Count)."
+            }
             $installedQA = @(Get-BcContainerAppInfo -containerName "bcsentinel-bc-gate" -tenant default -tenantSpecificProperties |
               Where-Object { "$($_.AppId)" -eq "3c355631-e232-4acd-bcc9-34264f7d25b7" -and $_.IsInstalled })
             if ($installedQA.Count -ne 1 -or "$($installedQA[0].Version)" -ne "1.0.0.1") {
