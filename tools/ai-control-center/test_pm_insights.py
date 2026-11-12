@@ -70,12 +70,12 @@ class InsightsTests(unittest.TestCase):
             con.execute("""CREATE TABLE pr_task_link(repo TEXT,number INTEGER,task_key TEXT,
                          source TEXT,reason TEXT,observed_at TEXT)""")
             con.execute("""CREATE TABLE pr_observation(repo TEXT,number INTEGER,
-                         url TEXT,pr_state TEXT,updated_at TEXT)""")
+                         url TEXT,pr_state TEXT,title TEXT,updated_at TEXT)""")
             repo="danielwauer-maker/bcsentinel"
             con.execute("INSERT INTO pr_task_link VALUES(?,?,?,?,?,?)",
                         (repo,99,"fiverr:8.01","explicit_sprint_marker","observation","2026-11-12T00:00:00Z"))
-            con.execute("INSERT INTO pr_observation VALUES(?,?,?,?,?)",
-                        (repo,99,f"https://github.com/{repo}/pull/99","draft","2026-11-12T00:00:00Z"))
+            con.execute("INSERT INTO pr_observation VALUES(?,?,?,?,?,?)",
+                        (repo,99,f"https://github.com/{repo}/pull/99","draft","Observed PR","2026-11-12T00:00:00Z"))
         con.close()
         r=pm_insights.assess(*self.parts())
         self.assertEqual(r["work_status"]["raw_stage_counts"]["implementation_candidate"],1)
