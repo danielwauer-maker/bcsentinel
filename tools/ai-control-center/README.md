@@ -160,6 +160,17 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.1 – Offsite-Backup & Netzwerkrestrisiko (optionale Betreiber-Abnahme)
+
+Verbindliche Betriebsanleitung: [AI_PM21_OFFSITE_NETWORK.md](AI_PM21_OFFSITE_NETWORK.md).
+
+- `offsite_backup.sh` bereitet **nur nach manuellem Operatorstart** ein clientseitig verschlüsseltes `restic`-Backup der **beiden** lokalen SQLite-Datenbanken auf einem dedizierten entfernten SFTP/S3/B2/Rclone/HTTPS-Rest-Repository vor. Backup geschieht zuerst ausschließlich über die SQLite-Online-API; kein `cp` auf Live-Datenbanken. Danach wird aus dem tatsächlich entfernten Restic-Repository in ein temporäres Host-Verzeichnis wiederhergestellt und die SQLite-Integrität erneut geprüft.
+- Schutz: root-only Ausführung, externe root-eigene Passwortdatei mit 0400/0600, bestehendes dediziertes Remote-Repository zwingend, kein Local- oder HTTP-Ziel, keine Secrets im Code, kein `init`/`prune`/`forget`, kein Cron/Timer und kein Eingriff in Docker oder Produktdaten. Das Script beendet sich ohne remote-config und Credential-Setup sicher mit Fehler.
+- `test_offsite_backup.py` und `bash -n` werden in CI ausgeführt; diese Tests **simulieren keinen echten Fernspeicher** und können dessen Betrieb/verschlüsselte Wiederherstellbarkeit nicht belegen. `OFFSITE_BACKUP_AND_RESTORE_PASS` muss auf dem Hetzner-Host **nach** Einrichtung eines echten, unabhängigen externen Ziels nachgewiesen werden.
+- Docker-Netze des Control Centers sind laut Betreiberbefund von DEV/PROD getrennt; Host-Routing/ausgehender Verkehr und veröffentlichte Host-Ports sind nicht damit ausgeschlossen. Die Anleitung enthält sichere, rein lesende Folgetests und eine explizite Restrisiko-Matrix.
+
+Das ist **keine** Freigabe für produktive BCSentinel-Backups oder neue finanzielle Verträge; Budget/Anbieterwahl und Aktivierung bedürfen einer separaten Benutzerentscheidung.
+
 ## AI-PM 2.1 – Sicherheits- und End-to-End-Abnahmevorbereitung
 
 Die zentrale, verbindliche Checkliste mit **CI-vs.-Live-Evidence-Trennung** liegt in [AI_PM21_DEV_ACCEPTANCE.md](AI_PM21_DEV_ACCEPTANCE.md).
