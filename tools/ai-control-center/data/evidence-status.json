@@ -80,7 +80,7 @@
     {
       "id": "4.01",
       "status": "audit_draft",
-      "detail": "Audit/Entscheidungsvorlage ACV2-2026-11-12-r1 in PR #164 am Commit 584931420791: acht PC-01..PC-08-Konflikte erneut gegen main und Product System v2.1 dokumentiert; aktuelle 7d/Quick-Rechte vs. vorgeschlagene 14d/3-Gig-v2-Regeln, Legacy-, Preis-, Monitoring- und Renewal-Beschlüsse offen. Dokumentation aktualisiert, Produktvertrag NICHT genehmigt, keine technische oder DEV-E2E-Abnahme; NO_GO. PR #164 CI am vorherigen HEAD: E5 Recovery FAILED bei PostgreSQL-client-Installation (Restore-Schritte nicht gelaufen); weitere beobachtete Workflows PASS. Neue CI nach Commit separat prüfen.",
+      "detail": "Product owner clarified 2026-11-12: no Quick offer for NEW Fiverr sales (same full-depth DeepScan engine), new v2 Full/Renewal 14 days, Monitoring mandatory for first Fiverr Go-Live. Legacy Quick/7d historic entitlements need compatibility check; no canonical v2 Fiverr pricing freeze yet. PC-04 BC27/provenance evidence, PC-06 website and PC-07 security remain P0. Normative product contract/DEV/runtime/launch not approved. Audit PR #164 updated.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
         "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
@@ -164,7 +164,7 @@
     {
       "title": "Sprint 4.01 · Access-v2 audit",
       "status": "audit_draft",
-      "detail": "PC-01..PC-08 per 12.11.2026 in PR #164 durch ACV2-2026-11-12-r1 mit Zielmatrix, offenen Entscheidungen D1-D6, Legacy- und Sprint-Abhängigkeiten erneut dokumentiert; nur Dokumentation, Vertrag/DEV/Go-Live offen. Core main c1d9fccf3976; PR #154 ad7f570c21c3. E5-CI am alten #164 HEAD fehlgeschlagen (Install PostgreSQL client).",
+      "detail": "Owner direction clarified 2026-11-12: no new Quick, Full/Renewal 14d, Monitoring in Fiverr initial launch. Price authority, legacy protection, normative update and runtime/DEV tests remain open. See Draft PR #164.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/164",
         "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025"
@@ -205,13 +205,13 @@
     {
       "title": "Fiverr V1 · Umfang und Landing-Freeze",
       "status": "launch_scope_open",
-      "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
+      "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO. Product owner confirms first Fiverr Go-Live includes Full Assessment, Validation and Monitoring; no new Quick offer; 14d access target. Requires actual Monitoring E2E, price/contract and landing freeze; global NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
       ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import",
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import; owner commercial direction 2026-11-12 recorded as decision evidence, not technical runtime evidence",
   "observed_gates": {
     "source_date": "2026-11-12",
     "source_kind": "operator_logs_plus_github_ci",
