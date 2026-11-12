@@ -160,6 +160,20 @@ The schedule comparison is explicitly a **provisional linear capacity scenario**
 
 Next milestone: replace the frozen actual Excel snapshot with distinct, evidence-reviewed and approved gate-history events, so historical actual milestones can be shown. PR evidence alone is not an approval. No extra AI billing is involved.
 
+## AI-PM 2.0.2 – Light-only Theme (Dashboard und Team)
+
+**Entscheidung:** Variante A. Das BCSentinel AI Control Center besitzt ausschließlich ein helles Erscheinungsbild, ohne Theme-Toggle und ohne automatische Darkmode-Anpassung. Beide Seiten `/index.html` und `/team.html` laden die gemeinsame, **lokal unter Basic Auth** bereitgestellte `/light-theme.css` **nach** dem bisherigen Inline-CSS. Dadurch sind die tokenisierten Werte für beide Seiten einheitlich; alte dunkle Hintergrund- und Textvorgaben verlieren durch die spezifischen Light-Overrides ihre Wirkung. Eine spätere vollständige Umstellung des Legacy-CSS auf Tokens ist rein kosmetische Wartung, nicht Bestandteil dieses Sprints.
+
+- Helle Seite `#f3f7fb`, weiße Panels, gut unterscheidbare Sekundärflächen `#f7fafd`, dunkle Haupttexte `#152a3e` und gedämpfte Texte `#52677b`; blaue Akzente `#16618b`.
+- Statusfarben besitzen **eigene Vordergrund- und Hintergrund-Paare**; deaktivierte Agenten bleiben klar lesbar. Warnungen sind cremefarben, Fehler dezent rot, erfolgreiche Zustände grün.
+- Organigramm-Verbindungen, Aktivitätsbalken, Grenzen, Tabellen, Formularfelder, Fokus-Ringe, Dashboard-KPIs und Berichtstexte wurden separat berücksichtigt. Zeitplan-/Planungsdiagramme und Inline-SVG-Texte erhalten auch in der JavaScript-Farbpalette kontrastreiche Werte.
+- Die acht Agentenillustrationen verwenden **dunklere, gesättigte Konturen auf pastellfarbenen Karten**. Die Illustrationen bleiben lokal als SVG; keine CDNs, externen Bilddateien oder Font-Abhängigkeiten.
+- **Automatisierte Kontrastverifikation:** `test_light_theme.py` testet wichtige Text-zu-Fläche-Kombinationen auf mindestens **4,5:1** und sämtliche acht Illustrationskonturen auf entsprechendem Pastellgrund. Das ist eine gezielte technische Prüfung wichtiger Paare, **kein vollständiger Browser-/WCAG-Audit aller dynamischen Konstellationen**.
+- Fehlende oder nicht authentifizierte CSS-Anfragen werden nicht durch öffentliche Dateifreigaben umgangen. `app.py` liefert ausschließlich `/light-theme.css` mit `text/css`, nach derselben Basic-Auth-Prüfung wie beide HTML-Seiten. Bestehende Schreibverbote und Agenten-Gates bleiben unverändert.
+- Die bisherige Team-Statussemantik bleibt korrekt: acht vorbereitete Rollen, keine echten Laufzeitdaten und keine automatisch zugeteilten Sprints. Das Lighttheme ändert **nur Darstellung**.
+
+**Hetzner-Update:** `projects.sqlite3` und `agent-control.sqlite3` mit SQLite-Onlinebackup sichern. Bestehendes Portmapping `127.0.0.1:8092:8090` samt `.env` erhalten. Nur den dedizierten `ai-control-center`-Container aus dem unveränderten Draft-Branch neu bauen und neu starten; `ai-pm-sync` und BCSentinel DEV/PROD unberührt lassen. `/team.html` und `/index.html` im Browser mit erzwungenem Neuladen (Strg+F5) visuell prüfen: Überschriften, kleine Subtexte, Badges, Diagramme, Organigramm, Illustrationen, Tabellen, Hover-/Fokus-Zustände.
+
 ## AI-PM 2.0.1 – Team & Agent Overview
 
 Unter `/team.html` steht eine **zweite, hinter derselben Basic-Auth geschützte** und rein lesende Team-Seite mit Navigation `Dashboard | Team` bereit. Sie zeigt ein responsives Organigramm mit acht festen Designrollen: AI Project Manager (Leitung), Solution Architect (mit BC, Backend und Frontend als Fachteam), QA, DevOps und Data & Reporting. Eigene, offline gerenderte Inline-SVG-Vektorillustrationen je Kategorie, ohne externe Bilder/CDNs/Fonts oder neue Abhängigkeiten. Ein Bild wird **nicht** als reale Person oder laufende KI ausgegeben.
