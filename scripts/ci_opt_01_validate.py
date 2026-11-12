@@ -12,14 +12,14 @@ FILES = (
     "p0-04-postgres-migration-cycle.yml",
     "p0-05-postgres-backup-restore.yml",
 )
-EXPECTED_GROUP = "group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+EXPECTED_GROUP = "group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-{1}-{2}', github.workflow, github.event_name, github.run_id) }}"
 EXPECTED_CANCEL = "cancel-in-progress: ${{ github.event_name == 'pull_request' }}"
 
 for filename in FILES:
     path = ROOT / ".github" / "workflows" / filename
     text = path.read_text(encoding="utf-8")
     assert text.count("concurrency:") == 1, f"{filename}: expected exactly one concurrency block"
-    assert EXPECTED_GROUP in text, f"{filename}: workflow / PR identity isolation missing"
+    assert EXPECTED_GROUP in text, f"{filename}: PR/manual/push group isolation missing"
     assert EXPECTED_CANCEL in text, f"{filename}: release runs must not be cancelled"
     assert "  workflow_dispatch:" in text, f"{filename}: manually approved release run missing"
     assert "  pull_request:" in text, f"{filename}: existing PR trigger must remain"
