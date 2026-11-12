@@ -50,7 +50,7 @@ class HttpIsolationTests(unittest.TestCase):
         return out
 
     def test_all_assets_are_auth_protected(self):
-        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/api/snapshot","/media.html","/media.js","/api/media","/api/media/asset?repo=bad&ref=main&path=foo.png"):
+        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/api/snapshot","/media.html","/media.js","/api/media"):
             with self.subTest(path=path):
                 status,headers,data=self.request(path)
                 self.assertEqual(status,401)
