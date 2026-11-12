@@ -1,6 +1,7 @@
-# DEV deploy is fail-closed. It requires operator-approved repository Actions variables:
+# DEV deploy is manual-only on staging (workflow_dispatch) and fail-closed.
+# It requires an exact release_sha input and operator-approved repository Actions variables:
 # DEV_STAGING_DEPLOY_ENABLED=true and DEV_STAGING_RELEASE_SHA=<exact staging commit SHA>.
-# Neither variable is set by this workflow. Without both matches, all DEV steps skip.
+# Neither variable is set by this workflow. Staging pushes never deploy.
 # Main/PROD behavior is unchanged. Do not authorize a SHA until CI and operator review.
 name: Deploy to Hetzner
 
@@ -9,9 +10,24 @@ on:
     branches:
       - main
       - staging
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Exact 40-character staging commit SHA reviewed for DEV deployment"
+        required: true
+        type: string
 
 jobs:
   deploy:
+    # staging pushes never deploy; only a deliberately dispatched, SHA-pinned
+    # staging release can deploy DEV. Main push/PROD conditions stay unchanged.
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/staging' &&
+      inputs.release_sha == github.sha &&
+      vars.DEV_STAGING_DEPLOY_ENABLED == 'true' &&
+      vars.DEV_STAGING_RELEASE_SHA == github.sha
     runs-on: ubuntu-latest
 
     steps:
@@ -90,7 +106,7 @@ jobs:
           exit 1
 
       - name: Deploy to DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
@@ -132,7 +148,7 @@ jobs:
           EOF
 
       - name: Health check DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           echo "🔎 Waiting for DEV backend (local on server)..."
           for i in {1..20}; do
@@ -158,7 +174,7 @@ jobs:
           exit 1
 
       - name: Smoke check DEV Core web surface
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
             echo "Checking https://dev.bcsentinel.com$path"
