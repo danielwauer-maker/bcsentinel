@@ -1,3 +1,7 @@
+# DEV deploy is fail-closed. It requires operator-approved repository Actions variables:
+# DEV_STAGING_DEPLOY_ENABLED=true and DEV_STAGING_RELEASE_SHA=<exact staging commit SHA>.
+# Neither variable is set by this workflow. Without both matches, all DEV steps skip.
+# Main/PROD behavior is unchanged. Do not authorize a SHA until CI and operator review.
 name: Deploy to Hetzner
 
 on:
@@ -86,7 +90,7 @@ jobs:
           exit 1
 
       - name: Deploy to DEV
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
@@ -128,7 +132,7 @@ jobs:
           EOF
 
       - name: Health check DEV
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           echo "🔎 Waiting for DEV backend (local on server)..."
           for i in {1..20}; do
@@ -154,7 +158,7 @@ jobs:
           exit 1
 
       - name: Smoke check DEV Core web surface
-        if: github.ref == 'refs/heads/staging'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
             echo "Checking https://dev.bcsentinel.com$path"
