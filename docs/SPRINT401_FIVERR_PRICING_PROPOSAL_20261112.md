@@ -57,3 +57,34 @@ Formula: `contribution = USD_price*0.8 - hours*55 - variable_reserve`. These res
 6. Run source/CI regressions and operator Marketplace/visual/legal QA. Do not mark tracker 4.01 technical or live gates PASS by this candidate.
 
 **Release disposition:** Price proposal ready for commercial review; Access-v2 normative approval OPEN; technical/DEV acceptance OPEN; Fiverr GO-LIVE NO_GO. No main/staging/PROD writes or deployments.
+
+
+## 2026-11-12 Owner pricing approval + discount policy direction (ACV2-2026-11-12-P2)
+
+**Commercial decision:** Product owner adopts the six-tier Fiverr USD Full/Validation/Monitoring list-price matrix **above as the intended standard list prices**. This replaces the pending *price amounts* signoff in the original proposal. The previous "PROPOSED" document status refers to the technical/normative release, Fiverr publication, eligibility, cadence, and remaining contract decisions; it no longer indicates that the list amounts themselves are awaiting owner approval. **Do not interpret the price approval as implementation, a Product System contract version bump, a complete Monitoring service contract, or Fiverr offer publication.**
+
+**New commercial requirement:** Seller must be able to grant individually negotiated early-customer discounts below standard list price; discounts should later be controlled in the BCSentinel Admin Backend and displayed as approved promotional offers on the landing page and, where supported by Fiverr's own tools, on Fiverr. The system **cannot** change Fiverr's price/discount/checkout state merely by displaying a discount in BCSentinel.
+
+### Proposed discount architecture — implementation not yet authorized or accepted
+
+- Separate `list_price_usd`, `discount_type` (percentage / fixed amount / negotiated fixed final price), `discount_value`, `eligible_product`, `eligible_tier`, `sales_channel`, `customer_reference`, `campaign_id`, validity window, per-customer/order limits, `requires_approval`, `fiverr_promotion_reference`, `actual_fiverr_order_amount_usd` and immutable application/audit record. Track `pricing_contract_version` and policy revision on orders.
+- Seller-controlled **first-customer launch campaign**, **one-to-one custom offer**, and **Monitoring introductory period** are separate intents. Any non-default rate for an existing Monitoring subscription must have an explicit end-of-discount and renewal-price rule. No silent perpetual discount or post-purchase price mutation.
+- Suggested *future* Admin-Backend guardrails (not business-authorized discount percentages): standard approval up to 20% discount; >20% requires explicit elevated confirmation; nonnegative effective price, minimum contribution/price warnings, expiry, uses, authorization, CSRF, audit and idempotency. No discounts stack unless a separately approved rule explicitly changes this.
+- Site rendering can show `standard $349 / eligible promotional $314.10` with start/end, eligible tier, channel and material conditions; **never promise a Fiverr checkout discount that has not been created and confirmed on Fiverr**. A campaign CTA may point to the appropriate published Gig or invite the customer to request an on-platform Custom Offer, without suggesting off-platform Fiverr payment.
+- **Fiverr marketplace authority:** Fiverr's own Seller Plus first-time client promotions may offer 5% or 10% if account eligible; Fiverr-specific coupons (up to 30% where eligible) and personalized Custom Offers have provider eligibility and nonstacking rules. Coupons do not apply after the original order was paid. For first-time buyers, a discounted Custom Offer or permitted coupon attached to a Custom Offer may be appropriate; **verify eligibility in the seller account before advertising.** Do not assume an external app can programmatically create Fiverr promotions or change checkout prices. On confirmed payment, operator verifies exact final order value and terms; only then grant entitlements.
+- Discounts reduce seller earnings: with a 20% Fiverr fee assumption, seller revenue is `0.80 * discounted_fiverr_order_amount`, not `0.80 * list_price`. Preserve platform fee, tax, currency and operational cost assumptions separately.
+- Customer-specific discounts must not be publicly visible unless intentionally published. Never put customer identities or private coupon tokens into public frontend JSON. Prevent unauthorized price overrides and tenant/company cross-contamination.
+
+**Verified Fiverr policy references (read 2026-11-12):**
+- https://help.fiverr.com/hc/en-us/articles/5244747923985-Growth-Tools-for-Seller-Plus
+- https://help.fiverr.com/hc/en-us/articles/360049448134-Coupons-promo-codes-and-discounts
+
+### Cross-sprint acceptance dependencies
+
+- **4.01:** USD list matrix owner-approved, discount policy scoped. **Still open** until versioned normative Product System change, compatibility, final Monitoring/bundling terms, CI and channel parity.
+- **4.02–4.06:** Freeze grants based on verified paid order and entitled product, not marketing-struck-through price. Operator must store list, discount, final Fiverr amount, external order ID and application audit; refunds on *actual* order value, no extra scans.
+- **6.02:** Landingpage DE/EN promotional badge/strike-through only on a verified eligible promotion; default shows approved list prices; no fake countdown or unsupported coupon application.
+- **7.03:** Seller Buyer Kit states Fiverr payment/discount as authoritative and customer-facing qualification, limited offer/expiry, Custom Offer and post-expiry terms.
+- **3.04 / Monitoring:** discounted initial recurring period explicitly distinct from future periods; verify provider-native subscription capability and provider terms before advertising automatic renewal.
+
+**No discount campaign active. No Admin functionality implemented by this document. No Fiverr coupons, promotions, Custom Offers, list-price changes, runtime entitlement changes, main/staging merges, or deployments were performed.**
