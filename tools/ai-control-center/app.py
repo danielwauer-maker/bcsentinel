@@ -20,6 +20,7 @@ from readiness import fiverr_readiness
 from progress_history import history, apply_to_readiness
 from acceptance_review import review as acceptance_review
 from blocker_plan import analyze as blocker_plan
+from task_coverage import catalog as task_coverage
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
