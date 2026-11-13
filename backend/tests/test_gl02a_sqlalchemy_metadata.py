@@ -39,7 +39,9 @@ def _unique_constraint_names(table_name: str) -> set[str]:
 def test_gl02a_metadata_defaults_and_names_are_valid():
     # Integrated v6 report, auth and archive migrations expand the mapped schema.
     # Keep an explicit reviewed count; all table metadata is validated below.
-    assert len(Base.metadata.tables) == 53
+    assert len(Base.metadata.tables) == 55
+    assert "pilot_enrollments" in Base.metadata.tables
+    assert "pilot_enrollment_audit" in Base.metadata.tables
     assert "scan_record_identity_evidence" in Base.metadata.tables
     assert {"scan_id", "tenant_id", "company_id", "check_code", "schema_version",
             "payload_json", "payload_sha256", "created_at_utc"} == set(
