@@ -15,7 +15,8 @@ ENTRA_ID = "11111111-1111-1111-1111-111111111111"
 
 
 def _operator():
-    return {"Authorization": "Basic " + b64encode(b"admin-test:admin-password-for-tests-123").decode()}
+    return {"Authorization": "Basic " + b64encode(b"admin-test:admin-password-for-tests-123").decode(),
+            "X-Pilot-Operator-Key": "test-pilot-operator-secret-32-chars-long"}
 
 
 def _pilot_payload():
@@ -41,7 +42,7 @@ def _registration(token, **overrides):
 
 
 def _approve(client, settings_state):
-    settings_state(PILOT_ENROLLMENT_ENABLED=True)
+    settings_state(PILOT_ENROLLMENT_ENABLED=True, PILOT_ENROLLMENT_ADMIN_KEY="test-pilot-operator-secret-32-chars-long")
     created = client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=_operator())
     assert created.status_code == 200, created.text
     assert created.json()["status"] == "PENDING"
@@ -169,3 +170,52 @@ def test_bc_pilot_input_masked_visible_and_cleared_after_success():
     assert "Visible = ShowRegisterTenant;" in field_block
     assert 'Clear(Setup."Registration Invite Code");' in client_al
     assert client_al.index('Clear(Setup."Registration Invite Code");') < client_al.index('Setup.Modify(true);', client_al.index("procedure RegisterTenant("))
+
+
+def test_pilot_admin_denies_basic_without_separate_key(client, settings_state):
+    settings_state(PILOT_ENROLLMENT_ENABLED=True, PILOT_ENROLLMENT_ADMIN_KEY="test-pilot-operator-secret-32-chars-long")
+    headers = _operator()
+    headers.pop("X-Pilot-Operator-Key")
+    assert client.get("/internal/pilot/enrollments", headers=headers).status_code == 403
+    headers["X-Pilot-Operator-Key"] = "invalid-pilot-key"
+    assert client.get("/internal/pilot/enrollments", headers=headers).status_code == 403
+
+
+def test_pilot_admin_denies_browser_origin_even_with_operator_secrets(client, settings_state):
+    settings_state(PILOT_ENROLLMENT_ENABLED=True, PILOT_ENROLLMENT_ADMIN_KEY="test-pilot-operator-secret-32-chars-long")
+    headers = _operator()
+    headers["Origin"] = "https://dev.bcsentinel.com"
+    assert client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=headers).status_code == 403
+    headers.pop("Origin")
+    headers["Sec-Fetch-Site"] = "same-origin"
+    assert client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=headers).status_code == 403
+
+
+def test_pilot_lifecycle_cannot_override_external_tenant_suspension(client, settings_state, db_session):
+    from app.services.tenant_access_service import get_tenant_status, set_tenant_status
+
+    enrollment_id, token = _approve(client, settings_state)
+    registered = client.post("/tenant/register", json=_registration(token))
+    assert registered.status_code == 200, registered.text
+    tenant_id = registered.json()["tenant_id"]
+    set_tenant_status(db_session, tenant_id=tenant_id, status="suspended",
+                      reason="security_hold", updated_by="security-admin")
+    db_session.commit()
+    blocked_suspend = client.post(f"/internal/pilot/enrollments/{enrollment_id}/suspend", headers=_operator())
+    assert blocked_suspend.status_code == 409
+    db_session.expire_all()
+    assert get_tenant_status(db_session, tenant_id) == "suspended"
+    assert db_session.get(PilotEnrollment, enrollment_id).status == "REGISTERED"
+    # Pilot may own its own suspension, but not clear a later security hold.
+    set_tenant_status(db_session, tenant_id=tenant_id, status="active",
+                      reason="security_hold_cleared", updated_by="security-admin")
+    db_session.commit()
+    assert client.post(f"/internal/pilot/enrollments/{enrollment_id}/suspend", headers=_operator()).status_code == 200
+    set_tenant_status(db_session, tenant_id=tenant_id, status="suspended",
+                      reason="security_hold", updated_by="security-admin")
+    db_session.commit()
+    denied = client.post(f"/internal/pilot/enrollments/{enrollment_id}/activate", headers=_operator())
+    assert denied.status_code == 409
+    db_session.expire_all()
+    assert get_tenant_status(db_session, tenant_id) == "suspended"
+    assert db_session.get(PilotEnrollment, enrollment_id).status == "SUSPENDED"

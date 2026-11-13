@@ -79,6 +79,20 @@ def change_status(db: Session, row: PilotEnrollment, *, action: str, actor: str)
     }
     if action not in transitions or row.status not in transitions[action][0]:
         raise EnrollmentRejected("Enrollment transition is not permitted.")
+    if row.registered_tenant_id and action in {"suspend", "activate"}:
+        from app.services.tenant_access_service import get_tenant_access_state
+
+        access = get_tenant_access_state(db, row.registered_tenant_id)
+        # Pilot lifecycle may only own its own suspension. Never clear a
+        # separate compliance/security/admin suspension or deactivation.
+        if action == "activate" and (
+            access is None
+            or access.status != "suspended"
+            or access.reason != "pilot_enrollment_lifecycle"
+        ):
+            raise EnrollmentRejected("Tenant suspension is not owned by pilot enrollment.")
+        if action == "suspend" and access is not None and access.status != "active":
+            raise EnrollmentRejected("Tenant access is independently restricted.")
     row.status = transitions[action][1]
     row.token_hash = None
     row.updated_at_utc = utc_now()

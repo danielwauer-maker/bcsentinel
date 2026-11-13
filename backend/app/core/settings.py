@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     APP_BASE_URL: str | None = None
     TENANT_REGISTRATION_INVITE_CODE: str | None = None
     PILOT_ENROLLMENT_ENABLED: bool = False  # Opt-in; legacy invites remain unchanged until approved.
+    PILOT_ENROLLMENT_ADMIN_KEY: str | None = None  # Separate 32+ character operator secret, never logged.
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
     ACCESS_MODEL_V2_ENABLED: bool = False  # Explicit rollout gate, old customer contracts unchanged.

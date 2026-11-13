@@ -1,6 +1,9 @@
 """Operator-only pilot enrollment administration; plaintext token returned ONCE on approval."""
 from __future__ import annotations
 
+import secrets
+
+from fastapi import Header, Request
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -16,7 +19,29 @@ from app.services.pilot_enrollment_service import (
 )
 from app.services.tenant_registration_service import build_registration_identity
 
-router = APIRouter(prefix="/internal/pilot/enrollments", tags=["pilot-enrollment"])
+def require_pilot_admin_security(
+    request: Request,
+    x_pilot_operator_key: str | None = Header(default=None, alias="X-Pilot-Operator-Key"),
+) -> None:
+    """Require separate operator-secret authorization; deny browser-origin requests.
+
+    Reverse proxy must additionally restrict this internal route to the trusted
+    admin network. Never use client-controlled forwarded headers as proof.
+    """
+    expected = (settings.PILOT_ENROLLMENT_ADMIN_KEY or "").strip()
+    if not expected or len(expected) < 32 or not x_pilot_operator_key or not secrets.compare_digest(
+        x_pilot_operator_key, expected
+    ):
+        raise HTTPException(status_code=403, detail="Pilot operator access denied.")
+    if request.headers.get("origin") or request.headers.get("sec-fetch-site"):
+        raise HTTPException(status_code=403, detail="Browser-origin pilot administration denied.")
+
+
+router = APIRouter(
+    prefix="/internal/pilot/enrollments",
+    tags=["pilot-enrollment"],
+    dependencies=[Depends(require_pilot_admin_security)],
+)
 
 
 class EnrollmentCreate(BaseModel):
