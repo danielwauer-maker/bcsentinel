@@ -45,6 +45,16 @@ class CurrentEvidenceTests(unittest.TestCase):
         for item in items:
             self.assertNotIn(item["status"], ("approved", "go_live", "completed", "dev_accepted"))
 
+    def test_new_dev_integration_evidence_never_promotes_to_runtime_approval(self):
+        records = {x["title"]: x for x in self.data["cross_cutting"]}
+        frontend = records["Frontend #14 · DEV-only Full-v6 viewer integration"]
+        finding = records["Issues #30/#32 · Finding remediation and monitoring access display"]
+        self.assertEqual(frontend["status"], "dev_source_merged_ci_pass_runtime_open")
+        self.assertEqual(finding["status"], "staging_merged_ci_pass_runtime_open")
+        self.assertIn("NOT occurred", frontend["detail"])
+        self.assertIn("NOT accepted", finding["detail"])
+        self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
+
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")

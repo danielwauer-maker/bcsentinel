@@ -276,8 +276,8 @@
     },
     {
       "title": "Issue #43 · controlled Pilot Enrollment",
-      "status": "draft_ci_pending_no_deploy",
-      "detail": "Security implementation candidate Draft PR #182 against staging, opt-in disabled-by-default: Alembic 0041, hash-only one-time per-identity tokens, enrollment audit, operator APIs, registration atomicity, existing tenant status integration, masked BC enrollment field and candidate Extension 1.0.2.60. Current CI including BC27 fresh/upgrade and PostgreSQL integration is PENDING; do not merge or deploy. Real SaaS onboarding, customer token delivery, non-SUPER/runtime/identity isolation, and production approval remain OPEN. Issue #43 and Fiverr NO_GO.",
+      "status": "source_merged_ci_pass_runtime_open",
+      "detail": "GitHub PR #182 merged to backend staging commit 0040aae09de0f3901c221c377267615cd47a3b56 after all 19 exact-head PR workflows PASS, incl. BC27 runtime, compile/cop and finding identity. Alembic 0041 and atomic identity-bound pilot enrollment integrated in source; feature disabled by default. Real DEV database migration, installed BC app, Non-SUPER SaaS registration, operator ingress and customer token delivery NOT yet verified. Issue #43 and Fiverr NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/182",
         "https://github.com/danielwauer-maker/bcsentinel/issues/43"
@@ -292,6 +292,26 @@
         "https://github.com/danielwauer-maker/bcsentinel/pull/186",
         "https://github.com/danielwauer-maker/bcsentinel/pull/185",
         "https://github.com/danielwauer-maker/bcsentinel/blob/staging/docs/ci/RELEASE_CI_GOVERNANCE_20261113.md"
+      ]
+    },
+    {
+      "title": "Issues #30/#32 · Finding remediation and monitoring access display",
+      "status": "staging_merged_ci_pass_runtime_open",
+      "detail": "PR #191 merged to backend staging commit caf245b23a74d4691fe62dfc5c4de805c730a171; 13/13 PR workflows PASS at fa626482cad54e99f2676da5bac787c262aa91bb incl. 3 BC27 gates. Purchase Line SystemId correction/exclusion/history, Sales Line exclusion and Full/Monitoring expiry UI integrated. Real BC SaaS Non-SUPER remediation, 199-check route coverage, in-place upgrade and Full→Monitoring display still NOT accepted. Issues #30/#32 remain open; no DEV deploy proven.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/191",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/30",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/32"
+      ]
+    },
+    {
+      "title": "Frontend #14 · DEV-only Full-v6 viewer integration",
+      "status": "dev_source_merged_ci_pass_runtime_open",
+      "detail": "Frontend PR #14 merged exclusively to branch dev-integration at 2af0ae555251600c0dccb29899104dbdf0ea818f. Its final PR head 18cd1c32892e69d838428a6fab8d5e8910acd7a2 passed GitHub Actions 43518612217 including disabled/enabled builds, Vitest, SSR, isolated Docker smoke and image-byte validation. Existing frontend main 8f98cc3f9528f1856e67dbdab4e5f065ff6bb4c2 and production unchanged. Manual exact-SHA DEV deployment has NOT occurred; no real BC27 paid viewer E2E, CORS/tenant/replay or deployed image assertion. Backend staging candidate is caf245b23a74d4691fe62dfc5c4de805c730a171. Global Fiverr NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43518612217",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/191"
       ]
     }
   ],
