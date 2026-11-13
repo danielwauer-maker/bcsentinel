@@ -62,7 +62,7 @@ or the landing page.
 
 Observed from GitHub Actions on 2026-11-13:
 
-- Backend PR #177 / `2bc926c3f996b7bff05d33e8978c0fb0741ef5b4`: completed PostgreSQL backup/restore, PostgreSQL migration cycle, BC27 runtime, sandbox AL build, native report access, AI Control Center, release-baseline, and CI optimization gates are successful. BC27 fresh and upgrade Cop/Compile jobs are still in progress, as is the independent finding-identity workflow. Do not promote until both matrices are successful.
+- Backend PR #177 / `2bc926c3f996b7bff05d33e8978c0fb0741ef5b4`: completed PostgreSQL backup/restore, PostgreSQL migration cycle, BC27 runtime, sandbox AL build, native report access, AI Control Center, release-baseline, and CI optimization gates are successful. The BC27 **fresh** Cop/Compile job is successful; the **upgrade** Cop/Compile job and independent finding-identity workflow are still in progress. Do not promote until both remaining workflows are successful.
 - Frontend PR #14 / `69ab09d5603669570c8e1f9223c65b664b40c636`: `DEV live report integration gate (NO DEPLOY)` is successful. A real DEV viewer deployment and browser acceptance remain manual gates.
 
 ## Required merge and release sequence
