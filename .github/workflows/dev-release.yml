@@ -1,0 +1,172 @@
+name: Release approved BCSentinel DEV SHA
+
+# This workflow intentionally lives on the default branch.  GitHub exposes
+# workflow_dispatch reliably only for workflows present there; the application
+# code it deploys is selected later by the immutable release_sha input.
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Only the DEV environment is supported by this workflow.
+        required: true
+        type: choice
+        options:
+          - dev
+      release_sha:
+        description: Exact 40-character SHA currently at origin/staging.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bcsentinel-dev-release
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    name: Authorize exact DEV release
+    runs-on: ubuntu-latest
+    outputs:
+      release_sha: ${{ steps.authorize.outputs.release_sha }}
+    steps:
+      - name: Checkout release controller
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Reject unauthorized or stale release requests
+        id: authorize
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          DEV_RELEASE_ENABLED: ${{ vars.DEV_STAGING_DEPLOY_ENABLED }}
+          APPROVED_RELEASE_SHA: ${{ vars.DEV_STAGING_RELEASE_SHA }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$TARGET_ENVIRONMENT" = "dev"
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$DEV_RELEASE_ENABLED" = "true"
+          test "$APPROVED_RELEASE_SHA" = "$RELEASE_SHA"
+
+          # A release must be the current staging tip, not merely an ancestor
+          # or an arbitrary branch/PR SHA.  A staging merge never starts this
+          # workflow; this verifies the merge was completed before approval.
+          git fetch --no-tags origin staging
+          test "$(git rev-parse origin/staging)" = "$RELEASE_SHA"
+          git cat-file -e "$RELEASE_SHA^{commit}"
+          printf 'release_sha=%s\n' "$RELEASE_SHA" >> "$GITHUB_OUTPUT"
+
+  snapshot:
+    name: Snapshot DEV database before release
+    needs: authorize
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Create and verify a reversible DEV backup
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          RELEASE_SHA: ${{ needs.authorize.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SERVER_HOST"
+          test -n "$SERVER_USER"
+          test -n "$SSH_PRIVATE_KEY"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+          ssh "$SERVER_USER@$SERVER_HOST" "RELEASE_SHA='$RELEASE_SHA' bash -s" <<'EOF'
+          set -euo pipefail
+          cd /home/daniel/data-health-management-dev
+          test -f .env.dev
+          backup_dir="$HOME/bcsentinel-dev-backups"
+          install -d -m 0700 "$backup_dir"
+          backup_file="$backup_dir/$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_SHA}.dump"
+          umask 077
+          docker exec dhm-dev-postgres sh -c 'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > "$backup_file"
+          test -s "$backup_file"
+          docker exec -i dhm-dev-postgres pg_restore --list < "$backup_file" > /dev/null
+          sha256sum "$backup_file"
+          EOF
+
+  deploy:
+    name: Deploy approved DEV SHA
+    needs: [authorize, snapshot]
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout immutable release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.authorize.outputs.release_sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify checked-out SHA
+        env:
+          RELEASE_SHA: ${{ needs.authorize.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+
+      - name: Deploy without changing nginx or landing page
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          RELEASE_SHA: ${{ needs.authorize.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+          ssh "$SERVER_USER@$SERVER_HOST" "RELEASE_SHA='$RELEASE_SHA' bash -s" <<'EOF'
+          set -euo pipefail
+          cd /home/daniel/data-health-management-dev
+
+          # Do not reset a checkout containing operator-owned files, and never
+          # run git clean.  The release controller has already bound this SHA
+          # to the current staging tip.
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "DEV checkout has local changes; refusing destructive reset."
+            git status --short
+            exit 1
+          fi
+          git fetch --no-tags origin staging
+          test "$(git rev-parse origin/staging)" = "$RELEASE_SHA"
+          git cat-file -e "$RELEASE_SHA^{commit}"
+          git reset --hard "$RELEASE_SHA"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+
+          # Nginx and the existing landing page are operator-managed surfaces.
+          sudo -n nginx -t
+          docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
+          docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
+          docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
+          EOF
+
+      - name: Verify exact DEV release health
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          RELEASE_SHA: ${{ needs.authorize.outputs.release_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh "$SERVER_USER@$SERVER_HOST" \
+            "test \"\$(git -C /home/daniel/data-health-management-dev rev-parse HEAD)\" = '$RELEASE_SHA'"
+          ssh "$SERVER_USER@$SERVER_HOST" \
+            'curl --max-time 8 -fsS http://127.0.0.1:8001/health/ready'
+          ssh "$SERVER_USER@$SERVER_HOST" \
+            'curl --max-time 8 -4 -fsS https://dev-api.bcsentinel.com/health/ready'
