@@ -83,6 +83,15 @@ def change_status(db: Session, row: PilotEnrollment, *, action: str, actor: str)
     row.token_hash = None
     row.updated_at_utc = utc_now()
     db.flush()
+    if row.registered_tenant_id and action in {"suspend", "activate"}:
+        from app.services.tenant_access_service import set_tenant_status
+        set_tenant_status(
+            db,
+            tenant_id=row.registered_tenant_id,
+            status="suspended" if action == "suspend" else "active",
+            reason="pilot_enrollment_lifecycle",
+            updated_by=actor,
+        )
     _audit(db, row, action, actor)
 
 
