@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-12",
+  "reviewed_at": "2026-11-13",
   "work_items": [
     {
       "id": "1.01",
@@ -206,6 +206,14 @@
       "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
+      "status": "draft_code_pending_ci",
+      "detail": "Remote Bestandsaufnahme am 2026-11-13: PR #185 ist auf staging gemergt (manueller Exact-SHA-PROD-Controller und PR-spezifische Supersession). Ein einzelner Folge-Draft ergänzt zentrale fail-closed Änderungs-Klassifizierung, Regressionstests und die Sequential-Development-Regel. Keine Deployment-, Runtime- oder Go-Live-Evidence; Branch-Protection bleibt extern zu prüfen.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/185"
       ]
     }
   ],
