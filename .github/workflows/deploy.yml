@@ -1,5 +1,8 @@
 name: Promote approved BCSentinel production release
 
+# Fail-closed: manual-only, exact main HEAD SHA, explicit variable approval,
+# production environment and separate operator confirmation. Never push deploy.
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +14,7 @@ on:
           - prod
         default: prod
       release_ref:
-        description: Git ref/SHA to deploy. PROD requires an immutable reviewed ref.
+        description: Exact 40-character reviewed main HEAD SHA; requires matching PROD_RELEASE_SHA and PROD_RELEASE_ENABLED.
         required: true
         type: string
       confirm_prod:
@@ -41,14 +44,32 @@ jobs:
           echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
           echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
 
-      - name: Enforce PROD promotion acknowledgement
+      - name: Checkout trusted main release controller
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Enforce exact-SHA operator-authorized PROD promotion
         if: steps.resolve.outputs.target == 'prod'
         shell: bash
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+          CONFIRM_PROD: ${{ inputs.confirm_prod }}
+          PROD_RELEASE_ENABLED: ${{ vars.PROD_RELEASE_ENABLED }}
+          PROD_RELEASE_SHA: ${{ vars.PROD_RELEASE_SHA }}
         run: |
+          set -euo pipefail
           test "${{ github.event_name }}" = "workflow_dispatch"
-          test "${{ inputs.confirm_prod }}" = "PROMOTE_TO_PROD"
-          test -n "${{ inputs.release_ref }}"
-          echo "Manual PROD promotion intent accepted."
+          test "${{ github.ref }}" = "refs/heads/main"
+          test "$CONFIRM_PROD" = "PROMOTE_TO_PROD"
+          [[ "$RELEASE_REF" =~ ^[0-9a-f]{40}$ ]]
+          test "$PROD_RELEASE_ENABLED" = "true"
+          test "$PROD_RELEASE_SHA" = "$RELEASE_REF"
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$RELEASE_REF"
+          git cat-file -e "$RELEASE_REF^{commit}"
+          echo "Exact main HEAD SHA and explicit PROD release authorization verified."
 
   regression-gate:
     needs: deployment-contract
