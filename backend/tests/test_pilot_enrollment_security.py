@@ -137,3 +137,22 @@ def test_existing_tenant_reregistration_with_credentials_not_new_enrollment(clie
     )
     assert followup.status_code == 200, followup.text
     assert followup.json()["tenant_id"] == data["tenant_id"]
+
+
+def test_suspension_flows_through_authoritative_tenant_access(client, settings_state, db_session):
+    from app.services.tenant_access_service import get_tenant_status
+
+    enrollment_id, token = _approve(client, settings_state)
+    response = client.post("/tenant/register", json=_registration(token))
+    assert response.status_code == 200, response.text
+    tenant_id = response.json()["tenant_id"]
+    suspended = client.post(f"/internal/pilot/enrollments/{enrollment_id}/suspend", headers=_operator())
+    assert suspended.status_code == 200
+    assert suspended.json()["status"] == "SUSPENDED"
+    db_session.expire_all()
+    assert get_tenant_status(db_session, tenant_id) == "suspended"
+    resumed = client.post(f"/internal/pilot/enrollments/{enrollment_id}/activate", headers=_operator())
+    assert resumed.status_code == 200
+    assert resumed.json()["status"] == "ACTIVE"
+    db_session.expire_all()
+    assert get_tenant_status(db_session, tenant_id) == "active"
