@@ -1,9 +1,6 @@
-name: Deploy BCSentinel
+name: Promote approved BCSentinel production release
 
 on:
-  push:
-    branches:
-      - dev-acceptance
   workflow_dispatch:
     inputs:
       target:
@@ -11,9 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - dev
           - prod
-        default: dev
+        default: prod
       release_ref:
         description: Git ref/SHA to deploy. PROD requires an immutable reviewed ref.
         required: true
@@ -24,7 +20,7 @@ on:
         type: string
 
 concurrency:
-  group: bcsentinel-deploy-${{ github.event_name == 'push' && 'dev' || inputs.target }}
+  group: bcsentinel-deploy-${{ inputs.target }}
   cancel-in-progress: false
 
 jobs:
@@ -38,13 +34,12 @@ jobs:
         id: resolve
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            echo "target=dev" >> "$GITHUB_OUTPUT"
-            echo "release_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
-            echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
-          fi
+          # DEV deployment moved to dev-release.yml.  This legacy workflow is
+          # deliberately manual and production-only, so a dev-acceptance or
+          # staging merge cannot execute an SSH deployment.
+          test "${{ inputs.target }}" = "prod"
+          echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
+          echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
 
       - name: Enforce PROD promotion acknowledgement
         if: steps.resolve.outputs.target == 'prod'
