@@ -1,217 +1,271 @@
-# DEV deploy is manual-only on staging (workflow_dispatch) and fail-closed.
-# It requires an exact release_sha input and operator-approved repository Actions variables:
-# DEV_STAGING_DEPLOY_ENABLED=true and DEV_STAGING_RELEASE_SHA=<exact staging commit SHA>.
-# Neither variable is set by this workflow. Staging pushes never deploy, and
-# an operator-owned remote checkout is never forcibly reset.
-# Main/PROD behavior is unchanged. Do not authorize a SHA until CI and operator review.
-name: Deploy to Hetzner
+name: Promote approved BCSentinel production release
 
 on:
-  push:
-    branches:
-      - main
-      - staging
   workflow_dispatch:
     inputs:
-      release_sha:
-        description: "Exact 40-character staging commit SHA reviewed for DEV deployment"
+      target:
+        description: Deployment target
+        required: true
+        type: choice
+        options:
+          - prod
+        default: prod
+      release_ref:
+        description: Git ref/SHA to deploy. PROD requires an immutable reviewed ref.
         required: true
         type: string
+      confirm_prod:
+        description: Type PROMOTE_TO_PROD for a PROD deployment
+        required: false
+        type: string
+
+concurrency:
+  group: bcsentinel-deploy-${{ inputs.target }}
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    # staging pushes never deploy; only a deliberately dispatched, SHA-pinned
-    # staging release can deploy DEV. Main push/PROD conditions stay unchanged.
-    if: >-
-      github.event_name == 'push' && github.ref == 'refs/heads/main' ||
-      github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/staging' &&
-      inputs.release_sha == github.sha &&
-      vars.DEV_STAGING_DEPLOY_ENABLED == 'true' &&
-      vars.DEV_STAGING_RELEASE_SHA == github.sha
+  deployment-contract:
     runs-on: ubuntu-latest
-
+    outputs:
+      target: ${{ steps.resolve.outputs.target }}
+      release_ref: ${{ steps.resolve.outputs.release_ref }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create deployment ZIP
+      - name: Resolve deployment intent
+        id: resolve
+        shell: bash
         run: |
-          zip -r bcsentinel-deployment.zip . \
-            -x ".git/*" \
-            -x ".github/*" \
-            -x "**/__pycache__/*" \
-            -x "**/.venv/*" \
-            -x "**/node_modules/*"
+          # DEV deployment moved to dev-release.yml.  This legacy workflow is
+          # deliberately manual and production-only, so a dev-acceptance or
+          # staging merge cannot execute an SSH deployment.
+          test "${{ inputs.target }}" = "prod"
+          echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
+          echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload deployment ZIP
-        uses: actions/upload-artifact@v4
+      - name: Enforce PROD promotion acknowledgement
+        if: steps.resolve.outputs.target == 'prod'
+        shell: bash
+        run: |
+          test "${{ github.event_name }}" = "workflow_dispatch"
+          test "${{ inputs.confirm_prod }}" = "PROMOTE_TO_PROD"
+          test -n "${{ inputs.release_ref }}"
+          echo "Manual PROD promotion intent accepted."
+
+  regression-gate:
+    needs: deployment-contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
         with:
-          name: bcsentinel-deployment-${{ github.ref_name }}-${{ github.run_number }}
-          path: bcsentinel-deployment.zip
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate release and deployment contracts
+        run: |
+          python scripts/validate_release_demo_policy.py
+          python scripts/validate_e2_automated_regression.py
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Backend regression
+        working-directory: backend
+        run: |
+          alembic heads
+          pytest -q
+      - name: Dashboard production build
+        working-directory: dashboard
+        run: |
+          npm install
+          npm run check
+          npm run build
 
+  deploy-dev:
+    if: needs.deployment-contract.outputs.target == 'dev'
+    needs: [deployment-contract, regression-gate]
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to PROD
-        if: github.ref == 'refs/heads/main'
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+      - name: Deploy immutable ref to DEV
+        env:
+          RELEASE_REF: ${{ needs.deployment-contract.outputs.release_ref }}
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
-
-            cd /home/daniel/data-health-management
-
-            echo "📥 Clean sync PROD"
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
-
-            echo "🐳 Start database only (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d postgres
-
-            echo "🧱 Run migrations (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm backend alembic upgrade head
-
-            echo "🚀 Start full stack (PROD)"
-            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
-          EOF
-
-      - name: Health check PROD
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "🔎 Waiting for PROD backend (local on server)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -fsS http://127.0.0.1:8000/health"; then
-              echo "✅ PROD backend is running locally"
-              break
-            fi
-            echo "⏳ PROD local backend not ready yet... attempt $i/20"
-            sleep 3
-          done
-
-          echo "🌍 Waiting for PROD public endpoint (from server via IPv4 GET)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -4 -fsS https://api.bcsentinel.com/health"; then
-              echo "✅ PROD public health check passed"
-              exit 0
-            fi
-            echo "⏳ PROD public endpoint not ready yet... attempt $i/20"
-            sleep 5
-          done
-
-          echo "❌ PROD health check failed"
-          exit 1
-
-      - name: DEV pre-deploy database snapshot and verifiable restore inventory
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
-        run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" "RELEASE_REF='$RELEASE_REF' bash -s" << 'EOF'
             set -euo pipefail
             cd /home/daniel/data-health-management-dev
-            echo "=== Current DEV release before deployment ==="
-            git rev-parse HEAD
-            docker inspect --format 'backend_image={{.Image}} status={{.State.Status}}' dhm-dev-backend
-            docker inspect --format 'postgres_image={{.Image}} status={{.State.Status}}' dhm-dev-postgres
-            test -f .env.dev
-            echo "=== Back up DEV database before checkout, migration, nginx and service changes ==="
-            BACKUP_DIR="$HOME/bcsentinel-dev-backups"
-            install -d -m 0700 "$BACKUP_DIR"
-            BACKUP_FILE="$BACKUP_DIR/$(date -u +%Y%m%dT%H%M%SZ)-${{ github.sha }}.dump"
-            umask 077
-            docker exec dhm-dev-postgres sh -c 'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > "$BACKUP_FILE"
-            test -s "$BACKUP_FILE"
-            docker exec -i dhm-dev-postgres pg_restore --list < "$BACKUP_FILE" > /dev/null
-            sha256sum "$BACKUP_FILE"
-            echo "DEV database dump is non-empty and pg_restore can inspect its table of contents."
-            echo "NOTE: An isolated full restore and recovery rehearsal are still separate gates."
-          EOF
-      - name: Deploy to DEV
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
-        run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
+            git fetch --all --tags --prune
+            git checkout --detach "$RELEASE_REF"
+            git clean -fd
+            ln -sfn landingpage landingpage_neu
 
+            COMPOSE="docker compose -f docker-compose.dev.yml --env-file .env.dev"
+
+            # Database must be available before migrations run.
+            $COMPOSE up -d postgres </dev/null
+
+            # Build the release images first. Migration commands must never run
+            # from a stale backend image that predates the checked-out ref.
+            $COMPOSE build </dev/null
+
+            # Run migrations with the freshly built backend image.
+            $COMPOSE run --interactive=false -T --rm backend alembic upgrade head </dev/null
+
+            # Recreate running services so the checked-out release is actually
+            # what serves traffic, even when an older container is still healthy.
+            $COMPOSE up -d --force-recreate </dev/null
+
+            echo "=== Deployed backend container ==="
+            $COMPOSE ps backend </dev/null
+            echo "=== Wait for DEV backend readiness and verify lifecycle route ==="
+            python3 - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+
+          base = 'http://127.0.0.1:8001'
+          deadline = time.monotonic() + 120
+          last_error = None
+          for attempt in range(1, 61):
+              try:
+                  with urllib.request.urlopen(base + '/health/ready', timeout=5) as response:
+                      health = json.load(response)
+                  if health.get('status') != 'ok':
+                      raise RuntimeError('Backend readiness is not ok')
+                  with urllib.request.urlopen(base + '/openapi.json', timeout=5) as response:
+                      document = json.load(response)
+                  route = document.get('paths', {}).get('/tenant/lifecycle-profile', {})
+                  if 'put' not in route:
+                      raise RuntimeError('Deployed DEV backend does not expose PUT /tenant/lifecycle-profile')
+                  print(f'DEV lifecycle profile route deployed: PASS (attempt {attempt})')
+                  break
+              except (OSError, ValueError, RuntimeError) as exc:
+                  last_error = str(exc)
+                  if time.monotonic() >= deadline:
+                      raise SystemExit(f'DEV backend did not become ready with lifecycle route: {last_error}')
+                  time.sleep(2)
+          else:
+              raise SystemExit(f'DEV backend readiness failed: {last_error}')
+          PY
+          EOF
+      - name: DEV route diagnostics
+        run: |
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" bash -s << 'EOF'
+            set +e
             cd /home/daniel/data-health-management-dev
-
-            echo "🔐 Fail-closed DEV checkout safety preflight"
-            # Never reset an operator-owned checkout with local tracked or untracked changes.
-            # This intentionally blocks deployment until landingpage_neu is preserved.
-            if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
-              echo "DEV checkout has local tracked/untracked files; refusing destructive reset."
-              git status --short
-              exit 1
-            fi
-
-            echo "📥 Fetch immutable DEV release"
-            git fetch origin "${{ github.sha }}"
-            git cat-file -e "${{ github.sha }}^{commit}"
-            git reset --hard "${{ github.sha }}"
-            test "$(git rev-parse HEAD)" = "${{ github.sha }}"
-            # Never run git clean: untracked operator files are not deployment artifacts.
-
-            echo "🔐 Preserve live nginx and landing page routing"
-            # Any nginx or landingpage change requires a separate approved,
-            # reversible deployment procedure. Do not alter either automatically.
-            sudo -n nginx -t
-            echo "nginx_status=validated_unchanged"
-            echo "landingpage_status=preserved_unchanged"
-
-            echo "🐳 Start database only (DEV)"
-            docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
-
-            echo "🧱 Run migrations (DEV)"
-            docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
-
-            echo "🚀 Start full stack (DEV)"
-            docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
+            echo "=== DEV compose services ==="
+            docker compose -f docker-compose.dev.yml --env-file .env.dev ps
+            echo "=== Local listeners ==="
+            ss -ltn
+            echo "=== Local backend HTTP ==="
+            curl -sS -o /dev/null -w 'backend_root=%{http_code}\n' http://127.0.0.1:8001/
+            curl -sS -o /dev/null -w 'backend_ready=%{http_code}\n' http://127.0.0.1:8001/health/ready
+            echo "=== Landing files ==="
+            test -f landingpage/index.html && echo 'landing_index=present' || echo 'landing_index=missing'
+            test -f landingpage/pilot.html && echo 'landing_pilot=present' || echo 'landing_pilot=missing'
+            test -L landingpage_neu && echo "landing_compat=$(readlink landingpage_neu)" || echo 'landing_compat=missing'
+            echo "=== Web server status ==="
+            systemctl is-active nginx 2>/dev/null || true
+            systemctl is-active caddy 2>/dev/null || true
+            echo "=== Readable nginx routing evidence ==="
+            for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
+              if [ -r "$f" ] && [ -f "$f" ]; then
+                echo "--- $f"
+                grep -E 'server_name|listen|proxy_pass|root|alias' "$f" || true
+              fi
+            done
           EOF
-
-      - name: Health check DEV
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+      - name: DEV acceptance smoke
         run: |
-          echo "🔎 Verify exact deployed DEV checkout SHA"
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "test \"\$(git -C /home/daniel/data-health-management-dev rev-parse HEAD)\" = '${{ github.sha }}'"
-          echo "🔎 Waiting for DEV database-backed readiness (local on server)..."
-          local_ready=false
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-              "curl --max-time 8 -fsS http://127.0.0.1:8001/health/ready"; then
-              echo "✅ DEV backend database-backed readiness passed"
-              local_ready=true
-              break
-            fi
-            echo "⏳ DEV local readiness not ready yet... attempt $i/20"
-            sleep 3
-          done
-          if [ "$local_ready" != true ]; then
-            echo "❌ DEV local database-backed readiness failed"
-            exit 1
-          fi
-
-          echo "🌍 Waiting for DEV public API readiness (from server via IPv4 GET)..."
-          for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-              "curl --max-time 8 -4 -fsS https://dev-api.bcsentinel.com/health/ready"; then
-              echo "✅ DEV public API readiness passed"
-              exit 0
-            fi
-            echo "⏳ DEV public readiness not ready yet... attempt $i/20"
+          for i in {1..30}; do
+            if curl -4 -fsS https://dev-api.bcsentinel.com/health/ready >/dev/null; then break; fi
             sleep 5
           done
 
-          echo "❌ DEV public readiness check failed"
-          exit 1
+          curl -4 -fsS https://dev-api.bcsentinel.com/health/ready
+          echo
+          echo "=== Verify public DEV lifecycle API route ==="
+          curl -4 -fsS https://dev-api.bcsentinel.com/openapi.json -o /tmp/dev-openapi.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/dev-openapi.json', encoding='utf-8') as stream:
+              paths = json.load(stream).get('paths', {})
+          assert 'put' in paths.get('/tenant/lifecycle-profile', {}), 'DEV public API does not expose PUT /tenant/lifecycle-profile'
+          print('Public DEV lifecycle route: PASS')
+          PY
+          status="$(curl -4 -sS -o /dev/null -w '%{http_code}' -X PUT \
+            https://dev-api.bcsentinel.com/tenant/lifecycle-profile \
+            -H 'Content-Type: application/json' \
+            --data '{"primary_notification_email":"probe@example.invalid","preferred_language":"de"}')"
+          test "$status" = '401' || { echo "Unexpected unauthenticated lifecycle response: $status"; exit 1; }
+          curl -4 -fsS https://dev.bcsentinel.com/ >/dev/null
+          curl -4 -fsS https://dev.bcsentinel.com/pilot.html >/dev/null
 
-      - name: Smoke check DEV Core web surface
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+          # Exercise the real waitlist route without persistence or email.
+          # The non-empty honeypot field intentionally returns 202 immediately.
+          WAITLIST_SMOKE_RESPONSE="$(curl -4 -fsS -X POST \
+            https://dev-api.bcsentinel.com/public/pilot-interest \
+            -H 'Origin: https://dev.bcsentinel.com' \
+            -H 'Content-Type: application/json' \
+            --data '{"contact_name":"Deploy Smoke","contact_email":"smoke@example.invalid","privacy_consent":true,"preferred_language":"en","source_page":"deploy-smoke","website":"route-smoke"}')"
+          echo "$WAITLIST_SMOKE_RESPONSE" | grep -q '"status":"accepted"'
+
+          echo "DEV acceptance endpoints and waitlist route reachable."
+
+  deploy-prod:
+    if: needs.deployment-contract.outputs.target == 'prod'
+    needs: [deployment-contract, regression-gate]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout approved release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.deployment-contract.outputs.release_ref }}
+      - name: Setup SSH
         run: |
-          for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
-            echo "Checking https://dev.bcsentinel.com$path"
-            curl -4 -fsS "https://dev.bcsentinel.com$path" > /dev/null
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+      - name: Capture current PROD ref and deploy approved ref
+        env:
+          RELEASE_REF: ${{ needs.deployment-contract.outputs.release_ref }}
+        run: |
+          ssh "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" "RELEASE_REF='$RELEASE_REF' bash -s" << 'EOF'
+            set -euo pipefail
+            cd /home/daniel/data-health-management
+            git rev-parse HEAD > .previous-release-ref
+            git fetch --all --tags --prune
+            git checkout --detach "$RELEASE_REF"
+            git clean -fd -e .previous-release-ref
+
+            COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
+
+            $COMPOSE up -d postgres </dev/null
+            $COMPOSE build </dev/null
+            $COMPOSE run --interactive=false -T --rm backend alembic upgrade head </dev/null
+            $COMPOSE up -d --force-recreate </dev/null
+          EOF
+      - name: PROD smoke
+        run: |
+          for i in {1..30}; do
+            if curl -4 -fsS https://api.bcsentinel.com/health/ready >/dev/null; then break; fi
+            sleep 5
           done
-          echo "✅ DEV Core web surface passed"
+          curl -4 -fsS https://api.bcsentinel.com/health/ready
+          curl -4 -fsS https://www.bcsentinel.com/ >/dev/null
+          echo "PROD smoke passed for approved release ref."
