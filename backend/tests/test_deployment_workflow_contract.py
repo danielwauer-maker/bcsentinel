@@ -16,7 +16,7 @@ def test_legacy_deployment_workflow_cannot_run_on_branch_pushes():
     assert 'echo "release_ref=${{ inputs.release_ref }}"' not in workflow
     assert 'test "$PROD_RELEASE_ENABLED" = "true"' in workflow
     assert 'test "$PROD_RELEASE_SHA" = "$RELEASE_REF"' in workflow
-    assert "dev-release.yml" in workflow
+    assert (ROOT / ".github/workflows/dev-release.yml").is_file()
 
 
 def test_dev_release_requires_manual_approval_and_current_staging_sha():
