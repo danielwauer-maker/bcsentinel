@@ -156,3 +156,16 @@ def test_suspension_flows_through_authoritative_tenant_access(client, settings_s
     assert resumed.json()["status"] == "ACTIVE"
     db_session.expire_all()
     assert get_tenant_status(db_session, tenant_id) == "active"
+
+
+def test_bc_pilot_input_masked_visible_and_cleared_after_success():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    page = (root / "bc-extension/app/src/pages/DHSetup.Page.al").read_text(encoding="utf-8")
+    client_al = (root / "bc-extension/app/src/codeunits/DHApiClient.Codeunit.al").read_text(encoding="utf-8")
+    field_block = page.split('field("Registration Invite Code"; Rec."Registration Invite Code")', 1)[1].split("\\n                field(", 1)[0]
+    assert "ExtendedDatatype = Masked;" in field_block
+    assert "Visible = ShowRegisterTenant;" in field_block
+    assert 'Clear(Setup."Registration Invite Code");' in client_al
+    assert client_al.index('Clear(Setup."Registration Invite Code");') < client_al.index('Setup.Modify(true);', client_al.index("procedure RegisterTenant("))
