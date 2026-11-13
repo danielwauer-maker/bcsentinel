@@ -29,6 +29,8 @@ def require_pilot_admin_security(
     Reverse proxy must additionally restrict this internal route to the trusted
     admin network. Never use client-controlled forwarded headers as proof.
     """
+    if not settings.PILOT_ENROLLMENT_ENABLED:
+        raise HTTPException(status_code=404, detail="Pilot enrollment is disabled.")
     expected = (settings.PILOT_ENROLLMENT_ADMIN_KEY or "").strip()
     if not expected or len(expected) < 32 or not x_pilot_operator_key or not secrets.compare_digest(
         x_pilot_operator_key, expected
