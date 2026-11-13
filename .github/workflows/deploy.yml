@@ -36,13 +36,17 @@ jobs:
       - name: Resolve deployment intent
         id: resolve
         shell: bash
+        env:
+          TARGET: ${{ inputs.target }}
+          RELEASE_REF: ${{ inputs.release_ref }}
         run: |
-          # DEV deployment moved to dev-release.yml.  This legacy workflow is
-          # deliberately manual and production-only, so a dev-acceptance or
-          # staging merge cannot execute an SSH deployment.
-          test "${{ inputs.target }}" = "prod"
-          echo "target=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
-          echo "release_ref=${{ inputs.release_ref }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          # Validate operator input BEFORE it is used in shell or job outputs.
+          # Never interpolate untrusted workflow_dispatch strings into run scripts.
+          test "$TARGET" = "prod"
+          [[ "$RELEASE_REF" =~ ^[0-9a-f]{40}$ ]]
+          printf 'target=%s\n' "$TARGET" >> "$GITHUB_OUTPUT"
+          printf 'release_ref=%s\n' "$RELEASE_REF" >> "$GITHUB_OUTPUT"
 
       - name: Checkout trusted main release controller
         uses: actions/checkout@v4
