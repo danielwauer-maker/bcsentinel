@@ -55,7 +55,7 @@ require(dev, (
     "environment: development",
     "pg_dump", "pg_restore --list",
     "git status --porcelain --untracked-files=all",
-    "sudo -n nginx -t",
+    "sudo -n /usr/sbin/nginx -t",
     "http://127.0.0.1:8001/health/ready",
     "https://dev-api.bcsentinel.com/health/ready",
 ), "DEV")
