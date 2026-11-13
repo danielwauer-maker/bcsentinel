@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-13",
+  "reviewed_at": "2026-11-14",
   "work_items": [
     {
       "id": "1.01",
@@ -53,13 +53,14 @@
     {
       "id": "3.02",
       "status": "partial",
-      "detail": "2026-11-13: Backend staging SHA 3ca62ac94eb6cbce98c97984850f6bc7159780c3 deployed via manual run #43407422524; operator confirmed backend healthy, Alembic 0040 and public dev-api /health/ready HTTP 200. Frontend viewer SHA 69ab09d5603669570c8e1f9223c65b664b40c636 deployed via run #43409586056; operator verified public DEV /, /overview and /report/live?lang=de all HTTP 200 after DEV-only Nginx route correction and removal of included backup vhost. Previous frontend retained as stopped rollback. HTTP 200 is not authentication, entitlement, no-demo, BC SaaS, or report-content evidence: real Full, Validation and Monitoring E2E still OPEN. PROD untouched, global Fiverr NO_GO.",
+      "detail": "2026-11-13: Backend staging SHA 3ca62ac94eb6cbce98c97984850f6bc7159780c3 deployed via manual run #43407422524; operator confirmed backend healthy, Alembic 0040 and public dev-api /health/ready HTTP 200. Frontend viewer SHA 69ab09d5603669570c8e1f9223c65b664b40c636 deployed via run #43409586056; operator verified public DEV /, /overview and /report/live?lang=de all HTTP 200 after DEV-only Nginx route correction and removal of included backup vhost. Previous frontend retained as stopped rollback. HTTP 200 is not authentication, entitlement, no-demo, BC SaaS, or report-content evidence: real Full, Validation and Monitoring E2E still OPEN. PROD untouched, global Fiverr NO_GO. 2026-11-14 verified GitHub manual DEV frontend deployment run #43524633599 (3/3 jobs SUCCESS): authorized exact frontend SHA 2af0ae555251600c0dccb29899104dbdf0ea818f, verified Bun tests/build, isolated candidate / /overview /report/live HTTP smoke, final serving container image bcsentinel-frontend-dev:2af0ae555251600c0dccb29899104dbdf0ea818f with local / and /overview HTTP 200 and public DEV smoke PASS. Old deployed 69ab09d5603669570c8e1f9223c65b664b40c636 preserved as stopped bcsentinel-frontend-dev-rollback. Runtime reports, entitlements, BC27 and E2E NOT proven.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43409586056",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/issues/18",
-        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13"
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43524633599"
       ]
     },
     {
@@ -315,19 +316,19 @@
       ]
     }
   ],
-  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated.",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance.",
   "observed_gates": {
-    "source_date": "2026-11-13",
-    "source_kind": "operator_logs_plus_github_ci",
+    "source_date": "2026-11-14",
+    "source_kind": "operator_readonly_inventory_plus_github_deploy_logs",
     "fiverr": "NO_GO",
     "dashboard_agent_execution": "disabled",
     "tracker_checkbox_updates": 0,
     "host_frontend": {
-      "port3000": "unchanged",
+      "port3000": "verified_running_image_on_deploy_logs",
       "port3001": "isolated_full_v6_technical_pass",
-      "deployed_head": "01b15b9ab6dc13a1201e9c063382e67a4dddb99b",
+      "deployed_head": "2af0ae555251600c0dccb29899104dbdf0ea818f",
       "ci_candidate_head": "60af4902a294488f87ff151ffd41f26a79f7d365",
-      "public_routing": "not_changed",
+      "public_routing": "frontend_dev_smoke_success",
       "backend_viewer_base_url": "not_configured",
       "real_paid_report_e2e": "not_executed"
     },
@@ -337,7 +338,7 @@
       "host_8093": "not_verified",
       "host_8092": "preserved"
     },
-    "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe. Commercial feature flag/runtime status is based on historical operator evidence; historical detail in PR #170 was incorporated without implying new live verification.",
+    "uncertainty": "Backend host status based on operator-provided read-only inventory 2026-11-13T22:54:12Z; frontend deployment supported by exact-SHA GitHub workflow logs 2026-11-13T23:08Z. No direct SSH after deployment, real entitlement/report E2E or BC27 SaaS evidence. Backup files observed, not yet a freshly tested restore for next migration. Commercial feature flags and PROD not reaudited.",
     "dev_consolidation": {
       "verified_at": "2026-11-13",
       "backend_staging_sha": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
@@ -359,6 +360,29 @@
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43400833616",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43382283017"
       ]
+    },
+    "dev_runtime_release_20261114": {
+      "frontend": {
+        "state": "deployed_dev",
+        "sha": "2af0ae555251600c0dccb29899104dbdf0ea818f",
+        "github_run": 43524633599,
+        "checks": "authorize_verify_deploy_all_success",
+        "old_image_rollback": "69ab09d5603669570c8e1f9223c65b664b40c636",
+        "report_route": "isolated_candidate_http_200_only_no_entitlement_e2e"
+      },
+      "backend": {
+        "state": "not_deployed_new_candidate",
+        "live_checkout": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
+        "live_image_tag": "bcsentinel-dev-s3a2:a8b870eb41d2",
+        "alembic_current": "0040_scan_record_identity_evidence",
+        "staging_candidate": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+        "staging_ci": "17_of_17_success",
+        "migration_required": "0041_pilot_enrollment",
+        "next_gate": "fresh_backup_isolated_restore_feature_flag_audit_and_controlled_dev_only_release"
+      },
+      "host_inventory": "operator-provided read-only script output at 2026-11-13T22:54:12Z (backend healthy, frontend / /overview /report/live 200, nginx PASS, existing dumps; values and BC SaaS unverified)",
+      "go_live": "NO_GO",
+      "tracker_checkbox_updates": 0
     }
   },
   "sprint401_sync": {
