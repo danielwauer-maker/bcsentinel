@@ -119,14 +119,18 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     assert "nginx_status=validated_unchanged" in dev_section
     assert "landingpage_status=preserved_unchanged" in dev_section
     assert "Smoke check DEV Core web surface" in deploy
-    # A staging push must not deploy while branch CI is still running.
-    # Only an exact, separately approved commit can execute DEV-mutating steps.
-    approved_push = (
-        "github.event_name == 'push' && github.ref == 'refs/heads/staging' "
+    # A staging push must not deploy while branch CI is still running.  Only a
+    # manually dispatched workflow for the exact, separately approved SHA can
+    # execute DEV-mutating steps.
+    approved_dispatch = (
+        "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' "
+        "&& inputs.release_sha == github.sha "
         "&& vars.DEV_STAGING_DEPLOY_ENABLED == 'true' "
         "&& vars.DEV_STAGING_RELEASE_SHA == github.sha"
     )
-    assert deploy.count("if: " + approved_push) == 4
+    assert "workflow_dispatch:" in deploy
+    assert deploy.count("if: " + approved_dispatch) == 4
+    assert "github.event_name == 'push' && github.ref == 'refs/heads/staging'" not in deploy
     assert "git fetch origin" in dev_section
     assert 'git reset --hard "${{ github.sha }}"' in dev_section
     # Fail the rollout if the new app is not ready with its database, even
