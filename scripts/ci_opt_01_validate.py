@@ -43,3 +43,24 @@ assert (
     (ROOT / "docs" / "ci" / "CI_OPT_01_SAFE_ROLLOUT.md").exists()
 ), "release-gate guidance missing"
 print("CI_OPT_01_STATIC_CONTRACT=PASS")
+
+# CI-OPT-02: in-progress Draft PRs must not allocate Windows BC27 runners.
+# A transition to Ready for review must start the unchanged final gates.
+BC27_WORKFLOWS = ("bc-al-compile.yml", "ext-50-12b-bc27-runtime-gate.yml", "ext-50-12c-3-al.yml")
+FINAL_GATE_IF = "if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}"
+for filename in BC27_WORKFLOWS:
+    text = (ROOT / ".github" / "workflows" / filename).read_text(encoding="utf-8")
+    assert "ready_for_review" in text, f"{filename}: review-ready event missing"
+    assert "synchronize" in text, f"{filename}: final-head resync missing"
+    assert text.count(FINAL_GATE_IF) == 1, f"{filename}: draft-only Windows gate missing"
+    assert "  workflow_dispatch:" in text, f"{filename}: approved manual execution must remain"
+    if filename != "ext-50-12b-bc27-runtime-gate.yml":
+        push_section = text.split("  push:\n", 1)[1].split("  workflow_dispatch:", 1)[0]
+        assert "    paths:\n" in push_section, f"{filename}: staging push needs path filtering"
+        assert '".github/workflows/**"' in push_section, f"{filename}: workflow changes must be covered"
+        assert '"bc-extension/**"' in push_section, f"{filename}: AL changes must be covered"
+    if filename == "ext-50-12b-bc27-runtime-gate.yml":
+        assert "Compile publish and install extension" in text
+    else:
+        assert "BC 27 AL compile with CodeCop and PTECop" in text
+print("CI_OPT_02_DRAFT_FINAL_GATE_CONTRACT=PASS")
