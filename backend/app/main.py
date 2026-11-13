@@ -31,6 +31,7 @@ from app import report_archive_models  # noqa: F401
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
+from app.routers.commercial_billing import router as commercial_billing_router
 from app.routers.check_catalog import router as check_catalog_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.license import router as license_router
@@ -195,6 +196,10 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(admin_router)
 app.include_router(analytics_router)
 app.include_router(billing_router)
+# The reserved commercial endpoint is deliberately mounted so that every
+# request reaches its explicit fail-closed 503 handler.  Do not mount the
+# broader prepilot aggregate here: those surfaces require separate review.
+app.include_router(commercial_billing_router)
 app.include_router(check_catalog_router)
 # Keep customer-dashboard routes unavailable in the report-only launch.
 if settings.CUSTOMER_DASHBOARD_ENABLED or not settings.ACCESS_MODEL_V2_ENABLED:
