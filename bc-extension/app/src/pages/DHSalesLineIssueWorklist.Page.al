@@ -168,6 +168,24 @@
                 end;
             }
 
+            action(ExcludeFinding)
+            {
+                Caption = 'Exclude from Analysis';
+                ApplicationArea = All;
+                Image = Cancel;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Creates a persistent exception for this exact sales line and finding.';
+
+                trigger OnAction()
+                var
+                    Remediation: Codeunit "DH Generic Remediation";
+                begin
+                    EnsureIssueContext();
+                    Remediation.PromptExclude(Database::"Sales Line", Rec.SystemId, Rec."Document No.", BuildRecordCaption());
+                end;
+            }
+
             action(OpenCorrectionHistory)
             {
                 Caption = 'Korrekturhistorie öffnen';

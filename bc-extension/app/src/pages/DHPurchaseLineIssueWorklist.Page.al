@@ -21,7 +21,13 @@
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies Document No.';
+                    ToolTip = 'Opens the original purchase order for the affected line.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        OpenPurchaseOrder();
+                    end;
                 }
                 field("Line No."; Rec."Line No.")
                 {
@@ -104,52 +110,117 @@
     {
         area(Processing)
         {
-            action(MarkIssueCorrected)
-            {
-                Caption = 'Mark as Corrected';
-                ToolTip = 'Runs Mark as Corrected.';
-                ApplicationArea = All;
-                Image = EditLines;
-
-                trigger OnAction()
-                begin
-                    MarkLinkedMasterRecordCorrected();
-                end;
-            }
-
             action(OpenDocument)
             {
                 Caption = 'Correct Data';
-                ToolTip = 'Runs Correct Data.';
                 ApplicationArea = All;
                 Image = EditLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Opens the original purchase order for the selected finding line.';
+
+                trigger OnAction()
+                begin
+                    OpenPurchaseOrder();
+                end;
+            }
+            action(ExcludeFinding)
+            {
+                Caption = 'Exclude from Analysis';
+                ApplicationArea = All;
+                Image = Cancel;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Creates a persistent issue-specific exclusion for this purchase line.';
 
                 trigger OnAction()
                 var
-                    PurchaseHeader: Record "Purchase Header";
+                    Remediation: Codeunit "DH Generic Remediation";
                 begin
-                    if PurchaseHeader.Get(Rec."Document Type", Rec."Document No.") then
-                        Page.Run(Page::"Purchase Order", PurchaseHeader);
+                    EnsureIssueContext();
+                    Remediation.PromptExclude(Database::"Purchase Line", Rec.SystemId, BuildRecordNo(), BuildRecordCaption());
+                end;
+            }
+            action(MarkIssueCorrected)
+            {
+                Caption = 'Mark as Corrected';
+                ApplicationArea = All;
+                Image = Approve;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Records the correction for this purchase line and its exact finding code; future scans still evaluate BC data.';
+
+                trigger OnAction()
+                var
+                    Remediation: Codeunit "DH Generic Remediation";
+                begin
+                    EnsureIssueContext();
+                    Remediation.MarkCorrected(Database::"Purchase Line", Rec.SystemId, BuildRecordNo(), BuildRecordCaption());
+                end;
+            }
+            action(OpenCorrectionHistory)
+            {
+                Caption = 'Open Correction History';
+                ApplicationArea = All;
+                Image = History;
+
+                trigger OnAction()
+                var
+                    Remediation: Codeunit "DH Generic Remediation";
+                begin
+                    EnsureIssueContext();
+                    Remediation.OpenHistory(Database::"Purchase Line", Rec.SystemId, CurrentIssueCode);
                 end;
             }
         }
     }
 
     var
-        CorrectionNotLoggedMsg: Label 'The correction was not logged because no master data record could be assigned.';
         CurrentIssueCode: Code[50];
+        IssueContextMissingErr: Label 'Open this purchase line from a BCSentinel finding to provide the exact issue code.';
+        PurchaseDocumentNotFoundErr: Label 'Purchase order %1 was not found.', Comment = '%1 = order number';
 
     trigger OnOpenPage()
     var
         AccessGuard: Codeunit "DH Access Guard";
     begin
         AccessGuard.EnsureIssuesAccess();
+        EnsureIssueContext();
         ApplyIssueFilter();
     end;
 
     procedure SetIssueCode(IssueCode: Code[50])
     begin
         CurrentIssueCode := IssueCode;
+    end;
+
+    local procedure EnsureIssueContext()
+    var
+        Context: Codeunit "DH Remediation Context";
+    begin
+        if CurrentIssueCode = '' then
+            Error(IssueContextMissingErr);
+        Context.SetIssueCode(CurrentIssueCode);
+    end;
+
+    local procedure BuildRecordNo(): Text
+    begin
+        exit(Rec."Document No.");
+    end;
+
+    local procedure BuildRecordCaption(): Text
+    begin
+        exit(StrSubstNo('%1 / line %2: %3', Rec."Document No.", Rec."Line No.", Rec.Description));
+    end;
+
+    local procedure OpenPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        EnsureIssueContext();
+        if not PurchaseHeader.Get(Rec."Document Type", Rec."Document No.") then
+            Error(PurchaseDocumentNotFoundErr, Rec."Document No.");
+        Page.Run(Page::"Purchase Order", PurchaseHeader);
     end;
 
     local procedure ApplyIssueFilter()
@@ -222,19 +293,6 @@
                         Rec.Mark(true);
             until Rec.Next() = 0;
         Rec.MarkedOnly(true);
-    end;
-
-    local procedure MarkLinkedMasterRecordCorrected()
-    var
-        Item: Record Item;
-        ExceptionMgt: Codeunit "DH Exception Mgt.";
-    begin
-        if (Rec.Type = Rec.Type::Item) and (Rec."No." <> '') and Item.Get(Rec."No.") then begin
-            ExceptionMgt.MarkItemCorrected(Item, CurrentIssueCode, 'Correction documented from the purchase line worklist.');
-            exit;
-        end;
-
-        Message(CorrectionNotLoggedMsg);
     end;
 
     local procedure GetLocalCurrencyCode(): Text

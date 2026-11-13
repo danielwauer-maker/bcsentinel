@@ -14,7 +14,14 @@ pageextension 53201 "DH Setup Effective Access" extends "DH Setup"
                 ApplicationArea = All;
                 Caption = 'Product Access Until';
                 Editable = false;
-                ToolTip = 'Shows the effective end of the currently active product access. When Monitoring is active, the Monitoring end date is authoritative.';
+                ToolTip = 'Shows the effective product entitlement expiry: active Monitoring takes precedence over the earlier Full Analysis end date.';
+            }
+            field(FullAnalysisAccessUntil; Rec."Premium Until")
+            {
+                ApplicationArea = All;
+                Caption = 'Full Analysis Access Until';
+                Editable = false;
+                ToolTip = 'Shows the separately granted Full Analysis access end. This can differ from an active Monitoring subscription expiry.';
             }
         }
     }
