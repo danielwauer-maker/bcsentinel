@@ -52,7 +52,7 @@
     },
     {
       "id": "3.02",
-      "status": "dev_deployment_pass_e2e_open",
+      "status": "partial",
       "detail": "2026-11-13: Backend staging SHA 3ca62ac94eb6cbce98c97984850f6bc7159780c3 deployed via manual run #43407422524; operator confirmed backend healthy, Alembic 0040 and public dev-api /health/ready HTTP 200. Frontend viewer SHA 69ab09d5603669570c8e1f9223c65b664b40c636 deployed via run #43409586056; operator verified public DEV /, /overview and /report/live?lang=de all HTTP 200 after DEV-only Nginx route correction and removal of included backup vhost. Previous frontend retained as stopped rollback. HTTP 200 is not authentication, entitlement, no-demo, BC SaaS, or report-content evidence: real Full, Validation and Monitoring E2E still OPEN. PROD untouched, global Fiverr NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
