@@ -34,3 +34,13 @@ def test_dev_release_builds_migration_image_before_running_alembic():
     assert build in workflow
     assert migrate in workflow
     assert workflow.index(build) < workflow.index(migrate)
+
+
+def test_dev_nginx_permission_preflight_precedes_checkout_mutation():
+    workflow = (ROOT / ".github/workflows/dev-release.yml").read_text(encoding="utf-8")
+    preflight = "sudo -n /usr/sbin/nginx -t"
+    reset = 'git reset --hard "$RELEASE_SHA"'
+    assert workflow.count(preflight) == 1
+    assert preflight in workflow
+    assert reset in workflow
+    assert workflow.index(preflight) < workflow.index(reset)
