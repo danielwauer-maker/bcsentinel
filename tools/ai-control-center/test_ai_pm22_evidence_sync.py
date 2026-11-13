@@ -25,10 +25,10 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(gates["tracker_checkbox_updates"], 0)
         self.assertEqual(gates["dashboard_agent_execution"], "disabled")
         host = gates["host_frontend"]
-        self.assertEqual(host["port3000"], "unchanged")
+        self.assertEqual(host["port3000"], "verified_running_image_on_deploy_logs")
         self.assertEqual(host["port3001"], "isolated_full_v6_technical_pass")
         self.assertNotEqual(host["deployed_head"], host["ci_candidate_head"])
-        self.assertEqual(host["public_routing"], "not_changed")
+        self.assertEqual(host["public_routing"], "frontend_dev_smoke_success")
         self.assertEqual(host["backend_viewer_base_url"], "not_configured")
         self.assertEqual(host["real_paid_report_e2e"], "not_executed")
 
@@ -49,11 +49,18 @@ class CurrentEvidenceTests(unittest.TestCase):
         records = {x["title"]: x for x in self.data["cross_cutting"]}
         frontend = records["Frontend #14 · DEV-only Full-v6 viewer integration"]
         finding = records["Issues #30/#32 · Finding remediation and monitoring access display"]
-        self.assertEqual(frontend["status"], "dev_source_merged_ci_pass_runtime_open")
+        self.assertEqual(frontend["status"], "dev_frontend_deployed_technical_pass_e2e_open")
         self.assertEqual(finding["status"], "staging_merged_ci_pass_runtime_open")
-        self.assertIn("NOT occurred", frontend["detail"])
+        self.assertIn("Manual exact-SHA DEV deployment completed SUCCESS", frontend["detail"])
         self.assertIn("NOT accepted", finding["detail"])
         self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
+        dev = self.data["observed_gates"]["dev_runtime_release_20261114"]
+        self.assertEqual(dev["frontend"]["state"], "deployed_dev")
+        self.assertEqual(dev["frontend"]["sha"], "2af0ae555251600c0dccb29899104dbdf0ea818f")
+        self.assertEqual(dev["backend"]["state"], "not_deployed_new_candidate")
+        self.assertEqual(dev["backend"]["alembic_current"], "0040_scan_record_identity_evidence")
+        self.assertEqual(dev["go_live"], "NO_GO")
+        self.assertEqual(dev["tracker_checkbox_updates"], 0)
 
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")

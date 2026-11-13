@@ -307,12 +307,13 @@
     },
     {
       "title": "Frontend #14 · DEV-only Full-v6 viewer integration",
-      "status": "dev_source_merged_ci_pass_runtime_open",
-      "detail": "Frontend PR #14 merged exclusively to branch dev-integration at 2af0ae555251600c0dccb29899104dbdf0ea818f. Its final PR head 18cd1c32892e69d838428a6fab8d5e8910acd7a2 passed GitHub Actions 43518612217 including disabled/enabled builds, Vitest, SSR, isolated Docker smoke and image-byte validation. Existing frontend main 8f98cc3f9528f1856e67dbdab4e5f065ff6bb4c2 and production unchanged. Manual exact-SHA DEV deployment has NOT occurred; no real BC27 paid viewer E2E, CORS/tenant/replay or deployed image assertion. Backend staging candidate is caf245b23a74d4691fe62dfc5c4de805c730a171. Global Fiverr NO_GO.",
+      "status": "dev_frontend_deployed_technical_pass_e2e_open",
+      "detail": "Frontend PR #14 merged exclusively to branch dev-integration at 2af0ae555251600c0dccb29899104dbdf0ea818f. Its final PR head 18cd1c32892e69d838428a6fab8d5e8910acd7a2 passed GitHub Actions 43518612217 including disabled/enabled builds, Vitest, SSR, isolated Docker smoke and image-byte validation. Existing frontend main 8f98cc3f9528f1856e67dbdab4e5f065ff6bb4c2 and production unchanged. Manual exact-SHA DEV deployment completed SUCCESS at run 43524633599: serving image 2af0ae555251600c0dccb29899104dbdf0ea818f and public smoke PASS; prior 69ab09d5603669570c8e1f9223c65b664b40c636 preserved as stopped rollback. No real BC27 paid viewer E2E, CORS/tenant/replay or backend grant assertion. Backend staging candidate is caf245b23a74d4691fe62dfc5c4de805c730a171. Global Fiverr NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43518612217",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/191"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/191",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43524633599"
       ]
     }
   ],
