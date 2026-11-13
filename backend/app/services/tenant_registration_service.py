@@ -182,6 +182,7 @@ def upsert_tenant_registration(
     existing_tenant_id: str | None = None,
     header_tenant_id: str | None = None,
     header_api_token: str | None = None,
+    enrollment_id: int | None = None,
 ) -> RegistrationUpsertResult:
     app_version_normalized = _required_text(app_version, "app_version", 30)
     stable_token = _stable_api_token(identity.key)
@@ -259,6 +260,9 @@ def upsert_tenant_registration(
                 target_id=tenant.tenant_id,
                 details={"role": preparation.membership.role},
             )
+        if enrollment_id is not None:
+            from app.services.pilot_enrollment_service import bind_registered_tenant
+            bind_registered_tenant(db, enrollment_id=enrollment_id, tenant_id=tenant.tenant_id)
         db.commit()
     except IntegrityError:
         db.rollback()
@@ -304,6 +308,9 @@ def upsert_tenant_registration(
                 target_id=tenant.tenant_id,
                 details={"role": preparation.membership.role},
             )
+        if enrollment_id is not None:
+            from app.services.pilot_enrollment_service import bind_registered_tenant
+            bind_registered_tenant(db, enrollment_id=enrollment_id, tenant_id=tenant.tenant_id)
         db.commit()
 
     return RegistrationUpsertResult(
