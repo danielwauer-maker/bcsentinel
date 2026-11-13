@@ -317,7 +317,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance.",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed.",
   "observed_gates": {
     "source_date": "2026-11-14",
     "source_kind": "operator_readonly_inventory_plus_github_deploy_logs",
@@ -339,7 +339,7 @@
       "host_8093": "not_verified",
       "host_8092": "preserved"
     },
-    "uncertainty": "Backend host status based on operator-provided read-only inventory 2026-11-13T22:54:12Z; frontend deployment supported by exact-SHA GitHub workflow logs 2026-11-13T23:08Z. No direct SSH after deployment, real entitlement/report E2E or BC27 SaaS evidence. Backup files observed, not yet a freshly tested restore for next migration. Commercial feature flags and PROD not reaudited.",
+    "uncertainty": "Backend host status based on operator-provided read-only inventory 2026-11-13T22:54:12Z; frontend deployment supported by exact-SHA GitHub workflow logs 2026-11-13T23:08Z. No direct SSH after deployment, real entitlement/report E2E or BC27 SaaS evidence. Backup files observed, not yet a freshly tested restore for next migration. Commercial feature flags and PROD not reaudited. New DEV backup isolated restore evidence supplied by operator, not independently fetched from host; target 0041 upgrade in isolated clone still untested.",
     "dev_consolidation": {
       "verified_at": "2026-11-13",
       "backend_staging_sha": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
@@ -379,7 +379,19 @@
         "staging_candidate": "caf245b23a74d4691fe62dfc5c4de805c730a171",
         "staging_ci": "17_of_17_success",
         "migration_required": "0041_pilot_enrollment",
-        "next_gate": "fresh_backup_isolated_restore_feature_flag_audit_and_controlled_dev_only_release"
+        "next_gate": "isolated_0041_upgrade_rehearsal_exact_SHA_and_dev_only_release_plan",
+        "backup_verified": {
+          "operator_timestamp_utc": "2026-11-13T23:44:31Z",
+          "file": "/home/daniel/bcsentinel-dev-backups/dev-pre-0041-20261113T234431Z.dump",
+          "bytes": 332485,
+          "sha256": "4df8e3ec5b98235b96a1293e42a4a3eff2b270e9ec1845efcf0d37afc769034f",
+          "restored_migration": "0040_scan_record_identity_evidence",
+          "restored_public_tables": 66,
+          "archive_format": "PASS",
+          "isolated_restore": "PASS",
+          "live_database_unchanged": "YES",
+          "scope": "backup_restore_only_no_0041_migration_rehearsal"
+        }
       },
       "host_inventory": "operator-provided read-only script output at 2026-11-13T22:54:12Z (backend healthy, frontend / /overview /report/live 200, nginx PASS, existing dumps; values and BC SaaS unverified)",
       "go_live": "NO_GO",
