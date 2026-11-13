@@ -22,6 +22,7 @@ from app.services.tenant_registration_service import build_registration_identity
 def require_pilot_admin_security(
     request: Request,
     x_pilot_operator_key: str | None = Header(default=None, alias="X-Pilot-Operator-Key"),
+    actor: str = Depends(require_operator),
 ) -> None:
     """Require separate operator-secret authorization; deny browser-origin requests.
 
