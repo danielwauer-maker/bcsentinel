@@ -2,10 +2,6 @@ name: PROD release controller static safety
 on:
   pull_request:
     branches: [main, staging]
-    paths:
-      - ".github/workflows/deploy.yml"
-      - ".github/workflows/prod-release-controller-contract.yml"
-      - "scripts/verify_prod_release_controller.py"
   workflow_dispatch:
 
 permissions:

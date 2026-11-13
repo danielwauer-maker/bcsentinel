@@ -15,7 +15,11 @@ on:
       - ".github/workflows/p0-04-postgres-migration-cycle.yml"
       - ".github/workflows/p0-05-postgres-backup-restore.yml"
       - ".github/workflows/ci-opt-01-contract.yml"
+      - ".github/workflows/ci-change-classification.yml"
+      - ".github/workflows/prod-release-controller-contract.yml"
       - "scripts/ci_opt_01_validate.py"
+      - "scripts/ci_change_classification.py"
+      - "scripts/test_ci_change_classification.py"
       - "docs/ci/CI_OPT_01_SAFE_ROLLOUT.md"
   workflow_dispatch:
 

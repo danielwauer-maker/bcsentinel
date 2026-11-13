@@ -30,6 +30,15 @@ for filename in FILES:
     assert text.count("cancel-in-progress:") == 1, f"{filename}: unexpected cancellation behavior"
     print(f"PASS {filename}")
 
+classifier = ROOT / ".github" / "workflows" / "ci-change-classification.yml"
+classifier_text = classifier.read_text(encoding="utf-8")
+assert "  pull_request:" in classifier_text, "classifier must run for PRs"
+assert "  merge_group:" in classifier_text, "classifier must run for merge queues"
+assert "fetch-depth: 0" in classifier_text, "classifier must resolve the exact Git graph"
+assert "scripts/test_ci_change_classification.py" in classifier_text, "classifier regression matrix missing"
+assert "scripts/ci_change_classification.py" in classifier_text, "central classifier missing"
+assert "all_critical" in classifier_text, "unknown changes must be fail-closed"
+
 assert (
     (ROOT / "docs" / "ci" / "CI_OPT_01_SAFE_ROLLOUT.md").exists()
 ), "release-gate guidance missing"

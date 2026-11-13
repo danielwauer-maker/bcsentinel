@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-12",
+  "reviewed_at": "2026-11-13",
   "work_items": [
     {
       "id": "1.01",
@@ -206,6 +206,23 @@
       "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
+      "status": "review_fixes_ci_pass_review_pending",
+      "detail": "PR #188 review follow-up verified: deletion-safe classification, direct routing contract, static PROD controller, backend, PostgreSQL migration/backup, Core Pilot, BC27 runtime, BC finding identity and BC AL fresh/upgrade all passed. Evidence uses stable PR and GitHub Actions run references, not a predicted or asserted final commit SHA. No deployment, runtime acceptance or Go-Live evidence.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/188",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031875",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031888",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031621",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442032241",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031840",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031868",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031758",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031674",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031538"
       ]
     }
   ],
