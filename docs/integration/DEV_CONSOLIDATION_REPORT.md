@@ -17,6 +17,14 @@ available `refs/pull/<n>/merge` refs; a merge ref exists only while GitHub can
 calculate an open PR merge result.  “Included” below is supported by ancestry,
 exact reverse-patch testing, or a recorded merge/cherry-pick.
 
+Both integration branches were pushed. Draft-PR creation remains blocked by
+the unavailable GitHub API authentication and unavailable browser access. The
+frontend default branch is verified as `main`; no `staging` branch was assumed.
+For the backend, PR #172's merge base
+`59fd0fcfa98114a4366bb89428c6956b8a9d2236` is not the tip of any surviving
+named remote DEV branch, so this sprint intentionally does not select an
+unsafe PR target branch on its behalf.
+
 ## Backend PR disposition
 
 | PR | Head SHA | Disposition |
