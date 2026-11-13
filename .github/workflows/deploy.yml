@@ -45,8 +45,8 @@ jobs:
           # Never interpolate untrusted workflow_dispatch strings into run scripts.
           test "$TARGET" = "prod"
           [[ "$RELEASE_REF" =~ ^[0-9a-f]{40}$ ]]
-          printf 'target=%s\\n' "$TARGET" >> "$GITHUB_OUTPUT"
-          printf 'release_ref=%s\\n' "$RELEASE_REF" >> "$GITHUB_OUTPUT"
+          printf 'target=%s\n' "$TARGET" >> "$GITHUB_OUTPUT"
+          printf 'release_ref=%s\n' "$RELEASE_REF" >> "$GITHUB_OUTPUT"
 
       - name: Checkout trusted main release controller
         uses: actions/checkout@v4
