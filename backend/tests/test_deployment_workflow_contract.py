@@ -9,7 +9,13 @@ def test_legacy_deployment_workflow_cannot_run_on_branch_pushes():
 
     assert "workflow_dispatch:" in workflow
     assert "  push:" not in workflow
-    assert "test \"${{ inputs.target }}\" = \"prod\"" in workflow
+    assert 'TARGET: ${{ inputs.target }}' in workflow
+    assert 'RELEASE_REF: ${{ inputs.release_ref }}' in workflow
+    assert 'test "$TARGET" = "prod"' in workflow
+    assert '[[ "$RELEASE_REF" =~ ^[0-9a-f]{40}$ ]]' in workflow
+    assert 'echo "release_ref=${{ inputs.release_ref }}"' not in workflow
+    assert 'test "$PROD_RELEASE_ENABLED" = "true"' in workflow
+    assert 'test "$PROD_RELEASE_SHA" = "$RELEASE_REF"' in workflow
     assert "dev-release.yml" in workflow
 
 
