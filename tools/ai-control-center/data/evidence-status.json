@@ -282,6 +282,17 @@
         "https://github.com/danielwauer-maker/bcsentinel/pull/182",
         "https://github.com/danielwauer-maker/bcsentinel/issues/43"
       ]
+    },
+    {
+      "title": "Release/CI Security 2026-11-13 · PROD Exact-SHA + staging-safe CI",
+      "status": "source_ci_pass_merged_manual_ops_open",
+      "detail": "Release controllers are verified byte-identical on main HEAD c0c411cef1a5a87ec44a2ff69bdeca48d24dfe87 and staging HEAD a866bda7a565b841242df45fe5556147e8fcaa6e; same deploy.yml blob 62685dd556096cfe933f860635146027f28f35fc. PR #184 merged after 14 green checks: PROD manually dispatched, confirmation PROMOTE_TO_PROD, release SHA exactly current main HEAD and explicit PROD_RELEASE_ENABLED / PROD_RELEASE_SHA matching, production environment and regression gate. PR #186 merged after 18 green checks: untrusted dispatch release ref moved to env, validated before shell use/output, regression contract added. PR #185 merged after 7 green checks: old staging push-deploy replaced with reviewed main controller; 3 more expensive workflows now cancel only superseded PR runs (ten guarded workflows total), manual and staging push run groups never superseded. No application code, DB, DEV or PROD runtime deployment; no Fiverr GO. Remaining operator verification: GitHub branch protection/environment reviewers (connector returned 403) and actual repo variable values/reset after release. Full CI tier remains on until branch protection can be inspected; no required checks disabled. Source and CI technical workflow gates PASS; real BC27 and product report E2E remains open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/184",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/186",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/185",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/staging/docs/ci/RELEASE_CI_GOVERNANCE_20261113.md"
+      ]
     }
   ],
   "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated.",
