@@ -2,7 +2,7 @@ name: CI change classification safety
 
 on:
   pull_request:
-    branches: [staging]
+    branches: [main, staging]
   merge_group:
     branches: [staging]
   workflow_dispatch:

@@ -97,7 +97,7 @@ def paths_from_event(event_path: Path) -> list[str] | None:
         if not all(isinstance(value, str) and len(value) == 40 for value in (base, head)):
             return None
         result = subprocess.run(
-            ["git", "diff", "--name-only", "--diff-filter=ACMR", f"{base}...{head}"],
+            ["git", "diff", "--name-only", "--diff-filter=ACMRD", f"{base}...{head}"],
             check=True, capture_output=True, text=True,
         )
         return result.stdout.splitlines()

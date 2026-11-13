@@ -41,28 +41,39 @@
 
 ## Central change classification (Phase 1 continuation)
 
-`.github/workflows/ci-change-classification.yml` is an always-present, lightweight PR and merge-queue control that obtains the exact changed path set from the checked-out Git graph and calls `scripts/ci_change_classification.py`. Its classification is intentionally conservative:
+`.github/workflows/ci-change-classification.yml` is an always-present, lightweight **policy** check for PRs and merge-queue entries targeting `main` or `staging`.
 
-- `documentation_evidence`: curated `docs/**`, `quality/**` and the AI-PM evidence status file;
-- `dashboard`: AI Control Center and dashboard source;
-- `backend`, `migrations`, `security_auth_tenant`, `bc_al_bc27`, and `report_frontend`;
-- `release_ci`: workflows, release contracts, controller validators and `AGENTS.md`.
+- Its Git diff uses `--diff-filter=ACMRD`: additions, copies, modifications, renames and **deletions** are classified. Deleted workflow and security paths cannot become invisible.
+- Unknown, empty or unreadable input becomes `all_critical=true`; it is never reported as harmless.
+- It publishes a decision and validates the static routing contract. It does **not** dispatch, await or aggregate backend, migration or BC27 workflows, and is not evidence that every conditional profile completed.
 
-A path can belong to more than one class. Security, migration and release/CI changes set `requires_full_validation=true`; unknown, missing or unreadable path input yields `all_critical=true` and every class instead of a silent skip. Existing targeted workflow `paths` filters remain the execution mechanism; no required check name, production gate, AL matrix or backend regression was removed. The classifier and its regression cases protect that filter policy from being narrowed without review.
+Direct filters still execute the work. Classifier/workflow changes route to existing AL/BC27, migration and Core-Pilot gates. The broad EXT-50-12C.3 backend regression runs for unknown, backend, security and workflow changes; only `docs/**`, `quality/**` and `tools/ai-control-center/**` are ignored. GitHub PR path filtering includes deleted files; regression tests also prove deletion classification.
 
-### Trigger / cost matrix (source-level simulation)
+### Classic Branch Protection recommendation
 
-| change set | classifier result | existing required work retained | intentionally avoided work |
-| --- | --- | --- | --- |
-| curated docs/evidence only | documentation/evidence | lightweight classifier | BC27/AL, backend and migration workflows |
-| AI Control Center/dashboard only | dashboard | dashboard-specific workflow(s) | backend/AL workflows |
-| backend only | backend | backend regressions | BC27 unless an AL path also changes |
-| BC27/AL only | BC/AL | AL/BC27 gates | backend-only regressions unless shared paths change |
-| security, migration or release/CI | critical profile | all prescribed relevant gates | none by classifier policy |
-| unclassified/ambiguous | all critical | manual routing / full validation required | none |
+No required checks are selected yet. Use only checks present on **every** PR; do not globally require conditional BC27 or migration checks.
 
-The historical PR #172 run `BC AL Compile and Cop Gate` (run `43325450205`) completed in 26 minutes, with two Windows BC27 compile jobs. Therefore one superseded in-progress AL run can conservatively avoid **up to about 26 wall-clock minutes** (and two Windows job attempts); this is a simulation based on that historical run, not a measured saving. PR #185 already extends safe per-PR cancellation to ten heavy workflows. No historical runs are cancelled by this change.
+| Branch | exact job check |
+| --- | --- |
+| `staging` | `Classify changes (fail closed)` |
+| `staging` | `Reject implicit PROD deployments` |
+| `main` | `Classify changes (fail closed)` |
+| `main` | `Reject implicit PROD deployments` |
 
+Both are lightweight and always present: the classifier runs on both protected branches, and the PROD-controller static guard is now triggered for every PR to either branch. They are policy/safety checks, **not** a fabricated cross-workflow merge aggregator. Do not require conditional checks such as `BC 27 AL compile with CodeCop and PTECop (fresh)`, `P0-04 PostgreSQL Migration Cycle`, or `EXT-50-12B BC27 Runtime Gate`; documentation-only PRs correctly omit them. Reviewers must verify relevant conditional runs according to the classified paths. A future aggregator is acceptable only if it fails on missing or failed runs for the exact PR head.
+
+### Trigger / cost matrix (source-level contract)
+
+| change set | direct safeguards |
+| --- | --- |
+| curated docs/evidence or isolated AI Control Center | stable policy and PROD-controller checks; no BC27/AL or broad backend regression |
+| backend | EXT-50-12C.3 backend regression; Core Pilot for `backend/app/**` |
+| BC27/AL | BC AL compile, BC27 runtime and BC finding-identity gates |
+| security/migration | broad backend; Core Pilot for security; P0-04/P0-05 for migrations |
+| workflow/classifier or deleted workflow/security | conservative AL/BC27, migration and Core-Pilot routing |
+| unknown | broad backend and fail-closed policy decision |
+
+The historical PR #172 run `BC AL Compile and Cop Gate` (run `43325450205`) completed in 26 minutes, with two Windows BC27 compile jobs. This is a simulation, not a measured saving.
 ## Remaining authorization and rollout gates
 - The GitHub connector cannot read branch protection (HTTP 403).
   An authorized operator must verify required status checks and production

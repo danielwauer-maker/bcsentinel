@@ -210,11 +210,14 @@
     },
     {
       "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
-      "status": "draft_ci_pass_review_pending",
-      "detail": "Remote Bestandsaufnahme am 2026-11-13: PR #185 ist auf staging gemergt (manueller Exact-SHA-PROD-Controller und PR-spezifische Supersession). Der einzelne Folge-Draft #188 ergänzt zentrale fail-closed Änderungs-Klassifizierung, Regressionstests und die Sequential-Development-Regel. Finaler PR-Head 626c8a8d94365ec5de080ba3bba0b98c5ed962b7: Change classifier, CI-OPT-01 contract, AI Control Center und vollständige EXT-50-12C.3 Backend/PostgreSQL/Chromium regression PASS. Keine Deployment-, Runtime- oder Go-Live-Evidence; Branch-Protection bleibt extern zu prüfen.",
+      "status": "review_fixes_pending_ci",
+      "detail": "PR #188 review follow-up: stable PR and workflow-run references record prior verified CI. The follow-up removes stale predicted/final HEAD wording and adds deletion-safe classification plus direct-routing regression coverage. It deliberately does not assert a future commit SHA. No deployment, runtime acceptance or Go-Live evidence.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/185",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/188"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/188",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586386",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586397",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586457",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586435"
       ]
     }
   ],

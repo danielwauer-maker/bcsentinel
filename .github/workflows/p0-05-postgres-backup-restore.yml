@@ -10,6 +10,9 @@ on:
       - "backend/scripts/verify_postgres_backup_restore.py"
       - "backend/tests/test_p0_05_backup_restore_contract.py"
       - ".github/workflows/p0-05-postgres-backup-restore.yml"
+      - ".github/workflows/**"
+      - "scripts/ci_change_classification.py"
+      - "scripts/test_ci_change_classification.py"
       - "docs/P0_05_POSTGRES_BACKUP_RESTORE_AUDIT.md"
   push:
     branches: [staging]

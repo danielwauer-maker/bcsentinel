@@ -2,6 +2,11 @@ name: EXT-50-12C.3 lossless findings backend
 on:
   pull_request:
     branches: [staging, sprint/ext-50-12c-runtime-detection-evidence]
+    # Unknown, backend, security and workflow changes stay covered.
+    paths-ignore:
+      - "docs/**"
+      - "quality/**"
+      - "tools/ai-control-center/**"
   workflow_dispatch:
 # Only superseded PR runs of this workflow can be cancelled. Never cancel
 # independent manual release runs or protected staging pushes.
