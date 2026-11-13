@@ -37,5 +37,11 @@ for fragment in (
 ):
     require(fragment in text, "missing release guard: " + fragment)
 
+require('echo "release_ref=${{ inputs.release_ref }}"' not in text,
+        "untrusted release_ref shell interpolation reintroduced")
+require('RELEASE_REF: ${{ inputs.release_ref }}' in text,
+        "release input must enter through an environment variable")
+require('printf \'release_ref=%s\\n\' "$RELEASE_REF" >> "$GITHUB_OUTPUT"' in text,
+        "validated SHA must be emitted with a single-line output contract")
 require("git reset --hard origin/main" not in text, "unsafe automatic PROD reset reintroduced")
 print("PROD_RELEASE_CONTROLLER=MANUAL_EXACT_SHA_FAIL_CLOSED")
