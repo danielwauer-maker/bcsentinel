@@ -31,7 +31,7 @@ def _matches(path: str, prefix: str) -> bool:
 
 def classify(paths: Iterable[str] | None) -> dict[str, object]:
     """Return a conservative category map for repository-relative paths."""
-    normalized = [path.strip().lstrip("./") for path in paths or [] if path.strip()]
+    normalized = [path.strip()[2:] if path.strip().startswith("./") else path.strip() for path in paths or [] if path.strip()]
     categories: set[str] = set()
     unknown = not normalized
 
