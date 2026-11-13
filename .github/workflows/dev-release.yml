@@ -142,14 +142,17 @@ jobs:
             git status --short
             exit 1
           fi
+
+          # Fail before touching checkout or services when Nginx cannot be
+          # validated with the narrowly permitted noninteractive sudo rule.
+          sudo -n /usr/sbin/nginx -t
           git fetch --no-tags origin staging
           test "$(git rev-parse origin/staging)" = "$RELEASE_SHA"
           git cat-file -e "$RELEASE_SHA^{commit}"
           git reset --hard "$RELEASE_SHA"
           test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
 
-          # Nginx and the existing landing page are operator-managed surfaces.
-          sudo -n nginx -t
+          # Nginx and the existing landing page remain operator-managed.
           docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
           # Build the backend from the immutable, verified checkout before migrations.
           # Otherwise compose run may silently reuse an outdated local backend image.
