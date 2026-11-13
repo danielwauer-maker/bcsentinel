@@ -97,9 +97,13 @@ def claim_enrollment(db: Session, *, token: str, identity_key: str,
         raise EnrollmentRejected("Pilot enrollment authorization failed.")
     key = _hash(token)
     now = utc_now()
+    candidate_id = db.scalar(select(PilotEnrollment.id).where(PilotEnrollment.token_hash == key))
+    if candidate_id is None:
+        raise EnrollmentRejected("Pilot enrollment authorization failed.")
     result = db.execute(
         update(PilotEnrollment)
         .where(
+            PilotEnrollment.id == candidate_id,
             PilotEnrollment.token_hash == key,
             PilotEnrollment.status == "APPROVED",
             PilotEnrollment.identity_key == identity_key,
@@ -111,11 +115,7 @@ def claim_enrollment(db: Session, *, token: str, identity_key: str,
     )
     if result.rowcount != 1:
         raise EnrollmentRejected("Pilot enrollment authorization failed.")
-    row = db.scalar(select(PilotEnrollment).where(
-        PilotEnrollment.identity_key == identity_key,
-        PilotEnrollment.status == "REGISTERED",
-        PilotEnrollment.registered_at_utc == now,
-    ))
+    row = db.get(PilotEnrollment, candidate_id)
     if row is None:
         raise EnrollmentRejected("Pilot enrollment reservation could not be loaded.")
     _audit(db, row, "registered", "bc-registration")
