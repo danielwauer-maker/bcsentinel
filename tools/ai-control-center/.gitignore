@@ -1,0 +1,6 @@
+data/
+state/
+.env
+*.xlsx
+__pycache__/
+.pytest_cache/

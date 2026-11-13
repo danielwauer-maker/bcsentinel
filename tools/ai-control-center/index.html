@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BCSentinel · AI Control Center</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#eaf0f8;background:#0b1422}*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(18px,4vw,64px);border-bottom:1px solid #243447;background:#111f30}h1{font-size:1.3rem;margin:3px 0}h2{font-size:1rem;margin:0 0 16px}.eyebrow{color:#70bce0;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase}.sub,.muted{color:#9dafc2}.sub{font-size:.85rem}main{max-width:1320px;margin:auto;padding:28px 22px 70px}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card,.panel{background:#142337;border:1px solid #293e56;border-radius:15px;padding:20px}.card strong{font-size:1.8rem;display:block;margin:10px 0}.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-top:18px}.full{grid-column:1/-1}.chip{display:inline-flex;align-items:center;border:1px solid #445c70;border-radius:99px;padding:5px 10px;font-size:.75rem}.danger{color:#ffc2ae;border-color:#98564b}.ok{color:#8fdfbf;border-color:#397861}.warn{color:#f8d999}button{background:#0d759b;color:#fff;border:0;border-radius:9px;padding:11px 15px;cursor:pointer;font-weight:600}button:hover{background:#1195bb}button:disabled{opacity:.5}table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid #2c4055;vertical-align:top}th{color:#adc3d8;font-weight:500}.scroll{overflow-x:auto}a{color:#16618b}li{margin:9px 0}.empty{padding:13px;border:1px dashed #486078;border-radius:9px;color:#adc3d8}.filters{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}select,input{border:1px solid #486078;background:#0b1422;color:#eaf0f8;border-radius:8px;padding:9px 11px;min-height:38px}input{flex:1;min-width:220px}.table-wrap{max-height:500px;overflow:auto}.muted.small{font-size:.75rem}.brief-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.readiness-shell{background:linear-gradient(115deg,#18334c,#142337 68%);border:1px solid #31526a;border-radius:16px;padding:23px;margin-top:20px}.readiness-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.readiness-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px}.readiness-item{background:#0e2032;border:1px solid #2c4862;border-radius:12px;padding:15px}.readiness-item strong{display:block;font-size:1.65rem;margin:9px 0 7px}.progress-track{height:9px;background:#2e4052;border-radius:7px;overflow:hidden;margin:10px 0}.progress-fill{height:100%;width:0%;background:#48b9da;border-radius:7px}.progress-fill.gate{background:#e3bb74}.overall-pane,.timeline-pane{margin-top:16px;border:1px solid #33536b;border-radius:12px;padding:17px;background:#0f2134}.overall-row{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}.overall-figures{display:flex;gap:28px;flex-wrap:wrap;align-items:center}.overall-figures strong{font-size:1.6rem}.timeline-numbers{display:flex;gap:24px;flex-wrap:wrap;margin:12px 0 6px}.timeline-numbers strong{display:block;font-size:1.25rem;margin-top:4px}.timeline-chart{display:block;width:100%;height:auto;max-height:235px}.timeline-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.8rem;color:#bcd0e0;margin:5px 0 10px}.timeline-key{display:inline-block;width:20px;height:3px;vertical-align:middle;margin-right:6px}.readiness-legend{color:#bed0df;font-size:.8rem;margin-top:12px}.readiness-note{color:#aebfd3;font-size:.78rem;margin-top:12px;line-height:1.6}.mini-progress{display:flex;align-items:center;gap:10px}.mini-progress .progress-track{flex:1;margin:0;height:6px}@media(max-width:950px){.readiness-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:540px){.readiness-cards{grid-template-columns:1fr}}.accept-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.accept-stat{border:1px solid #344f69;border-radius:10px;padding:13px;background:#0e2134}.accept-stat strong{display:block;font-size:1.45rem;margin-top:5px}.accept-table details summary{cursor:pointer;color:#16618b}.accept-table details{margin:8px 0}.accept-table td:last-child{min-width:180px}.criteria{padding-left:18px;margin:10px 0}.criteria li{font-size:.82rem;margin:6px 0}.criteria li::marker{color:#ecbc73}@media(max-width:750px){.accept-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}.agent-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.agent-kpi{border:1px solid #37536b;border-radius:10px;padding:13px;background:#10273b}.agent-kpi strong{display:block;font-size:1.35rem;margin:7px 0}.agent-caution{border-left:3px solid #d7ad6a;padding:12px;margin:12px 0;background:#15293d}.agent-log{max-height:260px;overflow:auto}@media(max-width:750px){.agent-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}.pm-daily-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}.pm-daily-kpi{border:1px solid #35536a;background:#0d2539;border-radius:10px;padding:14px}.pm-daily-kpi strong{font-size:1.3rem;display:block;margin:8px 0}.pm-advice{background:#0f263b;border:1px solid #42627a;border-radius:11px;padding:16px;margin:12px 0}.pm-advice p{margin:8px 0}.pm-list{margin:8px 0;padding-left:23px}.pm-list li{margin:7px 0;font-size:.88rem}.pm-copy{max-width:100%;white-space:pre-wrap;font-size:.8rem;background:#091d30;border:1px solid #36556e;border-radius:10px;padding:14px;overflow:auto;max-height:250px}.pm-copy-btn{margin-top:12px}@media(max-width:720px){.pm-daily-grid{grid-template-columns:1fr}}.insight-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0}.insight-item{padding:14px;border:1px solid #344e68;background:#0e2336;border-radius:10px}.insight-item strong{display:block;font-size:1.35rem;margin-top:6px}.insight-stack{display:flex;flex-wrap:wrap;gap:9px;margin:13px 0}.insight-risk{border-left:3px solid #d7ad6a;background:#0f2438;padding:12px;margin:9px 0}.insight-risk strong{display:block}.insight-risk .sub{margin-top:6px}.insight-next{border:1px solid #40637a;border-radius:11px;padding:15px;margin-top:12px;background:#10283d}.insight-next p{margin:9px 0}.insight-caption{font-size:.79rem;color:#afc4d7;line-height:1.5}@media(max-width:800px){.insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}.coverage-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.coverage-kpi{background:#0e2336;border-radius:10px;border:1px solid #344e68;padding:13px}.coverage-kpi strong{font-size:1.5rem;display:block;margin-top:5px}.coverage-table details summary{cursor:pointer;color:#16618b}.coverage-table td{max-width:420px}.coverage-table td:last-child{min-width:240px}.coverage-table ul{margin:8px 0;padding-left:18px}@media(max-width:800px){.coverage-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}.blocker-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}.blocker-kpi{padding:14px;border-radius:10px;background:#0c2335;border:1px solid #36536a}.blocker-kpi strong{display:block;font-size:1.6rem;margin:5px 0}.blocker-root{margin:12px 0;padding:14px;background:#10253a;border:1px solid #38536c;border-radius:10px}.blocker-root p{margin:8px 0}.blocker-root strong{font-size:.93rem}.blocker-root .sub{line-height:1.5}.blocker-table details summary{cursor:pointer;color:#16618b}.blocker-note{font-size:.8rem;line-height:1.5;color:#b4c5d5}@media(max-width:700px){.blocker-overview{grid-template-columns:1fr}}.brief-stat{border:1px solid #34495f;border-radius:10px;padding:14px;background:#101d30}.brief-stat strong{display:block;font-size:1.4rem;margin-top:5px}@media(max-width:650px){.brief-list{grid-template-columns:1fr}}.topline{display:flex;gap:15px;align-items:center;flex-wrap:wrap}.loading{opacity:.7}@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:450px){.cards{grid-template-columns:1fr 1fr}.card{padding:14px}.card strong{font-size:1.4rem}}
+</style><link rel="stylesheet" href="/light-theme.css"></head><body>
+<header><div><div class="eyebrow">Data Health · Business Impact</div><h1>BCSentinel AI Control Center</h1><div class="sub">Projektsteuerung · Live-Evidence · AI-PM 2.2</div></div><nav aria-label="Hauptnavigation" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="/index.html" aria-current="page" style="font-weight:700">Dashboard</a><a href="/team.html" style="font-weight:700">Team</a><a href="/media.html" style="font-weight:700">Mediathek</a><button id="refresh">Jetzt aktualisieren</button></nav></header>
+<main><div class="topline"><span id="timestamp" class="muted">Noch nicht geladen</span><span class="chip danger" id="go-live">Go-Live: nicht freigegeben</span><span class="chip">Ein Agent nach dem anderen · geplant</span></div>
+<section id="executive-overview" class="exec-overview" aria-label="Executive Übersicht">
+ <div class="exec-heading"><div><div class="eyebrow">AI-PM 2.2 · Executive Ansicht</div><h2>Projektlage auf einen Blick</h2><p class="sub">Trennscharfe Kennzahlen und nächste manuelle Reviews. Keine Freigabe- oder Laufzeitsimulation.</p></div><span class="chip danger" id="exec-status">NICHT FREIGEGEBEN</span></div>
+ <div class="exec-metrics">
+  <article class="exec-metric"><span>Technischer Planstand</span><strong id="exec-progress">–</strong><small id="exec-progress-source">Fiverr · Planstunden</small></article>
+  <article class="exec-metric"><span>Historische Aufgaben-Gates</span><strong id="exec-gates">–</strong><small id="exec-gates-source">Keine globale Freigabe</small></article>
+  <article class="exec-metric"><span>Qualitative Gesamtschätzung</span><strong id="exec-estimate">–</strong><small id="exec-estimate-source">Historische Schätzung</small></article>
+  <article class="exec-metric exec-risk"><span>Offene P0-Prüfkriterien</span><strong id="exec-p0">–</strong><small id="exec-p0-source">Nur kuratierte Reviews</small></article>
+ </div>
+ <div class="exec-columns">
+  <div class="exec-focus"><div class="eyebrow">Nächste prüfbare Handlung</div><h3 id="exec-primary-title">Manueller Review</h3><p id="exec-primary">Empfehlung wird geladen …</p><p class="exec-caution">Prüfempfehlung – kein Arbeitsauftrag an aktive KI-Agenten und keine automatisch erteilte Freigabe.</p></div>
+  <div class="exec-focus"><div class="eyebrow">P0-Review-Warteschlange</div><h3>Jetzt prüfen</h3><ol id="exec-next" class="exec-next"><li>Wird geladen …</li></ol><p id="exec-scope" class="sub">Nur kuratierte, nachvollziehbare Teilpriorisierung</p></div>
+ </div>
+ <section class="exec-triage" aria-label="Evidence-Triage und Aufgabenfokus">
+  <div class="exec-heading"><div><div class="eyebrow">Desktop-Arbeitsbereich · read-only</div><h2>Evidence &amp; Aufgabenfokus</h2><p class="sub">Kuratierten Arbeitsstand und offene GitHub-PRs getrennt prüfen. Keine automatische Zuordnung oder Abnahme.</p></div></div>
+  <div class="exec-triage-controls">
+    <label for="exec-triage-search">Suche nach Sprint, Aufgabe oder PR</label>
+    <input id="exec-triage-search" type="search" placeholder="z. B. 3.02, Validation oder #169">
+    <label for="exec-triage-kind">Anzeigen</label>
+    <select id="exec-triage-kind"><option value="all">Aufgaben und Pull Requests</option><option value="work">Nur kuratierte Aufgaben</option><option value="prs">Nur offene PRs</option></select>
+    <label for="exec-triage-limit">Einträge pro Bereich</label>
+    <select id="exec-triage-limit"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="all">Alle</option></select>
+  </div>
+  <div class="exec-columns">
+    <section class="exec-focus" id="exec-work-panel" aria-label="Kuratierte Sprint-Evidence">
+      <div class="exec-triage-title"><h3>Prüfbare Sprint-Arbeiten</h3><span class="sub" id="exec-work-count">–</span></div>
+      <div id="exec-work-list" class="exec-triage-list" aria-live="polite"><p class="sub">Lade Evidence …</p></div>
+      <p class="sub">Kuratiertes Evidence-Inventar; Status ist kein unabhängiger Abschluss.</p>
+    </section>
+    <section class="exec-focus" id="exec-pr-panel" aria-label="Offene GitHub Pull Requests">
+      <div class="exec-triage-title"><h3>Offene GitHub-PRs</h3><span class="sub" id="exec-pr-count">–</span></div>
+      <div id="exec-pr-items" class="exec-triage-list" aria-live="polite"><p class="sub">Lade GitHub-Metadaten …</p></div>
+      <p id="exec-pr-freshness" class="sub">Quellenstatus unbekannt · keine CI-/Laufzeitfreigabe</p>
+    </section>
+  </div>
+</section>
+<div class="exec-meta"><span id="exec-asof">Snapshot wird geladen</span><span id="exec-evidence-asof">Sprint-Evidence wird geladen</span><span id="exec-source-state">GitHub-Quellenstand wird geladen</span><a href="/team.html">KI-Team ansehen</a></div>
+</section>
+<details class="exec-deep-dive" id="executive-details"><summary>Alle Detailansichten öffnen <span>Readiness · Evidence · Projektbewertung · Agenten · GitHub-PRs</span></summary>
+<section class="readiness-shell" aria-label="Fiverr Go-Live Readiness">
+<div class="readiness-head"><div><div class="eyebrow">Fiverr · Go-Live-Readiness</div><h2 style="font-size:1.25rem;margin:6px 0 0">Release-Fortschritt &amp; Zeitplanung</h2></div><span id="readiness-gate" class="chip danger">NO-GO · offene Gates</span></div>
+<div class="readiness-cards">
+<div class="readiness-item"><span class="sub">Technisch fertig · Planstunden</span><strong id="r-tech">–</strong><div class="progress-track"><div class="progress-fill" id="r-tech-bar"></div></div><span class="sub" id="r-tech-detail">Noch keine verifizierte Planbasis</span></div>
+<div class="readiness-item"><span class="sub">Go-Live-Gates bestätigt</span><strong id="r-gate">–</strong><div class="progress-track"><div class="progress-fill gate" id="r-gate-bar"></div></div><span class="sub" id="r-gate-detail">Noch keine verifizierte Planbasis</span></div>
+<div class="readiness-item"><span class="sub">Offener Planaufwand</span><strong id="r-hours">–</strong><span class="sub" id="r-weeks">Kapazität nicht geladen</span></div>
+<div class="readiness-item"><span class="sub">Rechnerisches Kapazitätsziel</span><strong id="r-eta">–</strong><span class="sub">Nur Szenario · kein zugesagter Go-Live</span></div>
+</div>
+<div class="overall-pane">
+<div class="overall-row"><div><div class="eyebrow">Gesamtprojekt · Excel-Baseline + attestierte Gates</div><h3 style="margin:6px 0 3px;font-size:1rem">Qualitative Gesamtprojektschätzung</h3></div><div class="overall-figures"><div><span class="sub">Ist-Schätzwert</span><strong id="r-legacy-value" style="display:block">–</strong></div><div><span class="sub">Bis 100 % verbleibend</span><strong id="r-legacy-rest" style="display:block">–</strong></div></div></div>
+<div class="progress-track" style="height:12px"><div class="progress-fill" id="r-legacy-bar"></div></div>
+<div class="sub" id="r-legacy">Historischer Gesamtprojekt-Schätzwert wird separat ausgewiesen.</div>
+</div>
+<div class="timeline-pane"><div class="readiness-head"><h3 style="margin:0;font-size:1rem">Zeitplan · Soll vs. Ist-Gesamtprojektschätzung</h3><span class="chip" id="timeline-status">Provisorischer Kapazitätsplan</span></div>
+<div class="timeline-numbers"><div><span class="sub">Soll heute</span><strong id="tl-planned">–</strong></div><div><span class="sub">Ist-Schätzwert (Basismodell + Abnahmen)</span><strong id="tl-actual">–</strong></div><div><span class="sub">Planabweichung</span><strong id="tl-gap">–</strong></div></div>
+<svg id="timeline-svg" class="timeline-chart" viewBox="0 0 960 220" role="img" aria-label="Zeitleiste mit geplanter Entwicklung und zuletzt bestätigtem Ist-Punkt"><text x="18" y="40" fill="#adc3d8">Zeitleiste wird geladen …</text></svg>
+<div class="timeline-legend"><span><i class="timeline-key" style="background:#1578a4"></i>Soll nach Planstunden</span><span><i class="timeline-key" style="background:#a16e19"></i>Ist: Excel-Baseline + ausdrücklich attestierte Gates</span></div>
+<div class="topline" style="margin:12px 0"><span id="history-count" class="chip">Historie wird geladen</span><span id="history-dev" class="chip">DEV-Abnahme: –</span></div>
+<details style="margin:12px 0"><summary style="cursor:pointer;color:#16618b">Datierte Fortschrittsereignisse ansehen</summary><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Aufgabe</th><th>Gate</th><th>Nachweis</th></tr></thead><tbody id="history-events"></tbody></table></div></details>
+<div class="sub" id="tl-notes">Planungsbaseline wird geprüft.</div></div>
+<details style="margin-top:12px"><summary style="cursor:pointer;color:#16618b">Fortschritt je Fiverr-Sprint anzeigen</summary><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Sprint</th><th>Gates</th><th>Abgenommene Stunden</th><th>Fortschritt</th></tr></thead><tbody id="readiness-sprints"></tbody></table></div></details>
+<div class="readiness-note" id="r-notes">Daten werden aus der verifizierten Masterdatei geladen.</div>
+</section>
+<div class="cards" style="margin-top:20px">
+<div class="card"><span class="muted">Fiverr / SaaS · Excel</span><strong id="tasks">–</strong><span class="sub" id="tracker-status">Tracker wird geprüft</span></div>
+<div class="card"><span class="muted">Offene GitHub-PRs</span><strong id="prs">–</strong><span class="sub" id="pr-status">Keine Live-Daten</span></div>
+<div class="card"><span class="muted">DEV API</span><strong id="dev">–</strong><span class="sub">Nur Erreichbarkeit, kein E2E</span></div>
+<div class="card"><span class="muted">AI API-Kosten</span><strong>–</strong><span class="sub">Noch nicht angebunden – keine erfundenen Zahlen</span></div>
+</div>
+<div class="grid">
+<section class="panel full" aria-label="Agentensteuerung">
+<div class="topline" style="justify-content:space-between"><h2 style="margin:0">Agentensteuerung &amp; Budgetkontrolle · AI-PM 2.0</h2><span class="chip danger">Ausführung gesperrt · lokale Freigaben</span></div>
+<div class="sub" style="margin-top:10px" id="agent-status">Lade lokale Steuerung …</div>
+<div class="agent-kpis"><div class="agent-kpi"><span class="sub">Monatliches Budgetlimit</span><strong id="agent-cap">–</strong></div>
+<div class="agent-kpi"><span class="sub">Aktuell reservierte Plätze</span><strong id="agent-slots">–</strong></div>
+<div class="agent-kpi"><span class="sub">Aufträge (letzte 50)</span><strong id="agent-count">–</strong></div>
+<div class="agent-kpi"><span class="sub">Provider / Ausführung</span><strong id="agent-execution">Aus</strong></div></div>
+<div class="agent-caution">Sicherheitsmodell: Diese Ansicht ist <strong>nur lesend</strong>. Entwürfe, Budgetänderungen, Freigaben und Reservierungen erfolgen ausschließlich über explizite Server-CLI-Befehle. „Reserviert“ heißt nicht, dass ein KI-Agent ausgeführt wurde.</div>
+<details><summary style="cursor:pointer;color:#16618b">Auftragsübersicht und Audit anzeigen</summary>
+<div class="table-wrap agent-log"><table><thead><tr><th>Auftrag</th><th>Zweck</th><th>Status</th><th>Kostenreservierung</th></tr></thead><tbody id="agent-jobs"></tbody></table></div>
+<div class="table-wrap agent-log" style="margin-top:14px"><table><thead><tr><th>UTC</th><th>Ereignis</th><th>Operator</th></tr></thead><tbody id="agent-audit"></tbody></table></div>
+</details></section>
+<section class="panel full" aria-label="AI PM Tagesbriefing">
+<div class="topline" style="justify-content:space-between"><h2 style="margin:0">Tagesbriefing · Projektmanager 1.7</h2><span class="chip">Offline-Regelwerk · keine KI-API</span></div>
+<div id="pm-status" class="sub" style="margin-top:10px">Projektbriefing wird berechnet …</div>
+<div class="pm-daily-grid">
+<div class="pm-daily-kpi"><span class="sub">Bekannte offene P0-Prüfungen</span><strong id="pm-p0">–</strong></div>
+<div class="pm-daily-kpi"><span class="sub">GitHub-Änderungen (24 h)</span><strong id="pm-changes">–</strong></div>
+<div class="pm-daily-kpi"><span class="sub">GitHub-Synchronisierung</span><strong id="pm-sync">–</strong></div>
+</div>
+<div id="pm-headline" class="sub"></div>
+<div id="pm-summary"></div>
+<div class="pm-advice"><h3 style="margin:0 0 8px;font-size:.98rem">Vorgeschlagener nächster Review</h3><div id="pm-recommendation" class="sub">Ohne verifizierte Daten keine Empfehlung.</div></div>
+<details><summary style="cursor:pointer;color:#16618b">Beobachtete GitHub-Änderungen und Datenlimits</summary>
+<div id="pm-changes-list" class="sub" style="margin:12px 0"></div><div id="pm-limits" class="sub"></div></details>
+<details style="margin-top:15px"><summary style="cursor:pointer;color:#16618b">Manuelle Review-Anweisung öffnen</summary>
+<p class="sub">Ausschließlich zur menschlichen Prüfung und zum Kopieren. Kein automatischer Codex-/Agentenstart, kein Repository-Schreibzugriff.</p>
+<pre id="pm-request" class="pm-copy">Keine vorbereitete Anfrage verfügbar.</pre>
+<button id="pm-copy" class="pm-copy-btn" type="button" disabled>Review-Anweisung kopieren</button>
+<span id="pm-copy-state" class="sub" role="status" style="margin-left:10px"></span>
+</details>
+<div id="pm-warning" class="sub" style="margin-top:14px">Keine automatische Freigabe.</div>
+</section>
+<section class="panel full"><h2>Projektbriefing · letzte 24 Stunden</h2><div id="brief-status" class="sub">GitHub-Abgleich noch nicht gestartet</div><div class="brief-list" style="margin-top:14px"><div class="brief-stat"><span class="sub">Beobachtete PRs</span><strong id="brief-observed">–</strong></div><div class="brief-stat"><span class="sub">Zugeordnete PRs</span><strong id="brief-matched">–</strong></div><div class="brief-stat"><span class="sub">Änderungen in 24h</span><strong id="brief-changes">–</strong></div></div>
+<div class="topline" style="margin:13px 0"><span class="chip" id="brief-curated">Geprüfte Referenzen: –</span><span class="chip" id="brief-unresolved">PRs ohne Zuordnung: –</span></div><div id="brief-details" style="margin-top:16px" class="sub"></div><div class="scroll"><table><thead><tr><th>Geändert</th><th>PR / Nachweis</th><th>Zuordnung</th></tr></thead><tbody id="brief-list"></tbody></table></div></section>
+<section class="panel full"><div class="topline" style="justify-content:space-between"><h2 style="margin:0">Zuordnungen zur Prüfung</h2><span class="chip">Vorschläge · keine automatischen Freigaben</span></div><div class="sub" style="margin-top:9px">Nicht zugeordnete oder widersprüchliche PRs. Die Liste dient der Triage; sie bedeutet nicht, dass jeder historische PR eine Aufgabe braucht.</div><details style="margin-top:13px"><summary style="cursor:pointer;color:#16618b">Prüfliste öffnen</summary><div class="table-wrap"><table><thead><tr><th>PR</th><th>Grund</th></tr></thead><tbody id="mapping-review-list"></tbody></table></div></details></section>
+<section class="panel full" aria-label="Projektbewertung AI PM 1.6">
+<div class="topline" style="justify-content:space-between"><h2 style="margin:0">Projektbewertung · Arbeitsstatus, Evidenz &amp; Planrisiko</h2><span class="chip danger">Bewertung ≠ Go-Live-Freigabe</span></div>
+<div class="sub" style="margin-top:10px" id="insight-status">Prüfe verifizierte Quellen …</div>
+<div class="insight-grid">
+<div class="insight-item"><span class="sub">Unabhängige DEV-Abnahmen</span><strong id="insight-dev">–</strong></div>
+<div class="insight-item"><span class="sub">Kuratierte Reviews</span><strong id="insight-reviewed">–</strong></div>
+<div class="insight-item"><span class="sub">P0-Prüfkriterien offen</span><strong id="insight-p0">–</strong></div>
+<div class="insight-item"><span class="sub">Terminprognose</span><strong id="insight-forecast">–</strong></div></div>
+<h3 style="font-size:.95rem;margin:18px 0 8px">Arbeitsstatus aus dem Aufgabenregister</h3>
+<div id="insight-stages" class="insight-stack"></div>
+<div class="insight-caption">Manuell gepflegter Arbeitsstatus, beobachtete PRs und formelle Abnahmen sind verschiedene Datenarten. Die Statuswerte dürfen nicht als Gesamtfortschrittsprozent addiert werden.</div>
+<h3 style="font-size:.95rem;margin:18px 0 8px">Nachweisqualität und Zeitplanrisiken</h3>
+<div id="insight-evidence" class="sub"></div><div id="insight-risks"></div>
+<div id="insight-schedule" class="insight-caption" style="margin:12px 0"></div>
+<h3 style="font-size:.95rem;margin:18px 0 8px">Empfohlene nächste Prüfung</h3>
+<div id="insight-action" class="insight-next"><span class="sub">Noch keine verifizierbare Empfehlung</span></div>
+<div class="insight-caption" style="margin-top:14px" id="insight-warning">Keine automatische Sprint-Freigabe, keine automatische Projekttermin-Prognose.</div>
+</section>
+<section class="panel full" aria-label="Fiverr Aufgabenabdeckung">
+<div class="topline" style="justify-content:space-between"><h2 style="margin:0">Alle Fiverr-Aufgaben · Evidence-Abdeckung 1.5</h2><span class="chip danger">Inventar ≠ Abnahme</span></div>
+<div class="sub" style="margin-top:10px" id="coverage-status">SHA-verifiziertes Inventar wird geladen …</div>
+<div class="coverage-kpis">
+<div class="coverage-kpi"><span class="sub">Fiverr inventarisiert</span><strong id="coverage-total">–</strong></div>
+<div class="coverage-kpi"><span class="sub">Mit Detailreview</span><strong id="coverage-reviewed">–</strong></div>
+<div class="coverage-kpi"><span class="sub">Review noch offen</span><strong id="coverage-unknown">–</strong></div>
+<div class="coverage-kpi"><span class="sub">Abhängigkeiten ungeprüft</span><strong id="coverage-deps">–</strong></div>
+</div>
+<div class="filters"><input id="coverage-search" type="search" placeholder="Aufgabe, Sprint oder Titel suchen" aria-label="Alle Fiverr-Aufgaben durchsuchen"><select id="coverage-filter" aria-label="Review-Abdeckung filtern"><option value="all">Alle Fiverr-Aufgaben</option><option value="curated">Mit Detailreview</option><option value="unreviewed">Review fehlt</option></select></div>
+<div class="sub" id="coverage-counter">–</div>
+<div class="table-wrap coverage-table"><table><thead><tr><th>Arbeitspaket</th><th>Review &amp; Abhängigkeiten</th><th>GitHub-Nachweise / nächste Prüfung</th></tr></thead><tbody id="coverage-list"></tbody></table></div>
+<div class="blocker-note" id="coverage-warning" style="margin-top:12px">Unbekannte Daten werden nicht automatisch als erledigt eingestuft.</div>
+</section>
+<section class="panel full">
+<div class="topline" style="justify-content:space-between"><h2 style="margin:0">P0-Blocker &amp; Abhängigkeiten · AI-PM 1.4</h2><span class="chip danger">Planungshypothese · NO-GO</span></div>
+<div class="sub" style="margin-top:10px" id="blocker-status">Abhängigkeitsübersicht laden …</div>
+<div class="blocker-overview"><div class="blocker-kpi"><span class="sub">Modellierte Aufgaben</span><strong id="blocker-covered">–</strong></div><div class="blocker-kpi"><span class="sub">Abhängigkeiten</span><strong id="blocker-edges">–</strong></div><div class="blocker-kpi"><span class="sub">Nicht modellierte Fiverr-Aufgaben</span><strong id="blocker-unknown">–</strong></div></div>
+<h3 style="font-size:.95rem;margin:16px 0 4px">Zuerst prüfbare P0-Stränge</h3><div id="blocker-roots"></div>
+<details style="margin-top:12px"><summary style="cursor:pointer;color:#16618b">Gesamte Abhängigkeitsliste anzeigen</summary>
+<div class="filters"><input id="blocker-search" type="search" placeholder="Sprint oder Abhängigkeit suchen" aria-label="Blocker suchen"><select id="blocker-filter" aria-label="Abhängigkeiten filtern"><option value="all">Alle Prüfstränge</option><option value="review_first">Ohne modellierte Vorbedingung</option><option value="review_with_prerequisites">Vorbedingungen offen</option><option value="review_prerequisites_attested">Vorbedingungen attestiert</option></select></div>
+<div class="table-wrap blocker-table"><table><thead><tr><th>Sprint</th><th>Vorbedingungen</th><th>Betroffene Folgeaufgaben</th><th>Nächste Prüfung</th></tr></thead><tbody id="blocker-list"></tbody></table></div></details>
+<div class="blocker-note" style="margin-top:12px" id="blocker-warning">Keine Release-Automatik und keine belastbare Critical-Path-Terminprognose.</div>
+</section>
+<section class="panel full"><div class="topline" style="justify-content:space-between"><h2 style="margin:0">Sprint-Abnahmeprüfung · Evidence &amp; Blocker</h2><span class="chip danger">Abnahmevorschläge · kein GO</span></div><div class="sub" style="margin-top:10px">Nachvollziehbare Prüfanforderungen aus den dokumentierten Sprints; kein GitHub- oder CI-Ereignis erfüllt sie automatisch. Nicht inventarisierte Aufgaben gelten nicht als abgeschlossen.</div>
+<div class="accept-grid"><div class="accept-stat"><span class="sub">Bewertete Fiverr-Aufgaben</span><strong id="accept-count">–</strong></div><div class="accept-stat"><span class="sub">P0-Abnahmeprüfungen</span><strong id="accept-p0">–</strong></div><div class="accept-stat"><span class="sub">Offene Prüfkriterien</span><strong id="accept-criteria">–</strong></div><div class="accept-stat"><span class="sub">Weitere Aufgaben ohne Detailreview</span><strong id="accept-pending">–</strong></div></div>
+<div class="topline" style="margin:10px 0"><input id="accept-search" type="search" placeholder="Sprint, Risiko oder Abnahmebedingung suchen" aria-label="Abnahmeprüfung durchsuchen"><select id="accept-filter" aria-label="Priorität filtern"><option value="all">Alle Prioritäten</option><option value="P0">P0 – Blocker</option><option value="P1">P1 – Content/Go-Live</option></select></div>
+<div class="sub" id="accept-source">Prüfstand wird geladen …</div>
+<div class="table-wrap accept-table"><table><thead><tr><th>Aufgabe / Priorität</th><th>Bewerteter Stand</th><th>Nachweise &amp; Abnahmebedingungen</th></tr></thead><tbody id="accept-list"></tbody></table></div></section>
+<section class="panel full"><h2>Zentrale Aufgabenverwaltung</h2><div id="store-summary" class="muted">Prüfe Datenbank …</div><div class="filters"><input id="task-search" type="search" placeholder="Aufgabe oder Sprint suchen" aria-label="Aufgabe suchen"><select id="area-filter" aria-label="Bereich filtern"><option value="all">Alle Bereiche</option><option value="fiverr">Fiverr</option><option value="saas">SaaS</option></select><select id="stage-filter" aria-label="Status filtern"><option value="all">Alle Status</option><option value="planned">Geplant</option><option value="in_progress">In Arbeit</option><option value="review">Review</option><option value="blocked">Blockiert</option></select></div><div id="task-count" class="sub"></div><div class="table-wrap"><table><thead><tr><th>Aufgabe</th><th>Bereich</th><th>Arbeitsstatus</th><th>GitHub-Evidence</th><th>Importierte Häkchen</th></tr></thead><tbody id="store-tasks"></tbody></table></div></section>
+<section class="panel full"><h2>Geprüfte Sprint-Arbeiten · GitHub-Evidence</h2><div class="sub">Technischer Zwischenstand aus Branches/Draft-PRs – kein automatisches Excel-Häkchen und keine Go-Live-Freigabe.</div><div class="scroll"><table><thead><tr><th>Aufgabe</th><th>Arbeitsstand</th><th>Nachweis</th></tr></thead><tbody id="evidence-list"></tbody></table></div></section>
+<section class="panel"><h2>Master-Tracker · Importreferenz</h2><div id="tracker-summary" class="muted">Lade Arbeitsmappe …</div><details style="margin-top:12px"><summary style="cursor:pointer;color:#16618b">Historische Excel-Rohdaten anzeigen</summary><div class="table-wrap"><table><thead><tr><th>Bereich</th><th>Arbeitspaket</th><th>Rohstatus</th></tr></thead><tbody id="task-list"></tbody></table></div></details></section>
+<section class="panel"><h2>Technische Freigabe-Gates</h2><div id="gates"></div><h2 style="margin-top:25px">Agentenwarteschlange</h2><div class="empty">Noch nicht implementiert. Keine aktiven Agenten und keine automatischen Schreibaktionen.</div></section>
+<section class="panel full"><h2>GitHub · offene Pull Requests</h2><div id="repos" class="muted"></div><div class="scroll"><table><thead><tr><th>Repository</th><th>PR</th><th>Status</th><th>Zuletzt geändert</th></tr></thead><tbody id="pr-list"></tbody></table></div></section>
+<section class="panel full"><h2>Datenqualität &amp; Hinweise</h2><ul id="warnings"></ul></section>
+</div></details></main>
+<script src="/executive.js"></script>
+<script src="/triage.js"></script>
+<script>
+const el=id=>document.getElementById(id);
+function cell(row,value){const td=document.createElement('td');td.textContent=String(value??'–');row.appendChild(td);return td}
+function blank(id,msg){const tr=document.createElement('tr');const td=cell(tr,msg);td.colSpan=4;el(id).appendChild(tr)}
+function clear(id){el(id).replaceChildren()}
+function renderTimeline(t){
+const svg=el('timeline-svg');svg.replaceChildren();if(t?.state!=='loaded'){const node=document.createElementNS('http://www.w3.org/2000/svg','text');node.setAttribute('x','20');node.setAttribute('y','50');node.setAttribute('fill','#526b80');node.textContent='Keine verifizierte Planungsbaseline verfügbar';svg.appendChild(node);return}
+const NS='http://www.w3.org/2000/svg',start=Date.parse(t.baseline_date+'T00:00:00Z'),end=Date.parse(t.target_date+'T00:00:00Z'),left=52,right=927,top=17,bottom=174;
+const minY=Math.min(.60,Math.floor(t.actual_fraction*10)/10),range=1-minY;
+const x=date=>left+Math.max(0,Math.min(1,(Date.parse(date+'T00:00:00Z')-start)/(end-start)))*(right-left);
+const y=value=>bottom-(value-minY)/range*(bottom-top);
+const element=(name,attrs,content)=>{const node=document.createElementNS(NS,name);for(const [key,val] of Object.entries(attrs))node.setAttribute(key,String(val));if(content!==undefined)node.textContent=content;svg.appendChild(node);return node};
+for(const val of [minY,.8,1]){if(val<minY)continue;element('line',{x1:left,x2:right,y1:y(val),y2:y(val),stroke:'#c1d2df','stroke-dasharray':'3 7'});element('text',{x:left-8,y:y(val)+4,'text-anchor':'end',fill:'#536c80','font-size':12},Math.round(val*100)+'%')}
+const points=t.series.map(p=>x(p.date)+','+y(p.planned)).join(' ');element('polyline',{points,fill:'none',stroke:'#1578a4','stroke-width':3,'stroke-linejoin':'round'});
+const todayX=x(t.current_date),todayY=y(t.planned_fraction);element('line',{x1:todayX,x2:todayX,y1:top,y2:bottom,stroke:'#587b95','stroke-dasharray':'5 5'});element('circle',{cx:todayX,cy:todayY,r:5,fill:'#1578a4'});
+const actualPoints=t.actual_series?.length?t.actual_series:[t.actual_point];
+if(actualPoints.length>1){element('polyline',{points:actualPoints.map(p=>x(p.date)+','+y(p.value)).join(' '),fill:'none',stroke:'#a16e19','stroke-width':3,'stroke-linejoin':'round'});}
+for(const p of actualPoints){const dot=element('circle',{cx:x(p.date),cy:y(p.value),r:actualPoints.length>1?5:7,fill:'#a16e19',stroke:'#f7fafd','stroke-width':2});const tip=document.createElementNS(NS,'title');tip.textContent='Ist '+(p.value*100).toFixed(1)+' % · '+(p.source||'Historischer Stand');dot.appendChild(tip);}
+const dateLabels=[{date:t.baseline_date,align:'start'},{date:t.current_date,align:'middle'},{date:t.target_date,align:'end'}];
+const filtered=dateLabels.filter((item,i)=>i!==1||(x(item.date)-x(t.baseline_date)>110&&x(t.target_date)-x(item.date)>110));
+for(const item of filtered){element('text',{x:x(item.date),y:bottom+24,'text-anchor':item.align,fill:'#506b80','font-size':12},new Date(item.date+'T12:00:00Z').toLocaleDateString('de-DE',{day:'2-digit',month:'short',year:'numeric'}))}
+}
+async function reload(){el('refresh').disabled=true;el('timestamp').textContent='Aktualisiere…';try{
+const response=await fetch('/api/snapshot',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();
+if(typeof window.renderExecutive==="function") window.renderExecutive(data);
+if(typeof window.renderTriage==="function") window.renderTriage(data);
+el('timestamp').textContent='Stand: '+new Date(data.generated_at_utc).toLocaleString('de-DE');el('go-live').textContent='Go-Live: NICHT FREIGEGEBEN';
+const hist=data.progress_history||{state:'not_initialized'};
+el('history-count').textContent=hist.state==='loaded'?('Attestierte Ereignisse: '+hist.count_events):'Historie nicht initialisiert · Excel-Baseline aktiv';
+el('history-dev').textContent=hist.state==='loaded'?('DEV-Gates: '+(hist.dev_fraction*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %'):'DEV-Abnahme: nicht verfügbar';
+clear('history-events');
+if(hist.state==='loaded'){
+for(const event of [...(hist.latest_events||[])].reverse()){
+const tr=document.createElement('tr');cell(tr,new Date(event.recorded_at).toLocaleString('de-DE'));cell(tr,event.task_key);cell(tr,event.gate);
+const td=document.createElement('td');const a=document.createElement('a');a.href=event.evidence_uri;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Evidenzlink';td.appendChild(a);tr.appendChild(td);el('history-events').appendChild(tr);
+}}
+if(!el('history-events').children.length)blank('history-events','Keine neuen operator-attestierten Fortschrittsereignisse. Historische Excel-Häkchen bleiben die Baseline.');
+const ready=data.fiverr_readiness||{state:'unavailable'};
+if(ready.state==='loaded'){
+const pct=value=>(Math.max(0,Math.min(1,value))*100).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';
+const fmt=value=>Number(value).toLocaleString('de-DE',{maximumFractionDigits:1});
+el('r-tech').textContent=pct(ready.technical_fraction);el('r-tech-bar').style.width=(ready.technical_fraction*100)+'%';
+el('r-tech-detail').textContent=fmt(ready.technical_hours)+' / '+fmt(ready.total_hours)+' Planstunden';
+el('r-gate').textContent=pct(ready.gate_fraction);el('r-gate-bar').style.width=(ready.gate_fraction*100)+'%';
+el('r-gate-detail').textContent=ready.gate_count+' / '+ready.gate_total+' Gates · '+fmt(ready.accepted_hours)+' h';
+el('r-hours').textContent=fmt(ready.remaining_hours)+' h';
+el('r-weeks').textContent=fmt(ready.remaining_weeks)+' Wochen bei '+fmt(ready.hours_per_week)+' h/Woche · ca. '+ready.remaining_workdays+' Arbeitstage';
+el('r-eta').textContent=new Date(ready.capacity_scenario_date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'short',year:'numeric'});
+el('r-legacy-value').textContent=pct(ready.legacy_estimate_fraction);el('r-legacy-rest').textContent=pct(ready.legacy_remaining_fraction);el('r-legacy-bar').style.width=(ready.legacy_estimate_fraction*100)+'%';
+el('r-legacy').textContent='Berechnung: '+pct(ready.legacy_start_fraction)+' Ausgangsbasis plus dokumentierte Gate-Planstunden. '+(ready.history_status==='loaded'?'Attestierte Historie aktiv.':'Nur eingefrorener Excel-Stand.')+' Keine globale Go-Live-Freigabe.';
+const tm=ready.timeline||{state:'unavailable'};
+if(tm.state==='loaded'){
+el('tl-planned').textContent=pct(tm.planned_fraction);el('tl-actual').textContent=pct(tm.actual_fraction);
+el('tl-gap').textContent=(tm.gap_percentage_points>0?'+':'')+Number(tm.gap_percentage_points).toLocaleString('de-DE',{maximumFractionDigits:2})+' %-Punkte';
+el('timeline-status').textContent='Planvergleich · '+(tm.schedule_status==='behind'?'rechnerisch zurück':tm.schedule_status==='ahead'?'rechnerisch voraus':'im Planfenster');
+el('tl-notes').textContent='Baseline '+new Date(tm.baseline_date+'T12:00:00').toLocaleDateString('de-DE')+' · Ziel '+new Date(tm.target_date+'T12:00:00').toLocaleDateString('de-DE')+'. '+tm.assumptions;
+}else{for(const id of ['tl-planned','tl-actual','tl-gap'])el(id).textContent='–';el('timeline-status').textContent='Zeitplan nicht verifiziert';el('tl-notes').textContent=tm.reason||'Keine gültige Baseline';}
+renderTimeline(tm);
+el('readiness-gate').textContent=ready.go_live==='NO_GO'?'NO-GO · offene Gates':'Gates abgehakt · erneute Abnahme nötig';
+el('r-notes').textContent='Planungsbasis: verifizierte Excel v2 · Stand '+new Date(ready.as_of_date+'T12:00:00').toLocaleDateString('de-DE')+'. '+ready.capacity_scenario_note+' Historische Häkchen sind keine erneute Runtime-Abnahme. SaaS/Stripe ist ausgeschlossen.';
+clear('readiness-sprints');for(const s of ready.sprints||[]){const tr=document.createElement('tr');cell(tr,s.name);cell(tr,s.approved+' / '+s.total);cell(tr,fmt(s.gate_hours)+' / '+fmt(s.plan_hours)+' h');const td=document.createElement('td');td.className='mini-progress';const bar=document.createElement('div');bar.className='progress-track';const fill=document.createElement('div');fill.className='progress-fill gate';fill.style.width=(s.fraction*100)+'%';bar.appendChild(fill);td.append(bar,document.createTextNode(pct(s.fraction)));tr.appendChild(td);el('readiness-sprints').appendChild(tr)}
+}else{
+for(const id of ['r-tech','r-gate','r-hours','r-eta','r-legacy-value','r-legacy-rest','tl-planned','tl-actual','tl-gap'])el(id).textContent='–';
+el('r-notes').textContent=(ready.reason||'Fiverr-Planbasis nicht verfügbar')+' Keine ungesicherten Prozent- oder Terminwerte.';
+el('readiness-gate').textContent='NO-GO · Daten nicht verifiziert';renderTimeline({state:'unavailable'});
+}
+const agent=data.agent_queue||{state:'unavailable'};
+const agentReady=agent.state==='loaded';
+const euroCents=v=>(Number(v||0)/100).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+el('agent-status').textContent=agentReady?'Steuerung bereit · keine externe Ausführung konfiguriert · keine automatischen Freigaben.':agent.state==='not_initialized'?'Noch nicht initialisiert · Budget 0 € · Ausführung deaktiviert.':'Lokale Steuerung nicht verfügbar; keine Freigaben daraus ableiten.';
+el('agent-cap').textContent=agentReady?euroCents(agent.budget.monthly_cap_cents):'0 €';
+el('agent-slots').textContent=agentReady?agent.claimed_slots+' / 1':'–';
+el('agent-count').textContent=agentReady?(agent.jobs||[]).length:'–';
+el('agent-execution').textContent='Gesperrt';
+clear('agent-jobs');if(agentReady){for(const j of agent.jobs||[]){const tr=document.createElement('tr');cell(tr,'#'+j.id+' · Sprint '+j.task_id);cell(tr,j.purpose);cell(tr,j.status);cell(tr,euroCents(j.estimated_cost_cents));el('agent-jobs').appendChild(tr)}}if(!el('agent-jobs').children.length)blank('agent-jobs','Noch keine lokalen Agentenaufträge.');
+clear('agent-audit');if(agentReady){for(const a of agent.audit_recent||[]){const tr=document.createElement('tr');cell(tr,a.created_at);cell(tr,a.event);cell(tr,a.actor);el('agent-audit').appendChild(tr)}}if(!el('agent-audit').children.length)blank('agent-audit','Noch kein Agenten-Auditprotokoll.');
+const daily=data.ai_pm_brief||{state:'unavailable'};
+const pmLoaded=daily.state==='loaded';
+el('pm-status').textContent=pmLoaded?'Tagesstand '+daily.date+' · regelbasiertes, lokal erzeugtes Briefing · keinerlei Agenten-/LLM-Ausführung.':'Briefing nicht verfügbar: '+(daily.reason||'Fehlende Quellen');
+el('pm-p0').textContent=pmLoaded?(daily.risks.find(x=>x.code==='P0_OPEN')?.affected_tasks??'–'):'–';
+el('pm-changes').textContent=pmLoaded&&daily.github.fresh?daily.github.change_count_24h:'Nicht verifiziert';
+el('pm-sync').textContent=pmLoaded?(daily.github.fresh?'Aktuell beobachtet':'Unvollständig / veraltet'):'–';
+el('pm-headline').textContent=pmLoaded?daily.headline:'Projektstatus nicht zuverlässig verfügbar.';
+clear('pm-summary');if(pmLoaded){const ul=document.createElement('ul');ul.className='pm-list';for(const line of daily.summary){const li=document.createElement('li');li.textContent=line;ul.appendChild(li)}el('pm-summary').appendChild(ul)}
+el('pm-recommendation').textContent=pmLoaded?'Sprint '+daily.recommendation.task_id+' · '+daily.recommendation.title+' – '+daily.recommendation.next_action+'. Bekannte Folgewirkung: '+daily.recommendation.known_downstream+' Aufgaben. Parallele Startreviews: '+(daily.recommendation.parallel_threads.join(', ')||'keine')+'. Empfehlung ist nur eine fachliche Review-Heuristik.':'Keine geeignete Empfehlung verfügbar.';
+clear('pm-changes-list');if(pmLoaded&&daily.github.fresh&&daily.github.changes_24h.length){const ul=document.createElement('ul');ul.className='pm-list';for(const change of daily.github.changes_24h){const li=document.createElement('li');const a=document.createElement('a');a.href=change.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=change.repo.split('/')[1]+' #'+change.number;li.appendChild(a,document.createTextNode(' · '+change.state+' · '+(change.task_key||'ohne geprüfte Aufgabe')));ul.appendChild(li)}el('pm-changes-list').appendChild(ul)}else{el('pm-changes-list').textContent=pmLoaded?'Keine aktuell verifizierten GitHub-Beobachtungen; das bedeutet nicht, dass keine Änderungen existieren.':'Keine Daten.'}
+clear('pm-limits');if(pmLoaded){const ul=document.createElement('ul');ul.className='pm-list';for(const line of daily.source_limits){const li=document.createElement('li');li.textContent=line;ul.appendChild(li)}el('pm-limits').appendChild(ul)}
+el('pm-request').textContent=pmLoaded?daily.review_request.text:'Keine verifizierte Review-Anweisung verfügbar.';
+el('pm-copy').disabled=!pmLoaded;
+el('pm-copy-state').textContent='';
+el('pm-copy').onclick=async()=>{if(!pmLoaded)return;try{await navigator.clipboard.writeText(daily.review_request.text);el('pm-copy-state').textContent='Anweisung kopiert · manuelle Prüfung erforderlich.'}catch(e){el('pm-copy-state').textContent='Automatisches Kopieren nicht verfügbar – Text oben manuell markieren.'}};
+el('pm-warning').textContent=pmLoaded?daily.warning:'Keine Freigaben oder Arbeitsaufträge aus unvollständigen Daten ableiten.';
+const insight=data.pm_insights||{state:'unavailable'};
+const good=insight.state==='loaded';
+el('insight-status').textContent=good?'Aus verifiziertem Aufgabeninventar, historischen Excel-Häkchen und unabhängig attestierter Gate-Historie abgeleitet.':'Bewertung nicht verfügbar: '+(insight.reason||'Quellen unvollständig');
+el('insight-dev').textContent=good?insight.work_status.independent_dev_attested+' / 61':'–';
+el('insight-reviewed').textContent=good?insight.evidence_quality.curated_review_tasks+' / 61':'–';
+el('insight-p0').textContent=good?insight.risk_summary.p0_open_criteria:'–';
+el('insight-forecast').textContent=good?'Nicht belastbar':'–';
+clear('insight-stages');const stageNames={planned:'Geplant',in_progress:'In Arbeit',implementation_candidate:'Codekandidat',review:'Im Review',blocked:'Blockiert',technical_complete:'Manuell als technisch fertig',dev_accepted:'Manuell als DEV-abgenommen'};
+if(good){for(const [stage,count] of Object.entries(insight.work_status.raw_stage_counts)){const div=document.createElement('span');div.className='chip';div.textContent=(stageNames[stage]||stage)+': '+count;el('insight-stages').appendChild(div)}}
+el('insight-evidence').textContent=good?
+(insight.evidence_quality.curated_review_tasks+' kuratierte Reviews · '+insight.evidence_quality.unreviewed_tasks+' noch unreviewt; davon '+insight.evidence_quality.unreviewed_with_pr_observations+' mit PR-Beobachtung. Quellenreview: '+(insight.evidence_quality.review_source_date||'unbekannt')+(insight.evidence_quality.review_source_stale?' (über 30 Tage alt)':'')):'Keine qualifizierte Evidenzübersicht.';
+clear('insight-risks');if(good){for(const risk of insight.risk_summary.risks){const d=document.createElement('div');d.className='insight-risk';const strong=document.createElement('strong');strong.textContent=risk.label+' · '+risk.affected_tasks+' Aufgaben';const reason=document.createElement('div');reason.className='sub';reason.textContent=risk.reason;d.append(strong,reason);el('insight-risks').appendChild(d)}}
+el('insight-schedule').textContent=good?
+(insight.schedule.state==='provisional'?'Linearer Soll-Ist-Abstand: '+insight.schedule.planning_gap_pp.toLocaleString('de-DE')+' Prozentpunkte. '+insight.schedule.warning:'Zeitplanvergleich nicht verfügbar; keine Verspätung ableitbar.'):'Keine verlässliche Zeitplanbewertung.';
+clear('insight-action');if(good){const action=insight.next_action;const h=document.createElement('strong');h.textContent='Sprint '+action.task_id+' · '+action.title;const p=document.createElement('p');p.textContent=action.action;const foot=document.createElement('div');foot.className='insight-caption';foot.textContent=action.known_downstream+' bekannte nachgelagerte Aufgaben · parallele Startprüfungen: '+(action.parallel_review_threads.join(', ')||'keine')+'. Diese Empfehlung ist eine Prüfheuristik, keine automatische Abnahme.';el('insight-action').append(h,p,foot)}else{const span=document.createElement('span');span.className='sub';span.textContent='Empfehlung derzeit nicht zuverlässig verfügbar.';el('insight-action').appendChild(span)}
+el('insight-warning').textContent=insight.warning||'Keine ungesicherten Freigaben aus Projektinformationen ableiten.';
+const coverage=data.task_coverage||{state:'unavailable',items:[]};
+el('coverage-total').textContent=coverage.state==='loaded'?coverage.total+' / 61':'–';
+el('coverage-reviewed').textContent=coverage.state==='loaded'?coverage.reviewed:'–';
+el('coverage-unknown').textContent=coverage.state==='loaded'?coverage.needs_review:'–';
+el('coverage-deps').textContent=coverage.state==='loaded'?coverage.dependency_unknown:'–';
+el('coverage-status').textContent=coverage.state==='loaded'?'Inventar stimmt mit dem verifizierten Master-Tracker überein. Der Reviewstatus belegt keine DEV- oder Go-Live-Abnahme.':('Keine verifizierte Inventarbasis: '+(coverage.reason||'unbekannt'));
+el('coverage-warning').textContent=coverage.warning||'Kein geprüfter Vollständigkeitsnachweis verfügbar.';
+const displayCoverage=()=>{clear('coverage-list');const q=el('coverage-search').value.trim().toLocaleLowerCase('de-DE');const filter=el('coverage-filter').value;
+const rows=(coverage.items||[]).filter(x=>(filter==='all'||x.review_coverage===filter)&&(!q||(x.id+' '+x.title+' '+x.sprint).toLocaleLowerCase('de-DE').includes(q)));
+el('coverage-counter').textContent=rows.length+' von '+(coverage.items||[]).length+' Fiverr-Arbeitspaketen · Review-Abdeckung ≠ Readiness';
+for(const r of rows){const tr=document.createElement('tr');
+const main=cell(tr,r.id+' · '+r.title);const stage=document.createElement('div');stage.className='sub';stage.textContent='Arbeitsstatus: '+r.stage+' · '+r.sprint;main.appendChild(stage);
+const status=cell(tr,r.review_coverage==='curated'?'Detailreview vorhanden':'Review fehlt – Priorität unbekannt');
+const sub=document.createElement('div');sub.className='sub';sub.textContent=r.dependency_coverage==='curated'?(r.direct_prerequisites.length?'Vorbedingungen: '+r.direct_prerequisites.join(', '):'Keine modellierten Vorbedingungen'):'Abhängigkeiten unbekannt';status.appendChild(sub);
+const td=document.createElement('td');const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=r.observed_prs.length+' verknüpfte PRs · nächste Prüfung';details.appendChild(summary);
+const message=document.createElement('p');message.className='sub';message.textContent=r.next_review;details.appendChild(message);
+for(const p of r.observed_prs){const a=document.createElement('a');a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='#'+p.number+' ('+p.state+')';a.style.marginRight='12px';details.appendChild(a)}
+for(const u of r.references){const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Prüfquelle';a.style.marginRight='12px';details.appendChild(a)}
+td.appendChild(details);tr.appendChild(td);el('coverage-list').appendChild(tr)}
+if(!rows.length)blank('coverage-list',coverage.state==='loaded'?'Keine Aufgaben für diese Auswahl':'Keine verifizierten Inventardaten')};
+for(const id of ['coverage-search','coverage-filter'])el(id).oninput=displayCoverage;displayCoverage();
+const blockers=data.blocker_plan||{state:'unavailable',items:[]};
+el('blocker-covered').textContent=blockers.state==='loaded'?blockers.modeled_tasks:'–';
+el('blocker-edges').textContent=blockers.state==='loaded'?blockers.edge_count:'–';
+el('blocker-unknown').textContent=blockers.state==='loaded'?blockers.unmodeled_fiverr_tasks:'–';
+el('blocker-status').textContent=blockers.state==='loaded'?'Abhängigkeiten als überprüfbare Planungsannahmen · initiale P0-Prüfungen können parallel vorbereitet werden.':('Keine verlässliche Abhängigkeitsanalyse: '+(blockers.reason||'Quelle nicht verfügbar'));
+el('blocker-warning').textContent=blockers.warning||'Keine Freigaben aus nicht verifizierten Abhängigkeiten ableiten.';
+clear('blocker-roots');
+for(const r of blockers.upstream_p0_reviews||[]){const div=document.createElement('div');div.className='blocker-root';const title=document.createElement('strong');title.textContent=r.id+' · '+r.title;div.appendChild(title);
+const impact=document.createElement('p');impact.className='sub';impact.textContent=r.downstream_count+' weitere modellierte Aufgaben hängen mittelbar davon ab (keine Dauer- oder Aufwandsschätzung).';div.appendChild(impact);
+const next=document.createElement('p');next.textContent='Nächste sinnvolle Prüfung: '+r.next_check;div.appendChild(next);el('blocker-roots').appendChild(div)}
+if(!el('blocker-roots').children.length)blank('blocker-roots','Keine verifizierbare Startreihenfolge verfügbar.');
+const displayBlockers=()=>{clear('blocker-list');const search=el('blocker-search').value.trim().toLocaleLowerCase('de-DE');const filter=el('blocker-filter').value;
+const rows=(blockers.items||[]).filter(x=>(filter==='all'||x.review_phase===filter)&&(!search||(x.id+' '+x.title+' '+x.next_check+' '+x.prerequisites.join(' ')).toLocaleLowerCase('de-DE').includes(search)));
+for(const p of rows){const tr=document.createElement('tr');cell(tr,p.id+' · '+p.title);const deps=cell(tr,p.unverified_prerequisites.length?'Offen: '+p.unverified_prerequisites.join(', '):p.prerequisites.length?'Vorbedingungen attestiert (separat prüfen)':'Keine modelliert');const d=document.createElement('div');d.className='sub';d.textContent=p.prerequisites.length+' direkte Voraussetzungen';deps.appendChild(d);cell(tr,p.downstream_count+' indirekt / direkt');cell(tr,p.next_check);el('blocker-list').appendChild(tr)}
+if(!rows.length)blank('blocker-list',blockers.state==='loaded'?'Keine Treffer':'Keine verifizierbare Planbasis')};
+for(const id of ['blocker-search','blocker-filter'])el(id).oninput=displayBlockers;displayBlockers();
+const acceptance=data.acceptance_review||{state:'unavailable',items:[]};
+el('accept-count').textContent=acceptance.state==='loaded'?acceptance.covered+' / '+acceptance.total_fiverr:'–';
+el('accept-p0').textContent=acceptance.state==='loaded'?acceptance.p0_candidates:'–';
+el('accept-criteria').textContent=acceptance.state==='loaded'?acceptance.unresolved_criteria:'–';
+el('accept-pending').textContent=acceptance.state==='loaded'?acceptance.unreviewed:'–';
+el('accept-source').textContent=acceptance.state==='loaded'?'Dokumentationsreview vom '+acceptance.reviewed_at+' · '+acceptance.warning:(acceptance.reason||'Nicht verfügbar');
+const displayAcceptance=()=>{clear('accept-list');const search=el('accept-search').value.trim().toLocaleLowerCase('de-DE');const level=el('accept-filter').value;const rows=(acceptance.items||[]).filter(r=>(level==='all'||r.priority===level)&&(!search||(r.id+' '+r.title+' '+r.finding+' '+r.criteria.map(c=>c.text).join(' ')).toLocaleLowerCase('de-DE').includes(search)));for(const r of rows){const tr=document.createElement('tr');
+cell(tr,r.id+' · '+r.title+' ('+r.priority+')');
+const state=cell(tr,r.assessment);const small=document.createElement('div');small.className='sub';small.textContent='Prüfstand '+(r.reviewed_at||'unbekannt')+' · '+r.review_state;state.appendChild(small);
+const td=document.createElement('td');const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=r.criteria.length+' offene Kriterien · Nachweise anzeigen';details.appendChild(summary);
+const ul=document.createElement('ul');ul.className='criteria';for(const c of r.criteria){const li=document.createElement('li');li.textContent=c.text+' (offen)';ul.appendChild(li)}details.appendChild(ul);
+const p=document.createElement('p');p.className='sub';p.textContent=r.finding;details.appendChild(p);
+for(const url of r.refs){const a=document.createElement('a');a.href=url;a.rel='noopener noreferrer';a.target='_blank';a.textContent='Versionierter Nachweis';a.style.marginRight='12px';details.appendChild(a)}
+for(const l of r.pr_links||[]){const a=document.createElement('a');a.href=l.url;a.rel='noopener noreferrer';a.target='_blank';a.textContent='#'+l.number+' ('+l.state+')';a.style.marginRight='12px';details.appendChild(a)}
+td.appendChild(details);tr.appendChild(td);el('accept-list').appendChild(tr)}
+if(!rows.length)blank('accept-list',acceptance.state==='loaded'?'Keine Abnahmeprüfungen für diese Filter':'Keine verifizierte Prüfliste verfügbar')};
+for(const id of ['accept-search','accept-filter'])el(id).oninput=displayAcceptance;displayAcceptance();
+const store=data.project_store||{state:'unavailable',tasks:[]};
+el('store-summary').textContent=store.state==='loaded'?('Persistente Datenbank · '+store.counts.fiverr+' Fiverr / '+store.counts.saas+' SaaS · importiert am '+new Date(store.import.imported_at).toLocaleString('de-DE')):'Datenbank noch nicht initialisiert';
+const brief=data.pm_briefing||{state:'not_synced'};
+el('brief-status').textContent=brief.state==='loaded'?'Letzter automatischer Abgleich: '+new Date(brief.last_sync).toLocaleString('de-DE'):(brief.state==='partial'?'GitHub-Abgleich unvollständig – eine Quelle nicht verfügbar':'Noch kein automatischer GitHub-Abgleich; bisher nur manuelle Dashboardabfrage');
+el('brief-observed').textContent=brief.received??'–';el('brief-matched').textContent=brief.matched??'–';el('brief-changes').textContent=brief.changes_24h?.length??'–';
+el('brief-curated').textContent='PRs mit kuratierter Evidence: '+(brief.curated_count??'–');
+el('brief-unresolved').textContent='Offene Mapping-Prüfung: '+(brief.unresolved_total??'–');
+clear('mapping-review-list');for(const p of brief.review_queue?.items||[]){const tr=document.createElement('tr');const td=document.createElement('td');const a=document.createElement('a');a.href=p.url;a.rel='noopener noreferrer';a.target='_blank';a.textContent=p.repo.split('/')[1]+' #'+p.number+' · '+p.title;td.appendChild(a);tr.appendChild(td);cell(tr,p.reason);el('mapping-review-list').appendChild(tr)}if(!el('mapping-review-list').children.length)blank('mapping-review-list','Keine offenen Zuordnungsprüfungen in der letzten Beobachtung');
+el('brief-details').textContent=(brief.errors?.length?'Quellenfehler: '+brief.errors.map(e=>e.repo).join(', ')+' · ':'')+'PR-Änderungen werden als Nachweise erfasst, nicht als technische Abnahme oder Go-Live.';
+clear('brief-list');for(const event of (brief.changes_24h||[]).slice(0,12)){const tr=document.createElement('tr');cell(tr,new Date(event.created_at).toLocaleString('de-DE'));cell(tr,event.detail.repo.split('/')[1]+' #'+event.detail.number+' '+event.detail.title);cell(tr,event.task_key||'nicht eindeutig');el('brief-list').appendChild(tr)}
+if(!el('brief-list').children.length)blank('brief-list','Keine beobachteten Änderungen innerhalb von 24 Stunden');
+const links=new Map();for(const p of brief.observations||[]){for(const evidence of p.links||[]){const a=links.get(evidence.task_key)||[];a.push({...p,link_source:evidence.source});links.set(evidence.task_key,a)}}
+const showTasks=()=>{clear('store-tasks');const search=el('task-search').value.trim().toLocaleLowerCase('de-DE');const area=el('area-filter').value;const stage=el('stage-filter').value;const rows=(store.tasks||[]).filter(t=>(area==='all'||t.area===area)&&(stage==='all'||t.stage===stage)&&(!search||(t.source_id+' '+t.title).toLocaleLowerCase('de-DE').includes(search)));el('task-count').textContent=rows.length+' von '+(store.tasks||[]).length+' Aufgaben · GitHub-Zuordnungen sind Nachweise, keine Freigaben';
+for(const task of rows){const tr=document.createElement('tr');cell(tr,task.source_id+' · '+task.title);cell(tr,task.area);cell(tr,task.stage);const td=document.createElement('td');const matched=links.get(task.task_key)||[];if(matched.length){for(const p of matched.slice(0,4)){const a=document.createElement('a');a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='#'+p.number+' ('+p.pr_state+(p.link_source==='reviewed_reference'?', geprüft':'')+')';a.style.marginRight='10px';td.appendChild(a)}}else td.textContent='–';tr.appendChild(td);cell(tr,'Technisch '+(task.imported_technical?'✓':'☐')+' / Abnahme '+(task.imported_acceptance?'✓':'☐'));el('store-tasks').appendChild(tr)}if(!rows.length)blank('store-tasks','Keine Aufgaben für diese Filter')}
+for(const id of ['task-search','area-filter','stage-filter'])el(id).oninput=showTasks;showTasks();
+const t=data.tracker;el('tasks').textContent=['loaded','snapshot_only'].includes(t.state)?(t.fiverr_count+' / '+t.saas_count):'–';el('tracker-status').textContent=['loaded','snapshot_only'].includes(t.state)?('Fiverr technisch '+t.fiverr_technical+'/61 · Abnahme-Häkchen '+t.fiverr_live+'/61 · SaaS '+t.saas_technical+'/24'+(t.state==='snapshot_only'?' · SNAPSHOT':'')):('Excel fehlt / nicht verifiziert');
+el('tracker-summary').textContent=t.state==='loaded'?('Datei SHA-256 bestätigt · '+t.filename+' · 61 Fiverr, 24 SaaS'):('Nur referenzierter Snapshot · '+(t.reason||'Datei fehlt'));
+clear('task-list');(t.rows||[]).slice(0,85).forEach(item=>{const tr=document.createElement('tr');cell(tr,item.area.toUpperCase()+' · '+item.id);cell(tr,item.title);cell(tr,'Technik: '+(item.technical_checked?'✓':'☐')+' / Live: '+(item.live_checked?'✓':'☐'));el('task-list').appendChild(tr)});if(!t.rows?.length)blank('task-list','Keine zugeordneten Aufgaben – keine Fortschrittsbewertung');
+clear('evidence-list');const ev=data.sprint_evidence||{};for(const task of (ev.work_items||[])){const tr=document.createElement('tr');cell(tr,task.id);cell(tr,({tracker_checked:'Excel-Häkchen gesetzt',manual_gate:'Manuelle Abnahme offen',code_candidate:'Codekandidat · Review offen',partial:'Teilweise implementiert',audit_draft:'Audit-Draft · Entscheidung offen',implementation_draft:'Implementierungs-Draft',editorial_complete:'Dokumentation fertig · nicht live'})[task.status]||task.status);const td=document.createElement('td');const span=document.createElement('div');span.textContent=task.detail;td.appendChild(span);for(const url of task.refs||[]){if(!url.startsWith('https://github.com/danielwauer-maker/'))continue;const a=document.createElement('a');a.href=url;a.rel='noopener noreferrer';a.target='_blank';a.textContent='GitHub-Evidence';a.style.marginRight='12px';td.appendChild(a)}tr.appendChild(td);el('evidence-list').appendChild(tr)}if(!el('evidence-list').children.length)blank('evidence-list','Evidence-Daten fehlen – kein Abschluss ableitbar');
+clear('gates');for(const [label,key] of [['Technisch fertig','technisch_fertig'],['DEV abgenommen','dev_abgenommen'],['Go-Live freigegeben','go_live_freigegeben']]){const p=document.createElement('p');p.className='topline';const strong=document.createElement('strong');strong.textContent=label;const badge=document.createElement('span');badge.className='chip danger';badge.textContent='NICHT VERIFIZIERT';p.append(strong,badge);el('gates').appendChild(p)}
+const repos=data.repositories||[];el('prs').textContent=repos.every(x=>x.pr_state==='loaded')?repos.reduce((sum,x)=>sum+x.open_prs.length,0):'–';
+el('pr-status').textContent=repos.every(x=>x.pr_state==='loaded')?'GitHub live':'GitHub unvollständig';
+el('dev').textContent=({reachable:'HTTP 200',unhealthy:'Fehler',unavailable:'Offline',unconfigured:'Nicht eingerichtet'})[data.dev_health.state]||'Unbekannt';
+el('repos').textContent=repos.map(r=>r.repo+' ('+r.state+', PRs: '+r.pr_state+')').join(' · ');
+clear('pr-list');for(const r of repos)for(const p of r.open_prs){const tr=document.createElement('tr');cell(tr,r.repo.split('/')[1]);const td=document.createElement('td');const a=document.createElement('a');a.href=p.url;a.rel='noopener noreferrer';a.target='_blank';a.textContent='#'+p.number+' '+p.title;td.appendChild(a);tr.appendChild(td);cell(tr,p.draft?'Draft':'Offen');cell(tr,p.updated_at?new Date(p.updated_at).toLocaleString('de-DE'):'–');el('pr-list').appendChild(tr)}if(!el('pr-list').children.length)blank('pr-list','Keine PRs geladen / keine offenen PRs – Quellstatus beachten');
+clear('warnings');for(const w of [...(data.warnings||[]),...(t.state!=='loaded'?[t.reason||'Master-Tracker fehlt']:[]),...(repos.filter(x=>x.state!=='loaded'||x.pr_state!=='loaded').map(x=>x.repo+': Datenquelle nicht vollständig'))]){const li=document.createElement('li');li.textContent=w;el('warnings').appendChild(li)}
+}catch(err){el('timestamp').textContent='Datenabruf fehlgeschlagen: '+err.message;el('pr-status').textContent='Daten nicht verfügbar';el('tracker-status').textContent='Unbekannt'}finally{el('refresh').disabled=false}}
+el('refresh').addEventListener('click',reload);reload();
+</script></body></html>
