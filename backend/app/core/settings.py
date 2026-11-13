@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     CORS_ALLOW_ORIGINS: str | None = None
     APP_BASE_URL: str | None = None
     TENANT_REGISTRATION_INVITE_CODE: str | None = None
+    PILOT_ENROLLMENT_ENABLED: bool = False  # Opt-in; legacy invites remain unchanged until approved.
+    PILOT_ENROLLMENT_ADMIN_KEY: str | None = None  # Separate 32+ character operator secret, never logged.
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
     ACCESS_MODEL_V2_ENABLED: bool = False  # Explicit rollout gate, old customer contracts unchanged.
@@ -199,7 +201,7 @@ def validate_settings() -> None:
         if not _resolve_base_url():
             raise RuntimeError("APP_BASE_URL is required in production.")
 
-        if not (settings.TENANT_REGISTRATION_INVITE_CODE or "").strip():
+        if not settings.PILOT_ENROLLMENT_ENABLED and not (settings.TENANT_REGISTRATION_INVITE_CODE or "").strip():
             raise RuntimeError(
                 "TENANT_REGISTRATION_INVITE_CODE is required in production to prevent public tenant self-registration."
             )

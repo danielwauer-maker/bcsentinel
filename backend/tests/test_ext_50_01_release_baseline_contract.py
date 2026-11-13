@@ -10,7 +10,7 @@ APP_MANIFEST = ROOT / "bc-extension" / "app.json"
 CLOUD_MANIFEST = ROOT / "bc-extension" / "app.cloud.json"
 RELEASE_MANIFEST = ROOT / "quality" / "release" / "ext-50-01-release-baseline.json"
 
-REQUIRED_VERSION = "1.0.2.59"
+REQUIRED_VERSION = "1.0.2.60"
 HISTORICAL_RELEASE_VERSION = "1.0.2.20"
 REQUIRED_PLATFORM = "27.0.0.0"
 REQUIRED_RUNTIME = "16.0"

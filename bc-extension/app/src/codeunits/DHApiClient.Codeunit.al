@@ -287,6 +287,8 @@ codeunit 53100 "DH API Client"
         StoreApiToken(Setup, ApiToken);
         Setup.Registered := true;
         Setup."Registration Date" := CurrentDateTime();
+        // A one-use enrollment credential must not remain stored after registration.
+        Clear(Setup."Registration Invite Code");
         Setup.Modify(true);
 
         if DashboardInviteEmail = '' then

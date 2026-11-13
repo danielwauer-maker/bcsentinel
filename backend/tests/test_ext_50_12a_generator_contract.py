@@ -30,7 +30,7 @@ def test_separate_app_and_nonoverlapping_object_inventory():
     assert qa["name"] == "BCSentinel Performance QA"
     assert qa["publisher"] == "BCSentinel Analytics - Daniel Wauer"
     assert qa["idRanges"] == [{"from": 53400, "to": 53449}]
-    assert product["version"] == "1.0.2.59"
+    assert product["version"] == "1.0.2.60"
     assert product["idRanges"] == [{"from": 53100, "to": 53202}, {"from": 53300, "to": 53349}]
     objects = set()
     for directory in [SRC, ROOT / "bc-extension/app/src"]:

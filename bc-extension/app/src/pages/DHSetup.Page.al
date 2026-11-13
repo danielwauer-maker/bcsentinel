@@ -493,9 +493,10 @@
                 field("Registration Invite Code"; Rec."Registration Invite Code")
                 {
                     ApplicationArea = All;
+                    Caption = 'Pilot Enrollment Code';
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the BCSentinel pilot invite code. Current backend registration requires this code; AppSource self-service signup is a follow-up backend task.';
-                    Visible = false;
+                    ToolTip = 'Enter the one-time pilot enrollment code provided securely by BCSentinel. The code is removed from company setup after successful registration.';
+                    Visible = ShowRegisterTenant;
                 }
 
                 field(Registered; Rec.Registered)

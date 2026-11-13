@@ -50,7 +50,9 @@ def migrated_postgresql():
             conn.execute(text(f'CREATE DATABASE "{dbname}"'))
         env = dict(os.environ, DATABASE_URL=test_url.render_as_string(hide_password=False))
         result = subprocess.run(
-            [sys.executable, "-m", "alembic", "upgrade", "head"],
+            # Scope of these tests is precisely the 0040 record-evidence schema.
+            # Later migrations must not invalidate the historical trigger fixture.
+            [sys.executable, "-m", "alembic", "upgrade", "0040_scan_record_identity_evidence"],
             cwd=BASE, env=env, text=True, capture_output=True, timeout=120,
         )
         assert result.returncode == 0, result.stdout + result.stderr
