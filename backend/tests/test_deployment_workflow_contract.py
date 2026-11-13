@@ -26,3 +26,11 @@ def test_dev_release_requires_manual_approval_and_current_staging_sha():
     assert "\n          git clean" not in workflow
     assert "cp config/nginx" not in workflow
     assert "rm -rf /var/www" not in workflow
+
+def test_dev_release_builds_migration_image_before_running_alembic():
+    workflow = (ROOT / ".github/workflows/dev-release.yml").read_text(encoding="utf-8")
+    build = "docker compose -f docker-compose.dev.yml --env-file .env.dev build backend"
+    migrate = "docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm --no-deps backend alembic upgrade head"
+    assert build in workflow
+    assert migrate in workflow
+    assert workflow.index(build) < workflow.index(migrate)
