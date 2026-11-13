@@ -151,7 +151,10 @@ jobs:
           # Nginx and the existing landing page are operator-managed surfaces.
           sudo -n nginx -t
           docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
-          docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm backend alembic upgrade head
+          # Build the backend from the immutable, verified checkout before migrations.
+          # Otherwise compose run may silently reuse an outdated local backend image.
+          docker compose -f docker-compose.dev.yml --env-file .env.dev build backend
+          docker compose -f docker-compose.dev.yml --env-file .env.dev run --rm --no-deps backend alembic upgrade head
           docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
           EOF
 
