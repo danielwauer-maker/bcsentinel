@@ -12,6 +12,9 @@ on:
       - "backend/app/core/runtime_product_policy.py"
       - "backend/app/services/access_control_service.py"
       - ".github/workflows/ext-50-12c-3-al.yml"
+      - ".github/workflows/**"
+      - "scripts/ci_change_classification.py"
+      - "scripts/test_ci_change_classification.py"
   push:
     branches:
       - staging

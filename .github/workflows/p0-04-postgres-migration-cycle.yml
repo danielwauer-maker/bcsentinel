@@ -11,6 +11,9 @@ on:
       - "backend/scripts/verify_scan_evidence_immutability.py"
       - "backend/tests/test_p0_04_migration_cycle_contract.py"
       - ".github/workflows/p0-04-postgres-migration-cycle.yml"
+      - ".github/workflows/**"
+      - "scripts/ci_change_classification.py"
+      - "scripts/test_ci_change_classification.py"
       - "docs/P0_04_POSTGRES_MIGRATION_AUDIT.md"
   push:
     branches: [staging]

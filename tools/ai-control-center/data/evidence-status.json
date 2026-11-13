@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-12",
+  "reviewed_at": "2026-11-13",
   "work_items": [
     {
       "id": "1.01",
@@ -206,6 +206,17 @@
       "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
+      "status": "merged_ci_verified",
+      "detail": "2026-11-13: PR #188 in staging via Squash-Merge c6c793c1d9cb590d714c23919df5ae5f808c4095 integriert. 11/11 finale PR-Workflows PASS; 17/17 staging-Post-Merge-Push-Workflows PASS, einschließlich BC AL Compile (43466657700) und BC finding identity (43466657726). Branch staging von GitHub als protected bestätigt; Betreiber hat Classic Branch Protection und Required Checks für staging/main eingerichtet (Classifier und Reject implicit PROD deployments); GitHub-App kann Regeln selbst nicht administrativ auslesen. Release-Controller weiterhin manuell und Exact-SHA-gebunden. Kein DEV-/PROD-Serverdeploy, kein BC27-SaaS-Runtime-Test, kein Fiverr-Go-Live; das ist ausschließlich Phase-1-Code-/CI-Abschluss-Evidence.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/188",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/c6c793c1d9cb590d714c23919df5ae5f808c4095",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657700",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657726"
       ]
     }
   ],

@@ -1,0 +1,48 @@
+name: CI change classification safety
+
+on:
+  pull_request:
+    branches: [main, staging]
+  merge_group:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Only a newer run for the same PR/merge-queue entry can replace this
+# lightweight classifier. Manual runs always get their own group.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-{1}-{2}', github.workflow, github.event_name, github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
+
+jobs:
+  classify:
+    name: Classify changes (fail closed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      decision: ${{ steps.classify.outputs.decision }}
+      all_critical: ${{ steps.classify.outputs.all_critical }}
+      requires_full_validation: ${{ steps.classify.outputs.requires_full_validation }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run regression matrix
+        run: python3 scripts/test_ci_change_classification.py
+      - id: classify
+        name: Resolve exact changed paths
+        run: >-
+          python3 scripts/ci_change_classification.py
+          --event "$GITHUB_EVENT_PATH"
+          --output "$GITHUB_OUTPUT"
+      - name: Publish conservative decision
+        env:
+          DECISION: ${{ steps.classify.outputs.decision }}
+          FULL_VALIDATION: ${{ steps.classify.outputs.requires_full_validation }}
+        run: |
+          test -n "$DECISION"
+          echo "CI routing decision: $DECISION"
+          echo "Full validation required: $FULL_VALIDATION"

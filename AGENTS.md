@@ -33,6 +33,13 @@
 - Bei Fehlern zuerst reproduzieren, dann minimal beheben und erneut testen.
 - Executive Reports mit echtem Chromium prüfen: Seitenzahl, Überläufe, Footer, Sprache und große Zahlen. Bestehendes Layout nicht ohne Anforderung neu gestalten.
 
+## Strict sequential development
+
+- Genau ein Entwicklungsauftrag und genau ein Integrations-PR dürfen gleichzeitig aktiv sein.
+- Entwicklung, Test, Review, Merge und DEV-Verifizierung erfolgen nacheinander. Der nächste Auftrag beginnt erst nach dokumentiertem Abschluss oder einer ausdrücklich dokumentierten Blockierung des vorherigen.
+- Andere Agents starten keine eigenständigen Arbeiten; parallele Merges und Deployments sind untersagt. Technisch unabhängige CI-Jobs innerhalb desselben Auftrags bleiben nur zulässig, soweit Sicherheits- und Kostenregeln sie rechtfertigen.
+- Einen ungeprüften Status niemals als PASS oder GO darstellen. Nach jedem wesentlichen Abschluss die kuratierte AI-PM-2.2-Evidence unter `tools/ai-control-center/data/evidence-status.json` auf dem maßgeblichen Dashboard-Branch anhand der tatsächlich geprüften Evidence aktualisieren. Diese Evidenzpflege ist kein zweiter Entwicklungsauftrag.
+
 ## Git and communication
 
 - Vor und nach Arbeiten `git status --short` und `git diff --check` ausführen. Scope-fremde oder vorhandene Benutzeränderungen nicht zurücksetzen; untracked Dateien nicht allein wegen ihres Status löschen.
