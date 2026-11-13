@@ -52,13 +52,13 @@
     },
     {
       "id": "3.02",
-      "status": "partial",
-      "detail": "2026-11-12: Full-v6-Viewer aus Frontend PR #13 auf Hetzner als SEPARATER Loopback-Container 127.0.0.1:3001 erfolgreich gebaut und vom Betreiber geprüft; 5 SSR-Routen inkl. /report/live?lang=de HTTP 200, alle HTML-referenzierten Assets 200, drei Logo-PNGs 200 / 1877x626; alter Frontend-Container 3000 unverändert, alte Reportroute 404. GitHub CI am späteren Draft-HEAD 60af4902a294 PASS (243 Tests; isolierter Docker-Smoke; PNG-HTTP-Byteprüfung). Server-Container läuft noch auf zuvor geprüftem HEAD 01b15b9ab6dc, nicht auf neuem PR-HEAD. Betreiber hat Landing/Overview visuell verglichen und keinen Unterschied festgestellt, vollständiger Tenant-Overview-Zugriff nicht geprüft. Öffentliche DEV-Route, Viewer-Backend-Konfiguration, tokenisierte Full-v6-E2E-/Tenant-/Replay-Tests und BC27-Freigabe FEHLEN. Nur isolierter technischer Teilnachweis; global NO_GO.",
+      "status": "dev_deployment_pass_e2e_open",
+      "detail": "2026-11-13: Backend staging SHA 3ca62ac94eb6cbce98c97984850f6bc7159780c3 deployed via manual run #43407422524; operator confirmed backend healthy, Alembic 0040 and public dev-api /health/ready HTTP 200. Frontend viewer SHA 69ab09d5603669570c8e1f9223c65b664b40c636 deployed via run #43409586056; operator verified public DEV /, /overview and /report/live?lang=de all HTTP 200 after DEV-only Nginx route correction and removal of included backup vhost. Previous frontend retained as stopped rollback. HTTP 200 is not authentication, entitlement, no-demo, BC SaaS, or report-content evidence: real Full, Validation and Monitoring E2E still OPEN. PROD untouched, global Fiverr NO_GO.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/155",
-        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/168"
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43409586056",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/issues/18"
       ]
     },
     {
@@ -183,11 +183,13 @@
       ]
     },
     {
-      "title": "Sprint 3.02 · Full-v6 isolierte DEV-Viewer-Abnahme (12.11.2026)",
-      "status": "runtime_partial_pass",
-      "detail": "Operator-Nachweis: Git SHA 01b15b9ab6dc isolierter Container 127.0.0.1:3001; Routen/Assets/3 PNGs HTTP 200; Vergleich altes Port-3000-Frontend bestanden; Firefox-Fail-closed-Fehler bei ungültigem Report-Link. Neuere GitHub-PR #13 CI SHA 60af4902a294 PASS. Kein öffentlicher Viewer, kein echter bezahlter Report, keine Backend-Viewer-URL, keine Freigabe.",
+      "title": "Sprint 3.02 · Full-v6 DEV deployment (13.11.2026)",
+      "status": "dev_deployment_pass_e2e_open",
+      "detail": "Owner-verified backend on staging SHA 3ca62ac94eb6 (healthy, Alembic 0040, public API 200) and frontend DEV viewer SHA 69ab09d56036 (port 3000, public /, /overview, /report/live HTTP 200). Separate historical port-3001 viewer remains out of deployment scope. Nginx duplicate vhost was corrected after moving unintended sites-enabled backup to /etc/nginx/backup. Frontend rollback retained; exact backend/frontend manual Actions runs succeeded. Real BC27 tenant, Access-v2, one-use links/replay, Free/Full/Validation/Monitoring content and company/tenant isolation NOT YET verified. No PROD release; Fiverr NO_GO.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13"
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43409586056",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14"
       ]
     },
     {
@@ -260,6 +262,24 @@
         "https://github.com/danielwauer-maker/bcsentinel/blob/ci/opt-01-staged-windows-ci-20261112/docs/ci/CI_OPT_01_SAFE_ROLLOUT.md",
         "https://github.com/danielwauer-maker/bcsentinel/pull/174",
         "https://github.com/danielwauer-maker/bcsentinel/blob/ci/opt-01-release-attestation-20261112/docs/ci/CI_OPT_01_RELEASE_EVIDENCE.md"
+      ]
+    },
+    {
+      "title": "Issue #33 · Free schema guard",
+      "status": "merged_source_runtime_open",
+      "detail": "PR #181 (schema allowlist security regression only) merged to backend staging commit 8f0cb29c28926bf36d8c404abc3a0a159d7820f0 after four green PR CI runs; Free BC/API report source reviews indicate aggregate-only schema. Actual BC27 non-SUPER, alternate API data-leak negatives, paid→Free downgrade and PDF/browser tests are OPEN. Updated staging SHA is not yet a new DEV deployment. Issue #33 remains open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/181",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/33"
+      ]
+    },
+    {
+      "title": "Issue #43 · controlled Pilot Enrollment",
+      "status": "draft_ci_pending_no_deploy",
+      "detail": "Security implementation candidate Draft PR #182 against staging, opt-in disabled-by-default: Alembic 0041, hash-only one-time per-identity tokens, enrollment audit, operator APIs, registration atomicity, existing tenant status integration, masked BC enrollment field and candidate Extension 1.0.2.60. Current CI including BC27 fresh/upgrade and PostgreSQL integration is PENDING; do not merge or deploy. Real SaaS onboarding, customer token delivery, non-SUPER/runtime/identity isolation, and production approval remain OPEN. Issue #43 and Fiverr NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/182",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/43"
       ]
     }
   ],
