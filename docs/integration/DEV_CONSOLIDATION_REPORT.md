@@ -8,7 +8,7 @@ running AI Control Center on port 8092 occurred.
 
 | Repository | Integration branch | Candidate SHA | Selected core |
 | --- | --- | --- | --- |
-| `danielwauer-maker/bcsentinel` | `integration/dev-consolidation-20261113` | `4817f984620b31ad3df194e9f60e9cb96e398224` | PR #172 `f5dd128693a4d79209ac8bc66d860f9e10d6bed6` |
+| `danielwauer-maker/bcsentinel` | `integration/dev-consolidation-20261113` | `b34f96c127509c77830dd9700b95dce487c8e4ca` | PR #172 `f5dd128693a4d79209ac8bc66d860f9e10d6bed6` |
 | `danielwauer-maker/bcsentinel-frontend` | `integration/dev-consolidation-20261113` | `69ab09d5603669570c8e1f9223c65b664b40c636` | PR #13 `60af4902a294488f87ff151ffd41f26a79f7d365` |
 
 GitHub API/Actions status could not be queried from this environment (no
@@ -69,7 +69,7 @@ prepilot aggregate remains unmounted.
 | --- | --- |
 | Targeted backend admin, AI proxy and BC contract tests | PASS — 52 tests. |
 | Commercial checkout route regression plus admin/AI tests | PASS — 26 tests after the route-mount fix. |
-| Full backend suite | FAILS before completion at the original route-mount defect (`404` where the fail-closed contract requires `503`); the focused regression is now fixed and passing. Re-run full suite in CI on the final SHA. |
+| Full backend suite | PASS — 964 passed, 22 skipped, 2 xfailed. |
 | CI optimization static validator | PASS — all seven guarded workflows. |
 | Release-attestation self-test | PASS. |
 | BC extension source preflight | PASS — 134 AL objects; configured analyzer ranges found. |
