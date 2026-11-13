@@ -230,3 +230,86 @@ def test_parallel_token_issuance_after_expiry_is_denied(client, tenant_factory):
         responses = list(pool.map(lambda _: client.get("/analytics/get-token", headers=_headers(tenant), params=query), range(4)))
 
     assert {response.status_code for response in responses} == {403}
+
+
+def test_parallel_pilot_enrollment_redemption_one_winner(client, settings_state):
+    """Real PostgreSQL: independent request transactions may redeem a token once.
+
+    This is run by the existing P0-04 disposable PostgreSQL concurrency job;
+    it must not be replaced by SQLite or an in-process unit-only test.
+    """
+    from base64 import b64encode
+
+    from app.pilot_enrollment_models import PilotEnrollment, PilotEnrollmentAudit
+    from app.models import DashboardUserTenantMembership, Tenant, TenantScanCredit
+
+    settings_state(
+        PILOT_ENROLLMENT_ENABLED=True,
+        PILOT_ENROLLMENT_ADMIN_KEY="test-pilot-operator-secret-32-chars-long",
+        TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS=20,
+    )
+    operator_headers = {
+        "Authorization": "Basic " + b64encode(
+            b"admin-test:admin-password-for-tests-123"
+        ).decode(),
+        "X-Pilot-Operator-Key": "test-pilot-operator-secret-32-chars-long",
+    }
+    company_id = str(uuid4())
+    identity = {
+        "entra_tenant_id": str(uuid4()),
+        "environment_name": "Pilot PG concurrency",
+        "environment_type": "sandbox",
+        "company_id": company_id,
+        "company_name": "Pilot concurrent registration",
+    }
+    address = "pilot-concurrent@example.invalid"
+    create = client.post(
+        "/internal/pilot/enrollments",
+        headers=operator_headers,
+        json={
+            **identity,
+            "contact_email": address,
+            "authorized_email": address,
+            "commercial_profile": "pilot_free_entry",
+        },
+    )
+    assert create.status_code == 200, create.text
+    enrollment_id = create.json()["id"]
+    approved = client.post(
+        f"/internal/pilot/enrollments/{enrollment_id}/approve",
+        headers=operator_headers, json={"lifetime_hours": 1},
+    )
+    assert approved.status_code == 200, approved.text
+    token = approved.json()["enrollment_token_once"]
+    payload = {
+        **identity,
+        "app_version": "1.0.2.60",
+        "contact_email": address,
+        "invite_code": token,
+    }
+    barrier = Barrier(2)
+
+    def redeem(_):
+        barrier.wait(timeout=15)
+        return client.post("/tenant/register", json=payload)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        responses = list(pool.map(redeem, range(2)))
+    assert sorted(x.status_code for x in responses) == [200, 403], [
+        (x.status_code, x.text) for x in responses
+    ]
+
+    winner = next(x.json() for x in responses if x.status_code == 200)
+    with SessionLocal() as db:
+        enrollment = db.get(PilotEnrollment, enrollment_id)
+        assert enrollment.status == "REGISTERED"
+        assert enrollment.token_hash is None
+        assert enrollment.registered_tenant_id == winner["tenant_id"]
+        assert db.query(Tenant).filter_by(tenant_id=winner["tenant_id"]).count() == 1
+        assert db.query(TenantScanCredit).filter_by(tenant_id=winner["tenant_id"]).count() == 1
+        assert db.query(DashboardUserTenantMembership).filter_by(
+            tenant_id=winner["tenant_id"]
+        ).count() == 1
+        assert db.query(PilotEnrollmentAudit).filter_by(
+            enrollment_id=enrollment_id, action="registered"
+        ).count() == 1
