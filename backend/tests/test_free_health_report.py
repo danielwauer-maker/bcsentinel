@@ -235,3 +235,33 @@ def test_paid_executive_report_remains_locked_for_free_tenant(
     )
     assert free_response.status_code == 200
     assert paid_response.status_code == 403
+
+
+def test_free_health_response_schema_is_an_explicit_aggregate_only_allowlist():
+    """Issue #33: future schema additions must not silently reveal premium data.
+
+    Existing sample-payload tests forbid known finding values. This whitelist
+    additionally prevents new fields from entering Free JSON/HTML/PDF by
+    accident, even when an added field is empty in the test fixture.
+    """
+    from app.schemas.free_health_report import (
+        FreeHealthReport,
+        FreeRiskArea,
+        FreeSeveritySummary,
+    )
+
+    assert set(FreeHealthReport.model_fields) == {
+        "contract_version", "report_variant", "report_id", "tenant_id",
+        "language", "scan_id", "generated_at_utc", "scan_generated_at_utc",
+        "company_label", "environment_label", "data_health_score",
+        "score_status", "checks_count", "modules_analyzed", "issues_count",
+        "affected_records", "total_records", "severity", "risk_areas",
+        "impact_band", "summary", "upgrade_message",
+    }
+    assert set(FreeRiskArea.model_fields) == {
+        "name", "score", "status", "issue_count", "affected_records",
+        "highest_severity",
+    }
+    assert set(FreeSeveritySummary.model_fields) == {
+        "critical", "high", "medium", "low", "info",
+    }
