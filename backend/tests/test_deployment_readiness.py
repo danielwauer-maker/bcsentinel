@@ -109,7 +109,7 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     # dispatched with exact-SHA approval and a database snapshot. Staging
     # must not reintroduce a push-based or duplicate DEV deploy path.
     assert "  workflow_dispatch:" in deploy
-    event_block = deploy.split("\\non:\\n", 1)[1].split("\\nconcurrency:", 1)[0]
+    event_block = deploy.split("\non:\n", 1)[1].split("\nconcurrency:", 1)[0]
     assert "  push:" not in event_block
     assert "  pull_request:" not in event_block
     assert "  schedule:" not in event_block
