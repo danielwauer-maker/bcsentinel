@@ -9,13 +9,14 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.core.settings import settings
 from app.db import SessionLocal
 from app.pilot_enrollment_models import PilotEnrollment, PilotEnrollmentAudit
 from app.routers.operator_admin import require_operator
 from app.services.pilot_enrollment_service import (
-    EnrollmentRejected, change_status, create_enrollment, issue_token,
+    EnrollmentConflict, EnrollmentRejected, change_status, create_enrollment, issue_token,
 )
 from app.services.tenant_registration_service import build_registration_identity
 
@@ -109,6 +110,12 @@ def create_pilot_enrollment(
             db.commit()
             db.refresh(row)
             return _public(row)
+    except EnrollmentConflict as exc:
+        raise HTTPException(status_code=409, detail="An enrollment already exists for this BC identity.") from exc
+    except IntegrityError as exc:
+        # Concurrent requests can both pass the read-side check; the UNIQUE
+        # identity_key constraint is the final PostgreSQL concurrency guard.
+        raise HTTPException(status_code=409, detail="Enrollment identity conflict.") from exc
     except (ValueError, EnrollmentRejected) as exc:
         raise HTTPException(status_code=422, detail="Invalid enrollment details.") from exc
 

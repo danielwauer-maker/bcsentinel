@@ -219,3 +219,37 @@ def test_pilot_lifecycle_cannot_override_external_tenant_suspension(client, sett
     db_session.expire_all()
     assert get_tenant_status(db_session, tenant_id) == "suspended"
     assert db_session.get(PilotEnrollment, enrollment_id).status == "SUSPENDED"
+
+
+def test_same_bc_identity_cannot_create_second_enrollment(client, settings_state, db_session):
+    """A revoked or registered pilot identity must not get a second parallel lifecycle."""
+    from app.pilot_enrollment_models import PilotEnrollmentAudit
+
+    settings_state(
+        PILOT_ENROLLMENT_ENABLED=True,
+        PILOT_ENROLLMENT_ADMIN_KEY="test-pilot-operator-secret-32-chars-long",
+    )
+    first = client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=_operator())
+    assert first.status_code == 200, first.text
+    enrollment_id = first.json()["id"]
+    second = client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=_operator())
+    assert second.status_code == 409, second.text
+    changed_email = {**_pilot_payload(), "authorized_email": "other@example.com"}
+    assert client.post("/internal/pilot/enrollments", json=changed_email, headers=_operator()).status_code == 409
+    assert db_session.query(PilotEnrollment).count() == 1
+    assert db_session.query(PilotEnrollmentAudit).filter_by(enrollment_id=enrollment_id, action="created").count() == 1
+
+    revoked = client.post(f"/internal/pilot/enrollments/{enrollment_id}/revoke", headers=_operator())
+    assert revoked.status_code == 200
+    assert client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=_operator()).status_code == 409
+    assert db_session.query(PilotEnrollment).count() == 1
+
+
+def test_public_nginx_ingress_denies_pilot_operator_routes_by_default():
+    from pathlib import Path
+
+    config = (Path(__file__).resolve().parents[2] / "config/nginx/bcsentinel.conf").read_text(encoding="utf-8")
+    deny = "location ^~ /internal/pilot/enrollments {\n        return 404;\n    }"
+    assert config.count(deny) == 2, "Both DEV and PROD API hosts must block pilot operator endpoints"
+    assert config.count("server_name api.bcsentinel.com;") == 2
+    assert config.count("server_name dev-api.bcsentinel.com;") == 2

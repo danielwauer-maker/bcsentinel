@@ -16,6 +16,11 @@ class EnrollmentRejected(ValueError):
     pass
 
 
+class EnrollmentConflict(EnrollmentRejected):
+    """Only one pilot enrollment record may own a canonical BC identity."""
+    pass
+
+
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -43,6 +48,11 @@ def create_enrollment(db: Session, *, identity_key: str, contact_email: str,
     authorized_email = authorized_email.strip().lower()
     if not contact_email or not authorized_email or "@" not in authorized_email or "@" not in contact_email:
         raise EnrollmentRejected("Separate contact and authorized email must be supplied.")
+    # Keep one durable lifecycle record for each canonical BC company/environment.
+    # Revoked, registered or suspended rows must not be replaced by new records.
+    # The DB unique constraint is the authoritative concurrent-write guard.
+    if db.scalar(select(PilotEnrollment.id).where(PilotEnrollment.identity_key == identity_key)) is not None:
+        raise EnrollmentConflict("Enrollment already exists for this BC identity.")
     now = utc_now()
     row = PilotEnrollment(
         status="PENDING", identity_key=identity_key,

@@ -44,3 +44,10 @@
 
 - Vor und nach Arbeiten `git status --short` und `git diff --check` ausführen. Scope-fremde oder vorhandene Benutzeränderungen nicht zurücksetzen; untracked Dateien nicht allein wegen ihres Status löschen.
 - Am Ende Änderungen, Tests, Blocker und manuelle Restschritte nennen. Keine GO-Freigabe erteilen, solange Sandbox-, Berechtigungs- oder Upgrade-Gates offen sind.
+
+## CI-OPT-02: Local-first / Draft-first development contract
+- Genau **ein aktiver Arbeitsort** pro Entwicklungsauftrag: entweder Benutzer-Laptop (LOCAL) oder ChatGPT/Codex am GitHub-Feature-Branch (REMOTE). Kein gleichzeitiges Editieren desselben Branches durch mehrere Akteure.
+- Lokale FastAPI-/PostgreSQL-/AL-Prüfungen zuerst; BC-Cloud-Sandbox nur gezielt. Tests mit separat isolierter Test-Datenbank. Keine lokalen Sandbox-Ergebnisse als vollständigen BC27 Fresh-/Upgrade-CI-Nachweis ausgeben.
+- AL-relevante PRs zunächst als Draft; die drei langen BC27-Windows-Jobs bleiben in Draft übersprungen, werden aber bei Ready-for-review und jeder späteren Änderung im review-bereiten PR vollständig ausgeführt.
+- Ein `skipped`, `cancelled`, `missing` oder noch laufender BC27-Job darf niemals als PASS gewertet werden. Für BC-relevante PRs nur nach echten erfolgreichen BC27 Fresh-/Upgrade-/Runtime-Gates auf finalem PR-Head mergen; zusätzlich menschliche Review der erforderlichen bedingten Prüfungen, bis ein fail-closed Required-Check-Aggregator existiert.
+- Alle lokalen Änderungen gebündelt und geprüft pushen; keine weiteren Commits nach finalem PASS ohne erneute Gate-Prüfung. Branch-Schutz niemals umgehen.

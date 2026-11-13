@@ -5,6 +5,7 @@ on:
     branches:
       - staging
       - sprint/ext-50-12c-runtime-detection-evidence
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
     paths:
       - "bc-extension/**"
       - "bc-finding-tests/**"
@@ -19,6 +20,15 @@ on:
     branches:
       - staging
       - 'integration/dev-first-*'
+    paths:
+      - "bc-extension/**"
+      - "bc-finding-tests/**"
+      - "backend/app/core/product_model.py"
+      - "backend/app/core/runtime_product_policy.py"
+      - "backend/app/services/access_control_service.py"
+      - ".github/workflows/**"
+      - "scripts/ci_change_classification.py"
+      - "scripts/test_ci_change_classification.py"
   workflow_dispatch:
 
 concurrency:
@@ -30,6 +40,7 @@ permissions:
 
 jobs:
   compile:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     name: BC 27 AL compile with CodeCop and PTECop (${{ matrix.deployment }})
     runs-on: windows-2022
     timeout-minutes: 60

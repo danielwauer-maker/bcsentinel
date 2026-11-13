@@ -3,6 +3,7 @@ name: EXT-50-12B BC27 Runtime Gate
 on:
   pull_request:
     branches: [staging]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
     paths:
       - "bc-extension/**"
       - ".github/workflows/ext-50-12b-bc27-runtime-gate.yml"
@@ -22,6 +23,7 @@ permissions:
 
 jobs:
   validate:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     name: Compile publish and install on BC27
     runs-on: windows-2022
     timeout-minutes: 45

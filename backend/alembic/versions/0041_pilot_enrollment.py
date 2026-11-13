@@ -28,6 +28,7 @@ def upgrade() -> None:
         sa.Column("created_at_utc", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at_utc", sa.DateTime(timezone=True), nullable=False),
         sa.UniqueConstraint("token_hash", name="uq_pilot_enrollment_token_hash"),
+        sa.UniqueConstraint("identity_key", name="uq_pilot_enrollment_identity_key"),
     )
     op.create_index("ix_pilot_enrollments_identity_key", "pilot_enrollments", ["identity_key"])
     op.create_table(

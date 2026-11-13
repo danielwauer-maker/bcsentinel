@@ -11,7 +11,10 @@ from app.db import Base
 
 class PilotEnrollment(Base):
     __tablename__ = "pilot_enrollments"
-    __table_args__ = (UniqueConstraint("token_hash", name="uq_pilot_enrollment_token_hash"),)
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_pilot_enrollment_token_hash"),
+        UniqueConstraint("identity_key", name="uq_pilot_enrollment_identity_key"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING")
