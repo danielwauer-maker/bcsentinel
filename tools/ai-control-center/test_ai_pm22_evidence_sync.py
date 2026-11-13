@@ -17,7 +17,7 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual((meta["fiverr_tasks"], meta["saas_tasks"]), (61, 24))
         self.assertEqual((meta["checked_technical"], meta["checked_live"]), (2, 2))
         self.assertEqual(meta["verified_at"], "2026-11-11")
-        self.assertEqual(self.data["reviewed_at"], "2026-11-12")
+        self.assertEqual(self.data["reviewed_at"], "2026-11-13")
 
     def test_evidence_is_precise_and_fail_closed(self):
         gates = self.data["observed_gates"]
