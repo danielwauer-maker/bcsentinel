@@ -28,6 +28,7 @@ from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
 from app.models import DashboardUser, DashboardUserTenantMembership, Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app import report_archive_models  # noqa: F401
+from app import pilot_enrollment_models  # noqa: F401
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
@@ -44,6 +45,7 @@ from app.routers.report_legacy_family import router as report_legacy_family_rout
 from app.routers.scans import router as scans_router
 from app.routers.auth import router as auth_router
 from app.routers.operator_admin import router as operator_admin_router
+from app.routers.pilot_enrollment_admin import router as pilot_enrollment_admin_router
 from app.routers.quick_assessment_reports import router as quick_assessment_reports_router
 from app.routers.monitoring_reports import router as monitoring_reports_router
 from app.routers.remediation import router as remediation_router
@@ -85,6 +87,7 @@ from app.services.email_template_service import ensure_default_email_templates
 from app.services.localization_service import update_tenant_language
 from app.services.scoring_service import calculate_quick_scan_result
 from app.services.scan_status_service import create_or_get_scan_run, mark_scan_result_persisted, recover_stale_runs, update_scan_progress
+from app.services.pilot_enrollment_service import EnrollmentRejected
 from app.services.tenant_registration_service import (
     RegistrationAuthenticationError,
     RegistrationConflictError,
@@ -212,6 +215,7 @@ app.include_router(report_native_access_router)
 app.include_router(report_legacy_family_router)
 app.include_router(auth_router)
 app.include_router(operator_admin_router)
+app.include_router(pilot_enrollment_admin_router)
 app.include_router(quick_assessment_reports_router)
 app.include_router(monitoring_reports_router)
 app.include_router(remediation_router)
@@ -546,7 +550,8 @@ def register_tenant(
                 message_de="Zu viele Registrierungsversuche. Versuchen Sie es später erneut.",
             ) from exc
         raise
-    _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
+    if not settings.PILOT_ENROLLMENT_ENABLED:
+        _validate_tenant_registration_invite(payload.invite_code, x_registration_invite)
     contact_email = _normalize_contact_email(payload.contact_email)
 
     invite_sent = False
@@ -563,6 +568,15 @@ def register_tenant(
                 company_id=payload.company_id,
                 company_name=payload.company_name,
             )
+            enrollment_id = None
+            if settings.PILOT_ENROLLMENT_ENABLED and not payload.existing_tenant_id:
+                from app.services.pilot_enrollment_service import claim_enrollment
+                enrollment_id = claim_enrollment(
+                    db,
+                    token=(x_registration_invite or payload.invite_code or "").strip(),
+                    identity_key=identity.key,
+                    authorized_email=contact_email,
+                )
             registration = upsert_tenant_registration(
                 db,
                 identity=identity,
@@ -570,9 +584,18 @@ def register_tenant(
                 contact_email=contact_email,
                 preferred_language=payload.preferred_language,
                 existing_tenant_id=payload.existing_tenant_id,
+                enrollment_id=enrollment_id,
                 header_tenant_id=x_tenant_id,
                 header_api_token=x_api_token,
             )
+        except EnrollmentRejected as exc:
+            db.rollback()
+            raise RegistrationApiError(
+                status_code=403,
+                code="PILOT_ENROLLMENT_REJECTED",
+                message="Pilot enrollment authorization was rejected.",
+                message_de="Die Berechtigung zur Pilotregistrierung wurde abgelehnt.",
+            ) from exc
         except RegistrationAuthenticationError as exc:
             db.rollback()
             raise RegistrationApiError(
