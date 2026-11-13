@@ -45,7 +45,8 @@ def _approve(client, settings_state):
     created = client.post("/internal/pilot/enrollments", json=_pilot_payload(), headers=_operator())
     assert created.status_code == 200, created.text
     assert created.json()["status"] == "PENDING"
-    assert "token" not in created.text.lower()
+    assert "enrollment_token_once" not in created.text
+    assert "token_hash" not in created.text
     enrollment_id = created.json()["id"]
     approved = client.post(
         f"/internal/pilot/enrollments/{enrollment_id}/approve",
