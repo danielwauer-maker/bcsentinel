@@ -210,14 +210,19 @@
     },
     {
       "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
-      "status": "review_fixes_pending_ci",
-      "detail": "PR #188 review follow-up: stable PR and workflow-run references record prior verified CI. The follow-up removes stale predicted/final HEAD wording and adds deletion-safe classification plus direct-routing regression coverage. It deliberately does not assert a future commit SHA. No deployment, runtime acceptance or Go-Live evidence.",
+      "status": "review_fixes_ci_pass_review_pending",
+      "detail": "PR #188 review follow-up verified: deletion-safe classification, direct routing contract, static PROD controller, backend, PostgreSQL migration/backup, Core Pilot, BC27 runtime, BC finding identity and BC AL fresh/upgrade all passed. Evidence uses stable PR and GitHub Actions run references, not a predicted or asserted final commit SHA. No deployment, runtime acceptance or Go-Live evidence.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/188",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586386",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586397",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586457",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43436586435"
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031875",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031888",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031621",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442032241",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031840",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031868",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031758",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031674",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43442031538"
       ]
     }
   ],
