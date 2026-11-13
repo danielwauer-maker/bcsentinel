@@ -132,6 +132,7 @@
             group(OnlineDashboard)
             {
                 Caption = 'Online';
+                Visible = false; // Report-only launch: no customer dashboard.
 
                 field(OpenExternalDashboardLink; OpenDashboardLinkTxt)
                 {
@@ -408,6 +409,7 @@
 
             action(OpenExternalDashboard)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Open BCSentinel Dashboard';
                 ApplicationArea = All;
                 Image = View;
@@ -421,6 +423,7 @@
 
             action(OpenExecutiveReport)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Executive Report';
                 ApplicationArea = All;
                 Image = Report;
@@ -432,8 +435,63 @@
                 end;
             }
 
+            action(OpenFullReportV6)
+            {
+                Caption = 'Review Scope / Full Assessment';
+                ToolTip = 'Review and confirm the original Free scan scope before opening its Full Assessment report.';
+                ApplicationArea = All;
+                Image = Report;
+                Visible = ShowFullReport;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.ReviewScopeAndOpenFullV6(Rec."Run ID");
+                end;
+            }
+
+            action(OpenValidationReportV2)
+            {
+                Caption = 'Validation Report';
+                ApplicationArea = All;
+                Image = Report;
+                Visible = ShowValidationReport;
+                ToolTip = 'Open the secure Validation comparison for this completed scan. Requires active paid access and validated baseline evidence.';
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenReportVariantV2(Rec."Run ID", 'validation');
+                end;
+            }
+
+            action(OpenMonitoringReportV2)
+            {
+                Caption = 'Monitoring Report';
+                ApplicationArea = All;
+                Image = Report;
+                Visible = ShowMonitoringReport;
+                ToolTip = 'Open the secure Monitoring history report. Requires an active Monitoring subscription and completed scan history.';
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenReportVariantV2(Rec."Run ID", 'monitoring');
+                end;
+            }
+
             action(OpenExecutivePdf)
             {
+                Visible = false; // Hidden legacy/dashboard route for report-only launch.
                 Caption = 'Executive PDF';
                 ApplicationArea = All;
                 Image = Print;
@@ -501,11 +559,21 @@
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        Links: Codeunit "DH Report Link Mgt.";
+        Variant: Text;
     begin
         ReloadDisplayValuesFromRec();
+        Variant := Links.GetCompletedReportVariant(Rec);
+        ShowFullReport := Variant = 'full';
+        ShowValidationReport := Variant = 'validation';
+        ShowMonitoringReport := Variant = 'monitoring';
     end;
 
     var
+        ShowFullReport: Boolean;
+        ShowValidationReport: Boolean;
+        ShowMonitoringReport: Boolean;
         BackendRefreshFailures: Integer;
         ShowSystem: Boolean;
         ShowFinance: Boolean;

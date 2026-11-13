@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     Float,
     ForeignKey,
@@ -190,6 +191,8 @@ class Scan(Base):
     summary_headline: Mapped[str] = mapped_column(String(255))
     summary_rating: Mapped[str] = mapped_column(String(30))
     enabled_modules: Mapped[str | None] = mapped_column(Text, nullable=True)
+    bc_company_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    lcy_code: Mapped[str | None] = mapped_column(String(3), nullable=True)
     total_records: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     estimated_loss_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
     potential_saving_eur: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
@@ -240,6 +243,57 @@ class Scan(Base):
         back_populates="scan",
         cascade="all, delete-orphan",
     )
+
+
+class ScanExpectationSnapshot(Base):
+    """Source-declared expectations sealed atomically with scan acceptance."""
+    __tablename__ = "scan_expectation_snapshots"
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ScanExecutionEvidence(Base):
+    """Immutable source-attested partial observations, never inferred history."""
+    __tablename__ = "scan_execution_evidence"
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    sync_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+
+
+class ScanRecordIdentityEvidence(Base):
+    """Immutable, verified-scan-bound record identity membership.
+
+    Schema and persistence alone are not source attestation. Only a future
+    authenticated scan-sync handler may populate the table.
+    """
+    __tablename__ = "scan_record_identity_evidence"
+    __table_args__ = (
+        CheckConstraint("length(payload_sha256) = 64", name="ck_record_evidence_sha256_length"),
+        CheckConstraint("schema_version = 'bc-record-evidence-v1'", name="ck_record_evidence_schema"),
+        CheckConstraint("check_code = 'CUSTOMERS_DUPLICATE_VAT'", name="ck_record_evidence_check"),
+    )
+
+    scan_id: Mapped[str] = mapped_column(ForeignKey("scans.scan_id", ondelete="CASCADE"), primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    check_code: Mapped[str] = mapped_column(String(50), primary_key=True)
+    schema_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class ScanIssueRecord(Base):

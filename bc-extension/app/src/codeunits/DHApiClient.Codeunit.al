@@ -909,6 +909,11 @@ codeunit 53100 "DH API Client"
         ResponseText: Text;
         JsonRequest: JsonObject;
         IdentityMgt: Codeunit "DH Tenant Identity Mgt.";
+        StartExpectation: JsonObject;
+        ExpectationInvalidErr: Label 'SCAN_EXPECTATION_INVALID', Locked = true;
+        CapabilityResponse: JsonObject;
+        CapabilityToken: JsonToken;
+        CapabilityUnavailableLbl: Label 'SCAN_EXPECTATION_CAPABILITY_UNAVAILABLE', Locked = true;
     begin
         Clear(FailureMessage);
         TerminalFailure := false;
@@ -933,6 +938,9 @@ codeunit 53100 "DH API Client"
         JsonRequest.Add('total_modules', TotalModules);
         JsonRequest.Add('company_name', CompanyName());
         JsonRequest.Add('environment_name', IdentityMgt.GetEnvironmentName());
+        if not StartExpectation.ReadFrom(DeepScanRun.GetStartExpectationText()) then
+            Error(ExpectationInvalidErr);
+        JsonRequest.Add('expectation', StartExpectation);
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);
@@ -948,6 +956,37 @@ codeunit 53100 "DH API Client"
         RequestHeaders.Add('X-Tenant-Id', Setup."Tenant ID");
         RequestHeaders.Add('X-Api-Token', GetApiToken(Setup));
 
+        // Old servers ignore unknown JSON fields. A read-only capability
+        // handshake must therefore succeed before a credit-consuming start.
+        if not Client.Get(BuildUrl(Setup."API Base URL", '/scan/expectation-capabilities'), Response) then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            exit(false);
+        end;
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            TerminalFailure := (Response.HttpStatusCode() >= 400) and (Response.HttpStatusCode() < 500);
+            exit(false);
+        end;
+        if not CapabilityResponse.ReadFrom(ResponseText) then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            exit(false);
+        end;
+        if not CapabilityResponse.Get('expectation_status', CapabilityToken) then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            exit(false);
+        end;
+        if not CapabilityToken.IsValue() then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            exit(false);
+        end;
+        if CapabilityToken.AsValue().AsText() <> 'supported' then begin
+            FailureMessage := CapabilityUnavailableLbl;
+            TerminalFailure := true;
+            exit(false);
+        end;
+        Clear(Response);
+        Clear(ResponseText);
         if not Client.Post(BuildUrl(Setup."API Base URL", '/scan/start'), Content, Response) then begin
             FailureMessage := ScanStartNetworkErrorLbl;
             exit(false);
@@ -1042,9 +1081,16 @@ codeunit 53100 "DH API Client"
         Token: JsonToken;
         ExecutionToken: Guid;
         WorkerId: Guid;
+        ExpectationMissingErr: Label 'SCAN_EXPECTATION_NOT_ACCEPTED', Locked = true;
     begin
         if not JsonResponse.ReadFrom(ResponseText) then
             Error(ScanStartResponseInvalidJsonLbl);
+        if not JsonResponse.Get('expectation_status', Token) then
+            Error(ExpectationMissingErr);
+        if IsJsonNull(Token) or not Token.IsValue() then
+            Error(ExpectationMissingErr);
+        if GetJsonTokenText(Token) <> 'accepted' then
+            Error(ExpectationMissingErr);
         if not JsonResponse.Get('execution_token', Token) then
             Error(ScanStartExecutionTokenMissingLbl);
         if not Evaluate(ExecutionToken, GetJsonTokenText(Token)) then
@@ -1081,6 +1127,11 @@ codeunit 53100 "DH API Client"
         RequestText: Text;
         ResponseText: Text;
         JsonRequest: JsonObject;
+        FailureEvidence: JsonObject;
+        Observation: JsonObject;
+        Observations: JsonArray;
+        CheckExecution: Record "DH Check Execution";
+        FailureEvidenceInvalidErr: Label 'SCAN_FAILURE_EVIDENCE_INVALID', Locked = true;
     begin
         Clear(FailureMessage);
         LeaseRejected := false;
@@ -1110,6 +1161,23 @@ codeunit 53100 "DH API Client"
             JsonRequest.Add('error_message', DeepScanRun."Error Message");
         if DeepScanRun."Warning Message" <> '' then
             JsonRequest.Add('warning_message', DeepScanRun."Warning Message");
+        if (LowerCase(StatusValue) = 'failed') and (DeepScanRun.GetStartExpectationText() <> '') then begin
+            FailureEvidence.Add('schema_version', 'bc-check-failure-partial-v1');
+            CheckExecution.SetRange("Run Entry No.", DeepScanRun."Entry No.");
+            if CheckExecution.FindSet() then
+                repeat
+                    if not (CheckExecution."Execution Status" in ['PASS', 'FINDINGS', 'SKIPPED', 'FAILED', 'NOT_EXECUTED']) then
+                        Error(FailureEvidenceInvalidErr);
+                    Clear(Observation);
+                    Observation.Add('code', Format(CheckExecution."Check Code"));
+                    Observation.Add('status', Format(CheckExecution."Execution Status"));
+                    Observation.Add('finding_count', CheckExecution."Finding Count");
+                    Observation.Add('observed_at_utc', Format(CheckExecution."Observed At", 0, 9));
+                    Observations.Add(Observation);
+                until CheckExecution.Next() = 0;
+            FailureEvidence.Add('checks', Observations);
+            JsonRequest.Add('failure_evidence', FailureEvidence);
+        end;
         JsonRequest.WriteTo(RequestText);
 
         Content.WriteFrom(RequestText);

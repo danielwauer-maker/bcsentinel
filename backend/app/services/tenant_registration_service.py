@@ -121,6 +121,19 @@ def _apply_mutable_fields(
 def _bind_identity(tenant: Tenant, identity: RegistrationIdentity) -> None:
     if tenant.registration_identity_key and tenant.registration_identity_key != identity.key:
         raise RegistrationConflictError("Existing tenant is already bound to another Business Central identity.")
+    if tenant.bc_company_id:
+        try:
+            existing_company = str(UUID(tenant.bc_company_id.strip().strip("{}"))).lower()
+        except (ValueError, AttributeError):
+            raise RegistrationConflictError("Existing tenant company binding is invalid and requires review.") from None
+        if existing_company != identity.company_id:
+            raise RegistrationConflictError("Existing tenant is already bound to another Business Central company.")
+    if tenant.entra_tenant_id and tenant.entra_tenant_id.strip().lower() != identity.entra_tenant_id:
+        raise RegistrationConflictError("Existing tenant is already bound to another Entra tenant.")
+    if tenant.bc_environment_name and tenant.bc_environment_name.strip().lower() != identity.environment_name.lower():
+        raise RegistrationConflictError("Existing tenant is already bound to another Business Central environment.")
+    if tenant.bc_environment_type and tenant.bc_environment_type.strip().lower() != identity.environment_type:
+        raise RegistrationConflictError("Existing tenant is already bound to another Business Central environment type.")
     tenant.registration_identity_key = identity.key
     tenant.entra_tenant_id = identity.entra_tenant_id
     tenant.bc_environment_name = identity.environment_name
@@ -143,7 +156,9 @@ def _authenticated_legacy_tenant(
         raise RegistrationAuthenticationError(
             "Binding an existing tenant requires matching tenant authentication headers."
         )
-    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == requested))
+    # A concurrent legacy bind must re-read the winner's identity before it
+    # can write a different company; protect the complete binding transaction.
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == requested).with_for_update())
     if tenant is None:
         raise RegistrationAuthenticationError("Existing tenant was not found.")
     supplied_token = (header_api_token or "").strip()
@@ -173,6 +188,14 @@ def upsert_tenant_registration(
     status = "existing"
 
     tenant = db.scalar(select(Tenant).where(Tenant.registration_identity_key == identity.key))
+    if tenant is not None:
+        authenticated = _authenticated_legacy_tenant(
+            db, existing_tenant_id=existing_tenant_id,
+            header_tenant_id=header_tenant_id, header_api_token=header_api_token,
+        )
+        if authenticated is None or authenticated.tenant_id != tenant.tenant_id:
+            raise RegistrationAuthenticationError("Existing tenant credentials were rejected.")
+        stable_token = header_api_token.strip()
     if tenant is None:
         tenant = _authenticated_legacy_tenant(
             db,
@@ -182,6 +205,7 @@ def upsert_tenant_registration(
         )
         if tenant is not None:
             _bind_identity(tenant, identity)
+            stable_token = header_api_token.strip()
             status = "bound_legacy"
         else:
             now = datetime.now(timezone.utc)
@@ -213,6 +237,16 @@ def upsert_tenant_registration(
     )
     try:
         db.flush()
+        if status == "bound_legacy":
+            # An authenticated tenant asserted this BC identity. The audit
+            # records that fact without treating the assertion as independent
+            # cryptographic proof of the BC company or recording credentials.
+            log_admin_event(
+                db, admin_username=f"tenant-token:{tenant.tenant_id}",
+                action="tenant_bc_identity_claim_bound", target_type="tenant", target_id=tenant.tenant_id,
+                details={"company_id": identity.company_id, "environment_name": identity.environment_name,
+                         "proof": "authenticated_tenant_claim"},
+            )
         preparation: DashboardUserPreparation = prepare_dashboard_user(
             db, tenant=tenant, email=contact_email
         )
@@ -249,7 +283,9 @@ def upsert_tenant_registration(
             db.flush()
             status = "created"
         else:
-            status = "existing"
+            # A concurrent request created this identity. Never return its token
+            # or change its contact details without authenticating the winner.
+            raise RegistrationAuthenticationError("Registration identity already exists.")
         _apply_mutable_fields(
             tenant,
             identity=identity,

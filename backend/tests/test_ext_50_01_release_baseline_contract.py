@@ -10,7 +10,7 @@ APP_MANIFEST = ROOT / "bc-extension" / "app.json"
 CLOUD_MANIFEST = ROOT / "bc-extension" / "app.cloud.json"
 RELEASE_MANIFEST = ROOT / "quality" / "release" / "ext-50-01-release-baseline.json"
 
-REQUIRED_VERSION = "1.0.2.25"
+REQUIRED_VERSION = "1.0.2.59"
 HISTORICAL_RELEASE_VERSION = "1.0.2.20"
 REQUIRED_PLATFORM = "27.0.0.0"
 REQUIRED_RUNTIME = "16.0"
@@ -42,12 +42,19 @@ def test_al_manifests_are_identical_for_release_critical_fields():
         assert app[key] == cloud[key], f"Manifest drift detected for {key}"
 
 
-def test_repair_target_is_bc27_and_version_1_0_2_25():
+def test_current_extension_target_is_bc27_and_has_the_required_version():
     app = _read_json(APP_MANIFEST)
     assert app["version"] == REQUIRED_VERSION
     assert app["platform"] == REQUIRED_PLATFORM
     assert app["application"] == REQUIRED_PLATFORM
     assert app["runtime"] == REQUIRED_RUNTIME
+
+
+def test_setup_does_not_offer_the_legacy_analytics_dashboard():
+    setup = (ROOT / "bc-extension/app/src/pages/DHSetup.Page.al").read_text(encoding="utf-8-sig")
+    action = setup.split("action(OpenDashboard)", 1)[1].split("action(StartMonitoringScan)", 1)[0]
+    assert "Visible = false;" in action
+    assert 'Page.Run(Page::"DH Deep Scan Runs")' in setup
 
 
 def test_release_manifest_matches_al_manifest_and_final_artifact():
@@ -58,6 +65,8 @@ def test_release_manifest_matches_al_manifest_and_final_artifact():
     assert release["release_status"] == "VERIFIED_IN_CI"
     assert release["extension"]["name"] == app["name"]
     assert release["extension"]["app_id"] == app["id"]
+    # Preserve the historical EXT-50-01 1.0.2.20 artifact evidence.
+    # The current upgrade candidate has its own, newer manifest version.
     assert release["extension"]["version"] == HISTORICAL_RELEASE_VERSION
     assert app["version"] == REQUIRED_VERSION
     assert release["extension"]["platform"] == app["platform"]

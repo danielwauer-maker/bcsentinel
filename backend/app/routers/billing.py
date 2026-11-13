@@ -16,7 +16,7 @@ from app.core.observability import log_event
 from app.core.product_model import product_contract_for_storage_code
 from app.core.settings import resolve_billing_url, settings
 from app.db import SessionLocal
-from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit
+from app.models import PartnerReferral, Scan, Subscription, Tenant, TenantProductEntitlement, TenantScanCredit, TenantProductPurchase
 from app.security.tenant import (
     enforce_tenant_match,
     load_authenticated_tenant,
@@ -38,7 +38,14 @@ from app.services.product_license_service import (
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
+    NEW_ACCESS_PRODUCTS,
+    grant_v2_access_purchase,
+    hold_reversed_v2_purchase,
     build_product_access_snapshot,
+    verified_pricing_record_count,
     calculate_access_window_until,
     calculate_product_access_until,
     grant_product_entitlement,
@@ -68,6 +75,8 @@ logger = logging.getLogger(__name__)
 SUPPORTED_STRIPE_EVENTS = {
     "checkout.session.completed",
     "checkout.session.expired",
+    "charge.refunded",
+    "charge.dispute.created",
     "customer.subscription.created",
     "customer.subscription.updated",
     "customer.subscription.deleted",
@@ -269,9 +278,21 @@ def _normalize_billing_interval(value: str | None) -> str:
 
 def _normalize_checkout_product_code(payload: CheckoutSessionRequest) -> str:
     product_code = normalize_product_code(payload.product_code, billing_interval=payload.billing_interval)
+    # Existing customer frontends may still submit the previous checkout codes.
+    # Map only NEW checkouts; never reinterpret historical paid purchases.
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        if product_code == PRODUCT_FULL_ANALYSIS:
+            product_code = PRODUCT_FULL_ASSESSMENT_V2
+        elif product_code == PRODUCT_VALIDATION_CHECK:
+            product_code = PRODUCT_ACCESS_RENEWAL_VALIDATION
+    if product_code in NEW_ACCESS_PRODUCTS and not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=400, detail="Access Renewal v2 is not enabled.")
     if product_code not in {
         PRODUCT_FULL_ANALYSIS,
         PRODUCT_VALIDATION_CHECK,
+        PRODUCT_FULL_ASSESSMENT_V2,
+        PRODUCT_ACCESS_RENEWAL,
+        PRODUCT_ACCESS_RENEWAL_VALIDATION,
         PRODUCT_MONITORING_MONTHLY,
         PRODUCT_MONITORING_ANNUAL,
     }:
@@ -288,8 +309,12 @@ def _billing_interval_for_product(product_code: str, requested_interval: str | N
 
 
 def _env_price_id_for_product(product_code: str) -> str | None:
-    if product_code == PRODUCT_FULL_ANALYSIS:
+    if product_code in {PRODUCT_FULL_ANALYSIS, PRODUCT_FULL_ASSESSMENT_V2}:
         return (settings.STRIPE_PRICE_ID_ASSESSMENT or "").strip() or None
+    if product_code == PRODUCT_ACCESS_RENEWAL:
+        return (settings.STRIPE_PRICE_ID_ACCESS_RENEWAL or "").strip() or None
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        return (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip() or None
     if product_code == PRODUCT_VALIDATION_CHECK:
         return (settings.STRIPE_PRICE_ID_VALIDATION_CHECK or "").strip() or None
     if product_code == PRODUCT_MONITORING_ANNUAL:
@@ -303,8 +328,12 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
     price_id = _env_price_id_for_product(product_code)
     if price_id:
         return price_id
-    if product_code == PRODUCT_FULL_ANALYSIS:
-        raise HTTPException(status_code=400, detail="Full Analysis checkout is not configured.")
+    if product_code in {PRODUCT_FULL_ANALYSIS, PRODUCT_FULL_ASSESSMENT_V2}:
+        raise HTTPException(status_code=400, detail="Full Assessment checkout is not configured.")
+    if product_code == PRODUCT_ACCESS_RENEWAL:
+        raise HTTPException(status_code=400, detail="Access Renewal checkout is not configured.")
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        raise HTTPException(status_code=400, detail="Renewal + Validation checkout is not configured.")
     if product_code == PRODUCT_VALIDATION_CHECK:
         raise HTTPException(status_code=400, detail="Validation Check checkout is not configured.")
     if product_code == PRODUCT_MONITORING_ANNUAL:
@@ -316,14 +345,46 @@ def _resolve_product_price_id(product_code: str, billing_interval: str) -> str:
 
 def _allowed_checkout_product_codes(db, tenant: Tenant) -> set[str]:
     access = build_product_access_snapshot(db, tenant)
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        if access["monitoring_active"]:
+            return set()
+        if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
+            return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
+        return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
     if access["monitoring_active"]:
         return set()
-    if access["full_analysis_access_active"] or access["validation_check_access_active"] or access["premium_active"]:
-        return {PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-    return {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK, PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
-
+    if not access["has_completed_data_health_score"]:
+        # Paid Full is unlocked from the original completed Free scan.
+        return set()
+    # Renewal is never a cheaper way to acquire an initial Full report:
+    # even a Validation-only purchase or legacy premium flag cannot qualify.
+    prior_full_paid = db.scalar(select(TenantProductPurchase.id).where(
+        TenantProductPurchase.tenant_id == tenant.tenant_id,
+        TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+        TenantProductPurchase.product_code.in_(
+            [PRODUCT_FULL_ANALYSIS, "assessment", PRODUCT_FULL_ASSESSMENT_V2]
+        ),
+    ).limit(1)) is not None
+    if prior_full_paid:
+        return {
+            PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION,
+            PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL,
+        }
+    return {
+        PRODUCT_FULL_ASSESSMENT_V2, PRODUCT_MONITORING_MONTHLY,
+        PRODUCT_MONITORING_ANNUAL,
+    }
 
 def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> None:
+    if settings.ACCESS_MODEL_V2_ENABLED and product_code in {
+        PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL,
+    }:
+        # Existing Stripe Monitoring prices are calibrated to LEGACY record
+        # limits. A 250k/1M/5M/20M tenant must never purchase at legacy rates.
+        raise HTTPException(
+            status_code=409,
+            detail="Monitoring v2 tier pricing is not configured; contact BCSentinel.",
+        )
     allowed_products = _allowed_checkout_product_codes(db, tenant)
     if product_code not in allowed_products:
         if not allowed_products:
@@ -332,6 +393,9 @@ def _ensure_checkout_product_allowed(db, tenant: Tenant, product_code: str) -> N
 
 
 def _grant_one_time_checkout_result(db, *, tenant_id: str, product_code: str, source: str, purchase) -> None:
+    if product_code in NEW_ACCESS_PRODUCTS:
+        grant_v2_access_purchase(db, tenant_id=tenant_id, product_code=product_code, purchase_id=purchase.id)
+        return
     if product_code == PRODUCT_VALIDATION_CHECK:
         existing_credit = db.scalar(
             select(TenantScanCredit).where(TenantScanCredit.source_purchase_id == purchase.id)
@@ -589,6 +653,8 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
     """Create checkout for a tenant already authorized by the caller."""
 
     product_code = _normalize_checkout_product_code(payload)
+    if product_code in NEW_ACCESS_PRODUCTS and not settings.ACCESS_V2_PAID_CHECKOUT_ENABLED:
+        raise HTTPException(status_code=503, detail="V2 paid checkout is not released.")
     normalized_plan_code = product_code
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == payload.tenant_id))
@@ -598,7 +664,16 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
         _ensure_checkout_product_allowed(db, tenant, product_code)
         referral = db.scalar(select(PartnerReferral).where(PartnerReferral.tenant_id == tenant.tenant_id))
         latest_deep_scan = _load_latest_deep_scan(db, tenant.tenant_id)
-        record_count = _deep_scan_record_count(latest_deep_scan)
+        record_count = (
+            verified_pricing_record_count(db, tenant.tenant_id)
+            if settings.ACCESS_MODEL_V2_ENABLED
+            else _deep_scan_record_count(latest_deep_scan)
+        )
+        if settings.ACCESS_MODEL_V2_ENABLED and record_count is None:
+            raise HTTPException(
+                status_code=409,
+                detail="Completed Deep Scan record count required before v2 checkout.",
+            )
         package_count = _additional_record_package_count(record_count)
         tenant_environment = str(getattr(tenant, "environment_name", "") or "").strip()
         referral_code = str(getattr(referral, "referral_code", "") or "").strip().lower() if referral is not None else ""
@@ -661,6 +736,10 @@ def create_checkout_session_for_tenant(payload: CheckoutSessionRequest) -> Check
             "cancel_url": cancel_url,
             "metadata": checkout_metadata,
         }
+        if settings.ACCESS_MODEL_V2_ENABLED and product_code in NEW_ACCESS_PRODUCTS:
+            # Only synchronous card payments until the async-payment
+            # settlement/refund lifecycle has its own approved webhook gate.
+            session_kwargs["payment_method_types"] = ["card"]
         if checkout_mode == "subscription":
             session_kwargs["subscription_data"] = {"metadata": checkout_metadata}
         session = stripe.checkout.Session.create(**session_kwargs)
@@ -952,6 +1031,54 @@ async def process_billing_webhook(
         subscription_data: dict | None = None
         invoice_data: dict | None = None
         tenant_id = ""
+
+        if event_type in {"charge.refunded", "charge.dispute.created"}:
+            # Stripe webhook signature was verified above. The charge's
+            # PaymentIntent is the sole authoritative link to a purchase.
+            payment_intent = str(data_object.get("payment_intent") or "").strip()
+            if not payment_intent:
+                charge_id = str(
+                    data_object.get("charge") if event_type == "charge.dispute.created"
+                    else data_object.get("id") or ""
+                ).strip()
+                if not charge_id:
+                    raise HTTPException(status_code=503, detail="Reversal payment identity unavailable.")
+                try:
+                    charge = stripe.Charge.retrieve(charge_id)
+                    payment_intent = str(charge.get("payment_intent") or "").strip()
+                except Exception:
+                    raise HTTPException(status_code=503, detail="Reversal payment identity verification failed.") from None
+            if not payment_intent:
+                raise HTTPException(status_code=503, detail="Reversal payment intent unavailable.")
+            with SessionLocal() as db:
+                # Idempotency by event ID, plus the purchase's durable status;
+                # stripe retries must never re-enable a revoked v2 entitlement.
+                webhook_event, created = ensure_webhook_event_once(
+                    db, provider="stripe", event_id=event_id,
+                    event_type=event_type, payload_json=body_text,
+                )
+                if not created:
+                    return BillingWebhookResponse(status="duplicate", event_id=event_id, processed=False)
+                purchase = hold_reversed_v2_purchase(
+                    db, payment_intent_id=payment_intent, event_type=event_type,
+                )
+                if purchase is None:
+                    # A legacy purchase is not governed by the v2 reversal
+                    # policy. A genuinely unknown payment may be an
+                    # out-of-order webhook: ask Stripe to retry it later.
+                    legacy = db.scalar(select(TenantProductPurchase.id).where(
+                        TenantProductPurchase.provider == "stripe",
+                        TenantProductPurchase.provider_payment_intent_id == payment_intent,
+                    ).limit(1))
+                    if legacy is None:
+                        db.rollback()
+                        raise HTTPException(status_code=503, detail="Payment reversal pending purchase resolution.")
+                    webhook_event.processed_at_utc = utc_now()
+                    db.commit()
+                    return BillingWebhookResponse(status="ignored", event_id=event_id, processed=False)
+                webhook_event.processed_at_utc = utc_now()
+                db.commit()
+            return BillingWebhookResponse(status="ok", event_id=event_id, processed=True)
 
         if event_type == "checkout.session.completed":
             tenant_id = str((data_object.get("metadata", {}) or {}).get("tenant_id") or "").strip()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Literal
 from urllib.parse import quote
 
 from jose import JWTError, jwt
@@ -39,11 +40,38 @@ class ExecutiveReportShareLinkResponse(BaseModel):
     url: str
 
 
+def _require_owned_scan(db, tenant_id: str, scan_id: str) -> None:
+    """Report access must never look up scans across tenants."""
+    from app.models import Scan
+    owned = db.scalar(select(Scan).where(
+        Scan.scan_id == scan_id, Scan.tenant_id == tenant_id
+    ))
+    if owned is None:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        from app.services.scan_company_service import canonical_company_id
+
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+        try:
+            if tenant is None or canonical_company_id(owned.bc_company_id) != canonical_company_id(tenant.bc_company_id):
+                raise ValueError("company mismatch")
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Report not found.") from None
+
+
 def _load_report(scan_id: str, tenant_auth: tuple[str, str]) -> ExecutiveReport:
     header_tenant_id, header_api_token = tenant_auth
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
+        # The authoritative capability gate must not diverge between the
+        # Executive JSON/HTML/PDF endpoints and v6 token issuance.
         require_capability(db, tenant, CAPABILITY_REPORT)
+        from app.services.product_license_service import build_product_access_snapshot
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=402, detail="Premium report access required.")
+        # Both foreign and nonexistent scans get the same 404, so ownership
+        # cannot be inferred by probing across tenant boundaries.
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         return build_executive_report(db, tenant, scan_id)
 
 
@@ -94,14 +122,22 @@ def _verify_share_token(token: str, *, scan_id: str, report_type: str) -> tuple[
 
 
 def _load_shared_report(scan_id: str, report_type: str, token: str) -> ExecutiveReport:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     tenant_id, _, company_id = _verify_share_token(token, scan_id=scan_id, report_type=report_type)
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
             raise HTTPException(status_code=403, detail="Invalid report share token.")
+        from app.services.tenant_access_service import enforce_tenant_is_active
+        enforce_tenant_is_active(db, tenant.tenant_id)
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         if company_id.strip().strip("{}").lower() != str(tenant.bc_company_id or "").strip().strip("{}").lower():
             raise HTTPException(status_code=403, detail="Invalid report share token.")
         require_capability(db, tenant, CAPABILITY_REPORT)
+        from app.services.product_license_service import build_product_access_snapshot
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=403, detail="Premium report access expired.")
         return build_executive_report(db, tenant, scan_id)
 
 
@@ -126,6 +162,8 @@ def create_executive_report_share_link(
     report_type: str | None = Query(default=None),
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
 ) -> ExecutiveReportShareLinkResponse:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Use the single-use report access flow.")
     selected_type = (report_type or (payload.report_type if payload else "html") or "html").strip().lower()
     if selected_type not in {"html", "pdf"}:
         raise HTTPException(status_code=400, detail="report_type must be html or pdf.")
@@ -134,11 +172,84 @@ def create_executive_report_share_link(
     with SessionLocal() as db:
         tenant = load_authenticated_tenant(db, header_tenant_id, header_api_token)
         require_capability(db, tenant, CAPABILITY_REPORT, denial_event="token_issuance_denied")
+        from app.services.product_license_service import build_product_access_snapshot
+        if settings.ACCESS_MODEL_V2_ENABLED and not build_product_access_snapshot(db, tenant)["premium_active"]:
+            raise HTTPException(status_code=402, detail="Premium report access required.")
+        _require_owned_scan(db, tenant.tenant_id, scan_id)
         build_executive_report(db, tenant, scan_id)
         token = _create_share_token(tenant=tenant, scan_id=scan_id, report_type=selected_type)
     return ExecutiveReportShareLinkResponse(
         url=_shared_report_url(request, scan_id, selected_type, token)
     )
+
+
+@router.post("/live/{variant}/{scan_id}/link", response_model=ExecutiveReportShareLinkResponse)
+def create_v2_variant_report_link(
+    variant: Literal["full", "validation", "monitoring"],
+    scan_id: str,
+    response: Response,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReportShareLinkResponse:
+    """BC-native report link, issued only against immutable authenticated evidence."""
+    from urllib.parse import urlparse
+    from app.models import Scan
+    from app.services.report_archive_service import issue_variant_link
+
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="REPORT_VARIANT_UNAVAILABLE")
+    viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
+    parsed = urlparse(viewer)
+    if (parsed.scheme != "https" or not parsed.netloc or parsed.username or
+            parsed.password or parsed.query or parsed.fragment):
+        raise HTTPException(status_code=503, detail="REPORT_VIEWER_UNAVAILABLE")
+    tenant_id, token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, token)
+        scan = db.scalar(select(Scan).where(
+            Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id
+        ))
+        if scan is None:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        response.headers["Cache-Control"] = "no-store, private"
+        return ExecutiveReportShareLinkResponse(
+            url=issue_variant_link(db, tenant, scan, viewer, variant),
+        )
+
+
+@router.post("/executive/{scan_id}/v6-link", response_model=ExecutiveReportShareLinkResponse)
+def create_full_v6_link(
+    scan_id: str,
+    response: Response,
+    tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
+) -> ExecutiveReportShareLinkResponse:
+    """Exchange existing BC tenant authorization for one-use v6 access.
+
+    Never expose the durable BC API token. Existing staging report routes and
+    their capability restrictions are preserved.
+    """
+    from urllib.parse import urlparse
+
+    from app.models import Scan
+    from app.services.report_archive_service import issue_full_link
+
+    viewer = (settings.REPORT_V6_VIEWER_BASE_URL or "").strip().rstrip("/")
+    parsed = urlparse(viewer)
+    if (parsed.scheme != "https" or not parsed.netloc or parsed.username
+            or parsed.password or parsed.query or parsed.fragment):
+        raise HTTPException(status_code=503, detail="REPORT_VIEWER_UNAVAILABLE")
+
+    tenant_id, token = tenant_auth
+    with SessionLocal() as db:
+        tenant = load_authenticated_tenant(db, tenant_id, token)
+        scan = db.scalar(select(Scan).where(
+            Scan.scan_id == scan_id, Scan.tenant_id == tenant.tenant_id
+        ))
+        if scan is None:
+            raise HTTPException(status_code=404, detail="Report not found.")
+        response.headers["Cache-Control"] = "no-store, private"
+        return ExecutiveReportShareLinkResponse(
+            url=issue_full_link(db, tenant, scan, viewer)
+        )
 
 
 @router.get("/executive/{scan_id}/html", response_class=HTMLResponse)

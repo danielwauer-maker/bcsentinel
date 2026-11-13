@@ -15,7 +15,12 @@ on:
   push:
     branches:
       - staging
+      - 'integration/dev-first-*'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-{1}-{2}', github.workflow, github.event_name, github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -179,15 +184,22 @@ jobs:
             if (-not $passed) { throw "QA AL behavior tests failed." }
             [xml]$results = Get-Content $resultsFile -Raw
             $cases = @($results.SelectNodes("//testcase"))
-            if ($cases.Count -ne 3 -or $results.SelectNodes("//testcase/failure|//testcase/error|//testcase/skipped").Count -ne 0) {
-              throw "Expected all three finding AL tests to execute and pass without skips."
+            # Count tests declared in the QA source instead of a stale hard-coded 3.
+            # Require at least the five reviewed identity/provenance cases, and
+            # fail closed if any declared test did not run or was skipped.
+            $qaTestSource = Join-Path $env:GITHUB_WORKSPACE 'bc-finding-tests/src/BCSFindingIdentityTests.Codeunit.al'
+            $qaTestContent = Get-Content -LiteralPath $qaTestSource -Raw
+            $expectedCount = ([regex]::Matches($qaTestContent, '(?m)^\s*\[Test\]\s*$')).Count
+            if ($expectedCount -lt 5) { throw 'Missing mandatory QA source cases.' }
+            if ($cases.Count -ne $expectedCount -or $results.SelectNodes('//testcase/failure|//testcase/error|//testcase/skipped').Count -ne 0) {
+              throw "Expected $expectedCount QA tests to execute without failures or skips; found $($cases.Count)."
             }
             $installedQA = @(Get-BcContainerAppInfo -containerName "bcsentinel-bc-gate" -tenant default -tenantSpecificProperties |
               Where-Object { "$($_.AppId)" -eq "3c355631-e232-4acd-bcc9-34264f7d25b7" -and $_.IsInstalled })
             if ($installedQA.Count -ne 1 -or "$($installedQA[0].Version)" -ne "1.0.0.1") {
               throw "QA 1.0.0.1 was not installed after the deployment gate."
             }
-            "${{ matrix.deployment }}: QA 1.0.0.1 installed; three AL tests passed." |
+            "${{ matrix.deployment }}: QA 1.0.0.1 installed; $expectedCount AL tests passed." |
               Set-Content (Join-Path $diagnosticsFolder "qa-deployment-result.txt")
           }
           finally {
@@ -303,3 +315,4 @@ jobs:
           path: artifacts/bc-diagnostics/*
           if-no-files-found: error
           retention-days: 14
+

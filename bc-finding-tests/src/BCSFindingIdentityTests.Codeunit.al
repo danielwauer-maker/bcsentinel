@@ -72,6 +72,57 @@ codeunit 53460 "BCS Finding Identity Tests"
         AssertTrue(TempFinding."Group Key" = FirstKey);
     end;
 
+    [Test]
+    procedure FrozenCheckSelectionIsReusedAndCannotBeReplaced()
+    var
+        TempRun: Record "DH Deep Scan Run" temporary;
+        TempSetup: Record "DH Setup" temporary;
+        CheckMgt: Codeunit "DH Scan Check Mgt.";
+        Snapshot: Text;
+    begin
+        Snapshot := '{"modules":["FINANCE"],"checks":[{"code":"CHECK_A","enabled":true},{"code":"CHECK_B","enabled":false}]}';
+        TempRun.Init();
+        TempRun."Entry No." := 1;
+        TempRun.Insert();
+        TempRun.SetStartExpectationOnce(Snapshot);
+        TempRun.Modify();
+        AssertTrue(TempRun.GetStartExpectationText() = Snapshot);
+        AssertTrue(CheckMgt.IsCheckEnabledForRun(TempRun, 'CHECK_A'));
+        AssertTrue(not CheckMgt.IsCheckEnabledForRun(TempRun, 'CHECK_B'));
+        AssertTrue(CheckMgt.GetExpectedChecksCountForRun(TempRun, TempSetup) = 1);
+        TempSetup."Scan Sales Module" := true;
+        TempSetup."Scan Finance Module" := false;
+        CheckMgt.ApplyFrozenModules(TempRun, TempSetup);
+        AssertTrue(TempSetup."Scan Finance Module");
+        AssertTrue(not TempSetup."Scan Sales Module");
+        asserterror CheckMgt.IsCheckEnabledForRun(TempRun, 'CHECK_UNKNOWN');
+        asserterror TempRun.SetStartExpectationOnce('{}');
+    end;
+
+    [Test]
+    procedure FrozenExceptionScopeUsesOriginalRecordAndCheck()
+    var
+        TempRun: Record "DH Deep Scan Run" temporary;
+        ExceptionMgt: Codeunit "DH Exception Mgt.";
+        RecordId: Guid;
+        Snapshot: Text;
+    begin
+        RecordId := CreateGuid();
+        Snapshot := '{"schema_version":"bc-scan-expectation-v2","exception_scope":[' +
+            '{"entry_no":1,"table_id":18,"record_system_id":"' + Format(RecordId) + '","issue_code":"CHECK_A"}]}';
+        TempRun.Init();
+        TempRun."Entry No." := 2;
+        TempRun.Insert();
+        TempRun.SetStartExpectationOnce(Snapshot);
+        TempRun.Modify();
+        ExceptionMgt.BeginExceptionTrackingForRun(TempRun);
+        AssertTrue(ExceptionMgt.IsIssueExcluded(18, RecordId, 'CHECK_A'));
+        AssertTrue(not ExceptionMgt.IsIssueExcluded(18, RecordId, 'CHECK_B'));
+        AssertTrue(not ExceptionMgt.IsIssueExcluded(23, RecordId, 'CHECK_A'));
+        AssertTrue(ExceptionMgt.GetAppliedExceptionCount() = 1);
+        ExceptionMgt.EndFrozenExceptionScope();
+    end;
+
     local procedure AddFinding(var TempFinding: Record "DH Deep Scan Finding" temporary; EntryNo: Integer; RunEntryNo: Integer; IssueCode: Code[50]; Count: Integer)
     begin
         TempFinding.Reset();

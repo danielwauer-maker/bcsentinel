@@ -1,6 +1,8 @@
-# DEV deploy is fail-closed. It requires operator-approved repository Actions variables:
+# DEV deploy is manual-only on staging (workflow_dispatch) and fail-closed.
+# It requires an exact release_sha input and operator-approved repository Actions variables:
 # DEV_STAGING_DEPLOY_ENABLED=true and DEV_STAGING_RELEASE_SHA=<exact staging commit SHA>.
-# Neither variable is set by this workflow. Without both matches, all DEV steps skip.
+# Neither variable is set by this workflow. Staging pushes never deploy, and
+# an operator-owned remote checkout is never forcibly reset.
 # Main/PROD behavior is unchanged. Do not authorize a SHA until CI and operator review.
 name: Deploy to Hetzner
 
@@ -9,9 +11,24 @@ on:
     branches:
       - main
       - staging
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Exact 40-character staging commit SHA reviewed for DEV deployment"
+        required: true
+        type: string
 
 jobs:
   deploy:
+    # staging pushes never deploy; only a deliberately dispatched, SHA-pinned
+    # staging release can deploy DEV. Main push/PROD conditions stay unchanged.
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/staging' &&
+      inputs.release_sha == github.sha &&
+      vars.DEV_STAGING_DEPLOY_ENABLED == 'true' &&
+      vars.DEV_STAGING_RELEASE_SHA == github.sha
     runs-on: ubuntu-latest
 
     steps:
@@ -89,37 +106,59 @@ jobs:
           echo "❌ PROD health check failed"
           exit 1
 
+      - name: DEV pre-deploy database snapshot and verifiable restore inventory
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -euo pipefail
+            cd /home/daniel/data-health-management-dev
+            echo "=== Current DEV release before deployment ==="
+            git rev-parse HEAD
+            docker inspect --format 'backend_image={{.Image}} status={{.State.Status}}' dhm-dev-backend
+            docker inspect --format 'postgres_image={{.Image}} status={{.State.Status}}' dhm-dev-postgres
+            test -f .env.dev
+            echo "=== Back up DEV database before checkout, migration, nginx and service changes ==="
+            BACKUP_DIR="$HOME/bcsentinel-dev-backups"
+            install -d -m 0700 "$BACKUP_DIR"
+            BACKUP_FILE="$BACKUP_DIR/$(date -u +%Y%m%dT%H%M%SZ)-${{ github.sha }}.dump"
+            umask 077
+            docker exec dhm-dev-postgres sh -c 'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-acl' > "$BACKUP_FILE"
+            test -s "$BACKUP_FILE"
+            docker exec -i dhm-dev-postgres pg_restore --list < "$BACKUP_FILE" > /dev/null
+            sha256sum "$BACKUP_FILE"
+            echo "DEV database dump is non-empty and pg_restore can inspect its table of contents."
+            echo "NOTE: An isolated full restore and recovery rehearsal are still separate gates."
+          EOF
       - name: Deploy to DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
 
             cd /home/daniel/data-health-management-dev
 
-            echo "📥 Clean sync DEV"
-            git fetch origin
-            git reset --hard origin/staging
-            git clean -fd
+            echo "🔐 Fail-closed DEV checkout safety preflight"
+            # Never reset an operator-owned checkout with local tracked or untracked changes.
+            # This intentionally blocks deployment until landingpage_neu is preserved.
+            if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+              echo "DEV checkout has local tracked/untracked files; refusing destructive reset."
+              git status --short
+              exit 1
+            fi
 
-            echo "🌐 Sync DEV landingpage_neu and nginx configuration"
-            sudo -n rm -rf /var/www/bcsentinel/landingpage-dev
-            sudo -n install -d -m 0755 /var/www/bcsentinel/landingpage-dev
-            sudo -n cp -a landingpage_neu/. /var/www/bcsentinel/landingpage-dev/
-            ACTIVE_NGINX_CONFIG="$(sudo -n grep -Rl 'server_name.*dev\.bcsentinel\.com' /etc/nginx/sites-enabled 2>/dev/null | head -n 1)"
-            if [ -z "$ACTIVE_NGINX_CONFIG" ]; then
-              echo "No active nginx config for dev.bcsentinel.com found."
-              exit 1
-            fi
-            sudo -n cp "$ACTIVE_NGINX_CONFIG" /tmp/bcsentinel-nginx-before-deploy.conf
-            sudo -n cp config/nginx/bcsentinel.conf "$ACTIVE_NGINX_CONFIG"
-            if ! sudo -n nginx -t; then
-              echo "nginx validation failed; restoring previous config"
-              sudo -n cp /tmp/bcsentinel-nginx-before-deploy.conf "$ACTIVE_NGINX_CONFIG"
-              sudo -n nginx -t
-              exit 1
-            fi
-            sudo -n systemctl reload nginx
+            echo "📥 Fetch immutable DEV release"
+            git fetch origin "${{ github.sha }}"
+            git cat-file -e "${{ github.sha }}^{commit}"
+            git reset --hard "${{ github.sha }}"
+            test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+            # Never run git clean: untracked operator files are not deployment artifacts.
+
+            echo "🔐 Preserve live nginx and landing page routing"
+            # Any nginx or landingpage change requires a separate approved,
+            # reversible deployment procedure. Do not alter either automatically.
+            sudo -n nginx -t
+            echo "nginx_status=validated_unchanged"
+            echo "landingpage_status=preserved_unchanged"
 
             echo "🐳 Start database only (DEV)"
             docker compose -f docker-compose.dev.yml --env-file .env.dev up -d postgres
@@ -132,33 +171,44 @@ jobs:
           EOF
 
       - name: Health check DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
-          echo "🔎 Waiting for DEV backend (local on server)..."
+          echo "🔎 Verify exact deployed DEV checkout SHA"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "test \"\$(git -C /home/daniel/data-health-management-dev rev-parse HEAD)\" = '${{ github.sha }}'"
+          echo "🔎 Waiting for DEV database-backed readiness (local on server)..."
+          local_ready=false
           for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -fsS http://127.0.0.1:8001/health"; then
-              echo "✅ DEV backend is running locally"
+            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "curl --max-time 8 -fsS http://127.0.0.1:8001/health/ready"; then
+              echo "✅ DEV backend database-backed readiness passed"
+              local_ready=true
               break
             fi
-            echo "⏳ DEV local backend not ready yet... attempt $i/20"
+            echo "⏳ DEV local readiness not ready yet... attempt $i/20"
             sleep 3
           done
+          if [ "$local_ready" != true ]; then
+            echo "❌ DEV local database-backed readiness failed"
+            exit 1
+          fi
 
-          echo "🌍 Waiting for DEV public endpoint (from server via IPv4 GET)..."
+          echo "🌍 Waiting for DEV public API readiness (from server via IPv4 GET)..."
           for i in {1..20}; do
-            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "curl -4 -fsS https://dev-api.bcsentinel.com/health"; then
-              echo "✅ DEV public health check passed"
+            if ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "curl --max-time 8 -4 -fsS https://dev-api.bcsentinel.com/health/ready"; then
+              echo "✅ DEV public API readiness passed"
               exit 0
             fi
-            echo "⏳ DEV public endpoint not ready yet... attempt $i/20"
+            echo "⏳ DEV public readiness not ready yet... attempt $i/20"
             sleep 5
           done
 
-          echo "❌ DEV health check failed"
+          echo "❌ DEV public readiness check failed"
           exit 1
 
       - name: Smoke check DEV Core web surface
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
             echo "Checking https://dev.bcsentinel.com$path"

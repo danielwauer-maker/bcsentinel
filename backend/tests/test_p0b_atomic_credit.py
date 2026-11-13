@@ -288,3 +288,40 @@ def test_new_request_ids_create_new_scans_when_credits_exist(client, tenant_fact
     assert _start(client, tenant).status_code == 200
     counts = _counts(tenant["tenant_id"])
     assert counts["consumed"] == counts["scans"] == counts["requests"] == counts["consumption_ledger"] == 2
+
+
+def test_free_first_scan_is_a_full_deep_artifact_with_separate_free_entitlement(client, tenant_factory):
+    tenant = tenant_factory()
+    first = _start(client, tenant, mode="data_health_score", run_id="RUN_FREE_FULL_DEPTH")
+    assert first.status_code == 200, first.text
+    assert first.json()["free_data_health_score"] is True
+    assert first.json()["credit_consumed"] is False
+
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter_by(scan_id="RUN_FREE_FULL_DEPTH").one()
+        request = db.query(ScanStartRequest).filter_by(scan_id=scan.scan_id).one()
+        stored_tenant = db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).one()
+        assert scan.scan_type == "deep"
+        assert request.free_scan_slot == "data_health_score"
+        assert request.resolved_product_code == "data_health_score"
+        assert stored_tenant.free_assessment_used is True
+
+    denied = _start(client, tenant, mode="data_health_score", run_id="RUN_FREE_TWICE")
+    assert denied.status_code == 409
+    assert _counts(tenant["tenant_id"])["scans"] == 1
+
+
+def test_paid_validation_uses_same_deep_artifact_without_reopening_free_slot(client, tenant_factory):
+    tenant = tenant_factory()
+    with SessionLocal() as db:
+        db.query(Tenant).filter_by(tenant_id=tenant["tenant_id"]).update({"free_assessment_used": True})
+        db.commit()
+    _grant(tenant["tenant_id"], "validation_check")
+    response = _start(client, tenant, mode="validation", run_id="RUN_VALIDATION_DEEP")
+    assert response.status_code == 200, response.text
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter_by(scan_id="RUN_VALIDATION_DEEP").one()
+        request = db.query(ScanStartRequest).filter_by(scan_id=scan.scan_id).one()
+        assert scan.scan_type == "deep"
+        assert request.free_scan_slot is None
+        assert request.credit_id is not None

@@ -103,8 +103,45 @@ def test_dev_frontend_isolated_from_production_webroot() -> None:
     assert "proxy_pass http://127.0.0.1:8001;" in nginx
     assert "root /var/www/bcsentinel/landingpage;" in nginx
 
-    assert "landingpage_neu/." in deploy
-    assert "/var/www/bcsentinel/landingpage-dev" in deploy
-    assert "nginx -t" in deploy
-    assert "restoring previous config" in deploy
+    # The live DEV site and nginx routing are operator-managed until a
+    # separately reviewed, reversible site deployment has been accepted.
+    dev_section = deploy.split('      - name: Deploy to DEV', 1)[1].split(
+        '      - name: Health check DEV', 1
+    )[0]
+    assert "Fail-closed DEV checkout safety preflight" in dev_section
+    assert "git status --porcelain --untracked-files=all" in dev_section
+    assert "git clean -fd" not in dev_section.replace(
+        "# Never run git clean: untracked operator files are not deployment artifacts.", ""
+    )
+    assert "cp config/nginx/bcsentinel.conf" not in dev_section
+    assert "rm -rf /var/www/bcsentinel/landingpage-dev" not in dev_section
+    assert "sudo -n nginx -t" in dev_section
+    assert "nginx_status=validated_unchanged" in dev_section
+    assert "landingpage_status=preserved_unchanged" in dev_section
     assert "Smoke check DEV Core web surface" in deploy
+    # A staging push must not deploy while branch CI is still running.  Only a
+    # manually dispatched workflow for the exact, separately approved SHA can
+    # execute DEV-mutating steps.
+    approved_dispatch = (
+        "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' "
+        "&& inputs.release_sha == github.sha "
+        "&& vars.DEV_STAGING_DEPLOY_ENABLED == 'true' "
+        "&& vars.DEV_STAGING_RELEASE_SHA == github.sha"
+    )
+    assert "workflow_dispatch:" in deploy
+    assert deploy.count("if: " + approved_dispatch) == 4
+    assert "github.event_name == 'push' && github.ref == 'refs/heads/staging'" not in deploy
+    assert "git fetch origin" in dev_section
+    assert 'git reset --hard "${{ github.sha }}"' in dev_section
+    # Fail the rollout if the new app is not ready with its database, even
+    # when an old /health endpoint or site happens to return HTTP 200.
+    health_section = deploy.split('      - name: Health check DEV', 1)[1].split(
+        '      - name: Smoke check DEV Core web surface', 1
+    )[0]
+    assert "git -C /home/daniel/data-health-management-dev rev-parse HEAD" in health_section
+    assert "local_ready=false" in health_section
+    assert 'if [ "$local_ready" != true ]; then' in health_section
+    assert "http://127.0.0.1:8001/health/ready" in health_section
+    assert "https://dev-api.bcsentinel.com/health/ready" in health_section
+    assert "exit 1" in health_section
+

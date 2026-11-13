@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "master_tracker": {
+    "filename": "BCSentinel_GoLive_Master_Tracker_DEV_First_v2(1).xlsx",
+    "sha256": "c1978141c8ee70f52be07ba64df765364a56cb16fe51dea4b084951ade60142a",
+    "fiverr_tasks": 61,
+    "saas_tasks": 24,
+    "checked_technical": 2,
+    "checked_live": 2,
+    "verified_at": "2026-11-11",
+    "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
+  },
+  "reviewed_at": "2026-11-12",
+  "work_items": [
+    {
+      "id": "1.01",
+      "status": "tracker_checked",
+      "detail": "Excel marked technical and Go-Live checked. Artifact/SHA relation must be reconfirmed before BC upload.",
+      "refs": []
+    },
+    {
+      "id": "1.02",
+      "status": "tracker_checked",
+      "detail": "Excel marked technical and Go-Live checked. Current deployed image/migration must be rechecked.",
+      "refs": []
+    },
+    {
+      "id": "1.03",
+      "status": "manual_gate",
+      "detail": "BC27 real sandbox In-place-Upgrade und Non-SUPER-Nachweis weiterhin offen. Draft PR #168 enthält AL-Reportnavigation 1.0.2.59 mit erfolgreichem AL-Compile, aber weder Installations- noch History-/Registrierungs-Erhaltungsnachweis. Frühere PR #162 (1.0.2.58) bleibt notwendige Basis.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/168"
+      ]
+    },
+    {
+      "id": "2.01",
+      "status": "code_candidate",
+      "detail": "199-Check-Matrix / Sprint 3B.01 im Feature-Branch vorhanden; lokale Tests berichtet. Finale PR-/CI-/AL- und reale BC27-Check-Evidence im aktuellen Evidence-Snapshot nicht ausreichend unabhängig verifiziert. Keine technische oder Live-Abnahme daraus ableiten.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/blob/feature/sprint3b01-check-coverage/docs/checks/SPRINT3B01_EXECUTION_LIFECYCLE_REPORT.md"
+      ]
+    },
+    {
+      "id": "2.02",
+      "status": "partial",
+      "detail": "Provenance/check source work in PRs #159/#162; source-record evidence and real BC E2E remain incomplete.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/159",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "3.02",
+      "status": "partial",
+      "detail": "2026-11-12: Full-v6-Viewer aus Frontend PR #13 auf Hetzner als SEPARATER Loopback-Container 127.0.0.1:3001 erfolgreich gebaut und vom Betreiber geprüft; 5 SSR-Routen inkl. /report/live?lang=de HTTP 200, alle HTML-referenzierten Assets 200, drei Logo-PNGs 200 / 1877x626; alter Frontend-Container 3000 unverändert, alte Reportroute 404. GitHub CI am späteren Draft-HEAD 60af4902a294 PASS (243 Tests; isolierter Docker-Smoke; PNG-HTTP-Byteprüfung). Server-Container läuft noch auf zuvor geprüftem HEAD 01b15b9ab6dc, nicht auf neuem PR-HEAD. Betreiber hat Landing/Overview visuell verglichen und keinen Unterschied festgestellt, vollständiger Tenant-Overview-Zugriff nicht geprüft. Öffentliche DEV-Route, Viewer-Backend-Konfiguration, tokenisierte Full-v6-E2E-/Tenant-/Replay-Tests und BC27-Freigabe FEHLEN. Nur isolierter technischer Teilnachweis; global NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/155",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/168"
+      ]
+    },
+    {
+      "id": "3.03",
+      "status": "partial",
+      "detail": "Validation-Report benötigt vergleichbare versiegelte Quellidentitäten. PR #162 enthält Teilprovenienz, aber kein vollständig akzeptiertes BC27-Scanpaar; die Full-v6-Viewer-HTTP-Abnahme belegt keine Validation-Ergebnisvergleiche.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "3.04",
+      "status": "partial",
+      "detail": "Monitoring-Report/History und Subscription-Runtime weiterhin nicht E2E abgenommen; der isolierte Full-v6-Routen-Smoketest ist keine Monitoring-Freigabe.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/158"
+      ]
+    },
+    {
+      "id": "4.01",
+      "status": "audit_draft",
+      "detail": "PR #164 dokumentiert acht Produktvertragsdrifts: Legacy Quick dauerhaft und Full 7d auf Core main versus v2 Full14/Renewal/Validation Draft #154. Normative Produkt-/Preisentscheidung und Bestandsschutz offen; diese Abhängigkeit blockiert externe Fiverr-Zusagen.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+      ]
+    },
+    {
+      "id": "4.02",
+      "status": "implementation_draft",
+      "detail": "Free→Full 14d implementation candidate, not contractual/release approval. Legacy Quick/7d rights must be reconciled.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154"
+      ]
+    },
+    {
+      "id": "4.03",
+      "status": "implementation_draft",
+      "detail": "Renewal +14d present in Access-v2 draft; no real customer E2E.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154"
+      ]
+    },
+    {
+      "id": "4.04",
+      "status": "implementation_draft",
+      "detail": "Renewal+Validation logic candidate; evidence-qualified real scan still open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "id": "4.06",
+      "status": "implementation_draft",
+      "detail": "Operator grant and refund/idempotency work in #156; integrated release evidence still open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/156"
+      ]
+    },
+    {
+      "id": "6.02",
+      "status": "editorial_complete",
+      "detail": "DE/EN-Website- und Reportbeispiel-Copy in Draft #166 redaktionell fertig. Betreiber: aktuelle DEV-Pilot-Landingpage ist noch NICHT die gewünschte finale Fiverr-Landingpage; bisheriges und neues Frontend zeigen sie identisch. Website-Implementierung und rechtliche/visuelle Freigabe offen.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "id": "7.03",
+      "status": "editorial_complete",
+      "detail": "Buyer Kit DE/EN in Draft #165 redaktionell fertig, aber mit 14d-v2-Target-Copy, die nicht normativ freigegeben ist. Fiverr-Editor, reale Käuferreise, Preis-/Access-Freeze, Recht und E2E bleiben offen.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/165"
+      ]
+    }
+  ],
+  "cross_cutting": [
+    {
+      "title": "Sprint 3A.2 · Runtime / Evidence",
+      "status": "integration_draft",
+      "detail": "Consolidation PR #162; AL 1.0.2.58 source/compile is not a completed BC sandbox upgrade.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/162"
+      ]
+    },
+    {
+      "title": "Sprint 6.02 · Website editorial",
+      "status": "editorial_complete",
+      "detail": "Content complete as Draft PR; frontend implementation not accepted.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    },
+    {
+      "title": "Sprint 7.03 · Buyer Kit",
+      "status": "editorial_complete",
+      "detail": "Buyer kit documentation complete as Draft PR; launch blocked.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/165"
+      ]
+    },
+    {
+      "title": "Sprint 4.01 · Access-v2 audit",
+      "status": "audit_draft",
+      "detail": "Audit drafted; v2 product freeze not approved.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+      ]
+    },
+    {
+      "title": "Sprint 3B.01 · Coverage lifecycle",
+      "status": "code_candidate",
+      "detail": "199 Checks inventarisiert; lokale Tests erfolgreich, aber technischer Abschluss durch fehlendes final-SHA-CI/AL und BC27-Nachweis blockiert.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/tree/feature/sprint3b01-check-coverage"
+      ]
+    },
+    {
+      "title": "Sprint 3.02 · Full-v6 isolierte DEV-Viewer-Abnahme (12.11.2026)",
+      "status": "runtime_partial_pass",
+      "detail": "Operator-Nachweis: Git SHA 01b15b9ab6dc isolierter Container 127.0.0.1:3001; Routen/Assets/3 PNGs HTTP 200; Vergleich altes Port-3000-Frontend bestanden; Firefox-Fail-closed-Fehler bei ungültigem Report-Link. Neuere GitHub-PR #13 CI SHA 60af4902a294 PASS. Kein öffentlicher Viewer, kein echter bezahlter Report, keine Backend-Viewer-URL, keine Freigabe.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13"
+      ]
+    },
+    {
+      "title": "BC27 1.0.2.59 · Report-Navigation (Draft)",
+      "status": "compile_pass_runtime_open",
+      "detail": "AL CI erfolgreich für PR #168 SHA 114a206ac3f8, aber kein BC27-Upgrade. Native Free-Report-Grant noch nicht implementiert; Free darf nicht fälschlich zum bezahlten Full weitergeleitet werden.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/168"
+      ]
+    },
+    {
+      "title": "AI-PM 2.2 · unabhängiges Agent-Dashboard",
+      "status": "ci_pass_operator_preview_open",
+      "detail": "Gestapelter Draft PR #169; AI-PM 2.2 auf CI geprüft, aber DEV-Vorschau 8093 noch nicht als Operator-abgenommen belegt; bisheriges Dashboard 8092 unverändert. 61 Fiverr + 24 SaaS = ursprüngliches Importinventar; keine automatisch genehmigten Aufgaben oder Agenten.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/169"
+      ]
+    },
+    {
+      "title": "Fiverr V1 · Umfang und Landing-Freeze",
+      "status": "launch_scope_open",
+      "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/166"
+      ]
+    }
+  ],
+  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import",
+  "observed_gates": {
+    "source_date": "2026-11-12",
+    "source_kind": "operator_logs_plus_github_ci",
+    "fiverr": "NO_GO",
+    "dashboard_agent_execution": "disabled",
+    "tracker_checkbox_updates": 0,
+    "host_frontend": {
+      "port3000": "unchanged",
+      "port3001": "isolated_full_v6_technical_pass",
+      "deployed_head": "01b15b9ab6dc13a1201e9c063382e67a4dddb99b",
+      "ci_candidate_head": "60af4902a294488f87ff151ffd41f26a79f7d365",
+      "public_routing": "not_changed",
+      "backend_viewer_base_url": "not_configured",
+      "real_paid_report_e2e": "not_executed"
+    },
+    "ai_pm22": {
+      "pr": 169,
+      "github_ci": "pass_at_prior_head",
+      "host_8093": "not_verified",
+      "host_8092": "preserved"
+    },
+    "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe."
+  }
+}

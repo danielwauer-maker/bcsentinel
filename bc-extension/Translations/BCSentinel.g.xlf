@@ -7623,6 +7623,76 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Findings List - Control FreeAffectedCount - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 3794368418" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the report that matches the selected scan type.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType WrongVariantLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 3691229616" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select the original completed Data Health Score scan. Contact BCSentinel support if its history cannot be verified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType BaselineUnverifiedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 3976986932" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The company for this scan could not be verified. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType CompanyUnverifiedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 1034101324" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This scan has no verified EUR local currency. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType CurrencyUnverifiedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 3099731829" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Wait until the scan completes and synchronizes, then try again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType ScanIncompleteLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 614676612" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review and confirm the original scan scope in the scan monitor before opening Full Assessment.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType ScopeUnconfirmedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 96856906" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check that the required report access is active in BCSentinel Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType FullAccessInactiveLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 2742721934" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The report could not be built from verified scan evidence. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType ArchiveUnavailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 522925534" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The report viewer is not available. Contact BCSentinel support.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType ViewerUnavailableLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2427568102 - Method 744196235 - NamedType 4226021179" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The report service returned an unexpected response. Contact BCSentinel support if this continues.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit DH Report Link Mgt. - Method GetReportReasonText - NamedType TechnicalErrorLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 795881470 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the Monitoring Report for the selected completed scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitoringReportV2 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 795881470 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monitoring Report</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenMonitoringReportV2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 4071170383 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the Validation Report for the selected completed scan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenValidationReportV2 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2477485063 - Action 4071170383 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Validation Report</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page DH Deep Scan Runs - Action OpenValidationReportV2 - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

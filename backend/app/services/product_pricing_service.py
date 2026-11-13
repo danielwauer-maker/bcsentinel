@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.core.settings import settings
 from app.models import ProductPricingConfig, ProductPricingMatrixConfig
 from app.core.product_model import product_contract_for_storage_code
 from app.services.billing_service import utc_now
@@ -15,6 +16,10 @@ from app.services.product_license_service import (
     PRODUCT_MONITORING_ANNUAL,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
+    NEW_ACCESS_PRODUCTS,
     normalize_product_code,
     pricing_tier_for_record_count,
 )
@@ -27,12 +32,21 @@ PRICING_TIER_STARTER = "starter"
 PRICING_TIER_PROFESSIONAL = "professional"
 PRICING_TIER_BUSINESS = "business"
 PRICING_TIER_ENTERPRISE = "enterprise"
+PRICING_TIER_CUSTOM = "custom"
 PRICING_TIER_ORDER = [
     PRICING_TIER_STARTER,
     PRICING_TIER_PROFESSIONAL,
     PRICING_TIER_BUSINESS,
     PRICING_TIER_ENTERPRISE,
 ]
+V2_TIER_ORDER = [*PRICING_TIER_ORDER, PRICING_TIER_CUSTOM]
+V2_TIER_MAX_RECORDS = {
+    PRICING_TIER_STARTER: 250_000,
+    PRICING_TIER_PROFESSIONAL: 1_000_000,
+    PRICING_TIER_BUSINESS: 5_000_000,
+    PRICING_TIER_ENTERPRISE: 20_000_000,
+    PRICING_TIER_CUSTOM: None,
+}
 PRICING_TIER_MAX_RECORDS = {
     PRICING_TIER_STARTER: 100_000,
     PRICING_TIER_PROFESSIONAL: 250_000,
@@ -98,6 +112,18 @@ PRODUCT_PRICING_MATRIX_DEFAULTS: dict[str, dict[str, dict[str, Any]]] = {
         PRICING_TIER_BUSINESS: {"amount_cents": 9900, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME},
         PRICING_TIER_ENTERPRISE: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_CONTACT_SALES},
     },
+    PRODUCT_FULL_ASSESSMENT_V2: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in V2_TIER_ORDER
+    },
+    PRODUCT_ACCESS_RENEWAL: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in V2_TIER_ORDER
+    },
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: {
+        tier: {"amount_cents": None, "billing_interval": PRODUCT_BILLING_INTERVAL_ONE_TIME, "is_active": False}
+        for tier in V2_TIER_ORDER
+    },
     PRODUCT_MONITORING_MONTHLY: {
         PRICING_TIER_STARTER: {"amount_cents": 14900, "billing_interval": PRODUCT_BILLING_INTERVAL_MONTH},
         PRICING_TIER_PROFESSIONAL: {"amount_cents": 19900, "billing_interval": PRODUCT_BILLING_INTERVAL_MONTH},
@@ -116,6 +142,9 @@ PRODUCT_PRICING_MATRIX_PRODUCTS = list(PRODUCT_PRICING_MATRIX_DEFAULTS.keys())
 PRODUCT_MATRIX_DISPLAY_NAMES = {
     PRODUCT_FULL_ANALYSIS: {"de": "Full Analysis", "en": "Full Analysis"},
     PRODUCT_VALIDATION_CHECK: {"de": "Validation Check", "en": "Validation Check"},
+    PRODUCT_FULL_ASSESSMENT_V2: {"de": "Full Assessment – 14 Tage", "en": "Full Assessment – 14 days"},
+    PRODUCT_ACCESS_RENEWAL: {"de": "Full Access verlängern – 14 Tage", "en": "Access Renewal – 14 days"},
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: {"de": "Verlängerung + Validation", "en": "Renewal + Validation"},
     PRODUCT_MONITORING_MONTHLY: {"de": "Monitoring Monthly", "en": "Monitoring Monthly"},
     PRODUCT_MONITORING_ANNUAL: {"de": "Monitoring Annual", "en": "Monitoring Annual"},
 }
@@ -183,7 +212,7 @@ def ensure_default_product_pricing(db) -> None:
 def ensure_default_product_pricing_matrix(db) -> None:
     now = utc_now()
     for product_key in PRODUCT_PRICING_MATRIX_PRODUCTS:
-        for pricing_tier in PRICING_TIER_ORDER:
+        for pricing_tier in (V2_TIER_ORDER if product_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER):
             if db.scalar(
                 select(ProductPricingMatrixConfig).where(
                     ProductPricingMatrixConfig.product_key == product_key,
@@ -199,14 +228,14 @@ def ensure_default_product_pricing_matrix(db) -> None:
                         ProductPricingMatrixConfig(
                             product_key=product_key,
                             pricing_tier=pricing_tier,
-                            max_records=PRICING_TIER_MAX_RECORDS[pricing_tier],
+                            max_records=(V2_TIER_MAX_RECORDS if product_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[pricing_tier],
                             amount_cents=config["amount_cents"],
                             currency="EUR",
                             billing_interval=config["billing_interval"],
                             display_name_de=names["de"],
                             display_name_en=names["en"],
                             stripe_price_id=None,
-                            is_active=True,
+                            is_active=bool(config.get("is_active", True)),
                             updated_at_utc=now,
                         )
                     )
@@ -343,7 +372,8 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
     ensure_default_product_pricing_matrix(db)
     normalized_product = normalize_product_code(product_key)
     normalized_tier = (pricing_tier or PRICING_TIER_STARTER).strip().lower()
-    if normalized_tier not in PRICING_TIER_ORDER:
+    allowed_tiers = V2_TIER_ORDER if normalized_product in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER
+    if normalized_tier not in allowed_tiers:
         normalized_tier = PRICING_TIER_STARTER
     row = db.scalar(
         select(ProductPricingMatrixConfig).where(
@@ -357,14 +387,14 @@ def get_matrix_price(db, product_key: str, pricing_tier: str) -> MatrixPrice:
         return MatrixPrice(
             product_key=normalized_product,
             pricing_tier=normalized_tier,
-            max_records=PRICING_TIER_MAX_RECORDS[normalized_tier],
+            max_records=(V2_TIER_MAX_RECORDS if normalized_product in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[normalized_tier],
             amount_cents=defaults["amount_cents"],
             currency="EUR",
             billing_interval=defaults["billing_interval"],
             display_name_de=names["de"],
             display_name_en=names["en"],
             stripe_price_id=None,
-            is_active=True,
+            is_active=bool(defaults.get("is_active", True)),
         )
     return _matrix_row_to_price(row)
 
@@ -385,6 +415,8 @@ def price_to_dashboard_item(price: MatrixPrice) -> dict[str, Any]:
     }
     if price.product_key in {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK}:
         payload["access_days"] = 7
+    elif price.product_key in NEW_ACCESS_PRODUCTS:
+        payload["access_days"] = 14
     if price.product_key == PRODUCT_MONITORING_MONTHLY:
         payload["interval"] = "month"
     if price.product_key == PRODUCT_MONITORING_ANNUAL:
@@ -417,15 +449,27 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         candidates = [
             price
             for price in by_product.get(product_key, [])
-            if not price.contact_sales and price.amount_cents is not None
+            if (not price.contact_sales and price.amount_cents is not None
+                and (not settings.ACCESS_MODEL_V2_ENABLED
+                     or price.product_key not in NEW_ACCESS_PRODUCTS
+                     or bool(price.stripe_price_id)))
         ]
         if candidates:
             return sorted(candidates, key=lambda price: int(price.amount_cents or 0))[0]
         return None
 
-    full_analysis = starting_price(PRODUCT_FULL_ANALYSIS)
+    full_analysis = starting_price(
+        PRODUCT_FULL_ASSESSMENT_V2 if settings.ACCESS_MODEL_V2_ENABLED else PRODUCT_FULL_ANALYSIS
+    )
     validation = starting_price(PRODUCT_VALIDATION_CHECK)
-    monitoring = starting_price(PRODUCT_MONITORING_MONTHLY)
+    # Legacy Monitoring tiers and €149 Starter price MUST NOT be published
+    # as the new v2 Monitoring offer until a separate tariff migration exists.
+    monitoring = None if settings.ACCESS_MODEL_V2_ENABLED else starting_price(PRODUCT_MONITORING_MONTHLY)
+    renewal = starting_price(PRODUCT_ACCESS_RENEWAL) if settings.ACCESS_MODEL_V2_ENABLED else None
+    renewal_validation = (
+        starting_price(PRODUCT_ACCESS_RENEWAL_VALIDATION)
+        if settings.ACCESS_MODEL_V2_ENABLED else None
+    )
     products = [
         {
             "product_key": PRODUCT_DATA_HEALTH_SCORE,
@@ -441,10 +485,11 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
         },
     ]
     if full_analysis is not None:
+        selected_full_code = PRODUCT_FULL_ASSESSMENT_V2 if settings.ACCESS_MODEL_V2_ENABLED else PRODUCT_FULL_ANALYSIS
         products.append(
             {
-                "product_key": PRODUCT_FULL_ANALYSIS,
-                "product_contract": product_contract_for_storage_code(PRODUCT_FULL_ANALYSIS),
+                "product_key": selected_full_code,
+                "product_contract": product_contract_for_storage_code(selected_full_code),
                 "display_name": full_analysis.display_name_en,
                 "price_cents": int(full_analysis.amount_cents or 0),
                 "price_eur": full_analysis.amount_eur or 0.0,
@@ -455,7 +500,25 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
                 "contact_sales": False,
             }
         )
-    if validation is not None:
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Only explicitly activated and priced v2 products may be advertised.
+        # A historic validation_check price must not masquerade as Renewal.
+        for selected in (renewal, renewal_validation):
+            if selected is None:
+                continue
+            products.append({
+                "product_key": selected.product_key,
+                "product_contract": product_contract_for_storage_code(selected.product_key),
+                "display_name": selected.display_name_en,
+                "price_cents": int(selected.amount_cents or 0),
+                "price_eur": selected.amount_eur or 0.0,
+                "currency": selected.currency,
+                "billing_interval": selected.billing_interval,
+                "is_active": selected.is_active,
+                "starting_at": True,
+                "contact_sales": False,
+            })
+    if not settings.ACCESS_MODEL_V2_ENABLED and validation is not None:
         products.append(
             {
                 "product_key": PRODUCT_VALIDATION_CHECK,
@@ -497,6 +560,10 @@ def build_public_pricing_summary(db) -> list[dict[str, Any]]:
 
 
 def build_public_pricing_matrix(db) -> list[dict[str, Any]]:
+    visible_codes = (
+        NEW_ACCESS_PRODUCTS
+        if settings.ACCESS_MODEL_V2_ENABLED else None
+    )
     return [
         price_to_dashboard_item(_matrix_row_to_price(row))
         | {
@@ -505,6 +572,7 @@ def build_public_pricing_matrix(db) -> list[dict[str, Any]]:
             "stripe_price_configured": bool((row.stripe_price_id or "").strip()),
         }
         for row in list_product_pricing_matrix(db, active_only=True)
+        if visible_codes is None or row.product_key in visible_codes
     ]
 
 
@@ -515,8 +583,28 @@ def resolve_checkout_matrix_price(
     record_count: int | None,
     env_price_id: str | None = None,
 ) -> MatrixPrice:
+    if settings.ACCESS_MODEL_V2_ENABLED and normalize_product_code(product_key) in NEW_ACCESS_PRODUCTS and record_count is None:
+        raise ProductPricingValidationError(
+            "A verified scan record count is required before paid v2 checkout."
+        )
     pricing_tier = pricing_tier_for_record_count(record_count) or PRICING_TIER_STARTER
+    if settings.ACCESS_MODEL_V2_ENABLED and pricing_tier == PRICING_TIER_CUSTOM and normalize_product_code(product_key) not in NEW_ACCESS_PRODUCTS:
+        # Old Monitoring catalogue has no Custom row. Never default large
+        # tenants to the cheapest legacy price. Require a negotiated quote.
+        return MatrixPrice(
+            product_key=normalize_product_code(product_key),
+            pricing_tier=PRICING_TIER_CUSTOM,
+            max_records=None, amount_cents=None, currency="EUR",
+            billing_interval=PRODUCT_BILLING_INTERVAL_CONTACT_SALES,
+            display_name_de="Individuelles Angebot",
+            display_name_en="Custom quote required",
+            stripe_price_id=None, is_active=False,
+        )
     price = get_matrix_price(db, product_key, pricing_tier)
+    # Explicit tier-specific Stripe Prices only for new products. Do not
+    # reuse a default/old product Price ID for a different v2 tier.
+    if normalize_product_code(product_key) in NEW_ACCESS_PRODUCTS:
+        return price
     if not price.stripe_price_id and env_price_id and not price.contact_sales:
         return MatrixPrice(
             product_key=price.product_key,

@@ -46,7 +46,7 @@ def catalog(source):
                              line=start + block.count('\n', 0, m.start()),
                              condition=conditions or assignments, aggregation='count'))
         if name.startswith('Run') and 'Duplicate' in name:
-            m = re.search(r"IsCheckEnabled\('([^']+)'\)", block)
+            m = re.search(r"IsCheckEnabled(?:ForRun\(DeepScanRun,\s*|\()'([^']+)'\)", block)
             if m:
                 rows.append(dict(code=m[1], category='CUSTOMER' if 'Customer' in name else 'VENDOR',
                                  severity='high', counter='DuplicateCount', initial_penalty=8,

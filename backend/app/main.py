@@ -27,16 +27,29 @@ from app.core.observability import (
 from app.core.settings import settings, validate_settings
 from app.db import SessionLocal, engine, ensure_schema_is_migrated, wait_for_database
 from app.models import DashboardUser, DashboardUserTenantMembership, Scan, ScanIssueRecord, ScanRunStatus, Tenant
+from app import report_archive_models  # noqa: F401
 from app.routers.admin import router as admin_router
 from app.routers.analytics import router as analytics_router
 from app.routers.billing import router as billing_router
+from app.routers.commercial_billing import router as commercial_billing_router
 from app.routers.check_catalog import router as check_catalog_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.license import router as license_router
 from app.routers.partners import router as partners_router
 from app.routers.public import router as public_router
 from app.routers.reports import router as reports_router
+from app.routers.report_render_data import router as report_render_data_router
+from app.routers.report_native_access import router as report_native_access_router
+from app.routers.report_legacy_family import router as report_legacy_family_router
 from app.routers.scans import router as scans_router
+from app.routers.auth import router as auth_router
+from app.routers.operator_admin import router as operator_admin_router
+from app.routers.quick_assessment_reports import router as quick_assessment_reports_router
+from app.routers.monitoring_reports import router as monitoring_reports_router
+from app.routers.remediation import router as remediation_router
+from app.routers.account_auth import router as account_auth_router
+from app.routers.membership_admin import router as membership_admin_router
+from app.routers.report_access import router as report_access_router
 from app.schemas.scan import (
     QuickScanRequest,
     QuickScanResponse,
@@ -86,6 +99,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PUBLIC_FRONTEND_ORIGINS = [
     "https://dev.bcsentinel.com",
+    # Pinned report renderer origin, DEV only (not PROD).
+    "https://sentinel-assessment-atlas.lovable.app",
     "https://www.bcsentinel.com",
     "https://bcsentinel.com",
 ]
@@ -181,11 +196,28 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(admin_router)
 app.include_router(analytics_router)
 app.include_router(billing_router)
+# The reserved commercial endpoint is deliberately mounted so that every
+# request reaches its explicit fail-closed 503 handler.  Do not mount the
+# broader prepilot aggregate here: those surfaces require separate review.
+app.include_router(commercial_billing_router)
 app.include_router(check_catalog_router)
-app.include_router(dashboard_router)
+# Keep customer-dashboard routes unavailable in the report-only launch.
+if settings.CUSTOMER_DASHBOARD_ENABLED or not settings.ACCESS_MODEL_V2_ENABLED:
+    app.include_router(dashboard_router)
 app.include_router(partners_router)
 app.include_router(public_router)
 app.include_router(reports_router)
+app.include_router(report_render_data_router)
+app.include_router(report_native_access_router)
+app.include_router(report_legacy_family_router)
+app.include_router(auth_router)
+app.include_router(operator_admin_router)
+app.include_router(quick_assessment_reports_router)
+app.include_router(monitoring_reports_router)
+app.include_router(remediation_router)
+app.include_router(account_auth_router)
+app.include_router(membership_admin_router)
+app.include_router(report_access_router)
 app.include_router(scans_router)
 app.include_router(license_router)
 
@@ -591,7 +623,8 @@ def register_tenant(
                 message_de="Die Registrierung konnte aufgrund eines internen Fehlers nicht abgeschlossen werden.",
             ) from exc
 
-    if registration.dashboard_user_created:
+    # Report-only launch: registration must not send dashboard invitations.
+    if (settings.CUSTOMER_DASHBOARD_ENABLED or not settings.ACCESS_MODEL_V2_ENABLED) and registration.dashboard_user_created:
         with SessionLocal() as db:
             tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == registration.tenant_id))
             user = db.scalar(select(DashboardUser).where(DashboardUser.id == registration.dashboard_user_id))

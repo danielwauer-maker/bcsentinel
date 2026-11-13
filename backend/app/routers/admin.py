@@ -55,6 +55,8 @@ from app.services.product_pricing_service import (
     PRODUCT_PRICING_MATRIX_DEFAULTS,
     PRICING_TIER_MAX_RECORDS,
     PRICING_TIER_ORDER,
+    V2_TIER_ORDER,
+    V2_TIER_MAX_RECORDS,
     ProductPricingValidationError,
     ensure_default_product_pricing,
     ensure_default_product_pricing_matrix,
@@ -95,6 +97,7 @@ from app.services.product_license_service import (
     PRODUCT_VALIDATION_CHECK,
     MONITORING_PRODUCTS,
     ONE_TIME_PRODUCTS,
+    NEW_ACCESS_PRODUCTS,
     active_entitlement_product_codes,
     calculate_access_window_until,
     calculate_product_access_until,
@@ -196,6 +199,11 @@ ADMIN_SECTION_META = {
         "href": "/admin/config/landingpage-pages",
         "subtitle": "Phase-1-Seiten der neuen Landingpage ein- und ausblenden",
     },
+    "ai_control_center": {
+        "label": "AI Control Center",
+        "href": "/admin/ai-control-center",
+        "subtitle": "geschuetzte, schreibgeschuetzte Projekt- und Evidence-Ansicht",
+    },
 }
 ADMIN_NAV_ORDER = [
     "tenants",
@@ -212,6 +220,7 @@ ADMIN_NAV_ORDER = [
     "site_translations",
     "dashboard_translations",
     "landingpage_visibility",
+    "ai_control_center",
 ]
 
 
@@ -230,6 +239,12 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)) -> str:
         )
 
     return credentials.username
+
+
+@router.get("/_internal/admin-auth", include_in_schema=False, status_code=status.HTTP_204_NO_CONTENT)
+def verify_reverse_proxy_admin_auth(_: str = Depends(require_admin)) -> Response:
+    """Authenticate an nginx ``auth_request`` subrequest without exposing data."""
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def _fmt_dt(value) -> str:
@@ -1831,7 +1846,8 @@ def update_product_pricing_matrix(
     normalized_tier = (pricing_tier or "").strip().lower()
     if normalized_key not in PRODUCT_PRICING_MATRIX_DEFAULTS:
         raise HTTPException(status_code=400, detail="Unknown product key.")
-    if normalized_tier not in PRICING_TIER_ORDER:
+    allowed_tiers = V2_TIER_ORDER if normalized_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_ORDER
+    if normalized_tier not in allowed_tiers:
         raise HTTPException(status_code=400, detail="Unknown pricing tier.")
 
     normalized_currency = (currency or "").strip().upper()
@@ -1848,8 +1864,15 @@ def update_product_pricing_matrix(
             raise HTTPException(status_code=400, detail="Price must not be negative.")
     if normalized_interval != "contact_sales" and parsed_amount_cents is None:
         raise HTTPException(status_code=400, detail="Price is required unless interval is contact_sales.")
+    # New paid one-time passes must never be activated at zero price, nor
+    # without a separately configured Stripe price for this exact tier.
+    if normalized_key in NEW_ACCESS_PRODUCTS and is_active == "on":
+        if normalized_interval != "one_time" or parsed_amount_cents is None or parsed_amount_cents <= 0:
+            raise HTTPException(status_code=400, detail="Active v2 access products require a positive one-time price.")
+        if not (stripe_price_id or "").strip():
+            raise HTTPException(status_code=400, detail="Active v2 access products require a tier-specific Stripe Price ID.")
 
-    parsed_max_records: int | None = PRICING_TIER_MAX_RECORDS[normalized_tier]
+    parsed_max_records: int | None = (V2_TIER_MAX_RECORDS if normalized_key in NEW_ACCESS_PRODUCTS else PRICING_TIER_MAX_RECORDS)[normalized_tier]
     if str(max_records or "").strip():
         parsed_max_records = int(str(max_records).strip())
         if parsed_max_records < 0:

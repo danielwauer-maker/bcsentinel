@@ -40,7 +40,8 @@ permissionset 53190 "BCSENTINEL VIEWER"
         codeunit "DH Generic Remediation" = X,
         codeunit "DH API URL Policy" = X,
         codeunit "DH Tenant Identity Mgt." = X,
-        codeunit "DH Exception Mgt." = X;
+        codeunit "DH Exception Mgt." = X,
+        codeunit "DH Report Link Mgt." = X;
 }
 
 permissionset 53191 "BCSENTINEL SCAN"
@@ -49,12 +50,25 @@ permissionset 53191 "BCSENTINEL SCAN"
     Caption = 'BCSentinel Scan';
 
     Permissions =
+        tabledata "DH Remediation Action" = R,
+        tabledata "DH Remediation Audit" = R,
+        tabledata "DH Notification Setup" = R,
+        tabledata "DH Notification Event" = R,
+        tabledata "DH Notification Rule" = R,
+        tabledata "DH Notification Recipient" = R,
+        tabledata "DH Notification Template" = R,
+        tabledata "DH Notification Delivery" = R,
+        tabledata "DH Notification Config Audit" = R,
+
+        codeunit "DH Notification Mgt." = X,
         tabledata "DH Setup" = Rm,
         tabledata "DH Scan Header" = RIMD,
         tabledata "DH Scan Issue" = RIMD,
         tabledata "DH Scan Trend" = RIMD,
         tabledata "DH Deep Scan Run" = RIMD,
         tabledata "DH Deep Scan Finding" = RIMD,
+        tabledata "DH Check Execution" = RIMD,
+        tabledata "DH Scan Record Evidence" = RIMD,
         tabledata "DH Dashboard Issue" = RIMD,
         tabledata "DH Issue Exception" = RIM,
         tabledata "DH Issue Action Log" = RI,
@@ -103,6 +117,7 @@ permissionset 53191 "BCSENTINEL SCAN"
         codeunit "DH Secret Mgt." = X,
         codeunit "DH API URL Policy" = X,
         codeunit "DH Tenant Identity Mgt." = X,
+        codeunit "DH Report Link Mgt." = X,
         query "DH Customer Duplicate Email" = X,
         query "DH Vendor Duplicate Email" = X;
 }
@@ -113,6 +128,18 @@ permissionset 53192 "BCSENTINEL SETUP"
     Caption = 'BCSentinel Setup';
 
     Permissions =
+        tabledata "DH Remediation Action" = R,
+        tabledata "DH Remediation Audit" = R,
+        tabledata "DH Notification Setup" = RIM,
+        tabledata "DH Notification Event" = R,
+        tabledata "DH Notification Rule" = RIMD,
+        tabledata "DH Notification Recipient" = RIMD,
+        tabledata "DH Notification Template" = RIMD,
+        tabledata "DH Notification Delivery" = R,
+        tabledata "DH Notification Config Audit" = R,
+
+        codeunit "DH Notification Mgt." = X,
+        codeunit "DH Notification I18n Mgt." = X,
         tabledata "DH Setup" = RIMD,
         tabledata "DH Scan Check Selection" = RIMD,
         page "DH Setup" = X,
@@ -136,12 +163,27 @@ permissionset 53193 "BCSENTINEL ADMIN"
     Caption = 'BCSentinel Admin';
 
     Permissions =
+        tabledata "DH Remediation Action" = RIM,
+        tabledata "DH Remediation Audit" = R,
+        tabledata "DH Notification Setup" = RIM,
+        tabledata "DH Notification Event" = R,
+        tabledata "DH Notification Rule" = RIMD,
+        tabledata "DH Notification Recipient" = RIMD,
+        tabledata "DH Notification Template" = RIMD,
+        tabledata "DH Notification Delivery" = R,
+        tabledata "DH Notification Config Audit" = R,
+
+        codeunit "DH Notification Mgt." = X,
+        codeunit "DH Notification I18n Mgt." = X,
+        codeunit "DH Remediation Mgt." = X,
         tabledata "DH Setup" = RIMD,
         tabledata "DH Scan Header" = RIMD,
         tabledata "DH Scan Issue" = RIMD,
         tabledata "DH Scan Trend" = RIMD,
         tabledata "DH Deep Scan Run" = RIMD,
         tabledata "DH Deep Scan Finding" = RIMD,
+        tabledata "DH Check Execution" = RIMD,
+        tabledata "DH Scan Record Evidence" = RIMD,
         tabledata "DH Dashboard Issue" = RIMD,
         tabledata "DH Issue Exception" = RIMD,
         tabledata "DH Issue Action Log" = RIMD,
@@ -208,7 +250,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         query "DH Vendor Duplicate Email" = X;
 }
 
-permissionset 53194 "BCSENTINEL SCHEDULER"
+permissionset 53345 "BCSENTINEL SCHEDULER"
 {
     Assignable = true;
     Caption = 'BCSentinel Scheduler';
@@ -220,6 +262,8 @@ permissionset 53194 "BCSENTINEL SCHEDULER"
         tabledata "DH Scan Trend" = RIMD,
         tabledata "DH Deep Scan Run" = RIMD,
         tabledata "DH Deep Scan Finding" = RIMD,
+        tabledata "DH Check Execution" = RIMD,
+        tabledata "DH Scan Record Evidence" = RIMD,
         tabledata "DH Dashboard Issue" = RIMD,
         tabledata "DH Issue Exception" = R,
         tabledata "DH Issue Action Log" = RIMD,

@@ -1,0 +1,77 @@
+name: BC Native Report Access Integration Tests
+
+on:
+  push:
+    branches:
+      - feature/report-renderer-backend-bridge-20261106
+    paths:
+      - 'backend/**'
+      - '.github/workflows/report-native-access-qa.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/report-native-access-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: bcsentinel_report_test
+          POSTGRES_USER: bcsentinel_test
+          POSTGRES_PASSWORD: disposable_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bcsentinel_test -d bcsentinel_report_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      ENV: test
+      SECRET_KEY: test-secret-key-with-sufficient-length-123
+      ADMIN_USERNAME: admin-test
+      ADMIN_PASSWORD: admin-password-for-tests-123
+      DATABASE_URL: sqlite:////tmp/bcs-report-native-migration.sqlite3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check Python syntax before installing dependencies
+        run: python -m compileall -q app tests
+      - name: Install pinned backend dependencies
+        run: |
+          python -m pip install -r requirements.txt pytest
+      - name: Verify Alembic migration 0036 on empty SQLite DB
+        run: |
+          alembic upgrade head
+          python - <<'PY'
+          from sqlalchemy import inspect, create_engine
+          import os
+          tables = inspect(create_engine(os.environ["DATABASE_URL"])).get_table_names()
+          assert "report_access_grants" in tables and "report_archives" in tables
+          print("Archive and grant tables created")
+          PY
+      - name: Fast Sprint 3A.2 evidence and acceptance contract tests
+        run: python -m pytest -q -p no:warnings tests/test_source_record_evidence_contract.py tests/test_source_record_sync_integration.py tests/test_record_evidence_storage_migration.py tests/test_sprint3a2_bc27_acceptance_gate.py
+      - name: Run one-use and archived report API tests
+        run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_validation_comparison_v2.py tests/test_staging_full_v6_projection.py tests/test_full_report_render_service.py tests/test_scan_company_identity.py tests/test_scan_company_sync_binding.py tests/test_bc_pte0004_permissions_contract.py
+      - name: Run report API and concurrency tests on PostgreSQL
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/bcsentinel_report_test
+        run: python -m pytest -q -p no:warnings tests/test_native_full_access.py tests/test_validation_comparison_v2.py tests/test_p0e_postgres_concurrency.py tests/test_operator_v2.py tests/test_registration_identity_auth.py
+      - name: Verify PostgreSQL 0040 binding, CHECK and immutable evidence triggers
+        env:
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/bcsentinel_report_test
+        run: python -m pytest -q -p no:warnings tests/test_record_evidence_postgresql_migration.py
+      - name: Full backend regression suite
+        run: python -m pytest -q -p no:warnings

@@ -1,0 +1,56 @@
+name: DEV-first read-only host inventory
+
+on:
+  push:
+    branches:
+      - 'integration/dev-first-fiverr-core-20261112'
+    paths:
+      - 'scripts/dev_readonly_inventory.sh'
+      - '.github/workflows/dev-first-readonly-inventory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-first-inventory
+  cancel-in-progress: false
+
+jobs:
+  inventory:
+    name: Inspect existing DEV host without mutations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH without modifying DEV
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          set -euo pipefail
+          install -d -m 0700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 0600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+      - name: Run safe read-only host diagnostics
+        shell: bash
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          set -euo pipefail
+          test -s scripts/dev_readonly_inventory.sh
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$SERVER_USER@$SERVER_HOST" \
+            'bash -s -- /home/daniel/data-health-management-dev' \
+            < scripts/dev_readonly_inventory.sh | tee dev-readonly-inventory.txt
+          grep -q 'inventory_mode=READ_ONLY' dev-readonly-inventory.txt
+      - name: Upload inventory as review-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-first-readonly-host-inventory
+          path: dev-readonly-inventory.txt
+          if-no-files-found: warn
+          retention-days: 7

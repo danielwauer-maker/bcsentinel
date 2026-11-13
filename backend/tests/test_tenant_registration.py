@@ -23,6 +23,35 @@ def _registration_payload(**overrides):
     return payload
 
 
+def test_existing_registration_requires_tenant_credentials(client, settings_state, monkeypatch, caplog):
+    from app.core.settings import settings
+
+    settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret", TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS=20)
+    monkeypatch.setattr(settings, "ACCESS_MODEL_V2_ENABLED", True)
+    monkeypatch.setattr(settings, "CUSTOMER_DASHBOARD_ENABLED", False)
+    invite = {"X-Registration-Invite": "pilot-secret"}
+    first = client.post("/tenant/register", headers=invite, json=_registration_payload())
+    assert first.status_code == 200
+    credentials = first.json()
+    payload = _registration_payload(existing_tenant_id=credentials["tenant_id"])
+    denied = client.post("/tenant/register", headers=invite, json=payload)
+    assert denied.status_code == 409
+    assert "api_token" not in denied.json()
+    invalid = client.post("/tenant/register", headers={**invite, "X-Tenant-Id": credentials["tenant_id"], "X-Api-Token": "invalid"}, json=payload)
+    assert invalid.status_code == 409
+    changed_email = client.post("/tenant/register", headers=invite, json={**payload, "contact_email": "other@example.com"})
+    assert changed_email.status_code == 409
+    other = client.post("/tenant/register", headers=invite, json=_registration_payload(company_id="33333333-3333-3333-3333-333333333333"))
+    assert other.status_code == 200
+    other_credentials = other.json()
+    foreign = client.post("/tenant/register", headers={**invite, "X-Tenant-Id": other_credentials["tenant_id"], "X-Api-Token": other_credentials["api_token"]}, json=payload)
+    assert foreign.status_code == 409
+    authorized = client.post("/tenant/register", headers={**invite, "X-Tenant-Id": credentials["tenant_id"], "X-Api-Token": credentials["api_token"]}, json=payload)
+    assert authorized.status_code == 200
+    assert authorized.json()["api_token"] == credentials["api_token"]
+    assert credentials["api_token"] not in caplog.text
+
+
 def test_tenant_registration_requires_invite_when_configured(client, settings_state):
     settings_state(TENANT_REGISTRATION_INVITE_CODE="pilot-secret")
 

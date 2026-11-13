@@ -6,6 +6,8 @@ from typing import Any
 
 from sqlalchemy import select
 
+from app.core.settings import settings
+
 from app.models import (
     CreditLedgerEntry,
     Scan,
@@ -23,6 +25,11 @@ PRODUCT_FULL_ANALYSIS = "full_analysis"
 PRODUCT_ASSESSMENT = PRODUCT_FULL_ANALYSIS
 PRODUCT_ASSESSMENT_LEGACY = "assessment"
 PRODUCT_VALIDATION_CHECK = "validation_check"
+# v2 products are distinct from historical 7-day purchases.
+PRODUCT_FULL_ASSESSMENT_V2 = "full_assessment_v2"
+PRODUCT_ACCESS_RENEWAL = "access_renewal"
+PRODUCT_ACCESS_RENEWAL_VALIDATION = "access_renewal_validation"
+NEW_ACCESS_PRODUCTS = {PRODUCT_FULL_ASSESSMENT_V2, PRODUCT_ACCESS_RENEWAL, PRODUCT_ACCESS_RENEWAL_VALIDATION}
 PRODUCT_MONITORING_MONTHLY = "monitoring_monthly"
 PRODUCT_MONITORING_ANNUAL = "monitoring_annual"
 
@@ -33,16 +40,22 @@ PRODUCT_ALIASES = {
     "data_health_score": PRODUCT_DATA_HEALTH_SCORE,
     "validation": PRODUCT_VALIDATION_CHECK,
     "validation_check": PRODUCT_VALIDATION_CHECK,
+    "full_assessment_v2": PRODUCT_FULL_ASSESSMENT_V2,
+    "access_renewal": PRODUCT_ACCESS_RENEWAL,
+    "access_renewal_validation": PRODUCT_ACCESS_RENEWAL_VALIDATION,
     "monitoring_monthly": PRODUCT_MONITORING_MONTHLY,
     "monitoring_annual": PRODUCT_MONITORING_ANNUAL,
 }
 
-ONE_TIME_PRODUCTS = {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK}
+ONE_TIME_PRODUCTS = {PRODUCT_FULL_ANALYSIS, PRODUCT_VALIDATION_CHECK} | NEW_ACCESS_PRODUCTS
 MONITORING_PRODUCTS = {PRODUCT_MONITORING_MONTHLY, PRODUCT_MONITORING_ANNUAL}
 PRODUCT_CODES = {
     PRODUCT_DATA_HEALTH_SCORE,
     PRODUCT_FULL_ANALYSIS,
     PRODUCT_VALIDATION_CHECK,
+    PRODUCT_FULL_ASSESSMENT_V2,
+    PRODUCT_ACCESS_RENEWAL,
+    PRODUCT_ACCESS_RENEWAL_VALIDATION,
     PRODUCT_MONITORING_MONTHLY,
     PRODUCT_MONITORING_ANNUAL,
 }
@@ -52,6 +65,9 @@ PRODUCT_DISPLAY_NAMES = {
     PRODUCT_DATA_HEALTH_SCORE: "BCSentinel Data Health Score",
     PRODUCT_FULL_ANALYSIS: "BCSentinel Full Analysis",
     PRODUCT_VALIDATION_CHECK: "BCSentinel Validation Check",
+    PRODUCT_FULL_ASSESSMENT_V2: "BCSentinel Full Assessment (14 days)",
+    PRODUCT_ACCESS_RENEWAL: "BCSentinel Access Renewal (14 days)",
+    PRODUCT_ACCESS_RENEWAL_VALIDATION: "BCSentinel Renewal + Validation (14 days)",
     PRODUCT_MONITORING_MONTHLY: "BCSentinel Monitoring Monthly",
     PRODUCT_MONITORING_ANNUAL: "BCSentinel Monitoring Annual",
 }
@@ -84,7 +100,8 @@ MONITORING_FEATURES = PAID_SCAN_FEATURES | {
     "billing_portal",
 }
 
-ONE_TIME_ACCESS_DAYS = 7
+ONE_TIME_ACCESS_DAYS = 7  # Legacy grants retain their original contractual duration.
+NEW_ACCESS_DAYS = 14
 
 
 def utc_now() -> datetime:
@@ -118,6 +135,8 @@ def _add_months(value: datetime, months: int) -> datetime:
 def calculate_product_access_until(product_code: str, anchor: datetime | None = None) -> datetime | None:
     normalized_product = normalize_product_code(product_code)
     start = _as_utc(anchor) or utc_now()
+    if normalized_product in NEW_ACCESS_PRODUCTS:
+        return calculate_access_window_until(days=NEW_ACCESS_DAYS, anchor=start)
     if normalized_product in ONE_TIME_PRODUCTS:
         return calculate_access_window_until(days=ONE_TIME_ACCESS_DAYS, anchor=start)
     if normalized_product == PRODUCT_MONITORING_MONTHLY:
@@ -187,10 +206,45 @@ def product_code_storage_aliases(product_code: str) -> set[str]:
     return aliases
 
 
+def verified_pricing_record_count(db, tenant_id: str) -> int | None:
+    """Use persisted completed deep scans; never trust a newer unpersisted row.
+
+    The maximum verified historical size prevents a customer from downgrading
+    to Starter by triggering a smaller, partial or unverified scan just before
+    buying access. Legitimate tier decreases require manual reconciliation.
+    """
+    rows = db.scalars(select(Scan).join(
+        ScanRunStatus,
+        (ScanRunStatus.run_id == Scan.scan_id) &
+        (ScanRunStatus.tenant_id == Scan.tenant_id),
+    ).where(
+        Scan.tenant_id == tenant_id,
+        Scan.scan_type != "quick",
+        Scan.bc_company_id.is_not(None),
+        ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+        ScanRunStatus.result_persisted_at_utc.is_not(None),
+    )).all()
+    if not rows:
+        return None
+    values = [max(int(scan.total_records or 0), 0) for scan in rows]
+    return max(values) if values else None
+
+
 def pricing_tier_for_record_count(record_count: int | None) -> str | None:
     if record_count is None:
         return None
     normalized_count = max(int(record_count or 0), 0)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Go-live data classes: <=250k / <=1m / <=5m / <=20m / Custom.
+        if normalized_count <= 250_000:
+            return "starter"
+        if normalized_count <= 1_000_000:
+            return "professional"
+        if normalized_count <= 5_000_000:
+            return "business"
+        if normalized_count <= 20_000_000:
+            return "enterprise"
+        return "custom"
     if normalized_count <= 100_000:
         return "starter"
     if normalized_count <= 250_000:
@@ -242,7 +296,11 @@ def active_entitlement_product_codes(db, tenant_id: str) -> list[str]:
     ).all()
     product_codes = []
     for row in rows:
-        valid_until = _end_of_day_utc(row.valid_until_utc)
+        # New 14-day access passes expire at the exact UTC instant; the legacy
+        # product model historically used end-of-day semantics.
+        valid_until = (_as_utc(row.valid_until_utc)
+                       if row.product_code in NEW_ACCESS_PRODUCTS
+                       else _end_of_day_utc(row.valid_until_utc))
         if valid_until is not None and valid_until < now:
             continue
         product_codes.append(normalize_product_code(row.product_code))
@@ -291,8 +349,66 @@ def _completed_data_health_score_at(db, tenant_id: str) -> datetime | None:
     )
 
 
+def is_original_free_scan(db, tenant_id: str, scan_id: str) -> bool:
+    """Only the FIRST authenticated Free scan remains permanently visible.
+
+    Canonical one-shot scan starts take precedence over pre-migration
+    free_entry credits, which may have multiple historical rows.
+    """
+    owned_completed = db.scalar(
+        select(Scan.id)
+        .join(ScanRunStatus, ScanRunStatus.run_id == Scan.scan_id)
+        .where(
+            Scan.tenant_id == tenant_id,
+            Scan.scan_id == scan_id,
+            ScanRunStatus.tenant_id == tenant_id,
+            ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+            ScanRunStatus.result_persisted_at_utc.is_not(None),
+        ).limit(1)
+    )
+    if owned_completed is None:
+        return False
+
+    canonical = db.scalar(select(ScanStartRequest.scan_id).where(
+        ScanStartRequest.tenant_id == tenant_id,
+        ScanStartRequest.resolved_product_code == PRODUCT_DATA_HEALTH_SCORE,
+        ScanStartRequest.free_scan_slot == PRODUCT_DATA_HEALTH_SCORE,
+    ).order_by(ScanStartRequest.created_at_utc.asc(), ScanStartRequest.id.asc()).limit(1))
+    if canonical is not None:
+        return scan_id == canonical
+
+    historical_first = db.scalar(select(TenantScanCredit.consumed_scan_id).where(
+        TenantScanCredit.tenant_id == tenant_id,
+        TenantScanCredit.consumed_scan_id.is_not(None),
+        TenantScanCredit.product_code.in_(["free_entry", PRODUCT_DATA_HEALTH_SCORE]),
+        TenantScanCredit.status == "consumed",
+    ).order_by(TenantScanCredit.created_at_utc.asc(), TenantScanCredit.id.asc()).limit(1))
+    return scan_id == historical_first
+
+
+
 def _has_permanent_free_result_access(db, tenant_id: str) -> bool:
-    return _completed_data_health_score_at(db, tenant_id) is not None
+    if _completed_data_health_score_at(db, tenant_id) is not None:
+        return True
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        return False
+    # Legacy installations stored the one-shot free scan as a consumed
+    # free_entry credit. Recognize it only when a completed owned scan exists.
+    legacy = db.scalar(
+        select(Scan.id)
+        .join(TenantScanCredit, TenantScanCredit.consumed_scan_id == Scan.scan_id)
+        .join(ScanRunStatus, ScanRunStatus.run_id == Scan.scan_id)
+        .where(
+            Scan.tenant_id == tenant_id,
+            TenantScanCredit.tenant_id == tenant_id,
+            TenantScanCredit.product_code.in_(["free_entry", PRODUCT_DATA_HEALTH_SCORE]),
+            TenantScanCredit.status == "consumed",
+            ScanRunStatus.tenant_id == tenant_id,
+            ScanRunStatus.status.in_(["completed", "completed_with_warnings"]),
+            ScanRunStatus.result_persisted_at_utc.is_not(None),
+        ).limit(1)
+    )
+    return legacy is not None
 
 
 def _has_legacy_premium_access(tenant: Tenant) -> bool:
@@ -332,6 +448,12 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
         )
     ).all()
     for credit in credits:
+        # V2 Validation credits grant exactly one scan, NEVER another 7-day
+        # legacy access window when consumed later.
+        if (settings.ACCESS_MODEL_V2_ENABLED
+                and normalized_product == PRODUCT_VALIDATION_CHECK
+                and credit.source == "renewal_validation_purchase"):
+            continue
         anchor = credit.consumed_at_utc if credit.consumed_at_utc is not None else credit.created_at_utc
         anchor = _as_utc(anchor)
         if anchor is not None:
@@ -365,6 +487,196 @@ def _one_time_access_until_for_product(db, tenant_id: str, product_code: str) ->
     return _max_datetime(access_until_values)
 
 
+def _v2_access_until(db, tenant_id: str) -> datetime | None:
+    """New 14-day grants use persisted expiry only, never purchase/credit age."""
+    rows = db.scalars(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == tenant_id,
+        TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+        TenantProductEntitlement.status == "active",
+        TenantProductEntitlement.valid_until_utc.is_not(None),
+    )).all()
+    valid_until = []
+    for row in rows:
+        if (row.source or "").startswith("purchase:"):
+            try:
+                purchase_id = int(row.source.removeprefix("purchase:"))
+            except ValueError:
+                continue
+            purchase = db.scalar(select(TenantProductPurchase).where(
+                TenantProductPurchase.id == purchase_id,
+                TenantProductPurchase.tenant_id == tenant_id,
+                TenantProductPurchase.product_code == row.product_code,
+                TenantProductPurchase.status.in_(["paid", "complete", "completed"]),
+            ))
+            if purchase is None:
+                continue
+        valid_until.append(row.valid_until_utc)
+    return _max_datetime(valid_until)
+
+
+def grant_v2_access_purchase(db, *, tenant_id: str, product_code: str, purchase_id: int):
+    """Atomic idempotent new-purchase grant, called ONLY after verified payment.
+
+    Caller must own a transaction, authenticate payment/webhook, and commit it.
+    Existing legacy purchase grants are deliberately not rewritten.
+    """
+    normalized = normalize_product_code(product_code)
+    if normalized not in NEW_ACCESS_PRODUCTS:
+        raise ValueError("Not a v2 access product.")
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        raise ValueError("V2 access grants are disabled.")
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
+    if tenant is None:
+        raise ValueError("Tenant not found.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.id == purchase_id,
+        TenantProductPurchase.tenant_id == tenant_id,
+        TenantProductPurchase.product_code == normalized,
+    ))
+    if purchase is None or purchase.status not in {"paid", "complete", "completed"}:
+        raise ValueError("Verified paid purchase required.")
+    if str(purchase.currency or "").upper() != "EUR" or float(purchase.amount_total or 0) <= 0:
+        raise ValueError("V2 purchases require a positive verified EUR payment.")
+    return _grant_v2_verified_purchase(db, tenant=tenant, purchase=purchase, product_code=normalized)
+
+
+def _grant_v2_verified_purchase(db, *, tenant: Tenant, purchase: TenantProductPurchase, product_code: str):
+    """Apply a verified purchase while the caller holds the tenant row lock."""
+    tenant_id = tenant.tenant_id
+    source_marker = f"purchase:{purchase.id}"
+    prior = db.scalar(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == tenant_id,
+        TenantProductEntitlement.product_code == product_code,
+        TenantProductEntitlement.source == source_marker,
+    ))
+    if prior is not None:
+        return prior
+    from app.services.access_renewal_policy import extend_access
+    now = utc_now()
+    effective = build_product_access_snapshot(db, tenant)
+    # Monitoring is a separate subscription and does not extend a one-time pass.
+    existing_until = _parse_iso_utc(effective.get("premium_until"))
+    expiry = extend_access(existing_until, now, duration_days=NEW_ACCESS_DAYS)
+    entitlement = TenantProductEntitlement(
+        tenant_id=tenant_id, product_code=product_code,
+        status="active", source=source_marker, valid_until_utc=expiry,
+        created_at_utc=now, updated_at_utc=now,
+    )
+    db.add(entitlement)
+    # The persisted premium expiry is the single stacking anchor.
+    tenant.premium_until_utc = expiry
+    if product_code == PRODUCT_ACCESS_RENEWAL_VALIDATION:
+        grant_scan_credit(
+            db, tenant_id=tenant_id, product_code=PRODUCT_VALIDATION_CHECK,
+            source="renewal_validation_purchase", source_purchase_id=purchase.id,
+            extend_access=False,
+        )
+    db.flush()
+    return entitlement
+
+
+def hold_reversed_v2_purchase(db, *, payment_intent_id: str, event_type: str) -> TenantProductPurchase | None:
+    """Revoke v2 access at the payment-intent level; caller commits atomically.
+
+    Returns None for unrelated/unknown payments. A historical consumed scan
+    remains audit evidence, but unused Validation credits are revoked.
+    """
+    if event_type not in {"charge.refunded", "charge.dispute.created"}:
+        raise ValueError("Unsupported payment reversal event.")
+    if not payment_intent_id.strip():
+        raise ValueError("Verified payment intent required.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.provider == "stripe",
+        TenantProductPurchase.provider_payment_intent_id == payment_intent_id.strip(),
+        TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+    ))
+    if purchase is None:
+        return None
+    return reverse_v2_purchase(db, purchase_id=purchase.id, tenant_id=purchase.tenant_id, event_type=event_type)
+
+
+def reverse_v2_purchase(db, *, purchase_id: int, tenant_id: str, event_type: str) -> TenantProductPurchase:
+    """Reverse one purchase, preserving consumed credits and other purchases."""
+    if event_type not in {"charge.refunded", "charge.dispute.created"}:
+        raise ValueError("Unsupported payment reversal event.")
+    tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id).with_for_update())
+    if tenant is None:
+        raise ValueError("Tenant not found.")
+    purchase = db.scalar(select(TenantProductPurchase).where(
+        TenantProductPurchase.id == purchase_id,
+        TenantProductPurchase.tenant_id == tenant_id,
+        TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+    ).with_for_update())
+    if purchase is None:
+        raise ValueError("V2 purchase not found.")
+    status = "disputed" if event_type == "charge.dispute.created" else "refunded"
+    already_reversed = purchase.status in {"refunded", "disputed", "chargeback"}
+    # A later out-of-order refund may close a dispute, never restore access.
+    if purchase.status not in {"refunded", "chargeback"}:
+        purchase.status = status
+        purchase.updated_at_utc = utc_now()
+    if already_reversed:
+        return purchase
+    marker = f"purchase:{purchase.id}"
+    affected = db.scalars(select(TenantProductEntitlement).where(
+        TenantProductEntitlement.tenant_id == purchase.tenant_id,
+        TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+        TenantProductEntitlement.source == marker,
+    )).all()
+    for entitlement in affected:
+        entitlement.status = "revoked"
+        entitlement.updated_at_utc = utc_now()
+    # Later passes were stacked on the refunded pass. Recalculate their
+    # boundaries while retaining each later pass's own 14-day duration.
+    if affected and affected[0].valid_until_utc is not None:
+        original_end = _as_utc(affected[0].valid_until_utc)
+        previous_old_end = original_end
+        # Time already enjoyed cannot be taken away from later paid passes.
+        original_start = original_end - timedelta(days=NEW_ACCESS_DAYS)
+        previous_new_end = max(original_start, min(utc_now(), original_end))
+        later = db.scalars(select(TenantProductEntitlement).where(
+            TenantProductEntitlement.tenant_id == tenant_id,
+            TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductEntitlement.status == "active",
+            TenantProductEntitlement.id > affected[0].id,
+            TenantProductEntitlement.source.like("purchase:%"),
+            TenantProductEntitlement.valid_until_utc.is_not(None),
+        ).order_by(TenantProductEntitlement.id)).all()
+        old_expiries = [original_end] + [_as_utc(row.valid_until_utc) for row in later]
+        for row in later:
+            old_end = _as_utc(row.valid_until_utc)
+            old_start = old_end - timedelta(days=NEW_ACCESS_DAYS)
+            external_anchor = old_start if old_start > previous_old_end else None
+            start = _max_datetime([_as_utc(row.created_at_utc), previous_new_end, external_anchor])
+            row.valid_until_utc = start + timedelta(days=NEW_ACCESS_DAYS)
+            row.updated_at_utc = utc_now()
+            previous_old_end = old_end
+            previous_new_end = _as_utc(row.valid_until_utc)
+        if _as_utc(tenant.premium_until_utc) in old_expiries:
+            tenant.premium_until_utc = previous_new_end if later else original_end
+    for credit in db.scalars(select(TenantScanCredit).where(
+        TenantScanCredit.tenant_id == purchase.tenant_id,
+        TenantScanCredit.source_purchase_id == purchase.id,
+        TenantScanCredit.status == "available",
+    )).all():
+        credit.status = "revoked"
+        db.flush()
+        db.add(CreditLedgerEntry(
+            tenant_id=tenant_id, credit_id=credit.id, source_purchase_id=purchase.id,
+            product_code=credit.product_code, operation_type="PURCHASE_REVOKED", amount=-1,
+            balance_after=scan_credit_count(db, tenant_id), reason="Purchase reversal",
+            created_at_utc=utc_now(),
+        ))
+    db.flush()
+    return purchase
+
+
+def _parse_iso_utc(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return _as_utc(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+
 def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     values: list[datetime | None] = []
     subscriptions = db.scalars(
@@ -373,9 +685,14 @@ def _monitoring_access_until(db, tenant: Tenant) -> datetime | None:
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         product_code = normalize_product_code(subscription.plan_code)
         if product_code in MONITORING_PRODUCTS:
-            period_end = _end_of_day_utc(subscription.current_period_end_utc)
+            period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                          else _end_of_day_utc(subscription.current_period_end_utc))
+            if subscription.provider == "fiverr" and period_end is None:
+                continue
             if period_end is None:
                 anchor = (
                     _as_utc(subscription.current_period_start_utc)
@@ -410,19 +727,44 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
     now = utc_now()
     free_access_permanent = _has_permanent_free_result_access(db, tenant.tenant_id)
     full_analysis_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_FULL_ANALYSIS)
+    # v2 paid entitlements are issued once per purchase; never derive their
+    # lifespan a second time from purchases or unconsumed validation credits.
+    v2_access_until = _v2_access_until(db, tenant.tenant_id) if settings.ACCESS_MODEL_V2_ENABLED else None
     validation_until = _one_time_access_until_for_product(db, tenant.tenant_id, PRODUCT_VALIDATION_CHECK)
     monitoring_until = _monitoring_access_until(db, tenant)
     monitoring_active = has_active_monitoring_subscription(db, tenant) or (
         monitoring_until is not None and monitoring_until >= now
     )
 
+    # Reversals apply to their purchase. The tenant-wide flag remains a
+    # diagnostic indicator and must not suppress unrelated paid access.
+    v2_payment_hold = False
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        v2_payment_hold = db.scalar(select(TenantProductPurchase.id).where(
+            TenantProductPurchase.tenant_id == tenant.tenant_id,
+            TenantProductPurchase.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductPurchase.status.in_(["refunded", "disputed", "chargeback", "payment_hold"]),
+        ).limit(1)) is not None
     explicit_premium_until = _as_utc(tenant.premium_until_utc)
-    one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until])
+    if settings.ACCESS_MODEL_V2_ENABLED and explicit_premium_until is not None:
+        v2_expiries = db.scalars(select(TenantProductEntitlement.valid_until_utc).where(
+            TenantProductEntitlement.tenant_id == tenant.tenant_id,
+            TenantProductEntitlement.product_code.in_(sorted(NEW_ACCESS_PRODUCTS)),
+            TenantProductEntitlement.valid_until_utc.is_not(None),
+        )).all()
+        if any(_as_utc(value) == explicit_premium_until for value in v2_expiries):
+            explicit_premium_until = None
+    one_time_until = _max_datetime([explicit_premium_until, full_analysis_until, validation_until, v2_access_until])
     premium_access_until = None if monitoring_active and monitoring_until is None else _max_datetime([one_time_until, monitoring_until])
-    full_analysis_active = full_analysis_until is not None and full_analysis_until >= now
+    full_analysis_active = any(value is not None and value >= now for value in (full_analysis_until, v2_access_until))
     validation_active = validation_until is not None and validation_until >= now
     one_time_active = one_time_until is not None and one_time_until >= now
     premium_access_active = monitoring_active or one_time_active
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # Renewal re-opens historical Validation reports even when no new
+        # Validation scan credit is purchased. Scan rights remain separate.
+        validation_active = premium_access_active
+        validation_until = premium_access_until
     protected_access_until = None if free_access_permanent else premium_access_until
     protected_access_active = premium_access_active or free_access_permanent
     credits_available = scan_credit_count(db, tenant.tenant_id)
@@ -438,13 +780,14 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "free_assessment_used": free_assessment_used,
         "free_assessment_available": not free_assessment_used,
         "premium_active": premium_access_active,
+        "v2_payment_hold": v2_payment_hold,
         "premium_until": _iso(one_time_until),
         "validation_credits": validation_credits_available,
         "monitoring_until": _iso(monitoring_until),
         "dataset_tier": pricing_tier,
         "capabilities": {
-            "free_dashboard": free_access_permanent,
-            "full_dashboard": premium_access_active,
+            "free_dashboard": bool((not settings.ACCESS_MODEL_V2_ENABLED or settings.CUSTOMER_DASHBOARD_ENABLED) and free_access_permanent),
+            "full_dashboard": bool((not settings.ACCESS_MODEL_V2_ENABLED or settings.CUSTOMER_DASHBOARD_ENABLED) and premium_access_active),
             "findings_full": premium_access_active,
             "issues": premium_access_active,
             "actions": premium_access_active,
@@ -455,7 +798,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "can_run_data_health_score": not free_assessment_used,
         "has_completed_data_health_score": has_completed_data_health_score,
         "can_view_free_insights": protected_access_active and has_scan_results,
-        "can_view_issues": protected_access_active,
+        "can_view_issues": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
         "can_view_actions": premium_access_active,
         "can_view_reports": protected_access_active,
         "can_view_record_details": premium_access_active,
@@ -479,9 +822,9 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "issue_access_until_bc": _bc_datetime(protected_access_until),
         "report_access_until": _iso(protected_access_until),
         "can_run_deep_scan": monitoring_active or validation_credits_available > 0,
-        "can_view_dashboard": protected_access_active,
-        "can_view_issue_details": protected_access_active,
-        "can_view_executive_report": protected_access_active,
+        "can_view_dashboard": bool(settings.CUSTOMER_DASHBOARD_ENABLED and premium_access_active) if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
+        "can_view_issue_details": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
+        "can_view_executive_report": premium_access_active if settings.ACCESS_MODEL_V2_ENABLED else protected_access_active,
         "scan_credits_available": validation_credits_available,
         "assessment_scan_credits_available": 0,
         "validation_scan_credits_available": validation_credits_available,
@@ -489,7 +832,7 @@ def build_product_access_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "free_access_permanent": free_access_permanent,
         "free_access_until": None,
         "assessment_access_until": _iso(full_analysis_until),
-        "full_analysis_access_until": _iso(full_analysis_until),
+        "full_analysis_access_until": _iso(_max_datetime([full_analysis_until, v2_access_until])),
         "validation_access_until": _iso(validation_until),
         "validation_check_access_until": _iso(validation_until),
         "monitoring_access_until": _iso(monitoring_until),
@@ -506,9 +849,14 @@ def has_active_monitoring_subscription(db, tenant: Tenant) -> bool:
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         if normalize_product_code(subscription.plan_code) in MONITORING_PRODUCTS:
-            period_end = _end_of_day_utc(subscription.current_period_end_utc)
-            if period_end is not None and period_end < utc_now():
+            period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                          else _end_of_day_utc(subscription.current_period_end_utc))
+            if subscription.provider == "fiverr" and period_end is None:
+                continue
+            if period_end is not None and period_end <= utc_now():
                 continue
             return True
     return False
@@ -522,8 +870,13 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
     for subscription in subscriptions:
         if (subscription.status or "").strip().lower() not in {"trialing", "active"}:
             continue
+        if subscription.provider == "fiverr" and (subscription.current_period_start_utc is None or _as_utc(subscription.current_period_start_utc) > utc_now()):
+            continue
         product_code = normalize_product_code(subscription.plan_code)
-        period_end = _end_of_day_utc(subscription.current_period_end_utc)
+        period_end = (_as_utc(subscription.current_period_end_utc) if subscription.provider == "fiverr"
+                      else _end_of_day_utc(subscription.current_period_end_utc))
+        if subscription.provider == "fiverr" and period_end is None:
+            continue
         if product_code in MONITORING_PRODUCTS and (period_end is None or period_end >= utc_now()):
             product_codes.append(product_code)
     return sorted(set(product_codes))
@@ -532,14 +885,26 @@ def active_monitoring_subscription_product_codes(db, tenant: Tenant) -> list[str
 def resolve_product_features(db, tenant: Tenant) -> set[str]:
     features = set(BASE_FEATURES)
     access = build_product_access_snapshot(db, tenant)
-    if access["can_run_deep_scan"] or access["premium_active"]:
-        features.update(PAID_SCAN_FEATURES)
+    if settings.ACCESS_MODEL_V2_ENABLED:
+        # A scan credit is permission to RUN one scan, not to VIEW premium
+        # findings or to manufacture a Full-Assessment baseline.
+        if access["can_run_deep_scan"] or access["can_run_data_health_score"]:
+            features.add("deep_scan")
+        if access["premium_active"]:
+            features.update(PAID_SCAN_FEATURES)
+        if access["monitoring_active"]:
+            features.update(MONITORING_FEATURES)
+        # Do not read historical entitlements here: an expired or revoked
+        # grant must never resurrect executive_report or recommendations.
+    else:
+        if access["can_run_deep_scan"] or access["premium_active"]:
+            features.update(PAID_SCAN_FEATURES)
 
-    product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))
-    if product_codes.intersection(MONITORING_PRODUCTS) or access["monitoring_active"]:
-        features.update(MONITORING_FEATURES)
-    elif product_codes.intersection(ONE_TIME_PRODUCTS):
-        features.update(PAID_SCAN_FEATURES)
+        product_codes = set(active_entitlement_product_codes(db, tenant.tenant_id))
+        if product_codes.intersection(MONITORING_PRODUCTS) or access["monitoring_active"]:
+            features.update(MONITORING_FEATURES)
+        elif product_codes.intersection(ONE_TIME_PRODUCTS):
+            features.update(PAID_SCAN_FEATURES)
 
     has_provider_subscription = (
         db.scalar(
@@ -564,6 +929,7 @@ def grant_scan_credit(
     product_code: str,
     source: str = "manual",
     source_purchase_id: int | None = None,
+    extend_access: bool = True,
 ) -> TenantScanCredit:
     normalized_product = normalize_product_code(product_code)
     if normalized_product != PRODUCT_VALIDATION_CHECK:
@@ -592,7 +958,8 @@ def grant_scan_credit(
             created_at_utc=utc_now(),
         )
     )
-    extend_tenant_premium_access(db, tenant_id=tenant_id)
+    if extend_access:
+        extend_tenant_premium_access(db, tenant_id=tenant_id)
     return credit
 
 
@@ -660,6 +1027,14 @@ def record_product_purchase(
         db.flush()
         return existing
 
+    if (
+        settings.ACCESS_MODEL_V2_ENABLED
+        and existing.product_code in NEW_ACCESS_PRODUCTS
+        and existing.status in {"refunded", "disputed", "chargeback", "payment_hold"}
+    ):
+        # Out-of-order/replayed checkout.session.completed MUST NEVER restore
+        # a payment that has already been reversed or disputed.
+        return existing
     existing.product_code = normalize_product_code(product_code)
     existing.status = status
     existing.currency = (currency or "EUR").upper()

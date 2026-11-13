@@ -954,6 +954,7 @@
                 action(OpenDashboard)
                 {
                     Caption = 'Open Analytics Dashboard';
+                    Visible = false;
                     ApplicationArea = All;
                     Image = View;
                     ToolTip = 'Opens the BCSentinel analytics dashboard for this tenant.';
@@ -1016,7 +1017,7 @@
                     Caption = 'Open Latest Report';
                     ApplicationArea = All;
                     Image = Report;
-                    ToolTip = 'Opens the Executive Report for the latest completed scan. Current report access is verified first.';
+                    ToolTip = 'Opens the authorized report for the latest completed scan. Full Assessment requires eligible access and a confirmed original Free scan scope.';
                     Enabled = CanOpenLatestReport;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -1711,7 +1712,8 @@
     local procedure OpenReportForLatestScan()
     var
         DeepScanRun: Record "DH Deep Scan Run";
-        DeepScanMonitor: Page "DH Deep Scan Monitor";
+        ReportLinks: Codeunit "DH Report Link Mgt.";
+        Variant: Text;
     begin
         DeepScanRun.SetCurrentKey("Requested At");
         DeepScanRun.SetRange(Status, DeepScanRun.Status::Completed);
@@ -1720,8 +1722,18 @@
         if not DeepScanRun.FindFirst() then
             Error(NoScanLbl);
 
-        DeepScanMonitor.SetRecord(DeepScanRun);
-        DeepScanMonitor.OpenExecutiveHtmlReport();
+        // The last completed scan may be Free/Full, Validation or Monitoring.
+        // Never send a v2 user to the replayable legacy Executive share link.
+        // Backend preflight and report-link issuance remain authoritative for paid access.
+        Variant := ReportLinks.GetCompletedReportVariant(DeepScanRun);
+        case Variant of
+            'full':
+                ReportLinks.ReviewScopeAndOpenFullV6(DeepScanRun."Run ID");
+            'validation', 'monitoring':
+                ReportLinks.OpenReportVariantV2(DeepScanRun."Run ID", Variant);
+            else
+                Error('The last completed scan has no supported report type. Open the scan history to review its status.');
+        end;
     end;
 
     local procedure UpdateSchedulerVisibility()

@@ -1,0 +1,100 @@
+{
+  "schema_version": "bcs-sprint3a2-bc27-acceptance-v1",
+  "status": "NOT_EXECUTED",
+  "repository": "danielwauer-maker/bcsentinel",
+  "pr_number": 162,
+  "head_sha": null,
+  "extension_version": "1.0.2.58",
+  "backend_revision": "0040_scan_record_identity_evidence",
+  "run_context": {
+    "bc_version": null,
+    "sandbox_environment": null,
+    "company_id": null,
+    "extension_package_sha256": null,
+    "backend_commit_sha": null,
+    "utc_started_at": null,
+    "utc_finished_at": null
+  },
+  "roles": {
+    "scan_user_non_super": "NOT_EXECUTED",
+    "viewer_read_only": "NOT_EXECUTED",
+    "setup_role": "NOT_EXECUTED",
+    "scheduler_role": "NOT_EXECUTED",
+    "admin_role": "NOT_EXECUTED"
+  },
+  "scenarios": [
+    {
+      "id": "BC27-01",
+      "name": "Extension upgrade and source table 53198",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "Upgrade preserves existing tables, creates evidence table, no removed fields or tables."
+    },
+    {
+      "id": "BC27-02",
+      "name": "Non-SUPER scan permissions",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "BCSENTINEL SCAN can scan without SUPER; VIEWER cannot modify evidence."
+    },
+    {
+      "id": "BC27-03",
+      "name": "Baseline duplicate customer VAT scan A",
+      "status": "NOT_EXECUTED",
+      "scan_id": null,
+      "evidence_refs": [],
+      "expected": "Two seeded Customer records sharing one test VAT; grouped finding affected_count=2; source evidence has two true Customer.SystemIds."
+    },
+    {
+      "id": "BC27-04",
+      "name": "Remediation and scan B",
+      "status": "NOT_EXECUTED",
+      "scan_id": null,
+      "evidence_refs": [],
+      "expected": "Changing one test Customer VAT removes the group; PASS with zero members; remaining legacy/other checks not individually compared."
+    },
+    {
+      "id": "BC27-05",
+      "name": "Backend sealed source record readback",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "Both accepted scan IDs bind to same tenant/company and stored canonical source evidence; hashes and lifecycle valid; no raw business values in payload."
+    },
+    {
+      "id": "BC27-06",
+      "name": "Retry and stale lease rejection",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "Exact retry idempotent; changed record members, omitted evidence, wrong worker or stale lease rejected."
+    },
+    {
+      "id": "BC27-07",
+      "name": "Negative scope and partial source coverage",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "Wrong company/tenant, interrupted scan and incomplete member count yield no falsely verified result."
+    },
+    {
+      "id": "BC27-08",
+      "name": "Boundary and monitoring/report safeguards",
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "expected": "Over 2000 members omit optional record evidence and keep aggregate scan; Validation/Monitoring report unlock remains blocked."
+    }
+  ],
+  "gates": {
+    "al_compile": "NOT_EXECUTED",
+    "backend_regression": "NOT_EXECUTED",
+    "migration_0040": "NOT_EXECUTED",
+    "upgrade_bc27": "NOT_EXECUTED",
+    "non_super": "NOT_EXECUTED",
+    "real_two_scans": "NOT_EXECUTED",
+    "tenant_isolation": "NOT_EXECUTED",
+    "retries": "NOT_EXECUTED",
+    "reports_still_locked": "NOT_EXECUTED"
+  },
+  "findings": [],
+  "reviewer": null,
+  "decision": "NO_GO",
+  "decision_utc": null
+}

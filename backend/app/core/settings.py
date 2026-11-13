@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     TENANT_REGISTRATION_INVITE_CODE: str | None = None
     TENANT_REGISTRATION_RATE_LIMIT_ATTEMPTS: int = 5
     TENANT_REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: int = 300
+    ACCESS_MODEL_V2_ENABLED: bool = False  # Explicit rollout gate, old customer contracts unchanged.
+    ACCESS_V2_PAID_CHECKOUT_ENABLED: bool = False  # Requires Stripe price, refund and chargeback acceptance.
+    COMMERCIAL_CHECKOUT_ENABLED: bool = False  # New commercial-session endpoint is opt-in; legacy purchases unchanged.
+    CUSTOMER_DASHBOARD_ENABLED: bool = False  # Report-only launch; enable only after access audit.
+    QUICK_ASSESSMENT_ENABLED: bool = False  # Reserved for a later product release.
     DASHBOARD_LOGIN_MAX_FAILURES: int = 5
     DASHBOARD_LOGIN_LOCK_MINUTES: int = 15
     DASHBOARD_PASSWORD_RESET_EXPIRE_MINUTES: int = 30
@@ -37,6 +42,23 @@ class Settings(BaseSettings):
     SMTP_FROM_NAME: str = "BCSentinel"
     CONTACT_INBOX_EMAIL: str = "support@bcsentinel.com"
 
+    # BC-native v6 report viewer origin; no second account login required.
+    REPORT_V6_VIEWER_BASE_URL: str | None = None
+    WAITLIST_ADMIN_EMAIL: str = "admin@bcsentinel.com"
+
+    # === CUSTOMER IDENTITY (OIDC) ===
+    # Passwords, MFA and credential recovery remain provider-owned. BCSentinel
+    # verifies the provider token and then resolves tenant membership itself.
+    OIDC_ENABLED: bool = False
+    OIDC_ISSUER: str | None = None
+    OIDC_AUDIENCE: str | None = None
+    OIDC_JWKS_URL: str | None = None
+    OIDC_PROVIDER_KEY: str = "oidc"
+    OIDC_EMAIL_CLAIM: str = "email"
+    OIDC_NAME_CLAIM: str = "name"
+    OIDC_HTTP_TIMEOUT_SECONDS: float = 5.0
+    ACCOUNT_SESSION_MINUTES: int = 60
+
     # === BILLING (STRIPE) ===
     # Checkout uses Stripe Price objects (amount + interval). When list prices in
     # config/pricing_canonical.json or license_pricing_config change, create matching
@@ -45,6 +67,7 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str | None = None
     STRIPE_PRICE_ID_ASSESSMENT: str | None = None
     STRIPE_PRICE_ID_VALIDATION_CHECK: str | None = None
+    STRIPE_PRICE_ID_ACCESS_RENEWAL: str | None = None
     STRIPE_PRICE_ID_MONITORING_MONTHLY: str | None = None
     STRIPE_PRICE_ID_MONITORING_ANNUAL: str | None = None
     BILLING_SUCCESS_URL: str | None = None

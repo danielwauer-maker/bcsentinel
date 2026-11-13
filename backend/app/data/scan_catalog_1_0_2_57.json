@@ -1,0 +1,802 @@
+{
+  "catalog_version": "bc-check-catalog-1.0.2.57",
+  "methodology_version": "bc-deep-scan-1.0.2.57",
+  "checks": [
+    {
+      "code": "BLOCKED_CUSTOMERS_WITH_OPEN_LEDGER",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "BLOCKED_CUSTOMERS_WITH_OPEN_SALES_DOCS",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "BLOCKED_ITEMS_WITH_INVENTORY",
+      "module": "ITEM"
+    },
+    {
+      "code": "BLOCKED_VENDORS_WITH_OPEN_LEDGER",
+      "module": "VENDOR"
+    },
+    {
+      "code": "BLOCKED_VENDORS_WITH_OPEN_PURCHASE_DOCS",
+      "module": "VENDOR"
+    },
+    {
+      "code": "CONTACTS_MISSING_ADDRESS",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_CITY",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_COUNTRY",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_EMAIL",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_MOBILE_PHONE",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_NAME",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_PHONE",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_MISSING_POST_CODE",
+      "module": "CRM"
+    },
+    {
+      "code": "CONTACTS_PERSONS_MISSING_COMPANY",
+      "module": "CRM"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_EMAIL",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_NAME_POST_CITY",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_DUPLICATE_VAT",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_ADDRESS",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CITY",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CONTACT",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_COUNTRY",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_CREDIT_LIMIT",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_DISC_GROUP",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_EMAIL",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_FIN_CHARGE_TERMS",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_GEN_BUS_POSTING",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_HOME_PAGE",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_NAME",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PAYMENT_METHOD",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PAYMENT_TERMS",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PHONE",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_POSTING_GROUP",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_POST_CODE",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_PRICE_GROUP",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_REMINDER_TERMS",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_SALESPERSON",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_SEARCH_NAME",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_VAT_BUS_POSTING",
+      "module": "CUSTOMER"
+    },
+    {
+      "code": "CUSTOMERS_MISSING_VAT_REG_NO",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_MISSING_DUE_DATE",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_30",
+      "module": "LEDGER"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_60",
+      "module": "FINANCE"
+    },
+    {
+      "code": "CUSTOMER_LEDGER_OVERDUE_90",
+      "module": "FINANCE"
+    },
+    {
+      "code": "DEAD_STOCK_180",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "DEAD_STOCK_365",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "DEAD_STOCK_90",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_COUNTRY",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_EMAIL",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_FIRST_NAME",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_JOB_TITLE",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_LAST_NAME",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_PHONE",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_RESOURCE_NO",
+      "module": "HR"
+    },
+    {
+      "code": "EMPLOYEES_MISSING_SEARCH_NAME",
+      "module": "HR"
+    },
+    {
+      "code": "GL_ACCOUNTS_BLOCKED_BUT_USED",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "GL_ACCOUNTS_NO_DIRECT_POSTING_BUT_USED",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_BOTH_DIMS",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_DIM1",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "GL_ENTRIES_MISSING_DIM2",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "INVENTORY_WITHOUT_UNIT_COST",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_GROSS_WEIGHT_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_LAST_DIRECT_COST_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_MAX_INVENTORY_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_MIN_ORDER_QTY_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_MISSING_BASE_UOM",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_MISSING_CATEGORY",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_MISSING_DESCRIPTION",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_MISSING_GEN_PROD_POSTING",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_MISSING_INVENTORY_POSTING",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_MISSING_LEAD_TIME",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_MISSING_SHELF_NO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_MISSING_TARIFF_NO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_NEGATIVE_INVENTORY",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_NET_WEIGHT_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_ORDER_MULTIPLE_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_PRICE_BELOW_STANDARD_COST",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_PRICE_BELOW_UNIT_COST",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_REORDER_POINT_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_SAFETY_STOCK_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_STANDARD_COST_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_UNIT_VOLUME_ZERO",
+      "module": "INVENTORY"
+    },
+    {
+      "code": "ITEMS_WITHOUT_UNIT_COST",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_WITHOUT_UNIT_PRICE",
+      "module": "ITEM"
+    },
+    {
+      "code": "ITEMS_WITHOUT_VENDOR_NO",
+      "module": "ITEM"
+    },
+    {
+      "code": "JOBS_MISSING_BILL_TO_CUSTOMER",
+      "module": "JOB"
+    },
+    {
+      "code": "JOBS_MISSING_DESCRIPTION",
+      "module": "JOB"
+    },
+    {
+      "code": "JOBS_MISSING_POSTING_GROUP",
+      "module": "JOB"
+    },
+    {
+      "code": "JOBS_MISSING_RESPONSIBLE",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_MISSING_DESCRIPTION",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_MISSING_NO",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_QTY",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_UNIT_COST",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_PLANNING_LINES_ZERO_UNIT_PRICE",
+      "module": "JOB"
+    },
+    {
+      "code": "JOB_TASKS_MISSING_DESCRIPTION",
+      "module": "JOB"
+    },
+    {
+      "code": "MFG_BOM_LINES_MISSING_NO",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_BOM_LINES_ZERO_QTY",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_BOM_MISSING_DESCRIPTION",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_BOM_NOT_CERTIFIED",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ITEMS_MISSING_PROD_BOM_NO",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ITEMS_MISSING_ROUTING_NO",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_BLOCKED",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_MISSING_NAME",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_MACHINE_CENTERS_ZERO_COST",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_MISSING_NO",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_ZERO_RUN",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ROUTING_LINES_ZERO_SETUP",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ROUTING_MISSING_DESCRIPTION",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_ROUTING_NOT_CERTIFIED",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_BLOCKED",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_MISSING_NAME",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "MFG_WORK_CENTERS_ZERO_COST",
+      "module": "MANUFACTURING"
+    },
+    {
+      "code": "PURCHASE_DOCS_WITH_BLOCKED_VENDORS",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_METHOD",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PAYMENT_TERMS",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_PURCHASER",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_HEADERS_MISSING_VENDOR_INVOICE_NO",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_HEADERS_PAST_EXPECTED_RECEIPT_DATE",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_COST_BELOW_LAST_DIRECT_COST",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_DISCOUNT_OVER_25",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_DISCOUNT_OVER_50",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_DESCRIPTION",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_DIMENSIONS",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_LOCATION",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_MISSING_NO",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_OUTSTANDING_PAST_RECEIPT_DATE",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_RECEIVED_NOT_INVOICED",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_WITH_BLOCKED_ITEMS",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_ZERO_COST",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_LINES_ZERO_QUANTITY",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_ORDERS_MISSING_EXPECTED_DATE",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "PURCHASE_ORDERS_OLD_OPEN",
+      "module": "PURCHASE"
+    },
+    {
+      "code": "RESOURCES_MISSING_BASE_UOM",
+      "module": "HR"
+    },
+    {
+      "code": "RESOURCES_MISSING_NAME",
+      "module": "HR"
+    },
+    {
+      "code": "RESOURCES_ZERO_UNIT_COST",
+      "module": "HR"
+    },
+    {
+      "code": "RESOURCES_ZERO_UNIT_PRICE",
+      "module": "HR"
+    },
+    {
+      "code": "SALES_DOCS_WITH_BLOCKED_CUSTOMERS",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_EXTERNAL_DOC_NO",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_PAYMENT_METHOD",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_PAYMENT_TERMS",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_REQUESTED_DELIVERY_DATE",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_MISSING_SHIPMENT_METHOD",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_HEADERS_PAST_REQUESTED_DELIVERY_DATE",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_DISCOUNT_OVER_25",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_DISCOUNT_OVER_50",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_MISSING_DESCRIPTION",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_MISSING_DIMENSIONS",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_MISSING_LOCATION",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_MISSING_NO",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_OUTSTANDING_PAST_SHIPMENT_DATE",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_PRICE_BELOW_UNIT_COST",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_SHIPPED_NOT_INVOICED",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_WITH_BLOCKED_ITEMS",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_ZERO_PRICE",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_LINES_ZERO_QUANTITY",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_ORDERS_MISSING_SHIPMENT_DATE",
+      "module": "SALES"
+    },
+    {
+      "code": "SALES_ORDERS_OLD_OPEN",
+      "module": "SALES"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_CUSTOMER",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_DESCRIPTION",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_ITEM_NO",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ITEMS_MISSING_SERIAL_NO",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_LINES_MISSING_DESCRIPTION",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_LINES_MISSING_NO",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_LINES_ZERO_QTY",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_LINES_ZERO_UNIT_PRICE",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_ASSIGNED_USER",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_BILL_TO",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_CUSTOMER",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SERVICE_ORDERS_MISSING_DESCRIPTION",
+      "module": "SERVICE"
+    },
+    {
+      "code": "SYSTEM_CUSTOMERS_MISSING_GEN_BUS_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "SYSTEM_CUSTOMERS_MISSING_VAT_BUS_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "SYSTEM_ITEMS_MISSING_GEN_PROD_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "SYSTEM_ITEMS_MISSING_INVENTORY_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "SYSTEM_VENDORS_MISSING_GEN_BUS_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "SYSTEM_VENDORS_MISSING_VAT_BUS_POSTING",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_EMAIL",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_NAME_POST_CITY",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_DUPLICATE_VAT",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_ADDRESS",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_BANK_ACCOUNT",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_CITY",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_CONTACT",
+      "module": "FINANCE"
+    },
+    {
+      "code": "VENDORS_MISSING_COUNTRY",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_EMAIL",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_GEN_BUS_POSTING",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_HOME_PAGE",
+      "module": "FINANCE"
+    },
+    {
+      "code": "VENDORS_MISSING_NAME",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_PAYMENT_METHOD",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_PAYMENT_TERMS",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_PHONE",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_POSTING_GROUP",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_POST_CODE",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_PURCHASER",
+      "module": "FINANCE"
+    },
+    {
+      "code": "VENDORS_MISSING_SEARCH_NAME",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_VAT_BUS_POSTING",
+      "module": "VENDOR"
+    },
+    {
+      "code": "VENDORS_MISSING_VAT_REG_NO",
+      "module": "FINANCE"
+    },
+    {
+      "code": "VENDOR_LEDGER_MISSING_DUE_DATE",
+      "module": "SYSTEM"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_30",
+      "module": "LEDGER"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_60",
+      "module": "FINANCE"
+    },
+    {
+      "code": "VENDOR_LEDGER_OVERDUE_90",
+      "module": "FINANCE"
+    }
+  ]
+}

@@ -35,7 +35,10 @@ def test_s06_manifest_matches_current_extension_truth() -> None:
 
     ext = readiness["extension"]
     assert ext["name"] == app["name"]
-    assert ext["version"] == app["version"]
+    # S06 remains historical readiness evidence; it must not be rewritten
+    # merely because a newer extension candidate is being prepared.
+    assert ext["version"] == "1.0.2.51"
+    assert tuple(map(int, app["version"].split("."))) > tuple(map(int, ext["version"].split(".")))
     assert ext["app_id"] == app["id"]
     assert ext["publisher"] == app["publisher"]
     assert ext["runtime"] == app["runtime"]

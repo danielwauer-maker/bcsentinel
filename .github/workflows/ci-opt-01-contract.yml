@@ -1,0 +1,30 @@
+name: CI OPT 01 PR supersession safety
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - ".github/workflows/bc-al-compile.yml"
+      - ".github/workflows/ext-50-12b-bc27-runtime-gate.yml"
+      - ".github/workflows/ext-50-12c-3-al.yml"
+      - ".github/workflows/core-pilot-50-readiness.yml"
+      - ".github/workflows/pilot-e2e-01a.yml"
+      - ".github/workflows/p0-04-postgres-migration-cycle.yml"
+      - ".github/workflows/p0-05-postgres-backup-restore.yml"
+      - ".github/workflows/ci-opt-01-contract.yml"
+      - "scripts/ci_opt_01_validate.py"
+      - "docs/ci/CI_OPT_01_SAFE_ROLLOUT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Check PR-only cancellation and release run protection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact cancellation contract
+        run: python3 scripts/ci_opt_01_validate.py

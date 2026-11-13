@@ -51,11 +51,18 @@ jobs:
         run: |
           python -m playwright install --with-deps chromium
           python scripts/verify_ext_50_12c_3_dashboard.py
+      - name: Prepare isolated PostgreSQL concurrency fixture
+        if: always()
+        env:
+          PGPASSWORD: disposable_ci_only
+        run: createdb -h localhost -U bcsentinel_test finding_concurrency_test
       - name: Real PostgreSQL identity and concurrency regression
         if: always()
         working-directory: backend
         env:
-          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/finding_test
+          # The migration test deliberately retains upgraded Alembic tables.
+          # ORM drop_all fixtures must use a separate, initially empty DB.
+          BCSENTINEL_TEST_DATABASE_URL: postgresql+psycopg://bcsentinel_test:disposable_ci_only@localhost:5432/finding_concurrency_test
         run: python -m pytest -c pytest.ini -q tests/test_ext_50_12c_3_identity.py tests/test_ext_50_12c_sync_regression.py tests/test_p0e_postgres_concurrency.py --junitxml=repair-postgres.xml
       - uses: actions/upload-artifact@v4
         if: always()
