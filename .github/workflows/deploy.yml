@@ -1,8 +1,9 @@
-# DEV push-to-deploy is explicitly gated by two repository Actions variables:
-#   DEV_STAGING_DEPLOY_ENABLED=true AND DEV_STAGING_RELEASE_SHA=<exact staging push SHA>.
-# Without both exact matches, every DEV-mutating step is skipped; rerun the same
-# workflow after deliberate approval to deploy that single reviewed SHA.
-# PROD deployment behavior remains unchanged.
+# DEV deploy is manual-only on staging (workflow_dispatch) and fail-closed.
+# It requires an exact release_sha input and operator-approved repository Actions variables:
+# DEV_STAGING_DEPLOY_ENABLED=true and DEV_STAGING_RELEASE_SHA=<exact staging commit SHA>.
+# Neither variable is set by this workflow. Staging pushes never deploy, and
+# an operator-owned remote checkout is never forcibly reset.
+# Main/PROD behavior is unchanged. Do not authorize a SHA until CI and operator review.
 name: Deploy to Hetzner
 
 on:
@@ -10,9 +11,24 @@ on:
     branches:
       - main
       - staging
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Exact 40-character staging commit SHA reviewed for DEV deployment"
+        required: true
+        type: string
 
 jobs:
   deploy:
+    # staging pushes never deploy; only a deliberately dispatched, SHA-pinned
+    # staging release can deploy DEV. Main push/PROD conditions stay unchanged.
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/staging' &&
+      inputs.release_sha == github.sha &&
+      vars.DEV_STAGING_DEPLOY_ENABLED == 'true' &&
+      vars.DEV_STAGING_RELEASE_SHA == github.sha
     runs-on: ubuntu-latest
 
     steps:
@@ -91,7 +107,7 @@ jobs:
           exit 1
 
       - name: DEV pre-deploy database snapshot and verifiable restore inventory
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -euo pipefail
@@ -114,7 +130,7 @@ jobs:
             echo "NOTE: An isolated full restore and recovery rehearsal are still separate gates."
           EOF
       - name: Deploy to DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
@@ -155,7 +171,7 @@ jobs:
           EOF
 
       - name: Health check DEV
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           echo "🔎 Verify exact deployed DEV checkout SHA"
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
@@ -192,7 +208,7 @@ jobs:
           exit 1
 
       - name: Smoke check DEV Core web surface
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/staging' && inputs.release_sha == github.sha && vars.DEV_STAGING_DEPLOY_ENABLED == 'true' && vars.DEV_STAGING_RELEASE_SHA == github.sha
         run: |
           for path in / /pilot.html /contact.html /privacy.html /terms.html /dpa.html /docs.html; do
             echo "Checking https://dev.bcsentinel.com$path"
