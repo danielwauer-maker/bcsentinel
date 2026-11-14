@@ -330,14 +330,16 @@
       "deployed_head": "2af0ae555251600c0dccb29899104dbdf0ea818f",
       "ci_candidate_head": "60af4902a294488f87ff151ffd41f26a79f7d365",
       "public_routing": "frontend_dev_smoke_success",
-      "backend_viewer_base_url": "not_configured",
-      "real_paid_report_e2e": "not_executed"
+      "backend_viewer_base_url": "configured_dev_operator_verified",
+      "real_paid_report_e2e": "not_executed",
+      "backend_viewer_base_url_evidence": "Operator confirmed .env.dev REPORT_V6_VIEWER_BASE_URL=https://dev.bcsentinel.com, configuration loaded in new backend 0041 image; no authenticated paid report E2E"
     },
     "ai_pm22": {
       "pr": 169,
       "github_ci": "pass_at_prior_head",
-      "host_8093": "not_verified",
-      "host_8092": "preserved"
+      "host_8093": "historical_preview_reviewed;_current_status_unknown",
+      "host_8092": "historical_operator_reported_running_private_dashboard;_current_SHA_unknown",
+      "admin_mount": "source_implemented_ci_pass_server_activation_not_verified"
     },
     "uncertainty": "Operator independent post-release SSH output confirms new backend container healthy with 0041 and local backend/viewer HTTP 200; no authenticated paid report, BC27 SaaS upgrade/non-SUPER, access isolation or real scan E2E. Pre-upgrade latest dump archive integrity checked but exact dump isolated restore not performed. No PROD mutation evidence beyond operator script statement; Fiverr NO_GO.",
     "dev_consolidation": {
@@ -443,6 +445,24 @@
       "go_live": "NO_GO",
       "tracker_checkbox_updates": 0,
       "operator_release_log": "Operator PowerShell/SSH controlled DEV release output: source caf245b23a74, pre-migration backup and archive PASS, Alembic 0041 PASS, backend switch PASS, public DEV smoke PASS, rollback container preserved, PROD_UNTOUCHED=YES; host re-inventory after switch not yet independently verified."
+    },
+    "admin_integration": {
+      "source_branch": "staging",
+      "source_sha": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+      "backend_admin_auth_route": "source_and_test_available",
+      "nginx_admin_proxy": "source_available_deployment_not_verified",
+      "dashboard_proxy_token_mode": "source_available_deployment_not_verified",
+      "dashboard_8092_running_sha": "not_independently_verified",
+      "prod_change": "none",
+      "manual_gates": [
+        "read_only_host_inventory",
+        "private_8092_loopback_and_nginx_auth_request_check",
+        "SQLite_online_backup_and_restore_test",
+        "isolated_preview_with_AUTH_and_CSP",
+        "DEV_only_nginx_enable_after_syntax_validation",
+        "DEV_admin_browser_positive_negative_tests"
+      ],
+      "fiverr": "NO_GO"
     }
   },
   "sprint401_sync": {
