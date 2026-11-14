@@ -72,6 +72,11 @@ class CurrentEvidenceTests(unittest.TestCase):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")
         self.assertIn('id="exec-evidence-asof"', html)
+        self.assertIn('id="dev-release-gates"', html)
+        for field in ("dev-backend-gate", "dev-frontend-gate", "dev-e2e-gate", "dev-gate-source"):
+            self.assertIn('id="' + field + '"', html)
+            self.assertIn('set("' + field + '"', js)
+        self.assertEqual(self.data["observed_gates"]["admin_integration"]["dashboard_8092_running_sha"], "not_independently_verified")
         self.assertIn('snapshot?.sprint_evidence?.reviewed_at', js)
         self.assertIn("kein aktueller Server-Snapshot", js)
         self.assertIn("Reviewstand nicht verfügbar", js)
