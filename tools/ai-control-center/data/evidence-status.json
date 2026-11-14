@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-13",
+  "reviewed_at": "2026-11-14",
   "work_items": [
     {
       "id": "1.01",
@@ -21,7 +21,7 @@
     {
       "id": "1.02",
       "status": "tracker_checked",
-      "detail": "Excel marked technical and Go-Live checked. Current deployed image/migration must be rechecked.",
+      "detail": "Excel marked technical and Go-Live checked. Current deployed image/migration must be rechecked. 2026-11-14 operator release evidence: backend image from caf245b23a74, migration 0041 and public smoke PASS; independent post-release re-inventory/real business flows remain open.",
       "refs": []
     },
     {
@@ -53,12 +53,14 @@
     {
       "id": "3.02",
       "status": "partial",
-      "detail": "2026-11-12: Full-v6-Viewer aus Frontend PR #13 auf Hetzner als SEPARATER Loopback-Container 127.0.0.1:3001 erfolgreich gebaut und vom Betreiber geprüft; 5 SSR-Routen inkl. /report/live?lang=de HTTP 200, alle HTML-referenzierten Assets 200, drei Logo-PNGs 200 / 1877x626; alter Frontend-Container 3000 unverändert, alte Reportroute 404. GitHub CI am späteren Draft-HEAD 60af4902a294 PASS (243 Tests; isolierter Docker-Smoke; PNG-HTTP-Byteprüfung). Server-Container läuft noch auf zuvor geprüftem HEAD 01b15b9ab6dc, nicht auf neuem PR-HEAD. Betreiber hat Landing/Overview visuell verglichen und keinen Unterschied festgestellt, vollständiger Tenant-Overview-Zugriff nicht geprüft. Öffentliche DEV-Route, Viewer-Backend-Konfiguration, tokenisierte Full-v6-E2E-/Tenant-/Replay-Tests und BC27-Freigabe FEHLEN. Nur isolierter technischer Teilnachweis; global NO_GO.",
+      "detail": "2026-11-13: Backend staging SHA 3ca62ac94eb6cbce98c97984850f6bc7159780c3 deployed via manual run #43407422524; operator confirmed backend healthy, Alembic 0040 and public dev-api /health/ready HTTP 200. Frontend viewer SHA 69ab09d5603669570c8e1f9223c65b664b40c636 deployed via run #43409586056; operator verified public DEV /, /overview and /report/live?lang=de all HTTP 200 after DEV-only Nginx route correction and removal of included backup vhost. Previous frontend retained as stopped rollback. HTTP 200 is not authentication, entitlement, no-demo, BC SaaS, or report-content evidence: real Full, Validation and Monitoring E2E still OPEN. PROD untouched, global Fiverr NO_GO. 2026-11-14 verified GitHub manual DEV frontend deployment run #43524633599 (3/3 jobs SUCCESS): authorized exact frontend SHA 2af0ae555251600c0dccb29899104dbdf0ea818f, verified Bun tests/build, isolated candidate / /overview /report/live HTTP smoke, final serving container image bcsentinel-frontend-dev:2af0ae555251600c0dccb29899104dbdf0ea818f with local / and /overview HTTP 200 and public DEV smoke PASS. Old deployed 69ab09d5603669570c8e1f9223c65b664b40c636 preserved as stopped bcsentinel-frontend-dev-rollback. Runtime reports, entitlements, BC27 and E2E NOT proven. 2026-11-14 operator output: controlled backend upgrade to 0041 and backend switch PASS; full-v6 entitlement, real token/replay/isolation and paid report content E2E still NOT accepted.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/154",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/155",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43409586056",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/issues/18",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13",
-        "https://github.com/danielwauer-maker/bcsentinel/pull/168"
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43524633599"
       ]
     },
     {
@@ -80,15 +82,19 @@
     {
       "id": "4.01",
       "status": "audit_draft",
-      "detail": "PR #164 dokumentiert acht Produktvertragsdrifts: Legacy Quick dauerhaft und Full 7d auf Core main versus v2 Full14/Renewal/Validation Draft #154. Normative Produkt-/Preisentscheidung und Bestandsschutz offen; diese Abhängigkeit blockiert externe Fiverr-Zusagen.",
+      "detail": "Owner-approved Fiverr USD list matrix and pilot discount business rules; Product System Draft PR #33 contains non-active versioned candidate at 79fb7da and focused candidate invariant validator at 4d99f21 (CI pending). Core #164 documents 4.02 source review. Normative active contracts, commercial renewal/Monitoring specifics, operational runtime, BC27 E2E and Go-Live remain NOT APPROVED.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/docs/sprint401-product-contract-audit-20261111/docs/SPRINT401_FIVERR_PRICING_PROPOSAL_20261112.md",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/e62b10772477ecbfd568ec7cc4856b3d88d9d998",
+        "https://github.com/danielwauer-maker/bcsentinel-product-system/pull/33"
       ]
     },
     {
       "id": "4.02",
       "status": "implementation_draft",
-      "detail": "Free→Full 14d implementation candidate, not contractual/release approval. Legacy Quick/7d rights must be reconciled.",
+      "detail": "Source review documented in Core #164: PR #154 policy Full=14d with zero new scans, original Free scan retained, renewal=14d; contract tests exist. Renewal extend_access stacks from existing expiry, still owner-policy approval pending; no new live E2E. No technical or DEV PASS.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/154"
       ]
@@ -163,9 +169,11 @@
     {
       "title": "Sprint 4.01 · Access-v2 audit",
       "status": "audit_draft",
-      "detail": "Audit drafted; v2 product freeze not approved.",
+      "detail": "Product System #33 non-active owner-priced Fiverr candidate + dedicated candidate invariant checks now in branch; CI final SHA review pending. Core #164 4.02 reviewed, all operational and normative deployment gates still open.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/164"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/164",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+        "https://github.com/danielwauer-maker/bcsentinel-product-system/pull/33"
       ]
     },
     {
@@ -177,11 +185,13 @@
       ]
     },
     {
-      "title": "Sprint 3.02 · Full-v6 isolierte DEV-Viewer-Abnahme (12.11.2026)",
-      "status": "runtime_partial_pass",
-      "detail": "Operator-Nachweis: Git SHA 01b15b9ab6dc isolierter Container 127.0.0.1:3001; Routen/Assets/3 PNGs HTTP 200; Vergleich altes Port-3000-Frontend bestanden; Firefox-Fail-closed-Fehler bei ungültigem Report-Link. Neuere GitHub-PR #13 CI SHA 60af4902a294 PASS. Kein öffentlicher Viewer, kein echter bezahlter Report, keine Backend-Viewer-URL, keine Freigabe.",
+      "title": "Sprint 3.02 · Full-v6 DEV deployment (13.11.2026)",
+      "status": "dev_deployment_pass_e2e_open",
+      "detail": "Owner-verified backend on staging SHA 3ca62ac94eb6 (healthy, Alembic 0040, public API 200) and frontend DEV viewer SHA 69ab09d56036 (port 3000, public /, /overview, /report/live HTTP 200). Separate historical port-3001 viewer remains out of deployment scope. Nginx duplicate vhost was corrected after moving unintended sites-enabled backup to /etc/nginx/backup. Frontend rollback retained; exact backend/frontend manual Actions runs succeeded. Real BC27 tenant, Access-v2, one-use links/replay, Free/Full/Validation/Monitoring content and company/tenant isolation NOT YET verified. No PROD release; Fiverr NO_GO.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/13"
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43407422524",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43409586056",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14"
       ]
     },
     {
@@ -203,36 +213,123 @@
     {
       "title": "Fiverr V1 · Umfang und Landing-Freeze",
       "status": "launch_scope_open",
-      "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO.",
+      "detail": "Kundenseitiges BC-tenantgebundenes Overview-Dashboard bleibt bestehen, ist für ersten Fiverr-Go-Live aber explizit out-of-scope. Bestehende Pilot-Landingpage muss später gegen endgültige Fiverr-Landingpage ersetzt und gesondert getestet werden. Global NO_GO. Product owner confirms first Fiverr Go-Live includes Full Assessment, Validation and Monitoring; no new Quick offer; 14d access target. Requires actual Monitoring E2E, price/contract and landing freeze; global NO_GO.",
       "refs": [
         "https://github.com/danielwauer-maker/bcsentinel/pull/166"
       ]
     },
     {
-      "title": "Phase 1 · Release-Sicherheit und CI-Optimierung",
-      "status": "merged_ci_verified",
-      "detail": "2026-11-13: PR #188 in staging via Squash-Merge c6c793c1d9cb590d714c23919df5ae5f808c4095 integriert. 11/11 finale PR-Workflows PASS; 17/17 staging-Post-Merge-Push-Workflows PASS, einschließlich BC AL Compile (43466657700) und BC finding identity (43466657726). Branch staging von GitHub als protected bestätigt; Betreiber hat Classic Branch Protection und Required Checks für staging/main eingerichtet (Classifier und Reject implicit PROD deployments); GitHub-App kann Regeln selbst nicht administrativ auslesen. Release-Controller weiterhin manuell und Exact-SHA-gebunden. Kein DEV-/PROD-Serverdeploy, kein BC27-SaaS-Runtime-Test, kein Fiverr-Go-Live; das ist ausschließlich Phase-1-Code-/CI-Abschluss-Evidence.",
+      "title": "DEV consolidation · GitHub-verified merge and release controls (2026-11-13)",
+      "status": "dev_source_merged_release_not_deployed",
+      "detail": "Verified GitHub merges: BCSentinel controller #178 into main db45f3a651f39dac98ef5efcd5e9d4b889b6679c; frontend controller #15 into frontend main 513155f8d7b0ca93d3d07b3552a68b7c7c8ea2e9; backend consolidation #177 into staging 3ca62ac94eb6cbce98c97984850f6bc7159780c3. 14 legacy Core PRs closed only after exact ancestor or all-file-blob identity verification; 4 Core and 7 Frontend PRs remain open. 'Deploy to Hetzner' staging-push workflow 43400833616 was skipped. Push-triggered staging CI is still running. No actual DEV deployment, data restore, BC sandbox upgrade or paid-report end-to-end acceptance proven. Global Fiverr NO_GO.",
       "refs": [
-        "https://github.com/danielwauer-maker/bcsentinel/pull/188",
-        "https://github.com/danielwauer-maker/bcsentinel/commit/c6c793c1d9cb590d714c23919df5ae5f808c4095",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657700",
-        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657726"
+        "https://github.com/danielwauer-maker/bcsentinel/pull/177",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/178",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/15",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43400833616"
+      ]
+    },
+    {
+      "title": "DEV-first · konsolidierter Staging-Integrationskandidat (12.11.2026) [historical evidence, 2026-11-12]",
+      "status": "integration_review_open",
+      "detail": "P0/P1 pre-merge candidate PR #172 HEAD e095822f06f215978e3ca79fc4b0d1de0a94acb4: newly introduced commercial checkout /billing/checkout/commercial-session now explicitly fail-closed via COMMERCIAL_CHECKOUT_ENABLED=False (defaults off; HTTP 503 before DB/Stripe, negative test added). Existing legacy Stripe checkout/session preserved contractually and not globally disabled; requires separate commercial approval. On actual running prior DEV backend, ACCESS_MODEL_V2_ENABLED=False, ACCESS_V2_PAID_CHECKOUT_ENABLED=False, CUSTOMER_DASHBOARD_ENABLED=False, QUICK_ASSESSMENT_ENABLED=False, operator read-only PASS. Staging release workflow needs exact-SHA approval variables; revised health checks verify on-host checkout SHA and local/public DB-backed /health/ready and fail closed. Restore 66 tables/Alembic 0040, backup checksum, nginx syntax and git clean PASS operator. Independent AL Finding Identity workflow invalid YAML fixed at 9cd0b338; new fresh/upgrade jobs now run but final HEAD acceptance PENDING. CI final HEAD PENDING. No staging merge, DEV deployment, PROD or port 8092 change; Fiverr NO_GO. Historical snapshot; current status superseded by the verified 2026-11-13 staging merge evidence.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/172",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/integration/dev-first-fiverr-core-20261112/docs/release/DEV_FIRST_STAGING_INTEGRATION_GATE_20261112.md",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43288173641",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43289722500",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/49faf455dcec18c55825444e9d1d56b159629bbd",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/aba220b0797604fc75878ee3ac9cc57418861f04",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/326f9086f3f4f5cf6d2e95ed52e4ed25b763b709",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/2ff54ba3e5cd2c992e47c35c986e0d4b5efd5e8c",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/a263782eb88331de0cb2076177ca8a988582311f",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/f90d25de65c54545f07d15ef115f535c1137b616",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/ab2bd7ae11e0246575cddda753412d307a71c46c",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/13456c5814a405fb6e039f8c2e1d575c1fa3b634",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/917df3c6c4b67f574ab0113bb97c3e05a8b2a502",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/566c53acb70dfd3466887cd77cb5f9f61435730f",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/d60ec06ed28b4c5a478ea4e6de296536e33dd682",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43316233278",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/9cd0b33887db075f8c8fe55258f23016d7f2f957",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/e095822f06f215978e3ca79fc4b0d1de0a94acb4",
+        "https://github.com/danielwauer-maker/bcsentinel/commit/38a798aab8a267dc59ec1f52b1a236964c417afa"
+      ]
+    },
+    {
+      "title": "CI-OPT-01 · GitHub Actions PR-Supersession (12.11.2026) [historical evidence, 2026-11-12]",
+      "status": "DRAFT / SAFETY CONTRACT PASS — CI AND RELEASE GATES OPEN",
+      "detail": "Stage A PR #173 updated HEAD a0dd1a55eff8eed8fc91a3411888bc75aeffb363: 7 workflows have per-PR cancel-on-supersession and UNIQUE per-run groups for push and manually dispatched runs (avoid pending release eviction); earlier obsolete PR runs demonstrably cancelled incl Finding AL, but final exact-HEAD CI still queued and acceptance not complete. Stage B prerequisite PR #174 HEAD 523ea533f6ec23e05671635b06d5e9e2ee4b8cc1 read-only exact reviewed PR SHA and staging base SHA evidence checker with 20 required workflow PASS plus finding AL fresh+upgrade; offline selftest workflow still pending; live manually dispatched test cannot be claimed available because default branch is main, workflow exists only on staging-based draft; installing to main could trigger PROD deploy and is NOT approved. Github App branch-protection status access HTTP 403. All 21 #172 workflows at final commit still queued at observation, likely scheduling backlog not root-caused. No commits merged or deployed; Fiverr NO_GO. Historical snapshot; current status superseded by the verified 2026-11-13 staging merge evidence.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/173",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/ci/opt-01-staged-windows-ci-20261112/docs/ci/CI_OPT_01_SAFE_ROLLOUT.md",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/174",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/ci/opt-01-release-attestation-20261112/docs/ci/CI_OPT_01_RELEASE_EVIDENCE.md"
+      ]
+    },
+    {
+      "title": "Issue #33 · Free schema guard",
+      "status": "merged_source_runtime_open",
+      "detail": "PR #181 (schema allowlist security regression only) merged to backend staging commit 8f0cb29c28926bf36d8c404abc3a0a159d7820f0 after four green PR CI runs; Free BC/API report source reviews indicate aggregate-only schema. Actual BC27 non-SUPER, alternate API data-leak negatives, paid→Free downgrade and PDF/browser tests are OPEN. Updated staging SHA is not yet a new DEV deployment. Issue #33 remains open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/181",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/33"
+      ]
+    },
+    {
+      "title": "Issue #43 · controlled Pilot Enrollment",
+      "status": "source_merged_ci_pass_runtime_open",
+      "detail": "GitHub PR #182 merged to backend staging commit 0040aae09de0f3901c221c377267615cd47a3b56 after all 19 exact-head PR workflows PASS, incl. BC27 runtime, compile/cop and finding identity. Alembic 0041 and atomic identity-bound pilot enrollment integrated in source; feature disabled by default. Real DEV database migration, installed BC app, Non-SUPER SaaS registration, operator ingress and customer token delivery NOT yet verified. Issue #43 and Fiverr NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/182",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/43"
+      ]
+    },
+    {
+      "title": "Release/CI Security 2026-11-13 · PROD Exact-SHA + staging-safe CI",
+      "status": "source_ci_pass_merged_manual_ops_open",
+      "detail": "Release controllers are verified byte-identical on main HEAD c0c411cef1a5a87ec44a2ff69bdeca48d24dfe87 and staging HEAD a866bda7a565b841242df45fe5556147e8fcaa6e; same deploy.yml blob 62685dd556096cfe933f860635146027f28f35fc. PR #184 merged after 14 green checks: PROD manually dispatched, confirmation PROMOTE_TO_PROD, release SHA exactly current main HEAD and explicit PROD_RELEASE_ENABLED / PROD_RELEASE_SHA matching, production environment and regression gate. PR #186 merged after 18 green checks: untrusted dispatch release ref moved to env, validated before shell use/output, regression contract added. PR #185 merged after 7 green checks: old staging push-deploy replaced with reviewed main controller; 3 more expensive workflows now cancel only superseded PR runs (ten guarded workflows total), manual and staging push run groups never superseded. No application code, DB, DEV or PROD runtime deployment; no Fiverr GO. Remaining operator verification: GitHub branch protection/environment reviewers (connector returned 403) and actual repo variable values/reset after release. Full CI tier remains on until branch protection can be inspected; no required checks disabled. Source and CI technical workflow gates PASS; real BC27 and product report E2E remains open.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/184",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/186",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/185",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/staging/docs/ci/RELEASE_CI_GOVERNANCE_20261113.md"
+      ]
+    },
+    {
+      "title": "Issues #30/#32 · Finding remediation and monitoring access display",
+      "status": "staging_merged_ci_pass_runtime_open",
+      "detail": "PR #191 merged to backend staging commit caf245b23a74d4691fe62dfc5c4de805c730a171; 13/13 PR workflows PASS at fa626482cad54e99f2676da5bac787c262aa91bb incl. 3 BC27 gates. Purchase Line SystemId correction/exclusion/history, Sales Line exclusion and Full/Monitoring expiry UI integrated. Real BC SaaS Non-SUPER remediation, 199-check route coverage, in-place upgrade and Full→Monitoring display still NOT accepted. Issues #30/#32 remain open; no DEV deploy proven. 2026-11-14 operator-controlled DEV backend 0041 migration and switch PASS. Actual BC SaaS runtime behavior and monitoring access presentation still require acceptance.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/191",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/30",
+        "https://github.com/danielwauer-maker/bcsentinel/issues/32"
+      ]
+    },
+    {
+      "title": "Frontend #14 · DEV-only Full-v6 viewer integration",
+      "status": "dev_frontend_deployed_technical_pass_e2e_open",
+      "detail": "Frontend PR #14 merged exclusively to branch dev-integration at 2af0ae555251600c0dccb29899104dbdf0ea818f. Its final PR head 18cd1c32892e69d838428a6fab8d5e8910acd7a2 passed GitHub Actions 43518612217 including disabled/enabled builds, Vitest, SSR, isolated Docker smoke and image-byte validation. Existing frontend main 8f98cc3f9528f1856e67dbdab4e5f065ff6bb4c2 and production unchanged. Manual exact-SHA DEV deployment completed SUCCESS at run 43524633599: serving image 2af0ae555251600c0dccb29899104dbdf0ea818f and public smoke PASS; prior 69ab09d5603669570c8e1f9223c65b664b40c636 preserved as stopped rollback. No real BC27 paid viewer E2E, CORS/tenant/replay or backend grant assertion. Backend staging candidate is caf245b23a74d4691fe62dfc5c4de805c730a171. Global Fiverr NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/14",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43518612217",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/191",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43524633599"
       ]
     }
   ],
-  "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence.",
   "observed_gates": {
-    "source_date": "2026-11-12",
-    "source_kind": "operator_logs_plus_github_ci",
+    "source_date": "2026-11-14",
+    "source_kind": "operator_controlled_dev_release_log_plus_github_ci",
     "fiverr": "NO_GO",
     "dashboard_agent_execution": "disabled",
     "tracker_checkbox_updates": 0,
     "host_frontend": {
-      "port3000": "unchanged",
+      "port3000": "verified_running_image_on_deploy_logs",
       "port3001": "isolated_full_v6_technical_pass",
-      "deployed_head": "01b15b9ab6dc13a1201e9c063382e67a4dddb99b",
+      "deployed_head": "2af0ae555251600c0dccb29899104dbdf0ea818f",
       "ci_candidate_head": "60af4902a294488f87ff151ffd41f26a79f7d365",
-      "public_routing": "not_changed",
+      "public_routing": "frontend_dev_smoke_success",
       "backend_viewer_base_url": "not_configured",
       "real_paid_report_e2e": "not_executed"
     },
@@ -242,6 +339,124 @@
       "host_8093": "not_verified",
       "host_8092": "preserved"
     },
-    "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe."
+    "uncertainty": "Operator independent post-release SSH output confirms new backend container healthy with 0041 and local backend/viewer HTTP 200; no authenticated paid report, BC27 SaaS upgrade/non-SUPER, access isolation or real scan E2E. Pre-upgrade latest dump archive integrity checked but exact dump isolated restore not performed. No PROD mutation evidence beyond operator script statement; Fiverr NO_GO.",
+    "dev_consolidation": {
+      "verified_at": "2026-11-13",
+      "backend_staging_sha": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
+      "backend_main_controller_sha": "db45f3a651f39dac98ef5efcd5e9d4b889b6679c",
+      "frontend_main_controller_sha": "513155f8d7b0ca93d3d07b3552a68b7c7c8ea2e9",
+      "frontend_source_candidate_sha": "69ab09d5603669570c8e1f9223c65b664b40c636",
+      "premerge_backend_pr177_ci": "23/23 success on exact source candidate SHA 2bc926c3f996b7bff05d33e8978c0fb0741ef5b4",
+      "backend_pr178_ci": "11/11 success on controller SHA d306c6ddbd963952d2c3354ea67576c19de8f5d2",
+      "frontend_exact_sha_docker_smoke": "success GitHub Actions 43382283017",
+      "staging_push_deploy_workflow": "skipped GitHub Actions 43400833616",
+      "staging_push_ci": "in_progress_at_review",
+      "github_release_variables": "operator screenshots show false/NOT_APPROVED for both repos; not independently queried",
+      "dev_deployed": false,
+      "prod_deployed": false,
+      "actual_dev_database_restored": false,
+      "actual_bc_sandbox_upgrade_verified": false,
+      "fiverr": "NO_GO",
+      "references": [
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43400833616",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43382283017"
+      ]
+    },
+    "dev_runtime_release_20261114": {
+      "frontend": {
+        "state": "deployed_dev",
+        "sha": "2af0ae555251600c0dccb29899104dbdf0ea818f",
+        "github_run": 43524633599,
+        "checks": "authorize_verify_deploy_all_success",
+        "old_image_rollback": "69ab09d5603669570c8e1f9223c65b664b40c636",
+        "report_route": "isolated_candidate_http_200_only_no_entitlement_e2e"
+      },
+      "backend": {
+        "state": "deployed_dev_operator_verified",
+        "alembic_current": "0041_pilot_enrollment",
+        "staging_candidate": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+        "staging_ci": "17_of_17_success",
+        "migration_required": "0041_pilot_enrollment",
+        "next_gate": "manual_DEV_BC27_install_upgrade_nonSUPER_registration_free_full_validation_monitoring_E2E",
+        "backup_verified": {
+          "operator_timestamp_utc": "2026-11-13T23:44:31Z",
+          "file": "/home/daniel/bcsentinel-dev-backups/dev-pre-0041-20261113T234431Z.dump",
+          "bytes": 332485,
+          "sha256": "4df8e3ec5b98235b96a1293e42a4a3eff2b270e9ec1845efcf0d37afc769034f",
+          "restored_migration": "0040_scan_record_identity_evidence",
+          "restored_public_tables": 66,
+          "archive_format": "PASS",
+          "isolated_restore": "PASS",
+          "live_database_unchanged": "YES",
+          "scope": "backup_restore_only_no_0041_migration_rehearsal"
+        },
+        "isolated_migration_rehearsal": {
+          "scope": "temporary_PostgreSQL15_restored_backup_no_live_mutation",
+          "source_sha": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+          "backup_sha256": "4df8e3ec5b98235b96a1293e42a4a3eff2b270e9ec1845efcf0d37afc769034f",
+          "image_build": "PASS",
+          "restored_schema_before": "0040_scan_record_identity_evidence",
+          "restored_schema_after": "0041_pilot_enrollment",
+          "tables_before": 66,
+          "tables_after": 68,
+          "existing_tables_preserved": "PASS",
+          "representative_row_counts_preserved": "PASS",
+          "live_backend_healthy": "PASS",
+          "live_database_unchanged": "YES",
+          "operator_result": "REHEARSAL_RESULT=PASS",
+          "transport_warning": "base64_invalid_input_despite_complete_script_success; integrity_of_transmitted_bytes_not_independently_verified",
+          "evidence_source": "operator_pasted_PowerShell_SSH_output",
+          "interpretation": "migration_functional_pass; transport_integrity_and_actual_dev_release_gates_still_open"
+        },
+        "live_checkout_before": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
+        "live_image_tag_before": "bcsentinel-dev-s3a2:a8b870eb41d2",
+        "deployed_source_sha": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+        "deployed_image_id_prepared": "sha256:04b4d3cd7e95d64d0cad18e56ba2595efc391b6de173ea19fb2f2cda6c912b14",
+        "alembic_before": "0040_scan_record_identity_evidence",
+        "deployment_result": "DEV_0041_RELEASE_RESULT=PASS",
+        "db_migration": "LIVE_DEV_MIGRATION=PASS",
+        "backend_container_switch": "BACKEND_CONTAINER_SWITCH=PASS",
+        "public_dev_smoke": "PASS",
+        "rollback_container": "dhm-dev-backend-rollback-pre0041",
+        "pre_migration_backup": {
+          "file": "/home/daniel/bcsentinel-dev-backups/dev-pre-0041-release-20261114T002912Z.dump",
+          "bytes": 332687,
+          "sha256": "85a522fa4dea006b6f280515fe5ecc74bf11a8a278ef9ebe51f3b3373fbb4272",
+          "archive_check": "PASS",
+          "isolated_restore_test_of_this_exact_archive": "NOT_EXECUTED"
+        },
+        "postrelease_operator_readonly_check": {
+          "container": "dhm-dev-backend",
+          "state": "running_healthy",
+          "image_id_prefix": "04b4d3cd7e95",
+          "local_port": "127.0.0.1:8001",
+          "alembic": "0041_pilot_enrollment (head)",
+          "backend_ready_http": 200,
+          "viewer_local_http": 200,
+          "rollback_container": "dhm-dev-backend-rollback-pre0041",
+          "rollback_state": "exited_0",
+          "evidence": "user supplied PowerShell SSH docker ps, docker exec alembic current, curl http status",
+          "limits": "HTTP status and health do not establish report authorization, BC27 sandbox install, complete API contracts or end-to-end functionality"
+        }
+      },
+      "host_inventory": "operator-provided read-only script output at 2026-11-13T22:54:12Z (backend healthy, frontend / /overview /report/live 200, nginx PASS, existing dumps; values and BC SaaS unverified)",
+      "go_live": "NO_GO",
+      "tracker_checkbox_updates": 0,
+      "operator_release_log": "Operator PowerShell/SSH controlled DEV release output: source caf245b23a74, pre-migration backup and archive PASS, Alembic 0041 PASS, backend switch PASS, public DEV smoke PASS, rollback container preserved, PROD_UNTOUCHED=YES; host re-inventory after switch not yet independently verified."
+    }
+  },
+  "sprint401_sync": {
+    "record_version": "2026-11-12-r1",
+    "recorded_at": "2026-11-12",
+    "contract_approval": "pending",
+    "technical_implementation": "open",
+    "dev_acceptance": "open",
+    "go_live": "NO_GO",
+    "documentation": "updated_in_draft_pr_164",
+    "core_main_sha": "c1d9fccf39767048bceabe93e7b8676df180868f",
+    "audit_commit": "5849314207911ccd2ace0c6fc1335b4c8b4ec025",
+    "dashboard_deployment": "not_deployed",
+    "ci_note": "At preceding #164 head: E5 recovery workflow failed at Install PostgreSQL client; other observed workflows passed. Fresh workflow checks on audit and evidence commits pending.",
+    "tracker_changes": 0
   }
 }
