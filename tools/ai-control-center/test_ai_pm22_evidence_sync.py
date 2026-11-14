@@ -61,7 +61,7 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(dev["backend"]["alembic_current"], "0041_pilot_enrollment")
         self.assertEqual(dev["backend"]["deployment_result"], "DEV_0041_RELEASE_RESULT=PASS")
         self.assertEqual(dev["backend"]["pre_migration_backup"]["isolated_restore_test_of_this_exact_archive"], "NOT_EXECUTED")
-        self.assertEqual(dev["backend"]["alembic_current"], "0040_scan_record_identity_evidence")
+        self.assertEqual(dev["backend"]["alembic_current"], "0041_pilot_enrollment")
         self.assertEqual(dev["go_live"], "NO_GO")
         self.assertEqual(dev["tracker_checkbox_updates"], 0)
 
