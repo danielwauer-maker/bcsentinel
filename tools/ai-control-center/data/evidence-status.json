@@ -315,6 +315,16 @@
         "https://github.com/danielwauer-maker/bcsentinel/pull/191",
         "https://github.com/danielwauer-maker/bcsentinel-frontend/actions/runs/43524633599"
       ]
+    },
+    {
+      "title": "Pre-BC27 automatable Sprint A/B/C/D · source candidate 2026-11-14",
+      "status": "draft_source_ci_pending_manual_gates_open",
+      "detail": "Sprint A: PR #192 superseded, exact byte-identical evidence and tests moved to staging-based PR #193. Sprint B: control-center mount CSP same-origin base-uri fix plus proxy-token-only authentication regressions. Sprint C: dashboard dated backend/0041/frontend evidence panel and previously escaped assertion repair; no auto-approval. Sprint D: 12-case BC27 1.0.2.60 manual gate JSON and DEV-only admin activation handoff. No host nginx reload, 8092 deploy, BC extension install, real BC27/paid-report E2E or PROD changes. New candidate CI under review; Fiverr NO_GO.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/193",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/docs/ai-control-admin-dev-release-20261114/docs/acceptance/DEV_BC27_FIVERR_GATE_20261114.md",
+        "https://github.com/danielwauer-maker/bcsentinel/blob/docs/ai-control-admin-dev-release-20261114/docs/ops/AI_CONTROL_CENTER_DEV_ACTIVATION_CHECKLIST_20261114.md"
+      ]
     }
   ],
   "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence.",
@@ -463,6 +473,18 @@
         "DEV_admin_browser_positive_negative_tests"
       ],
       "fiverr": "NO_GO"
+    },
+    "pre_bc27_automation": {
+      "source": "draft_pr_193",
+      "sprint_a": "pr192_superseded_closed_byte_identity_proven",
+      "sprint_b": "admin_proxy_csp_and_negative_auth_tests_candidate",
+      "sprint_c": "dated_deployment_evidence_dashboard_panel_candidate",
+      "sprint_d": "twelve_manual_gate_templates_prepared_not_executed",
+      "current_release": "unmodified",
+      "server_8092": "not_updated",
+      "manual_bc27": "NOT_EXECUTED",
+      "fiverr": "NO_GO",
+      "ci": "pending_exact_final_sha"
     }
   },
   "sprint401_sync": {
