@@ -317,7 +317,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E.",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence.",
   "observed_gates": {
     "source_date": "2026-11-14",
     "source_kind": "operator_controlled_dev_release_log_plus_github_ci",
@@ -339,7 +339,7 @@
       "host_8093": "not_verified",
       "host_8092": "preserved"
     },
-    "uncertainty": "Backend 0041 release and frontend exact-SHA deployment attested by operator-provided SSH release output and GitHub Actions logs respectively; no fresh independent post-release host runtime inventory, authenticated report E2E, BC27 SaaS acceptance, or migration-back rollback test. Fresh pre-migration dump archive checked only; exact dump restore not tested. PROD remains unmodified according to operator release log; Fiverr NO_GO.",
+    "uncertainty": "Operator independent post-release SSH output confirms new backend container healthy with 0041 and local backend/viewer HTTP 200; no authenticated paid report, BC27 SaaS upgrade/non-SUPER, access isolation or real scan E2E. Pre-upgrade latest dump archive integrity checked but exact dump isolated restore not performed. No PROD mutation evidence beyond operator script statement; Fiverr NO_GO.",
     "dev_consolidation": {
       "verified_at": "2026-11-13",
       "backend_staging_sha": "3ca62ac94eb6cbce98c97984850f6bc7159780c3",
@@ -377,7 +377,7 @@
         "staging_candidate": "caf245b23a74d4691fe62dfc5c4de805c730a171",
         "staging_ci": "17_of_17_success",
         "migration_required": "0041_pilot_enrollment",
-        "next_gate": "post_release_readonly_runtime_reverification_and_manual_BC27_report_auth_tenant_E2E",
+        "next_gate": "manual_DEV_BC27_install_upgrade_nonSUPER_registration_free_full_validation_monitoring_E2E",
         "backup_verified": {
           "operator_timestamp_utc": "2026-11-13T23:44:31Z",
           "file": "/home/daniel/bcsentinel-dev-backups/dev-pre-0041-20261113T234431Z.dump",
@@ -424,6 +424,19 @@
           "sha256": "85a522fa4dea006b6f280515fe5ecc74bf11a8a278ef9ebe51f3b3373fbb4272",
           "archive_check": "PASS",
           "isolated_restore_test_of_this_exact_archive": "NOT_EXECUTED"
+        },
+        "postrelease_operator_readonly_check": {
+          "container": "dhm-dev-backend",
+          "state": "running_healthy",
+          "image_id_prefix": "04b4d3cd7e95",
+          "local_port": "127.0.0.1:8001",
+          "alembic": "0041_pilot_enrollment (head)",
+          "backend_ready_http": 200,
+          "viewer_local_http": 200,
+          "rollback_container": "dhm-dev-backend-rollback-pre0041",
+          "rollback_state": "exited_0",
+          "evidence": "user supplied PowerShell SSH docker ps, docker exec alembic current, curl http status",
+          "limits": "HTTP status and health do not establish report authorization, BC27 sandbox install, complete API contracts or end-to-end functionality"
         }
       },
       "host_inventory": "operator-provided read-only script output at 2026-11-13T22:54:12Z (backend healthy, frontend / /overview /report/live 200, nginx PASS, existing dumps; values and BC SaaS unverified)",
