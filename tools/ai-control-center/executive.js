@@ -15,6 +15,20 @@
     const brief = snapshot?.ai_pm_brief || {};
     const plan = snapshot?.blocker_plan || {};
     const repos = Array.isArray(snapshot?.repositories) ? snapshot.repositories : [];
+    const dev = snapshot?.sprint_evidence?.observed_gates?.dev_runtime_release_20261114 || {};
+    const backend = dev.backend || {};
+    const frontend = dev.frontend || {};
+    const verified = backend.postrelease_operator_readonly_check || {};
+    set("dev-backend-gate", verified.state==="running_healthy" &&
+        verified.alembic==="0041_pilot_enrollment (head)"
+      ? "HEALTHY · Alembic 0041 · caf245b23a74" : "Aktueller Runtime-Nachweis fehlt");
+    set("dev-frontend-gate", frontend.state==="deployed_dev" &&
+        frontend.sha==="2af0ae555251600c0dccb29899104dbdf0ea818f"
+      ? "DEV bereitgestellt · 2af0ae555251 · Viewer HTTP 200"
+      : "DEV-Runtime nicht hinreichend bestätigt");
+    set("dev-e2e-gate", "OFFEN · BC27 / Free / Full / Validation / Monitoring");
+    set("dev-gate-source", "Betreiber-Evidence vom 14.11.2026, keine permanente Live-Abfrage. " +
+        "Admin-Proxy-Deployment und BC-SaaS-/Report-Abnahme nicht bestätigt; Fiverr NO-GO.");
     set("exec-status", "NICHT FREIGEGEBEN");
     set("exec-progress", ready.state==="loaded" ? pct(ready.technical_fraction) : "Nicht verfügbar");
     set("exec-progress-source", "Fiverr · technisch markierte Planstunden, keine unabhängige Abnahme");
