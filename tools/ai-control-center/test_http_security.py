@@ -110,8 +110,19 @@ class HttpIsolationTests(unittest.TestCase):
                                          "URL_PREFIX":"/admin/ai-control-center"}):
             status,_,_=self.request("/index.html",auth=True)
             self.assertEqual(status,401)
-            status,_,body=self.request("/index.html",extra_headers=proxy_headers)
+            # Proxy mode must never fall back to legacy operator credentials.
+            for path in ("/", "/api/snapshot", "/api/media", "/team.html", "/media.html"):
+                with self.subTest(path=path):
+                    status,_,_=self.request(path,auth=True)
+                    self.assertEqual(status,401)
+                    status,_,_=self.request(path,extra_headers={"X-AI-Control-Center-Proxy-Auth":"incorrect"})
+                    self.assertEqual(status,401)
+                    status,_,_=self.request(path,extra_headers=proxy_headers)
+                    self.assertEqual(status,200)
+            status,headers,body=self.request("/index.html",extra_headers=proxy_headers)
             self.assertEqual(status,200)
+            self.assertIn("base-uri 'self'",headers["Content-Security-Policy"])
+            self.assertNotIn("base-uri 'none'",headers["Content-Security-Policy"])
             page=body.decode("utf-8")
             self.assertIn('<base href="/admin/ai-control-center/">',page)
             self.assertIn('href="/admin/ai-control-center/team.html"',page)
