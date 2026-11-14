@@ -6,6 +6,15 @@
 </style><link rel="stylesheet" href="/light-theme.css"></head><body>
 <header><div><div class="eyebrow">Data Health · Business Impact</div><h1>BCSentinel AI Control Center</h1><div class="sub">Projektsteuerung · Live-Evidence · AI-PM 2.2</div></div><nav aria-label="Hauptnavigation" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="/index.html" aria-current="page" style="font-weight:700">Dashboard</a><a href="/team.html" style="font-weight:700">Team</a><a href="/media.html" style="font-weight:700">Mediathek</a><button id="refresh">Jetzt aktualisieren</button></nav></header>
 <main><div class="topline"><span id="timestamp" class="muted">Noch nicht geladen</span><span class="chip danger" id="go-live">Go-Live: nicht freigegeben</span><span class="chip">Ein Agent nach dem anderen · geplant</span></div>
+<section id="dev-release-gates" class="panel" aria-label="DEV Deployment und Abnahme" style="margin-top:16px">
+ <h2>DEV-Integration · verifizierter Evidence-Stand</h2>
+ <div class="brief-list">
+  <div><span class="sub">Backend / Schema</span><p id="dev-backend-gate">Nicht verifiziert</p></div>
+  <div><span class="sub">Frontend / Viewer</span><p id="dev-frontend-gate">Nicht verifiziert</p></div>
+  <div><span class="sub">BC27 / Report E2E</span><p id="dev-e2e-gate">Manuelle Abnahme offen</p></div>
+ </div>
+ <p class="readiness-note" id="dev-gate-source">Kuratierte historische Evidence, kein Live-Monitoring und keine Fiverr-Freigabe.</p>
+</section>
 <section id="executive-overview" class="exec-overview" aria-label="Executive Übersicht">
  <div class="exec-heading"><div><div class="eyebrow">AI-PM 2.2 · Executive Ansicht</div><h2>Projektlage auf einen Blick</h2><p class="sub">Trennscharfe Kennzahlen und nächste manuelle Reviews. Keine Freigabe- oder Laufzeitsimulation.</p></div><span class="chip danger" id="exec-status">NICHT FREIGEGEBEN</span></div>
  <div class="exec-metrics">
