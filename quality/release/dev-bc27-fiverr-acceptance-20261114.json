@@ -1,0 +1,182 @@
+{
+  "schema_version": "bcs-fiverr-bc27-dev-acceptance-v1",
+  "status": "NOT_EXECUTED",
+  "decision": "NO_GO",
+  "recorded_at": "2026-11-14",
+  "environment": "BC27_SANDBOX_ONLY",
+  "reference": {
+    "core_sha": "caf245b23a74d4691fe62dfc5c4de805c730a171",
+    "frontend_sha": "2af0ae555251600c0dccb29899104dbdf0ea818f",
+    "alembic": "0041_pilot_enrollment",
+    "extension_source_version": "1.0.2.60",
+    "actual_installed_version": null,
+    "app_package_sha256": null
+  },
+  "safety": {
+    "real_bc_users_or_tenants_required": true,
+    "secrets_or_pii_in_git": false,
+    "all_gates_require_observed_evidence": true,
+    "automatic_fiverr_approval": false
+  },
+  "cases": [
+    {
+      "id": "FIV-BC27-01",
+      "title": "Exact extension artifact, in-place upgrade, preserved setup/history",
+      "tracker": "1.03",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#30",
+        "danielwauer-maker/bcsentinel#31",
+        "danielwauer-maker/bcsentinel#32"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-02",
+      "title": "Non-SUPER VIEWER SCAN SETUP SCHEDULER ADMIN roles and negative permissions",
+      "tracker": "1.03",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#121"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-03",
+      "title": "Real registered customer onboarding without global QA invite",
+      "tracker": "4.01",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#43",
+        "danielwauer-maker/bcsentinel#21"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-04",
+      "title": "Original Free DeepScan 199-check outcomes and synchronized source identity",
+      "tracker": "2.01",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#33"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-05",
+      "title": "Free-only output no title/code/amount/drilldown; native Free report link explicitly assessed",
+      "tracker": "3.02",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#33",
+        "danielwauer-maker/bcsentinel-frontend#18"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-06",
+      "title": "Free baseline to Full 14-day entitlement and authenticated Full report",
+      "tracker": "3.02",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel-frontend#18",
+        "danielwauer-maker/bcsentinel#21"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-07",
+      "title": "Finding drilldowns, line SystemId correction, exclusion, persistence and second scan",
+      "tracker": "2.02",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#30",
+        "danielwauer-maker/bcsentinel#31"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-08",
+      "title": "Comparable Validation pair plus explicit 409/not-comparable refusal",
+      "tracker": "3.03",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel-frontend#18"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-09",
+      "title": "Monthly and annual Monitoring, accurate access expiry and history/report",
+      "tracker": "3.04",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#32",
+        "danielwauer-maker/bcsentinel-frontend#18"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-10",
+      "title": "Single-use grant replay/expiry/foreign tenant and company denial",
+      "tracker": "3.02",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#121",
+        "danielwauer-maker/bcsentinel-frontend#18"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-11",
+      "title": "Order, manual grant, renewal/refund, emails, buyer support and DE/EN",
+      "tracker": "4.06",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#21",
+        "danielwauer-maker/bcsentinel#43"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    },
+    {
+      "id": "FIV-BC27-12",
+      "title": "Two real tenant memberships, role/capability switch and no foreign reads",
+      "tracker": "1.03",
+      "issue_refs": [
+        "danielwauer-maker/bcsentinel#121"
+      ],
+      "status": "NOT_EXECUTED",
+      "evidence_refs": [],
+      "executed_at_utc": null,
+      "reviewed_by": null
+    }
+  ],
+  "manual_release_decision": {
+    "reviewed_by": null,
+    "recorded_at_utc": null,
+    "outcome": "NO_GO",
+    "notes": "No authenticated BC27 runtime acceptance yet."
+  }
+}
