@@ -17,7 +17,10 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual((meta["fiverr_tasks"], meta["saas_tasks"]), (61, 24))
         self.assertEqual((meta["checked_technical"], meta["checked_live"]), (2, 2))
         self.assertEqual(meta["verified_at"], "2026-11-11")
-        # The immutable Excel baseline predates independently reviewed later evidence.\n        # New verified GitHub events must not be blocked by the first snapshot date.\n        self.assertGreaterEqual(self.data["reviewed_at"], meta["verified_at"])\n        self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
+        # The immutable Excel baseline predates independently reviewed later evidence.
+        # New verified GitHub events must not be blocked by the first snapshot date.
+        self.assertGreaterEqual(self.data["reviewed_at"], meta["verified_at"])
+        self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
 
     def test_evidence_is_precise_and_fail_closed(self):
         gates = self.data["observed_gates"]
@@ -29,7 +32,7 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(host["port3001"], "isolated_full_v6_technical_pass")
         self.assertNotEqual(host["deployed_head"], host["ci_candidate_head"])
         self.assertEqual(host["public_routing"], "frontend_dev_smoke_success")
-        self.assertEqual(host["backend_viewer_base_url"], "not_configured")
+        self.assertEqual(host["backend_viewer_base_url"], "configured_dev_operator_verified")
         self.assertEqual(host["real_paid_report_e2e"], "not_executed")
 
     def test_curated_task_inventory_is_not_inflated(self):
