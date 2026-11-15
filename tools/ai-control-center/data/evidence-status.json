@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-13",
+  "reviewed_at": "2026-11-15",
   "work_items": [
     {
       "id": "1.01",
@@ -218,6 +218,17 @@
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657700",
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43466657726"
       ]
+    },
+    {
+      "title": "AI-PM 2.3 · GitHub-Mediathek Token-Datei (PR #194, 15.11.2026)",
+      "status": "ci_pass_isolated_runtime_pass_admin_gate_open",
+      "detail": "PR #194 Draft, HEAD a052dff0790e9104590ba4257700679d371a02ef auf staging-Basis caf245b: GITHUB_TOKEN_FILE fail-closed mit Legacy-Fallback, gemeinsamer Loader fuer app.py und media_library.py. Betreiber-Nachweise: 13/13 lokale Regressionstests PASS, Docker-Build/Imports PASS, separater Container mit read-only GitHub-Token (UID 10001) katalogisiert 15 Medien aus 3 Quellen ohne Fehler; 5 unautorisierte HTTP-Routen liefern 401, /api/snapshot und /api/media authentifiziert 200. GitHub-CI PR #194: AI Control Center MVP checks Run 43768471545 PASS, CI change classification Run 43768471596 PASS, PROD release controller static safety Run 43768471629 PASS. Isolierter Testcontainer entfernt. Das neue Image wurde NICHT auf DEV 8093/8092 deployed; Nginx-Admin-Proxy, reale Admin-Sitzung und Browser-Abnahme weiterhin OFFEN. Kein Merge, kein PROD-Deploy, keine Aenderung am historischen Excel-Tracker, keine BC27/Fiverr-Freigabe.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/194",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43768471545",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43768471596",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43768471629"
+      ]
     }
   ],
   "review_scope": "GitHub Draft-PR metadata, GitHub Actions CI, operator-provided read-only Hetzner/Firefox evidence; no direct dashboard 8092/8093 live API inspection; no new excel import",
@@ -241,6 +252,18 @@
       "github_ci": "pass_at_prior_head",
       "host_8093": "not_verified",
       "host_8092": "preserved"
+    },
+    "ai_pm23_github_media": {
+      "pr": 194,
+      "head_sha": "a052dff0790e9104590ba4257700679d371a02ef",
+      "github_ci": "3_of_3_workflow_runs_success",
+      "local_regression_tests": "13_of_13_pass",
+      "isolated_runtime": "http_media_loaded_15_assets_3_sources_0_errors",
+      "unauthenticated_http": "5_of_5_routes_401",
+      "admin_proxy_runtime": "not_verified",
+      "dev_8092_8093": "unchanged",
+      "prod": "unchanged",
+      "release_gate": "NO_GO"
     },
     "uncertainty": "No active SSH control or authenticated snapshot read: host state based on last operator logs; not a fresh runtime probe."
   }
