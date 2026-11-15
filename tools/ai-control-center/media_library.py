@@ -21,6 +21,7 @@ import urllib.request
 from pathlib import PurePosixPath
 
 from openpyxl import load_workbook
+from github_auth import GitHubTokenError, get_github_token
 
 ROOTS = (
     ("danielwauer-maker/bcsentinel", "main", "Core · main"),
@@ -61,7 +62,10 @@ class MediaError(Exception):
 
 
 def _request(url):
-    token = os.getenv("GITHUB_TOKEN", "")
+    try:
+        token = get_github_token()
+    except GitHubTokenError:
+        raise MediaError(503, "GitHub-Lesetoken nicht verfuegbar") from None
     if not token:
         raise MediaError(503, "GitHub-Lesetoken nicht konfiguriert")
     req = urllib.request.Request(url, headers={
