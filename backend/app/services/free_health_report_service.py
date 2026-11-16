@@ -121,16 +121,18 @@ def _enabled_module_count(value: str | None) -> int:
 
 
 def _impact_band(estimated_loss_eur: float, language: str) -> str:
-    # Free transport values are language-neutral; the existing viewer localizes
-    # these codes. Never expose the underlying EUR amount in Free.
     value = max(0.0, estimated_loss_eur)
     if value < 5_000:
-        return "low"
-    if value < 25_000:
-        return "medium"
-    if value < 100_000:
-        return "high"
-    return "very_high"
+        key = "Low"
+    elif value < 25_000:
+        key = "Moderate"
+    elif value < 100_000:
+        key = "High"
+    else:
+        key = "Very high"
+    if language != "de":
+        return key
+    return {"Low": "Niedrig", "Moderate": "Moderat", "High": "Hoch", "Very high": "Sehr hoch"}[key]
 
 
 def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeHealthReport:
