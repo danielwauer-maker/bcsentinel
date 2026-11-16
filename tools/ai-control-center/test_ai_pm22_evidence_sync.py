@@ -71,6 +71,17 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(dev["go_live"], "NO_GO")
         self.assertEqual(dev["tracker_checkbox_updates"], 0)
 
+    def test_current_dev_release_evidence_stays_fail_closed_for_admin_and_bc27(self):
+        current = self.data["observed_gates"]["dev_runtime_release_20261116"]
+        self.assertEqual(current["backend"]["state"], "deployed_exact_staging_sha")
+        self.assertEqual(current["backend"]["sha"], "403709ca2dfdcbcc2ceb2e9dda4461f261d04aae")
+        self.assertEqual(current["backend"]["github_run"], 43837211210)
+        self.assertEqual(current["ai_control_center"]["runtime"], "NOT_VERIFIED_backend_release_workflow_does_not_restart_8092_or_apply_nginx_configuration")
+        self.assertEqual(current["bc27"]["current_app_artifact"], "NOT_VERIFIED")
+        self.assertEqual(current["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+        self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
+        self.assertEqual(current["fiverr"], "NO_GO")
+
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")
