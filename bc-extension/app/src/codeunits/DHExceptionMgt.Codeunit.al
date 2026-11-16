@@ -131,6 +131,7 @@ codeunit 53152 "DH Exception Mgt."
         ExceptionsPage: Page "DH Issue Exceptions";
         RecordCaption: Text[100];
     begin
+        EnsureExceptionAccess();
         RecordCaption := CopyStr(Customer.Name, 1, 100);
         ExceptionsPage.SetContext(Database::Customer, Customer.SystemId, Customer."No.", RecordCaption);
         ExceptionsPage.Run();
@@ -141,6 +142,7 @@ codeunit 53152 "DH Exception Mgt."
         ExceptionsPage: Page "DH Issue Exceptions";
         RecordCaption: Text[100];
     begin
+        EnsureExceptionAccess();
         RecordCaption := CopyStr(Vendor.Name, 1, 100);
         ExceptionsPage.SetContext(Database::Vendor, Vendor.SystemId, Vendor."No.", RecordCaption);
         ExceptionsPage.Run();
@@ -151,6 +153,7 @@ codeunit 53152 "DH Exception Mgt."
         ExceptionsPage: Page "DH Issue Exceptions";
         RecordCaption: Text[100];
     begin
+        EnsureExceptionAccess();
         RecordCaption := CopyStr(Item.Description, 1, 100);
         ExceptionsPage.SetContext(Database::Item, Item.SystemId, Item."No.", RecordCaption);
         ExceptionsPage.Run();
@@ -159,6 +162,7 @@ codeunit 53152 "DH Exception Mgt."
 
     procedure DeactivateExceptionEntry(var IssueException: Record "DH Issue Exception")
     begin
+        EnsureExceptionAccess();
         if not IssueException.Active then
             exit;
 
@@ -171,6 +175,7 @@ codeunit 53152 "DH Exception Mgt."
 
     procedure ReactivateExceptionEntry(var IssueException: Record "DH Issue Exception"; Reason: Text[250])
     begin
+        EnsureExceptionAccess();
         Reason := CopyStr(Reason.Trim(), 1, MaxStrLen(IssueException.Reason));
         if Reason = '' then
             Error(ReasonRequiredErr);
@@ -260,6 +265,7 @@ codeunit 53152 "DH Exception Mgt."
     var
         IssueException: Record "DH Issue Exception";
     begin
+        EnsureExceptionAccess();
         Reason := CopyStr(Reason.Trim(), 1, MaxStrLen(IssueException.Reason));
         if Reason = '' then
             Error(ReasonRequiredErr);
@@ -300,6 +306,7 @@ codeunit 53152 "DH Exception Mgt."
     var
         IssueException: Record "DH Issue Exception";
     begin
+        EnsureExceptionAccess();
         IssueException.SetRange("Table ID", TableId);
         IssueException.SetRange("Record SystemId", RecordSystemId);
         IssueException.SetRange("Issue Code", IssueCode);
@@ -311,6 +318,13 @@ codeunit 53152 "DH Exception Mgt."
             IssueException.Modify(true);
             InsertActionLog(TableId, RecordSystemId, IssueException."Record No.", IssueException."Record Caption", IssueCode, 'INCLUDED', Comment);
         end;
+    end;
+
+    local procedure EnsureExceptionAccess()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureFullOrMonitoringAccess();
     end;
 
     local procedure InsertActionLog(TableId: Integer; RecordSystemId: Guid; RecordNo: Code[20]; RecordCaption: Text[100]; IssueCode: Code[50]; ActionType: Code[20]; Comment: Text[250])
