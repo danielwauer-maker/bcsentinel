@@ -15,27 +15,34 @@
     const brief = snapshot?.ai_pm_brief || {};
     const plan = snapshot?.blocker_plan || {};
     const repos = Array.isArray(snapshot?.repositories) ? snapshot.repositories : [];
-    const dev = snapshot?.sprint_evidence?.observed_gates?.dev_runtime_release_20261114 || {};
-    const backend = dev.backend || {};
-    const frontend = dev.frontend || {};
-    const verified = backend.postrelease_operator_readonly_check || {};
-    set("dev-backend-gate", verified.state==="running_healthy" &&
-        verified.alembic==="0041_pilot_enrollment (head)"
-      ? "HEALTHY · Alembic 0041 · caf245b23a74" : "Aktueller Runtime-Nachweis fehlt");
+    const gates = snapshot?.sprint_evidence?.observed_gates || {};
+    const current = gates.dev_runtime_release_20261116 || {};
+    const prior = gates.dev_runtime_release_20261114 || {};
+    const backend = current.backend || {};
+    const frontend = prior.frontend || {};
+    const admin = gates.admin_integration || {};
+    const backendVerified = backend.state==="deployed_exact_staging_sha" &&
+      typeof backend.sha==="string" && /^[0-9a-f]{40}$/.test(backend.sha);
+    set("dev-backend-gate", backendVerified
+      ? "DEV Release dokumentiert · "+backend.sha.slice(0,12)+" · 0041 (gesondert prüfen)"
+      : "Aktueller Runtime-Nachweis fehlt");
     set("dev-frontend-gate", frontend.state==="deployed_dev" &&
         frontend.sha==="2af0ae555251600c0dccb29899104dbdf0ea818f"
       ? "DEV bereitgestellt · 2af0ae555251 · Viewer HTTP 200"
       : "DEV-Runtime nicht hinreichend bestätigt");
     set("dev-e2e-gate", "OFFEN · BC27 / Free / Full / Validation / Monitoring");
-    set("dev-gate-source", "Betreiber-Evidence vom 14.11.2026, keine permanente Live-Abfrage. " +
-        "Admin-Proxy-Deployment und BC-SaaS-/Report-Abnahme nicht bestätigt; Fiverr NO-GO.");
+    const adminObserved = String(admin.nginx_admin_proxy||"").startsWith("operator_verified");
+    set("dev-gate-source", (adminObserved
+      ? "Admin-Proxy-Browserbetrieb operator-verifiziert. "
+      : "Admin-Proxy-Runtime nicht bestätigt. ") +
+      "Backend-Release aus kuratierter Evidence, keine permanente Live-Probe. BC27 E2E nicht bestätigt; Fiverr NO-GO.");
     set("exec-status", "NICHT FREIGEGEBEN");
     set("exec-progress", ready.state==="loaded" ? pct(ready.technical_fraction) : "Nicht verfügbar");
     set("exec-progress-source", "Fiverr · technisch markierte Planstunden, keine unabhängige Abnahme");
     set("exec-gates", ready.state==="loaded" ? pct(ready.gate_fraction) : "Nicht verfügbar");
     set("exec-gates-source", "Fiverr · historische Excel-Häkchen, keine unabhängige Abnahme");
     set("exec-estimate", ready.state==="loaded" ? pct(ready.legacy_estimate_fraction) : "Nicht verfügbar");
-    set("exec-estimate-source", "Historische qualitative Gesamtprojektschätzung · kein technischer Fortschritt");
+    set("exec-estimate-source", "Legacy-Excel-Planmodell · nicht aktuelle Entwicklungsevidence");
     set("exec-p0", insights.state==="loaded" ? count(insights.risk_summary?.p0_open_criteria) : "–");
     set("exec-p0-source", "Offene P0-Prüfkriterien im kuratierten Teilumfang");
     const stamp = snapshot?.generated_at_utc;
