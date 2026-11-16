@@ -244,6 +244,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Scheduled Scan Runner" = X,
         codeunit "DH Scheduled Scan Failure" = X,
         codeunit "DH Secret Mgt." = X,
+        codeunit "DH Sandbox Reset Mgt." = X,
         codeunit "DH API URL Policy" = X,
         codeunit "DH Tenant Identity Mgt." = X,
         query "DH Customer Duplicate Email" = X,
