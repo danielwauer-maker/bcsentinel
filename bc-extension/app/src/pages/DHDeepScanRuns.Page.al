@@ -205,6 +205,23 @@
                 end;
             }
 
+            action(OpenFreeHealthReport)
+            {
+                Caption = 'Open Free Report';
+                ToolTip = 'Open the Free Health Report for the original completed Free scan.';
+                ApplicationArea = All;
+                Image = Report;
+                Scope = Repeater;
+                Visible = ShowFreeReport;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    Links.OpenFreeHealthReport(GetBackendDeleteIdFor(Rec));
+                end;
+            }
+
             action(OpenValidationReportV2)
             {
                 Caption = 'Validation Report';
@@ -351,12 +368,14 @@
             if GetBackendDeleteIdFor(Rec) <> '' then
                 Variant := Links.GetCompletedReportVariant(DeepScanRun);
 
+        ShowFreeReport := Variant = 'free';
         ShowFullReport := Variant = 'full';
         ShowValidationReport := Variant = 'validation';
         ShowMonitoringReport := Variant = 'monitoring';
     end;
 
     var
+        ShowFreeReport: Boolean;
         ShowFullReport: Boolean;
         ShowValidationReport: Boolean;
         ShowMonitoringReport: Boolean;
