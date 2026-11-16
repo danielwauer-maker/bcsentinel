@@ -297,6 +297,8 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(200, (ROOT / "media.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        elif request_path == "/sprint_radar.js":
+            self.reply(200, (ROOT / "sprint_radar.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/triage.js":
             self.reply(200, (ROOT / "triage.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/executive.js":
