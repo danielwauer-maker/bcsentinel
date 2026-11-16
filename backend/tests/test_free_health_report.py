@@ -150,6 +150,69 @@ def test_free_health_report_json_html_pdf_are_available_without_paid_access(
     assert pdf.content.startswith(b"%PDF-1.4")
 
 
+
+def test_free_preliminary_uses_full_scan_score_and_findings_even_when_auto_scope_is_narrow(
+    tenant_factory, scan_factory
+):
+    """Free mirrors the BC preliminary scan; auto-detected usage is not a Free filter."""
+    from app.models import Tenant
+    from app.services.assessment_scope_service import get_or_create_auto_scope
+    from app.services.free_health_report_service import build_free_health_report
+
+    tenant_info = tenant_factory(plan="free", license_status="active")
+    scan_id = "scan_free_all_standard_modules"
+    scan_factory(tenant_id=tenant_info["tenant_id"], scan_id=scan_id)
+
+    with SessionLocal() as db:
+        scan = db.query(Scan).filter(Scan.scan_id == scan_id).one()
+        scan.data_score = 46
+        scan.checks_count = 199
+        scan.total_records = 6878
+        scan.issues_count = 2
+        scan.enabled_modules = "System,Finance,Sales,Purchasing,Inventory,CRM,Manufacturing,Service,Jobs,HR"
+        scan.gl_entries_count = 10
+        scan.customers_count = 10
+        scan.vendors_count = 10
+        scan.items_count = 10
+        scan.finance_score = 30
+        scan.sales_score = 40
+        scan.purchasing_score = 40
+        scan.inventory_score = 40
+        scan.system_score = 40
+        db.query(ScanIssueRecord).filter(ScanIssueRecord.scan_id == scan_id).delete(synchronize_session=False)
+        db.add_all([
+            ScanIssueRecord(
+                scan_id=scan_id, code="GL_STANDARD_FINDING", category="Finance",
+                title="Finance finding", severity="high", affected_count=3,
+                estimated_impact_eur=4000,
+            ),
+            ScanIssueRecord(
+                scan_id=scan_id, code="CUSTOMERS_STANDARD_FINDING", category="CRM",
+                title="CRM finding", severity="critical", affected_count=7,
+                estimated_impact_eur=9000,
+            ),
+        ])
+        db.commit()
+        scope = get_or_create_auto_scope(db, scan)
+        assert scope.score_value == 38
+        assert scope.included_modules_count == 5
+        tenant = db.query(Tenant).filter(Tenant.tenant_id == tenant_info["tenant_id"]).one()
+        report = build_free_health_report(db, tenant, scan_id)
+
+    assert report.data_health_score == 46
+    assert report.issues_count == 2
+    assert report.checks_count == 199
+    assert report.modules_analyzed == 10
+    assert report.total_records == 6878
+    assert report.severity.critical == 1
+    assert report.severity.high == 1
+    assert {area.name for area in report.risk_areas} >= {"Finance", "CRM"}
+    assert sum(area.issue_count for area in report.risk_areas) == 2
+    output = report.model_dump_json().lower()
+    for forbidden in ("finance finding", "crm finding", "4000", "9000", "estimated_impact_eur"):
+        assert forbidden not in output
+
+
 def test_free_health_report_uses_run_module_count_as_legacy_fallback(
     client, tenant_factory, auth_header_factory, scan_factory
 ):
