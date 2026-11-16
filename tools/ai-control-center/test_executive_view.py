@@ -79,6 +79,18 @@ class ExecutiveViewTests(unittest.TestCase):
         for forbidden in ("innerHTML", "XMLHttpRequest", "localStorage", "fetch(", "/api/approve"):
             self.assertNotIn(forbidden,js)
 
+    def test_current_project_view_replaces_stale_bc27_labels(self):
+        html=(ROOT/"index.html").read_text()
+        app=(ROOT/"app.py").read_text()
+        docker=(ROOT/"Dockerfile").read_text()
+        js=(ROOT/"compact.js").read_text()
+        self.assertIn('id="compact-current-next"',html)
+        self.assertIn('id="compact-current-areas"',html)
+        self.assertIn('"current_project": current',app)
+        self.assertIn('current_project.py',docker)
+        self.assertIn('renderCurrentProject(snapshot.current_project)',js)
+        self.assertNotIn('innerHTML',js)
+
     def test_compact_dashboard_collapses_duplicate_sections(self):
         html=(ROOT/"index.html").read_text()
         app=(ROOT/"app.py").read_text()
