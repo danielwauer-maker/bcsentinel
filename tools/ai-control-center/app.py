@@ -30,6 +30,7 @@ from agent_control import read_status as agent_status
 from team_roster import roster as team_roster
 from sprint_radar import recent_prs, build_radar
 from evidence_progress import build_progress
+from sprint_effort import summary as effort_summary, save as save_effort, attach as attach_effort, EffortError, EffortConflict
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
@@ -202,7 +203,7 @@ def snapshot():
     gh_data = briefing()
     pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
     radar = build_radar(evidence(), read_summary(), recent_prs(github))
-    qualified_progress = build_progress(tracked, radar, evidence())
+    qualified_progress = attach_effort(build_progress(tracked, radar, evidence()), effort_summary())
     agent_info = agent_status()
     team_info = team_roster(agent_info, pm_daily)
     repos = []
@@ -264,6 +265,42 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(_prefix_document(body, content_type))
 
+    def do_POST(self):
+        # Explicitly scoped admin write: cumulative minutes only, no approvals.
+        if not self.authorized():
+            self.reply(401, b"Authentication required", "text/plain; charset=utf-8")
+            return
+        if urlsplit(self.path).path != "/api/sprint-effort":
+            self.reply(501, b"Unsupported method", "text/plain; charset=utf-8")
+            return
+        allowed_origin = os.getenv("AI_PM_WRITE_ORIGIN", "https://dev-api.bcsentinel.com")
+        if self.headers.get("Origin") != allowed_origin or self.headers.get("X-Requested-With") != "BCSentinel-AI-PM":
+            self.reply(403, b"Origin check failed", "text/plain; charset=utf-8")
+            return
+        if self.headers.get("Content-Type", "").split(";")[0].strip().lower() != "application/json":
+            self.reply(415, b"JSON required", "text/plain; charset=utf-8")
+            return
+        length = self.headers.get("Content-Length", "")
+        if not length.isdigit() or not 0 < int(length) <= 2048:
+            self.reply(413, b"Invalid length", "text/plain; charset=utf-8")
+            return
+        try:
+            data = json.loads(self.rfile.read(int(length)))
+            if not isinstance(data, dict) or set(data) != {"area", "sprint", "minutes", "revision"}:
+                raise EffortError("Ungültige Eingabefelder")
+            tracked = tracker()
+            if tracked.get("state") != "loaded":
+                raise EffortError("Verifizierter Excel-Tracker nicht verfügbar")
+            valid = {(r["area"], str(r["sprint"])) for r in tracked["rows"]}
+            result = save_effort(data["area"], data["sprint"], data["minutes"], data["revision"], valid)
+            self.reply(200, json.dumps(result, ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        except EffortConflict as exc:
+            self.reply(409, json.dumps({"error": str(exc)}, ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        except (EffortError, KeyError, TypeError, ValueError) as exc:
+            self.reply(400, json.dumps({"error": str(exc)}, ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        except (OSError, Exception):
+            self.reply(503, b'{"error":"Speicherung nicht verfuegbar"}', "application/json; charset=utf-8")
+
     def do_GET(self):
         if not self.authorized():
             self.reply(401, b"Authentication required", "text/plain; charset=utf-8")
@@ -299,6 +336,8 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(200, (ROOT / "media.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        elif request_path == "/compact.js":
+            self.reply(200, (ROOT / "compact.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/evidence_progress.js":
             self.reply(200, (ROOT / "evidence_progress.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/sprint_radar.js":

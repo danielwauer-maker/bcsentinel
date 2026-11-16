@@ -79,6 +79,26 @@ class ExecutiveViewTests(unittest.TestCase):
         for forbidden in ("innerHTML", "XMLHttpRequest", "localStorage", "fetch(", "/api/approve"):
             self.assertNotIn(forbidden,js)
 
+    def test_compact_dashboard_collapses_duplicate_sections(self):
+        html=(ROOT/"index.html").read_text()
+        app=(ROOT/"app.py").read_text()
+        docker=(ROOT/"Dockerfile").read_text()
+        js=(ROOT/"compact.js").read_text()
+        self.assertIn('id="compact-dashboard"',html)
+        self.assertIn('id="compact-rows"',html)
+        self.assertIn('id="compact-timeline"',html)
+        self.assertIn('id="legacy-reports"',html)
+        self.assertLess(html.index('id="compact-dashboard"'),html.index('id="legacy-reports"'))
+        self.assertLess(html.index('id="legacy-reports"'),html.index('id="sprint-radar"'))
+        self.assertIn('window.renderCompact(data)',html)
+        self.assertIn('"/compact.js"',app)
+        self.assertIn('compact.js',docker)
+        self.assertIn('sprint_effort.py',docker)
+        self.assertIn('method:"POST"',js)
+        self.assertIn('revision:s.time_revision||0',js)
+        for forbidden in ('innerHTML','localStorage','eval('):
+            self.assertNotIn(forbidden,js)
+
     def test_js_packaged_inside_authenticated_image(self):
         dockerfile=(ROOT/"Dockerfile").read_text()
         self.assertIn("executive.js",dockerfile)
