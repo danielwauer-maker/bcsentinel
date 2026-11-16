@@ -13,6 +13,7 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit, parse_qs
+from github_auth import GitHubTokenError, get_github_token
 from media_library import MediaError, catalog as media_catalog, get_asset as media_asset, preview_table as media_preview, content_type as media_content_type
 
 from openpyxl import load_workbook
@@ -74,9 +75,12 @@ def utc_now():
 
 
 def github(path):
-    token = os.getenv("GITHUB_TOKEN", "")
+    try:
+        token = get_github_token()
+    except GitHubTokenError:
+        return {"state": "unavailable", "reason": "GitHub-Lesetoken nicht verfuegbar"}
     if not token:
-        return {"state": "unconfigured", "reason": "GITHUB_TOKEN fehlt"}
+        return {"state": "unconfigured", "reason": "GitHub-Lesetoken nicht konfiguriert"}
     req = urllib.request.Request(
         "https://api.github.com/" + path,
         headers={"Authorization": "Bearer " + token, "Accept": "application/vnd.github+json",
