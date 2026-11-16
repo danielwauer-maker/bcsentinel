@@ -30,6 +30,7 @@ from agent_control import read_status as agent_status
 from team_roster import roster as team_roster
 from sprint_radar import recent_prs, build_radar
 from evidence_progress import build_progress
+from current_project import current_view
 from sprint_effort import summary as effort_summary, save as save_effort, attach as attach_effort, EffortError, EffortConflict
 
 ROOT = Path(__file__).resolve().parent
@@ -203,6 +204,15 @@ def snapshot():
     gh_data = briefing()
     pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
     radar = build_radar(evidence(), read_summary(), recent_prs(github))
+    current = current_view(evidence(), radar)
+    for row in radar.get("items", []):
+        if row.get("id") in current["current_titles"] and row.get("area") != "SaaS & Stripe":
+            row["historic_excel_title"] = row["title"]
+            row["title"] = current["current_titles"][row["id"]]
+        if row.get("id") in current["current_actions"] and row.get("area") != "SaaS & Stripe":
+            row["next_action"] = current["current_actions"][row["id"]]
+            row["detail"] = "Aktuelle Aufgabenbeschreibung aus geprüftem Release-Status. Historische Einzel-Evidence weiterhin separat."
+    radar["next"] = sorted(radar.get("items", []), key=lambda x: (0 if x["id"] == "1.03" and x["area"] != "SaaS & Stripe" else 1 if x["id"] == "3.02" and x["area"] != "SaaS & Stripe" else 2 if x["id"] == "4.01" and x["area"] != "SaaS & Stripe" else 3, x["id"]))[:5]
     qualified_progress = attach_effort(build_progress(tracked, radar, evidence()), effort_summary())
     agent_info = agent_status()
     team_info = team_roster(agent_info, pm_daily)
@@ -221,7 +231,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_radar": radar, "evidence_progress": qualified_progress, "sprint_evidence": evidence(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_radar": radar, "current_project": current, "evidence_progress": qualified_progress, "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": agent_info, "team": team_info,
