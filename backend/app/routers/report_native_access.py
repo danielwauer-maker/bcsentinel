@@ -29,7 +29,7 @@ def exchange_report_code(request: ExchangeRequest, response: Response) -> dict:
     response.headers["Pragma"] = "no-cache"
     allowed = {"full"}
     if settings.ACCESS_MODEL_V2_ENABLED:
-        allowed.update({"validation", "monitoring"})
+        allowed.update({"free", "validation", "monitoring"})
     if request.report_variant not in allowed:
         raise HTTPException(status_code=403, detail="Report variant not available.")
     with SessionLocal() as db:

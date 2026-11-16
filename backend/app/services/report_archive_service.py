@@ -152,6 +152,7 @@ def archive_full_report(db, tenant: Tenant, scan: Scan, company_id: str) -> Repo
 
 
 REPORT_VARIANT_SCOPES = {
+    "free": "report:free:read",
     "full": REPORT_SCOPE,
     "validation": "report:validation:read",
     "monitoring": "report:monitoring:read",
@@ -245,6 +246,8 @@ def archive_variant_report(db, tenant: Tenant, scan: Scan, company_id: str, vari
 
 
 def issue_variant_link(db, tenant: Tenant, scan: Scan, viewer_url: str, variant: str) -> str:
+    if variant == "free":
+        return issue_free_link(db, tenant, scan, viewer_url)
     if variant == "full":
         return issue_full_link(db, tenant, scan, viewer_url)
     enforce_tenant_is_active(db, tenant.tenant_id)
@@ -269,6 +272,31 @@ def issue_variant_link(db, tenant: Tenant, scan: Scan, viewer_url: str, variant:
     ))
     db.commit()
     return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': company_id, 'variant': variant, 'code': raw_code, 'lang': 'de'})}"
+
+
+def issue_free_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
+    """Only the original persisted Free scan may issue a one-use browser grant.
+
+    No paid entitlement, Full archive, or long-lived BC API token is exposed.
+    """
+    enforce_tenant_is_active(db, tenant.tenant_id)
+    if not settings.ACCESS_MODEL_V2_ENABLED:
+        raise HTTPException(status_code=404, detail="Report variant unavailable.")
+    company_id = require_report_company(tenant, scan)
+    if not is_original_free_scan(db, tenant.tenant_id, scan.scan_id):
+        raise HTTPException(status_code=404, detail="Free Report not found.")
+    if not scan.lcy_code:
+        raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
+    raw_code = secrets.token_urlsafe(32)
+    db.add(ReportAccessGrant(
+        token_hash=hashlib.sha256(raw_code.encode()).hexdigest(),
+        tenant_id=tenant.tenant_id, company_id=company_id,
+        scan_id=scan.scan_id, variant="free",
+        created_at_utc=_now(),
+        expires_at_utc=_now() + timedelta(seconds=CODE_TTL_SECONDS),
+    ))
+    db.commit()
+    return f"{viewer_url}/report/live?{urlencode({'scanId': scan.scan_id, 'companyId': company_id, 'variant': 'free', 'code': raw_code, 'lang': 'de'})}"
 
 
 def issue_full_link(db, tenant: Tenant, scan: Scan, viewer_url: str) -> str:
@@ -314,7 +342,17 @@ def redeem_code(db, raw_code: str) -> dict:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
     enforce_tenant_is_active(db, tenant.tenant_id)
-    if not has_paid_full_access(db, tenant):
+    if grant.variant == "free":
+        scan = db.scalar(select(Scan).where(
+            Scan.tenant_id == tenant.tenant_id,
+            Scan.scan_id == grant.scan_id,
+        ))
+        if (not settings.ACCESS_MODEL_V2_ENABLED or scan is None
+                or require_report_company(tenant, scan) != grant.company_id
+                or not is_original_free_scan(db, tenant.tenant_id, grant.scan_id)):
+            db.rollback()
+            raise HTTPException(status_code=403, detail="Free report access unavailable.")
+    elif not has_paid_full_access(db, tenant):
         db.rollback()
         raise HTTPException(status_code=403, detail="Premium report access expired.")
     archive = db.scalar(select(ReportArchive).where(
@@ -323,7 +361,7 @@ def redeem_code(db, raw_code: str) -> dict:
         ReportArchive.scan_id == grant.scan_id,
         ReportArchive.variant == grant.variant,
     ))
-    if archive is None:
+    if grant.variant != "free" and archive is None:
         db.rollback()
         raise HTTPException(status_code=403, detail="Report access unavailable.")
     if grant.variant not in REPORT_VARIANT_SCOPES or (

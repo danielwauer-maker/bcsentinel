@@ -185,7 +185,7 @@ def create_executive_report_share_link(
 
 @router.post("/live/{variant}/{scan_id}/link", response_model=ExecutiveReportShareLinkResponse)
 def create_v2_variant_report_link(
-    variant: Literal["full", "validation", "monitoring"],
+    variant: Literal["free", "full", "validation", "monitoring"],
     scan_id: str,
     response: Response,
     tenant_auth: tuple[str, str] = Depends(require_tenant_headers),
