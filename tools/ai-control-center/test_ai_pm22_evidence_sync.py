@@ -86,6 +86,14 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
         self.assertEqual(current["fiverr"], "NO_GO")
 
+    def test_ai_pm26_staging_candidate_requires_manual_dev_cutover(self):
+        candidate = self.data["observed_gates"]["ai_pm26_compact_effort"]
+        self.assertEqual(candidate["source_sha"], "7f249c70c7f02246ddbaf53749999660da3e97b9")
+        self.assertEqual(candidate["state"], "staging_merged_ci_pass_dev_runtime_open")
+        self.assertEqual(candidate["runtime"], "NOT_DEPLOYED")
+        self.assertEqual(candidate["operator_ui_acceptance"], "NOT_EXECUTED")
+        self.assertEqual(candidate["fiverr"], "NO_GO")
+
     def test_operator_verified_ai_pm25_cutover_does_not_invent_actual_hours(self):
         report = self.data["observed_gates"]["ai_pm25_evidence_progress"]
         self.assertEqual(report["source_sha"], "61d1d27caed3da7efe09b96080901d6a4dd597d6")
