@@ -271,7 +271,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(401, b"Authentication required", "text/plain; charset=utf-8")
             return
         if urlsplit(self.path).path != "/api/sprint-effort":
-            self.reply(404, b"Not found", "text/plain; charset=utf-8")
+            self.reply(501, b"Unsupported method", "text/plain; charset=utf-8")
             return
         allowed_origin = os.getenv("AI_PM_WRITE_ORIGIN", "https://dev-api.bcsentinel.com")
         if self.headers.get("Origin") != allowed_origin or self.headers.get("X-Requested-With") != "BCSentinel-AI-PM":
