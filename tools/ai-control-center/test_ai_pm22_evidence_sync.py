@@ -86,6 +86,18 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
         self.assertEqual(current["fiverr"], "NO_GO")
 
+    def test_operator_verified_ai_pm25_cutover_does_not_invent_actual_hours(self):
+        report = self.data["observed_gates"]["ai_pm25_evidence_progress"]
+        self.assertEqual(report["source_sha"], "61d1d27caed3da7efe09b96080901d6a4dd597d6")
+        self.assertEqual(report["project_tasks"], 85)
+        self.assertEqual(report["verified_planned_fiverr_hours"], 287)
+        self.assertEqual(report["observed_timeline_event_count"], 3)
+        self.assertIn("No verified actual labor-hours; calendar PR duration is not actual work",
+                      report["known_limits"])
+        self.assertEqual(report["fiverr"], "NO_GO")
+        self.assertEqual(self.data["observed_gates"]["dev_runtime_release_20261116"]
+                         ["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+
     def test_operator_verified_ai_pm24_cutover_never_promotes_bc27(self):
         radar = self.data["observed_gates"]["ai_pm24_sprint_radar"]
         self.assertEqual(radar["state"], "operator_verified_DEV_8092_cutover_pass")
