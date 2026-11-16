@@ -407,4 +407,6 @@ clear('pr-list');for(const r of repos)for(const p of r.open_prs){const tr=docume
 clear('warnings');for(const w of [...(data.warnings||[]),...(t.state!=='loaded'?[t.reason||'Master-Tracker fehlt']:[]),...(repos.filter(x=>x.state!=='loaded'||x.pr_state!=='loaded').map(x=>x.repo+': Datenquelle nicht vollständig'))]){const li=document.createElement('li');li.textContent=w;el('warnings').appendChild(li)}
 }catch(err){el('timestamp').textContent='Datenabruf fehlgeschlagen: '+err.message;el('pr-status').textContent='Daten nicht verfügbar';el('tracker-status').textContent='Unbekannt'}finally{el('refresh').disabled=false}}
 el('refresh').addEventListener('click',reload);reload();
+// Re-evaluate read-only evidence while the dashboard remains open; server caches GitHub reads.
+setInterval(()=>{if(!document.hidden)reload()},300000);
 </script></body></html>
