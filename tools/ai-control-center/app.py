@@ -28,6 +28,7 @@ from pm_insights import assess as pm_assess
 from ai_pm_brief import compose as compose_ai_brief
 from agent_control import read_status as agent_status
 from team_roster import roster as team_roster
+from sprint_radar import recent_prs, build_radar
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
@@ -199,6 +200,7 @@ def snapshot():
     insights = pm_assess(coverage, assessed, blockers, ready, attested)
     gh_data = briefing()
     pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
+    radar = build_radar(evidence(), read_summary(), recent_prs(github))
     agent_info = agent_status()
     team_info = team_roster(agent_info, pm_daily)
     repos = []
@@ -216,7 +218,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_evidence": evidence(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_radar": radar, "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": agent_info, "team": team_info,
@@ -295,6 +297,8 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(200, (ROOT / "media.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/api/snapshot":
             self.reply(200, json.dumps(snapshot(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
+        elif request_path == "/sprint_radar.js":
+            self.reply(200, (ROOT / "sprint_radar.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/triage.js":
             self.reply(200, (ROOT / "triage.js").read_bytes(), "application/javascript; charset=utf-8")
         elif request_path == "/executive.js":
