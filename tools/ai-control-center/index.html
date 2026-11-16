@@ -24,6 +24,38 @@
 .radar-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:780px;overflow:auto;padding-right:5px}
 @media(max-width:900px){.radar-metrics{grid-template-columns:repeat(2,1fr)}.radar-columns,.radar-items{grid-template-columns:1fr}}
 </style>
+<style>
+.evidence-project{background:#fff;color:#143044;border:1px solid #d2e0e9;border-radius:16px;padding:23px;margin:0 0 20px}
+.evidence-project h2{font-size:1.3rem;margin:4px 0 8px}.evidence-project h3{font-size:1rem;margin:0 0 12px}
+.evidence-project .sub,.evidence-note{font-size:.78rem;color:#5c7586;line-height:1.5}
+.evidence-overall{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0}
+.evidence-score{border:1px solid #cfdfeb;border-radius:11px;padding:14px}
+.evidence-score span,.evidence-hour-cols span{display:block;font-size:.74rem;color:#526a80}
+.evidence-score strong,.evidence-hour-cols strong{font-size:1.7rem;display:block;margin-top:6px;color:#142f46}
+.evidence-columns{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin:16px 0}
+.evidence-pane{border:1px solid #d4e1ec;border-radius:12px;padding:16px}
+.evidence-hour-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.evidence-filter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.evidence-filter h3{margin:0 auto 0 0}.evidence-filter label{font-size:.82rem}
+.evidence-filter select{color:#19364b;background:#fff;border:1px solid #b7cedd;border-radius:8px}
+.evidence-sprint{border:1px solid #d4e1eb;border-radius:10px;margin:10px 0;padding:10px}
+.evidence-sprint summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.evidence-sprint summary span{color:#5b7483;font-size:.78rem}
+.evidence-phase-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.ephase{min-width:0}.ephase-head{display:flex;flex-direction:column;gap:5px;font-size:.75rem;margin:9px 0 4px}
+.ephase-track{background:#dfe9f0;height:8px;border-radius:8px;overflow:hidden}
+.ephase-fill{display:block;background:#24658b;height:100%;border-radius:8px}
+.ephase-draft{background:#9d8aaa}.ephase-integrated{background:#2674a6}
+.ephase-preview{background:#58a7b3}.ephase-technical{background:#3d977c}.ephase-accepted{background:#36804a}
+.evidence-task-list{max-height:450px;overflow:auto;margin-top:14px}
+.evidence-task{display:flex;flex-direction:column;gap:4px;border-top:1px solid #e2ebf1;padding:10px 0}
+.evidence-task strong{font-size:.82rem}.evidence-task small{font-size:.73rem;color:#607787}
+.evidence-timeline{max-height:650px;overflow:auto;margin-top:16px}
+.evidence-event{display:grid;grid-template-columns:110px 1fr;gap:12px;border-left:2px solid #bed6e5;padding:11px 10px}
+.evidence-event time{font-size:.8rem;font-weight:600}.evidence-event small{display:block;color:#607787;font-size:.73rem;margin-top:5px}
+@media(max-width:1000px){.evidence-overall,.evidence-phase-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.evidence-overall,.evidence-phase-grid,.evidence-columns{grid-template-columns:1fr 1fr}}
+</style>
 </head><body>
 <header><div><div class="eyebrow">Data Health · Business Impact</div><h1>BCSentinel AI Control Center</h1><div class="sub">Projektsteuerung · Live-Evidence · AI-PM 2.2</div></div><nav aria-label="Hauptnavigation" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="/index.html" aria-current="page" style="font-weight:700">Dashboard</a><a href="/team.html" style="font-weight:700">Team</a><a href="/media.html" style="font-weight:700">Mediathek</a><button id="refresh">Jetzt aktualisieren</button></nav></header>
 <main><div class="topline"><span id="timestamp" class="muted">Noch nicht geladen</span><span class="chip danger" id="go-live">Go-Live: nicht freigegeben</span><span class="chip">Ein Agent nach dem anderen · geplant</span></div>
@@ -35,6 +67,31 @@
   <div><span class="sub">BC27 / Report E2E</span><p id="dev-e2e-gate">Manuelle Abnahme offen</p></div>
  </div>
  <p class="readiness-note" id="dev-gate-source">Kuratierte historische Evidence, kein Live-Monitoring und keine Fiverr-Freigabe.</p>
+</section>
+<section id="evidence-project-progress" class="evidence-project" aria-label="Nachweisbarer Projektfortschritt">
+ <div class="exec-heading"><div><div class="eyebrow">Projektstatus 2.5 · Evidence statt Vermutungen</div>
+ <h2>Realer Nachweisstand – je Entwicklungsphase</h2>
+ <p class="sub">Alle Quoten zeigen belegte Aufgabenanteile und sind unabhängig voneinander. Keine künstlich gewichtete Fertigstellungszahl.</p></div><span class="chip danger">Fiverr NO-GO</span></div>
+ <div id="evidence-overall" class="evidence-overall"></div>
+ <p id="evidence-progress-state" class="evidence-note">Abgleich wird geladen …</p>
+ <div class="evidence-columns">
+  <section class="evidence-pane"><h3>Projektplan vs. tatsächlich erfasste Arbeit</h3>
+   <div class="evidence-hour-cols"><div><span>Geplante Fiverr-Stunden</span><strong id="evidence-planned-hours">–</strong></div>
+   <div><span>Nachweislich geleistete Stunden</span><strong id="evidence-actual-hours">–</strong></div></div>
+   <p id="evidence-time-note" class="evidence-note">Keine Schätzung von Arbeitszeit anhand von PR-Zeitstempeln.</p>
+  </section>
+  <section class="evidence-pane"><h3>Historie – belegte Ereignisse</h3>
+    <div id="evidence-event-count" class="evidence-note">Wird geladen …</div>
+    <p class="evidence-note">Chronologie der Quellereignisse – Kalender-Durchlaufzeit ≠ Arbeitsstunden.</p>
+  </section>
+ </div>
+ <div class="evidence-pane"><div class="evidence-filter"><h3>Fortschritt pro Sprint</h3>
+ <label for="evidence-category">Kategorie</label><select id="evidence-category"><option value="all">Alle Kategorien</option></select>
+ <span id="evidence-showing" class="evidence-note">Wird geladen …</span></div>
+ <div id="evidence-sprints"></div></div>
+ <details class="evidence-pane" style="margin-top:14px"><summary>Chronologische Entwicklung und PR-Durchlaufzeiten ansehen</summary>
+ <div id="evidence-timeline" class="evidence-timeline"></div></details>
+ <p id="evidence-method" class="evidence-note">Die Herkunft jeder Quote wird beim Laden geprüft.</p>
 </section>
 <section id="sprint-radar" class="radar-board" aria-label="Aktueller Sprint-Radar">
  <div class="exec-heading"><div><div class="eyebrow">AI-PM · automatisch abgeglichene GitHub-Beobachtungen</div><h2>Was machen wir als Nächstes?</h2><p class="sub">Technisch integriert, wartend und noch nicht abgenommen bleiben getrennt. Keine automatischen Freigaben.</p></div><span class="chip danger">Fiverr NO-GO</span></div>
@@ -216,6 +273,7 @@
 <script src="/executive.js"></script>
 <script src="/triage.js"></script>
 <script src="/sprint_radar.js"></script>
+<script src="/evidence_progress.js"></script>
 <script>
 const el=id=>document.getElementById(id);
 function cell(row,value){const td=document.createElement('td');td.textContent=String(value??'–');row.appendChild(td);return td}
@@ -243,6 +301,7 @@ const response=await fetch('/api/snapshot',{cache:'no-store'});if(!response.ok)t
 if(typeof window.renderExecutive==="function") window.renderExecutive(data);
 if(typeof window.renderTriage==="function") window.renderTriage(data);
 if(typeof window.renderSprintRadar==="function") window.renderSprintRadar(data);
+if(typeof window.renderEvidenceProgress==="function") window.renderEvidenceProgress(data);
 el('timestamp').textContent='Stand: '+new Date(data.generated_at_utc).toLocaleString('de-DE');el('go-live').textContent='Go-Live: NICHT FREIGEGEBEN';
 const hist=data.progress_history||{state:'not_initialized'};
 el('history-count').textContent=hist.state==='loaded'?('Attestierte Ereignisse: '+hist.count_events):'Historie nicht initialisiert · Excel-Baseline aktiv';

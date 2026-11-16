@@ -35,7 +35,8 @@ def recent_prs(fetch, *, clock=time.monotonic):
                         "state": ("merged" if p.get("merged_at") else
                                   "draft" if p.get("state") == "open" and p.get("draft") else
                                   "open" if p.get("state") == "open" else "closed_unmerged"),
-                        "updated_at": p.get("updated_at")
+                        "updated_at": p.get("updated_at"),
+                        "created_at": p.get("created_at"), "merged_at": p.get("merged_at")
                     }
                 except (ValueError, KeyError, TypeError):
                     continue
