@@ -8,11 +8,6 @@ from sqlalchemy.orm import Session
 
 from app.models import Scan, ScanIssueRecord, ScanRunStatus, Tenant
 from app.schemas.free_health_report import FreeHealthReport, FreeRiskArea, FreeSeveritySummary
-from app.services.assessment_scope_service import (
-    get_or_create_auto_scope,
-    included_module_codes,
-    supported_issue_area,
-)
 from app.services.localization_service import tenant_language
 
 
@@ -158,9 +153,6 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
     if not company_label:
         company_label = tenant.tenant_id
 
-    scope = get_or_create_auto_scope(db, scan)
-    active_scope = included_module_codes(scope)
-
     modules_analyzed = _enabled_module_count(scan.enabled_modules)
     if modules_analyzed == 0 and run is not None:
         modules_analyzed = max(
@@ -169,7 +161,9 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
         )
 
     all_issues = list(db.scalars(select(ScanIssueRecord).where(ScanIssueRecord.scan_id == scan.scan_id)).all())
-    issues = [issue for issue in all_issues if supported_issue_area(issue) in active_scope]
+    # Free Preliminary uses the original BC scan's complete supported-standard
+    # coverage. Module applicability is confirmed only in Full Assessment.
+    issues = all_issues
     by_category: dict[str, dict[str, int | str]] = {}
     severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 
@@ -184,9 +178,7 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
             bucket["severity"] = severity
 
     risk_areas: list[FreeRiskArea] = []
-    for name, score_attr, module_code in MODULES:
-        if module_code not in active_scope:
-            continue
+    for name, score_attr, _module_code in MODULES:
         score = max(0, min(100, _safe_int(getattr(scan, score_attr, 100), 100)))
         bucket = by_category.get(name, {"issues": 0, "affected": 0, "severity": "info"})
         if score < 100 or int(bucket["issues"]) > 0:
@@ -202,7 +194,7 @@ def build_free_health_report(db: Session, tenant: Tenant, scan_id: str) -> FreeH
             )
     risk_areas.sort(key=lambda row: (row.score, -row.issue_count, -row.affected_records, row.name))
 
-    score = max(0, min(100, _safe_int(scope.score_value)))
+    score = max(0, min(100, _safe_int(scan.data_score)))
     affected_records = sum(max(0, _safe_int(issue.affected_count)) for issue in issues)
     band = _impact_band(sum(max(0.0, _safe_float(issue.estimated_impact_eur)) for issue in issues), language)
     scoped_issue_count = len(issues)
