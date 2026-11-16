@@ -73,6 +73,7 @@ class LicenseStatusResponse(BaseModel):
     cache_ttl_seconds: int
     correlation_id: str | None = None
     tenant_context: dict
+    product_model: dict
     capabilities: dict
 
 
@@ -160,6 +161,7 @@ def get_license_status(
             cache_ttl_seconds=authoritative["cache_ttl_seconds"],
             correlation_id=authoritative["correlation_id"],
             tenant_context=authoritative["tenant_context"],
+            product_model=authoritative["product_model"],
             capabilities=authoritative["capabilities"],
         )
         db.commit()
