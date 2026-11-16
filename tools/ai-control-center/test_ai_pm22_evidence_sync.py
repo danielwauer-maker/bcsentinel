@@ -86,6 +86,36 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
         self.assertEqual(current["fiverr"], "NO_GO")
 
+    def test_ai_pm26_staging_candidate_requires_manual_dev_cutover(self):
+        candidate = self.data["observed_gates"]["ai_pm26_compact_effort"]
+        self.assertEqual(candidate["source_sha"], "7f249c70c7f02246ddbaf53749999660da3e97b9")
+        self.assertEqual(candidate["state"], "staging_merged_ci_pass_dev_runtime_open")
+        self.assertEqual(candidate["runtime"], "NOT_DEPLOYED")
+        self.assertEqual(candidate["operator_ui_acceptance"], "NOT_EXECUTED")
+        self.assertEqual(candidate["fiverr"], "NO_GO")
+
+    def test_operator_verified_ai_pm25_cutover_does_not_invent_actual_hours(self):
+        report = self.data["observed_gates"]["ai_pm25_evidence_progress"]
+        self.assertEqual(report["source_sha"], "61d1d27caed3da7efe09b96080901d6a4dd597d6")
+        self.assertEqual(report["project_tasks"], 85)
+        self.assertEqual(report["verified_planned_fiverr_hours"], 287)
+        self.assertEqual(report["observed_timeline_event_count"], 3)
+        self.assertIn("No verified actual labor-hours; calendar PR duration is not actual work",
+                      report["known_limits"])
+        self.assertEqual(report["fiverr"], "NO_GO")
+        self.assertEqual(self.data["observed_gates"]["dev_runtime_release_20261116"]
+                         ["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+
+    def test_operator_verified_ai_pm24_cutover_never_promotes_bc27(self):
+        radar = self.data["observed_gates"]["ai_pm24_sprint_radar"]
+        self.assertEqual(radar["state"], "operator_verified_DEV_8092_cutover_pass")
+        self.assertEqual(radar["source_sha"], "1ccd607e8755cf7125af9af49564bf15c2975d51")
+        self.assertEqual(radar["runtime_checks"]["radar_items_85"], "PASS")
+        self.assertEqual(radar["runtime_checks"]["no_false_go_live"], "PASS")
+        self.assertEqual(radar["fiverr"], "NO_GO")
+        current = self.data["observed_gates"]["dev_runtime_release_20261116"]
+        self.assertEqual(current["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")
