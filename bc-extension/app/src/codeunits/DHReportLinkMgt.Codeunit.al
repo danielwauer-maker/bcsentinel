@@ -62,10 +62,8 @@ codeunit 53303 "DH Report Link Mgt."
         Response: HttpResponseMessage;
         ResponseText: Text;
         ResponseJson: JsonObject;
-        RequestJson: JsonObject;
         UrlToken: JsonToken;
         ApiToken: Text;
-        RequestText: Text;
         Url: Text;
     begin
         if ScanId = '' then
@@ -78,9 +76,8 @@ codeunit 53303 "DH Report Link Mgt."
         if ApiToken = '' then
             Error('BCSentinel tenant token is missing.');
 
-        RequestJson.Add('report_type', 'html');
-        RequestJson.WriteTo(RequestText);
-        Content.WriteFrom(RequestText);
+
+        Content.WriteFrom('{}');
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add('Content-Type', 'application/json');
@@ -88,7 +85,7 @@ codeunit 53303 "DH Report Link Mgt."
         Headers := Client.DefaultRequestHeaders();
         Headers.Add('X-Tenant-Id', Setup."Tenant ID");
         Headers.Add('X-Api-Token', ApiToken);
-        Url := BuildUrl(Setup."API Base URL", '/reports/free-health/' + Format(ScanId) + '/share-link');
+        Url := BuildUrl(Setup."API Base URL", '/reports/live/free/' + Format(ScanId) + '/link');
         if not Client.Post(Url, Content, Response) then
             Error('BCSentinel Free Report is temporarily unavailable.');
 
