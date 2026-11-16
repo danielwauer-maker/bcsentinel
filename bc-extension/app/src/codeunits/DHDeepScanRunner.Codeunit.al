@@ -96,7 +96,7 @@ codeunit 53128 "DH Deep Scan Runner"
         DeepScanRun."Issues Count" := IssuesCount;
         DeepScanRun."Applied Exception Count" := ExceptionMgt.GetAppliedExceptionCount();
         DeepScanRun."Rating" := CopyStr(GetRating(Score), 1, MaxStrLen(DeepScanRun."Rating"));
-        DeepScanRun."Headline" := CopyStr(GetHeadline(Score, IssuesCount), 1, MaxStrLen(DeepScanRun."Headline"));
+        DeepScanRun."Headline" := CopyStr(GetHeadline(DeepScanRun, Score, IssuesCount), 1, MaxStrLen(DeepScanRun."Headline"));
         DeepScanRun.Status := DeepScanRun.Status::Running;
         DeepScanRun."Finished At" := 0DT;
         DeepScanRun."Current Module" := 'Finalizing';
@@ -2787,21 +2787,47 @@ codeunit 53128 "DH Deep Scan Runner"
 
     local procedure IsDataHealthScoreRun(var DeepScanRun: Record "DH Deep Scan Run"): Boolean
     begin
-        exit(GetRunScanMode(DeepScanRun) = 'data_health_score');
+        exit(GetHeadlineScanType(DeepScanRun) = 'free');
+    end;
+
+    local procedure GetHeadlineScanType(var DeepScanRun: Record "DH Deep Scan Run"): Text
+    begin
+        case LowerCase(DeepScanRun."Scan Mode") of
+            'data_health_score', 'free', 'free_deep':
+                exit('free');
+            'full', 'full_analysis', 'assessment':
+                exit('full');
+            'monitoring', 'scheduled':
+                exit('monitoring');
+        end;
+
+        exit('validation');
     end;
 
     local procedure GetRunningHeadline(var DeepScanRun: Record "DH Deep Scan Run"): Text
     begin
-        if IsDataHealthScoreRun(DeepScanRun) then
-            exit(DataHealthScoreRunningLbl);
+        case GetHeadlineScanType(DeepScanRun) of
+            'free':
+                exit(FreeScanRunningLbl);
+            'full':
+                exit(FullAssessmentRunningLbl);
+            'monitoring':
+                exit(MonitoringScanRunningLbl);
+        end;
 
         exit(ValidationCheckRunningLbl);
     end;
 
     local procedure GetStartedEventMessage(var DeepScanRun: Record "DH Deep Scan Run"): Text
     begin
-        if IsDataHealthScoreRun(DeepScanRun) then
-            exit(DataHealthScoreStartedLbl);
+        case GetHeadlineScanType(DeepScanRun) of
+            'free':
+                exit(FreeScanStartedLbl);
+            'full':
+                exit(FullAssessmentStartedLbl);
+            'monitoring':
+                exit(MonitoringScanStartedLbl);
+        end;
 
         exit(ValidationCheckStartedLbl);
     end;
@@ -3124,17 +3150,61 @@ codeunit 53128 "DH Deep Scan Runner"
         exit('critical');
     end;
 
-    local procedure GetHeadline(Score: Integer; IssuesCount: Integer): Text
+    local procedure GetHeadline(var DeepScanRun: Record "DH Deep Scan Run"; Score: Integer; IssuesCount: Integer): Text
+    begin
+        case GetHeadlineScanType(DeepScanRun) of
+            'free':
+                exit(GetFreeScanHeadline(Score, IssuesCount));
+            'full':
+                exit(GetFullAssessmentHeadline(Score, IssuesCount));
+            'monitoring':
+                exit(GetMonitoringScanHeadline(Score, IssuesCount));
+        end;
+
+        exit(GetValidationCheckHeadline(Score, IssuesCount));
+    end;
+
+    local procedure GetFreeScanHeadline(Score: Integer; IssuesCount: Integer): Text
+    begin
+        if IssuesCount = 0 then
+            exit(FreeScanCompletedWithoutFindingsLbl);
+        if Score >= 90 then
+            exit(FreeScanCompletedMinorFindingsLbl);
+        if Score >= 75 then
+            exit(FreeScanCompletedImprovementPotentialLbl);
+        exit(FreeScanCompletedCriticalFindingsLbl);
+    end;
+
+    local procedure GetFullAssessmentHeadline(Score: Integer; IssuesCount: Integer): Text
+    begin
+        if IssuesCount = 0 then
+            exit(FullAssessmentCompletedWithoutFindingsLbl);
+        if Score >= 90 then
+            exit(FullAssessmentCompletedMinorFindingsLbl);
+        if Score >= 75 then
+            exit(FullAssessmentCompletedImprovementPotentialLbl);
+        exit(FullAssessmentCompletedCriticalFindingsLbl);
+    end;
+
+    local procedure GetMonitoringScanHeadline(Score: Integer; IssuesCount: Integer): Text
+    begin
+        if IssuesCount = 0 then
+            exit(MonitoringScanCompletedWithoutFindingsLbl);
+        if Score >= 90 then
+            exit(MonitoringScanCompletedMinorFindingsLbl);
+        if Score >= 75 then
+            exit(MonitoringScanCompletedImprovementPotentialLbl);
+        exit(MonitoringScanCompletedCriticalFindingsLbl);
+    end;
+
+    local procedure GetValidationCheckHeadline(Score: Integer; IssuesCount: Integer): Text
     begin
         if IssuesCount = 0 then
             exit(ScanCompletedWithoutFindingsLbl);
-
         if Score >= 90 then
             exit(ScanCompletedMinorFindingsLbl);
-
         if Score >= 75 then
             exit(ScanCompletedImprovementPotentialLbl);
-
         exit(ScanCompletedCriticalFindingsLbl);
     end;
 
@@ -3158,8 +3228,18 @@ codeunit 53128 "DH Deep Scan Runner"
     var
         ExceptionMgt: Codeunit "DH Exception Mgt.";
         BackendDecimalInvalidErr: Label 'The decimal value from the backend response could not be parsed: %1', Comment = '%1 = backend value';
-        DataHealthScoreRunningLbl: Label 'Data Health Score is running';
-        DataHealthScoreStartedLbl: Label 'Data Health Score started';
+        FreeScanCompletedCriticalFindingsLbl: Label 'Free Scan completed with critical findings.';
+        FreeScanCompletedImprovementPotentialLbl: Label 'Free Scan completed with relevant improvement potential.';
+        FreeScanCompletedMinorFindingsLbl: Label 'Free Scan completed with minor findings.';
+        FreeScanCompletedWithoutFindingsLbl: Label 'Free Scan completed without findings.';
+        FreeScanRunningLbl: Label 'Free Scan is running';
+        FreeScanStartedLbl: Label 'Free Scan started';
+        FullAssessmentCompletedCriticalFindingsLbl: Label 'Full Assessment completed with critical findings.';
+        FullAssessmentCompletedImprovementPotentialLbl: Label 'Full Assessment completed with relevant improvement potential.';
+        FullAssessmentCompletedMinorFindingsLbl: Label 'Full Assessment completed with minor findings.';
+        FullAssessmentCompletedWithoutFindingsLbl: Label 'Full Assessment completed without findings.';
+        FullAssessmentRunningLbl: Label 'Full Assessment is running';
+        FullAssessmentStartedLbl: Label 'Full Assessment started';
         DuplicateCustomerAddressLbl: Label 'Multiple customers with the same name, post code, and city: %1 | %2 %3', Comment = '%1 = customer name, %2 = post code, %3 = city';
         DuplicateCustomerEmailLbl: Label 'Multiple customers with the same email: %1', Comment = '%1 = email address';
         DuplicateCustomerVatNoLbl: Label 'Multiple customers with the same VAT registration number: %1', Comment = '%1 = VAT registration number';
@@ -3170,6 +3250,12 @@ codeunit 53128 "DH Deep Scan Runner"
         PostprocessingRefreshFailedLbl: Label 'The scan completed, but local postprocessing could not be refreshed. Refresh the scan status later.';
         FindingIdentityErr: Label 'The backend returned an invalid or ambiguous finding identity. Update the backend and retry synchronization.';
         CheckExecutionConflictErr: Label 'CHECK_EVIDENCE_CONFLICT', Locked = true;
+        MonitoringScanCompletedCriticalFindingsLbl: Label 'Monitoring Scan completed with critical findings.';
+        MonitoringScanCompletedImprovementPotentialLbl: Label 'Monitoring Scan completed with relevant improvement potential.';
+        MonitoringScanCompletedMinorFindingsLbl: Label 'Monitoring Scan completed with minor findings.';
+        MonitoringScanCompletedWithoutFindingsLbl: Label 'Monitoring Scan completed without findings.';
+        MonitoringScanRunningLbl: Label 'Monitoring Scan is running';
+        MonitoringScanStartedLbl: Label 'Monitoring Scan started';
         ScanCompletedCriticalFindingsLbl: Label 'Validation Check completed with critical findings.';
         ScanCompletedImprovementPotentialLbl: Label 'Validation Check completed with relevant improvement potential.';
         ScanCompletedMinorFindingsLbl: Label 'Validation Check completed with minor findings.';
