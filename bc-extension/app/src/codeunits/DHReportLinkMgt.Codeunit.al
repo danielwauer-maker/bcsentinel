@@ -51,6 +51,61 @@ codeunit 53303 "DH Report Link Mgt."
         Hyperlink(Url);
     end;
 
+    procedure OpenFreeHealthReport(ScanId: Code[50])
+    var
+        Setup: Record "DH Setup";
+        SecretMgt: Codeunit "DH Secret Mgt.";
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        ResponseText: Text;
+        ResponseJson: JsonObject;
+        RequestJson: JsonObject;
+        UrlToken: JsonToken;
+        ApiToken: Text;
+        RequestText: Text;
+        Url: Text;
+    begin
+        if ScanId = '' then
+            Error('Please select a completed Free scan with a backend scan ID.');
+
+        LoadSetup(Setup);
+        if Setup."Tenant ID" = '' then
+            Error('BCSentinel tenant registration is required.');
+        ApiToken := SecretMgt.GetApiToken(Setup);
+        if ApiToken = '' then
+            Error('BCSentinel tenant token is missing.');
+
+        RequestJson.Add('report_type', 'html');
+        RequestJson.WriteTo(RequestText);
+        Content.WriteFrom(RequestText);
+        Content.GetHeaders(ContentHeaders);
+        ContentHeaders.Clear();
+        ContentHeaders.Add('Content-Type', 'application/json');
+
+        Headers := Client.DefaultRequestHeaders();
+        Headers.Add('X-Tenant-Id', Setup."Tenant ID");
+        Headers.Add('X-Api-Token', ApiToken);
+        Url := BuildUrl(Setup."API Base URL", '/reports/free-health/' + Format(ScanId) + '/share-link');
+        if not Client.Post(Url, Content, Response) then
+            Error('BCSentinel Free Report is temporarily unavailable.');
+
+        Response.Content.ReadAs(ResponseText);
+        if not Response.IsSuccessStatusCode() then
+            Error('BCSentinel Free Report access failed (HTTP %1). %2',
+                Response.HttpStatusCode(), GetReportErrorText(ResponseText));
+        if not ResponseJson.ReadFrom(ResponseText) then
+            Error('Invalid BCSentinel Free Report link response.');
+        if not ResponseJson.Get('url', UrlToken) then
+            Error('The BCSentinel Free Report link is missing.');
+        Url := UrlToken.AsValue().AsText();
+        if Url = '' then
+            Error('The BCSentinel Free Report link is empty.');
+        Hyperlink(Url);
+    end;
+
     procedure ReviewScopeAndOpenFullV6(ScanId: Code[50])
     var
         Setup: Record "DH Setup";
@@ -200,8 +255,10 @@ codeunit 53303 "DH Report Link Mgt."
 
         case LowerCase(ScanRun."Scan Mode") of
             'data_health_score', 'free', 'free_deep':
+                exit('free');
+            'full', 'full_analysis', 'assessment':
                 exit('full');
-            'validation', 'validation_scan', 'full_analysis', 'one_time', 'credit':
+            'validation', 'validation_scan', 'one_time', 'credit':
                 exit('validation');
             'monitoring', 'scheduled':
                 exit('monitoring');
