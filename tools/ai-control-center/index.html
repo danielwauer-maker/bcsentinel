@@ -87,6 +87,17 @@
 @media(max-width:1100px){.compact-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:680px){.compact-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
+<style>
+.compact-next{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.compact-next-card,.compact-area-card{border:1px solid #d7e5ef;background:#f8fbfd;border-radius:10px;padding:13px}
+.compact-next-card strong,.compact-area-card strong{display:block;color:#173950;font-size:.86rem}
+.compact-next-card p,.compact-area-card p{margin:7px 0 0;line-height:1.5;font-size:.78rem;color:#4b6374}
+.compact-current-areas{margin-top:3px}.compact-current-areas summary{cursor:pointer;font-weight:600}
+.compact-areas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.compact-area-card small{display:block;color:#4f7489;font-size:.75rem;margin:5px 0}
+.compact-area-card a{display:inline-block;font-size:.75rem;margin-top:9px}
+@media(max-width:800px){.compact-next,.compact-areas{grid-template-columns:1fr}}
+</style>
 </head><body>
 <header><div><div class="eyebrow">Data Health · Business Impact</div><h1>BCSentinel AI Control Center</h1><div class="sub">Projektsteuerung · Live-Evidence · AI-PM 2.2</div></div><nav aria-label="Hauptnavigation" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="/index.html" aria-current="page" style="font-weight:700">Dashboard</a><a href="/team.html" style="font-weight:700">Team</a><a href="/media.html" style="font-weight:700">Mediathek</a><button id="refresh">Jetzt aktualisieren</button></nav></header>
 <main><div class="topline"><span id="timestamp" class="muted">Noch nicht geladen</span><span class="chip danger" id="go-live">Go-Live: nicht freigegeben</span><span class="chip">Ein Agent nach dem anderen · geplant</span></div>
@@ -96,6 +107,17 @@
  <span class="chip danger">Fiverr NO-GO</span></div>
  <p id="compact-state" class="compact-muted">Wird aktualisiert …</p>
  <div id="compact-stats" class="compact-stats"></div>
+ <div class="compact-section">
+  <h3>Nächste nachgewiesene Arbeitsschritte</h3>
+  <p class="compact-muted">Aktuelle Aufgaben aus Release- und GitHub-Evidence. Historische Excel-Titel werden nicht als aktuelle Versionsstände verwendet.</p>
+  <div id="compact-current-next" class="compact-next"></div>
+ </div>
+ <details class="compact-section compact-current-areas">
+  <summary>Vollständigen aktuellen Stand der 11 Projektbereiche einsehen</summary>
+  <p class="compact-muted">Quellcode, DEV/Preview, Draft und Abnahme sind getrennt – unbekannte Einzelaufgaben bedeuten nicht, dass nichts entwickelt wurde.</p>
+  <div id="compact-current-areas" class="compact-areas"></div>
+  <p id="compact-coverage-limit" class="compact-muted"></p>
+ </details>
  <div class="compact-section"><h3>Fortschritt pro Sprint und Soll-/Ist-Vergleich</h3>
  <p class="compact-muted">Trage die <strong>gesamten bisher aufgewendeten Minuten</strong> pro Sprint ein (keine zusätzlichen Minuten pro Klick).
  Jede Änderung wird gespeichert und protokolliert. Prozentwerte zeigen nachgewiesene Aufgaben je Phase, nicht geschätzte Gesamtfertigstellung.</p>
