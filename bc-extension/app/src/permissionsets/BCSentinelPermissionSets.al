@@ -230,6 +230,7 @@ permissionset 53193 "BCSENTINEL ADMIN"
         codeunit "DH Issue Drilldown Mgt." = X,
         codeunit "DH Issue Drilldown Dispatcher" = X,
         codeunit "DH Secret Mgt." = X,
+        codeunit "DH Sandbox Reset Mgt." = X,
         codeunit "DH Remediation Mgt." = X,
         codeunit "DH Notification Mgt." = X,
         query "DH Customer Duplicate Email" = X,

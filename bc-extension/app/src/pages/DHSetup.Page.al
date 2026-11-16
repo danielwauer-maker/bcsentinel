@@ -306,6 +306,36 @@
                 end;
             }
 
+            action(ResetSandboxBCSentinelData)
+            {
+                Caption = 'Reset Sandbox BCSentinel Data';
+                ToolTip = 'Permanently removes this company''s local BCSentinel data, registration and token. This is available only in a Business Central sandbox.';
+                ApplicationArea = All;
+                Image = Delete;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedOnly = false;
+                AccessByPermission = Codeunit "DH Sandbox Reset Mgt." = X;
+
+                trigger OnAction()
+                var
+                    SandboxResetMgt: Codeunit "DH Sandbox Reset Mgt.";
+                    ConfirmResetQst: Label 'This permanently deletes all local BCSentinel scan history, findings, evidence, reports links, exceptions, remediation and notification data in this company. It does not contact the backend. Continue?';
+                    ConfirmFinalQst: Label 'Final confirmation: reset the local BCSentinel registration and API token in this sandbox now?';
+                begin
+                    if not Confirm(ConfirmResetQst, false) then
+                        exit;
+
+                    if not Confirm(ConfirmFinalQst, false) then
+                        exit;
+
+                    SandboxResetMgt.ResetSandboxData(Rec);
+                    UpdateActionState();
+                    CurrPage.Update(false);
+                    Message('Local BCSentinel sandbox data was reset. The API Base URL and registration configuration were preserved. Register again to create a new Free registration.');
+                end;
+            }
+
             action(RequestAccess)
             {
                 Caption = 'Request Access';

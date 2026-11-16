@@ -640,6 +640,63 @@ table 53100 "DH Setup"
         "Product Access Model" := 'none';
     end;
 
+    procedure ClearSandboxRegistrationState()
+    begin
+        // Keep only the connection and operator configuration needed to register again.
+        // All identity, entitlement and cached access state must be invalid after a sandbox reset.
+        "Tenant ID" := '';
+        "API Token" := '';
+        "Last Score" := 0;
+        "Last Scan Date" := 0DT;
+        Registered := false;
+        "Registration Date" := 0DT;
+        "Last Run ID Date" := 0D;
+        "Last Run ID Counter" := 0;
+        "Issue Drilldown Code" := '';
+        ClearCachedProductAccess();
+
+        "Contact Email" := '';
+        "Can Run Data Health Score" := false;
+        "Data Health Score Completed" := false;
+        "Scheduled Scans Enabled" := false;
+        Clear("Schedule Frequency");
+        "Schedule Time" := 0T;
+        "Schedule Monday" := false;
+        "Schedule Tuesday" := false;
+        "Schedule Wednesday" := false;
+        "Schedule Thursday" := false;
+        "Schedule Friday" := false;
+        "Schedule Saturday" := false;
+        "Schedule Sunday" := false;
+        "Monthly Schedule Day" := 0;
+        "Next Scheduled Scan" := 0DT;
+        "Last Scheduled Scan" := 0DT;
+        Clear("Last Scheduled Scan Result");
+        "Last Scheduled Scan Duration" := 0;
+        "Scheduled Scan Failure Count" := 0;
+        "Last Scheduled Scan Error" := '';
+        Clear("Scheduled Scan Task ID");
+        "Assessment Credits Available" := 0;
+        "Validation Credits Available" := 0;
+        "Access Snapshot Received At" := 0DT;
+        "Access Server Time UTC" := 0DT;
+        "Access Snapshot Expires At" := 0DT;
+        "Access Snapshot Version" := '';
+        "Access Snapshot Tenant ID" := '';
+        "Access Snapshot Environment" := '';
+        "Access Snapshot Env. Type" := '';
+        "Access Snapshot Company ID" := '';
+        "Access Snapshot API URL" := '';
+        "Can View Reports" := false;
+        "Can Use Monitoring" := false;
+        "Subscription Active" := false;
+        "Report Access Until" := '';
+        "Access Correlation ID" := '';
+        "Free Assessment Used" := false;
+        "Premium Until" := '';
+        "Monitoring Until" := '';
+    end;
+
     procedure GetProductAccessDisplayText(): Text[30]
     begin
         // Backend 'none' means no paid entitlement, not that registered Free Entry is unavailable.
