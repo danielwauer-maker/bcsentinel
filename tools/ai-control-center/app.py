@@ -29,6 +29,7 @@ from ai_pm_brief import compose as compose_ai_brief
 from agent_control import read_status as agent_status
 from team_roster import roster as team_roster
 from sprint_radar import recent_prs, build_radar
+from evidence_progress import build_progress
 
 ROOT = Path(__file__).resolve().parent
 TRACKER = Path(os.getenv("TRACKER_PATH", "/data/master-tracker.xlsx"))
@@ -201,6 +202,7 @@ def snapshot():
     gh_data = briefing()
     pm_daily = compose_ai_brief(insights, coverage, blockers, gh_data)
     radar = build_radar(evidence(), read_summary(), recent_prs(github))
+    qualified_progress = build_progress(tracked, radar, evidence())
     agent_info = agent_status()
     team_info = team_roster(agent_info, pm_daily)
     repos = []
@@ -218,7 +220,7 @@ def snapshot():
             pr_state = pulls.get("state", "error")
         repos.append({"repo": repo, "state": "loaded" if "default_branch" in info else info.get("state", "error"),
                       "default_branch": info.get("default_branch"), "open_prs": pr_items, "pr_state": pr_state})
-    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_radar": radar, "sprint_evidence": evidence(), "repositories": repos,
+    return {"generated_at_utc": utc_now(), "tracker": tracked, "fiverr_readiness": ready, "progress_history": attested, "acceptance_review": assessed, "blocker_plan": blockers, "task_coverage": coverage, "pm_insights": insights, "ai_pm_brief": pm_daily, "project_store": read_summary(), "pm_briefing": gh_data, "sprint_radar": radar, "evidence_progress": qualified_progress, "sprint_evidence": evidence(), "repositories": repos,
             "dev_health": dev_health(), "gates": {key: "not_verified" for key in SEPARATE_GATES},
             "go_live": "NO_GO_UNTIL_EXPLICIT_ACCEPTANCE",
             "agent_queue": agent_info, "team": team_info,
