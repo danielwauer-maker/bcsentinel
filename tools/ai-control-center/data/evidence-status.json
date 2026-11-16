@@ -338,7 +338,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence. 2026-11-16 operator-provided DEV nginx cutover evidence: local three-round anonymous dashboard/exact/API/media HTTP 401; internal auth 404; 8092 proxy-token authorized HTTP 200 and anonymous 401; browser screenshots show dashboard/team/media under DEV admin prefix and 15 media assets from three sources, with previews unavailable. This supports DEV admin-route functional operation, not a complete admin role security audit, authenticated API E2E, image digest, or BC27 runtime acceptance. 2026-11-16 operator-provided exact-SHA AI-PM 2.4 DEV dashboard 8092 cutover result: image 1ccd607e8755 running; project store and radar each 85 tasks (61 Fiverr/24 SaaS); GitHub observation loaded; auth, radar routes, BC27 next, latest backend evidence and fail-closed Fiverr checks PASS; rollback image retained. No claim of browser visual acceptance, independent server inspection, CI-to-task approvals, or BC27 manual runtime PASS.",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence. 2026-11-16 operator-provided DEV nginx cutover evidence: local three-round anonymous dashboard/exact/API/media HTTP 401; internal auth 404; 8092 proxy-token authorized HTTP 200 and anonymous 401; browser screenshots show dashboard/team/media under DEV admin prefix and 15 media assets from three sources, with previews unavailable. This supports DEV admin-route functional operation, not a complete admin role security audit, authenticated API E2E, image digest, or BC27 runtime acceptance. 2026-11-16 operator-provided exact-SHA AI-PM 2.4 DEV dashboard 8092 cutover result: image 1ccd607e8755 running; project store and radar each 85 tasks (61 Fiverr/24 SaaS); GitHub observation loaded; auth, radar routes, BC27 next, latest backend evidence and fail-closed Fiverr checks PASS; rollback image retained. No claim of browser visual acceptance, independent server inspection, CI-to-task approvals, or BC27 manual runtime PASS. 2026-11-16 operator-provided 2.5 image-only DEV cutover: image bcsentinel-ai-pm25-evidence:61d1d27caed3 on 8092; data mounts and auth preserved; project store/radar/progress all 85 tasks; 13 groups; verified Excel plan 287h; only 3 dated timeline events; actual labor hours unknown; all reported validation checks PASS. Nginx and PROD unchanged; BC27/Fiverr NO_GO; no browser visual acceptance yet.",
   "observed_gates": {
     "source_date": "2026-11-14",
     "source_kind": "operator_controlled_dev_release_log_plus_github_ci",
@@ -598,6 +598,49 @@
         "15 curated Fiverr reviews plus 46 unreconciled Fiverr and 24 SaaS entries; unknown is never completion",
         "browser UI ergonomic acceptance not yet recorded",
         "BC27 manual runtime 12 cases still NOT_EXECUTED"
+      ],
+      "fiverr": "NO_GO"
+    },
+    "ai_pm25_evidence_progress": {
+      "state": "operator_verified_DEV_8092_cutover_pass",
+      "source_sha": "61d1d27caed3da7efe09b96080901d6a4dd597d6",
+      "image": "bcsentinel-ai-pm25-evidence:61d1d27caed3",
+      "operator_reported_checks": {
+        "preflight": "PASS",
+        "image_only_change": "PASS",
+        "new_image_running": "PASS",
+        "compose_container_match": "PASS",
+        "data_mounts_preserved": "PASS",
+        "anonymous_denied": "PASS",
+        "dashboard_http": "PASS",
+        "progress_ui": "PASS",
+        "progress_js": "PASS",
+        "snapshot_http": "PASS",
+        "project_store_85_tasks": "PASS",
+        "radar_85_tasks": "PASS",
+        "progress_85_tasks": "PASS",
+        "excel_hours_verified": "PASS",
+        "five_phase_keys": "PASS",
+        "no_fabricated_actual_hours": "PASS",
+        "timeline_model": "PASS",
+        "bc27_not_accepted": "PASS",
+        "fiverr_no_go": "PASS"
+      },
+      "project_tasks": 85,
+      "sprint_groups": 13,
+      "verified_planned_fiverr_hours": 287,
+      "observed_timeline_event_count": 3,
+      "github_state": "loaded",
+      "rollback_image_retained": true,
+      "nginx_changes": false,
+      "prod_changes": false,
+      "known_limits": [
+        "Three timeline events do not reconstruct full historical development timeline",
+        "No verified actual labor-hours; calendar PR duration is not actual work",
+        "Phase percentages are evidence coverage, not objectively verified overall completeness",
+        "Operator cutover output not an independent server inspection",
+        "No manual browser visual acceptance for 2.5 yet",
+        "BC27 sandbox 12-case runtime remains NOT_EXECUTED"
       ],
       "fiverr": "NO_GO"
     }
