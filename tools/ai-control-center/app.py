@@ -240,9 +240,14 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         for key, value in NO_CACHE.items():
-            if key == "Content-Security-Policy" and media_svg:
-                # SVG is active content if navigated directly; sandbox removes origin/scripts.
-                value = "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'"
+            if key == "Content-Security-Policy":
+                if media_svg:
+                    # SVG is active content if navigated directly; sandbox removes origin/scripts.
+                    value = "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'"
+                elif url_prefix():
+                    # The internal admin mount injects a same-origin <base> for relative assets.
+                    # A CSP base-uri 'none' would make browsers ignore it.
+                    value = value.replace("base-uri 'none'", "base-uri 'self'")
             self.send_header(key, value)
         if media_svg:
             self.send_header("Content-Disposition", "inline")
