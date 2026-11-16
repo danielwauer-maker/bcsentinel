@@ -319,6 +319,10 @@ codeunit 53100 "DH API Client"
         Token: JsonToken;
         FeaturesToken: JsonToken;
         Features: JsonArray;
+        ProductModelToken: JsonToken;
+        ProductModel: JsonObject;
+        CommercialOffersToken: JsonToken;
+        CommercialOffers: JsonArray;
         ProductAccessToken: JsonToken;
         ProductAccess: JsonObject;
         CapabilitiesToken: JsonToken;
@@ -424,6 +428,15 @@ codeunit 53100 "DH API Client"
            not TryGetCapabilityGranted(Capabilities, 'scan_start_access', ScanStartGranted)
         then
             Error(IncompleteCapabilitiesLbl);
+
+        if not JsonResponse.Get('product_model', ProductModelToken) then
+            Error(MissingProductModelLbl);
+        ProductModel := ProductModelToken.AsObject();
+        if not ProductModel.Get('commercial_offers', CommercialOffersToken) then
+            Error(MissingProductModelLbl);
+        if not CommercialOffersToken.IsArray() then
+            Error(MissingProductModelLbl);
+        CommercialOffers := CommercialOffersToken.AsArray();
 
         if JsonResponse.Get('plan', Token) then
             if not IsJsonNull(Token) then
@@ -542,6 +555,15 @@ codeunit 53100 "DH API Client"
             if (Setup."Issue Access Until" = '') and ProductAccess.Get('subscription_end', Token) then
                 Setup."Issue Access Until" := CopyStr(FormatJsonDateTimeText(GetJsonTokenText(Token)), 1, MaxStrLen(Setup."Issue Access Until"));
         end;
+
+        if JsonArrayContainsText(CommercialOffers, 'assessment') then
+            Setup."Product Access Model" := 'assessment'
+        else
+            if JsonArrayContainsText(CommercialOffers, 'monitoring') then
+                Setup."Product Access Model" := 'monitoring'
+            else
+                if JsonArrayContainsText(CommercialOffers, 'validation') then
+                    Setup."Product Access Model" := 'validation';
 
         if Setup."Product Access Model" = '' then
             if Setup."Monitoring Active" then
@@ -2181,6 +2203,7 @@ codeunit 53100 "DH API Client"
         HistoryRequestFailedLbl: Label 'Retrieving scan history failed. Status: %1. %2', Comment = '%1 = HTTP status, %2 = safe backend error';
         IncompleteAccessSnapshotLbl: Label 'The backend returned an incomplete access snapshot. Detailed access remains blocked.';
         IncompleteCapabilitiesLbl: Label 'The backend returned an incomplete capability set. Detailed access remains blocked.';
+        MissingProductModelLbl: Label 'The backend returned no canonical product model. Protected controls remain blocked.';
         IncompleteCompanyContextLbl: Label 'The backend returned an incomplete company context. Detailed access remains blocked.';
         IncompleteEnvironmentContextLbl: Label 'The backend returned an incomplete environment context. Detailed access remains blocked.';
         IncompleteTenantContextLbl: Label 'The backend returned an incomplete tenant context. Detailed access remains blocked.';

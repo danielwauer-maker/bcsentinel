@@ -49,7 +49,13 @@ page 53172 "DH Scan Modules"
                 {
                     ApplicationArea = All;
                     Caption = 'Active';
+                    Editable = CanEditSelection;
                     ToolTip = 'Include system and setup checks in scans.';
+
+                    trigger OnValidate()
+                    begin
+                        EnsureSelectionAccess();
+                    end;
                 }
                 field(SystemDescription; SystemDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(SystemChecks; SystemChecksTxt)
@@ -70,7 +76,7 @@ page 53172 "DH Scan Modules"
             group(FinanceModule)
             {
                 Caption = 'Finance';
-                field("Scan Finance Module"; Rec."Scan Finance Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include finance-related checks in scans.'; }
+                field("Scan Finance Module"; Rec."Scan Finance Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include finance-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(FinanceDescription; FinanceDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(FinanceChecks; FinanceChecksTxt)
                 {
@@ -90,7 +96,7 @@ page 53172 "DH Scan Modules"
             group(SalesModule)
             {
                 Caption = 'Sales';
-                field("Scan Sales Module"; Rec."Scan Sales Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include sales-related checks in scans.'; }
+                field("Scan Sales Module"; Rec."Scan Sales Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include sales-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(SalesDescription; SalesDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(SalesChecks; SalesChecksTxt)
                 {
@@ -110,7 +116,7 @@ page 53172 "DH Scan Modules"
             group(PurchasingModule)
             {
                 Caption = 'Purchasing';
-                field("Scan Purchasing Module"; Rec."Scan Purchasing Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include purchasing-related checks in scans.'; }
+                field("Scan Purchasing Module"; Rec."Scan Purchasing Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include purchasing-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(PurchasingDescription; PurchasingDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(PurchasingChecks; PurchasingChecksTxt)
                 {
@@ -130,7 +136,7 @@ page 53172 "DH Scan Modules"
             group(InventoryModule)
             {
                 Caption = 'Inventory';
-                field("Scan Inventory Module"; Rec."Scan Inventory Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include inventory-related checks in scans.'; }
+                field("Scan Inventory Module"; Rec."Scan Inventory Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include inventory-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(InventoryDescription; InventoryDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(InventoryChecks; InventoryChecksTxt)
                 {
@@ -150,7 +156,7 @@ page 53172 "DH Scan Modules"
             group(CRMModule)
             {
                 Caption = 'CRM';
-                field("Scan CRM Module"; Rec."Scan CRM Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include CRM/contact-related checks in scans.'; }
+                field("Scan CRM Module"; Rec."Scan CRM Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include CRM/contact-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(CRMDescription; CRMDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(CRMChecks; CRMChecksTxt)
                 {
@@ -170,7 +176,7 @@ page 53172 "DH Scan Modules"
             group(ManufacturingModule)
             {
                 Caption = 'Manufacturing';
-                field("Scan Manufacturing Module"; Rec."Scan Manufacturing Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include manufacturing-related checks in scans.'; }
+                field("Scan Manufacturing Module"; Rec."Scan Manufacturing Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include manufacturing-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(ManufacturingDescription; ManufacturingDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(ManufacturingChecks; ManufacturingChecksTxt)
                 {
@@ -190,7 +196,7 @@ page 53172 "DH Scan Modules"
             group(ServiceModule)
             {
                 Caption = 'Service';
-                field("Scan Service Module"; Rec."Scan Service Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include service-related checks in scans.'; }
+                field("Scan Service Module"; Rec."Scan Service Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include service-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(ServiceDescription; ServiceDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(ServiceChecks; ServiceChecksTxt)
                 {
@@ -210,7 +216,7 @@ page 53172 "DH Scan Modules"
             group(JobsModule)
             {
                 Caption = 'Jobs';
-                field("Scan Jobs Module"; Rec."Scan Jobs Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include jobs and project-related checks in scans.'; }
+                field("Scan Jobs Module"; Rec."Scan Jobs Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include jobs and project-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(JobsDescription; JobsDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(JobsChecks; JobsChecksTxt)
                 {
@@ -230,7 +236,7 @@ page 53172 "DH Scan Modules"
             group(HRModule)
             {
                 Caption = 'HR';
-                field("Scan HR Module"; Rec."Scan HR Module") { ApplicationArea = All; Caption = 'Active'; ToolTip = 'Include HR-related checks in scans.'; }
+                field("Scan HR Module"; Rec."Scan HR Module") { ApplicationArea = All; Caption = 'Active'; Editable = CanEditSelection; ToolTip = 'Include HR-related checks in scans.'; trigger OnValidate() begin EnsureSelectionAccess(); end; }
                 field(HRDescription; HRDescriptionTxt) { ApplicationArea = All; Caption = 'Description'; Editable = false; MultiLine = true; }
                 field(HRChecks; HRChecksTxt)
                 {
@@ -261,9 +267,11 @@ page 53172 "DH Scan Modules"
                 Image = Approve;
                 Promoted = true;
                 PromotedCategory = Process;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 begin
+                    EnsureSelectionAccess();
                     Rec.SetAllScanModules(true);
                     Rec.Modify(true);
                     UpdateDisplayValues();
@@ -278,9 +286,11 @@ page 53172 "DH Scan Modules"
                 Image = Cancel;
                 Promoted = true;
                 PromotedCategory = Process;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 begin
+                    EnsureSelectionAccess();
                     Rec.SetAllScanModules(false);
                     Rec.Modify(true);
                     UpdateDisplayValues();
@@ -295,9 +305,11 @@ page 53172 "DH Scan Modules"
                 Image = Restore;
                 Promoted = true;
                 PromotedCategory = Process;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 begin
+                    EnsureSelectionAccess();
                     Rec.RestoreDefaultScanModules();
                     Rec.Modify(true);
                     UpdateDisplayValues();
@@ -307,7 +319,7 @@ page 53172 "DH Scan Modules"
             action(SelectChecks)
             {
                 Caption = 'Select Checks';
-                ToolTip = 'Opens the Monitoring-only check selection.';
+                ToolTip = 'Opens the check selection available with Full Assessment or Monitoring access.';
                 ApplicationArea = All;
                 Image = CheckList;
 
@@ -320,21 +332,28 @@ page 53172 "DH Scan Modules"
     }
 
     trigger OnOpenPage()
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
         if not Rec.Get('SETUP') then begin
             Rec.Init();
             Rec."Primary Key" := 'SETUP';
             Rec.Insert(true);
         end;
+        CanEditSelection := ScanCheckMgt.HasSelectionAccess();
         UpdateDisplayValues();
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
+        CanEditSelection := ScanCheckMgt.HasSelectionAccess();
         UpdateDisplayValues();
     end;
 
     var
+        CanEditSelection: Boolean;
         ActiveModulesTxt: Text[100];
         ActiveChecksTxt: Text[100];
         ModuleSelectionStatusTxt: Text[250];
@@ -473,7 +492,8 @@ page 53172 "DH Scan Modules"
         ActiveCount: Integer;
         TotalCount: Integer;
     begin
-        ScanCheckMgt.EnsureDefaultChecks();
+        if ScanCheckMgt.HasSelectionAccess() then
+            ScanCheckMgt.EnsureDefaultChecks();
         ScanCheck.SetRange("Module", ModuleName);
         TotalCount := ScanCheck.Count();
         ScanCheck.SetRange(Enabled, true);
@@ -486,18 +506,22 @@ page 53172 "DH Scan Modules"
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
         ScanCheck: Record "DH Scan Check Selection";
     begin
-        ScanCheckMgt.EnsureMonitoringAccess(true);
-        ScanCheckMgt.EnsureDefaultChecks();
+        if ScanCheckMgt.HasSelectionAccess() then
+            ScanCheckMgt.EnsureDefaultChecks();
         ScanCheck.SetRange("Module", ModuleName);
         Page.Run(Page::"DH Scan Checks", ScanCheck);
     end;
 
     local procedure OpenChecks()
+    begin
+        Page.Run(Page::"DH Scan Checks");
+    end;
+
+    local procedure EnsureSelectionAccess()
     var
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
-        ScanCheckMgt.EnsureMonitoringAccess(true);
-        Page.Run(Page::"DH Scan Checks");
+        ScanCheckMgt.EnsureSelectionAccess(false);
     end;
 
     local procedure FormatScore(Score: Integer): Text[50]

@@ -1490,6 +1490,7 @@
     var
         HasCompletedFreeScore: Boolean;
         HasOneTimeAccess: Boolean;
+        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
         HasCompletedFreeScore := HasCompletedDataHealthScore();
         HasOneTimeAccess :=
@@ -1512,7 +1513,7 @@
             (Rec."Monitoring Active" or (Rec."Validation Credits Available" > 0));
         ShowStartValidationCheck := HasCompletedFreeScore;
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
-        CanSelectScanChecks := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
+        CanSelectScanChecks := (Rec."Tenant ID" <> '') and ScanCheckMgt.HasSelectionAccess();
         CanUseScheduler := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";
         CanEditSchedulerDetails := CanUseScheduler and Rec."Scheduled Scans Enabled";
         CanOpenDashboard := (Rec."Tenant ID" <> '') and HasStoredApiToken();
@@ -1999,11 +2000,8 @@
     end;
 
     local procedure OpenChecksSelection()
-    var
-        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
         EnsureSetupExists();
-        ScanCheckMgt.EnsureMonitoringAccess(true);
         Page.Run(Page::"DH Scan Checks");
         if Rec.Get('SETUP') then begin
             UpdateActionState();

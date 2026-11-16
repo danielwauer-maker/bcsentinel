@@ -20,7 +20,10 @@ page 53173 "DH Exception Dialog"
     }
 
     trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureFullOrMonitoringAccess();
         ScoreEffectTxt := ScoreEffectLbl;
     end;
 

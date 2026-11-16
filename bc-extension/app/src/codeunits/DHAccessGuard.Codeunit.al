@@ -36,6 +36,31 @@ codeunit 53195 "DH Access Guard"
         EnsureCapability('monitoring_access', true);
     end;
 
+    procedure EnsureFullOrMonitoringAccess()
+    var
+        Setup: Record "DH Setup";
+    begin
+        GetSetup(Setup);
+        if not IsSnapshotFreshAndBound(Setup) then
+            if not TryRefreshAccessSnapshot(Setup) then
+                Error(AccessNotVerifiedErr);
+
+        if not IsSnapshotFreshAndBound(Setup) then
+            Error(AccessNotVerifiedErr);
+        if not (IsFullAssessmentGranted(Setup) or IsCapabilityGranted(Setup, 'monitoring_access')) then
+            Error(FullOrMonitoringRequiredErr);
+    end;
+
+    procedure HasFreshFullOrMonitoringAccess(): Boolean
+    begin
+        if HasFreshCapability('monitoring_access') then
+            exit(true);
+        if not HasFreshCapability('product_access') then
+            exit(false);
+
+        exit(HasFreshAssessmentProduct());
+    end;
+
     procedure RefreshAccessSnapshot()
     var
         Setup: Record "DH Setup";
@@ -158,6 +183,25 @@ codeunit 53195 "DH Access Guard"
         exit(false);
     end;
 
+    local procedure IsFullAssessmentGranted(var Setup: Record "DH Setup"): Boolean
+    begin
+        exit(IsCapabilityGranted(Setup, 'product_access') and HasAssessmentProduct(Setup));
+    end;
+
+    local procedure HasFreshAssessmentProduct(): Boolean
+    var
+        Setup: Record "DH Setup";
+    begin
+        if not Setup.Get('SETUP') then
+            exit(false);
+        exit(HasAssessmentProduct(Setup));
+    end;
+
+    local procedure HasAssessmentProduct(var Setup: Record "DH Setup"): Boolean
+    begin
+        exit(LowerCase(Setup."Product Access Model") = 'assessment');
+    end;
+
     local procedure GetSetup(var Setup: Record "DH Setup")
     begin
         if not Setup.Get('SETUP') then
@@ -170,5 +214,6 @@ codeunit 53195 "DH Access Guard"
         IssuesAccessExpiredErr: Label 'Access to detailed findings has expired or could not be verified. Refresh product access or open license management.';
         DashboardAccessExpiredErr: Label 'Dashboard access has expired or could not be verified. Refresh product access or open license management.';
         ReportAccessExpiredErr: Label 'Report access has expired or could not be verified. Refresh product access or open license management.';
+        FullOrMonitoringRequiredErr: Label 'This feature requires an active Full Assessment or Monitoring access. Refresh product access and try again.';
         SetupMissingErr: Label 'BCSentinel setup is missing. Complete setup before opening protected details.';
 }

@@ -2,24 +2,22 @@ codeunit 53196 "DH Scan Check Mgt."
 {
     var
         DefaultCatalogCodes: Dictionary of [Code[50], Boolean];
-        MonitoringRequiredErr: Label 'Selecting individual checks is only available with active Monitoring.';
         NoChecksEnabledErr: Label 'At least one scan check must be enabled before starting a Monitoring scan.';
 
-    procedure EnsureMonitoringAccess(RefreshLicense: Boolean)
+    procedure EnsureSelectionAccess(RefreshLicense: Boolean)
     var
-        Setup: Record "DH Setup";
-        ApiClient: Codeunit "DH API Client";
+        AccessGuard: Codeunit "DH Access Guard";
     begin
-        if not Setup.Get('SETUP') then
-            Error(MonitoringRequiredErr);
+        if RefreshLicense then
+            AccessGuard.RefreshAccessSnapshot();
+        AccessGuard.EnsureFullOrMonitoringAccess();
+    end;
 
-        if RefreshLicense and (Setup."Tenant ID" <> '') then begin
-            ApiClient.RefreshLicenseStatus(Setup);
-            Setup.Get('SETUP');
-        end;
-
-        if not Setup."Monitoring Active" then
-            Error(MonitoringRequiredErr);
+    procedure HasSelectionAccess(): Boolean
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        exit(AccessGuard.HasFreshFullOrMonitoringAccess());
     end;
 
     procedure EnsureDefaultChecks()
@@ -230,6 +228,7 @@ codeunit 53196 "DH Scan Check Mgt."
     var
         ScanCheck: Record "DH Scan Check Selection";
     begin
+        EnsureSelectionAccess(false);
         EnsureDefaultChecks();
         if ScanCheck.FindSet(true) then
             repeat
@@ -242,6 +241,7 @@ codeunit 53196 "DH Scan Check Mgt."
     var
         ScanCheck: Record "DH Scan Check Selection";
     begin
+        EnsureSelectionAccess(false);
         EnsureDefaultChecks();
         if ScanCheck.FindSet(true) then
             repeat
@@ -254,6 +254,7 @@ codeunit 53196 "DH Scan Check Mgt."
     var
         ScanCheck: Record "DH Scan Check Selection";
     begin
+        EnsureSelectionAccess(false);
         EnsureDefaultChecks();
         if ScanCheck.FindSet(true) then
             repeat
@@ -280,7 +281,7 @@ codeunit 53196 "DH Scan Check Mgt."
         if ScanCheck.FindSet() then
             repeat
                 if IsModuleIncluded(Setup, ScanCheck."Module") then
-                    if (not Setup."Monitoring Active") or ScanCheck.Enabled then
+                    if (not HasSelectionAccess()) or ScanCheck.Enabled then
                         Count += 1;
             until ScanCheck.Next() = 0;
 
@@ -332,7 +333,7 @@ codeunit 53196 "DH Scan Check Mgt."
                 if DefaultCatalogCodes.ContainsKey(ScanCheck."Check Code") then begin
                     Clear(CheckObject);
                     EnabledForRun := IsModuleIncluded(Setup, ScanCheck."Module") and
-                        ((not Setup."Monitoring Active") or ScanCheck.Enabled);
+                        ((not HasSelectionAccess()) or ScanCheck.Enabled);
                     CheckObject.Add('code', Format(ScanCheck."Check Code"));
                     CheckObject.Add('module', UpperCase(ScanCheck."Module"));
                     CheckObject.Add('enabled', EnabledForRun);
@@ -400,7 +401,7 @@ codeunit 53196 "DH Scan Check Mgt."
         if SkippedChecks < 0 then
             SkippedChecks := 0;
 
-        if Setup."Monitoring Active" then
+        if HasSelectionAccess() then
             exit(CopyStr(StrSubstNo(ActiveAndSkippedChecksLoadedTxt, ActiveChecks, SkippedChecks), 1, 250));
 
         exit(CopyStr(StrSubstNo(ActiveChecksLoadedTxt, ActiveChecks), 1, 250));
@@ -413,7 +414,7 @@ codeunit 53196 "DH Scan Check Mgt."
         if not Setup.Get('SETUP') then
             exit;
 
-        if not Setup."Monitoring Active" then
+        if not HasSelectionAccess() then
             exit;
 
         if not HasEnabledChecks() then
@@ -428,7 +429,7 @@ codeunit 53196 "DH Scan Check Mgt."
         if not Setup.Get('SETUP') then
             exit(true);
 
-        if not Setup."Monitoring Active" then
+        if not HasSelectionAccess() then
             exit(true);
 
         if not ScanCheck.Get(CheckCode) then

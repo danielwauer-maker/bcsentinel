@@ -585,5 +585,24 @@
     "dashboard_deployment": "not_deployed",
     "ci_note": "At preceding #164 head: E5 recovery workflow failed at Install PostgreSQL client; other observed workflows passed. Fresh workflow checks on audit and evidence commits pending.",
     "tracker_changes": 0
+  },
+  "free_tier_hardening_f02_f07": {
+    "recorded_at": "2026-11-16",
+    "source_branch": "codex/free-tier-hardening-f02-f07",
+    "status": "local_contract_pass_bc29_runtime_open",
+    "scope": "F02 exceptions, F03 scan-module/check mutation, F04 Full-or-Monitoring authorization, F05 findings copy, F06/F07 Free setup access display.",
+    "local_tests": {
+      "command": "backend/.venv/bin/python -m pytest -q backend/tests/test_free_tier_hardening_f02_f07_contract.py backend/tests/test_gl01f_fix02_free_access.py backend/tests/test_access_renewal_policy.py backend/tests/test_p0d_fresh_access.py backend/tests/test_access_snapshot_product_model.py",
+      "result": "84 passed",
+      "source_preflight": "python3 scripts/validate_bc_extension.py: PASS (134 AL objects)"
+    },
+    "runtime": "NOT_EXECUTED: no BC29 compiler, symbols, sandbox installation, or tenant test was available. No deployment, installation, backend or database change was performed.",
+    "localization": "English source labels added. DE target strings require AL/XLIFF generation with the BC29 compiler; no compiler was available, so the generated target file and UI rendering are NOT VERIFIED. Proposed DE findings copy is documented in docs/release/FREE_TIER_HARDENING_F02_F07_EVIDENCE_20261116.md.",
+    "risks": [
+      "The guard now requires a fresh, tenant/environment/company-bound snapshot and the canonical Access-v2 assessment offer (or monitoring capability). Parsing and runtime behavior against live BC29 symbols remains an acceptance item.",
+      "Existing repository-wide localization audit has pre-existing failures outside this change (DHNotificationI18nMgt and DHSalesLineIssueWorklist)."
+    ],
+    "go_live": "NO_GO",
+    "refs": []
   }
 }
