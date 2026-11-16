@@ -73,8 +73,8 @@ def save(area,sprint,minutes,revision,valid_sprints,path=None):
     if isinstance(revision,bool) or not isinstance(revision,int) or revision<0:
         raise EffortError("Ungültige Revision")
     with _database(path,write=True) as con:
-        con.execute("BEGIN IMMEDIATE")
         con.executescript(SCHEMA)
+        con.execute("BEGIN IMMEDIATE")
         old=con.execute("SELECT minutes,revision FROM sprint_effort WHERE area=? AND sprint=?",
                         (area,sprint)).fetchone()
         existing_revision=old["revision"] if old else 0
