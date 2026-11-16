@@ -342,6 +342,18 @@
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43768471596",
         "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43768471629"
       ]
+    },
+    {
+      "title": "BC29 1.0.2.63 · Free Health Check live end-to-end DEV accepted (16.11.2026)",
+      "status": "dev_manual_e2e_accepted_scope_free_only_golive_no_go",
+      "detail": "Operator BC29 Sandbox screenshots verify original Free scan RUN_20261116_000001_8870C7F3D8814DD1B1EE109EE7D38 opens the DEV live Free viewer with unchanged design. Preliminary score 46/100 exactly matches BC29 scan history; 10 analyzed standard modules, 199 checks, 6,878 records, 95 findings and full severity critical 11/high 12/medium 44/low 28/info 0. Top-5 Inventory25/Finance12/Purchasing20/Sales10/System5 with observed affected counts 1075/106/325/68/7272; these are summed finding occurrences, not unique scanned rows. Business impact preview High works via live locale-neutral transport, without revealing EUR amounts. DEV backend image sha256:4d86bd7d6575a1b23f8f47790bbecb848733e5002b086adb0b74710d16a30d85 source acafeca86f0321b9bddeb772bf31ae9561816fdd (PR #210); exact backend regression 25 PASS 4 nonblocking warnings, GitHub integration run 43966600028 SUCCESS; operator preflight, switch, health, report API, public DEV smoke, rollback PASS. BC29 extension 1.0.2.63 installed Sandbox (PR #209); frontend Free one-time grant DEV (PR #19); backend scoped grant PR #208 dependency. UX cosmetic polishing intentionally deferred. Acceptance scope: one original Free scan, one BC29 Sandbox, DEV only, visual+functional. NOT a paid Full/Validation/Monitoring acceptance; no PROD release, merge or global Fiverr GO. Historical Excel tracker and 85-task store not automatically marked complete.",
+      "refs": [
+        "https://github.com/danielwauer-maker/bcsentinel/pull/210",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/208",
+        "https://github.com/danielwauer-maker/bcsentinel/pull/209",
+        "https://github.com/danielwauer-maker/bcsentinel-frontend/pull/19",
+        "https://github.com/danielwauer-maker/bcsentinel/actions/runs/43966600028"
+      ]
     }
   ],
   "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence. 2026-11-16 operator-provided DEV nginx cutover evidence: local three-round anonymous dashboard/exact/API/media HTTP 401; internal auth 404; 8092 proxy-token authorized HTTP 200 and anonymous 401; browser screenshots show dashboard/team/media under DEV admin prefix and 15 media assets from three sources, with previews unavailable. This supports DEV admin-route functional operation, not a complete admin role security audit, authenticated API E2E, image digest, or BC27 runtime acceptance. 2026-11-16 operator-provided exact-SHA AI-PM 2.4 DEV dashboard 8092 cutover result: image 1ccd607e8755 running; project store and radar each 85 tasks (61 Fiverr/24 SaaS); GitHub observation loaded; auth, radar routes, BC27 next, latest backend evidence and fail-closed Fiverr checks PASS; rollback image retained. No claim of browser visual acceptance, independent server inspection, CI-to-task approvals, or BC27 manual runtime PASS. 2026-11-16 operator-provided 2.5 image-only DEV cutover: image bcsentinel-ai-pm25-evidence:61d1d27caed3 on 8092; data mounts and auth preserved; project store/radar/progress all 85 tasks; 13 groups; verified Excel plan 287h; only 3 dated timeline events; actual labor hours unknown; all reported validation checks PASS. Nginx and PROD unchanged; BC27/Fiverr NO_GO; no browser visual acceptance yet. 2026-11-16 AI-PM 2.6 compact dashboard and manual cumulative sprint-minutes implementation PR #201 merged to staging 7f249c70; 3 relevant CI checks PASS; read-only and auth regressions passed. Existing 2.5 remains live 8092 until isolated 2.6 DB/POST testing, explicit image-only cutover, and operator UI review. No timesheets backfilled; no BC27 release or Fiverr GO. 2026-11-16 AI-PM 2.7 canonical current project snapshot PR #202 staged source merge f46e77c5162; all 3 checks passed. Replaces rendered stale BC27 historic Excel title with source-v1.0.2.60 next step; depicts 11 scope areas from curated evidence. Does not imply full 85-task reconciliation, real BC27 execution or DEV deploy. Fiverr NO_GO.",
@@ -688,6 +700,74 @@
       ],
       "dev_runtime": "NOT_DEPLOYED",
       "bc27_manual_cases": "NOT_EXECUTED",
+      "fiverr": "NO_GO"
+    },
+    "free_health_bc29_dev_20261116": {
+      "state": "DEV_FREE_FUNCTIONAL_AND_VISUAL_ACCEPTED",
+      "accepted_at": "2026-11-16",
+      "scope": "original_free_scan_bc29_sandbox_single_e2e",
+      "scan_id": "RUN_20261116_000001_8870C7F3D8814DD1B1EE109EE7D38",
+      "extension_version": "1.0.2.63",
+      "backend_commit": "acafeca86f0321b9bddeb772bf31ae9561816fdd",
+      "backend_image": "sha256:4d86bd7d6575a1b23f8f47790bbecb848733e5002b086adb0b74710d16a30d85",
+      "backend_pr": 210,
+      "backend_ci_run": 43966600028,
+      "backend_ci": "SUCCESS",
+      "regression": "25_PASS_4_WARNINGS",
+      "frontend_pr": 19,
+      "bc_extension_pr": 209,
+      "grant_backend_pr": 208,
+      "preliminary_health_score": 46,
+      "checks": 199,
+      "modules_analyzed": 10,
+      "records_analyzed": 6878,
+      "findings_total": 95,
+      "severity": {
+        "critical": 11,
+        "high": 12,
+        "medium": 44,
+        "low": 28,
+        "info": 0
+      },
+      "top5_areas": [
+        {
+          "area": "inventory",
+          "findings": 25,
+          "affected_occurrences": 1075
+        },
+        {
+          "area": "finance",
+          "findings": 12,
+          "affected_occurrences": 106
+        },
+        {
+          "area": "purchasing",
+          "findings": 20,
+          "affected_occurrences": 325
+        },
+        {
+          "area": "sales",
+          "findings": 10,
+          "affected_occurrences": 68
+        },
+        {
+          "area": "system",
+          "findings": 5,
+          "affected_occurrences": 7272
+        }
+      ],
+      "impact_preview": "high",
+      "free_eur_detail_exposure": "DENIED_BY_REPORT_PAYLOAD_CHECK",
+      "operator_visual_report_review": "PASS",
+      "rollback": "AVAILABLE",
+      "report_layout_changed": false,
+      "cosmetic_changes": "DEFERRED",
+      "paid_full": "NOT_ACCEPTED",
+      "validation": "NOT_ACCEPTED",
+      "monitoring": "NOT_ACCEPTED",
+      "staging_merge": "PENDING",
+      "evidence_dashboard_deployment": "PENDING",
+      "prod": "UNCHANGED",
       "fiverr": "NO_GO"
     }
   },
