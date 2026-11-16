@@ -17,7 +17,15 @@ page 53195 "DH Scan Checks"
                 field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = All;
+                    Editable = CanEditSelection;
                     ToolTip = 'Specifies whether this check is considered by Monitoring scans.';
+
+                    trigger OnValidate()
+                    var
+                        ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
+                    begin
+                        ScanCheckMgt.EnsureSelectionAccess(false);
+                    end;
                 }
                 field("Check Code"; Rec."Check Code")
                 {
@@ -76,12 +84,13 @@ page 53195 "DH Scan Checks"
                 ToolTip = 'Updates the local list of available BCSentinel scan checks.';
                 ApplicationArea = All;
                 Image = Refresh;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 var
                     ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
                 begin
-                    ScanCheckMgt.EnsureMonitoringAccess(true);
+                    ScanCheckMgt.EnsureSelectionAccess(true);
                     ScanCheckMgt.EnsureDefaultChecks();
                     CurrPage.Update(false);
                 end;
@@ -92,12 +101,12 @@ page 53195 "DH Scan Checks"
                 ToolTip = 'Enables all scan checks.';
                 ApplicationArea = All;
                 Image = Approve;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 var
                     ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
                 begin
-                    ScanCheckMgt.EnsureMonitoringAccess(false);
                     ScanCheckMgt.EnableAll();
                     CurrPage.Update(false);
                 end;
@@ -108,12 +117,12 @@ page 53195 "DH Scan Checks"
                 ToolTip = 'Disables all scan checks.';
                 ApplicationArea = All;
                 Image = Cancel;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 var
                     ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
                 begin
-                    ScanCheckMgt.EnsureMonitoringAccess(false);
                     ScanCheckMgt.DisableAll();
                     CurrPage.Update(false);
                 end;
@@ -124,12 +133,12 @@ page 53195 "DH Scan Checks"
                 ToolTip = 'Restores the default scan check selection.';
                 ApplicationArea = All;
                 Image = Restore;
+                Enabled = CanEditSelection;
 
                 trigger OnAction()
                 var
                     ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
                 begin
-                    ScanCheckMgt.EnsureMonitoringAccess(false);
                     ScanCheckMgt.RestoreDefaults();
                     CurrPage.Update(false);
                 end;
@@ -141,8 +150,9 @@ page 53195 "DH Scan Checks"
     var
         ScanCheckMgt: Codeunit "DH Scan Check Mgt.";
     begin
-        ScanCheckMgt.EnsureMonitoringAccess(true);
-        ScanCheckMgt.EnsureDefaultChecks();
+        CanEditSelection := ScanCheckMgt.HasSelectionAccess();
+        if CanEditSelection then
+            ScanCheckMgt.EnsureDefaultChecks();
         Rec.SetCurrentKey("Sort Order", "Module", "Check Code");
     end;
 
@@ -152,6 +162,7 @@ page 53195 "DH Scan Checks"
     end;
 
     var
+        CanEditSelection: Boolean;
         DisplayModule: Text[100];
         DisplayName: Text[150];
         DisplayDescription: Text[250];
