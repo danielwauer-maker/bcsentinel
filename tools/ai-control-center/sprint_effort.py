@@ -107,8 +107,11 @@ def attach(progress,effort):
         group["time_revision"]=e["revision"] if e else 0
         group["actual_hours"]=round(e["minutes"]/60,2) if e else None
         group["actual_hours_state"]="manually_recorded" if e else "not_recorded"
-        group["budget_used_percent"]=round(e["minutes"]/(group["plan_hours"]*60)*100,1) if
-            e and isinstance(group.get("plan_hours"),(int,float)) and group["plan_hours"]>0 else None
+        group["budget_used_percent"]=(
+            round(e["minutes"]/(group["plan_hours"]*60)*100,1)
+            if e and isinstance(group.get("plan_hours"),(int,float)) and group["plan_hours"]>0
+            else None
+        )
         if e and isinstance(group.get("plan_hours"),(int,float)):
             logged.append(group)
     plan=sum(g["plan_hours"] for g in logged)
