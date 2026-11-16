@@ -71,6 +71,21 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(dev["go_live"], "NO_GO")
         self.assertEqual(dev["tracker_checkbox_updates"], 0)
 
+    def test_current_dev_release_evidence_stays_fail_closed_for_admin_and_bc27(self):
+        current = self.data["observed_gates"]["dev_runtime_release_20261116"]
+        self.assertEqual(current["backend"]["state"], "deployed_exact_staging_sha")
+        self.assertEqual(current["backend"]["sha"], "403709ca2dfdcbcc2ceb2e9dda4461f261d04aae")
+        self.assertEqual(current["backend"]["github_run"], 43837211210)
+        self.assertEqual(current["ai_control_center"]["runtime"], "operator_verified_8092_proxy_token_mode_and_DEV_nginx_admin_route_browser_loaded_2026-11-16")
+        self.assertEqual(current["ai_control_center"]["browser_observations"]["media_catalog"], "15_files_3_sources_loaded_preview_images_unavailable")
+        self.assertEqual(current["ai_control_center"]["browser_observations"]["authorized_admin_role_verified"], "NOT_VERIFIED_browser_success_does_not_prove_role_matrix")
+        self.assertEqual(current["ai_control_center"]["browser_observations"]["api_positive_through_live_nginx"], "NOT_VERIFIED")
+        self.assertIn("three_consecutive_rounds", current["ai_control_center"]["infrastructure_observations"]["nginx_dev"])
+        self.assertEqual(current["bc27"]["current_app_artifact"], "NOT_VERIFIED")
+        self.assertEqual(current["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+        self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
+        self.assertEqual(current["fiverr"], "NO_GO")
+
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")
@@ -79,7 +94,9 @@ class CurrentEvidenceTests(unittest.TestCase):
         for field in ("dev-backend-gate", "dev-frontend-gate", "dev-e2e-gate", "dev-gate-source"):
             self.assertIn('id="' + field + '"', html)
             self.assertIn('set("' + field + '"', js)
-        self.assertEqual(self.data["observed_gates"]["admin_integration"]["dashboard_8092_running_sha"], "not_independently_verified")
+        self.assertIn("image_digest_not_independently_verified", self.data["observed_gates"]["admin_integration"]["dashboard_8092_running_sha"])
+        self.assertIn("operator_screenshots_dashboard_team_media", self.data["observed_gates"]["admin_integration"]["browser_runtime"])
+        self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
         self.assertIn('snapshot?.sprint_evidence?.reviewed_at', js)
         self.assertIn("kein aktueller Server-Snapshot", js)
         self.assertIn("Reviewstand nicht verfügbar", js)
