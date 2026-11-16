@@ -46,6 +46,24 @@ class ExecutiveViewTests(unittest.TestCase):
                           "eval(", "POST", "/api/approve", "/api/agent/execute"):
             self.assertNotIn(forbidden,js)
 
+    def test_live_sprint_radar_is_readonly_and_visible(self):
+        html=(ROOT/"index.html").read_text()
+        js=(ROOT/"sprint_radar.js").read_text()
+        docker=(ROOT/"Dockerfile").read_text()
+        app=(ROOT/"app.py").read_text()
+        for marker in ('id="sprint-radar"', 'id="radar-priority"',
+                       'id="radar-items"', 'id="radar-area"', 'id="radar-stage"'):
+            self.assertIn(marker, html)
+        self.assertIn('<script src="/sprint_radar.js"></script>', html)
+        self.assertIn('window.renderSprintRadar(data)', html)
+        self.assertIn('setInterval(', html)
+        self.assertIn("sprint_radar.js", docker)
+        self.assertIn("sprint_radar.py", docker)
+        self.assertIn('"/sprint_radar.js"', app)
+        self.assertIn('"sprint_radar": radar', app)
+        for forbidden in ("innerHTML", "fetch(", "XMLHttpRequest", "localStorage", "POST", "/api/approve"):
+            self.assertNotIn(forbidden, js)
+
     def test_js_packaged_inside_authenticated_image(self):
         dockerfile=(ROOT/"Dockerfile").read_text()
         self.assertIn("executive.js",dockerfile)
