@@ -77,9 +77,12 @@ def build_progress(tracker, radar, source, *, approvals=None):
         for pr in merged:
             day = _iso_day(pr.get("merged_at"))
             if day:
+                created = _iso_day(pr.get("created_at"))
+                lead_days = (dt.date.fromisoformat(day)-dt.date.fromisoformat(created)).days if created else None
                 timeline.append({"date":day, "kind":"merge",
                                  "label":f"PR #{pr['number']} · {key[1]} · Code integriert",
-                                 "area":sprint,"url":pr.get("url")})
+                                 "area":sprint,"url":pr.get("url"),
+                                 "lead_calendar_days":lead_days if lead_days is not None and lead_days >= 0 else None})
         for pr in draft:
             day = _iso_day(pr.get("created_at"))
             if day:
