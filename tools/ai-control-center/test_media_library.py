@@ -3,6 +3,8 @@ import base64
 import io
 import json
 import unittest
+from pathlib import Path
+from urllib.parse import urljoin
 from unittest import mock
 
 from openpyxl import Workbook
@@ -101,6 +103,19 @@ class MediaLibraryTests(unittest.TestCase):
         self.assertEqual(result["coverage"]["source_scanned"],1)
         self.assertEqual(result["coverage"]["source_failed"],1)
         self.assertTrue(result["coverage"]["limited"])
+
+    def test_browser_media_preview_url_honors_admin_base_prefix(self):
+        # Media HTML gets an injected <base> in proxy mode; dynamic URLs must be relative.
+        source = (Path(__file__).resolve().parent / "media.js").read_text(encoding="utf-8")
+        self.assertIn('return "api/media/"+kind+"?"+p.toString();', source)
+        self.assertNotIn('return "/api/media/"+kind+"?"+p.toString();', source)
+        relative = "api/media/asset?repo=x"
+        self.assertEqual(
+            urljoin("https://dev-api.bcsentinel.com/admin/ai-control-center/", relative),
+            "https://dev-api.bcsentinel.com/admin/ai-control-center/api/media/asset?repo=x")
+        self.assertEqual(
+            urljoin("http://127.0.0.1:8092/media.html", relative),
+            "http://127.0.0.1:8092/api/media/asset?repo=x")
 
     def test_ref_whitelist_and_path_traversal(self):
         for repo, ref, path in (

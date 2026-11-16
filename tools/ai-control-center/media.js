@@ -11,7 +11,8 @@ function node(tag,cls,content) {
 }
 function urlFor(a,kind) {
   const p=new URLSearchParams({repo:a.repo,ref:a.ref,path:a.path});
-  return "/api/media/"+kind+"?"+p.toString();
+  // Relative to document.baseURI: works with both root and admin-prefix mounts.
+  return "api/media/"+kind+"?"+p.toString();
 }
 function githubUrl(value) {
   try {
