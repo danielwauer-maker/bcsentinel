@@ -56,9 +56,59 @@
 @media(max-width:1000px){.evidence-overall,.evidence-phase-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.evidence-overall,.evidence-phase-grid,.evidence-columns{grid-template-columns:1fr 1fr}}
 </style>
+<style>
+.compact-dashboard{background:#fff;color:#183348;border:1px solid #d5e1eb;border-radius:14px;padding:24px;margin:18px 0}
+.compact-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.compact-dashboard h2{font-size:1.35rem;margin:4px 0}.compact-dashboard h3{font-size:1.05rem;margin:0}
+.compact-muted{font-size:.8rem;color:#536d80;line-height:1.6}
+.compact-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}
+.compact-metric{border:1px solid #d7e5ee;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.compact-metric span{font-size:.76rem;color:#557082}.compact-metric strong{font-size:1.6rem;color:#133550}
+.compact-metric small{font-size:.7rem;color:#607787}
+.compact-section{padding:17px 0;border-top:1px solid #d8e5ee}.compact-table-scroll{overflow:auto}
+.compact-table{width:100%;border-collapse:collapse;min-width:960px}
+.compact-table th{color:#4b687b;background:#f3f7fb;text-align:left}
+.compact-table td,.compact-table th{padding:13px 9px;border-bottom:1px solid #e0eaf1;vertical-align:middle}
+.compact-table td:first-child{font-weight:600;font-size:.82rem;width:25%}
+.compact-phases{display:flex;gap:8px;justify-content:space-between}
+.compact-mini{min-width:72px;flex:1}.compact-mini span{display:block;color:#627a8c;font-size:.67rem}
+.compact-mini strong{display:block;font-size:.83rem;color:#1b4d6b;margin:4px 0}
+.compact-rail{height:5px;background:#e2ebf2;border-radius:5px;overflow:hidden}.compact-fill{display:block;height:100%;background:#287ca8}
+.compact-entry{display:flex;gap:7px;align-items:center}
+.compact-minutes{width:88px;min-width:88px;background:#fff!important;color:#183348!important;border:1px solid #b7cad8;border-radius:7px;padding:7px}
+.compact-save{font-size:.74rem!important;padding:8px 10px!important}
+.compact-save-note,.compact-table td>small{display:block;font-size:.7rem;color:#657a8c;margin-top:5px}
+.compact-budget{font-weight:700}.compact-over{color:#b94545}.compact-under{color:#276d54}
+.compact-comparison{font-size:.86rem;font-weight:600;color:#154d73;margin-top:15px}
+.compact-timeline{list-style:none;margin:12px 0;padding:0;max-height:420px;overflow:auto}
+.compact-timeline li{display:flex;gap:15px;border-bottom:1px solid #e3ebf1;padding:9px 0;margin:0;font-size:.81rem}
+.compact-timeline time{width:100px;flex-shrink:0;font-weight:600;color:#416681}
+.compact-legacy{margin:12px 0}.compact-legacy>summary{padding:14px 16px;border:1px solid #c7d9e6;border-radius:10px;cursor:pointer;background:#fff;font-weight:600}
+@media(max-width:1100px){.compact-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.compact-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head><body>
 <header><div><div class="eyebrow">Data Health · Business Impact</div><h1>BCSentinel AI Control Center</h1><div class="sub">Projektsteuerung · Live-Evidence · AI-PM 2.2</div></div><nav aria-label="Hauptnavigation" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="/index.html" aria-current="page" style="font-weight:700">Dashboard</a><a href="/team.html" style="font-weight:700">Team</a><a href="/media.html" style="font-weight:700">Mediathek</a><button id="refresh">Jetzt aktualisieren</button></nav></header>
 <main><div class="topline"><span id="timestamp" class="muted">Noch nicht geladen</span><span class="chip danger" id="go-live">Go-Live: nicht freigegeben</span><span class="chip">Ein Agent nach dem anderen · geplant</span></div>
+<section id="compact-dashboard" class="compact-dashboard">
+ <div class="compact-heading"><div><div class="eyebrow">AI Control Center 2.6 · Projektübersicht</div>
+ <h2>Fortschritt und Zeiteinsatz</h2><p class="sub">Eine Übersicht für alle Sprints. Technische Evidenz und manuelle Abnahmen getrennt.</p></div>
+ <span class="chip danger">Fiverr NO-GO</span></div>
+ <p id="compact-state" class="compact-muted">Wird aktualisiert …</p>
+ <div id="compact-stats" class="compact-stats"></div>
+ <div class="compact-section"><h3>Fortschritt pro Sprint und Soll-/Ist-Vergleich</h3>
+ <p class="compact-muted">Trage die <strong>gesamten bisher aufgewendeten Minuten</strong> pro Sprint ein (keine zusätzlichen Minuten pro Klick).
+ Jede Änderung wird gespeichert und protokolliert. Prozentwerte zeigen nachgewiesene Aufgaben je Phase, nicht geschätzte Gesamtfertigstellung.</p>
+ <div class="compact-table-scroll"><table class="compact-table"><thead><tr><th>Sprint</th>
+ <th>Nachgewiesener Fortschritt</th><th>Excel-Soll</th><th>Manuelle Ist-Minuten</th><th>Ist / Soll</th></tr></thead>
+ <tbody id="compact-rows"></tbody></table></div>
+ <p id="compact-comparison" class="compact-comparison">Soll-/Ist-Vergleich wird geladen …</p>
+ <p class="compact-muted">Ist/Soll ist der <strong>Budgetverbrauch</strong> der erfassten Sprints, nicht automatisch ein Terminplanurteil. Laufende Sprints können zusätzliche Minuten benötigen. Nicht erfasste Zeiten bleiben unbekannt.</p>
+ </div>
+ <div class="compact-section"><div class="compact-heading"><h3>Timeline · zuletzt belegte Ereignisse</h3><span class="compact-muted" id="compact-timeline-status"></span></div>
+ <ol id="compact-timeline" class="compact-timeline"></ol></div>
+</section>
+<details id="legacy-reports" class="compact-legacy"><summary>Erweiterte Analysen und historische Auswertungen anzeigen</summary>
 <section id="dev-release-gates" class="panel" aria-label="DEV Deployment und Abnahme" style="margin-top:16px">
  <h2>DEV-Integration · verifizierter Evidence-Stand</h2>
  <div class="brief-list">
@@ -269,11 +319,12 @@
 <section class="panel"><h2>Technische Freigabe-Gates</h2><div id="gates"></div><h2 style="margin-top:25px">Agentenwarteschlange</h2><div class="empty">Noch nicht implementiert. Keine aktiven Agenten und keine automatischen Schreibaktionen.</div></section>
 <section class="panel full"><h2>GitHub · offene Pull Requests</h2><div id="repos" class="muted"></div><div class="scroll"><table><thead><tr><th>Repository</th><th>PR</th><th>Status</th><th>Zuletzt geändert</th></tr></thead><tbody id="pr-list"></tbody></table></div></section>
 <section class="panel full"><h2>Datenqualität &amp; Hinweise</h2><ul id="warnings"></ul></section>
-</div></details></main>
+</div></details></details></main>
 <script src="/executive.js"></script>
 <script src="/triage.js"></script>
 <script src="/sprint_radar.js"></script>
 <script src="/evidence_progress.js"></script>
+<script src="/compact.js"></script>
 <script>
 const el=id=>document.getElementById(id);
 function cell(row,value){const td=document.createElement('td');td.textContent=String(value??'–');row.appendChild(td);return td}
@@ -302,6 +353,7 @@ if(typeof window.renderExecutive==="function") window.renderExecutive(data);
 if(typeof window.renderTriage==="function") window.renderTriage(data);
 if(typeof window.renderSprintRadar==="function") window.renderSprintRadar(data);
 if(typeof window.renderEvidenceProgress==="function") window.renderEvidenceProgress(data);
+if(typeof window.renderCompact==="function") window.renderCompact(data);
 el('timestamp').textContent='Stand: '+new Date(data.generated_at_utc).toLocaleString('de-DE');el('go-live').textContent='Go-Live: NICHT FREIGEGEBEN';
 const hist=data.progress_history||{state:'not_initialized'};
 el('history-count').textContent=hist.state==='loaded'?('Attestierte Ereignisse: '+hist.count_events):'Historie nicht initialisiert · Excel-Baseline aktiv';
