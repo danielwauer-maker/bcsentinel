@@ -22,6 +22,7 @@ def _original_free(tenant_id: str, scan_id: str = "RUN_FREE_VALID"):
             tenant_id=tenant_id, scan_id=scan_id, scan_type="data_health_score",
             bc_company_id=COMPANY, lcy_code="EUR", generated_at_utc=now,
             data_score=72, checks_count=199, issues_count=0, total_records=30,
+            summary_headline="Free scan test", summary_rating="good",
         )
         db.add(scan)
         db.add(ScanStartRequest(
