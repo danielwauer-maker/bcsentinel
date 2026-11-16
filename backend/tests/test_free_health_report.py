@@ -102,7 +102,7 @@ def test_free_health_report_json_html_pdf_are_available_without_paid_access(
     assert payload["data_health_score"] == 68
     assert payload["checks_count"] == 199
     assert payload["modules_analyzed"] == 4
-    assert payload["impact_band"] == "high"
+    assert payload["impact_band"] == "High"
     assert payload["severity"] == {
         "critical": 1,
         "high": 1,
@@ -207,7 +207,7 @@ def test_free_preliminary_uses_full_scan_score_and_findings_even_when_auto_scope
     assert report.total_records == 6878
     assert report.severity.critical == 1
     assert report.severity.high == 1
-    assert report.impact_band == "medium"
+    assert report.impact_band == "Moderate"
     assert len(report.risk_areas) <= 5
     assert {area.name for area in report.risk_areas} >= {"Finance", "CRM"}
     assert sum(area.issue_count for area in report.risk_areas) == 2
@@ -216,15 +216,25 @@ def test_free_preliminary_uses_full_scan_score_and_findings_even_when_auto_scope
         assert forbidden not in output
 
 
-def test_free_impact_band_uses_locale_independent_transport_codes():
-    from app.services.free_health_report_service import _impact_band
-    for language in ("de", "en"):
-        assert _impact_band(0, language) == "low"
-        assert _impact_band(5000, language) == "medium"
-        assert _impact_band(24999, language) == "medium"
-        assert _impact_band(25000, language) == "high"
-        assert _impact_band(60243.32, language) == "high"
-        assert _impact_band(100000, language) == "very_high"
+def test_free_live_impact_bridge_normalizes_localized_bands_without_exposing_amounts():
+    from types import SimpleNamespace
+    from app.routers.report_render_data import _free_live_report_payload
+
+    for localized, expected in (
+        ("Niedrig", "low"), ("Low", "low"),
+        ("Moderat", "medium"), ("Moderate", "medium"),
+        ("Hoch", "high"), ("High", "high"),
+        ("Sehr hoch", "very_high"), ("Very high", "very_high"),
+    ):
+        report = SimpleNamespace(model_dump=lambda mode: {
+            "contract_version": "free-health-report-v1",
+            "impact_band": localized,
+            "issues_count": 95,
+        })
+        payload = _free_live_report_payload(report)
+        assert payload["impact_band"] == expected
+        assert payload["issues_count"] == 95
+        assert set(payload) == {"contract_version", "impact_band", "issues_count"}
 
 
 def test_free_health_report_uses_run_module_count_as_legacy_fallback(
