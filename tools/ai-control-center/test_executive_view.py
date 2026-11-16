@@ -64,6 +64,21 @@ class ExecutiveViewTests(unittest.TestCase):
         for forbidden in ("innerHTML", "fetch(", "XMLHttpRequest", "localStorage", "POST", "/api/approve"):
             self.assertNotIn(forbidden, js)
 
+    def test_evidence_progress_has_separate_phase_coverage_and_time(self):
+        html=(ROOT/"index.html").read_text()
+        js=(ROOT/"evidence_progress.js").read_text()
+        app=(ROOT/"app.py").read_text()
+        docker=(ROOT/"Dockerfile").read_text()
+        self.assertIn('id="evidence-project-progress"', html)
+        self.assertIn('id="evidence-actual-hours"', html)
+        self.assertIn('id="evidence-timeline"', html)
+        self.assertIn('window.renderEvidenceProgress(data)', html)
+        self.assertIn('"/evidence_progress.js"', app)
+        self.assertIn('evidence_progress.js', docker)
+        self.assertIn('evidence_progress.py', docker)
+        for forbidden in ("innerHTML", "XMLHttpRequest", "localStorage", "fetch(", "/api/approve"):
+            self.assertNotIn(forbidden,js)
+
     def test_js_packaged_inside_authenticated_image(self):
         dockerfile=(ROOT/"Dockerfile").read_text()
         self.assertIn("executive.js",dockerfile)
