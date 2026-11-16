@@ -50,7 +50,7 @@ class HttpIsolationTests(unittest.TestCase):
         return out
 
     def test_all_assets_are_auth_protected(self):
-        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/sprint_radar.js","/evidence_progress.js","/api/snapshot","/media.html","/media.js","/api/media"):
+        for path in ("/","/index.html","/team.html","/light-theme.css","/executive.js","/triage.js","/sprint_radar.js","/evidence_progress.js","/compact.js","/api/snapshot","/media.html","/media.js","/api/media"):
             with self.subTest(path=path):
                 status,headers,data=self.request(path)
                 self.assertEqual(status,401)
@@ -84,6 +84,35 @@ class HttpIsolationTests(unittest.TestCase):
         for method in ("POST","PUT","PATCH","DELETE"):
             status,_,_=self.request("/api/media",auth=True,method=method)
             self.assertEqual(status,501)
+
+    def test_sprint_effort_post_requires_auth_origin_and_verifiable_excel(self):
+        import json
+        payload=json.dumps({"area":"fiverr","sprint":"3A.2 BC Runtime",
+                            "minutes":80,"revision":0}).encode()
+        def post(auth=False,origin=None,content_type="application/json"):
+            conn=http.client.HTTPConnection("127.0.0.1",self.port,timeout=5)
+            h={"Content-Type":content_type,"X-Requested-With":"BCSentinel-AI-PM"}
+            if origin:h["Origin"]=origin
+            if auth:
+                h["Authorization"]="Basic "+base64.b64encode(
+                    b"testoperator:a-long-test-password").decode()
+            conn.request("POST","/api/sprint-effort",body=payload,headers=h)
+            response=conn.getresponse()
+            result=response.status,response.read()
+            conn.close()
+            return result
+        self.assertEqual(post()[0],401)
+        self.assertEqual(post(auth=True)[0],403)
+        self.assertEqual(post(auth=True,origin="https://evil.example")[0],403)
+        with mock.patch.object(app,"tracker",return_value={"state":"loaded","rows":[
+            {"area":"fiverr","sprint":"3A.2 BC Runtime"}]}),mock.patch.object(
+            app,"save_effort",return_value={"state":"saved","revision":1}) as save:
+            status,body=post(auth=True,origin="https://dev-api.bcsentinel.com")
+            self.assertEqual(status,200)
+            self.assertEqual(json.loads(body)["revision"],1)
+            save.assert_called_once()
+        with mock.patch.object(app,"tracker",return_value={"state":"version_mismatch"}):
+            self.assertEqual(post(auth=True,origin="https://dev-api.bcsentinel.com")[0],400)
 
     def test_svg_preview_is_sandboxed(self):
         with mock.patch.object(app, "media_asset", return_value=(b"<svg/>", ".svg")):
