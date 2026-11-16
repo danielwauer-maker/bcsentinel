@@ -73,6 +73,27 @@ codeunit 53170 "DH Scan Scheduler Mgt."
         Setup.Modify(true);
     end;
 
+    procedure StopSchedulerForSandboxReset(var Setup: Record "DH Setup")
+    var
+        CancelError: Text;
+    begin
+        // A reset must never detach a Task Scheduler ID unless cancellation succeeded.
+        if not IsNullGuid(Setup."Scheduled Scan Task ID") then
+            if not TryCancelSchedulerTask(Setup."Scheduled Scan Task ID") then begin
+                CancelError := GetLastErrorText();
+                if CancelError = '' then
+                    CancelError := 'Business Central did not confirm cancellation of the scheduled task.';
+                Error('BCSentinel data was not reset because scheduled task %1 could not be cancelled: %2', Setup."Scheduled Scan Task ID", CancelError);
+            end;
+
+        Setup."Scheduled Scans Enabled" := false;
+        Clear(Setup."Scheduled Scan Task ID");
+        Setup."Next Scheduled Scan" := 0DT;
+        Setup."Last Scheduled Scan Result" := Setup."Last Scheduled Scan Result"::Disabled;
+        Setup."Last Scheduled Scan Error" := '';
+        Setup.Modify(true);
+    end;
+
     procedure RunNow(var Setup: Record "DH Setup"): Integer
     begin
         EnsureMonitoringForScheduler(Setup);

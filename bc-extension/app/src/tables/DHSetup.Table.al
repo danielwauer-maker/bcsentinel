@@ -523,6 +523,44 @@ table 53100 "DH Setup"
         "Access Correlation ID" := '';
     end;
 
+    procedure ClearSandboxRegistrationState()
+    begin
+        // Preserve only the endpoint, consent and operator configuration needed to register again.
+        "Tenant ID" := '';
+        "API Token" := '';
+        Registered := false;
+        "Registration Date" := 0DT;
+        "Last Score" := 0;
+        "Last Scan Date" := 0DT;
+        "Last Run ID Date" := 0D;
+        "Last Run ID Counter" := 0;
+        "Issue Drilldown Code" := '';
+        Clear("Current Plan");
+        Clear("License Status");
+        "Last License Check" := 0DT;
+        "Can Run Data Health Score" := true;
+        "Data Health Score Completed" := false;
+        "Scan Credits Available" := 0;
+        "Assessment Credits Available" := 0;
+        "Validation Credits Available" := 0;
+        "Premium Enabled" := false;
+        "Monitoring Active" := false;
+        "Can Run Deep Scan" := false;
+        "Can View Dashboard" := false;
+        "Can View Issue Details" := false;
+        "Can View Reports" := false;
+        "Can Use Monitoring" := false;
+        "Subscription Active" := false;
+        "Dashboard Access Until" := '';
+        "Issue Access Until" := '';
+        "Report Access Until" := '';
+        "Premium Until" := '';
+        "Monitoring Until" := '';
+        "Product Access Model" := '';
+        "Free Assessment Used" := false;
+        InvalidateAccessSnapshot();
+    end;
+
     procedure GetFeatureAccessText(): Text[100]
     begin
         if "Monitoring Active" then
