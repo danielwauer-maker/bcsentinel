@@ -4,7 +4,6 @@ import datetime as dt
 import re
 import threading
 import time
-from urllib.parse import urlparse
 
 ROOT_REPOS = ("danielwauer-maker/bcsentinel", "danielwauer-maker/bcsentinel-frontend")
 CACHE_TTL = 300
@@ -121,6 +120,23 @@ def build_radar(source, store, github_observation):
                      "detail": str(item.get("detail", ""))[:750], "prs": linked,
                      "unresolved_pr_refs": missing[:8], "reviewed_at": source.get("reviewed_at"),
                      "manual_gates": sorted(gates), "task_stage": task.get("stage", "not_loaded")})
+    # Display every imported task. Unreviewed entries never claim completion.
+    reviewed_keys = {("fiverr", row["id"]) for row in rows}
+    if valid_tasks:
+        for task in store.get("tasks", []):
+            area = str(task.get("area", ""))
+            source_id = str(task.get("source_id", ""))
+            if area not in ("fiverr", "saas") or (area, source_id) in reviewed_keys:
+                continue
+            rows.append({
+                "id": source_id, "title": str(task.get("title") or source_id)[:200],
+                "area": ("SaaS & Stripe" if area == "saas" else area_for(source_id)),
+                "category": "unverified", "label": "Noch nicht einzeln reconciliert",
+                "next_action": "PRs, Code, CI und Runtime dieser Aufgabe zuordnen",
+                "source_status": "not_reviewed", "detail": "Historischer Tracker-Eintrag; noch kein aktueller Einzelreview.",
+                "prs": [], "unresolved_pr_refs": [], "reviewed_at": source.get("reviewed_at"),
+                "manual_gates": [], "task_stage": task.get("stage", "not_loaded"),
+            })
     # Explicit verified infrastructure work is separate from the 61 Fiverr task acceptance gates.
     infra = source.get("observed_gates", {}).get("admin_integration", {})
     runtime = source.get("observed_gates", {}).get("dev_runtime_release_20261116", {})
@@ -146,8 +162,9 @@ def build_radar(source, store, github_observation):
     return {"state": "partial" if github_observation.get("state") != "loaded" or not valid_tasks else "loaded",
             "source_date": source.get("reviewed_at"), "github": {k: github_observation.get(k)
                       for k in ("state", "observed_at", "coverage", "errors")},
-            "inventory": {"fiverr_total": 61, "saas_total": 24, "reviewed_fiverr": len(rows),
-                          "other_fiverr_unreviewed": max(0, 61-len(rows)),
+            "inventory": {"fiverr_total": 61, "saas_total": 24, "reviewed_fiverr": len(items),
+                          "other_fiverr_unreviewed": max(0, 61-len(items)),
+                          "unreviewed_total": sum(x["category"] == "unverified" for x in rows),
                           "store_state": store.get("state")},
             "counts": counts, "milestones": milestones,
             "next": priority[:5], "items": rows,
