@@ -204,7 +204,10 @@ page 53153 "DH Issue Exceptions"
     }
 
     trigger OnOpenPage()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        AccessGuard.EnsureFullOrMonitoringAccess();
         if ContextTableId <> 0 then begin
             Rec.SetRange("Table ID", ContextTableId);
             Rec.SetRange("Record SystemId", ContextSystemId);

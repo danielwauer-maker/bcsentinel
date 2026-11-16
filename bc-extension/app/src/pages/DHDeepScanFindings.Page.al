@@ -195,20 +195,19 @@ page 53131 "DH Deep Scan Findings"
 
     local procedure UpdateAccessState()
     var
-        Setup: Record "DH Setup";
-        BuyFullAnalysisLbl: Label 'Start Assessment for detailed insights';
+        AccessGuard: Codeunit "DH Access Guard";
+        FullAssessmentRequiredLbl: Label 'Detailed data-quality issues, root causes, and recommended actions are included in Full Assessment. Start a Full Assessment to unlock this information.';
         UnlockedLbl: Label 'Unlocked';
     begin
         ShowPremiumDetails := false;
         ShowFreeSummary := true;
-        AccessText := BuyFullAnalysisLbl;
+        AccessText := FullAssessmentRequiredLbl;
 
-        if Setup.Get('SETUP') then
-            if Setup."Premium Enabled" then begin
-                ShowPremiumDetails := true;
-                ShowFreeSummary := false;
-                AccessText := UnlockedLbl;
-            end;
+        if AccessGuard.HasFreshFullOrMonitoringAccess() then begin
+            ShowPremiumDetails := true;
+            ShowFreeSummary := false;
+            AccessText := UnlockedLbl;
+        end;
     end;
 
     trigger OnAfterGetCurrRecord()

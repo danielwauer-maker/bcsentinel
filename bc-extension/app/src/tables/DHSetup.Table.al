@@ -523,6 +523,44 @@ table 53100 "DH Setup"
         "Access Correlation ID" := '';
     end;
 
+    procedure ClearSandboxRegistrationState()
+    begin
+        // Preserve only the endpoint, consent and operator configuration needed to register again.
+        "Tenant ID" := '';
+        "API Token" := '';
+        Registered := false;
+        "Registration Date" := 0DT;
+        "Last Score" := 0;
+        "Last Scan Date" := 0DT;
+        "Last Run ID Date" := 0D;
+        "Last Run ID Counter" := 0;
+        "Issue Drilldown Code" := '';
+        Clear("Current Plan");
+        Clear("License Status");
+        "Last License Check" := 0DT;
+        "Can Run Data Health Score" := true;
+        "Data Health Score Completed" := false;
+        "Scan Credits Available" := 0;
+        "Assessment Credits Available" := 0;
+        "Validation Credits Available" := 0;
+        "Premium Enabled" := false;
+        "Monitoring Active" := false;
+        "Can Run Deep Scan" := false;
+        "Can View Dashboard" := false;
+        "Can View Issue Details" := false;
+        "Can View Reports" := false;
+        "Can Use Monitoring" := false;
+        "Subscription Active" := false;
+        "Dashboard Access Until" := '';
+        "Issue Access Until" := '';
+        "Report Access Until" := '';
+        "Premium Until" := '';
+        "Monitoring Until" := '';
+        "Product Access Model" := '';
+        "Free Assessment Used" := false;
+        InvalidateAccessSnapshot();
+    end;
+
     procedure GetFeatureAccessText(): Text[100]
     begin
         if "Monitoring Active" then
@@ -546,17 +584,29 @@ table 53100 "DH Setup"
 
     procedure GetDashboardAccessDisplay(): Text[50]
     begin
+        if HasExclusiveFreeAccess() then
+            exit(InDevelopmentLbl);
         exit(GetResultAccessDisplay("Can View Dashboard", "Dashboard Access Until"));
     end;
 
     procedure GetIssueAccessDisplay(): Text[50]
     begin
+        if HasExclusiveFreeAccess() then
+            exit(FullAssessmentRequiredLbl);
         exit(GetResultAccessDisplay("Can View Issue Details", "Issue Access Until"));
     end;
 
     procedure GetReportAccessDisplay(): Text[50]
     begin
+        if HasExclusiveFreeAccess() then
+            exit(UnlimitedFreeLbl);
         exit(GetResultAccessDisplay("Can View Reports", "Report Access Until"));
+    end;
+
+    local procedure HasExclusiveFreeAccess(): Boolean
+    begin
+        exit(("Free Assessment Used" or "Data Health Score Completed") and
+            not "Premium Enabled" and not "Can Use Monitoring");
     end;
 
     local procedure GetResultAccessDisplay(AccessGranted: Boolean; AccessUntil: Text): Text[50]
@@ -695,7 +745,12 @@ table 53100 "DH Setup"
     end;
 
     procedure SetAllScanModules(Enabled: Boolean)
+    var
+        AccessGuard: Codeunit "DH Access Guard";
     begin
+        // This method is also called from actions, so keep the entitlement check
+        // at the business-operation boundary rather than relying on page state.
+        AccessGuard.EnsureFullOrMonitoringAccess();
         "Scan System Module" := Enabled;
         "Scan Finance Module" := Enabled;
         "Scan Sales Module" := Enabled;
@@ -786,6 +841,9 @@ table 53100 "DH Setup"
         FullAnalysisLbl: Label 'Full Analysis';
         FreeDataHealthScoreLbl: Label 'Free Data Health Score';
         UnlimitedLbl: Label 'Unlimited';
+        UnlimitedFreeLbl: Label 'Unlimited – Free';
+        InDevelopmentLbl: Label 'In development';
+        FullAssessmentRequiredLbl: Label 'Full Assessment required';
         AvailableLbl: Label 'Available';
         AlreadyUsedLbl: Label 'Already used';
         NotAvailableLbl: Label 'Not available';

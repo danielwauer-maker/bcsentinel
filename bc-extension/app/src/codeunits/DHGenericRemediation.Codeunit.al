@@ -8,6 +8,7 @@ codeunit 53202 "DH Generic Remediation"
         Reason: Text[250];
         IssueCode: Code[50];
     begin
+        EnsureExceptionAccess();
         IssueCode := GetIssueCode();
         ExceptionDialog.SetContext(CopyStr(RecordNoText, 1, 20), CopyStr(RecordCaptionText, 1, 100), IssueCode, '');
         if ExceptionDialog.RunModal() <> Action::OK then
@@ -115,6 +116,13 @@ codeunit 53202 "DH Generic Remediation"
         if IssueCode = '' then
             Error(IssueContextMissingErr);
         exit(IssueCode);
+    end;
+
+    local procedure EnsureExceptionAccess()
+    var
+        AccessGuard: Codeunit "DH Access Guard";
+    begin
+        AccessGuard.EnsureFullOrMonitoringAccess();
     end;
 
     local procedure InsertAction(TableId: Integer; RecordSystemId: Guid; RecordNoText: Text; RecordCaptionText: Text; IssueCode: Code[50]; ActionType: Code[20]; CommentText: Text)
