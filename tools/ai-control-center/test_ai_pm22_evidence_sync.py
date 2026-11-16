@@ -1,5 +1,6 @@
 """AI-PM 2.2: dated observations never become release approvals or Excel ticks."""
 import json
+from datetime import date
 from pathlib import Path
 import unittest
 
@@ -19,7 +20,9 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(meta["verified_at"], "2026-11-11")
         # The immutable Excel baseline predates independently reviewed later evidence.
         # New verified GitHub events must not be blocked by the first snapshot date.
-        self.assertGreaterEqual(self.data["reviewed_at"], meta["verified_at"])
+        reviewed_at = date.fromisoformat(self.data["reviewed_at"])
+        self.assertGreaterEqual(reviewed_at, date(2026, 11, 13))
+        self.assertGreaterEqual(reviewed_at, date.fromisoformat(meta["verified_at"]))
         self.assertEqual(self.data["observed_gates"]["fiverr"], "NO_GO")
 
     def test_evidence_is_precise_and_fail_closed(self):
