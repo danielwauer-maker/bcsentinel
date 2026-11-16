@@ -42,7 +42,7 @@
     set("exec-gates", ready.state==="loaded" ? pct(ready.gate_fraction) : "Nicht verfügbar");
     set("exec-gates-source", "Fiverr · historische Excel-Häkchen, keine unabhängige Abnahme");
     set("exec-estimate", ready.state==="loaded" ? pct(ready.legacy_estimate_fraction) : "Nicht verfügbar");
-    set("exec-estimate-source", "Legacy-Excel-Planmodell · nicht aktuelle Entwicklungsevidence");
+    set("exec-estimate-source", "Legacy-Excel-Planmodell · kein technischer Fortschritt, nicht aktuelle Entwicklungsevidence");
     set("exec-p0", insights.state==="loaded" ? count(insights.risk_summary?.p0_open_criteria) : "–");
     set("exec-p0-source", "Offene P0-Prüfkriterien im kuratierten Teilumfang");
     const stamp = snapshot?.generated_at_utc;
