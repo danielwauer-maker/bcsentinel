@@ -86,6 +86,16 @@ class CurrentEvidenceTests(unittest.TestCase):
         self.assertEqual(current["prod"], "unchanged_by_DEV_workflow")
         self.assertEqual(current["fiverr"], "NO_GO")
 
+    def test_operator_verified_ai_pm24_cutover_never_promotes_bc27(self):
+        radar = self.data["observed_gates"]["ai_pm24_sprint_radar"]
+        self.assertEqual(radar["state"], "operator_verified_DEV_8092_cutover_pass")
+        self.assertEqual(radar["source_sha"], "1ccd607e8755cf7125af9af49564bf15c2975d51")
+        self.assertEqual(radar["runtime_checks"]["radar_items_85"], "PASS")
+        self.assertEqual(radar["runtime_checks"]["no_false_go_live"], "PASS")
+        self.assertEqual(radar["fiverr"], "NO_GO")
+        current = self.data["observed_gates"]["dev_runtime_release_20261116"]
+        self.assertEqual(current["bc27"]["sandbox_runtime_acceptance"], "NOT_EXECUTED")
+
     def test_dashboard_displays_review_timestamp_separately(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "executive.js").read_text(encoding="utf-8")
