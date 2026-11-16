@@ -63,10 +63,37 @@ function sprintRow(s){
  });
  return tr;
 }
+function renderCurrentProject(current){
+ const priority=byId("compact-current-next"),domains=byId("compact-current-areas");
+ if(!priority||!domains)return;
+ priority.replaceChildren();domains.replaceChildren();
+ if(!current||!Array.isArray(current.areas)){
+   priority.append(node("p","Aktuelle Statusquelle nicht verfügbar – keine alten Versionszahlen als neu ausgeben."));
+   return;
+ }
+ for(const task of (current.next||[]).slice(0,3)){
+   const card=node("article",undefined,"compact-next-card");
+   card.append(node("strong",task.title),node("p",task.action));
+   priority.append(card);
+ }
+ const labels={code_candidate:"AL-Quellkandidat",source_partial:"Quellcode / Review teilweise",dev_verified:"DEV verifiziert",
+   dev_verified_prior:"DEV zuletzt nachgewiesen",merged_source_controls:"Quellkontrollen integriert",
+   editorial_complete:"Redaktionell vorbereitet",not_started:"Noch nicht freigegeben",unreconciled:"Einzelstatus ungeklärt"};
+ for(const area of current.areas){
+   const card=node("article",undefined,"compact-area-card");
+   card.append(node("strong",area.name),node("small",labels[area.stage]||area.stage),
+      node("p",area.evidence),node("p","Noch offen: "+area.remaining));
+   const valid=(area.refs||[]).find(ref=>/^https:\/\/github\.com\/danielwauer-maker\/[\w-]+\/(pull|actions\/runs)\/\d+$/.test(ref));
+   if(valid){const a=node("a","Nachweis auf GitHub");a.href=valid;a.target="_blank";a.rel="noopener noreferrer";card.append(a);}
+   domains.append(card);
+ }
+ byId("compact-coverage-limit").textContent=current.coverage_note||"";
+}
 function renderCompact(snapshot){
  const p=snapshot?.evidence_progress;
  if(!p||!Array.isArray(p.sprints)){byId("compact-state").textContent="Projektfortschritt nicht verfügbar";return;}
  latest=snapshot;
+ renderCurrentProject(snapshot.current_project);
  const rates=p.metrics?.phase_coverage_fiverr_percent||{};
  const stats=byId("compact-stats");stats.replaceChildren();
  const effort=p.effort||{};
