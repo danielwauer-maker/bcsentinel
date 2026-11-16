@@ -453,6 +453,24 @@
                 end;
             }
 
+            action(OpenFreeHealthReport)
+            {
+                Caption = 'Open Free Report';
+                ToolTip = 'Open the Free Health Report for the original completed Free scan.';
+                ApplicationArea = All;
+                Image = Report;
+                Visible = ShowFreeReport;
+
+                trigger OnAction()
+                var
+                    Links: Codeunit "DH Report Link Mgt.";
+                begin
+                    if Rec."Run ID" = '' then
+                        Error('Select a completed scan.');
+                    Links.OpenFreeHealthReport(Rec."Run ID");
+                end;
+            }
+
             action(OpenValidationReportV2)
             {
                 Caption = 'Validation Report';
@@ -565,12 +583,14 @@
     begin
         ReloadDisplayValuesFromRec();
         Variant := Links.GetCompletedReportVariant(Rec);
+        ShowFreeReport := Variant = 'free';
         ShowFullReport := Variant = 'full';
         ShowValidationReport := Variant = 'validation';
         ShowMonitoringReport := Variant = 'monitoring';
     end;
 
     var
+        ShowFreeReport: Boolean;
         ShowFullReport: Boolean;
         ShowValidationReport: Boolean;
         ShowMonitoringReport: Boolean;

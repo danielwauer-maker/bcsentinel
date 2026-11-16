@@ -203,6 +203,12 @@
       ]
     },
     {
+      "title": "BC29 · Free-Scan headline and report access (source candidate)",
+      "status": "local_contract_pass_bc29_runtime_open",
+      "detail": "2026-11-16 source candidate on a fresh staging-based branch: the persisted scan mode now selects Free/Full/Validation/Monitoring headlines, and original Free scans route to the existing authenticated free-health share-link instead of Full-v6. Focused local Free/Full/access tests: 33 PASS; AL source preflight: PASS. No backend/schema/PROD change, deployment, installation, merge, GitHub Actions or BC runtime was performed. BC29 compiler/symbols are unavailable locally, and BC29 sandbox acceptance plus translation generation remain open. Curated evidence: docs/release/BC29_FREE_SCAN_REPORT_ACCESS_EVIDENCE_20261116.md.",
+      "refs": []
+    },
+    {
       "title": "AI-PM 2.2 · unabhängiges Agent-Dashboard",
       "status": "ci_pass_operator_preview_open",
       "detail": "Gestapelter Draft PR #169; AI-PM 2.2 auf CI geprüft, aber DEV-Vorschau 8093 noch nicht als Operator-abgenommen belegt; bisheriges Dashboard 8092 unverändert. 61 Fiverr + 24 SaaS = ursprüngliches Importinventar; keine automatisch genehmigten Aufgaben oder Agenten.",

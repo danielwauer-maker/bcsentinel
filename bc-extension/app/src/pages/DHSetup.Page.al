@@ -1728,6 +1728,8 @@
         // Backend preflight and report-link issuance remain authoritative for paid access.
         Variant := ReportLinks.GetCompletedReportVariant(DeepScanRun);
         case Variant of
+            'free':
+                ReportLinks.OpenFreeHealthReport(DeepScanRun."Run ID");
             'full':
                 ReportLinks.ReviewScopeAndOpenFullV6(DeepScanRun."Run ID");
             'validation', 'monitoring':
