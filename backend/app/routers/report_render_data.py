@@ -135,7 +135,7 @@ def read_report_for_renderer(
     # New variants are accepted only behind the v2 feature gate.
     scoped_tenant_id = verify_scoped_session(
         authorization, scan_id=scan_id, company_id=company_id, variant=variant
-    ) if (variant == "full" or (settings.ACCESS_MODEL_V2_ENABLED and variant in {"validation", "monitoring"})) else None
+    ) if (variant == "full" or (settings.ACCESS_MODEL_V2_ENABLED and variant in {"free", "validation", "monitoring"})) else None
     if scoped_tenant_id is None:
         _, tenant_id, _ = _tenant_user_principal(authorization)
     else:
@@ -148,11 +148,21 @@ def read_report_for_renderer(
         if tenant is None:
             raise HTTPException(status_code=404, detail="Report not found.")
         if scoped_tenant_id is not None:
-            if not has_paid_full_access(db, tenant):
+            if variant != "free" and not has_paid_full_access(db, tenant):
                 raise HTTPException(status_code=403, detail="Premium report access expired.")
             if variant == "monitoring" and not build_product_access_snapshot(db, tenant)["monitoring_active"]:
                 raise HTTPException(status_code=403, detail="Monitoring access expired.")
             verified_company = require_report_company(tenant, scan)
+            if variant == "free":
+                # No paid archive is required; only the first persisted original Free scan.
+                report = _build_authorized_report(db, tenant, scan_id, variant)
+                return ReportRenderEnvelope(
+                    variant="free", tenant_id=tenant_id, company_id=verified_company,
+                    scan_id=scan_id, language=report.language,
+                    currency=ReportCurrencyContext(
+                        company_lcy_code=scan.lcy_code.upper(), report_currency="EUR",
+                    ), report=report.model_dump(mode="json"), render_vm=None,
+                )
             if scan.lcy_code.upper() != "EUR":
                 raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
             archived = db.scalar(select(ReportArchive).where(
