@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-16",
+  "reviewed_at": "2026-11-18",
   "work_items": [
     {
       "id": "1.01",
@@ -765,8 +765,38 @@
       "paid_full": "NOT_ACCEPTED",
       "validation": "NOT_ACCEPTED",
       "monitoring": "NOT_ACCEPTED",
-      "staging_merge": "PENDING",
-      "evidence_dashboard_deployment": "PENDING",
+      "staging_merge": "MERGED_PR_212_3cdb6380d2039024b674df1599ef2eeb754d967e",
+      "evidence_dashboard_deployment": "PASS_AI_CONTROL_CENTER_8092_20261118",
+      "dashboard_deployment": {
+        "observed_at_date": "2026-11-18",
+        "source_kind": "operator_provided_server_cutover_output",
+        "scope": "ai_control_center_local_8092_only",
+        "staging_backend_commit": "3cdb6380d2039024b674df1599ef2eeb754d967e",
+        "frontend_dev_integration_commit": "a978b8521f6146a5d4c2476d34f81c418bb319a2",
+        "image": "sha256:29a5aada0e1c10d244871baa568a0353e8faec13ced777b1d0d99d7b976efcf6",
+        "previous_image_preserved": true,
+        "backup_path": "/home/daniel/bcsentinel-ai-control-center/backups/pre-dashboard-cutover-20261118T164124Z",
+        "backup_projects_sha256": "d520d6e963df813da785b8b8bb507977ceead91973818f5885757f6166496384",
+        "backup_agent_control_sha256": "c0c787ebd995c8b014f990d1a38a3095bff3955d0bdaec6b0eb597a56750e235",
+        "cutover_status": "PASS",
+        "post_cutover_checks": {
+          "internal_proxy_auth": "PASS",
+          "project_tasks": 85,
+          "fiverr_tasks": 61,
+          "saas_tasks": 24,
+          "time_entries": 1,
+          "time_minutes": 30,
+          "database_integrity": "PASS",
+          "free_score": 46,
+          "free_findings": 95,
+          "fiverr_go_live": "NO_GO"
+        },
+        "external_admin_route_authenticated_smoke": "NOT_VERIFIED_AFTER_CUTOVER",
+        "dev_backend_image_redeployment": "NOT_PERFORMED",
+        "dev_frontend_image_redeployment": "NOT_PERFORMED",
+        "production_changed": false,
+        "runtime_status": "OPERATOR_REPORTED_PASS_NOT_INDEPENDENTLY_OBSERVED"
+      },
       "prod": "UNCHANGED",
       "fiverr": "NO_GO"
     }
