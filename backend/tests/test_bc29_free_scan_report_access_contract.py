@@ -31,7 +31,7 @@ def test_completed_headline_uses_the_persisted_scan_mode_for_all_product_familie
     assert "Validation Check completed with critical findings." in runner
 
 
-def test_free_scan_is_routed_only_to_the_free_health_share_link():
+def test_free_scan_is_routed_only_to_the_scoped_free_live_grant():
     links = _al("codeunits/DHReportLinkMgt.Codeunit.al")
     setup_page = _al("pages/DHSetup.Page.al")
     monitor = _al("pages/DHDeepScanMonitor.Page.al")
@@ -46,8 +46,10 @@ def test_free_scan_is_routed_only_to_the_free_health_share_link():
     free_link = links.split("procedure OpenFreeHealthReport", 1)[1].split(
         "procedure ReviewScopeAndOpenFullV6", 1
     )[0]
-    assert "'/reports/free-health/' + Format(ScanId) + '/share-link'" in free_link
-    assert "RequestJson.Add('report_type', 'html');" in free_link
+    assert "'/reports/live/free/' + Format(ScanId) + '/link'" in free_link
+    assert "'/reports/free-health/'" not in free_link
+    assert "Content.WriteFrom('{}');" in free_link
+    assert "if not Client.Post(Url, Content, Response) then" in free_link
     assert "X-Tenant-Id" in free_link
     assert "X-Api-Token" in free_link
     assert "OpenArchivedFullV6" not in free_link

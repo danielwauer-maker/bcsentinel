@@ -62,6 +62,29 @@ class ReportRenderEnvelope(BaseModel):
     render_vm: dict | None = None
 
 
+_FREE_LIVE_IMPACT_BANDS = {
+    "low": "low", "niedrig": "low",
+    "moderate": "medium", "medium": "medium", "moderat": "medium", "mittel": "medium",
+    "high": "high", "hoch": "high",
+    "very high": "very_high", "very_high": "very_high", "sehr hoch": "very_high",
+}
+
+
+def _free_live_report_payload(report) -> dict:
+    """Use the existing Free payload; normalize only the live viewer's band token.
+
+    Legacy JSON/HTML/PDF Free endpoints retain their localized band values.
+    No amounts or finding details are added to the scoped renderer envelope.
+    """
+    payload = report.model_dump(mode="json")
+    raw_band = str(payload["impact_band"]).strip().lower()
+    band = _FREE_LIVE_IMPACT_BANDS.get(raw_band)
+    if band is None:
+        raise HTTPException(status_code=409, detail="Free impact band cannot be rendered.")
+    payload["impact_band"] = band
+    return payload
+
+
 def _require_company_scan(db, tenant_id: str, scan_id: str, company_id: str) -> Scan:
     # A scan must be explicitly bound at upload time to a BC Company GUID.
     # Legacy tenant-only scans MUST NOT be guessed into a company.
@@ -161,7 +184,7 @@ def read_report_for_renderer(
                     scan_id=scan_id, language=report.language,
                     currency=ReportCurrencyContext(
                         company_lcy_code=scan.lcy_code.upper(), report_currency="EUR",
-                    ), report=report.model_dump(mode="json"), render_vm=None,
+                    ), report=_free_live_report_payload(report), render_vm=None,
                 )
             if scan.lcy_code.upper() != "EUR":
                 raise HTTPException(status_code=409, detail="SCAN_CURRENCY_NOT_VERIFIED")
