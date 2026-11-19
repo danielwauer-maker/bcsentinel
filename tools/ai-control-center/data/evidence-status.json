@@ -854,7 +854,9 @@
     "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 135 AL objects in configured ranges.",
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no BC29 sandbox installation, tenant mutation, licensing reset, or scan was performed.",
-    "ci_check_status": "PENDING: branch not yet pushed; no GitHub workflow was intentionally started.",
+    "draft_pr": "NOT_CREATED: gh pr create returned GitHub GraphQL HTTP 403 Forbidden after the branch was pushed; no alternate PR was created.",
+    "ci_check_status": "UNVERIFIED: after push, gh pr checks 215 and gh run list for the branch returned GitHub GraphQL HTTP 403 Forbidden; no additional workflow was intentionally started.",
+    "latest_commit": "2639d60e5b8493fb5deb74987c875a5142d0b895",
     "deployment": "NOT_PERFORMED",
     "go_live": "NO_GO: manual BC29 Free-to-Full, Validation, and Monitoring acceptance remains required.",
     "refs": []
