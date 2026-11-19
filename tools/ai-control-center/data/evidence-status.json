@@ -823,6 +823,8 @@
       "after_fix": "30 passed, 2 nonblocking warnings across the three affected contract test modules; full EXT-50-12A Python contract block passed 45 tests.",
       "active_stale_references": "All three current-release test references now expect 1.0.2.64; historical Evidence entries retaining 1.0.2.63 were not changed."
     },
+    "ci_check_status": "UNVERIFIED: after push, gh run list, gh pr checks 215, and the commit-status API all returned HTTP 403 Forbidden; no new workflow was started.",
+    "latest_commit": "f78a6f47a563854b74973037aade63656e88cd62",
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no BC29 sandbox installation or Findings page acceptance was performed.",
     "deployment": "NOT_PERFORMED",
