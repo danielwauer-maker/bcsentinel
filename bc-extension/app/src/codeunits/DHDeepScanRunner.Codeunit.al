@@ -2787,6 +2787,9 @@ codeunit 53128 "DH Deep Scan Runner"
         if LowerCase(DeepScanRun."Scan Mode") = 'monitoring' then
             exit('monitoring');
 
+        if LowerCase(DeepScanRun."Scan Mode") = 'sandbox_qa' then
+            exit('sandbox_qa');
+
         exit('deep');
     end;
 
@@ -2804,6 +2807,8 @@ codeunit 53128 "DH Deep Scan Runner"
                 exit('full');
             'monitoring', 'scheduled':
                 exit('monitoring');
+            'sandbox_qa':
+                exit('sandbox_qa');
         end;
 
         exit('validation');
@@ -2818,6 +2823,8 @@ codeunit 53128 "DH Deep Scan Runner"
                 exit(FullAssessmentRunningLbl);
             'monitoring':
                 exit(MonitoringScanRunningLbl);
+            'sandbox_qa':
+                exit('Sandbox QA Deep Scan running');
         end;
 
         exit(ValidationCheckRunningLbl);
@@ -2832,6 +2839,8 @@ codeunit 53128 "DH Deep Scan Runner"
                 exit(FullAssessmentStartedLbl);
             'monitoring':
                 exit(MonitoringScanStartedLbl);
+            'sandbox_qa':
+                exit('Sandbox QA Deep Scan started');
         end;
 
         exit(ValidationCheckStartedLbl);

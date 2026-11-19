@@ -16,6 +16,7 @@ from app.core.settings import settings
 from app.db import SessionLocal
 from app.lifecycle_models import LifecycleEmailOutbox, TenantLifecycleProfile
 from app.models import Scan, Tenant, TenantScanCredit
+from app.services.sandbox_qa_scan_service import issue_grant
 from app.operator_models import TenantOperatorAction
 from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token, verify_csrf_token
 from app.services.operator_commercial_service import (
@@ -88,6 +89,43 @@ def operator_grant_v2(
             db.rollback()
             detail = str(exc) if isinstance(exc, ValueError) else "Order position already exists."
             raise HTTPException(status_code=409, detail=detail) from exc
+
+
+@router.post("/admin/operator/{tenant_id}/sandbox-qa-scan-grant")
+def operator_grant_sandbox_qa_scan(
+    request: Request,
+    tenant_id: str,
+    company_id: str = Form(...),
+    environment_name: str = Form(...),
+    expires_in_minutes: int = Form(30),
+    csrf_token: str = Form(...),
+    admin_username: str = Depends(require_operator),
+):
+    """Issue one bounded DEV/Sandbox QA grant; never a product entitlement."""
+    _check_csrf(request, csrf_token)
+    if settings.ENV.lower() == "prod":
+        raise HTTPException(status_code=404, detail="Not found")
+    with SessionLocal() as db:
+        tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found")
+        try:
+            grant = issue_grant(
+                db, tenant=tenant, company_id=company_id.strip(), environment_name=environment_name.strip(),
+                issued_by=admin_username, expires_in_minutes=expires_in_minutes,
+            )
+            from app.services.admin_audit_service import log_admin_event
+            log_admin_event(
+                db, admin_username=admin_username, action="operator.sandbox_qa_scan_grant.issue",
+                target_type="tenant", target_id=tenant_id,
+                details={"grant_id": grant.id, "company_id": grant.company_id,
+                         "environment_name": grant.environment_name, "expires_at_utc": grant.expires_at_utc.isoformat()},
+            )
+            db.commit()
+            return {"status": "available", "grant_id": grant.id, "expires_at_utc": grant.expires_at_utc}
+        except (ValueError, IntegrityError) as exc:
+            db.rollback()
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.post("/admin/operator/{tenant_id}/v2/revoke")

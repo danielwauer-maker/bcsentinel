@@ -351,6 +351,7 @@ def _normalize_scan_type(value: str | None) -> str:
         "monitoring",
         "scheduled",
         "manual",
+        "sandbox_qa",
     }:
         return "deep"
     if normalized == "quick":
@@ -533,6 +534,7 @@ def start_scan(
                 environment_name=payload.environment_name,
                 expectation_json=expectation_json,
                 expectation_company=expectation_company,
+                expectation_environment=payload.expectation.environment if payload.expectation else None,
             )
         except ScanStartConflictError as exc:
             return JSONResponse(

@@ -456,6 +456,7 @@ codeunit 53100 "DH API Client"
         Setup."Issue Access Until" := '';
         Setup."Report Access Until" := '';
         Setup."Can Run Deep Scan" := false;
+        Setup."Sandbox QA Scan Available" := false;
         Setup."Can View Dashboard" := false;
         Setup."Can View Issue Details" := false;
         Setup."Product Access Model" := '';
@@ -511,6 +512,9 @@ codeunit 53100 "DH API Client"
 
         if JsonResponse.Get('can_run_deep_scan', Token) then
             Setup."Can Run Deep Scan" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('sandbox_qa_scan_available', Token) then
+            Setup."Sandbox QA Scan Available" := GetJsonTokenBoolean(Token, false);
 
         if JsonResponse.Get('can_view_dashboard', Token) then
             Setup."Can View Dashboard" := GetJsonTokenBoolean(Token, false);

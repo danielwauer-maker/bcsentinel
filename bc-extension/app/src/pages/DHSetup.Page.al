@@ -923,6 +923,32 @@
                     end;
                 }
 
+                action(StartSandboxQADepScan)
+                {
+                    Caption = 'Start Sandbox QA Deep Scan';
+                    ToolTip = 'Starts the single server-authorized QA scan for this registered Business Central sandbox.';
+                    Image = Start;
+                    ApplicationArea = All;
+                    Enabled = CanStartSandboxQAScan;
+                    Visible = ShowSandboxQAScan;
+
+                    trigger OnAction()
+                    var
+                        DeepScanMgt: Codeunit "DH Deep Scan Mgt.";
+                        DeepScanRun: Record "DH Deep Scan Run";
+                        EnvironmentInformation: Codeunit "Environment Information";
+                        EntryNo: Integer;
+                    begin
+                        if not EnvironmentInformation.IsSandbox() then
+                            Error('Sandbox QA Deep Scans are available only in a Business Central sandbox.');
+                        if not Confirm('Start the one-time Sandbox QA Deep Scan now?', false) then
+                            exit;
+                        EntryNo := DeepScanMgt.QueueSandboxQAScan(Rec);
+                        if (EntryNo <> 0) and DeepScanRun.Get(EntryNo) then
+                            Page.Run(Page::"DH Deep Scan Monitor", DeepScanRun);
+                    end;
+                }
+
                 action(OpenLatestScanMonitor)
                 {
                     Caption = 'Open Current Scan';
@@ -1293,9 +1319,11 @@
         CanResetRegistration: Boolean;
         CanStartFreeDataHealthScore: Boolean;
         CanStartValidationCheck: Boolean;
+        CanStartSandboxQAScan: Boolean;
         ShowStartFreeDataHealthScore: Boolean;
         ShowFreeDataHealthScoreCompleted: Boolean;
         ShowStartValidationCheck: Boolean;
+        ShowSandboxQAScan: Boolean;
         ShowValidationCheckRequiresFreeScore: Boolean;
         CanSelectScanChecks: Boolean;
         CanUseScheduler: Boolean;
@@ -1559,6 +1587,8 @@
             (Rec."Tenant ID" <> '') and HasCompletedFreeScore and
             (Rec."Monitoring Active" or (Rec."Validation Credits Available" > 0));
         ShowStartValidationCheck := HasCompletedFreeScore;
+        ShowSandboxQAScan := Rec."Sandbox QA Scan Available";
+        CanStartSandboxQAScan := (Rec."Tenant ID" <> '') and Rec."Sandbox QA Scan Available";
         ShowValidationCheckRequiresFreeScore := not HasCompletedFreeScore;
         CanSelectScanChecks := (Rec."Tenant ID" <> '') and ScanCheckMgt.HasSelectionAccess();
         CanUseScheduler := (Rec."Tenant ID" <> '') and Rec."Monitoring Active";

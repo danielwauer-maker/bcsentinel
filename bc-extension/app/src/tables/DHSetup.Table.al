@@ -434,6 +434,11 @@ table 53100 "DH Setup"
             Caption = 'Monitoring Until';
             DataClassification = SystemMetadata;
         }
+        field(76; "Sandbox QA Scan Available"; Boolean)
+        {
+            Caption = 'Sandbox QA Scan Available';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
