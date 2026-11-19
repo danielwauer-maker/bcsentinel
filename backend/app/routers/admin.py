@@ -614,15 +614,21 @@ def _load_partner_payout_rows(db):
     return rows
 
 
-def _build_admin_nav(active_section: str) -> list[dict[str, str | bool]]:
+def _build_admin_nav(active_section: str, request: Request | None = None) -> list[dict[str, str | bool]]:
     nav = []
+    host = request.url.hostname if request is not None else None
     for key in ADMIN_NAV_ORDER:
         item = ADMIN_SECTION_META[key]
+        href = item["href"]
+        # The Control Center is mounted on DEV API, not on the DEV Admin hostname.
+        # Never point the production Admin navigation at the DEV environment.
+        if key == "ai_control_center" and host == "dev-admin.bcsentinel.com":
+            href = "https://dev-api.bcsentinel.com/admin/ai-control-center/"
         nav.append(
             {
                 "key": key,
                 "label": item["label"],
-                "href": item["href"],
+                "href": href,
                 "active": key == active_section,
             }
         )
@@ -691,7 +697,7 @@ def _render_admin_page(
         "active_section": active_section,
         "section_title": section_meta["label"],
         "section_subtitle": section_meta["subtitle"],
-        "admin_nav": _build_admin_nav(active_section),
+        "admin_nav": _build_admin_nav(active_section, request),
         "fmt_dt": _fmt_dt,
         "fmt_money": _fmt_money,
         "email_template_flash": {
@@ -845,7 +851,7 @@ def admin_check_catalog_detail(check_id: str, request: Request, _: str = Depends
                 "active_section": "check_catalog",
                 "section_title": "Check Catalog",
                 "section_subtitle": "Texte pflegen; fachliche Produktlogik bleibt schreibgeschützt",
-                "admin_nav": _build_admin_nav("check_catalog"),
+                "admin_nav": _build_admin_nav("check_catalog", request),
                 "check": check,
                 "translation_de": translations.get("de-DE"),
                 "translation_en": translations.get("en-US"),
@@ -1114,7 +1120,7 @@ def admin_tenant_detail(tenant_id: str, request: Request, _: str = Depends(requi
                 "active_section": "tenants",
                 "section_title": "Tenant Detail",
                 "section_subtitle": f"{tenant.environment_name} · {tenant.app_version}",
-                "admin_nav": _build_admin_nav("tenants"),
+                "admin_nav": _build_admin_nav("tenants", request),
                 "tenant": tenant,
                 "tenant_no": tenant_no,
                 "scan_count": int(scan_count),
