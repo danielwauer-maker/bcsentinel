@@ -35,3 +35,23 @@ def test_nginx_proxy_contract_secures_prefix_assets_apis_and_websockets():
     assert config.count("proxy_set_header Connection $http_connection;") == 8
     assert "/etc/nginx/snippets/bcsentinel-ai-control-center-proxy-auth.conf" in config
     assert "internal;" in config
+
+
+def test_dev_admin_control_center_link_targets_protected_dev_api_host(client):
+    # Exercise the same helper used by the admin index and detail pages.
+    from starlette.requests import Request
+    from app.routers.admin import _build_admin_nav
+
+    def fake_request(host):
+        return Request({"type": "http", "scheme": "https", "server": (host, 443),
+                        "path": "/admin", "headers": [(b"host", host.encode())]})
+
+    dev = _build_admin_nav("tenants", fake_request("dev-admin.bcsentinel.com"))
+    item = next(x for x in dev if x["key"] == "ai_control_center")
+    assert item["href"] == "https://dev-api.bcsentinel.com/admin/ai-control-center/"
+    assert next(x for x in dev if x["key"] == "tenants")["href"] == "/admin/tenants"
+
+    prod = _build_admin_nav("tenants", fake_request("admin.bcsentinel.com"))
+    prod_item = next(x for x in prod if x["key"] == "ai_control_center")
+    assert prod_item["href"] == "/admin/ai-control-center"
+    assert "dev-api.bcsentinel.com" not in prod_item["href"]
