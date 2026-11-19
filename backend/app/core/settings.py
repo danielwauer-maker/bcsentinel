@@ -7,7 +7,10 @@ from app.security.url_policy import UnsafeUrlError, normalize_service_base_url
 
 class Settings(BaseSettings):
     # === CORE ===
-    ENV: str = "dev"
+    # Safety-sensitive DEV-only capabilities must never be enabled merely
+    # because a deployment omitted ENV.  Consumers must use an explicit
+    # allowlist rather than treating this as an implicit development default.
+    ENV: str | None = None
 
     # === SECURITY ===
     SECRET_KEY: str

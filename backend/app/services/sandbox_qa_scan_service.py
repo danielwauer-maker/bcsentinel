@@ -8,8 +8,8 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.settings import settings
 from app.models import SandboxQAScanGrant, Tenant
+from app.services.qa_environment_service import is_sandbox_qa_dev_environment, require_sandbox_qa_dev_environment
 
 
 def _now() -> datetime:
@@ -17,8 +17,7 @@ def _now() -> datetime:
 
 
 def _assert_dev_sandbox(tenant: Tenant, company_id: str, environment_name: str) -> None:
-    if (settings.ENV or "").strip().lower() == "prod":
-        raise ValueError("Sandbox QA grants are disabled in PROD.")
+    require_sandbox_qa_dev_environment()
     if (tenant.bc_environment_type or "").strip().lower() != "sandbox":
         raise ValueError("The registered tenant is not a BC sandbox.")
     if not company_id or company_id != tenant.bc_company_id:
@@ -80,7 +79,7 @@ def claim_grant(db: Session, *, tenant: Tenant, company_id: str | None,
 
 def has_available_grant(db: Session, tenant: Tenant) -> bool:
     """Read-only license hint; server-side start authorization remains authoritative."""
-    if (settings.ENV or "").strip().lower() == "prod" or (tenant.bc_environment_type or "").lower() != "sandbox":
+    if not is_sandbox_qa_dev_environment() or (tenant.bc_environment_type or "").lower() != "sandbox":
         return False
     return db.scalar(select(SandboxQAScanGrant.id).where(
         SandboxQAScanGrant.tenant_id == tenant.tenant_id,

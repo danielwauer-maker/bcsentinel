@@ -22,6 +22,7 @@ from app.services.product_license_service import (
 )
 from app.services.scan_status_service import create_or_get_scan_run
 from app.services.sandbox_qa_scan_service import claim_grant
+from app.services.qa_environment_service import require_sandbox_qa_dev_environment
 
 
 class ScanStartConflictError(ValueError):
@@ -281,6 +282,7 @@ def _resolve_access_and_credit(
     expectation_company: str | None = None, expectation_environment: str | None = None,
 ) -> tuple[str | None, TenantScanCredit | None, bool]:
     if requested_mode == "sandbox_qa":
+        require_sandbox_qa_dev_environment()
         claim_grant(db, tenant=tenant, company_id=expectation_company,
                     environment_name=expectation_environment, scan_id=scan_id)
         return "sandbox_qa_deep_scan", None, False

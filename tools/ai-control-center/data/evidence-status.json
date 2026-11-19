@@ -920,11 +920,11 @@
     "extension_version": "1.0.2.68",
     "changes": [
       "Alembic revision 0042 creates the binding-unique SandboxQAScanGrant record with tenant, company, environment, status, expiry, operator audit identity and consumed scan identity. Its uniqueness and conditional available-to-consumed update prevent duplicate grants and concurrent double consumption.",
-      "The authenticated CSRF-protected operator endpoint is explicitly unavailable in PROD and verifies the registered sandbox, tenant, company and environment before issuing a bounded grant. It writes an admin audit event and never creates an entitlement or credit.",
+      "The authenticated CSRF-protected operator endpoint and all grant service, snapshot and atomic-consumption paths use the shared fail-closed environment gate: only the exact explicitly configured ENV value dev is allowed. Missing, prod, production, staging, test and unknown values are denied before a grant can be created or consumed.",
       "The atomic scan-start transaction accepts sandbox_qa only with a complete expectation and exact registered binding. Grant consumption, accepted start and expectation snapshot share one transaction; normal Free, Full, Validation and Monitoring resolution is unchanged.",
       "The AL Setup action is visible only when the server license snapshot reports an available QA grant, checks the actual BC sandbox at execution, requires explicit confirmation and sends sandbox_qa through the existing run-id, expectation and idempotency start path. It does not classify as Validation or Monitoring."
     ],
-    "local_regression": "PASS: 32 focused backend tests passed, 3 skipped, 3 nonblocking warnings (scan start, expectation, license contract and operator security).",
+    "local_regression": "PASS: 48 focused backend tests passed, 3 skipped, 3 nonblocking warnings. This includes an exact ENV=dev allow case; fail-closed cases for missing, empty, prod, production, staging, test, unknown and whitespace/case variants; and service plus atomic-start checks that denied environments neither create nor consume a grant.",
     "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 137 AL objects in configured ranges.",
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no QA grant, Alembic migration, BC29 installation, scan, tenant, license, credit or entitlement mutation was performed.",

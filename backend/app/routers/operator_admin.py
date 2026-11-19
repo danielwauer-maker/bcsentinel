@@ -17,6 +17,7 @@ from app.db import SessionLocal
 from app.lifecycle_models import LifecycleEmailOutbox, TenantLifecycleProfile
 from app.models import Scan, Tenant, TenantScanCredit
 from app.services.sandbox_qa_scan_service import issue_grant
+from app.services.qa_environment_service import require_sandbox_qa_dev_environment
 from app.operator_models import TenantOperatorAction
 from app.security.csrf import CSRF_COOKIE_NAME, create_csrf_token, verify_csrf_token
 from app.services.operator_commercial_service import (
@@ -103,8 +104,10 @@ def operator_grant_sandbox_qa_scan(
 ):
     """Issue one bounded DEV/Sandbox QA grant; never a product entitlement."""
     _check_csrf(request, csrf_token)
-    if settings.ENV.lower() == "prod":
-        raise HTTPException(status_code=404, detail="Not found")
+    try:
+        require_sandbox_qa_dev_environment()
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Not found") from exc
     with SessionLocal() as db:
         tenant = db.scalar(select(Tenant).where(Tenant.tenant_id == tenant_id))
         if tenant is None:
