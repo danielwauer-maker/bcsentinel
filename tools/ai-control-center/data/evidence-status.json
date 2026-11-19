@@ -952,5 +952,25 @@
         "url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/44589247128"
       }
     ]
+  },
+  "full_scope_01_read_only_audit": {
+    "recorded_at": "2026-11-20",
+    "source_branch": "audit/full-scope-01-read-only",
+    "base_branch": "staging",
+    "status": "repository_analysis_complete_dev_sql_pending",
+    "scope": "Read-only analysis of automatic Free scope, customer-confirmed Full scope and the 95-to-79 finding difference. No product logic, report layout, database, tenant, scan or historical finding data was changed.",
+    "repository_findings": [
+      "Free uses all physical ScanIssueRecord rows and the stored scan data_score; it does not filter findings through the automatic module scope.",
+      "Full filters against the original finding category and the latest confirmed AssessmentScopeSnapshot. Unsupported/custom categories and excluded modules are removed, then count, affected records, impact and potential saving are recomputed.",
+      "Automatic detection is based on persisted scan profile counters. System is always active; Finance, Sales, Purchasing and Inventory use activity signals; Manufacturing, Service, Jobs and HR are unknown without reliable profile signals. Legacy signal-free scans use enabled_modules compatibility behavior.",
+      "The code explains the possible 95-to-79 scope projection but cannot identify the exact 16 finding codes without the historical DEV query. No findings were reconstructed."
+    ],
+    "read_only_audit": "ADDED: tools/sql/full_scope_01_historical_scan_audit.sql. It is parameterized by scan_id, contains SELECT-only statements, and reports identity, scope versions, detection reasons, decisions, every finding exclusion reason, counts, score, affected-record and impact reconciliation.",
+    "local_regression": "PASS: 42 focused scope/report tests passed with 5 nonblocking warnings; SQL mutation-token check and git diff check passed.",
+    "runtime": "NOT_EXECUTED: this workspace has no authorized DEV PostgreSQL credentials. No DEV or PROD connection was attempted; SQL results remain unverified.",
+    "report_layout": "UNCHANGED: all v6 report templates, graphics, PDF export and navigation were left untouched.",
+    "follow_up": "Run the supplied SQL through an authorized DEV operator, then classify each of the 16 excluded codes before considering any correction.",
+    "go_live": "NO_GO: exact historical scope/finding reconciliation and manual report acceptance remain open.",
+    "refs": []
   }
 }
