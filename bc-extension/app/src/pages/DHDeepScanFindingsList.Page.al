@@ -126,7 +126,7 @@ page 53160 "DH Deep Scan Findings List"
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
         ShowFreeSummary: Boolean;
-        AccessText: Text[80];
+        AccessText: Text[250];
         ImpactTxt: Text[50];
         ProtectedImpactLbl: Label '•••• EUR';
 
@@ -218,14 +218,14 @@ page 53160 "DH Deep Scan Findings List"
         FullAssessmentRequiredLbl: Label 'Detailed data-quality issues, root causes, and recommended actions are included in Full Assessment. Start a Full Assessment to unlock this information.';
         UnlockedLbl: Label 'Unlocked';
     begin
-        ShowPremiumDetails := false;
-        ShowFreeSummary := true;
-        AccessText := FullAssessmentRequiredLbl;
-
         if AccessGuard.HasFreshFullOrMonitoringAccess() then begin
             ShowPremiumDetails := true;
             ShowFreeSummary := false;
             AccessText := UnlockedLbl;
+        end else begin
+            ShowPremiumDetails := false;
+            ShowFreeSummary := true;
+            AccessText := FullAssessmentRequiredLbl;
         end;
     end;
 
