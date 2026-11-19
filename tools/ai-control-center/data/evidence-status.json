@@ -924,7 +924,7 @@
       "The atomic scan-start transaction accepts sandbox_qa only with a complete expectation and exact registered binding. Grant consumption, accepted start and expectation snapshot share one transaction; normal Free, Full, Validation and Monitoring resolution is unchanged.",
       "The AL Setup action is visible only when the server license snapshot reports an available QA grant, checks the actual BC sandbox at execution, requires explicit confirmation and sends sandbox_qa through the existing run-id, expectation and idempotency start path. It does not classify as Validation or Monitoring."
     ],
-    "local_regression": "PASS: 48 focused backend tests passed, 3 skipped, 3 nonblocking warnings. This includes an exact ENV=dev allow case; fail-closed cases for missing, empty, prod, production, staging, test, unknown and whitespace/case variants; and service plus atomic-start checks that denied environments neither create nor consume a grant.",
+    "local_regression": "PASS: 78 focused backend tests passed, 3 skipped, 3 nonblocking warnings. This includes current EXT-50-01, EXT-50-03 and EXT-50-12A 1.0.2.68 release contracts; an exact ENV=dev allow case; fail-closed cases for missing, empty, prod, production, staging, test, unknown and whitespace/case variants; and service plus atomic-start checks that denied environments neither create nor consume a grant.",
     "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 137 AL objects in configured ranges.",
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no QA grant, Alembic migration, BC29 installation, scan, tenant, license, credit or entitlement mutation was performed.",
