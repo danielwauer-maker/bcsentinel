@@ -1055,6 +1055,7 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         for row in list_product_pricing(db)
     }
     access = build_product_access_snapshot(db, tenant)
+    from app.services.sandbox_qa_scan_service import has_available_grant
     if access["full_analysis_access_active"]:
         active_products = sorted(set(active_products + [PRODUCT_FULL_ANALYSIS]))
     if access["validation_access_active"]:
@@ -1087,6 +1088,7 @@ def build_license_snapshot(db, tenant: Tenant) -> dict[str, Any]:
         "dashboard_access_until_bc": access["dashboard_access_until_bc"],
         "issue_access_until_bc": access["issue_access_until_bc"],
         "can_run_deep_scan": access["can_run_deep_scan"],
+        "sandbox_qa_scan_available": has_available_grant(db, tenant),
         "can_view_dashboard": access["can_view_dashboard"],
         "can_view_issue_details": access["can_view_issue_details"],
         "can_view_free_insights": access["can_view_free_insights"],

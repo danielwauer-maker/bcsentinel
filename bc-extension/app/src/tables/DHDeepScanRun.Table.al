@@ -318,7 +318,9 @@ table 53128 "DH Deep Scan Run"
     var
         Finding: Record "DH Deep Scan Finding";
         CheckExecution: Record "DH Check Execution";
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
     begin
+        FindingsIntegrityMgt.LogFindingDeletion(Rec, 'deep_scan_run_delete');
         Finding.SetRange("Deep Scan Entry No.", "Entry No.");
         if not Finding.IsEmpty() then
             Finding.DeleteAll(true);

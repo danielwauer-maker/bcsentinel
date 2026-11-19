@@ -114,11 +114,14 @@ page 53160 "DH Deep Scan Findings List"
         AccessGuard.EnsureIssuesAccess();
         UpdateAccessState();
         LoadPageData();
-        EmptyStateTxt := NoFindingsLbl;
+        EmptyStateTxt := FindingsIntegrityMgt.GetMissingDetailsMessage(DeepScanEntryNoFilter);
+        if EmptyStateTxt = '' then
+            EmptyStateTxt := NoFindingsLbl;
         EmptyStateVisible := Rec.IsEmpty();
     end;
 
     var
+        DeepScanEntryNoFilter: Integer;
         CatalogTitle: Text[250];
         EmptyStateTxt: Text[100];
         EmptyStateVisible: Boolean;
@@ -126,16 +129,24 @@ page 53160 "DH Deep Scan Findings List"
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
         ShowFreeSummary: Boolean;
-        AccessText: Text[80];
+        AccessText: Text[250];
         ImpactTxt: Text[50];
         ProtectedImpactLbl: Label '•••• EUR';
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
 
     local procedure LoadPageData()
     var
         SourceFinding: Record "DH Deep Scan Finding";
         NextTempEntryNo: Integer;
     begin
-        SourceFinding.CopyFilters(Rec);
+        // This page is temporary. Page.Run filters apply to its temporary
+        // source and are therefore not a reliable selector for the physical
+        // finding table. Keep the requested run identity separately so a
+        // completed Free scan can be unlocked without starting another scan.
+        if DeepScanEntryNoFilter <> 0 then
+            SourceFinding.SetRange("Deep Scan Entry No.", DeepScanEntryNoFilter)
+        else
+            SourceFinding.CopyFilters(Rec);
         Rec.Reset();
         Rec.DeleteAll();
         NextTempEntryNo := 1;
@@ -152,6 +163,11 @@ page 53160 "DH Deep Scan Findings List"
         Rec.Reset();
         Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
+    end;
+
+    procedure SetDeepScanEntryNo(DeepScanEntryNo: Integer)
+    begin
+        DeepScanEntryNoFilter := DeepScanEntryNo;
     end;
 
     local procedure AddFreeAggregate(SourceFinding: Record "DH Deep Scan Finding"; var NextTempEntryNo: Integer)
@@ -218,14 +234,14 @@ page 53160 "DH Deep Scan Findings List"
         FullAssessmentRequiredLbl: Label 'Detailed data-quality issues, root causes, and recommended actions are included in Full Assessment. Start a Full Assessment to unlock this information.';
         UnlockedLbl: Label 'Unlocked';
     begin
-        ShowPremiumDetails := false;
-        ShowFreeSummary := true;
-        AccessText := FullAssessmentRequiredLbl;
-
         if AccessGuard.HasFreshFullOrMonitoringAccess() then begin
             ShowPremiumDetails := true;
             ShowFreeSummary := false;
             AccessText := UnlockedLbl;
+        end else begin
+            ShowPremiumDetails := false;
+            ShowFreeSummary := true;
+            AccessText := FullAssessmentRequiredLbl;
         end;
     end;
 

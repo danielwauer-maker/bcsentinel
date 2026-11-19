@@ -21,6 +21,8 @@ from app.services.product_license_service import (
     scan_credit_count,
 )
 from app.services.scan_status_service import create_or_get_scan_run
+from app.services.sandbox_qa_scan_service import claim_grant
+from app.services.qa_environment_service import require_sandbox_qa_dev_environment
 
 
 class ScanStartConflictError(ValueError):
@@ -74,7 +76,7 @@ def normalize_requested_scan_mode(value: str | None) -> str:
         "health_score": "data_health_score",
     }
     normalized = aliases.get(normalized, normalized)
-    if normalized not in {"assessment", "validation", "validation_check", "monitoring", "deep", "data_health_score"}:
+    if normalized not in {"assessment", "validation", "validation_check", "monitoring", "deep", "data_health_score", "sandbox_qa"}:
         raise ValueError("scan_mode must be assessment, validation, monitoring, deep, or data_health_score.")
     return "validation" if normalized == "validation_check" else normalized
 
@@ -276,8 +278,14 @@ def _claim_free_data_health_score(db: Session, *, tenant: Tenant) -> bool:
 
 
 def _resolve_access_and_credit(
-    db: Session, *, tenant: Tenant, requested_mode: str, scan_id: str
+    db: Session, *, tenant: Tenant, requested_mode: str, scan_id: str,
+    expectation_company: str | None = None, expectation_environment: str | None = None,
 ) -> tuple[str | None, TenantScanCredit | None, bool]:
+    if requested_mode == "sandbox_qa":
+        require_sandbox_qa_dev_environment()
+        claim_grant(db, tenant=tenant, company_id=expectation_company,
+                    environment_name=expectation_environment, scan_id=scan_id)
+        return "sandbox_qa_deep_scan", None, False
     monitoring_active = has_active_monitoring_subscription(db, tenant) or bool(
         set(active_entitlement_product_codes(db, tenant.tenant_id)).intersection(MONITORING_PRODUCTS)
     )
@@ -333,10 +341,13 @@ def accept_scan_start(
     environment_name: str | None,
     expectation_json: str | None = None,
     expectation_company: str | None = None,
+    expectation_environment: str | None = None,
 ) -> ScanStartResult:
     tenant_id = tenant.tenant_id
     request_id = normalize_client_request_id(client_request_id)
     requested_mode = normalize_requested_scan_mode(scan_mode)
+    if requested_mode == "sandbox_qa" and (not expectation_json or not expectation_company or not expectation_environment):
+        raise ValueError("Sandbox QA scan starts require a complete registered expectation.")
     normalized_run_id = (run_id or "").strip()
     if not normalized_run_id or len(normalized_run_id) > 50:
         raise ValueError("run_id is required and must not exceed 50 characters.")
@@ -427,7 +438,8 @@ def accept_scan_start(
     try:
         db.flush()
         product_code, credit, free_assessment = _resolve_access_and_credit(
-            db, tenant=tenant, requested_mode=requested_mode, scan_id=normalized_run_id
+            db, tenant=tenant, requested_mode=requested_mode, scan_id=normalized_run_id,
+            expectation_company=expectation_company, expectation_environment=expectation_environment,
         )
         if free_assessment:
             requested_mode = "data_health_score"
@@ -449,7 +461,7 @@ def accept_scan_start(
                     checks_count=0,
                     issues_count=0,
                     premium_available=requested_mode != "data_health_score",
-                    summary_headline="Data Health Score queued" if requested_mode == "data_health_score" else "Deep scan queued",
+                    summary_headline="Data Health Score queued" if requested_mode == "data_health_score" else ("Sandbox QA Deep Scan queued" if requested_mode == "sandbox_qa" else "Deep scan queued"),
                     summary_rating="Pending",
                     enabled_modules=None,
                     bc_company_id=expectation_company if expectation_json is not None else None,

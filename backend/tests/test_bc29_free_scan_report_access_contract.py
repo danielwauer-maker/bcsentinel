@@ -31,7 +31,7 @@ def test_completed_headline_uses_the_persisted_scan_mode_for_all_product_familie
     assert "Validation Check completed with critical findings." in runner
 
 
-def test_free_scan_is_routed_only_to_the_scoped_free_live_grant():
+def test_free_scan_uses_the_scoped_free_grant_until_full_access_is_confirmed():
     links = _al("codeunits/DHReportLinkMgt.Codeunit.al")
     setup_page = _al("pages/DHSetup.Page.al")
     monitor = _al("pages/DHDeepScanMonitor.Page.al")
@@ -40,7 +40,10 @@ def test_free_scan_is_routed_only_to_the_scoped_free_live_grant():
     report_variant = links.split("procedure GetCompletedReportVariant", 1)[1].split(
         "local procedure GetReportErrorText", 1
     )[0]
-    assert "'data_health_score', 'free', 'free_deep':\n                exit('free');" in report_variant
+    assert "'data_health_score', 'free', 'free_deep':" in report_variant
+    assert "AccessGuard.HasFreshFullOrMonitoringAccess()" in report_variant
+    assert "exit('full');" in report_variant
+    assert "exit('free');" in report_variant
     assert "'full', 'full_analysis', 'assessment':\n                exit('full');" in report_variant
 
     free_link = links.split("procedure OpenFreeHealthReport", 1)[1].split(

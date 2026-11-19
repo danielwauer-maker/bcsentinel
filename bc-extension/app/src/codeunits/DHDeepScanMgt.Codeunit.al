@@ -2,25 +2,39 @@ codeunit 53124 "DH Deep Scan Mgt."
 {
     procedure QueueDeepScan(var Setup: Record "DH Setup"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Manual, true));
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Manual, true, false, ''));
     end;
 
     procedure QueueDeepScanInBackground(var Setup: Record "DH Setup"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false));
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, false, ''));
     end;
 
     procedure QueueDeepScanInNewSession(var Setup: Record "DH Setup"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true));
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true, ''));
     end;
 
     procedure QueueDeepScanWithContext(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, TriggerContext, TriggerContext = TriggerContext::Manual));
+        exit(QueueDeepScanInternal(Setup, TriggerContext, TriggerContext = TriggerContext::Manual, false, ''));
     end;
 
-    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean; StartInNewSession: Boolean): Integer
+    procedure QueueSandboxQAScan(var Setup: Record "DH Setup"): Integer
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        ApiClient: Codeunit "DH API Client";
+    begin
+        if not EnvironmentInformation.IsSandbox() then
+            Error('Sandbox QA Deep Scans are available only in a Business Central sandbox.');
+        EnsureLocalScanPreconditions(Setup);
+        ApiClient.RefreshLicenseStatus(Setup);
+        if not Setup."Sandbox QA Scan Available" then
+            Error('No server-authorized Sandbox QA scan grant is available.');
+        exit(QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Manual, true, false, 'sandbox_qa'));
+    end;
+
+    local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean; StartInNewSession: Boolean; RequestedScanMode: Text): Integer
     var
         DeepScanRun: Record "DH Deep Scan Run";
         RunIdMgt: Codeunit "DH Run ID Mgt.";
@@ -52,7 +66,8 @@ codeunit 53124 "DH Deep Scan Mgt."
         end;
 
         EnsureNoActiveScan();
-        EnsureDeepScanAllowed(Setup);
+        if RequestedScanMode <> 'sandbox_qa' then
+            EnsureDeepScanAllowed(Setup);
 
         EntryNo := GetNextRunEntryNo();
 
@@ -66,7 +81,10 @@ codeunit 53124 "DH Deep Scan Mgt."
         DeepScanRun."Requested At" := CurrentDateTime();
         DeepScanRun."Requested By" := CopyStr(UserId(), 1, MaxStrLen(DeepScanRun."Requested By"));
         DeepScanRun."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DeepScanRun."Company Name"));
-        DeepScanRun."Scan Mode" := GetDeepScanMode(Setup, TriggerContext);
+        if RequestedScanMode <> '' then
+            DeepScanRun."Scan Mode" := CopyStr(RequestedScanMode, 1, MaxStrLen(DeepScanRun."Scan Mode"))
+        else
+            DeepScanRun."Scan Mode" := GetDeepScanMode(Setup, TriggerContext);
         DeepScanRun."Headline" := 'Deep scan queued';
         DeepScanRun."Current Module" := 'Preparing';
         DeepScanRun."Progress %" := 0;
@@ -101,7 +119,7 @@ codeunit 53124 "DH Deep Scan Mgt."
 
     local procedure QueueDeepScanInternal(var Setup: Record "DH Setup"; TriggerContext: Enum "DH Scan Trigger Context"; ShowStartedMessage: Boolean): Integer
     begin
-        exit(QueueDeepScanInternal(Setup, TriggerContext, ShowStartedMessage, false));
+        exit(QueueDeepScanInternal(Setup, TriggerContext, ShowStartedMessage, false, ''));
     end;
 
     procedure QueueDataHealthScore(var Setup: Record "DH Setup"): Integer

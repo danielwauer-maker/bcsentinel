@@ -54,6 +54,7 @@ class LicenseStatusResponse(BaseModel):
     monitoring_period_end: str | None = None
     monitoring_period_end_bc: str | None = None
     can_run_deep_scan: bool = False
+    sandbox_qa_scan_available: bool = False
     can_run_data_health_score: bool = False
     has_completed_data_health_score: bool = False
     can_view_dashboard: bool = False
@@ -142,6 +143,7 @@ def get_license_status(
             monitoring_period_end=snapshot["monitoring_period_end"],
             monitoring_period_end_bc=snapshot["monitoring_period_end_bc"],
             can_run_deep_scan=snapshot["can_run_deep_scan"],
+            sandbox_qa_scan_available=snapshot["sandbox_qa_scan_available"],
             can_run_data_health_score=snapshot["can_run_data_health_score"],
             has_completed_data_health_score=snapshot["has_completed_data_health_score"],
             can_view_dashboard=snapshot["can_view_dashboard"],

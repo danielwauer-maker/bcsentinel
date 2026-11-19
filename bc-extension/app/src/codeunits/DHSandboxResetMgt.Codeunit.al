@@ -78,9 +78,15 @@ codeunit 53349 "DH Sandbox Reset Mgt."
         NotificationTemplate: Record "DH Notification Template";
         NotificationDelivery: Record "DH Notification Delivery";
         NotificationConfigAudit: Record "DH Notification Config Audit";
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
     begin
         // Immutable BCSentinel tables reject normal deletes. Every BCSentinel child
         // table is therefore explicitly purged as part of this sandbox-only reset.
+        if DeepScanRun.FindSet() then
+            repeat
+                FindingsIntegrityMgt.LogFindingDeletion(DeepScanRun, 'sandbox_reset');
+            until DeepScanRun.Next() = 0;
+
         NotificationDelivery.DeleteAll(false);
         NotificationEvent.DeleteAll(false);
         NotificationConfigAudit.DeleteAll(false);

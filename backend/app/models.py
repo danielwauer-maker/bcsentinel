@@ -776,6 +776,27 @@ class ScanStartRequest(Base):
     updated_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class SandboxQAScanGrant(Base):
+    """A single, operator-issued QA start bound to one registered sandbox."""
+    __tablename__ = "sandbox_qa_scan_grants"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "company_id", "environment_name", name="uq_sandbox_qa_grant_binding"),
+        UniqueConstraint("consumed_scan_id", name="uq_sandbox_qa_grant_consumed_scan"),
+        Index("ix_sandbox_qa_grants_available", "tenant_id", "company_id", "environment_name", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), nullable=False, index=True)
+    company_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    environment_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="available", server_default=text("'available'"))
+    expires_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    issued_by: Mapped[str] = mapped_column(String(100), nullable=False)
+    consumed_scan_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    created_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    consumed_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class CreditLedgerEntry(Base):
     __tablename__ = "credit_ledger_entries"
     __table_args__ = (

@@ -394,15 +394,15 @@
 
                 trigger OnAction()
                 var
-                    Finding: Record "DH Deep Scan Finding";
                     AccessGuard: Codeunit "DH Access Guard";
+                    FindingsPage: Page "DH Deep Scan Findings List";
                 begin
                     AccessGuard.EnsureIssuesAccess();
                     if Rec."Entry No." = 0 then
                         Error(NoDeepScanRunAvailableLbl);
 
-                    Finding.SetRange("Deep Scan Entry No.", Rec."Entry No.");
-                    Page.Run(Page::"DH Deep Scan Findings List", Finding);
+                    FindingsPage.SetDeepScanEntryNo(Rec."Entry No.");
+                    FindingsPage.Run();
                 end;
             }
 

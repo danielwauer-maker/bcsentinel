@@ -456,6 +456,7 @@ codeunit 53100 "DH API Client"
         Setup."Issue Access Until" := '';
         Setup."Report Access Until" := '';
         Setup."Can Run Deep Scan" := false;
+        Setup."Sandbox QA Scan Available" := false;
         Setup."Can View Dashboard" := false;
         Setup."Can View Issue Details" := false;
         Setup."Product Access Model" := '';
@@ -511,6 +512,9 @@ codeunit 53100 "DH API Client"
 
         if JsonResponse.Get('can_run_deep_scan', Token) then
             Setup."Can Run Deep Scan" := GetJsonTokenBoolean(Token, false);
+
+        if JsonResponse.Get('sandbox_qa_scan_available', Token) then
+            Setup."Sandbox QA Scan Available" := GetJsonTokenBoolean(Token, false);
 
         if JsonResponse.Get('can_view_dashboard', Token) then
             Setup."Can View Dashboard" := GetJsonTokenBoolean(Token, false);
@@ -1309,6 +1313,8 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Backend Status" := CopyStr(GetJsonTokenText(Token), 1, MaxStrLen(DeepScanRun."Backend Status"));
             ApplyBackendStatusToLocalRun(BackendStatus, DeepScanRun);
         end;
+        if JsonResponse.Get('scan_mode', Token) then
+            ApplyAuthoritativeScanMode(DeepScanRun, GetJsonTokenText(Token));
         if JsonResponse.Get('progress_percent', Token) then
             DeepScanRun."Progress %" := GetJsonTokenInteger(Token, DeepScanRun."Progress %");
         if JsonResponse.Get('current_module', Token) then
@@ -1350,6 +1356,72 @@ codeunit 53100 "DH API Client"
             DeepScanRun."Recent Events" := CopyStr(BuildRecentEventsText(EventsToken), 1, MaxStrLen(DeepScanRun."Recent Events"));
 
         NormalizeParsedScanStatus(DeepScanRun);
+    end;
+
+    local procedure ApplyAuthoritativeScanMode(var DeepScanRun: Record "DH Deep Scan Run"; BackendScanMode: Text)
+    var
+        ScanHeader: Record "DH Scan Header";
+        NormalizedMode: Text;
+        CorrectedHeadline: Text;
+    begin
+        NormalizedMode := LowerCase(BackendScanMode);
+        if not (NormalizedMode in ['data_health_score', 'free', 'free_deep', 'full', 'full_analysis', 'assessment', 'validation', 'validation_scan', 'one_time', 'credit', 'monitoring', 'scheduled']) then
+            exit;
+        if LowerCase(DeepScanRun."Scan Mode") = NormalizedMode then
+            exit;
+
+        // The authenticated status endpoint is authoritative for the immutable
+        // product mode. Correct only a generated completion headline; do not
+        // overwrite an arbitrary historical text.
+        DeepScanRun."Scan Mode" := CopyStr(NormalizedMode, 1, MaxStrLen(DeepScanRun."Scan Mode"));
+        if (DeepScanRun.Status <> DeepScanRun.Status::Completed) or not IsGeneratedCompletionHeadline(DeepScanRun."Headline") then
+            exit;
+
+        CorrectedHeadline := GetCompletedHeadlineForScanMode(NormalizedMode, DeepScanRun."Deep Score", DeepScanRun."Issues Count");
+        if CorrectedHeadline = '' then
+            exit;
+        DeepScanRun."Headline" := CopyStr(CorrectedHeadline, 1, MaxStrLen(DeepScanRun."Headline"));
+
+        ScanHeader.SetRange("Scan Type", ScanHeader."Scan Type"::Deep);
+        ScanHeader.SetRange("Run ID", DeepScanRun."Run ID");
+        if ScanHeader.FindFirst() then begin
+            ScanHeader."Headline" := CopyStr(CorrectedHeadline, 1, MaxStrLen(ScanHeader."Headline"));
+            ScanHeader.Modify(true);
+        end;
+    end;
+
+    local procedure IsGeneratedCompletionHeadline(Headline: Text): Boolean
+    begin
+        exit(Headline in [
+            FreeScanCompletedWithoutFindingsLbl, FreeScanCompletedMinorFindingsLbl, FreeScanCompletedImprovementPotentialLbl, FreeScanCompletedCriticalFindingsLbl,
+            FullAssessmentCompletedWithoutFindingsLbl, FullAssessmentCompletedMinorFindingsLbl, FullAssessmentCompletedImprovementPotentialLbl, FullAssessmentCompletedCriticalFindingsLbl,
+            ValidationCheckCompletedWithoutFindingsLbl, ValidationCheckCompletedMinorFindingsLbl, ValidationCheckCompletedImprovementPotentialLbl, ValidationCheckCompletedCriticalFindingsLbl,
+            MonitoringScanCompletedWithoutFindingsLbl, MonitoringScanCompletedMinorFindingsLbl, MonitoringScanCompletedImprovementPotentialLbl, MonitoringScanCompletedCriticalFindingsLbl]);
+    end;
+
+    local procedure GetCompletedHeadlineForScanMode(ScanMode: Text; Score: Integer; IssuesCount: Integer): Text
+    begin
+        case ScanMode of
+            'data_health_score', 'free', 'free_deep':
+                exit(GetProductHeadline(Score, IssuesCount, FreeScanCompletedWithoutFindingsLbl, FreeScanCompletedMinorFindingsLbl, FreeScanCompletedImprovementPotentialLbl, FreeScanCompletedCriticalFindingsLbl));
+            'full', 'full_analysis', 'assessment':
+                exit(GetProductHeadline(Score, IssuesCount, FullAssessmentCompletedWithoutFindingsLbl, FullAssessmentCompletedMinorFindingsLbl, FullAssessmentCompletedImprovementPotentialLbl, FullAssessmentCompletedCriticalFindingsLbl));
+            'monitoring', 'scheduled':
+                exit(GetProductHeadline(Score, IssuesCount, MonitoringScanCompletedWithoutFindingsLbl, MonitoringScanCompletedMinorFindingsLbl, MonitoringScanCompletedImprovementPotentialLbl, MonitoringScanCompletedCriticalFindingsLbl));
+            'validation', 'validation_scan', 'one_time', 'credit':
+                exit(GetProductHeadline(Score, IssuesCount, ValidationCheckCompletedWithoutFindingsLbl, ValidationCheckCompletedMinorFindingsLbl, ValidationCheckCompletedImprovementPotentialLbl, ValidationCheckCompletedCriticalFindingsLbl));
+        end;
+    end;
+
+    local procedure GetProductHeadline(Score: Integer; IssuesCount: Integer; WithoutFindings: Text; MinorFindings: Text; ImprovementPotential: Text; CriticalFindings: Text): Text
+    begin
+        if IssuesCount = 0 then
+            exit(WithoutFindings);
+        if Score >= 90 then
+            exit(MinorFindings);
+        if Score >= 75 then
+            exit(ImprovementPotential);
+        exit(CriticalFindings);
     end;
 
     procedure ApplyScanSyncLifecycleResponse(ResponseText: Text; var DeepScanRun: Record "DH Deep Scan Run")
@@ -2240,6 +2312,22 @@ codeunit 53100 "DH API Client"
         ScanIdConflictLbl: Label 'This scan ID is already assigned to another scan. The local run was stopped safely. Start the scan again to create a new unique run.';
         ScanRequestConflictLbl: Label 'This scan request was already used with different start data. The local run was stopped safely. Start a new scan.';
         FreeScanAlreadyUsedLbl: Label 'The one-time free Data Health Score has already been started for this environment.';
+        FreeScanCompletedCriticalFindingsLbl: Label 'Free Scan completed with critical findings.';
+        FreeScanCompletedImprovementPotentialLbl: Label 'Free Scan completed with relevant improvement potential.';
+        FreeScanCompletedMinorFindingsLbl: Label 'Free Scan completed with minor findings.';
+        FreeScanCompletedWithoutFindingsLbl: Label 'Free Scan completed without findings.';
+        FullAssessmentCompletedCriticalFindingsLbl: Label 'Full Assessment completed with critical findings.';
+        FullAssessmentCompletedImprovementPotentialLbl: Label 'Full Assessment completed with relevant improvement potential.';
+        FullAssessmentCompletedMinorFindingsLbl: Label 'Full Assessment completed with minor findings.';
+        FullAssessmentCompletedWithoutFindingsLbl: Label 'Full Assessment completed without findings.';
+        ValidationCheckCompletedCriticalFindingsLbl: Label 'Validation Check completed with critical findings.';
+        ValidationCheckCompletedImprovementPotentialLbl: Label 'Validation Check completed with relevant improvement potential.';
+        ValidationCheckCompletedMinorFindingsLbl: Label 'Validation Check completed with minor findings.';
+        ValidationCheckCompletedWithoutFindingsLbl: Label 'Validation Check completed without findings.';
+        MonitoringScanCompletedCriticalFindingsLbl: Label 'Monitoring Scan completed with critical findings.';
+        MonitoringScanCompletedImprovementPotentialLbl: Label 'Monitoring Scan completed with relevant improvement potential.';
+        MonitoringScanCompletedMinorFindingsLbl: Label 'Monitoring Scan completed with minor findings.';
+        MonitoringScanCompletedWithoutFindingsLbl: Label 'Monitoring Scan completed without findings.';
         ScanStartConflictLbl: Label 'The scan start conflicts with an existing request. The local run was stopped safely. Start a new scan.';
         ScanStartTemporaryErrorLbl: Label 'BCSentinel could not confirm the scan start because of a temporary backend error. Retry the same scan request.';
         ScanLeaseRejectedLbl: Label 'Backend synchronization stopped because the scan execution ownership expired or changed. Your local scan result is preserved. Start a new scan or contact BCSentinel support.';
