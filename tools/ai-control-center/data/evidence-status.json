@@ -878,6 +878,8 @@
     "local_regression": "PASS: 34 focused Python source-contract tests passed with 2 nonblocking dependency warnings; extension source preflight PASS with 136 AL objects; JSON and diff checks passed.",
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no sandbox installation or inspection of RUN_20261116_000001_8870C7F3D8814DD1B1EE109EE7D38 was performed.",
+    "draft_pr": "NOT_CREATED: gh pr create returned GitHub GraphQL HTTP 403 Forbidden after the branch was pushed; no alternate PR was created.",
+    "ci_check_status": "PENDING: no workflow was manually started; automated CI cannot be inspected from this environment because GitHub API requests return HTTP 403 Forbidden.",
     "go_live": "NO_GO: physical data state and root cause remain unconfirmed until sandbox diagnostic evidence is collected.",
     "refs": []
   }
