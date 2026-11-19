@@ -64,7 +64,7 @@ def test_manual_confirmation_is_central_and_precedes_backend_start():
     assert queue.index("ConfirmManualScanStart") < queue.index("StartBackendScanWithRecovery")
     assert free.index("ConfirmManualScanStart") < free.index("StartBackendScanWithRecovery")
     assert "if TriggerContext <> TriggerContext::Manual then" in manager
-    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Scheduled, false)" in manager
+    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Scheduled, false, false, '')" in manager
     assert "ManualScanBusinessHoursQst" not in _source("pages/DHSetup.Page.al")
 
 

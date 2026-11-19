@@ -68,7 +68,10 @@ def test_automatic_scheduler_keeps_its_existing_dialog_free_execution_path():
     )[0]
 
     assert "QueueDeepScanInBackground(Setup)" in automatic_path
-    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Scheduled, false)" in background_entry
+    # The QA-mode override was appended to the internal signature.  Existing
+    # scheduled callers pass an empty override, preserving their mode and
+    # dialog-free synchronous behavior.
+    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Scheduled, false, false, '')" in background_entry
     assert "StartInNewSession" not in background_entry
     assert "DeepScanRunner.RunSynchronously(DeepScanRun);" in manager
     assert "procedure RunSynchronously" in _source("codeunits/DHDeepScanRunner.Codeunit.al")
@@ -116,6 +119,10 @@ def test_free_and_validation_starts_keep_confirmation_while_scheduled_paths_do_n
     manager = _source("codeunits/DHDeepScanMgt.Codeunit.al")
 
     assert "ConfirmManualScanStart(Enum::\"DH Scan Trigger Context\"::Manual)" in manager
-    assert "exit(QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Manual, true));" in manager
+    manual_entry = manager.split("procedure QueueDeepScan(var Setup", 1)[1].split(
+        "procedure QueueDeepScanInBackground", 1
+    )[0]
+    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Manual, true, false, '')" in manual_entry
+    assert "QueueDeepScanInternal(Setup, Enum::\"DH Scan Trigger Context\"::Manual, true, false, 'sandbox_qa')" in manager
     assert "if TriggerContext <> TriggerContext::Manual then\n            exit(true);" in manager
     assert "Confirm(ScanStartConfirmationQst, false)" in manager

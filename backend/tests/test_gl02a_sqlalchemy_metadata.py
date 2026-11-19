@@ -39,7 +39,7 @@ def _unique_constraint_names(table_name: str) -> set[str]:
 def test_gl02a_metadata_defaults_and_names_are_valid():
     # Integrated v6 report, auth and archive migrations expand the mapped schema.
     # Keep an explicit reviewed count; all table metadata is validated below.
-    assert len(Base.metadata.tables) == 55
+    assert len(Base.metadata.tables) == 56
     assert "pilot_enrollments" in Base.metadata.tables
     assert "pilot_enrollment_audit" in Base.metadata.tables
     assert "scan_record_identity_evidence" in Base.metadata.tables
@@ -49,6 +49,14 @@ def test_gl02a_metadata_defaults_and_names_are_valid():
     assert "scan_execution_evidence" in Base.metadata.tables
     assert "scan_expectation_snapshots" in Base.metadata.tables
     assert "public_contact_messages" in Base.metadata.tables
+    qa_grant = Base.metadata.tables["sandbox_qa_scan_grants"]
+    assert {
+        "id", "tenant_id", "company_id", "environment_name", "status",
+        "expires_at_utc", "issued_by", "consumed_scan_id", "created_at_utc", "consumed_at_utc",
+    } == set(qa_grant.columns.keys())
+    assert {foreign_key.target_fullname for foreign_key in qa_grant.c.tenant_id.foreign_keys} == {"tenants.tenant_id"}
+    assert str(qa_grant.c.status.server_default.arg) == "'available'"
+    assert {"uq_sandbox_qa_grant_binding", "uq_sandbox_qa_grant_consumed_scan"} <= _unique_constraint_names("sandbox_qa_scan_grants")
 
     names: set[tuple[str, str]] = set()
     for table in Base.metadata.sorted_tables:
@@ -98,6 +106,11 @@ def test_gl02a_existing_unique_and_index_groups_are_described_exactly():
         },
         "partner_commissions": {
             "ix_partner_commissions_provider_invoice_id": (("provider_invoice_id",), True),
+        },
+        "sandbox_qa_scan_grants": {
+            "ix_sandbox_qa_grants_available": (("tenant_id", "company_id", "environment_name", "status"), False),
+            "ix_sandbox_qa_scan_grants_tenant_id": (("tenant_id",), False),
+            "ix_sandbox_qa_scan_grants_expires_at_utc": (("expires_at_utc",), False),
         },
     }
     for table_name, expected in expected_indexes.items():

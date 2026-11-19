@@ -31,7 +31,7 @@ def test_manual_monitoring_action_creates_history_before_background_processing()
     )[0]
 
     assert (
-    'QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true)'
+    'QueueDeepScanInternal(Setup, Enum::"DH Scan Trigger Context"::Scheduled, false, true, \'\')'
     in queue_path
     )
     assert "DeepScanRun.Insert(true);" in internal_path
