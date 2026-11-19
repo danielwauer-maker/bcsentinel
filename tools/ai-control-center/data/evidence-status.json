@@ -809,7 +809,7 @@
     "source_branch": "fix/bc29-full-findings-access-text",
     "base_branch": "staging",
     "base_commit": "16304fd8959ac51a8e4790eb34b9edc97d593931",
-    "status": "technical_fix_pending",
+    "status": "technical_fix_ci_recheck_pending",
     "scope": "BC29 Findings access-text overflow in DHDeepScanFindings and DHDeepScanFindingsList.",
     "extension_version": "1.0.2.64",
     "changes": [
@@ -818,6 +818,11 @@
       "Focused source regression contract added at bc-extension/scripts/Test-FULLFIX01FindingsAccessText.ps1."
     ],
     "source_regression": "PASS: read-only equivalent check covered both pages, branch ordering, German Unlocked translations, and both cloud manifests.",
+    "release_contract_regression": {
+      "before_fix": "4 failed assertions: EXT-50-01 (2), EXT-50-03 (1), EXT-50-12A (1), all expecting 1.0.2.63.",
+      "after_fix": "30 passed, 2 nonblocking warnings across the three affected contract test modules; full EXT-50-12A Python contract block passed 45 tests.",
+      "active_stale_references": "All three current-release test references now expect 1.0.2.64; historical Evidence entries retaining 1.0.2.63 were not changed."
+    },
     "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
     "runtime": "NOT_EXECUTED: no BC29 sandbox installation or Findings page acceptance was performed.",
     "deployment": "NOT_PERFORMED",
