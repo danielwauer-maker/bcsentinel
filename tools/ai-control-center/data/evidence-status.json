@@ -803,5 +803,25 @@
     ],
     "go_live": "NO_GO",
     "refs": []
+  },
+  "full_fix_01_bc29_findings_runtime_hotfix": {
+    "recorded_at": "2026-11-19",
+    "source_branch": "fix/bc29-full-findings-access-text",
+    "base_branch": "staging",
+    "base_commit": "16304fd8959ac51a8e4790eb34b9edc97d593931",
+    "status": "technical_fix_pending",
+    "scope": "BC29 Findings access-text overflow in DHDeepScanFindings and DHDeepScanFindingsList.",
+    "extension_version": "1.0.2.64",
+    "changes": [
+      "AccessText capacity increased from Text[80] to Text[250] in both Findings pages.",
+      "Free fallback text is assigned only in the locked branch after the existing Full/Monitoring access check.",
+      "Focused source regression contract added at bc-extension/scripts/Test-FULLFIX01FindingsAccessText.ps1."
+    ],
+    "source_regression": "PASS: read-only equivalent check covered both pages, branch ordering, German Unlocked translations, and both cloud manifests.",
+    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
+    "runtime": "NOT_EXECUTED: no BC29 sandbox installation or Findings page acceptance was performed.",
+    "deployment": "NOT_PERFORMED",
+    "go_live": "NO_GO",
+    "refs": []
   }
 }
