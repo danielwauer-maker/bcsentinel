@@ -860,5 +860,25 @@
     "deployment": "NOT_PERFORMED",
     "go_live": "NO_GO: manual BC29 Free-to-Full, Validation, and Monitoring acceptance remains required.",
     "refs": []
+  },
+  "full_data_01_findings_persistence_diagnosis": {
+    "recorded_at": "2026-11-19",
+    "source_branch": "diagnose/full-data-findings-persistence",
+    "base_branch": "fix/bc29-free-to-full-runtime-recovery",
+    "status": "diagnostic_ready_runtime_evidence_required",
+    "scope": "Read-only, sandbox-only diagnosis for the existing Free scan's local DH Deep Scan Finding persistence. No reconstruction, synchronization, scan, tenant, license, schema, or backend change.",
+    "extension_version": "1.0.2.66",
+    "source_findings": [
+      "DH Deep Scan Runner persists each observed finding using Finding.Insert(true) with the local DH Deep Scan Run Entry No.",
+      "Both Setup Findings and Scan Monitor Findings now pass an explicit run entry selector to the temporary Findings List.",
+      "Scan History Problems rebuilds DH Dashboard Issue from the same physical DH Deep Scan Finding rows; therefore both empty paths cannot establish whether the physical rows are absent without inspecting sandbox-local data.",
+      "DH Deep Scan Run deletion cascades its finding rows. The reviewed copied-company recovery and sandbox reset paths can also delete local findings, but no runtime evidence identifies either path as the cause for this scan."
+    ],
+    "diagnostic": "Sandbox-only, permission-gated Setup action reports latest completed run Entry No., Run ID, status, stored Issues Count, physical finding-row count for that exact run, equivalent Findings-page run-filter count, and fresh Full/Monitoring snapshot state. It reads only local company-scoped records and never displays finding contents, tokens, access codes, or tenant data.",
+    "local_regression": "PASS: 34 focused Python source-contract tests passed with 2 nonblocking dependency warnings; extension source preflight PASS with 136 AL objects; JSON and diff checks passed.",
+    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
+    "runtime": "NOT_EXECUTED: no sandbox installation or inspection of RUN_20261116_000001_8870C7F3D8814DD1B1EE109EE7D38 was performed.",
+    "go_live": "NO_GO: physical data state and root cause remain unconfirmed until sandbox diagnostic evidence is collected.",
+    "refs": []
   }
 }

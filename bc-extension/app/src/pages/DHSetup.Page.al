@@ -1194,6 +1194,22 @@
                         Message('Local BCSentinel sandbox data was reset. The API Base URL and registration configuration were preserved. Register again to create a new Free registration.');
                     end;
                 }
+
+                action(ShowFindingsPersistenceDiagnostics)
+                {
+                    Caption = 'Diagnose Findings Persistence';
+                    ToolTip = 'Shows non-sensitive local findings persistence counts for the latest completed scan. Available only to authorized users in a sandbox.';
+                    ApplicationArea = All;
+                    Image = TestFile;
+                    AccessByPermission = Codeunit "DH Findings Diagnostics Mgt." = X;
+
+                    trigger OnAction()
+                    var
+                        FindingsDiagnosticsMgt: Codeunit "DH Findings Diagnostics Mgt.";
+                    begin
+                        FindingsDiagnosticsMgt.ShowLatestCompletedScanDiagnostics();
+                    end;
+                }
             }
 
             group(SubscriptionActions)
