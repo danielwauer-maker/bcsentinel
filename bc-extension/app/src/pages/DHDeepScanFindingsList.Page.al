@@ -114,7 +114,9 @@ page 53160 "DH Deep Scan Findings List"
         AccessGuard.EnsureIssuesAccess();
         UpdateAccessState();
         LoadPageData();
-        EmptyStateTxt := NoFindingsLbl;
+        EmptyStateTxt := FindingsIntegrityMgt.GetMissingDetailsMessage(DeepScanEntryNoFilter);
+        if EmptyStateTxt = '' then
+            EmptyStateTxt := NoFindingsLbl;
         EmptyStateVisible := Rec.IsEmpty();
     end;
 
@@ -130,6 +132,7 @@ page 53160 "DH Deep Scan Findings List"
         AccessText: Text[250];
         ImpactTxt: Text[50];
         ProtectedImpactLbl: Label '•••• EUR';
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
 
     local procedure LoadPageData()
     var

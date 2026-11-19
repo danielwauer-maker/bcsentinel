@@ -882,5 +882,33 @@
     "ci_check_status": "PENDING: no workflow was manually started; automated CI cannot be inspected from this environment because GitHub API requests return HTTP 403 Forbidden.",
     "go_live": "NO_GO: physical data state and root cause remain unconfirmed until sandbox diagnostic evidence is collected.",
     "refs": []
+  },
+  "full_data_04_findings_persistence_guard": {
+    "recorded_at": "2026-11-19",
+    "source_branch": "fix/bc29-findings-persistence-guard",
+    "base_branch": "diagnose/full-data-findings-persistence",
+    "status": "implementation_ready_manual_bc29_acceptance_required",
+    "scope": "Future-scan persistence guard only. The historical 2026-11-16 scan is neither reconstructed nor changed; no scan, backend, tenant, license, credit, schema, production or deployment mutation was performed.",
+    "extension_version": "1.0.2.67",
+    "changes": [
+      "Before a new run can enter its completed synchronization path, the AL runner now requires the physical DH Deep Scan Finding row count for that exact Deep Scan Entry No. to equal Issues Count. Issues Count is explicitly the number of persisted finding rows, not affected records, groups or checks.",
+      "The temporary Findings pages retain the selected run and show a non-sensitive historical-data-gap notice when a completed run's persisted row count differs from its stored Issues Count. They never create details from counts.",
+      "DH Deep Scan Run trigger deletion and the direct sandbox-reset purge emit ExtensionPublisher telemetry with run ID, row count and deletion source. No backend synchronization path deletes local findings.",
+      "The existing Free/Full presentation remains unchanged: Free retains aggregate-only presentation and protected impact/detail behavior; Full or Monitoring still gates detailed content through DH Access Guard."
+    ],
+    "local_regression": "PASS: 34 focused Python contract tests passed (2 nonblocking dependency warnings), covering the persistence invariant, historical-gap presentation, deletion telemetry, diagnostics, release/version contracts, object-range separation and upgrade-contract continuity.",
+    "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 137 AL objects in configured ranges.",
+    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
+    "runtime": "NOT_EXECUTED: no BC29 sandbox installation or new test scan was performed; manual acceptance remains a separate approval gate.",
+    "ci_check_status": "PENDING: no workflow was manually started.",
+    "manual_bc29_test": [
+      "After explicit approval, install the candidate only in the named sandbox and start one new Free scan with known findings; verify completed Issues Count equals physical DH Deep Scan Finding count for that run.",
+      "Unlock Full access without starting a scan, open the same run from Scan History and Scan Monitor, and verify both routes select that exact run and show the same persisted details.",
+      "Run a controlled zero-finding case and verify completion succeeds with count zero and no historical-gap warning.",
+      "Use only an approved disposable test run to validate a controlled missing-detail condition; verify the run cannot complete if the invariant fails and that a historical mismatch displays the warning without generating findings.",
+      "Verify Free never displays protected title, recommendation, drill-down or impact details; validate Validation and Monitoring regression separately with their existing backend baselines."
+    ],
+    "go_live": "NO_GO: manual BC29 build, installation, controlled scan and upgrade acceptance remain required.",
+    "refs": []
   }
 }

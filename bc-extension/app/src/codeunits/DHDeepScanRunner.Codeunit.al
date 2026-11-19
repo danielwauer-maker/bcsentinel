@@ -83,6 +83,11 @@ codeunit 53128 "DH Deep Scan Runner"
         RunChecks(DeepScanRun, Score, ChecksCount, IssuesCount);
         ExceptionMgt.EndFrozenExceptionScope();
 
+        // Issues Count is a count of persisted finding rows, not an aggregate
+        // of affected records or a count of checks. Do not publish a completed
+        // scan when its local detail snapshot is incomplete.
+        FindingsIntegrityMgt.AssertExpectedFindingsPersisted(DeepScanRun, IssuesCount);
+
         // Fail before persisting final results if the authenticated start
         // expectation contains enabled checks without terminal observations.
         // Backend finalization also checks this independently.
@@ -3227,6 +3232,7 @@ codeunit 53128 "DH Deep Scan Runner"
 
     var
         ExceptionMgt: Codeunit "DH Exception Mgt.";
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
         BackendDecimalInvalidErr: Label 'The decimal value from the backend response could not be parsed: %1', Comment = '%1 = backend value';
         FreeScanCompletedCriticalFindingsLbl: Label 'Free Scan completed with critical findings.';
         FreeScanCompletedImprovementPotentialLbl: Label 'Free Scan completed with relevant improvement potential.';

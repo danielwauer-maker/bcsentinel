@@ -16,6 +16,19 @@ page 53131 "DH Deep Scan Findings"
     {
         area(Content)
         {
+            group(MissingDetails)
+            {
+                ShowCaption = false;
+                Visible = MissingDetailsVisible;
+                field(MissingDetailsText; MissingDetailsTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    Editable = false;
+                    MultiLine = true;
+                    ToolTip = 'Explains when a completed scan has no complete local finding detail set.';
+                }
+            }
             repeater(Findings)
             {
                 field(Category; Rec.Category)
@@ -103,13 +116,17 @@ page 53131 "DH Deep Scan Findings"
     end;
 
     var
+        DeepScanEntryNoFilter: Integer;
         CatalogTitle: Text[250];
         SeverityStyle: Text[30];
         ShowPremiumDetails: Boolean;
         ShowFreeSummary: Boolean;
         AccessText: Text[250];
         ImpactTxt: Text[50];
+        MissingDetailsTxt: Text[250];
+        MissingDetailsVisible: Boolean;
         ProtectedImpactLbl: Label '•••• EUR';
+        FindingsIntegrityMgt: Codeunit "DH Findings Integrity Mgt.";
 
     local procedure LoadPageData()
     var
@@ -117,6 +134,8 @@ page 53131 "DH Deep Scan Findings"
         NextTempEntryNo: Integer;
     begin
         SourceFinding.CopyFilters(Rec);
+        if not Evaluate(DeepScanEntryNoFilter, SourceFinding.GetFilter("Deep Scan Entry No.")) then
+            Clear(DeepScanEntryNoFilter);
         Rec.Reset();
         Rec.DeleteAll();
         NextTempEntryNo := 1;
@@ -133,6 +152,7 @@ page 53131 "DH Deep Scan Findings"
         Rec.Reset();
         Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
+        UpdateMissingDetailsState();
     end;
 
     local procedure AddFreeAggregate(SourceFinding: Record "DH Deep Scan Finding"; var NextTempEntryNo: Integer)
@@ -229,11 +249,22 @@ page 53131 "DH Deep Scan Findings"
 
     procedure SetDeepScanEntryNo(DeepScanEntryNo: Integer)
     begin
+        DeepScanEntryNoFilter := DeepScanEntryNo;
         Rec.Reset();
         Rec.SetRange("Deep Scan Entry No.", DeepScanEntryNo);
         UpdateAccessState();
         LoadPageData();
         CurrPage.Update(false);
+    end;
+
+    local procedure UpdateMissingDetailsState()
+    begin
+        MissingDetailsTxt := '';
+        MissingDetailsVisible := false;
+        if DeepScanEntryNoFilter = 0 then
+            exit;
+        MissingDetailsTxt := FindingsIntegrityMgt.GetMissingDetailsMessage(DeepScanEntryNoFilter);
+        MissingDetailsVisible := MissingDetailsTxt <> '';
     end;
 
     local procedure UpdateCatalogText()
