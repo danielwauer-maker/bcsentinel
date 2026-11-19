@@ -10,7 +10,7 @@
     "verified_at": "2026-11-11",
     "note": "Immutable original SHA-verified 2026-11-11 Excel baseline, NOT reimported/reconciled on 2026-11-12. PR CI and report host checks never create Excel or project-store approvals."
   },
-  "reviewed_at": "2026-11-16",
+  "reviewed_at": "2026-11-19",
   "work_items": [
     {
       "id": "1.01",
@@ -356,7 +356,7 @@
       ]
     }
   ],
-  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence. 2026-11-16 operator-provided DEV nginx cutover evidence: local three-round anonymous dashboard/exact/API/media HTTP 401; internal auth 404; 8092 proxy-token authorized HTTP 200 and anonymous 401; browser screenshots show dashboard/team/media under DEV admin prefix and 15 media assets from three sources, with previews unavailable. This supports DEV admin-route functional operation, not a complete admin role security audit, authenticated API E2E, image digest, or BC27 runtime acceptance. 2026-11-16 operator-provided exact-SHA AI-PM 2.4 DEV dashboard 8092 cutover result: image 1ccd607e8755 running; project store and radar each 85 tasks (61 Fiverr/24 SaaS); GitHub observation loaded; auth, radar routes, BC27 next, latest backend evidence and fail-closed Fiverr checks PASS; rollback image retained. No claim of browser visual acceptance, independent server inspection, CI-to-task approvals, or BC27 manual runtime PASS. 2026-11-16 operator-provided 2.5 image-only DEV cutover: image bcsentinel-ai-pm25-evidence:61d1d27caed3 on 8092; data mounts and auth preserved; project store/radar/progress all 85 tasks; 13 groups; verified Excel plan 287h; only 3 dated timeline events; actual labor hours unknown; all reported validation checks PASS. Nginx and PROD unchanged; BC27/Fiverr NO_GO; no browser visual acceptance yet. 2026-11-16 AI-PM 2.6 compact dashboard and manual cumulative sprint-minutes implementation PR #201 merged to staging 7f249c70; 3 relevant CI checks PASS; read-only and auth regressions passed. Existing 2.5 remains live 8092 until isolated 2.6 DB/POST testing, explicit image-only cutover, and operator UI review. No timesheets backfilled; no BC27 release or Fiverr GO. 2026-11-16 AI-PM 2.7 canonical current project snapshot PR #202 staged source merge f46e77c5162; all 3 checks passed. Replaces rendered stale BC27 historic Excel title with source-v1.0.2.60 next step; depicts 11 scope areas from curated evidence. Does not imply full 85-task reconciliation, real BC27 execution or DEV deploy. Fiverr NO_GO.",
+  "review_scope": "GitHub commit SHAs, PR merge events, exact ancestry/blob comparison, Actions outcomes, and user-provided screenshots; no direct SSH runtime audit and no live dashboard 8092 access. Existing historical items remain unchanged unless separately revalidated. Plus operator-provided 2026-11-13T22:54:12Z DEV readonly host inventory and independently inspected frontend DEV deploy workflow run #43524633599. No backend DEV deployment or BC SaaS acceptance. Operator-provided successful DEV PostgreSQL 15 fresh dump with SHA256 and 66-table isolated restore 2026-11-13T23:44:31Z; no migration or backend deployment performed. Operator-provided isolated 0040->0041 successful 66->68 table rehearsal; base64 decode warning recorded and no live deploy approval. Plus operator-provided controlled DEV backend migration 0040->0041 and release output 2026-11-14T00:29Z, source caf245b23a74, pre-upgrade backup SHA256 85a522fa..., backend switch and public smoke PASS; no authenticated E2E. Independent operator postrelease container/image/migration/HTTP output shows new backend healthy on DEV with 0041 and rollback container exited; still no BC SaaS or report E2E evidence. 2026-11-16 operator-provided DEV nginx cutover evidence: local three-round anonymous dashboard/exact/API/media HTTP 401; internal auth 404; 8092 proxy-token authorized HTTP 200 and anonymous 401; browser screenshots show dashboard/team/media under DEV admin prefix and 15 media assets from three sources, with previews unavailable. This supports DEV admin-route functional operation, not a complete admin role security audit, authenticated API E2E, image digest, or BC27 runtime acceptance. 2026-11-16 operator-provided exact-SHA AI-PM 2.4 DEV dashboard 8092 cutover result: image 1ccd607e8755 running; project store and radar each 85 tasks (61 Fiverr/24 SaaS); GitHub observation loaded; auth, radar routes, BC27 next, latest backend evidence and fail-closed Fiverr checks PASS; rollback image retained. No claim of browser visual acceptance, independent server inspection, CI-to-task approvals, or BC27 manual runtime PASS. 2026-11-16 operator-provided 2.5 image-only DEV cutover: image bcsentinel-ai-pm25-evidence:61d1d27caed3 on 8092; data mounts and auth preserved; project store/radar/progress all 85 tasks; 13 groups; verified Excel plan 287h; only 3 dated timeline events; actual labor hours unknown; all reported validation checks PASS. Nginx and PROD unchanged; BC27/Fiverr NO_GO; no browser visual acceptance yet. 2026-11-16 AI-PM 2.6 compact dashboard and manual cumulative sprint-minutes implementation PR #201 merged to staging 7f249c70; 3 relevant CI checks PASS; read-only and auth regressions passed. Existing 2.5 remains live 8092 until isolated 2.6 DB/POST testing, explicit image-only cutover, and operator UI review. No timesheets backfilled; no BC27 release or Fiverr GO. 2026-11-16 AI-PM 2.7 canonical current project snapshot PR #202 staged source merge f46e77c5162; all 3 checks passed. Replaces rendered stale BC27 historic Excel title with source-v1.0.2.60 next step; depicts 11 scope areas from curated evidence. Does not imply full 85-task reconciliation, real BC27 execution or DEV deploy. Fiverr NO_GO. 2026-11-19 operator-provided BC29 Sandbox screenshot and DEV SQL evidence adds an isolated positive-path E2E PASS for FULL-DATA-04 and QA-SCAN-02 as recorded in their dedicated sections; historic review statements reflect their dates. This does not represent independent server access, Free/Validation/Monitoring runtime acceptance, upgrade persistence, report acceptance, or Fiverr Go-Live approval.",
   "observed_gates": {
     "source_date": "2026-11-14",
     "source_kind": "operator_controlled_dev_release_log_plus_github_ci",
@@ -887,7 +887,7 @@
     "recorded_at": "2026-11-19",
     "source_branch": "fix/bc29-findings-persistence-guard",
     "base_branch": "diagnose/full-data-findings-persistence",
-    "status": "implementation_ready_manual_bc29_acceptance_required",
+    "status": "manual_bc29_runtime_pass_for_new_scan_remaining_regressions_open",
     "scope": "Future-scan persistence guard only. The historical 2026-11-16 scan is neither reconstructed nor changed; no scan, backend, tenant, license, credit, schema, production or deployment mutation was performed.",
     "extension_version": "1.0.2.67",
     "changes": [
@@ -898,25 +898,37 @@
     ],
     "local_regression": "PASS: 34 focused Python contract tests passed (2 nonblocking dependency warnings), covering the persistence invariant, historical-gap presentation, deletion telemetry, diagnostics, release/version contracts, object-range separation and upgrade-contract continuity.",
     "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 137 AL objects in configured ranges.",
-    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
-    "runtime": "NOT_EXECUTED: no BC29 sandbox installation or new test scan was performed; manual acceptance remains a separate approval gate.",
-    "ci_check_status": "PENDING: no workflow was manually started.",
+    "al_build": "PASS: GitHub Actions BC Extension AL Build (Sandbox Test), commit 1f80313051b8b18c45b9d80068055cd8e3ab6274, run 44589247128, extension 1.0.2.68. Local compiler/symbols remain unavailable.",
+    "runtime": "OPERATOR-OBSERVED BC29 SANDBOX PASS (2026-11-19): extension 1.0.2.68, company CRONUS DE; new completed run Entry No. 2, RUN_20261119_000001_AF2124F7A817429594FC28B67AA69, 199/199 checks, 10/10 modules, score 46/100, 95 Issues Count, 95 physical DH Deep Scan Finding rows for this exact run, 95 rows after Findings page run filter. Findings list rendered details after refreshing product access; Fresh Full/Monitoring Access Guard returned Yes after refresh. DEV backend contains 95 scan_issues with 95 distinct finding IDs and data_score=46, checks_count=199, issues_count=95, estimated_loss_eur=60243.32; scan_run_statuses=completed, progress 100, result_persisted_at_utc=2026-11-19T20:29:27.766841Z, completed_at_utc=2026-11-19T20:29:27.769097Z. Historical 2026-11-16 scan with 0 local rows was NOT reconstructed. Runtime evidence is operator screenshots and read-only SQL outputs, not an independent direct BC/server session.",
+    "ci_check_status": "PASS: PR #219 exact commit 1f803130; 17 succeeded, 3 intentionally skipped, 0 failed, 0 pending. Includes release/upgrade contracts, migration cycle and backup/restore gates; not a BC29 compiler-specific gate.",
     "manual_bc29_test": [
-      "After explicit approval, install the candidate only in the named sandbox and start one new Free scan with known findings; verify completed Issues Count equals physical DH Deep Scan Finding count for that run.",
-      "Unlock Full access without starting a scan, open the same run from Scan History and Scan Monitor, and verify both routes select that exact run and show the same persisted details.",
-      "Run a controlled zero-finding case and verify completion succeeds with count zero and no historical-gap warning.",
-      "Use only an approved disposable test run to validate a controlled missing-detail condition; verify the run cannot complete if the invariant fails and that a historical mismatch displays the warning without generating findings.",
-      "Verify Free never displays protected title, recommendation, drill-down or impact details; validate Validation and Monitoring regression separately with their existing backend baselines."
+      "PASS (one positive-path test only): New authorized Sandbox QA Deep Scan RUN_20261119_000001_AF2124F7A817429594FC28B67AA69 completed with Issues Count 95 and 95 persisted local finding rows; diagnostic page filter also 95.",
+      "PASS (same new run): Findings list displayed titles, categories, severity, occurrences and EUR impacts under refreshed Full access; diagnostic Full/Monitoring Access Guard Yes.",
+      "PASS (DEV read-only SQL): 95 backend scan_issues and 95 unique finding IDs, completed status, progress 100, scan result persisted before completed timestamp.",
+      "OPEN: dedicated zero-finding test; fail-closed mismatch reproduction in disposable run; Free detail non-disclosure after grant/entitlement transitions; Validation/Monitoring; in-place upgrade data retention; Full report scope reconciliations and PDF layout."
     ],
-    "go_live": "NO_GO: manual BC29 build, installation, controlled scan and upgrade acceptance remain required.",
-    "refs": []
+    "go_live": "NO_GO globally: FULL-DATA-04 new-run physical persistence/display PASS in BC29 1.0.2.68, but zero-finding, missing-detail failure path, Free-access isolation, Validation, Monitoring, upgrade retention, report corrections and PR integration/merge remain open.",
+    "refs": [
+      {
+        "pr": 218,
+        "url": "https://github.com/danielwauer-maker/bcsentinel/pull/218"
+      },
+      {
+        "pr": 219,
+        "url": "https://github.com/danielwauer-maker/bcsentinel/pull/219"
+      },
+      {
+        "run_id": 44589247128,
+        "url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/44589247128"
+      }
+    ]
   },
   "qa_scan_02_sandbox_one_time_deep_scan": {
     "recorded_at": "2026-11-19",
     "source_branch": "fix/bc29-sandbox-qa-deep-scan",
     "base_branch": "fix/bc29-findings-persistence-guard",
-    "status": "implementation_ready_ci_and_manual_bc29_acceptance_required",
-    "scope": "DEV-only, registered BC Sandbox-only, one-time QA Deep Scan authorization. No grant was issued; no migration, scan, tenant, credit, entitlement, historical-data, production, deployment, or merge mutation was performed.",
+    "status": "manual_dev_bc29_one_time_e2e_pass_remaining_regressions_open",
+    "scope": "DEV-only once-per-sandbox QA grant; issued and consumed for one BC29 Sandbox Deep Scan on 2026-11-19. Normal Free/Full/Validation/Monitoring contract not intentionally changed; historical source findings unmodified. No PROD action or merge. Migration 0042 was applied to DEV only, and DEV backend container cut over to the QA image; both tested healthy.",
     "extension_version": "1.0.2.68",
     "changes": [
       "Alembic revision 0042 creates the binding-unique SandboxQAScanGrant record with tenant, company, environment, status, expiry, operator audit identity and consumed scan identity. Its uniqueness and conditional available-to-consumed update prevent duplicate grants and concurrent double consumption.",
@@ -926,10 +938,19 @@
     ],
     "local_regression": "PASS: 79 focused backend tests passed, 3 skipped, 2 nonblocking warnings. This includes current EXT-50 release contracts; the Free, Validation and Monitoring manual/scheduled/background start-path regressions; QA environment and atomic-credit/idempotency regressions; and metadata verification of the SandboxQAScanGrant columns, tenant binding, default, indexes and unique constraints.",
     "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 137 AL objects in configured ranges.",
-    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
-    "runtime": "NOT_EXECUTED: no QA grant, Alembic migration, BC29 installation, scan, tenant, license, credit or entitlement mutation was performed.",
-    "ci_check_status": "PENDING: no workflow was manually started.",
-    "go_live": "NO_GO: DEV migration review, automated CI, and explicitly approved BC29 sandbox cutover/one-scan acceptance remain required.",
-    "refs": []
+    "al_build": "PASS: GitHub Actions BC Extension AL Build (Sandbox Test), commit 1f80313051b8b18c45b9d80068055cd8e3ab6274, run 44589247128, extension 1.0.2.68. Local compiler/symbols remain unavailable.",
+    "runtime": "OPERATOR-OBSERVED DEV+BC29 E2E PASS (2026-11-19): exact backend commit 1f80313051b8b18c45b9d80068055cd8e3ab6274, DEV image bcsentinel-dev-backend:qa-scan-02-1f803130 (healthy), DB migration 0041 -> 0042_sandbox_qa_scan_grants applied and read-only verified (10 columns, tenant FK, 2 unique constraints, 0 grants before issuing). Protected operator created exactly one sandbox-bound grant ID 1 for tenant ten_8fa0c914deb4c08216ee4376 / Company 2b171202-b215-f111-ac6a-6045bdc8b14d / environment Sandbox; BC29 product access refresh exposed Start Sandbox QA Deep Scan; one run RUN_20261119_000001_AF2124F7A817429594FC28B67AA69 accepted 2026-11-19T20:29:12.155239Z; grant state consumed with matching consumed_scan_id. Backend DB read-only verification: scan_type=deep, data_score=46, checks_count=199, issues_count=95, 95 physical backend issues, 95 distinct finding IDs, lifecycle completed/100%, result persisted and completion timestamps set. BC29 extension 1.0.2.68 local diagnostic 95/95/95, Findings list visible, refreshed Full guard Yes. Free slot remained used at initial binding preflight; no Validation/Monitoring credit or entitlement mutation was requested. No postscan comparative ledger snapshot was supplied. DEV pre-migration backup at /home/daniel/data-health-management-dev/backups/qa-scan-02/dev-before-0042-20261119T190142Z.dump (SHA256 5402f97c06028568e2cc0d76760de76afe7adaa8bee46c8cc03df5c3b1216156), pg_restore --list passed; full restore rehearsal not performed. Operator evidence only, no independent direct host inspection.",
+    "ci_check_status": "PASS: PR #219 exact commit 1f803130; 17 succeeded, 3 intentionally skipped, 0 failed, 0 pending. Includes release/upgrade contracts, migration cycle and backup/restore gates; not a BC29 compiler-specific gate.",
+    "go_live": "NO_GO globally: one-time grant issuance/consumption and BC29 Deep Scan E2E PASS for one named Sandbox/Company/Run; further negative cases, Free protection, Validation/Monitoring, upgrade preservation, Full reports, release consolidation and PROD review remain open.",
+    "refs": [
+      {
+        "pr": 219,
+        "url": "https://github.com/danielwauer-maker/bcsentinel/pull/219"
+      },
+      {
+        "run_id": 44589247128,
+        "url": "https://github.com/danielwauer-maker/bcsentinel/actions/runs/44589247128"
+      }
+    ]
   }
 }
