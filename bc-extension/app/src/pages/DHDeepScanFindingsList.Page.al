@@ -119,6 +119,7 @@ page 53160 "DH Deep Scan Findings List"
     end;
 
     var
+        DeepScanEntryNoFilter: Integer;
         CatalogTitle: Text[250];
         EmptyStateTxt: Text[100];
         EmptyStateVisible: Boolean;
@@ -135,7 +136,14 @@ page 53160 "DH Deep Scan Findings List"
         SourceFinding: Record "DH Deep Scan Finding";
         NextTempEntryNo: Integer;
     begin
-        SourceFinding.CopyFilters(Rec);
+        // This page is temporary. Page.Run filters apply to its temporary
+        // source and are therefore not a reliable selector for the physical
+        // finding table. Keep the requested run identity separately so a
+        // completed Free scan can be unlocked without starting another scan.
+        if DeepScanEntryNoFilter <> 0 then
+            SourceFinding.SetRange("Deep Scan Entry No.", DeepScanEntryNoFilter)
+        else
+            SourceFinding.CopyFilters(Rec);
         Rec.Reset();
         Rec.DeleteAll();
         NextTempEntryNo := 1;
@@ -152,6 +160,11 @@ page 53160 "DH Deep Scan Findings List"
         Rec.Reset();
         Rec.SetCurrentKey("Deep Scan Entry No.", "Severity Sort Order", "Affected Count Sort Value");
         Rec.Ascending(true);
+    end;
+
+    procedure SetDeepScanEntryNo(DeepScanEntryNo: Integer)
+    begin
+        DeepScanEntryNoFilter := DeepScanEntryNo;
     end;
 
     local procedure AddFreeAggregate(SourceFinding: Record "DH Deep Scan Finding"; var NextTempEntryNo: Integer)

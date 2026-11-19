@@ -830,5 +830,33 @@
     "deployment": "NOT_PERFORMED",
     "go_live": "NO_GO",
     "refs": []
+  },
+  "full_fix_02_free_to_full_runtime_recovery": {
+    "recorded_at": "2026-11-19",
+    "source_branch": "fix/bc29-free-to-full-runtime-recovery",
+    "base_branch": "staging",
+    "base_commit": "16304fd8959ac51a8e4790eb34b9edc97d593931",
+    "status": "technical_fix_local_regression_passed_manual_bc29_pending",
+    "scope": "BC29 Free-to-Full recovery for existing completed Free baselines; no new scan, credit, tenant, backend deployment, or schema change.",
+    "extension_version": "1.0.2.65",
+    "root_causes": [
+      "Findings List is a temporary page; Page.Run filters were attached to its temporary source instead of being retained as an explicit physical DH Deep Scan Finding run selector.",
+      "Completed report selection classified data_health_score scans as free solely from Scan Mode, even when the current authoritative access snapshot already confirmed Full or Monitoring access.",
+      "The backend scan-status contract returns scan_mode, but DH API Client did not apply it to the local run; an existing generated Validation headline could therefore remain after a mode correction."
+    ],
+    "changes": [
+      "Findings launch paths now pass the exact Deep Scan Entry No. into the temporary list, which loads only physical findings for that completed run.",
+      "An original Free scan keeps its stored Scan Mode but selects the Full report representation only with a fresh Full/Monitoring access snapshot; the backend v6 endpoint remains the final access and archive authority.",
+      "Authenticated status reconciliation accepts only known server scan modes and corrects only generated completion headlines, including the matching scan-history header; arbitrary historical text is preserved.",
+      "Version and active EXT-50 release contracts were advanced to 1.0.2.65; historical evidence was not modified."
+    ],
+    "local_regression": "PASS: 65 focused Python tests passed (9 nonblocking dependency warnings), covering Free-to-Full report access, archive expiry/regrant behavior, tenant/company isolation, access policy, headlines, temporary findings scope, and EXT-50 release contracts.",
+    "source_preflight": "PASS: python3 scripts/validate_bc_extension.py reported 135 AL objects in configured ranges.",
+    "al_build": "NOT_RUN: AL compiler and BC29 symbols are unavailable in the current environment.",
+    "runtime": "NOT_EXECUTED: no BC29 sandbox installation, tenant mutation, licensing reset, or scan was performed.",
+    "ci_check_status": "PENDING: branch not yet pushed; no GitHub workflow was intentionally started.",
+    "deployment": "NOT_PERFORMED",
+    "go_live": "NO_GO: manual BC29 Free-to-Full, Validation, and Monitoring acceptance remains required.",
+    "refs": []
   }
 }

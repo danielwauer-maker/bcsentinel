@@ -1729,8 +1729,8 @@
     local procedure OpenFindingsForLatestScan()
     var
         DeepScanRun: Record "DH Deep Scan Run";
-        Finding: Record "DH Deep Scan Finding";
         AccessGuard: Codeunit "DH Access Guard";
+        FindingsPage: Page "DH Deep Scan Findings List";
     begin
         AccessGuard.EnsureIssuesAccess();
         DeepScanRun.SetCurrentKey("Requested At");
@@ -1738,8 +1738,8 @@
         if not DeepScanRun.FindFirst() then
             Error(NoScanLbl);
 
-        Finding.SetRange("Deep Scan Entry No.", DeepScanRun."Entry No.");
-        Page.Run(Page::"DH Deep Scan Findings List", Finding);
+        FindingsPage.SetDeepScanEntryNo(DeepScanRun."Entry No.");
+        FindingsPage.Run();
     end;
 
     local procedure OpenReportForLatestScan()
