@@ -254,12 +254,14 @@ codeunit 53303 "DH Report Link Mgt."
 
         case LowerCase(ScanRun."Scan Mode") of
             'data_health_score', 'free', 'free_deep':
+                begin
                 // The scan remains a Free baseline. A currently confirmed
                 // Full/Monitoring entitlement changes only the authorized
                 // report representation, never the stored scan type.
                 if AccessGuard.HasFreshFullOrMonitoringAccess() then
                     exit('full');
                 exit('free');
+                end;
             'full', 'full_analysis', 'assessment':
                 exit('full');
             'validation', 'validation_scan', 'one_time', 'credit':
